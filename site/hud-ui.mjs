@@ -50,7 +50,9 @@ function render(){
       html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CA/CD '+m.cd].filter(Boolean).join(' · '))+'</small><output>'+esc(r.resumo||r.total)+'</output>'+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
     }else{
       const valor=document.querySelector('#formulaDado')?.value||d.formula||'';
-      html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CA/CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small><label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+      const temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor);
+      const modo=/^2d20kh1/i.test(valor)?'vantagem':/^2d20kl1/i.test(valor)?'desvantagem':'normal',botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
+      html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
     }
   }else if(parte==='barra'&&a){
     if(v.compacto){html='<section class="dock compacta"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside></section>';root.innerHTML=html;return;}
@@ -83,8 +85,15 @@ function mostrarDica(e){
 }
 root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
 root.onclick=e=>{
-  const b=e.target.closest('button');if(!b||b.disabled||!v||v.ocupado)return;
-  const tipo=b.dataset.cmd,id=b.dataset.id;
+  const b=e.target.closest('button');if(!b||b.disabled||!v)return;
+  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
+  if(v.ocupado&&!controleDado)return;
+  if(tipo==='modoDado'){
+    const campo=document.querySelector('#formulaDado');if(!campo)return;
+    const prefixo=b.dataset.modo==='vantagem'?'2d20kh1':b.dataset.modo==='desvantagem'?'2d20kl1':'1d20';
+    campo.value=campo.value.replace(/^(?:1d20|2d20k[hl]1)/i,prefixo);
+    document.querySelectorAll('[data-cmd="modoDado"]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));campo.focus();return;
+  }
   if(tipo==='aba'){aba=id;render();return;}
   const reacao=tipo==='resolverReacao';
   bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,

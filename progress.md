@@ -64,3 +64,14 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Testes finais: 22 testes do motor, incluindo expressão única, CA, natural 20 e dano crítico.
 - Cliente genérico carregado sem erros novos; inspeção principal preservada em `work/rolagem-v06/shot-0.png`.
 
+## Correção 0.6.1: sequência interativa da rolagem
+
+- [x] Botões Normal, Vantagem e Desvantagem diretamente no ajuste do d20.
+- [x] Liberar Rolar, Continuar e Cancelar enquanto a ação aguarda o Dice+.
+- [x] Retirar eventos de rolagem da fila serial que aguarda a própria ação terminar.
+- [x] Evitar que Continuar apague o próximo pedido de dano por condição de corrida.
+- [x] Confirmar que o dano abre em uma janela própria e que a ação chega a zero após a resolução.
+
+- Testes: 22 testes do motor aprovados e fluxo Playwright de ajuste/resultado/próxima rolagem aprovado.
+- Capturas conferidas: `work/ajuste-vantagem-v061.png` e `work/ajuste-dano-v061.png`.
+

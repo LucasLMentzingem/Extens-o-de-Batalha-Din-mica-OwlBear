@@ -184,11 +184,12 @@ export async function iniciarHud(){
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
     if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
-      await responderDado({pedido:pedidoDado.pedido,formula:String(d.formula||'').replace(/\s+/g,'')});pedidoDado={...pedidoDado,tipo:'rolando'};
+      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();
+      await responderDado({pedido,formula:String(d.formula||'').replace(/\s+/g,'')});
     }else if(d.tipo==='continuarDado'&&pedidoDado?.tipo==='resultado'){
-      await responderDado({pedido:pedidoDado.pedido,continuar:true});pedidoDado=null;
+      const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,continuar:true});
     }else if(d.tipo==='cancelarDado'&&pedidoDado){
-      await responderDado({pedido:pedidoDado.pedido,cancelar:true});pedidoDado=null;
+      const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,cancelar:true});
     }else{
       if(!estado||!pronta||ocupado)return;
       if(d.rev!==undefined&&d.rev!==estado.rev)return;
@@ -239,7 +240,11 @@ export async function iniciarHud(){
     }
     await layout();transmitir();
   }
-  bus.onmessage=e=>serial(async()=>{try{await mensagem(e.data);}catch(err){transmitir();throw err;}});
+  bus.onmessage=e=>{
+    const imediato=['rolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
+    if(imediato)executar();else serial(executar);
+  };
   await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
     onToolClick:(_,e)=>{if(!pendente)return true;serial(()=>escolher(e));return false;},
     onToolDragStart:(_,e)=>{
@@ -250,11 +255,11 @@ export async function iniciarHud(){
     onKeyDown:(_,e)=>{if(e.code==='Escape')serial(()=>mensagem({tipo:'cancelar'}));}});
   await OBR.tool.create({id:tool,icons,defaultMode:mode});
   api=await sala((s,i)=>serial(()=>atualizar(s,i)));
-  responderDado=await interfaceRolagens(d=>serial(async()=>{
+  responderDado=await interfaceRolagens(async d=>{
     if(d.tipo==='erro')pedidoDado={...pedidoDado,tipo:'ajuste',erro:d.mensagem};
     else pedidoDado=d;
     await layout();transmitir();
-  }));
+  });
   OBR.scene.onReadyChange(r=>serial(async()=>{
     pronta=r;estado=null;tokens=[];pendente=null;pedidoDado=null;anterior=null;marcas=[];
     await layout();
