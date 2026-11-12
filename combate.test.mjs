@@ -1,0 +1,87 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {novo,adicionar,aplicar,atual,publico,validar} from './site/engine.mjs';
+const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
+const nikki=await ficha('nikki'),soldado=await ficha('soldado');
+const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
+function mesa(){
+  let s=novo();
+  const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I'),c=adicionar(s,soldado,'Soldado II');
+  const go=async(tipo,extra={},u=gm,dados=[])=>{
+    const rolar=async()=>{assert.ok(dados.length,'faltou um dado no teste');return dados.shift();};
+    s=await aplicar(s,{rev:s.rev,tipo,...extra},u,rolar);return s;
+  };
+  const iniciar=async()=>{
+    await go('vincular',{ator:a.id,dono:'p',token:'n'});
+    await go('iniciar');
+    await go('iniciativa',{ator:a.id},player,[18]);
+    await go('iniciativa',{ator:b.id},gm,[12]);await go('iniciativa',{ator:c.id},gm,[8]);
+  };
+  return {a,b,c,go,iniciar,get s(){return s;}};
+}
+test('importa números das fichas originais e separa as instâncias dos soldados',()=>{
+ const m=mesa();assert.equal(m.a.pv,20);assert.equal(m.a.rec.feiticaria,3);assert.equal(m.b.pv,24);assert.equal(m.b.ficha.caBase,16);assert.notEqual(m.b.id,m.c.id);assert.equal(nikki.preparacao.preparadas.length,6);
+ assert.equal(publico(m.s).atores[1].ficha.caBase,undefined);
+});
+test('autorização de vínculo, comando do jogador e ação excepcional do mestre',async()=>{
+ const m=mesa();await m.iniciar();
+ await assert.rejects(m.go('vincular',{ator:m.b.id,dono:'p'},player));
+ await assert.rejects(m.go('passar',{ator:m.b.id},player));
+ await assert.rejects(m.go('passar',{ator:m.a.id}),/Confirme/);
+ await m.go('passar',{ator:m.a.id,confirmado:true});assert.equal(atual(m.s).id,m.b.id);assert.match(m.s.historico[0],/Mestre por Nikki/);
+});
+test('Nikki ataca, o soldado responde e o próximo soldado permanece independente',async()=>{
+ const m=mesa();await m.iniciar();
+ const fogo=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ await m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,[15,7]);
+ assert.equal(m.s.atores[1].pv,17);assert.equal(m.s.atores[2].pv,24);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player),/Saldo/);
+ await m.go('passar',{ator:m.a.id},player);
+ await m.go('usar',{ator:m.b.id,opcao:soldado.opcoes.find(o=>o.automacao?.tipo==='ataque').id,alvo:m.a.id},gm,[12,5]);
+ assert.equal(m.s.atores[0].pv,15);
+});
+test('salva por alvo e um dano compartilhado, círculo gasto, resistência e crítico',async()=>{
+ const m=mesa();await m.iniciar();const sh=nikki.opcoes.find(o=>o.automacao?.raioM);
+ await m.go('usar',{ator:m.a.id,opcao:sh.id,ponto:{x:1,y:0}},player,[12,19,1,18]);
+ assert.deepEqual(m.s.atores.map(a=>a.pv),[14,12,18]);assert.equal(m.s.atores[0].rec['espaco-2'],1);
+ const second=mesa();await second.iniciar();let formulas=[];
+ const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20','2d10']);
+});
+test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
+ const m=mesa();await m.iniciar();await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
+ await assert.rejects(m.go('mover',{ator:m.a.id,x:7,y:8},player),/insuficiente/);
+});
+test('falha de dados, revisão obsoleta e alvo fora do alcance preservam saldos',async()=>{
+ const m=mesa();await m.iniciar();const o=nikki.opcoes.find(o=>o.automacao?.raioM);
+ const antes=structuredClone(m.s);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,ponto:{x:50,y:0}},player),/alcance/);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,ponto:{x:0,y:0}},player));
+ await assert.rejects(m.go('passar',{ator:m.a.id,rev:-1},player),/mudou/);assert.deepEqual(m.s,antes);
+});
+test('reação fora do turno consome uso gratuito só uma vez; descanso recupera',async()=>{
+ const m=mesa();await m.iniciar();await m.go('passar',{ator:m.a.id},player);
+ const opt=nikki.opcoes.find(o=>o.nome.includes('| Repreensão Diabólica'));
+ await m.go('reagir',{ator:m.a.id,opcao:opt.id},player);assert.equal(m.s.atores[0].rec.repreensao,0);
+ await assert.rejects(m.go('reagir',{ator:m.a.id,opcao:opt.id},player));await m.go('encerrar');await m.go('descanso',{periodo:'longo'});assert.equal(m.s.atores[0].rec.repreensao,1);
+});
+test('vínculo duplicado ou JSON inválido são rejeitados; nível dez e campos extensíveis sobrevivem',async()=>{
+ const m=mesa();await m.go('vincular',{ator:m.a.id,token:'x'});await assert.rejects(m.go('vincular',{ator:m.b.id,token:'x'}));
+ const f=structuredClone(nikki);f.classes=[{id:'feiticeiro',nivel:6},{id:'bardo',nivel:4}];f.concentracao={origem:'efeito'};assert.deepEqual(validar(f).concentracao,f.concentracao);f.classes[1].nivel++;assert.throws(()=>validar(f));
+});
+test('Feitiçaria Inata custa uma ação bônus, conserva a ação e modifica a CD da classe',async()=>{
+ const m=mesa();await m.iniciar();
+ await m.go('usar',{ator:m.a.id,opcao:'feiticaria-inata'},player);
+ assert.equal(m.s.atores[0].bonus,0);assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec.inata,1);
+ const sh=nikki.opcoes.find(o=>o.automacao?.raioM);
+ await m.go('usar',{ator:m.a.id,opcao:sh.id,ponto:{x:1,y:0}},player,[10,20,9,20]);
+ // Soldado I rola 9+4 = 13, insuficiente contra CD 14.
+ assert.equal(m.s.atores[1].pv,14);
+});
+test('ataque declarativo usa escala de nível total e proficiência',()=>{
+ const f=structuredClone(nikki);f.classes[0].nivel=10;
+ f.opcoes.push({id:'teste',nome:'Ataque escalonado',categoria:'magia',selecao:{tipo:'alvos',max:1,alcanceM:36},etapas:[{tipo:'ataque_contra_ca',atributo:'car',somarProficiencia:true},{tipo:'dano',quando:'acerto',parcelas:[{tipo:'fogo',dados:'1d10',escalaPorNivelTotal:[{nivel:5,dados:'2d10'}]}]}]});
+ assert.equal(validar(f).opcoes.at(-1).automacao.dano,'2d10');
+});
+

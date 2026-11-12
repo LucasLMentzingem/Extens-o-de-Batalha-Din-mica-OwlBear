@@ -1,0 +1,45 @@
+# La Arte · Mesa de combate
+
+## Jogar o encontro no navegador
+
+Abra **Iniciar simulador.cmd** no Windows ou execute `node servir.mjs` nesta pasta com Node 22 ou superior. Acesse [o simulador local](http://127.0.0.1:4178/). O servidor atende somente neste computador. O ensaio usa dados locais e guarda o encontro no navegador.
+
+1. Clique em **Carregar Nikki + 2 soldados**. As três peças são vinculadas automaticamente no ensaio. Nikki tem 20 PV e CA 15 conforme a ficha de origem. Cada soldado tem 24 PV e CA 16. A imagem dos soldados vem da pasta da guarda. Para Nikki, usamos a inicial no painel e um marcador genérico ao criar peça no Owlbear.
+2. Clique em **Iniciar combate** e depois em **Testar como jogador**. Selecione Nikki e role sua iniciativa. Volte ao mestre e clique em **Rolar NPCs pendentes**. Também é possível rolar a iniciativa de Nikki como mestre mediante confirmação.
+3. No turno de Nikki, selecione **Raio de Fogo**, escolha um soldado na lista ou no mapa e clique em **Executar**. Para testar uma área, selecione **Despedaçar** e marque o centro. O sistema gasta um espaço de 2º círculo, rola um único dano e uma salvaguarda por participante na área. A área pode atingir a própria Nikki.
+4. No turno de um soldado, selecione **Lança** e Nikki. Se estiver fora do alcance, escolha **Marcar destino de movimento** no mapa tático e confirme o trajeto. O custo é a distância euclidiana em metros. Finalize o turno.
+5. Para atuar por um PJ, o mestre seleciona sua ficha. A janela identifica em nome de quem a ação será feita. A confirmação vale apenas para aquele comando e o histórico registra a intervenção. O jogador continua vinculado.
+
+Em preparação, **Importar ficha JSON** adiciona uma instância independente. Inclusive é possível importar o mesmo soldado várias vezes. Ao encerrar o combate os PV e recursos são preservados. O mestre pode ajustar saldos ou executar descansos. Para um ensaio novo, retire os participantes ou use outro perfil do navegador.
+
+## Usar na sala do Owlbear
+
+Hospede o conteúdo de `site` em HTTPS. Para GitHub Pages, coloque **o conteúdo desta pasta prototipo** na raiz de um repositório próprio, selecione GitHub Actions em Settings → Pages e envie para a branch `main`. O workflow executa os testes, configura o caminho do manifesto e publica somente `site`. A pasta publicada inclui a imagem do soldado e as duas fichas de exemplo. Revise esses arquivos antes de tornar o repositório público. A instalação usa o endereço publicado de `manifest.json`.
+
+Instale e habilite a extensão e o Dice+ na sala, abra uma cena e entre como mestre. Carregue o encontro. Para cada participante, selecione um token de **Personagem** no mapa, use **Usar seleção do mapa** e **Salvar vínculo**. Também é possível escolher a peça pela lista ou usar **Criar token desta ficha**. Para Nikki, escolha o nome do jogador conectado em **Quem controla**. O menu de contexto da peça também abre o painel de vínculo. Uma mesma peça só pode pertencer a uma instância. Os jogadores abrem o painel da extensão no próprio navegador.
+
+O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel usa células de um metro e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
+
+## Contrato de importação
+
+[Esquema JSON versão 1](site/fichas/ficha.schema.json) · [Nikki Lauda](site/fichas/nikki.json) · [Soldado nível 3](site/fichas/soldado.json) · [Arquitetura](../Arquitetura.md)
+
+O formato aceita classes e multiclasses cuja soma seja de 1 a 10. Recursos, espaços por círculo, preparação e progressão são declarados na própria ficha. O importador conserva campos adicionais de classe, equipamento ou campanha. O esquema descreve os grupos de variáveis; o importador também verifica limites de nível e saldo, IDs repetidos, custos e referências às magias preparadas. Os JSONs originais do Forge permanecem no acervo. As duas amostras desta versão já estão no formato próprio.
+
+| Dados na ficha | Como funcionam nesta versão |
+|---|---|
+| Atributos, nível, CA, PV, deslocamento, resistências, imunidades, vulnerabilidades | Usados na resolução do turno, alcance e dano. CA é o valor de combate informado pela ficha. |
+| Perícias e salvaguardas | Bônus explícitos e rolagens rápidas com vantagem, desvantagem e ajuste. |
+| Recursos, custo, recuperação | Uma opção pode gastar simultaneamente ação ou bônus, reação e reservas. Recuperação integral por gatilho de descanso está automatizada. Recuperações seletivas e conversões usam o ajuste do mestre. |
+| Ataques, dano, área, alcance, CD e elemento | `automacao` executa ataques contra CA, salvaguardas em alvo ou raio, dano, metade no sucesso, Disparada e Desengajar. O crítico acrescenta um dado de dano. O custo é confirmado quando a jogada inteira termina. |
+| Escalonamento | O motor reconhece a sequência declarativa simples de ataque contra CA seguido de uma parcela de dano e a tabela `escalaPorNivelTotal`. Demais variantes podem ser descritas como opções separadas ou resolvidas pelo mestre. |
+| Reações, preparação, concentração, duração, gatilhos, efeitos, equipamento e passivas | O formato guarda os dados e preserva descrições. Reações assistidas descontam seus custos fora do turno. O mestre verifica o gatilho, aplica consequências e ajusta PV ou recursos quando necessário. |
+
+O combate automático disponível para Nikki inclui adaga principal, lança, Raio de Fogo, Despedaçar e Feitiçaria Inata. Os soldados têm lança e espada curta em corpo a corpo. A ficha mantém textos sobre arremesso, Feitiçaria Inata, metamagia, preparadas, equipamentos e demais habilidades. Inata usa a ação bônus, dura dez turnos e aumenta a CD de Despedaçar. Raio de Fogo é infernal nesta ficha e mantém seu bônus normal. Variações como espaço superior, concentração, oportunidade automática, terreno, linha de visão e gatilhos de equipamento ainda exigem arbitragem. O painel permite ajustes ao d20 e aos saldos. Para uma variação cujo custo ou efeito difira da opção automática, o mestre deve conferir o resultado e os saldos. O painel tático aceita destino e área por clique. A confirmação sobreposta diretamente à peça e o sistema de cartas ficam para outra etapa.
+
+## Verificação
+
+Execute `node --test combate.test.mjs`. Os testes usam as fichas distribuídas. Cobrem vínculo, permissões, intervenção do mestre, duas instâncias de soldado, transição de turno, ação, dano e crítico, área, metros, recurso de reação, descanso e importação até o nível 10. Um erro do Dice+ descarta a resolução pendente. Uma revisão antiga do turno é recusada.
+
+No navegador foram exercitados um encontro local até a rodada 2, recarga do progresso e um mestre e um jogador com transporte e dados do Owlbear simulados. A validação final requer uma sala real com Dice+ habilitado para conferir hospedagem das peças, entrega dos resultados e visibilidade de rolagens. A extensão usa o SDK Owlbear 3.1.0 distribuído com sua licença em `site/vendor`.
+

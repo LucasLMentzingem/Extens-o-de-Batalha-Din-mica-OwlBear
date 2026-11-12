@@ -1,0 +1,42 @@
+name: Publicar extensão
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test combate.test.mjs
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Gerar caminhos do manifesto para o endereço publicado
+        env:
+          BASE: ${{ steps.pages.outputs.base_url }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const p='site/manifest.json', m=JSON.parse(fs.readFileSync(p));
+          for(const [obj,key] of [[m,'icon'],[m,'background_url'],[m.action,'icon'],[m.action,'popover']])obj[key]=new URL(obj[key],process.env.BASE+'/').pathname;
+          fs.writeFileSync(p,JSON.stringify(m,null,2));
+          JS
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deploy
+

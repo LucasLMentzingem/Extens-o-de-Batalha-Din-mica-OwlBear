@@ -1,0 +1,165 @@
+import OBR, {buildImage} from './vendor/sdk.mjs';
+import {novo, aplicar, publico, dadoLocal} from './engine.mjs';
+export const ns='aventura-dnd.combate.v1';
+const canais={cmd:ns+'/cmd',view:ns+'/view'};
+const chaveCena=ns+'/cena';
+export const emSala=OBR.isAvailable;
+export const pronto=()=>new Promise(resolve=>OBR.onReady(resolve));
+const local=()=>new BroadcastChannel(ns+'/'+OBR.room.id);
+export async function exemplos(){
+  return Promise.all(['nikki','soldado'].map(async k=>{
+    const r=await fetch('./fichas/'+k+'.json');if(!r.ok)throw Error('Falha ao carregar '+k);return r.json();
+  }));
+}
+export async function demo(onView){
+  const key=ns+'/ensaio';
+  let s=JSON.parse(localStorage.getItem(key)||'null')??novo();
+  const info={id:'mestre',role:'GM',players:[{id:'teste',name:'Jogador de teste'}],tokens:[],modo:'ensaio'};
+  const notify=()=>onView(s,info);
+  return {notify,async enviar(c){
+    const role=c.comoJogador?'PLAYER':'GM';
+    const next=await aplicar(s,c,{role,id:role==='GM'?'mestre':'teste'},dadoLocal);
+    localStorage.setItem(key,JSON.stringify(next));s=next;notify();
+  }};
+}
+async function identidade(){
+  const [id,role,connectionId,name]=await Promise.all([OBR.player.getId(),OBR.player.getRole(),OBR.player.getConnectionId(),OBR.player.getName()]);
+  return {id,role,connectionId,name};
+}
+function dadoSala(nome,id){
+  return formula=>new Promise((resolve,reject)=>{
+    const rollId=crypto.randomUUID();
+    const finish=(err,total)=>{clearTimeout(timer);off();offErr();err?reject(Error(err)):resolve(total);};
+    const off=OBR.broadcast.onMessage(ns+'/roll-result',e=>{
+      if(e.data?.rollId===rollId && Number.isFinite(e.data.result?.totalValue))finish('',e.data.result.totalValue);
+    });
+    const offErr=OBR.broadcast.onMessage(ns+'/roll-error',e=>{if(e.data?.rollId===rollId)finish('Dice+ recusou a rolagem.');});
+    const timer=setTimeout(()=>finish('Dice+ não respondeu. Confira a extensão antes de tentar novamente.'),20000);
+    OBR.broadcast.sendMessage('dice-plus/roll-request',{rollId,playerId:id,playerName:nome,source:ns,timestamp:Date.now(),diceNotation:formula,rollTarget:'self',showResults:false},{destination:'LOCAL'}).catch(e=>finish(e.message));
+  });
+}
+async function getTokens(){
+  return (await OBR.scene.items.getItems()).filter(x=>x.type==='IMAGE' && x.layer==='CHARACTER').map(x=>({id:x.id,name:x.name,x:x.position.x,y:x.position.y,visible:x.visible}));
+}
+export async function host(){
+  await pronto();const eu=await identidade();if(eu.role!=='GM')return;
+  const ch=local();let fila=Promise.resolve();
+  const serial=fn=>{fila=fila.then(fn).catch(e=>console.error(e));};
+  async function carregar(){
+    if(!await OBR.scene.isReady())throw Error('Abra uma cena primeiro.');
+    const meta=await OBR.scene.getMetadata();
+    const autoridade=ns+'/mestre';
+    if(meta[autoridade]&&meta[autoridade]!==eu.id)throw Error('O encontro pertence ao mestre que o preparou.');
+    let id=meta[chaveCena];
+    if(!id||!meta[autoridade]){
+      const gms=[eu,...await OBR.party.getPlayers()].filter(p=>p.role==='GM').map(p=>p.id).sort();
+      if(!meta[autoridade]&&gms[0]!==eu.id)throw Error('Outro mestre conectado conduz a preparação.');
+      id=id||crypto.randomUUID();await OBR.scene.setMetadata({[chaveCena]:id,[autoridade]:eu.id});
+    }
+    const key=ns+'/'+OBR.room.id+'/'+id;
+    return {key,s:JSON.parse(localStorage.getItem(key)||'null')??novo()};
+  }
+  async function mostrar(s){
+    const [players,tokens]=await Promise.all([OBR.party.getPlayers(),getTokens()]);
+    ch.postMessage({vista:s,info:{...eu,modo:'sala',players,tokens}});
+    const v=publico(s);
+    // Ocultar atores vinculados a tokens invisíveis também no histórico, que é textual.
+    const ocultos=s.atores.filter(a=>a.token&&!tokens.some(t=>t.id===a.token && t.visible));
+    if(ocultos.length){
+      const ids=new Set(ocultos.map(a=>a.id));const ativo=v.ordem[v.vez];
+      v.atores=v.atores.filter(a=>!ids.has(a.id));v.ordem=v.ordem.filter(id=>!ids.has(id));v.vez=v.ordem.indexOf(ativo);v.historico=[];
+    }
+    const dados=JSON.stringify(v), seq=crypto.randomUUID();
+    for(let i=0;i<dados.length;i+=7000)await OBR.broadcast.sendMessage(canais.view,{seq,i,final:i+7000>=dados.length,parte:dados.slice(i,i+7000)},{destination:'REMOTE'});
+  }
+  async function executar(c,u,reply){
+    try{
+      const {key,s}=await carregar();
+      if(c.tipo==='sync'){await mostrar(s);return;}
+      const tokens=await getTokens(), dpi=await OBR.scene.grid.getDpi();
+      if(c.tipo==='criarPeca'){
+        const a=s.atores.find(x=>x.id===c.ator);
+        if(u.role!=='GM'||c.rev!==s.rev||s.fase!=='preparo'||!a||a.token)throw Error('Escolha uma ficha sem vínculo na preparação.');
+        const guarda=a.ficha.id==='soldado',lado=guarda?1254:64;
+        const asset=guarda?'./fichas/soldado.png':'./icone.svg';
+        const pos=await OBR.viewport.inverseTransformPoint({x:await OBR.viewport.getWidth()/2,y:await OBR.viewport.getHeight()/2});
+        const token=buildImage({url:new URL(asset,location.href).href,mime:guarda?'image/png':'image/svg+xml',width:lado,height:lado},{dpi:lado,offset:{x:lado/2,y:lado/2}})
+          .name(a.nome).layer('CHARACTER').position({x:Math.round(pos.x/dpi+s.atores.indexOf(a))*dpi,y:Math.round(pos.y/dpi)*dpi}).build();
+        await OBR.scene.items.addItems([token]);
+        a.token=token.id;a.x=token.position.x/dpi;a.y=token.position.y/dpi;s.rev++;
+        localStorage.setItem(key,JSON.stringify(s));await mostrar(s);await reply({});return;
+      }
+      if(c.tipo==='iniciar' && s.atores.some(a=>!tokens.some(t=>t.id===a.token)))throw Error('Antes de iniciar, crie ou vincule um token para cada participante.');
+      if(c.tipo==='vincular' && s.fase!=='preparo' && s.atores.find(a=>a.id===c.ator)?.token!==c.token)throw Error('Troque a peça na preparação. O controlador pode ser alterado em combate.');
+      if(c.tipo==='vincular'){
+        if(c.token&&!tokens.some(t=>t.id===c.token))throw Error('Token ausente da camada Personagem.');
+        if(c.dono&&!(await OBR.party.getPlayers()).some(p=>p.id===c.dono&&p.role==='PLAYER'))throw Error('Jogador desconectado.');
+      }
+      for(const a of s.atores){
+        const t=tokens.find(t=>t.id===a.token);
+        if(t){a.x=t.x/dpi;a.y=t.y/dpi;}
+      }
+      if(c.tipo==='usar'||c.tipo==='mover'){
+        const ator=s.atores.find(a=>a.id===c.ator);
+        if(!tokens.some(t=>t.id===ator?.token))throw Error('Vincule o personagem a um token da cena.');
+        const alvo=s.atores.find(a=>a.id===c.alvo);
+        if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
+      }
+      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(eu.name,eu.id));
+      if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
+      if(c.tipo==='iniciar'||c.tipo==='encerrar'){
+        const ids=next.atores.filter(a=>a.token).map(a=>a.token);
+        if(ids.length)await OBR.scene.items.updateItems(ids,items=>{
+          for(const item of items){
+            const k=ns+'/bloqueio-anterior';
+            if(c.tipo==='iniciar'){if(!(k in item.metadata))item.metadata[k]=item.locked;item.locked=true;}
+            else if(k in item.metadata){item.locked=Boolean(item.metadata[k]);delete item.metadata[k];}
+          }
+        });
+      }
+      if(c.tipo==='mover'){
+        const a=next.atores.find(x=>x.id===c.ator);
+        await OBR.scene.items.updateItems([a.token],items=>{for(const t of items)t.position={x:a.x*dpi,y:a.y*dpi};});
+      }
+      localStorage.setItem(key,JSON.stringify(next));await mostrar(next);await reply({});
+    }catch(e){await reply({erro:e.message});}
+  }
+  ch.onmessage=e=>{if(e.data.comando)serial(()=>executar(e.data.comando,eu,r=>ch.postMessage({...r,resposta:e.data.req})));};
+  OBR.broadcast.onMessage(canais.cmd,e=>serial(async()=>{
+    const u=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
+    if(!u||u.role!=='PLAYER')return;
+    await executar(e.data.comando,u,r=>OBR.broadcast.sendMessage(ns+'/resposta',{...r,resposta:e.data.req},{destination:'REMOTE'}));
+  }));
+  const sync=()=>serial(async()=>{if(await OBR.scene.isReady())await mostrar((await carregar()).s);});
+  OBR.party.onChange(sync);OBR.scene.onReadyChange(ready=>{if(ready)sync();else ch.postMessage({vista:novo(),info:{...eu,modo:'sem cena',players:[],tokens:[]}});});
+  await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'Vincular ficha ao token',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]}}],onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
+}
+export async function sala(onView){
+  await pronto();const eu=await identidade();const ch=local(),espera=new Map();
+  function receber(d){if(!d.resposta)return;const cb=espera.get(d.resposta);if(cb){espera.delete(d.resposta);cb(d.erro);}}
+  let pacote;
+  const mestre=async e=>(await OBR.party.getPlayers()).some(p=>p.role==='GM'&&p.connectionId===e.connectionId);
+  let fila=Promise.resolve();
+  if(eu.role==='GM')ch.onmessage=e=>{receber(e.data);if(e.data.vista)onView(e.data.vista,e.data.info);};
+  else{
+    OBR.broadcast.onMessage(ns+'/resposta',async e=>{if(await mestre(e))receber(e.data);});
+    OBR.broadcast.onMessage(canais.view,e=>{fila=fila.then(async()=>{
+      if(!await mestre(e))return;
+      const {seq,i,final,parte}=e.data;
+      if(i===0)pacote={seq,texto:''};
+      if(pacote?.seq!==seq||pacote.texto.length!==i)return;
+      pacote.texto+=parte;
+      if(final){onView(JSON.parse(pacote.texto),{...eu,modo:'sala',players:[],tokens:[]});pacote=null;}
+    }).catch(console.error);});
+  }
+  const send=(comando,req)=>eu.role==='GM'?ch.postMessage({comando,req}):OBR.broadcast.sendMessage(canais.cmd,{comando,req},{destination:'REMOTE'});
+  return {notify:()=>send({tipo:'sync'},''),async enviar(c){
+    const req=crypto.randomUUID();
+    return new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>{espera.delete(req);reject(Error('Sem confirmação do mestre. Atualize antes de repetir.'));},60000);
+      espera.set(req,err=>{clearTimeout(timer);err?reject(Error(err)):resolve();});
+      Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
+    });
+  },selecionado:async()=>(await OBR.player.getSelection())?.[0]};
+}
+

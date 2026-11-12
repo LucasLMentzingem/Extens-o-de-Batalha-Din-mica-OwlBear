@@ -1,0 +1,918 @@
+{
+  "$schema": "./ficha.schema.json",
+  "versaoFormato": 1,
+  "id": "nikki",
+  "nome": "Nikki Lauda",
+  "tipo": "pj",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "feiticeiro",
+      "nivel": 3
+    }
+  ],
+  "especie": "Tiferino — legado Infernal",
+  "atributos": {
+    "for": 10,
+    "des": 14,
+    "con": 14,
+    "int": 8,
+    "sab": 12,
+    "car": 17
+  },
+  "salvaguardas": {
+    "for": 0,
+    "des": 2,
+    "con": 4,
+    "int": -1,
+    "sab": 1,
+    "car": 5
+  },
+  "pvMaximos": 20,
+  "caBase": 15,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "resistencias": [
+    "fogo"
+  ],
+  "proficiencia": 2,
+  "sentidos": "Visão no Escuro 18 m. Percepção passiva 13.",
+  "idiomas": "Comum; mais 2 idiomas pendentes de escolha (sugestão: Dracônico e Élfico).",
+  "pericias": {
+    "Enganação": 5,
+    "Intimidação": 5,
+    "Persuasão": 5,
+    "Furtividade": 4,
+    "Prestidigitação": 4,
+    "Atuação": 3,
+    "Intuição": 3,
+    "Percepção": 3,
+    "Acrobacia": 2,
+    "Adestrar Animais": 1,
+    "Medicina": 1,
+    "Sobrevivência": 1,
+    "Atletismo": 0,
+    "Arcanismo": -1,
+    "História": -1,
+    "Investigação": -1,
+    "Natureza": -1,
+    "Religião": -1
+  },
+  "equipamentos": [
+    {
+      "id": "f10f7df4-fa81-58a4-b440-d2ec6d4f7e9d",
+      "name": "Foco Arcano (cristal)",
+      "description": "Foco de conjuração.",
+      "inUse": false
+    },
+    {
+      "id": "f5841857-a1f4-5d62-ae62-6845f65994bd",
+      "name": "Lança",
+      "description": "Ataque +2; dano 1d6 perfurante (1d8 com duas mãos).",
+      "inUse": false
+    },
+    {
+      "id": "71b23b93-2133-553f-824a-d9667fa2929d",
+      "name": "2 Adagas",
+      "description": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+      "inUse": false
+    },
+    {
+      "id": "e7279c88-c1f2-5dd0-b7b6-88eb9ee3d73d",
+      "name": "Kit de Explorador de Masmorras",
+      "description": "Mochila, caixa para fogo, cantil, corda, estrepes, 2 potes de óleo, pé de cabra, 10 dias de rações, 10 tochas.",
+      "inUse": false
+    },
+    {
+      "id": "9a6372cc-ba03-5bff-9af1-046be5850f9a",
+      "name": "Moedas — 28 PO",
+      "description": "Saldo do kit inicial do Feiticeiro (opção A).",
+      "inUse": false
+    }
+  ],
+  "passivas": [
+    {
+      "nome": "Passivas | sentidos e defesas",
+      "descricao": "Visão no escuro 18 m · Percepção passiva 13 · Resistência a dano ígneo."
+    },
+    {
+      "nome": "Passivas | treinamentos",
+      "descricao": "Armas simples; sem armaduras. Kit de Falsificação. Habilidoso (Charlatão): Percepção, Intuição e Furtividade. Classe: Persuasão e Intimidação. Antecedente: Enganação e Prestidigitação. Salvaguardas proficientes: CON e CAR."
+    },
+    {
+      "nome": "Passivas | preparação e origem",
+      "descricao": "Ao ganhar nível de Feiticeiro, pode trocar uma magia da sua seleção por outra elegível. Magias de origem aberrante e Repreensão Diabólica ficam sempre preparadas. Raio de Fogo e Taumaturgia vêm do legado Infernal."
+    },
+    {
+      "nome": "Passivas | concentração e Feitiçaria Inata",
+      "descricao": "Mantenha uma só concentração por vez. Ao sofrer dano, use a salvaguarda de CON em Actions. Feitiçaria Inata melhora as magias de Feiticeiro. As recebidas somente pelo legado Infernal usam seus valores normais."
+    }
+  ],
+  "recursos": [
+    {
+      "id": "feiticaria",
+      "nome": "Pontos de Feitiçaria",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-1",
+      "nome": "Espaços de 1º círculo",
+      "maximo": 4,
+      "saldoInicial": 4,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-2",
+      "nome": "Espaços de 2º círculo",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "inata",
+      "nome": "Feitiçaria Inata",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "repreensao",
+      "nome": "Repreensão gratuita",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "dv",
+      "nome": "Dados de Vida (d6)",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "opcoes": [
+    {
+      "id": "59b60ef8-41ac-54b4-876d-398ba3b80279",
+      "nome": "Adaga +4 | ação",
+      "categoria": "acao",
+      "descricao": "Corpo a corpo 1,5 m ou arremesso 6/18 m · Perfurante.\nNormal [1d20+4]\nDano [1d4+2] · Crítico [2d4+2]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4+2",
+        "alcanceM": 1.5,
+        "elemento": "perfurante"
+      }
+    },
+    {
+      "id": "0efe3fc9-7f19-5259-ae74-97e87627d6c4",
+      "nome": "Segunda adaga +4 | ação bônus",
+      "categoria": "acao",
+      "descricao": "Após atacar com uma adaga Leve na ação Atacar, use a outra no mesmo turno. Uma vez por turno. Perfurante.\nNormal [1d20+4]\nDano [1d4] · Crítico [2d4]",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "631ebb73-ecdc-5df0-8524-ee8810e1dec6",
+      "nome": "Lança +2 | ação · duas mãos",
+      "categoria": "acao",
+      "descricao": "Corpo a corpo 1,5 m · Perfurante.\nNormal [1d20+2]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 2,
+        "dano": "1d8",
+        "alcanceM": 1.5,
+        "elemento": "perfurante"
+      }
+    },
+    {
+      "id": "eb1e3e85-d216-544d-8954-deb312f465a1",
+      "nome": "Lança +2 | ação · uma mão",
+      "categoria": "acao",
+      "descricao": "Corpo a corpo 1,5 m ou arremesso 6/18 m · Perfurante.\nNormal [1d20+2]\nDano [1d6] · Crítico [2d6]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 2,
+        "dano": "1d6",
+        "alcanceM": 1.5,
+        "elemento": "perfurante"
+      }
+    },
+    {
+      "id": "e77f6f72-2afe-5263-9fe5-78f297b89e18",
+      "nome": "Golpe desarmado +2 | ação",
+      "categoria": "acao",
+      "descricao": "Corpo a corpo 1,5 m · Normal [1d20+2]\nDano contundente 1. O crítico também causa 1, pois o dano é fixo.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe",
+      "nome": "Agarrar ou empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 10.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "fc342918-dbf9-59d2-87d9-2a7a153d1aff",
+      "nome": "Disparada | ação",
+      "categoria": "acao",
+      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 9 m, pode percorrer até 18 m neste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "disparada"
+      }
+    },
+    {
+      "id": "74d6b149-f0e6-5cae-9805-489fab07514e",
+      "nome": "Desengajar | ação",
+      "categoria": "acao",
+      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "desengajar"
+      }
+    },
+    {
+      "id": "669943a3-6057-5f6a-9f4b-5880d9858d0e",
+      "nome": "Esquivar | ação",
+      "categoria": "acao",
+      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "866a7e13-2281-5051-9a5a-c35e6718fede",
+      "nome": "Ajudar | ação",
+      "categoria": "acao",
+      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "b0fd4ecc-f5c3-580b-998c-e1da88d849d0",
+      "nome": "Esconder-se | ação",
+      "categoria": "acao",
+      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "355f8cfb-6aa4-5f61-9230-5d06693242e6",
+      "nome": "Preparar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "9eda9e03-0434-5c10-832d-ae5619d99b13",
+      "nome": "Procurar | ação",
+      "categoria": "acao",
+      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "f534510d-692f-51e8-b717-96fb81736185",
+      "nome": "Estudar | ação",
+      "categoria": "acao",
+      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "5dc8b70d-95d9-532f-b4e1-5b69f19fae76",
+      "nome": "Influenciar | ação",
+      "categoria": "acao",
+      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "94f4d9da-561f-5550-92eb-4391a00512c0",
+      "nome": "Utilizar | ação",
+      "categoria": "acao",
+      "descricao": "Manipule um objeto que exija uma ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "a0f3b6fe-0514-510c-ad96-c9a6a904e9a3",
+      "nome": "Usar Magia | ação",
+      "categoria": "acao",
+      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "0cea639a-ec47-5e72-853f-62b6c65f8b28",
+      "nome": "Ataque de oportunidade | reação",
+      "categoria": "reacao",
+      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "dfbea7cf-87b9-56c6-9947-23d1fecf7a81",
+      "nome": "Magia Duplicada | ao conjurar",
+      "categoria": "acao",
+      "descricao": "Gaste 1 ponto para aumentar em um o círculo efetivo de uma magia que ganhe um alvo adicional ao ser conjurada em círculo superior.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "feiticaria"
+        }
+      ]
+    },
+    {
+      "id": "ec6fb8a2-8918-5243-815c-641dcc25c382",
+      "nome": "Magia Potencializada | ao rolar dano",
+      "categoria": "acao",
+      "descricao": "Gaste 1 ponto e escolha até 3 dados do dano da magia para rerrolar. Use os novos resultados. Pode combinar com outra Metamagia.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "feiticaria"
+        }
+      ]
+    },
+    {
+      "id": "eddac04f-02a6-5c62-b418-689b784068db",
+      "nome": "Fala Telepática | ação bônus",
+      "categoria": "acao",
+      "descricao": "Ação Bônus: liga a mente a uma criatura visível a até 9 m. Conversam mentalmente por 3 minutos, a até 4,5 km, num idioma que ambos conheçam. Sem limite de usos.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "7ecfc4af-958e-572a-ba52-46457cfc432c",
+      "nome": "2º | Despedaçar · salva de CON · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Esfera de 3 m de raio. Cada alvo rola CON, CD 13 (14 com Inata). Constructos rolam com desvantagem. Dano [3d8] trovejante, metade no sucesso.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-2"
+        }
+      ],
+      "circuloBase": 2,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "con",
+        "cd": 13,
+        "dano": "3d8",
+        "alcanceM": 18,
+        "raioM": 3,
+        "metade": true,
+        "elemento": "trovejante"
+      },
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "1b18ca91-6e84-5abe-b3bb-ed383eace510",
+      "nome": "2º | Sopro de Dragão · salva de DES · concentração · classe",
+      "categoria": "magia",
+      "descricao": "Ação bônus · Toque · Concentração até 1 min. O beneficiário pode usar a ação Usar Magia para soprar um cone de 4,5 m. Cada alvo rola DES, CD 13 (14 com Inata). Dano [3d6], metade no sucesso. Escolha ácido, elétrico, gélido, ígneo ou venenoso ao conjurar.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-2"
+        }
+      ],
+      "circuloBase": 2,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "e1239dce-62e4-53ba-8bfd-970cb4faacb3",
+      "nome": "2º | Acalmar Emoções · salva de CAR · concentração · aberrante",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Esfera de 6 m de raio · Concentração até 1 min. Cada humanoide na área rola CAR, CD 13 (14 com Inata). Na falha, escolha por alvo: imunidade a enfeitiçado e amedrontado (suprime essas condições existentes), ou indiferença diante de criaturas que ele hostiliza. A indiferença termina se ele sofrer dano ou vir aliados sofrerem dano.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-2"
+        }
+      ],
+      "circuloBase": 2,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "58cc56ae-8d2b-5b21-b9e3-89661a708e38",
+      "nome": "2º | Detectar Pensamentos · sondagem · concentração · aberrante",
+      "categoria": "magia",
+      "descricao": "Ação · Pessoal · Concentração até 1 min. Detecte pensamentos em 9 m ou leia pensamentos superficiais. Para sondar mais fundo, use a ação Usar Magia em turno posterior. O alvo rola SAB, CD 13 (14 com Inata). No sucesso, a magia termina. Ao ser sondado, o alvo percebe a intrusão.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-2"
+        }
+      ],
+      "circuloBase": 2,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
+      "nome": "1º | Repreensão Diabólica · reação · salva de DES · infernal",
+      "categoria": "magia",
+      "descricao": "Ao sofrer dano de uma criatura visível a até 18 m, ela rola DES, CD 13. Falha: dano ígneo. Sucesso: metade. Um uso gratuito de 1º por descanso longo ou gaste espaço.\n1º [2d10] · 2º [3d10]",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "repreensao"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "infernal"
+    },
+    {
+      "id": "504bc18e-d20e-5bc0-ae01-5109c41f7f29",
+      "nome": "1º | Mísseis Mágicos · acerto automático · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 36 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "a2901594-6ddc-5d12-8dc3-3b6c39321fff",
+      "nome": "1º | Sussurros Dissonantes · salva de SAB · aberrante",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Alvo rola SAB, CD 13 (14 com Inata). Falha: dano psíquico e usa a reação disponível para se afastar pela rota mais segura. Sucesso: metade do dano.\n1º [3d6] · 2º [4d6]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "37b24322-2215-5331-965a-807990ae5d7b",
+      "nome": "1º | Braços de Hadar · salva de FOR · aberrante",
+      "categoria": "magia",
+      "descricao": "Ação · Emanação de 3 m · Cada alvo rola FOR, CD 13 (14 com Inata). Falha: dano necrótico e perde reações até o início do próximo turno dele. Sucesso: metade do dano.\n1º [2d6] · 2º [3d6]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "2f90954a-d50d-59e5-9ce3-5db937277ef6",
+      "nome": "1º | Armadura Arcana · defesa · classe",
+      "categoria": "magia",
+      "descricao": "Ação · Toque · 8 h. Criatura voluntária sem armadura recebe CA 13 + DES. Em Nikki, CA 15. Ao conjurar, marque o gasto e a hora de término.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "4a8dd984-a70f-540b-9260-1864589e63eb",
+      "nome": "1º | Detectar Magia · ritual · concentração · classe",
+      "categoria": "magia",
+      "descricao": "Ação · Pessoal · Concentração até 10 min · Detecta magia em 9 m. Como ritual, acrescente 10 min à conjuração e preserve o espaço.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "1cb80c0f-ca47-5d69-a977-ca7f4b116555",
+      "nome": "1º | Queda Suave · reação · classe",
+      "categoria": "magia",
+      "descricao": "Quando você ou uma criatura a até 18 m cai, escolha até 5 criaturas em queda nesse alcance. Por até 1 min, descem 18 m por rodada e, se pousarem antes do fim, aterrissam sem dano de queda.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "85d5ca59-d87f-5a49-bbff-2fddf271736d",
+      "nome": "Truque | Raio de Fogo · ataque +5 · infernal",
+      "categoria": "magia",
+      "descricao": "Ação · 36 m · Ígneo · Criatura ou objeto.\nNormal [1d20+5]\nDano [1d10] · Crítico [2d10]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d10",
+        "alcanceM": 36,
+        "elemento": "fogo"
+      },
+      "origem": "infernal"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c",
+      "nome": "Truque | Explosão Elemental · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 36 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "8a630979-0219-5dff-a276-6ed2ccfddfbf",
+      "nome": "Truque | Toque Chocante · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · Toque · Elétrico. Se acertar, o alvo perde ataques de oportunidade até o início do próximo turno dele.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "e93019ad-ecdd-5f11-946e-d279651f006d",
+      "nome": "Truque | Talho Mental · salva de INT · aberrante",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Alvo rola INT, CD 13 (14 com Inata). Falha: dano [1d6] psíquico e subtrai [1d4] da próxima salvaguarda antes do fim do seu próximo turno. Sucesso: sem efeito.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "5fbeafc9-0922-5880-b672-b5ef59286e54",
+      "nome": "Truque | Mãos Mágicas · utilidade · classe",
+      "categoria": "magia",
+      "descricao": "Ação, mão espectral a até 9 m por 1 minuto. Manipula objetos de até 5 kg; não ataca.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "d589d0af-7b57-57b7-92cd-00d582ea66a3",
+      "nome": "Truque | Proteção Contra Lâminas · concentração · classe",
+      "categoria": "magia",
+      "descricao": "Ação · Pessoal · Concentração até 1 min. Quem atacar você subtrai [1d4] da jogada de ataque.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro"
+    },
+    {
+      "id": "f8546290-ecf3-5274-8eb7-2be3d047fb1a",
+      "nome": "Truque | Taumaturgia · utilidade · infernal",
+      "categoria": "magia",
+      "descricao": "Ação, pequenos prodígios por até 1 minuto: voz amplificada, chamas que tremulam, tremores leves, olhos alterados.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "infernal"
+    },
+    {
+      "id": "feiticaria-inata",
+      "nome": "Feitiçaria Inata",
+      "categoria": "habilidade",
+      "descricao": "Uma ação bônus e um uso. Durante 1 minuto, as magias de Feiticeiro recebem +1 de CD e seus ataques mágicos têm vantagem.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "inata",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "efeito_conjuracao",
+        "origem": "feiticeiro",
+        "turnos": 10,
+        "bonusCD": 1,
+        "vantagemAtaque": true
+      }
+    }
+  ],
+  "notas": [
+    {
+      "nome": "Recurso | Pontos de Feitiçaria (Fonte de Magia)",
+      "descricao": "Saldo: 3/3 pontos.\nGaste 1 ponto para usar Magia Duplicada ou Magia Potencializada.\nComo ação bônus, gaste 2 pontos para criar um espaço de 1º círculo ou 3 para criar um de 2º. O espaço extra expira ao terminar um descanso longo.\nRecupere todos os pontos ao terminar um descanso longo. Durante o jogo, pode gastar um espaço, sem ação, para recuperar pontos iguais ao círculo dele, até o máximo de 3."
+    },
+    {
+      "nome": "Recurso | Espaços de magia",
+      "descricao": "1º círculo: 4/4 espaços.\n2º círculo: 2/2 espaços.\nPara conjurar uma magia com espaço, gaste 1 do círculo da magia ou superior. Truques não consomem espaços.\nRecupere todos os espaços da classe ao terminar um descanso longo."
+    },
+    {
+      "nome": "Recurso | Feitiçaria Inata",
+      "descricao": "Saldo: 2/2 usos.\nGaste 1 uso como ação bônus. Por 1 minuto, a CD das suas magias de Feiticeiro sobe de 13 para 14 e os ataques com elas têm vantagem.\nRecupere os dois usos ao terminar um descanso longo."
+    },
+    {
+      "nome": "Recurso | Repreensão Diabólica do legado Infernal",
+      "descricao": "Saldo: 1/1 uso gratuito.\nUse sua reação e gaste este uso para conjurar a magia no 1º círculo sem gastar espaço. Com o uso gratuito gasto, ainda pode conjurá-la com um espaço. A rolagem fica na Spell List.\nRecupere o uso gratuito ao terminar um descanso longo."
+    },
+    {
+      "nome": "Recurso | Dados de Vida",
+      "descricao": "Saldo: 3/3 dados (d6).\nAo terminar um descanso curto, escolha quantos gastar, um por vez. Para cada dado gasto, recupere [1d6+2] PV, até seu máximo de 20 PV.\nRecupere todos os Dados de Vida gastos ao terminar um descanso longo."
+    },
+    {
+      "nome": "Combate | 9 m por turno",
+      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA 12 sem Armadura Arcana ou 15 com ela ativa (8 h). Se a conjurar com espaço, desconte o espaço.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
+    },
+    {
+      "nome": "Conjuração | ataque +5 · CD 13",
+      "descricao": "Carisma · CD 14 para magias de Feiticeiro com Feitiçaria Inata ativa.\nFoco arcano: cristal, sem cargas. Substitui componentes materiais sem custo indicado que a magia não consome.\nRolagens e magias preparadas na Spell List."
+    },
+    {
+      "nome": "Salvaguarda | CAR +5",
+      "descricao": "Normal [1d20+5]"
+    },
+    {
+      "nome": "Salvaguarda | CON +4",
+      "descricao": "Normal [1d20+4]\nConcentração ao sofrer dano: CD 10 ou metade do dano (arredonde para baixo), a maior das duas, até CD 30."
+    },
+    {
+      "nome": "Salvaguarda | DES +2",
+      "descricao": "Normal [1d20+2]"
+    },
+    {
+      "nome": "Salvaguarda | SAB +1",
+      "descricao": "Normal [1d20+1]"
+    },
+    {
+      "nome": "Salvaguarda | FOR +0",
+      "descricao": "Normal [1d20]"
+    },
+    {
+      "nome": "Salvaguarda | INT -1",
+      "descricao": "Normal [1d20-1]"
+    },
+    {
+      "nome": "Identidade | Nikki Lauda",
+      "descricao": "Feiticeiro 3 · Feitiçaria Aberrante · Tiferino Médio, legado Infernal · Charlatão.\nProficiência +2 · PV máximos 20. Comum e dois idiomas a escolher."
+    },
+    {
+      "nome": "Criação | escolhas a confirmar",
+      "descricao": "Conjunto Padrão com +2 CAR e +1 DES do Charlatão: FOR 10 (+0), DES 14 (+2), CON 14 (+2), INT 8 (-1), SAB 12 (+1), CAR 17 (+3). Método, nível inicial 3 e PV pela média (níveis 2 e 3) aguardam aprovação do mestre. Salvaguardas proficientes: CON +4 e CAR +5.\nPreencher: 1) nome do jogador, 2) alinhamento, 3) aparência, 4) personalidade, 5) história, 6) dois idiomas. Confirmar: 7) nível inicial 3, 8) Conjunto Padrão, 9) só kit da classe, sem itens do Charlatão, 10) PV pela média, 11) legado Infernal, 12) Intuição e Furtividade no Habilidoso, 13) Detectar Magia e Queda Suave (Compreender Idiomas ficou de fora)."
+    },
+    {
+      "nome": "História, aparência e personalidade",
+      "descricao": "História: a preencher.\nAparência: a preencher.\nPersonalidade: a preencher.\nAlinhamento: a preencher."
+    },
+    {
+      "nome": "Evolução | plano para níveis futuros",
+      "descricao": "Plano sugerido, não aplicado: nível 4 Conjurador Bélico (+1 CAR); nível 5 magias de 3º círculo, Fome de Hadar e Remeter, Escuridão (Tiferino). Nada além do nível 3 está ativo nesta ficha."
+    },
+    {
+      "nome": "Controle do token",
+      "descricao": "Após importar, atribua o token ao jogador no Forge."
+    },
+    {
+      "nome": "Preparadas | 6 magias de Feiticeiro",
+      "descricao": "Edite as seis vagas da classe.\n1. Despedaçar\n2. Sopro de Dragão\n3. Mísseis Mágicos\n4. Armadura Arcana\n5. Detectar Magia\n6. Queda Suave\nTruques e magias sempre preparadas ficam fora dessas seis vagas."
+    },
+    {
+      "nome": "Sempre preparadas | 6 fora das vagas da classe",
+      "descricao": "2º círculo\n• Acalmar Emoções · aberrante\n• Detectar Pensamentos · aberrante\n1º círculo\n• Repreensão Diabólica · infernal\n• Sussurros Dissonantes · aberrante\n• Braços de Hadar · aberrante\nTruque\n• Talho Mental · aberrante\nOutras sempre preparadas: ____________________"
+    }
+  ],
+  "preparacao": {
+    "vagas": 6,
+    "preparadas": [
+      "7ecfc4af-958e-572a-ba52-46457cfc432c",
+      "1b18ca91-6e84-5abe-b3bb-ed383eace510",
+      "504bc18e-d20e-5bc0-ae01-5109c41f7f29",
+      "2f90954a-d50d-59e5-9ce3-5db937277ef6",
+      "4a8dd984-a70f-540b-9260-1864589e63eb",
+      "1cb80c0f-ca47-5d69-a977-ca7f4b116555"
+    ],
+    "semprePreparadas": [
+      "e1239dce-62e4-53ba-8bfd-970cb4faacb3",
+      "58cc56ae-8d2b-5b21-b9e3-89661a708e38",
+      "af0ac3c8-7d39-5ef0-97e9-25839f116262",
+      "a2901594-6ddc-5d12-8dc3-3b6c39321fff",
+      "37b24322-2215-5331-965a-807990ae5d7b",
+      "e93019ad-ecdd-5f11-946e-d279651f006d"
+    ]
+  }
+}

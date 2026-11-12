@@ -1,0 +1,2 @@
+.tabuleiro{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));max-width:30rem;border:1px solid #58645d;margin:.5rem 0}.tabuleiro button{border:0;border-right:1px solid #45524e;border-bottom:1px solid #45524e;border-radius:0;aspect-ratio:1.4;padding:0;background:#242e2d;color:#eed6b4}.tabuleiro button.alcance{background:#34473f}.tabuleiro button.pj{color:#092a21;background:#9ad8c0}.tabuleiro button.npc{background:#715345;color:#ffdfb9}.tabuleiro button.marcada,.tabuleiro button:hover{outline:2px solid #f5cc83;outline-offset:-2px}
+

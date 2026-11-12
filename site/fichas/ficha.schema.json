@@ -1,0 +1,555 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ficha da campanha · formato 1",
+  "type": "object",
+  "properties": {
+    "versaoFormato": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+    },
+    "nome": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tipo": {
+      "enum": [
+        "pj",
+        "npc"
+      ]
+    },
+    "edicao": {
+      "type": "string"
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+          },
+          "nivel": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "subclasse": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nivel"
+        ]
+      }
+    },
+    "atributos": {
+      "type": "object",
+      "properties": {
+        "for": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "des": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "con": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "int": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "sab": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "car": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        }
+      },
+      "required": [
+        "for",
+        "des",
+        "con",
+        "int",
+        "sab",
+        "car"
+      ]
+    },
+    "pvMaximos": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9999
+    },
+    "caBase": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 99
+    },
+    "deslocamentosM": {
+      "type": "object",
+      "properties": {
+        "andar": {
+          "type": "number",
+          "minimum": 0
+        },
+        "nadar": {
+          "type": "number"
+        },
+        "voar": {
+          "type": "number"
+        },
+        "escalar": {
+          "type": "number"
+        },
+        "escavar": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "andar"
+      ]
+    },
+    "proficiencia": {
+      "type": "integer"
+    },
+    "salvaguardas": {
+      "type": "object",
+      "properties": {
+        "for": {
+          "type": "integer"
+        },
+        "des": {
+          "type": "integer"
+        },
+        "con": {
+          "type": "integer"
+        },
+        "int": {
+          "type": "integer"
+        },
+        "sab": {
+          "type": "integer"
+        },
+        "car": {
+          "type": "integer"
+        }
+      },
+      "required": []
+    },
+    "pericias": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "recursos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recurso"
+      }
+    },
+    "opcoes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/opcao"
+      }
+    },
+    "preparacao": {
+      "type": "object",
+      "properties": {
+        "vagas": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 150
+        },
+        "preparadas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+          }
+        },
+        "semprePreparadas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+          }
+        }
+      },
+      "required": [
+        "vagas",
+        "preparadas",
+        "semprePreparadas"
+      ]
+    },
+    "equipamentos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "passivas": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "efeitos": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "condicoes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "resistencias": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "imunidades": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "vulnerabilidades": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notas": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "tamanho": {
+      "type": "string"
+    },
+    "especie": {
+      "type": "string"
+    },
+    "idiomas": {
+      "type": [
+        "string",
+        "array"
+      ]
+    },
+    "sentidos": {
+      "type": [
+        "string",
+        "object"
+      ]
+    },
+    "concentracao": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "versaoFormato",
+    "id",
+    "nome",
+    "tipo",
+    "classes",
+    "atributos",
+    "pvMaximos",
+    "caBase",
+    "deslocamentosM",
+    "recursos",
+    "opcoes"
+  ],
+  "$defs": {
+    "recurso": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+        },
+        "nome": {
+          "type": "string"
+        },
+        "origem": {
+          "type": "string"
+        },
+        "maximo": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999
+        },
+        "saldoInicial": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999
+        },
+        "unidade": {
+          "type": "string"
+        },
+        "recuperacao": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evento": {
+                "type": "string"
+              },
+              "modo": {
+                "type": "string"
+              },
+              "formula": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "evento",
+              "modo"
+            ]
+          }
+        }
+      },
+      "required": [
+        "id",
+        "nome",
+        "maximo",
+        "saldoInicial"
+      ]
+    },
+    "opcao": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+        },
+        "nome": {
+          "type": "string"
+        },
+        "categoria": {
+          "type": "string"
+        },
+        "descricao": {
+          "type": "string"
+        },
+        "origem": {
+          "type": "string"
+        },
+        "circuloBase": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "ritual": {
+          "type": "boolean"
+        },
+        "concentracao": {
+          "type": "boolean"
+        },
+        "duracao": {
+          "type": "string"
+        },
+        "componentes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "custo": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tipo": {
+                "enum": [
+                  "acao",
+                  "bonus",
+                  "reacao",
+                  "recurso"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
+              },
+              "quantidade": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 999
+              }
+            },
+            "required": [
+              "tipo",
+              "quantidade"
+            ]
+          }
+        },
+        "gatilhosAlternativos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requisitos": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "selecao": {
+          "type": "object",
+          "properties": {
+            "tipo": {
+              "type": "string"
+            },
+            "min": {
+              "type": "integer"
+            },
+            "max": {
+              "type": "integer"
+            },
+            "aceita": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "alcanceM": {
+              "type": "number"
+            },
+            "alcanceLongoM": {
+              "type": "number"
+            },
+            "forma": {
+              "type": "string"
+            },
+            "raioM": {
+              "type": "number"
+            },
+            "comprimentoM": {
+              "type": "number"
+            },
+            "larguraM": {
+              "type": "number"
+            },
+            "repetirAlvo": {
+              "type": "boolean"
+            },
+            "visao": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        },
+        "etapas": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "efeitos": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "escalonamento": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "automacao": {
+          "type": "object",
+          "properties": {
+            "tipo": {
+              "enum": [
+                "ataque",
+                "salva",
+                "disparada",
+                "desengajar",
+                "efeito_conjuracao"
+              ]
+            },
+            "alcanceM": {
+              "type": "number"
+            },
+            "bonus": {
+              "type": "integer"
+            },
+            "dano": {
+              "type": "string"
+            },
+            "elemento": {
+              "type": "string"
+            },
+            "atributo": {
+              "enum": [
+                "for",
+                "des",
+                "con",
+                "int",
+                "sab",
+                "car"
+              ]
+            },
+            "cd": {
+              "type": "integer"
+            },
+            "metade": {
+              "type": "boolean"
+            },
+            "raioM": {
+              "type": "number"
+            },
+            "turnos": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "origem": {
+              "type": "string"
+            },
+            "bonusCD": {
+              "type": "integer"
+            },
+            "vantagemAtaque": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "tipo"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "nome"
+      ]
+    }
+  }
+}
