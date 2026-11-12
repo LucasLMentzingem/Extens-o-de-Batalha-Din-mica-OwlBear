@@ -51,3 +51,16 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Testes finais: 21 testes do motor, painel de contexto integrado, HUD completa e navegador sem erros novos.
 - Captura conferida: `work/contexto-recursos-v05.png`.
 
+## Etapa seguinte: rolagens compostas e resultado central
+
+- [x] Abrir o ajuste imediatamente antes de toda rolagem, inclusive dano, iniciativa e concentração.
+- [x] Enviar ao Dice+ uma única expressão composta, com vantagem, bônus e dados extras juntos.
+- [x] Validar a expressão pelo próprio canal de validação do Dice+ antes de executar.
+- [x] Exibir no centro o resumo da conta e Acerto, Falha, Acerto crítico ou Falha crítica.
+- [x] Conferir ataque contra a CA sem revelar os valores internos da ficha do adversário no estado público.
+- [x] Pré-configurar o dado adicional de dano após um 20 natural.
+- [x] Manter a janela de resultado até o jogador confirmar a continuação.
+
+- Testes finais: 22 testes do motor, incluindo expressão única, CA, natural 20 e dano crítico.
+- Cliente genérico carregado sem erros novos; inspeção principal preservada em `work/rolagem-v06/shot-0.png`.
+

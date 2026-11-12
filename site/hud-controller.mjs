@@ -1,5 +1,5 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala} from './bridge.mjs';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs';
 import {atual,multi,incluirAlvo} from './engine.mjs';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
@@ -16,7 +16,7 @@ function circulo(centro,raio,cor){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
-  let estado,eu,api,atorId,pendente,anterior,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3;
+  let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
@@ -27,7 +27,7 @@ export async function iniciarHud(){
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
   function transmitir(){
     if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,
-      imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),
+      imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,
       pendente:pendente&&{titulo:pendente.titulo,detalhe:pendente.detalhe,pronto:pendente.pronto,
         lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,rolagem:pendente.rolagem,substitui:pendente.substitui,rev:pendente.rev}}});
   }
@@ -58,8 +58,9 @@ export async function iniciarHud(){
       }
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
+      if(pedidoDado)caixas.dados=[Math.round((w-Math.min(440,w-12))/2),Math.round(Math.max(62,(h-260)/2)),Math.min(440,w-12),pedidoDado.tipo==='resultado'?245:210];
     }
-    for(const k of ['ordem','barra','iniciativa','confirmar','reacao'])await janela(k,caixas[k]);
+    for(const k of ['ordem','barra','iniciativa','confirmar','reacao','dados'])await janela(k,caixas[k]);
   }
   async function limparMarcas(){
     const ids=marcas;marcas=[];
@@ -93,7 +94,7 @@ export async function iniciarHud(){
     if(rule?.tipo==='ataque'||rule?.tipo==='salva')escolha=rule.raioM?'area':'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
-    pendente={cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:['ataque','salva'].includes(rule?.tipo),
+    pendente={cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
@@ -182,9 +183,16 @@ export async function iniciarHud(){
   }
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
-    if(!estado||!pronta||ocupado)return;
-    if(d.rev!==undefined&&d.rev!==estado.rev)return;
-    if(d.tipo==='linhas'){linhas=Math.max(1,Math.min(5,Number(d.valor)||3));localStorage.setItem(ns+'/linhas',linhas);}
+    if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
+      await responderDado({pedido:pedidoDado.pedido,formula:String(d.formula||'').replace(/\s+/g,'')});pedidoDado={...pedidoDado,tipo:'rolando'};
+    }else if(d.tipo==='continuarDado'&&pedidoDado?.tipo==='resultado'){
+      await responderDado({pedido:pedidoDado.pedido,continuar:true});pedidoDado=null;
+    }else if(d.tipo==='cancelarDado'&&pedidoDado){
+      await responderDado({pedido:pedidoDado.pedido,cancelar:true});pedidoDado=null;
+    }else{
+      if(!estado||!pronta||ocupado)return;
+      if(d.rev!==undefined&&d.rev!==estado.rev)return;
+      if(d.tipo==='linhas'){linhas=Math.max(1,Math.min(5,Number(d.valor)||3));localStorage.setItem(ns+'/linhas',linhas);}
     else if(d.tipo==='compactar'){compacto=!compacto;localStorage.setItem(ns+'/compacto',compacto?'1':'0');}
     else if(d.tipo==='focar'){
       const a=atores().find(x=>x.id===d.id),p=pos(a);if(!a||!token(a))return;
@@ -217,7 +225,7 @@ export async function iniciarHud(){
       const a=ator(),grupo=d.grupo,chave=d.chave;
       if(!controla(a)||!['pericias','salvaguardas'].includes(grupo)||typeof chave!=='string')return;
       await cancelar();pendente={cmd:{tipo:'teste',ator:a.id,rev:estado.rev,grupo,chave},rev:estado.rev,
-        escolha:null,titulo:(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave,pronto:true,rolagem:true,
+        escolha:null,titulo:(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave,pronto:true,rolagem:false,
         substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'Rolagem rápida de '+a.nome+' · não consome ações.'};
     }else if(d.tipo==='npcs'){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
@@ -227,6 +235,7 @@ export async function iniciarHud(){
     }else if(['usar','mover','passar','iniciativa'].includes(d.tipo)){
       if(d.ator){if(!atores().some(a=>a.id===d.ator&&controla(a)))return;atorId=d.ator;}
       await preparar(d);
+    }
     }
     await layout();transmitir();
   }
@@ -241,8 +250,13 @@ export async function iniciarHud(){
     onKeyDown:(_,e)=>{if(e.code==='Escape')serial(()=>mensagem({tipo:'cancelar'}));}});
   await OBR.tool.create({id:tool,icons,defaultMode:mode});
   api=await sala((s,i)=>serial(()=>atualizar(s,i)));
+  responderDado=await interfaceRolagens(d=>serial(async()=>{
+    if(d.tipo==='erro')pedidoDado={...pedidoDado,tipo:'ajuste',erro:d.mensagem};
+    else pedidoDado=d;
+    await layout();transmitir();
+  }));
   OBR.scene.onReadyChange(r=>serial(async()=>{
-    pronta=r;estado=null;tokens=[];pendente=null;anterior=null;marcas=[];
+    pronta=r;estado=null;tokens=[];pendente=null;pedidoDado=null;anterior=null;marcas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;

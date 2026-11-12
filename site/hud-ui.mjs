@@ -42,8 +42,16 @@ function render(){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));
     const restante=Math.max(0,Math.ceil((rp.terminaEm-Date.now())/1000));
-    const modo=document.querySelector('#modoReacao')?.value||'normal',ajuste=document.querySelector('#ajusteReacao')?.value||0,dados=document.querySelector('#dadosReacao')?.value||'';
-    html='<section class="prompt reacao"><strong>Reação de '+esc(reator?.nome)+'</strong><small>'+esc(alvo?.nome)+' está deixando seu alcance corpo a corpo.</small><b class="timer">'+restante+' s</b><div class="ajustes"><label>d20<select id="modoReacao">'+['normal','vantagem','desvantagem'].map(m=>'<option '+(m===modo?'selected':'')+'>'+m+'</option>').join('')+'</select></label><label>Dados extras<input id="dadosReacao" placeholder="1d4 + 1d6" value="'+esc(dados)+'"></label><label>+ / −<input id="ajusteReacao" type="number" min="-20" max="20" value="'+esc(ajuste)+'"></label></div><div class="escolhas-reacao">'+btn('resolverReacao','Não fazer nada','data-id=""')+opcoes.map(o=>btn('resolverReacao',esc(curto(o)),'data-id="'+esc(o.id)+'" class="ouro"')).join('')+'</div></section>';
+    html='<section class="prompt reacao"><strong>Reação de '+esc(reator?.nome)+'</strong><small>'+esc(alvo?.nome)+' está deixando seu alcance corpo a corpo.</small><b class="timer">'+restante+' s</b><small>Ao escolher a reação, a janela de ajuste será aberta antes de cada rolagem.</small><div class="escolhas-reacao">'+btn('resolverReacao','Não fazer nada','data-id=""')+opcoes.map(o=>btn('resolverReacao',esc(curto(o)),'data-id="'+esc(o.id)+'" class="ouro"')).join('')+'</div></section>';
+  }else if(parte==='dados'&&v.pedidoDado){
+    const d=v.pedidoDado,m=d.meta??{};
+    if(d.tipo==='resultado'){
+      const r=d.resultado,classe=/crític/i.test(d.status)?'critico':/falha/i.test(d.status)?'falha':'acerto';
+      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CA/CD '+m.cd].filter(Boolean).join(' · '))+'</small><output>'+esc(r.resumo||r.total)+'</output>'+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
+    }else{
+      const valor=document.querySelector('#formulaDado')?.value||d.formula||'';
+      html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CA/CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small><label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+    }
   }else if(parte==='barra'&&a){
     if(v.compacto){html='<section class="dock compacta"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside></section>';root.innerHTML=html;return;}
     const turno=ativo===a.id;
@@ -79,7 +87,7 @@ root.onclick=e=>{
   const tipo=b.dataset.cmd,id=b.dataset.id;
   if(tipo==='aba'){aba=id;render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
+  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});

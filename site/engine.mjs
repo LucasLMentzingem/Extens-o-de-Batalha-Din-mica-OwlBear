@@ -160,11 +160,16 @@ export async function aplicar(s,c,u,rolar) {
   s=structuredClone(s);
   for(const p of s.atores)atualizarMagias(p.ficha);
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
-  const dadoBencao=async p=>abencoado(p)?await rolar('1d4'):0;
-  const ajusteDados=async()=>{
+  const soma=(n)=>n>0?'+'+n:n<0?String(n):'';
+  const formulaD20=(bonus=0,p=null)=>{
     const xs=c.dadosAjuste??[];exigir(dadosExtrasValidos(xs),'Dados extras inválidos.');
-    let total=0;for(const formula of xs)total+=await rolar(formula);return total;
+    const modo=c.modo==='vantagem'?'2d20kh1':c.modo==='desvantagem'?'2d20kl1':'1d20';
+    return modo+soma(bonus+(c.ajuste??0))+(abencoado(p)?'+1d4':'')+xs.map(x=>'+'+x).join('');
   };
+  const resultado=async(formula,meta={})=>{
+    const r=await rolar(formula,meta);return typeof r==='number'?{total:r,natural:/d20/.test(formula)?r:null,formula,resumo:String(r)}:r;
+  };
+  const rolarD20=(bonus,p,meta)=>resultado(formulaD20(bonus,p),meta);
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
@@ -196,7 +201,7 @@ export async function aplicar(s,c,u,rolar) {
       if(entrando){
         a.emCombate=true;
         if(s.fase==='turnos'){
-          const atualId=atual(s)?.id;a.init=(await rolar('1d20'))+mod(a.ficha.atributos.des);s.ordem.push(a.id);
+          const atualId=atual(s)?.id;a.init=(await resultado('1d20'+soma(mod(a.ficha.atributos.des)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;s.ordem.push(a.id);
           s.ordem.sort((x,y)=>{const p=s.atores.find(a=>a.id===x),q=s.atores.find(a=>a.id===y);return q.init-p.init||q.ficha.atributos.des-p.ficha.atributos.des;});
           s.vez=Math.max(0,s.ordem.indexOf(atualId));ativar(a);
         }else a.init=null;
@@ -227,7 +232,7 @@ export async function aplicar(s,c,u,rolar) {
       s.fase='iniciativa';s.atores.forEach(x=>x.init=null);msg='Rolem iniciativa.';break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
-      a.init=(await rolar('1d20'))+mod(a.ficha.atributos.des);msg=a.nome+' • iniciativa '+a.init;
+      a.init=(await resultado('1d20'+soma(mod(a.ficha.atributos.des)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
       iniciarTurnos(s);
       break;
     case 'ajustar': {
@@ -240,10 +245,8 @@ export async function aplicar(s,c,u,rolar) {
     case 'teste': {
       const bonus=c.grupo==='pericias'?bonusPericia(a.ficha,c.chave):a.ficha.salvaguardas?.[c.chave];
       exigir(Number.isInteger(bonus)&&inteiro(c.ajuste??0,-20,20),'Teste inválido.');
-      let dado=await rolar('1d20');
-      if(c.modo==='vantagem')dado=Math.max(dado,await rolar('1d20'));
-      if(c.modo==='desvantagem')dado=Math.min(dado,await rolar('1d20'));
-      msg=a.nome+' • '+c.chave+': '+(dado+bonus+(c.ajuste??0)+await ajusteDados()+(c.grupo==='salvaguardas'?await dadoBencao(a):0));break;
+      const r=await rolarD20(bonus,c.grupo==='salvaguardas'?a:null,{tipo:c.grupo==='salvaguardas'?'salvaguarda':'teste',titulo:(c.grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+c.chave});
+      msg=a.nome+' • '+c.chave+': '+r.total;break;
     }
     case 'resolverReacao': {
       const p=s.reacaoPendente,mov=s.movimentoPendente;
@@ -266,15 +269,13 @@ export async function aplicar(s,c,u,rolar) {
       exigir(ataque,'Nenhum ataque corpo a corpo configurado para esta reação.');
       const rule=ataque.automacao,alvo=s.atores.find(x=>x.id===p.alvo),ajuste=c.ajuste??0;
       exigir(alvo&&inteiro(ajuste,-20,20),'Ajuste ou alvo inválido.');
-      let face=await rolar('1d20');
-      if(c.modo==='vantagem')face=Math.max(face,await rolar('1d20'));
-      if(c.modo==='desvantagem')face=Math.min(face,await rolar('1d20'));
-      const total=face+rule.bonus+ajuste+await ajusteDados()+await dadoBencao(a);
+      const rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:o.nome+' · '+ataque.nome,alvo:alvo.nome,cd:alvo.ficha.caBase});
+      const face=rr.natural,total=rr.total;
       const acertou=face!==1&&(face===20||total>=alvo.ficha.caBase);
       msg=a.nome+' • '+o.nome+' com '+ataque.nome+' • '+total+(acertou?' acertou':' errou');
       if(acertou){
         let formula=rule.dano;if(face===20)formula=formula.replace(/^\d+/,n=>String(+n+1));
-        let dano=await rolar(formula);
+        let dano=(await resultado(formula,{tipo:'dano',titulo:'Dano · '+ataque.nome,critico:face===20,alvo:alvo.nome})).total;
         if(alvo.ficha.imunidades?.includes(rule.elemento))dano=0;
         if(alvo.ficha.resistencias?.includes(rule.elemento))dano=Math.floor(dano/2);
         if(alvo.ficha.vulnerabilidades?.includes(rule.elemento))dano*=2;
@@ -360,33 +361,32 @@ export async function aplicar(s,c,u,rolar) {
       const ajuste=c.ajuste??0;exigir(inteiro(ajuste,-20,20),'Ajuste inválido.');
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque));
       const desvantagem=c.modo==='desvantagem';
-      const d20=async()=>{
-        const n=await rolar('1d20');if(vantagem===desvantagem)return n;
-        const b=await rolar('1d20');return vantagem?Math.max(n,b):Math.min(n,b);
-      };
-      const danoComum=rule.tipo==='salva'?await rolar(rule.dano):null;
+      const modoOriginal=c.modo;c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
+      const danoComum=rule.tipo==='salva'?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
       for(const p of afetados){
       let formula=rule.dano;
       if(rule.tipo==='ataque'){
-        const face=await d20();const total=face+rule.bonus+ajuste+await ajusteDados()+await dadoBencao(a);
+        const rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Ataque · '+o.nome,alvo:p.nome,cd:p.ficha.caBase});const face=rr.natural,total=rr.total;
         msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
         if(face===1 || (face!==20 && total<p.ficha.caBase)){msg+=' • errou '+p.nome;continue;}
         if(face===20){formula=formula.replace(/^\d+/,n=>String(+n+1));msg+=' • crítico';}
       }
-      const dano=danoComum??await rolar(formula);
+      const dano=danoComum??(await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico:formula!==rule.dano,alvo:p.nome})).total;
         let valor=dano;
         if(rule.tipo==='salva'){
           const bonus=p.ficha.salvaguardas?.[rule.atributo]??mod(p.ficha.atributos[rule.atributo]);
           const cd=rule.cd+Math.max(0,...efeitos.map(e=>e.bonusCD));
-          if((await d20())+bonus+ajuste+await dadoBencao(p)>=cd) valor=rule.metade?Math.floor(valor/2):0;
+          const rr=await rolarD20(bonus,p,{tipo:'salvaguarda',titulo:'Salvaguarda de '+rule.atributo.toUpperCase()+' · '+p.nome,cd});
+          if(rr.total>=cd) valor=rule.metade?Math.floor(valor/2):0;
         }
         if(p.ficha.imunidades?.includes(rule.elemento))valor=0;
         if(p.ficha.resistencias?.includes(rule.elemento)) valor=Math.floor(valor/2);
         if(p.ficha.vulnerabilidades?.includes(rule.elemento))valor*=2;
         p.pv=Math.max(0,p.pv-valor);
-        if(p.bencao&&valor>0&&(p.pv===0||(await rolar('1d20'))+(p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con))+await dadoBencao(p)<Math.max(10,Math.floor(valor/2))))delete p.bencao;
+        if(p.bencao&&valor>0){const cdCon=Math.max(10,Math.floor(valor/2));if(p.pv===0||(await rolarD20(p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con),p,{tipo:'salvaguarda',titulo:'Concentração · '+p.nome,cd:cdCon})).total<cdCon)delete p.bencao;}
         msg+=' • '+p.nome+' sofreu '+valor;
       }
+      c.modo=modoOriginal;
     }
   }
   registrar(s,(gm && a?.ficha.tipo==='pj' && c.confirmado?'Mestre por '+a.nome+' — ':'')+msg);s.rev++;return s;
@@ -399,8 +399,18 @@ export function publico(s){
   }
   return v;
 }
+export function avaliarFormula(formula,sortear=l=>1+Math.floor(Math.random()*l)){
+  const partes=String(formula).replace(/\s+/g,'').match(/[+-]?[^+-]+/g)??[];let total=0,natural=null;const grupos=[];
+  for(const parte of partes){const sinal=parte[0]==='-'?-1:1,corpo=parte.replace(/^[+-]/,'');const m=/^(\d*)d(\d+)(?:(kh|kl)(\d+))?$/.exec(corpo);
+    if(!m){exigir(/^\d+$/.test(corpo),'Fórmula local inválida.');total+=sinal*Number(corpo);continue;}
+    const quantidade=Number(m[1]||1),lados=Number(m[2]),valores=Array.from({length:quantidade},()=>sortear(lados));let mantidos=[...valores];
+    if(m[3])mantidos=[...valores].sort((a,b)=>m[3]==='kh'?b-a:a-b).slice(0,Number(m[4]));
+    const subtotal=mantidos.reduce((n,x)=>n+x,0);total+=sinal*subtotal;grupos.push({diceType:'d'+lados,dice:valores.map(v=>({value:v,kept:mantidos.includes(v)})),total:subtotal,isNegative:sinal<0});
+    if(lados===20&&natural===null)natural=mantidos[0];
+  }
+  return {total,natural,formula,resumo:formula+' = '+total,grupos};
+}
 export function dadoLocal(f) {
-  const [,n,l,b]=/^(\d+)d(\d+)([+-]\d+)?$/.exec(f);
-  let t=Number(b||0);for(let i=0;i<Number(n);i++)t+=1+Math.floor(Math.random()*Number(l));return t;
+  return avaliarFormula(f).total;
 }
 

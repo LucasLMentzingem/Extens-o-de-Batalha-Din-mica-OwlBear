@@ -9,7 +9,14 @@ function mesa(){
   let s=novo();
   const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I'),c=adicionar(s,soldado,'Soldado II');
   const go=async(tipo,extra={},u=gm,dados=[])=>{
-    const rolar=async()=>{assert.ok(dados.length,'faltou um dado no teste');return dados.shift();};
+    const rolar=async formula=>{
+      assert.ok(dados.length,'faltou um dado no teste');
+      if(!/d20/.test(formula))return {total:dados.shift(),natural:null,formula,resumo:formula};
+      const m=/(\d+)d20(?:(kh|kl)1)?/.exec(formula),faces=Array.from({length:Number(m[1])},()=>{assert.ok(dados.length,'faltou um d20');return dados.shift();});
+      const natural=m[2]==='kh'?Math.max(...faces):m[2]==='kl'?Math.min(...faces):faces[0];let total=natural;
+      for(const termo of formula.replace(m[0],'').match(/[+-](?:\d+d\d+|\d+)/g)??[]){const sinal=termo[0]==='-'?-1:1;total+=sinal*(termo.includes('d')?(assert.ok(dados.length,'faltou dado extra'),dados.shift()):Number(termo.slice(1)));}
+      return {total,natural,formula,resumo:formula+' = '+total};
+    };
     s=await aplicar(s,{rev:s.rev,tipo,...extra},u,rolar);return s;
   };
   const iniciar=async()=>{
@@ -47,7 +54,7 @@ test('salva por alvo e um dano compartilhado, círculo gasto, resistência e cr�
  assert.deepEqual(m.s.atores.map(a=>a.pv),[14,12,18]);assert.equal(m.s.atores[0].rec['espaco-2'],1);
  const second=mesa();await second.iniciar();let formulas=[];
  const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
- await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20','2d10']);
+ await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20+5','2d10']);
 });
 test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
  const m=mesa();await m.iniciar();m.s.atores[1].x=20;m.s.atores[2].x=22;await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
@@ -159,4 +166,12 @@ test('mestre retira e recoloca uma ficha sem perder o vínculo',async()=>{
 test('painel de contexto altera valor atual e máximo de PV e recursos',async()=>{
  const m=mesa();await m.go('definirRecurso',{ator:m.a.id,campo:'pv',atual:23,maximo:25});assert.equal(m.s.atores[0].pv,23);assert.equal(m.s.atores[0].ficha.pvMaximos,25);
  await m.go('definirRecurso',{ator:m.a.id,campo:'feiticaria',atual:4,maximo:5});assert.equal(m.s.atores[0].rec.feiticaria,4);assert.equal(m.s.atores[0].ficha.recursos.find(r=>r.id==='feiticaria').maximo,5);
+});
+
+test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crítico',async()=>{
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];
+ const rolar=async(formula,meta)=>{chamadas.push({formula,meta});return chamadas.length===1?{total:27,natural:20,formula,resumo:'20+7=27'}:{total:14,natural:null,formula,resumo:'14'};};
+ const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id,modo:'vantagem',ajuste:2,dadosAjuste:['1d4']},player,rolar);
+ assert.equal(chamadas.length,2);assert.equal(chamadas[0].formula,'2d20kh1+7+1d4');assert.equal(chamadas[0].meta.cd,16);
+ assert.equal(chamadas[1].formula,'2d10');assert.equal(chamadas[1].meta.critico,true);assert.equal(s.atores[1].pv,10);
 });
