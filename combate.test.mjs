@@ -181,3 +181,11 @@ test('ataque que falha também confirma o custo da ação',async()=>{
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,async(formula,meta)=>{chamadas.push({formula,meta});return {total:9,natural:4,formula,resumo:'4+5=9'};});
  assert.equal(chamadas.length,1);assert.equal(s.atores[0].acao,0);assert.equal(s.atores[1].pv,24);assert.match(s.historico[0],/errou/);
 });
+
+test('armas arremessáveis recebem ações próprias e desvantagem após o alcance normal',async()=>{
+ const m=mesa(),variantes=m.a.ficha.opcoes.filter(o=>o.varianteArremessoDe);
+ assert.deepEqual(variantes.map(o=>o.nome),['Adaga +4 · arremesso | ação','Segunda adaga +4 · arremesso | ação bônus','Lança +2 · arremesso | ação · uma mão']);
+ await m.iniciar();m.s.atores[1].x=10;const adaga=variantes[0],formulas=[];
+ const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async f=>{formulas.push(f);return {total:9,natural:4,formula:f,resumo:'4+5=9'};});
+ assert.equal(formulas[0],'2d20kl1+4');assert.equal(s.atores[0].acao,0);assert.match(s.historico[0],/errou/);
+});

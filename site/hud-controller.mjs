@@ -29,7 +29,8 @@ export async function iniciarHud(){
     if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,
       imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,
       pendente:pendente&&{titulo:pendente.titulo,detalhe:pendente.detalhe,pronto:pendente.pronto,
-        lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,rolagem:pendente.rolagem,substitui:pendente.substitui,rev:pendente.rev}}});
+        opcao:pendente.cmd.opcao,lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,max:pendente.regraLista?.max,
+        alvos:pendente.cmd.alvos??[],rolagem:pendente.rolagem,substitui:pendente.substitui,rev:pendente.rev}}});
   }
   async function janela(parte,box){
     const id=ns+'/hud/'+parte;
@@ -51,16 +52,12 @@ export async function iniciarHud(){
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
       if(ator())caixas.barra=compacto?[Math.round((w-92)/2),h-150,92,102]:[Math.round((w-largura)/2),h-altura-48,largura,altura];
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
-      if(pendente?.pronto){
-        const cw=Math.min(360,w-12),ch=pendente.rolagem?205:118;
-        const ponto=pendente.ponto?await OBR.viewport.transformPoint(pendente.ponto):{x:w/2,y:h/2};
-        caixas.confirmar=[Math.round(Math.max(6,Math.min(w-cw-6,ponto.x-cw/2))),Math.round(Math.max(58,Math.min(h-ch-5,ponto.y-ch-14))),cw,ch];
-      }
+      if(pendente){const cw=Math.min(410,w-12),ch=Math.min(480,h-72);caixas.acao=[Math.round(Math.max(10,w*.06)),Math.round(Math.max(62,(h-ch)/2)),cw,ch];}
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado)caixas.dados=[Math.round((w-Math.min(440,w-12))/2),Math.round(Math.max(62,(h-260)/2)),Math.min(440,w-12),pedidoDado.tipo==='resultado'?245:210];
     }
-    for(const k of ['ordem','barra','iniciativa','confirmar','reacao','dados'])await janela(k,caixas[k]);
+    for(const k of ['ordem','barra','iniciativa','acao','reacao','dados'])await janela(k,caixas[k]);
   }
   async function limparMarcas(){
     const ids=marcas;marcas=[];
@@ -74,6 +71,12 @@ export async function iniciarHud(){
     const ponta1={x:fim.x-tam*Math.cos(ang-.55),y:fim.y-tam*Math.sin(ang-.55)};
     const ponta2={x:fim.x-tam*Math.cos(ang+.55),y:fim.y-tam*Math.sin(ang+.55)};
     return [[origem,fim],[fim,ponta1],[fim,ponta2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#e54848').strokeWidth(5).layer('DRAWING').locked(true).disableHit(true).build());
+  }
+  function setaAlvo(origem,fim,indice=0,total=1){
+    const dx=fim.x-origem.x,dy=fim.y-origem.y,tamLinha=Math.hypot(dx,dy)||1,offset=(indice-(total-1)/2)*dpi*.12;
+    const ox=-dy/tamLinha*offset,oy=dx/tamLinha*offset,a={x:origem.x+ox,y:origem.y+oy},b={x:fim.x+ox,y:fim.y+oy};
+    const ang=Math.atan2(b.y-a.y,b.x-a.x),tam=Math.min(dpi*.22,tamLinha*.22),p1={x:b.x-tam*Math.cos(ang-.5),y:b.y-tam*Math.sin(ang-.5)},p2={x:b.x-tam*Math.cos(ang+.5),y:b.y-tam*Math.sin(ang+.5)};
+    return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor('#e5c079').strokeWidth(4).layer('DRAWING').locked(true).disableHit(true).build());
   }
   async function cancelar(){
     pendente=null;await limparMarcas();
@@ -110,8 +113,10 @@ export async function iniciarHud(){
   async function atualizarLista(p){
     const ids=p.cmd.alvos;
     const unicos=[...new Set(ids)].map(id=>atores().find(a=>a.id===id));
-    p.pronto=false;p.detalhe=ids.length+'/'+p.regraLista.max+' · '+(unicos.map(a=>a.nome+' ×'+ids.filter(id=>id===a.id).length).join(', ')||'Selecione no mapa');
-    await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1'))]);
+    p.pronto=ids.length>=p.regraLista.min;p.detalhe='Selecione no mapa · '+ids.length+'/'+p.regraLista.max+(ids.length?' · '+unicos.map(a=>a.nome+' ×'+ids.filter(id=>id===a.id).length).join(', '):'');
+    const contagem=Object.fromEntries(unicos.map(a=>[a.id,ids.filter(id=>id===a.id).length])),vistos={};
+    const trajetorias=ids.flatMap(id=>{const alvo=atores().find(a=>a.id===id),i=vistos[id]??0;vistos[id]=i+1;return setaAlvo(p.origem,pos(alvo),i,contagem[id]);});
+    await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias]);
     await layout();transmitir();
   }
   async function escolher(evento){
@@ -138,6 +143,7 @@ export async function iniciarHud(){
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
     const raio=p.rule?.raioM;
     const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1')];
+    if(alvo)items.push(...setaAlvo(p.origem,ponto));
     if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('DRAWING').disableHit(true).build());
     await desenhar(items);
     const afetados=raio?atores().filter(a=>Math.hypot(pos(a).x-ponto.x,pos(a).y-ponto.y)<=raio*dpi).map(a=>a.nome):[];

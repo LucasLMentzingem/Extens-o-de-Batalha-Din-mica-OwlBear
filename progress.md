@@ -81,3 +81,16 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - [x] Preservar a sequência: acerto → ajuste de dano → dano → confirmação dos custos.
 - [x] Validar acertos e falhas consumindo a ação após a resolução completa.
 
+## Versão 0.7.0: painel de ação e armas arremessáveis
+
+- [x] Criar ações de arremesso separadas para opções ligadas a armas arremessáveis.
+- [x] Usar alcance normal/longo, aplicando desvantagem automaticamente além do alcance normal.
+- [x] Abrir um painel persistente de ação no centro-esquerda com informações em formato de carta.
+- [x] Reunir no painel instrução de alvo, Desfazer, Executar seleção e Cancelar.
+- [x] Desenhar uma trajetória por alvo selecionado.
+- [x] Separar visualmente trajetórias repetidas de Mísseis Mágicos contra o mesmo alvo.
+
+- Testes do motor: 24 aprovados.
+- Integração Playwright aprovada para variante de arremesso, painel da ação, seleção 2/3, botão bloqueado e trajetórias repetidas.
+- Capturas conferidas: `work/painel-arremesso-v07.png`, `work/painel-misseis-v07.png` e `work/painel-acao-v07.png`.
+

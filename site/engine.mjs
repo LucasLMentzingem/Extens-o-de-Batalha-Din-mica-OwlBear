@@ -14,6 +14,16 @@ function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
 export function atualizarMagias(f){
+  const textoPropriedades=x=>[x.descricao??x.description??'',...(Array.isArray(x.propriedades??x.properties)?(x.propriedades??x.properties):[x.propriedades??x.properties??''])].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const arremessaveis=[];
+  for(const e of f.equipamentos??[]){
+    const texto=textoPropriedades(e);
+    const faixa=/arremesso\s+(\d+(?:[,.]\d+)?)\s*\/\s*(\d+(?:[,.]\d+)?)\s*m/.exec(texto);
+    if(faixa){
+      const nome=(e.nome??e.name??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/^\d+\s*/,'').replace(/s\b/g,'');
+      arremessaveis.push({nome,normal:Number(faixa[1].replace(',','.')),longo:Number(faixa[2].replace(',','.'))});
+    }
+  }
   for(const o of f.opcoes??[]){
     if(typeof o.nome==='string'&&o.custo?.some(c=>c.tipo==='reacao')&&o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes('ataque de oportunidade'))o.gatilho='sair_alcance';
     if(o.categoria!=='magia'||o.automacao||typeof o.nome!=='string')continue;
@@ -27,6 +37,27 @@ export function atualizarMagias(f){
       o.automacao={tipo:'bencao',alcanceM:9};
       o.selecao={tipo:'alvos',min:1,max:2+circulo,repetirAlvo:false};
     }
+  }
+  // Cada uso corpo a corpo de uma arma arremessável recebe uma ação à distância separada.
+  for(const o of [...(f.opcoes??[])]){
+    if(o.varianteArremessoDe||o.nome?.toLowerCase().includes('duas mãos'))continue;
+    const texto=textoPropriedades(o);
+    const propria=/arremesso\s+(\d+(?:[,.]\d+)?)\s*\/\s*(\d+(?:[,.]\d+)?)\s*m/.exec(texto);
+    const familia=arremessaveis.find(x=>x.nome&&texto.concat(' ',o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()).includes(x.nome));
+    const faixa=propria?{normal:Number(propria[1].replace(',','.')),longo:Number(propria[2].replace(',','.'))}:familia;
+    if(!faixa||f.opcoes.some(x=>x.varianteArremessoDe===o.id))continue;
+    let automacao=o.automacao?.tipo==='ataque'?structuredClone(o.automacao):null;
+    if(!automacao){
+      const ataque=/normal\s*\[1d20([+-]\d+)?\]/i.exec(o.descricao??''),dano=/dano\s*\[([^\]]+)\]/i.exec(o.descricao??'');
+      if(!ataque||!dano)continue;
+      automacao={tipo:'ataque',bonus:Number(ataque[1]||0),dano:dano[1],elemento:/perfurante/i.test(o.descricao??'')?'perfurante':undefined};
+    }
+    const v=structuredClone(o);v.id=o.id+'-arremesso';v.varianteArremessoDe=o.id;
+    v.nome=o.nome.replace(/\s*\|/,' · arremesso |').replace(/\s*—\s*AÇÃO/i,' · arremesso — AÇÃO');
+    if(v.nome===o.nome)v.nome+=' · arremesso';
+    v.descricao='Arremesso '+faixa.normal+'/'+faixa.longo+' m. Além de '+faixa.normal+' m, o ataque tem desvantagem.\n'+o.descricao;
+    v.automacao={...automacao,alcanceM:faixa.longo,alcanceNormalM:faixa.normal,arremesso:true};
+    f.opcoes.push(v);
   }
   // Expor círculos superiores como opções com o custo e o número de alvos correspondentes.
   for(const o of [...(f.opcoes??[])]){
@@ -360,7 +391,7 @@ export async function aplicar(s,c,u,rolar) {
       const afetados=escolhidos??(rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo]);
       const ajuste=c.ajuste??0;exigir(inteiro(ajuste,-20,20),'Ajuste inválido.');
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque));
-      const desvantagem=c.modo==='desvantagem';
+      const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distancia(a,p)>rule.alcanceNormalM+1e-8));
       const modoOriginal=c.modo;c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
       const danoComum=rule.tipo==='salva'?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
       for(const p of afetados){
