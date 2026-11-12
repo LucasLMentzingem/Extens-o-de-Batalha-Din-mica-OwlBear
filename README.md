@@ -26,6 +26,16 @@ Ao iniciar a iniciativa, a extensão mostra o botão de rolagem no centro e a or
 
 Clique numa habilidade e depois no alvo ou centro da área. O círculo dourado marca o alcance. A marca verde indica o alvo ou o raio de efeito. Confira o d20 e o ajuste na confirmação. Para mover, clique em **Mover**, marque o destino e confira a distância. Com a ferramenta da HUD ativa, também é possível arrastar o token do turno. **Cancelar** ou Esc descarta a prévia. O aviso de oportunidade considera o caminho, o lado dos participantes e o alcance informado na ficha (1,5 m por padrão). O mestre resolve a reação. Desengajar suprime o aviso. **Finalizar turno** fica à direita do rodapé. A HUD fecha ao encerrar o combate.
 
+Antes de um ataque, a confirmação permite escolher rolagem normal, vantagem ou desvantagem, acrescentar até quatro dados (`1d4 + 1d6`, por exemplo) e aplicar um modificador entre −20 e +20. O menu **Linhas** da barra aceita de uma a cinco linhas. Clique duas vezes no retrato para recolher a barra e deixar somente retrato e PV; repita para expandir. Clique duas vezes em qualquer participante do carrossel para centralizar e aproximar a câmera no token.
+
+## Reações e ataques de oportunidade
+
+Ao marcar um deslocamento que saia do alcance corpo a corpo de um inimigo, a prévia desenha uma seta vermelha do inimigo até o ponto de saída. Depois da confirmação, o movimento fica pausado e o controlador desse inimigo recebe uma janela de 20 segundos. Ele pode não reagir ou escolher uma reação compatível com o gatilho, incluindo os mesmos ajustes de um ataque comum. O alvo da reação é sempre o personagem que iniciou o deslocamento.
+
+Recusar ou errar permite que o deslocamento termine. Um acerto aplica o dano e interrompe o token no ponto exato em que deixou o alcance. A reação é gasta até o início do próximo turno do personagem; uma nova tentativa de movimento não provoca outra reação daquele mesmo inimigo. Se o tempo terminar, a extensão escolhe **Não fazer nada** e continua a ação. Desengajar impede a abertura desse gatilho.
+
+Na ficha, as 18 perícias aparecem como botões com o bônus pronto. As salvaguardas ficam em uma seção separada. O botão direito sobre FOR, DES, CON, INT, SAB ou CAR abre diretamente a salvaguarda correspondente, com vantagem, desvantagem, dados extras e modificador disponíveis.
+
 ## Selecionar vários alvos
 
 Mísseis Mágicos inicia uma seleção de três dardos. Cada clique acrescenta um dardo ao alvo e permite repetir a criatura. Use **Desfazer** para retirar a última escolha, **Concluir seleção** para revisar a distribuição e **Executar** para gastar a ação e o espaço. O círculo de 2º nível distribui quatro dardos e gasta o espaço correspondente. Há uma rolagem de dano por dardo.

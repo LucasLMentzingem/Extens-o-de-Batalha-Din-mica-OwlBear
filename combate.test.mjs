@@ -50,7 +50,7 @@ test('salva por alvo e um dano compartilhado, círculo gasto, resistência e cr�
  await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20','2d10']);
 });
 test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
- const m=mesa();await m.iniciar();await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
+ const m=mesa();await m.iniciar();m.s.atores[1].x=20;m.s.atores[2].x=22;await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
  await assert.rejects(m.go('mover',{ator:m.a.id,x:7,y:8},player),/insuficiente/);
 });
 test('falha de dados, revisão obsoleta e alvo fora do alcance preservam saldos',async()=>{
@@ -122,4 +122,26 @@ test('círculo superior requer quatro dardos e gasta o recurso correto',async()=
  assert.equal(o.selecao.max,4);
  await m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,m.b.id,m.b.id]},player,[2,2,2,2]);
  assert.equal(m.s.atores[0].rec['espaco-1'],4);assert.equal(m.s.atores[0].rec['espaco-2'],1);
+});
+test('ataque aceita dado extra e modificador antes da rolagem',async()=>{
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ await m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id,dadosAjuste:['1d4'],ajuste:0},player,[10,2,7]);
+ assert.equal(m.s.atores[1].pv,17);assert.match(m.s.historico[0],/total 17/);
+});
+test('ataque de oportunidade pausa e interrompe o movimento no ponto do acerto',async()=>{
+ const m=mesa();await m.iniciar();m.s.atores[2].x=8;
+ await m.go('mover',{ator:m.a.id,x:4,y:0},player);
+ assert.equal(m.s.atores[0].x,0);assert.equal(m.s.reacaoPendente.alvo,m.a.id);assert.equal(m.s.reacaoPendente.reator,m.b.id);
+ const opcao=m.b.ficha.opcoes.find(o=>o.gatilho==='sair_alcance');
+ await m.go('resolverReacao',{ator:m.b.id,opcao:opcao.id,modo:'normal',ajuste:0,dadosAjuste:[]},gm,[15,5]);
+ assert.equal(m.s.atores[0].pv,15);assert.equal(m.s.atores[0].x,2.5);assert.equal(m.s.atores[0].metros,6.5);assert.equal(m.s.atores[1].reacao,0);assert.equal(m.s.reacaoPendente,undefined);
+ await m.go('mover',{ator:m.a.id,x:4,y:0},player);assert.equal(m.s.atores[0].x,4);
+});
+test('recusar oportunidade continua o movimento e perícia ausente usa o atributo',async()=>{
+ const m=mesa();await m.iniciar();m.s.atores[2].x=8;
+ await m.go('mover',{ator:m.a.id,x:4,y:0},player);
+ await m.go('resolverReacao',{ator:m.b.id,opcao:null},gm);
+ assert.equal(m.s.atores[0].x,4);assert.equal(m.s.atores[0].metros,5);
+ await m.go('passar',{ator:m.a.id},player);await m.go('teste',{ator:m.b.id,grupo:'pericias',chave:'Acrobacia'},gm,[10]);
+ assert.match(m.s.historico[0],/11/);
 });

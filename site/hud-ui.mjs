@@ -8,6 +8,7 @@ const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attr
 const curto=o=>o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'').split(/\s*[|·—]\s*/)[0];
 const grupo=o=>o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
 let v,aba='Ações',bus;
+const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 function retrato(a){
   const src=v.imagens[a.id];
   return src?'<img alt="" src="'+esc(src)+'">':'<b>'+esc(a.nome.slice(0,1))+'</b>';
@@ -23,7 +24,7 @@ function render(){
     html='<nav><strong>'+(s.rodada?'Rodada '+s.rodada:'Iniciativa')+'</strong>'+ordem.map(id=>{
       const x=s.atores.find(a=>a.id===id);if(!x)return '';
       return btn('ator','<i>'+retrato(x)+'</i><span>'+esc(x.nome)+'<small>'+esc(x.init??'…')+'</small></span>',
-        'data-id="'+esc(id)+'" class="ord '+(id===ativo?'atual':'')+'" '+(meus.includes(x)?'':'disabled'));
+        'data-id="'+esc(id)+'" class="ord '+(id===ativo?'atual ':'')+(meus.includes(x)?'':'observador')+'"');
     }).join('')+'</nav>';
   }else if(parte==='iniciativa'){
     html='<section class="prompt"><strong>Iniciativa</strong><div>'+meus.filter(x=>x.init===null&&x.ficha.tipo==='pj').map(x=>btn('iniciativa','Rolar · '+esc(x.nome),'data-id="'+esc(x.id)+'"')).join('')+
@@ -32,17 +33,25 @@ function render(){
     const mesmo=root.dataset.titulo===p.titulo&&root.dataset.rev===String(p.rev);
     const modo=mesmo?document.querySelector('#modo')?.value:'normal',ajuste=mesmo?document.querySelector('#ajuste')?.value:0;
     root.dataset.titulo=p.titulo;root.dataset.rev=p.rev;
+    const dados=mesmo?document.querySelector('#dadosAjuste')?.value:'';
     html='<section class="prompt"><strong>'+esc(p.titulo)+'</strong><small>'+esc(p.detalhe)+'</small>'+
-      (p.rolagem?'<div><select id="modo" aria-label="Modo do d20">'+['normal','vantagem','desvantagem'].map(m=>'<option '+(m===modo?'selected':'')+'>'+m+'</option>').join('')+'</select><input id="ajuste" aria-label="Ajuste do d20" type="number" min="-20" max="20" value="'+esc(ajuste||0)+'"></div>':'')+
+      (p.rolagem?'<div class="ajustes"><label>d20<select id="modo" aria-label="Modo do d20">'+['normal','vantagem','desvantagem'].map(m=>'<option '+(m===modo?'selected':'')+'>'+m+'</option>').join('')+'</select></label><label>Dados extras<input id="dadosAjuste" aria-label="Dados extras" placeholder="1d4 + 1d6" value="'+esc(dados)+'"></label><label>+ / −<input id="ajuste" aria-label="Ajuste do d20" type="number" min="-20" max="20" value="'+esc(ajuste||0)+'"></label></div>':'')+
       '<div>'+btn('cancelar','Cancelar')+btn('confirmar',p.substitui?'Executar pelo jogador':'Executar','class="ouro"')+'</div></section>';
+  }else if(parte==='reacao'&&s.reacaoPendente){
+    const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
+    const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));
+    const restante=Math.max(0,Math.ceil((rp.terminaEm-Date.now())/1000));
+    const modo=document.querySelector('#modoReacao')?.value||'normal',ajuste=document.querySelector('#ajusteReacao')?.value||0,dados=document.querySelector('#dadosReacao')?.value||'';
+    html='<section class="prompt reacao"><strong>Reação de '+esc(reator?.nome)+'</strong><small>'+esc(alvo?.nome)+' está deixando seu alcance corpo a corpo.</small><b class="timer">'+restante+' s</b><div class="ajustes"><label>d20<select id="modoReacao">'+['normal','vantagem','desvantagem'].map(m=>'<option '+(m===modo?'selected':'')+'>'+m+'</option>').join('')+'</select></label><label>Dados extras<input id="dadosReacao" placeholder="1d4 + 1d6" value="'+esc(dados)+'"></label><label>+ / −<input id="ajusteReacao" type="number" min="-20" max="20" value="'+esc(ajuste)+'"></label></div><div class="escolhas-reacao">'+btn('resolverReacao','Não fazer nada','data-id=""')+opcoes.map(o=>btn('resolverReacao',esc(curto(o)),'data-id="'+esc(o.id)+'" class="ouro"')).join('')+'</div></section>';
   }else if(parte==='barra'&&a){
+    if(v.compacto){html='<section class="dock compacta"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside></section>';root.innerHTML=html;return;}
     const turno=ativo===a.id;
     const ops=a.ficha.opcoes??[];
     const disp=ops.filter(o=>grupo(o)===aba);
     const recurso=(a.ficha.recursos??[]).map(r=>'<span title="'+esc(r.nome)+'">'+esc(r.nome)+' <b>'+esc(a.rec[r.id])+'/'+r.maximo+'</b></span>').join('');
     html='<section class="dock"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside><article><header><strong>'+esc(a.nome)+'</strong><span>'+a.acao+' ação · '+a.bonus+' bônus · '+a.reacao+' reação · '+Number(a.metros.toFixed(2))+' m</span>'+btn('ficha','Ficha')+'</header>'+
       '<div class="rec">'+recurso+'</div><div class="abas">'+['Ações','Bônus','Magias','Reações'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+
-      '<label>Linhas <select id="linhas">'+[3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
+      '<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
       '<div class="grade" style="--linhas:'+v.linhas+'">'+disp.map(o=>{
         const bloqueio=(grupo(o)!=='Reações'&&!turno)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           (o.custo??[]).some(c=>(c.tipo==='recurso'?a.rec[c.id]:a[c.tipo])<c.quantidade)?'Recurso insuficiente':
@@ -68,10 +77,18 @@ root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v||v.ocupado)return;
   const tipo=b.dataset.cmd,id=b.dataset.id;
   if(tipo==='aba'){aba=id;render();return;}
-  bus.postMessage({tipo,id,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:undefined,
-    rev:v.estado.rev,modo:document.querySelector('#modo')?.value||'normal',ajuste:Number(document.querySelector('#ajuste')?.value||0)});
+  const reacao=tipo==='resolverReacao';
+  bus.postMessage({tipo,id,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,
+    rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
+    ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
+    dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});
 };
 root.onchange=e=>{if(e.target.id==='linhas')bus.postMessage({tipo:'linhas',valor:e.target.value});};
 root.oncontextmenu=e=>{const b=e.target.closest('[data-cmd="usar"]');if(b&&!b.disabled){e.preventDefault();b.click();}};
+root.ondblclick=e=>{
+  const ordem=e.target.closest('[data-cmd="ator"]');if(ordem){e.preventDefault();bus.postMessage({tipo:'focar',id:ordem.dataset.id});return;}
+  if(e.target.closest('.retrato')){e.preventDefault();bus.postMessage({tipo:'compactar'});}
+};
 await pronto();bus=await canalHud();bus.onmessage=e=>{if(e.data.vista){v=e.data.vista;render();}};bus.postMessage({pedir:true});
+if(parte==='reacao')setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250);
 

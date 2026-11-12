@@ -13,9 +13,16 @@ export async function exemplos(){
 }
 export async function demo(onView){
   const key=ns+'/ensaio';
-  let s=JSON.parse(localStorage.getItem(key)||'null')??novo();
+  let s=JSON.parse(localStorage.getItem(key)||'null')??novo(),timerReacao;
   const info={id:'mestre',role:'GM',players:[{id:'teste',name:'Jogador de teste'}],tokens:[],modo:'ensaio'};
-  const notify=()=>{s.atores.forEach(a=>atualizarMagias(a.ficha));onView(s,info);};
+  const notify=()=>{
+    clearTimeout(timerReacao);s.atores.forEach(a=>atualizarMagias(a.ficha));onView(s,info);
+    if(s.reacaoPendente){const id=s.reacaoPendente.id;timerReacao=setTimeout(async()=>{
+      if(s.reacaoPendente?.id!==id)return;const p=s.reacaoPendente;
+      s=await aplicar(s,{tipo:'resolverReacao',ator:p.reator,opcao:null,rev:s.rev,confirmado:true},{role:'GM',id:'mestre'},dadoLocal);
+      localStorage.setItem(key,JSON.stringify(s));notify();
+    },Math.max(0,s.reacaoPendente.terminaEm-Date.now())+80);}
+  };
   return {notify,async enviar(c){
     const role=c.comoJogador?'PLAYER':'GM';
     const next=await aplicar(s,c,{role,id:role==='GM'?'mestre':'teste'},dadoLocal);
@@ -43,7 +50,7 @@ async function getTokens(){
 }
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
-  const ch=local();let fila=Promise.resolve();
+  const ch=local();let fila=Promise.resolve(),timerReacao;
   const serial=fn=>{fila=fila.then(fn).catch(e=>console.error(e));};
   async function carregar(){
     if(!await OBR.scene.isReady())throw Error('Abra uma cena primeiro.');
@@ -60,6 +67,14 @@ export async function host(){
     const s=JSON.parse(localStorage.getItem(key)||'null')??novo();s.atores.forEach(a=>atualizarMagias(a.ficha));return {key,s};
   }
   async function mostrar(s){
+    clearTimeout(timerReacao);
+    if(s.reacaoPendente){
+      const id=s.reacaoPendente.id,espera=Math.max(0,s.reacaoPendente.terminaEm-Date.now());
+      timerReacao=setTimeout(()=>serial(async()=>{
+        const atual=await carregar(),p=atual.s.reacaoPendente;
+        if(p?.id===id)await executar({tipo:'resolverReacao',ator:p.reator,opcao:null,rev:atual.s.rev,confirmado:true},eu,()=>{});
+      }),espera+80);
+    }
     const [players,tokens]=await Promise.all([OBR.party.getPlayers(),getTokens()]);
     ch.postMessage({vista:s,info:{...eu,modo:'sala',players,tokens}});
     const v=publico(s);
@@ -109,6 +124,7 @@ export async function host(){
         const alvo=s.atores.find(a=>a.id===c.alvo);
         if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
       }
+      const alvoReacao=s.reacaoPendente?.alvo;
       const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(eu.name,eu.id));
       if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
@@ -124,6 +140,10 @@ export async function host(){
       if(c.tipo==='mover'){
         const a=next.atores.find(x=>x.id===c.ator);
         await OBR.scene.items.updateItems([a.token],items=>{for(const t of items)t.position={x:a.x*dpi,y:a.y*dpi};});
+      }
+      if(c.tipo==='resolverReacao'&&alvoReacao){
+        const a=next.atores.find(x=>x.id===alvoReacao);
+        if(a?.token)await OBR.scene.items.updateItems([a.token],items=>{for(const t of items)t.position={x:a.x*dpi,y:a.y*dpi};});
       }
       localStorage.setItem(key,JSON.stringify(next));await mostrar(next);await reply({});
     }catch(e){await reply({erro:e.message});}

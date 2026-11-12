@@ -1,4 +1,11 @@
 export const atributos = ['for','des','con','int','sab','car'];
+export const periciasPadrao = {
+  'Acrobacia':'des','Adestrar Animais':'sab','Arcanismo':'int','Atletismo':'for',
+  'Atuação':'car','Enganação':'car','Furtividade':'des','História':'int',
+  'Intimidação':'car','Intuição':'sab','Investigação':'int','Medicina':'sab',
+  'Natureza':'int','Percepção':'sab','Persuasão':'car','Prestidigitação':'des',
+  'Religião':'int','Sobrevivência':'sab'
+};
 export function exigir(ok, msg) { if (!ok) throw new Error(msg); }
 const inteiro = (n,min,max) => Number.isInteger(n) && n >= min && n <= max;
 const idOK = id => typeof id === 'string' && /^[a-z0-9][a-z0-9_-]{0,79}$/i.test(id) && !Object.hasOwn(Object.prototype,id);
@@ -8,6 +15,7 @@ function lista(xs, label) {
 }
 export function atualizarMagias(f){
   for(const o of f.opcoes??[]){
+    if(typeof o.nome==='string'&&o.custo?.some(c=>c.tipo==='reacao')&&o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes('ataque de oportunidade'))o.gatilho='sair_alcance';
     if(o.categoria!=='magia'||o.automacao||typeof o.nome!=='string')continue;
     const nome=o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().split('|').pop().split('·')[0].trim();
     const circulo=o.circuloBase??1;
@@ -98,7 +106,44 @@ export function adicionar(s,f,nome=f.nome) {
 }
 export const atual = s=>s.atores.find(a=>a.id===s.ordem[s.vez]);
 export const mod = n=>Math.floor((n-10)/2);
+export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 const distancia=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const lado=a=>a.ficha.lado??a.ficha.tipo;
+function pontoSaida(origem,destino,centro,raio){
+  const vx=destino.x-origem.x,vy=destino.y-origem.y,px=origem.x-centro.x,py=origem.y-centro.y;
+  const aa=vx*vx+vy*vy,bb=2*(px*vx+py*vy),cc=px*px+py*py-raio*raio;
+  const delta=bb*bb-4*aa*cc;
+  if(aa<=0||delta<0)return null;
+  const t=(-bb+Math.sqrt(delta))/(2*aa);
+  return t>=0&&t<=1?{x:origem.x+vx*t,y:origem.y+vy*t,t}:null;
+}
+export function oportunidades(s,movente,destino){
+  return s.atores.flatMap(reator=>{
+    const alcance=reator.ficha.alcanceCorpoACorpoM??1.5;
+    const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='sair_alcance'&&o.custo?.some(c=>c.tipo==='reacao'));
+    if(reator===movente||lado(reator)===lado(movente)||reator.pv<=0||reator.reacao<=0||!opcoes.length)return [];
+    if(distancia(reator,movente)>alcance+1e-8||distancia(reator,destino)<=alcance+1e-8)return [];
+    const ponto=pontoSaida(movente,destino,reator,alcance);
+    return ponto?[{reator:reator.id,ponto:{x:ponto.x,y:ponto.y},t:ponto.t,opcoes:opcoes.map(o=>o.id)}]:[];
+  }).sort((a,b)=>a.t-b.t);
+}
+function abrirProximaReacao(s){
+  const mov=s.movimentoPendente;
+  while(mov?.ameacas.length){
+    const proxima=mov.ameacas.shift(),reator=s.atores.find(a=>a.id===proxima.reator);
+    const opcoes=(reator?.ficha.opcoes??[]).filter(o=>proxima.opcoes.includes(o.id)&&o.gatilho==='sair_alcance'&&reator.reacao>0);
+    if(!reator||reator.pv<=0||!opcoes.length)continue;
+    s.reacaoPendente={id:crypto.randomUUID(),gatilho:'sair_alcance',reator:reator.id,alvo:mov.ator,
+      opcoes:opcoes.map(o=>o.id),ponto:proxima.ponto,terminaEm:Date.now()+20000};
+    return reator;
+  }
+  if(mov){
+    const a=s.atores.find(x=>x.id===mov.ator),d=distancia(mov.origem,mov.destino);
+    a.x=mov.destino.x;a.y=mov.destino.y;a.metros=Math.max(0,a.metros-d);delete s.movimentoPendente;
+  }
+  delete s.reacaoPendente;return null;
+}
+const dadosExtrasValidos=xs=>Array.isArray(xs)&&xs.length<=4&&xs.every(x=>/^\d{1,2}d(?:4|6|8|10|12|20)$/.test(x));
 export function registrar(s,t) { s.historico.unshift(t); s.historico.length=Math.min(s.historico.length,45); }
 function ativar(a){
   a.acao=1;a.bonus=1;a.reacao=1;a.metros=a.ficha.deslocamentosM.andar;a.desengajado=false;
@@ -110,6 +155,10 @@ export async function aplicar(s,c,u,rolar) {
   for(const p of s.atores)atualizarMagias(p.ficha);
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
   const dadoBencao=async p=>abencoado(p)?await rolar('1d4'):0;
+  const ajusteDados=async()=>{
+    const xs=c.dadosAjuste??[];exigir(dadosExtrasValidos(xs),'Dados extras inválidos.');
+    let total=0;for(const formula of xs)total+=await rolar(formula);return total;
+  };
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
@@ -155,12 +204,54 @@ export async function aplicar(s,c,u,rolar) {
       msg='Ajuste do mestre em '+a.nome;break;
     }
     case 'teste': {
-      const bonus=(c.grupo==='pericias'?a.ficha.pericias:a.ficha.salvaguardas)?.[c.chave];
+      const bonus=c.grupo==='pericias'?bonusPericia(a.ficha,c.chave):a.ficha.salvaguardas?.[c.chave];
       exigir(Number.isInteger(bonus)&&inteiro(c.ajuste??0,-20,20),'Teste inválido.');
       let dado=await rolar('1d20');
       if(c.modo==='vantagem')dado=Math.max(dado,await rolar('1d20'));
       if(c.modo==='desvantagem')dado=Math.min(dado,await rolar('1d20'));
-      msg=a.nome+' • '+c.chave+': '+(dado+bonus+(c.ajuste??0)+(c.grupo==='salvaguardas'?await dadoBencao(a):0));break;
+      msg=a.nome+' • '+c.chave+': '+(dado+bonus+(c.ajuste??0)+await ajusteDados()+(c.grupo==='salvaguardas'?await dadoBencao(a):0));break;
+    }
+    case 'resolverReacao': {
+      const p=s.reacaoPendente,mov=s.movimentoPendente;
+      exigir(s.fase==='turnos'&&p&&mov&&p.reator===a?.id,'Esta reação não está mais disponível.');
+      exigir(p.alvo===mov.ator,'O alvo da reação mudou.');
+      if(!c.opcao){
+        const seguinte=abrirProximaReacao(s);
+        msg=a.nome+' não usou a reação.'+(seguinte?' '+seguinte.nome+' pode reagir.':' O deslocamento continuou.');
+        break;
+      }
+      const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='sair_alcance');
+      exigir(o&&a.reacao>0,'Reação indisponível.');
+      for(const custo of o.custo??[]){
+        const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;
+        exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para reagir.');bag[key]-=custo.quantidade;
+      }
+      const alcance=a.ficha.alcanceCorpoACorpoM??1.5;
+      const ataque=(o.automacao?.tipo==='ataque'?o:a.ficha.opcoes.filter(x=>x.automacao?.tipo==='ataque'&&x.automacao.alcanceM<=alcance+1e-8&&x.categoria!=='magia')
+        .sort((x,y)=>y.automacao.bonus-x.automacao.bonus)[0]);
+      exigir(ataque,'Nenhum ataque corpo a corpo configurado para esta reação.');
+      const rule=ataque.automacao,alvo=s.atores.find(x=>x.id===p.alvo),ajuste=c.ajuste??0;
+      exigir(alvo&&inteiro(ajuste,-20,20),'Ajuste ou alvo inválido.');
+      let face=await rolar('1d20');
+      if(c.modo==='vantagem')face=Math.max(face,await rolar('1d20'));
+      if(c.modo==='desvantagem')face=Math.min(face,await rolar('1d20'));
+      const total=face+rule.bonus+ajuste+await ajusteDados()+await dadoBencao(a);
+      const acertou=face!==1&&(face===20||total>=alvo.ficha.caBase);
+      msg=a.nome+' • '+o.nome+' com '+ataque.nome+' • '+total+(acertou?' acertou':' errou');
+      if(acertou){
+        let formula=rule.dano;if(face===20)formula=formula.replace(/^\d+/,n=>String(+n+1));
+        let dano=await rolar(formula);
+        if(alvo.ficha.imunidades?.includes(rule.elemento))dano=0;
+        if(alvo.ficha.resistencias?.includes(rule.elemento))dano=Math.floor(dano/2);
+        if(alvo.ficha.vulnerabilidades?.includes(rule.elemento))dano*=2;
+        alvo.pv=Math.max(0,alvo.pv-dano);const percorrida=distancia(mov.origem,p.ponto);
+        alvo.x=p.ponto.x;alvo.y=p.ponto.y;alvo.metros=Math.max(0,alvo.metros-percorrida);
+        msg+=' e causou '+dano+'. O movimento parou em '+percorrida.toFixed(2)+' m.';
+        delete s.movimentoPendente;delete s.reacaoPendente;
+      }else{
+        const seguinte=abrirProximaReacao(s);msg+=seguinte?' • '+seguinte.nome+' pode reagir.':' • o deslocamento continuou.';
+      }
+      break;
     }
     case 'reagir': {
       const o=a.ficha.opcoes.find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
@@ -173,6 +264,7 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'encerrar':
       for(const p of s.atores)delete p.bencao;
+      delete s.reacaoPendente;delete s.movimentoPendente;
       s.fase='preparo';s.ordem=[];s.rodada=0;msg='Combate encerrado.';break;
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
@@ -182,6 +274,7 @@ export async function aplicar(s,c,u,rolar) {
         if(c.periodo==='longo')p.pv=p.ficha.pvMaximos;
       } msg='Descanso '+c.periodo+' dos jogadores.';break;
     default: {
+      exigir(!s.reacaoPendente,'Resolva a reação pendente antes de continuar.');
       exigir(s.fase==='turnos' && atual(s)?.id===a.id,'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
         s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;ativar(atual(s));const iniciado=atual(s);if(iniciado.bencao&&--iniciado.bencao.turnos<=0)delete iniciado.bencao;msg=a.nome+' encerrou o turno.';break;
@@ -190,7 +283,12 @@ export async function aplicar(s,c,u,rolar) {
       if(c.tipo==='mover'){
         exigir(Number.isFinite(c.x)&&Number.isFinite(c.y),'Destino inválido.');
         const d=distancia(a,c);exigir(d<=a.metros+1e-8,'Deslocamento insuficiente.');
-        a.x=c.x;a.y=c.y;a.metros=Math.max(0,a.metros-d);msg=a.nome+' moveu '+d.toFixed(2)+' m.';break;
+        const ameacas=a.desengajado?[]:oportunidades(s,a,c);
+        if(ameacas.length){
+          s.movimentoPendente={ator:a.id,origem:{x:a.x,y:a.y},destino:{x:c.x,y:c.y},ameacas};
+          const reator=abrirProximaReacao(s);msg=a.nome+' iniciou um deslocamento de '+d.toFixed(2)+' m e provocou '+reator.nome+'.';
+        }else{a.x=c.x;a.y=c.y;a.metros=Math.max(0,a.metros-d);msg=a.nome+' moveu '+d.toFixed(2)+' m.';}
+        break;
       }
       exigir(c.tipo==='usar','Comando desconhecido.');
       const o=a.ficha.opcoes.find(x=>x.id===c.opcao);exigir(o,'Opção desconhecida.');
@@ -236,7 +334,7 @@ export async function aplicar(s,c,u,rolar) {
       for(const p of afetados){
       let formula=rule.dano;
       if(rule.tipo==='ataque'){
-        const face=await d20();const total=face+rule.bonus+ajuste+await dadoBencao(a);
+        const face=await d20();const total=face+rule.bonus+ajuste+await ajusteDados()+await dadoBencao(a);
         msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
         if(face===1 || (face!==20 && total<p.ficha.caBase)){msg+=' • errou '+p.nome;continue;}
         if(face===20){formula=formula.replace(/^\d+/,n=>String(+n+1));msg+=' • crítico';}

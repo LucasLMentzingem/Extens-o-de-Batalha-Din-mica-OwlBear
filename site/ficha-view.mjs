@@ -10,7 +10,7 @@ export function cabecalhoFicha(a){
   const classe=f.classes.map(c=>c.nome??c.id).join(' / ');
   const nivel=f.classes.reduce((t,c)=>t+c.nivel,0);
   return '<div class="identidade"><div class="selo">'+(f.id==='soldado'?'<img src="fichas/soldado.png" alt="">':esc(a.nome[0]))+'</div><div><h2>'+esc(a.nome)+'</h2><small>'+esc(classe)+' · Nível '+nivel+'</small></div></div>'+
-    '<div class="atributos">'+Object.entries(f.atributos).map(([k,n])=>{const b=Math.floor((n-10)/2);return '<div><small>'+esc(k.toUpperCase())+'</small><strong>'+(b>=0?'+':'')+b+'</strong><span>'+n+'</span></div>';}).join('')+'</div>';
+    '<div class="atributos">'+Object.entries(f.atributos).map(([k,n])=>{const b=Math.floor((n-10)/2);return '<button type="button" class="atributo" data-save="'+esc(k)+'" title="Clique com o botão direito para rolar a salvaguarda"><small>'+esc(k.toUpperCase())+'</small><strong>'+(b>=0?'+':'')+b+'</strong><span>'+n+'</span></button>';}).join('')+'</div>';
 }
 export function biblioteca(a){
   const f=a.ficha,grupos=[

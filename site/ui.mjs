@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
 import {ns,emSala,sala,demo,exemplos} from './bridge.mjs';
 import {cabecalhoFicha,biblioteca} from './ficha-view.mjs';
-import {atual,validar,publico,multi,incluirAlvo} from './engine.mjs';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod} from './engine.mjs';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -13,6 +13,7 @@ function confirma(t,d){
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
 let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[];
+let testePendente;
 function view(estado,i){
   if(s?.rev!==estado.rev)alvos=[];
   recebido=estado;s=testar?publico(estado):estado;info=i;
@@ -60,12 +61,10 @@ function render(){
       h+='<details><summary>Mapa tático · 1 m por célula</summary><div class="campos"><label>Clique no mapa para<select id="mapModo">'+(o?.automacao?.raioM?opt('centro','Marcar centro da área'):opt('alvo','Escolher alvo'))+opt('mover','Marcar destino de movimento')+'</select></label><small id="medida"></small></div><div class="tabuleiro" id="tabuleiro"></div></details><details><summary>Opções da rolagem</summary><div class="campos"><select id="rolagem"><option>normal</option><option>vantagem</option><option>desvantagem</option></select>'+coord('ajuste','Ajuste ao d20',0)+'</div></details>';
       if(o)h+=btn('usar','Executar','primario');h+='</div><details><summary>Deslocar em metros</summary><div class="campos">'+coord('x','Destino X',a.x)+coord('y','Destino Y',a.y)+btn('mover','Conferir trajeto')+'</div></details>'+btn('passar','Finalizar turno');
     }
-    if(meu&&f.salvaguardas){
-      const testes=['pericias','salvaguardas'].flatMap(g=>Object.entries(f[g]??{}).sort((a,b)=>b[1]-a[1]).map(([k,v])=>opt(g+'|'+k,(g==='pericias'?'Perícia · ':'Salvaguarda · ')+k+' ('+(v>=0?'+':'')+v+')')));
-      h+='<details><summary>Testes rápidos</summary><div class="campos"><select id="testeNome">'+testes.join('')+'</select><select id="testeModo"><option>normal</option><option>vantagem</option><option>desvantagem</option></select>'+coord('testeAjuste','Ajuste',0)+btn('testeRapido','Rolar teste')+'</div></details>';
+    if(meu){
+      const saves=Object.keys(f.atributos).map(k=>[k,f.salvaguardas?.[k]??mod(f.atributos[k])]);
+      h+='<section class="testes-ficha"><h3>Perícias</h3><div class="grade-testes">'+Object.keys(periciasPadrao).map(k=>{const v=bonusPericia(f,k);return '<button type="button" data-teste="pericias" data-chave="'+esc(k)+'"><span>'+esc(k)+'</span><b>'+(v>=0?'+':'')+v+'</b></button>';}).join('')+'</div><h3>Salvaguardas</h3><p class="muted">Clique aqui ou use o botão direito sobre um atributo.</p><div class="grade-testes salva">'+saves.map(([k,v])=>'<button type="button" data-teste="salvaguardas" data-chave="'+esc(k)+'"><span>'+esc(k.toUpperCase())+'</span><b>'+(v>=0?'+':'')+v+'</b></button>').join('')+'</div></section>';
     }
-    const reactions=f.opcoes?.filter(o=>o.custo?.some(c=>c.tipo==='reacao'))??[];
-    if(s.fase==='turnos'&&meu&&reactions.length)h+='<details><summary>Reações · '+a.reacao+' disponível</summary><p>Confira o gatilho com o mestre. O sistema desconta o custo e a mesa aplica o efeito.</p><select id="reacao">'+reactions.map(o=>opt(o.id,o.nome)).join('')+'</select>'+btn('reagir','Usar reação')+'</details>';
     h+=biblioteca(a);
     }
     if(mestre){
@@ -113,7 +112,17 @@ function render(){
 }
 function coord(id,label,value){return '<label>'+label+'<input type="number" step="any" class="curto" id="'+id+'" value="'+Number(value)+'"></label>';}
 const num=id=>Number($(id)?.value??0);
+const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 async function enviar(tipo,extra={}){await api.enviar({tipo,rev:s.rev,ator:escolhido,comoJogador:testar,...extra});}
+async function rolarTeste(grupo,chave){
+  const a=s.atores.find(x=>x.id===escolhido);if(!a)return;
+  const bonus=grupo==='pericias'?bonusPericia(a.ficha,chave):(a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]));
+  const dlg=$('rolarTeste');$('tituloTeste').textContent=(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave;
+  $('bonusTeste').textContent='Bônus da ficha: '+(bonus>=0?'+':'')+bonus;$('modoTeste').value='normal';$('dadosTeste').value='';$('ajusteTeste').value=0;dlg.returnValue='nao';
+  const rev=s.rev;const aceitou=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
+  if(!aceitou)return;if(s.rev!==rev)throw Error('O encontro mudou antes da rolagem.');
+  await enviar('teste',{grupo,chave,modo:$('modoTeste').value,ajuste:num('ajusteTeste'),dadosAjuste:dadosExtras($('dadosTeste').value),confirmado:info.role==='GM'&&!testar&&a.ficha.tipo==='pj'});
+}
 async function executar(k){
   const a=s.atores.find(x=>x.id===escolhido);
   if(k==='gm'||k==='ficha'){secao=k;return render();}
@@ -131,16 +140,14 @@ async function executar(k){
   if(['curto','longo'].includes(k)){if(await confirma('Executar descanso '+k+'?','Aplica a recuperação aos jogadores do encontro.'))await enviar('descanso',{periodo:k});return;}
   if(['encerrar','remover'].includes(k)){if(await confirma(k==='encerrar'?'Encerrar combate?':'Retirar participante?',a?.nome??''))await enviar(k);return;}
   if(['iniciar','criarPeca'].includes(k))return enviar(k);
-  if(['testeRapido','reagir','ajustar'].includes(k)){
+  if(k==='ajustar'){
     const subst=info.role==='GM'&&!testar&&a.ficha.tipo==='pj';
     const extra={confirmado:subst};
-    if(k==='testeRapido'){[extra.grupo,extra.chave]=$('testeNome').value.split('|');extra.modo=$('testeModo').value;extra.ajuste=num('testeAjuste');}
-    if(k==='reagir')extra.opcao=$('reacao').value;
-    if(k==='ajustar'){extra.campo=$('campo').value;extra.valor=num('delta');}
+    extra.campo=$('campo').value;extra.valor=num('delta');
     const rev=s.rev;
-    if(await confirma(subst?'Agir por '+a.nome+' como mestre?':a.nome,k==='reagir'?'Confirmar gatilho e gastar a reação?':k==='ajustar'?'Alteração de saldo: '+extra.valor:extra.chave)){
+    if(await confirma(subst?'Agir por '+a.nome+' como mestre?':a.nome,'Alteração de saldo: '+extra.valor)){
       if(s.rev!==rev)throw Error('O encontro mudou.');
-      await enviar(k==='testeRapido'?'teste':k,extra);
+      await enviar(k,extra);
     }return;
   }
   const o=a.ficha.opcoes.find(x=>x.id===acao);
@@ -160,10 +167,10 @@ async function executar(k){
   await enviar(k,args);
 }
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
-$('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;if(b.dataset.ator){escolhido=b.dataset.ator;acao=null;alvos=[];return render();}if(b.dataset.do)tarefa(()=>executar(b.dataset.do));};
+$('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;if(b.dataset.ator){escolhido=b.dataset.ator;acao=null;alvos=[];return render();}if(b.dataset.teste){return tarefa(()=>rolarTeste(b.dataset.teste,b.dataset.chave));}if(b.dataset.do)tarefa(()=>executar(b.dataset.do));};
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
-$('app').oncontextmenu=e=>{if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
+$('app').oncontextmenu=e=>{const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
 try{api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
@@ -176,4 +183,7 @@ try{api=await (emSala?sala:demo)(view);await api.notify();
    selecionar(id);
  }
  if(emSala)setTimeout(()=>{if(!s){aviso('Aguardando o mestre e a cena do Owlbear.');api.notify();}},1800);}catch(e){aviso(e.message);}
+
+window.render_game_to_text=()=>JSON.stringify({coordenadas:'x cresce para a direita; y cresce para baixo; distâncias em metros',fase:s?.fase,rodada:s?.rodada,turno:atual(s??{atores:[],ordem:[]})?.nome,selecionado:s?.atores.find(a=>a.id===escolhido)?.nome,reacao:s?.reacaoPendente?{reator:s.atores.find(a=>a.id===s.reacaoPendente.reator)?.nome,alvo:s.atores.find(a=>a.id===s.reacaoPendente.alvo)?.nome,terminaEm:s.reacaoPendente.terminaEm}:null});
+window.advanceTime=()=>{};
 

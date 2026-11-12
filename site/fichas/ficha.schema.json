@@ -414,6 +414,15 @@
             "type": "string"
           }
         },
+        "gatilho": {
+          "enum": [
+            "sair_alcance",
+            "sofrer_dano",
+            "ser_alvo",
+            "falhar_teste",
+            "conjurar_magia"
+          ]
+        },
         "requisitos": {
           "type": "array",
           "items": {
