@@ -26,3 +26,15 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração simulada aprovada para ajuste pré-ataque, seta de oportunidade, reação com dados extras, interrupção do movimento, grade de uma linha, HUD compacta, foco de câmera, 18 perícias e salvaguarda por clique direito.
 - Inspeção visual concluída nas capturas `work/reacao-oportunidade-v04.png`, `work/pericias-v04.png` e `work/ficha-selecionada-v04.png`.
 
+## Etapa seguinte: testes rápidos na HUD
+
+- [x] Abas Perícias e Salva guarda ao lado de Linhas.
+- [x] Dezoito perícias com os bônus da ficha ou o modificador do atributo quando não declaradas.
+- [x] Seis salvaguardas com os bônus da ficha.
+- [x] Rolagens disponíveis fora do turno e sem consumir ação, bônus ou reação.
+- [x] Testar a revisão antes e durante o combate.
+- [x] Publicar a revisão 0.4.1.
+
+- Testes finais: 19 testes do motor, integração simulada da HUD e cliente de navegador sem erros novos.
+- Capturas conferidas: `work/pericias-hud-v041.png` e `work/pericias-pre-combate-v041.png`.
+

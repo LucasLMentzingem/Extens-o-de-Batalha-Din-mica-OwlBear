@@ -43,13 +43,13 @@ export async function iniciarHud(){
     abertos.set(parte,key);
   }
   async function layout(){
-    const ativo=pronta&&estado&&estado.fase!=='preparo';
+    const ativo=pronta&&estado&&atores().length>0;
     const caixas={};
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
       const largura=Math.min(800,w-14),altura=Math.min(124+linhas*54,Math.floor(h*.55));
-      caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
-      if(estado.fase==='turnos'&&ator())caixas.barra=compacto?[Math.round((w-92)/2),h-150,92,102]:[Math.round((w-largura)/2),h-altura-48,largura,altura];
+      if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
+      if(ator())caixas.barra=compacto?[Math.round((w-92)/2),h-150,92,102]:[Math.round((w-largura)/2),h-altura-48,largura,altura];
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
       if(pendente?.pronto){
         const cw=Math.min(360,w-12),ch=pendente.rolagem?205:118;
@@ -177,7 +177,7 @@ export async function iniciarHud(){
         ferramentaDoTurno=null;
       }
     }
-    if(s.fase!=='preparo')tokens=await OBR.scene.items.getItems(atores().map(a=>a.token).filter(Boolean));
+    if(atores().length)tokens=await OBR.scene.items.getItems(atores().map(a=>a.token).filter(Boolean));
     await layout();transmitir();
   }
   async function mensagem(d){
@@ -212,6 +212,13 @@ export async function iniciarHud(){
       ocupado=true;transmitir();
       try{await api.enviar({tipo:'resolverReacao',ator:reator.id,opcao:d.opcao||null,rev:estado.rev,
         confirmado:eu.role==='GM'&&reator.ficha.tipo==='pj',modo:d.modo||'normal',ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]});}finally{ocupado=false;}
+    }else if(d.tipo==='teste'){
+      if(d.ator){if(!atores().some(a=>a.id===d.ator&&controla(a)))return;atorId=d.ator;}
+      const a=ator(),grupo=d.grupo,chave=d.chave;
+      if(!controla(a)||!['pericias','salvaguardas'].includes(grupo)||typeof chave!=='string')return;
+      await cancelar();pendente={cmd:{tipo:'teste',ator:a.id,rev:estado.rev,grupo,chave},rev:estado.rev,
+        escolha:null,titulo:(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave,pronto:true,rolagem:true,
+        substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'Rolagem rápida de '+a.nome+' · não consome ações.'};
     }else if(d.tipo==='npcs'){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
       // Each acknowledgment follows its snapshot; let the view queue settle between NPCs.

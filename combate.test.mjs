@@ -145,3 +145,8 @@ test('recusar oportunidade continua o movimento e perícia ausente usa o atribut
  await m.go('passar',{ator:m.a.id},player);await m.go('teste',{ator:m.b.id,grupo:'pericias',chave:'Acrobacia'},gm,[10]);
  assert.match(m.s.historico[0],/11/);
 });
+test('perícias e salvaguardas podem ser roladas antes e fora do próprio turno',async()=>{
+ const m=mesa();await m.go('teste',{ator:m.b.id,grupo:'pericias',chave:'Acrobacia'},gm,[10]);assert.match(m.s.historico[0],/11/);
+ await m.iniciar();await m.go('teste',{ator:m.b.id,grupo:'salvaguardas',chave:'con'},gm,[10]);assert.match(m.s.historico[0],/14/);
+ assert.equal(m.s.atores[1].acao,1);assert.equal(m.s.atores[1].bonus,1);assert.equal(m.s.atores[1].reacao,1);
+});

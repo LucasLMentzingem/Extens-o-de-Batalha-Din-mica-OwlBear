@@ -28,6 +28,8 @@ Clique numa habilidade e depois no alvo ou centro da área. O círculo dourado m
 
 Antes de um ataque, a confirmação permite escolher rolagem normal, vantagem ou desvantagem, acrescentar até quatro dados (`1d4 + 1d6`, por exemplo) e aplicar um modificador entre −20 e +20. O menu **Linhas** da barra aceita de uma a cinco linhas. Clique duas vezes no retrato para recolher a barra e deixar somente retrato e PV; repita para expandir. Clique duas vezes em qualquer participante do carrossel para centralizar e aproximar a câmera no token.
 
+Ao lado de **Linhas**, as abas **Perícias** e **Salva guarda** abrem os testes rápidos no próprio rodapé. Perícias contém as 18 perícias; Salva guarda contém FOR, DES, CON, INT, SAB e CAR. Essas rolagens não consomem ação, ação bônus ou reação e ficam disponíveis na preparação, na iniciativa e durante qualquer turno, inclusive o turno de outro personagem.
+
 ## Reações e ataques de oportunidade
 
 Ao marcar um deslocamento que saia do alcance corpo a corpo de um inimigo, a prévia desenha uma seta vermelha do inimigo até o ponto de saída. Depois da confirmação, o movimento fica pausado e o controlador desse inimigo recebe uma janela de 20 segundos. Ele pode não reagir ou escolher uma reação compatível com o gatilho, incluindo os mesmos ajustes de um ataque comum. O alvo da reação é sempre o personagem que iniciou o deslocamento.
