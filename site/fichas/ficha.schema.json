@@ -492,7 +492,9 @@
                 "salva",
                 "disparada",
                 "desengajar",
-                "efeito_conjuracao"
+                "efeito_conjuracao",
+                "projeteis",
+                "bencao"
               ]
             },
             "alcanceM": {

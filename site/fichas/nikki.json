@@ -587,7 +587,19 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "projeteis",
+        "alcanceM": 36,
+        "dano": "1d4+1",
+        "elemento": "energetico"
+      },
+      "selecao": {
+        "tipo": "alvos",
+        "min": 3,
+        "max": 3,
+        "repetirAlvo": true
+      }
     },
     {
       "id": "a2901594-6ddc-5d12-8dc3-3b6c39321fff",
@@ -812,6 +824,38 @@
         "bonusCD": 1,
         "vantagemAtaque": true
       }
+    },
+    {
+      "id": "504bc18e-d20e-5bc0-ae01-5109c41f7f29-c2",
+      "nome": "Mísseis Mágicos (2º círculo)",
+      "categoria": "magia",
+      "descricao": "Ação · 36 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-2"
+        }
+      ],
+      "circuloBase": 2,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "projeteis",
+        "alcanceM": 36,
+        "dano": "1d4+1",
+        "elemento": "energetico"
+      },
+      "selecao": {
+        "tipo": "alvos",
+        "min": 4,
+        "max": 4,
+        "repetirAlvo": true
+      },
+      "varianteDe": "504bc18e-d20e-5bc0-ae01-5109c41f7f29"
     }
   ],
   "notas": [

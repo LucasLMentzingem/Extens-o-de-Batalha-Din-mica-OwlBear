@@ -1,3 +1,4 @@
+import {detalhes} from './ficha-view.mjs';
 import {pronto} from './bridge.mjs';
 import {canalHud} from './hud-controller.mjs';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
@@ -46,14 +47,23 @@ function render(){
         const bloqueio=(grupo(o)!=='Reações'&&!turno)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           (o.custo??[]).some(c=>(c.tipo==='recurso'?a.rec[c.id]:a[c.tipo])<c.quantidade)?'Recurso insuficiente':
           !o.automacao&&!gm&&grupo(o)!=='Reações'?'Resolução pelo mestre':'';
-        return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" '+(bloqueio||ocupado?'disabled ':'')+'title="'+esc(bloqueio||o.nome+' · '+(o.descricao??''))+'"');
-      }).join('')+'</div><footer>'+(p?'<small>'+esc(p.detalhe)+'</small>'+btn('cancelar','Cancelar'):btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+
+        return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
+      }).join('')+'</div><footer>'+(p?'<small>'+esc(p.detalhe)+'</small>'+(p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled')+btn('concluir','Concluir seleção',p.quantidade>=p.min?'':'disabled'):'')+btn('cancelar','Cancelar'):btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+
       (!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</footer></article></section>';
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
-  root.innerHTML=html;
+  ocultarDica();root.innerHTML=html;
   if(root.querySelector('.grade'))root.querySelector('.grade').scrollLeft=scroll;
 }
+const dica=document.createElement('div');dica.className='dica-skill';dica.hidden=true;dica.setAttribute('role','tooltip');document.body.append(dica);
+function ocultarDica(){dica.hidden=true;}
+function mostrarDica(e){
+  const b=e.target.closest('[data-info]');if(!b){ocultarDica();return;}
+  dica.textContent=b.dataset.info;dica.hidden=false;
+  const caixa=b.getBoundingClientRect();
+  dica.style.left=(caixa.left>innerWidth/2?4:Math.max(4,innerWidth-dica.offsetWidth-4))+'px';
+}
+root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v||v.ocupado)return;
   const tipo=b.dataset.cmd,id=b.dataset.id;

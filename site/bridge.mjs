@@ -1,5 +1,5 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, aplicar, publico, dadoLocal} from './engine.mjs';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal} from './engine.mjs';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view'};
 const chaveCena=ns+'/cena';
@@ -15,7 +15,7 @@ export async function demo(onView){
   const key=ns+'/ensaio';
   let s=JSON.parse(localStorage.getItem(key)||'null')??novo();
   const info={id:'mestre',role:'GM',players:[{id:'teste',name:'Jogador de teste'}],tokens:[],modo:'ensaio'};
-  const notify=()=>onView(s,info);
+  const notify=()=>{s.atores.forEach(a=>atualizarMagias(a.ficha));onView(s,info);};
   return {notify,async enviar(c){
     const role=c.comoJogador?'PLAYER':'GM';
     const next=await aplicar(s,c,{role,id:role==='GM'?'mestre':'teste'},dadoLocal);
@@ -57,7 +57,7 @@ export async function host(){
       id=id||crypto.randomUUID();await OBR.scene.setMetadata({[chaveCena]:id,[autoridade]:eu.id});
     }
     const key=ns+'/'+OBR.room.id+'/'+id;
-    return {key,s:JSON.parse(localStorage.getItem(key)||'null')??novo()};
+    const s=JSON.parse(localStorage.getItem(key)||'null')??novo();s.atores.forEach(a=>atualizarMagias(a.ficha));return {key,s};
   }
   async function mostrar(s){
     const [players,tokens]=await Promise.all([OBR.party.getPlayers(),getTokens()]);
@@ -102,6 +102,10 @@ export async function host(){
       if(c.tipo==='usar'||c.tipo==='mover'){
         const ator=s.atores.find(a=>a.id===c.ator);
         if(!tokens.some(t=>t.id===ator?.token))throw Error('Vincule o personagem a um token da cena.');
+        if(c.alvos!==undefined&&(!Array.isArray(c.alvos)||!c.alvos.every(id=>{
+          const p=s.atores.find(x=>x.id===id);
+          return p&&tokens.some(t=>t.id===p.token&&(u.role==='GM'||t.visible));
+        })))throw Error('Um dos alvos está indisponível.');
         const alvo=s.atores.find(a=>a.id===c.alvo);
         if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
       }
@@ -160,6 +164,6 @@ export async function sala(onView){
       espera.set(req,err=>{clearTimeout(timer);err?reject(Error(err)):resolve();});
       Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
     });
-  },selecionado:async()=>(await OBR.player.getSelection())?.[0]};
+  },observarSelecao:fn=>OBR.player.onChange(p=>fn(p.selection?.[0])),selecionado:async()=>(await OBR.player.getSelection())?.[0]};
 }
 

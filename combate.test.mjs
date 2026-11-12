@@ -82,6 +82,44 @@ test('Feitiçaria Inata custa uma ação bônus, conserva a ação e modifica a 
 test('ataque declarativo usa escala de nível total e proficiência',()=>{
  const f=structuredClone(nikki);f.classes[0].nivel=10;
  f.opcoes.push({id:'teste',nome:'Ataque escalonado',categoria:'magia',selecao:{tipo:'alvos',max:1,alcanceM:36},etapas:[{tipo:'ataque_contra_ca',atributo:'car',somarProficiencia:true},{tipo:'dano',quando:'acerto',parcelas:[{tipo:'fogo',dados:'1d10',escalaPorNivelTotal:[{nivel:5,dados:'2d10'}]}]}]});
- assert.equal(validar(f).opcoes.at(-1).automacao.dano,'2d10');
+ assert.equal(validar(f).opcoes.find(o=>o.id==='teste').automacao.dano,'2d10');
 });
 
+
+test('Mísseis Mágicos migram, repetem alvos e gastam um espaço por conjuração',async()=>{
+ const m=mesa();await m.iniciar();
+ const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe);
+ await m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,m.c.id]},player,[3,4,5]);
+ assert.deepEqual(m.s.atores.map(a=>a.pv),[20,17,19]);assert.equal(m.s.atores[0].rec['espaco-1'],3);
+});
+test('alvos incompletos, duplicados proibidos ou ausentes não gastam recursos',async()=>{
+ const m=mesa();await m.iniciar();
+ const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id]},player),/Quantidade/);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,'inexistente']},player),/ausente/);
+ assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec['espaco-1'],4);
+});
+test('Bênção permite menos alvos, recusa repetição e aplica dado nas salvas',async()=>{
+ const m=mesa();
+ m.a.ficha.opcoes.push({id:'bencao-teste',nome:'Bênção',categoria:'magia',circuloBase:1,custo:[{tipo:'acao',quantidade:1},{tipo:'recurso',id:'espaco-1',quantidade:1}]});
+ await m.iniciar();
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'bencao-teste',alvos:[m.a.id,m.a.id]},player),/diferentes/);
+ await m.go('usar',{ator:m.a.id,opcao:'bencao-teste',alvos:[m.a.id]},player);
+ assert.deepEqual(m.s.atores[0].bencao.alvos,[m.a.id]);
+ await m.go('teste',{ator:m.a.id,grupo:'salvaguardas',chave:'con'},player,[10,3]);
+ assert.match(m.s.historico[0],/17/);
+});
+test('rajada com testes de ataque resolve cada projétil e suporta alvos repetidos',async()=>{
+ const m=mesa();
+ m.a.ficha.opcoes.push({id:'rajada',nome:'Rajada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],selecao:{tipo:'alvos',min:3,max:3,repetirAlvo:true},automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'fogo',alcanceM:18}});
+ await m.iniciar();
+ await m.go('usar',{ator:m.a.id,opcao:'rajada',alvos:[m.b.id,m.c.id,m.b.id]},player,[12,3,1,18,4]);
+ assert.deepEqual(m.s.atores.map(a=>a.pv),[20,17,24]);
+});
+test('círculo superior requer quatro dardos e gasta o recurso correto',async()=>{
+ const m=mesa();await m.iniciar();
+ const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&o.circuloBase===2);
+ assert.equal(o.selecao.max,4);
+ await m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,m.b.id,m.b.id]},player,[2,2,2,2]);
+ assert.equal(m.s.atores[0].rec['espaco-1'],4);assert.equal(m.s.atores[0].rec['espaco-2'],1);
+});

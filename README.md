@@ -26,6 +26,16 @@ Ao iniciar a iniciativa, a extensão mostra o botão de rolagem no centro e a or
 
 Clique numa habilidade e depois no alvo ou centro da área. O círculo dourado marca o alcance. A marca verde indica o alvo ou o raio de efeito. Confira o d20 e o ajuste na confirmação. Para mover, clique em **Mover**, marque o destino e confira a distância. Com a ferramenta da HUD ativa, também é possível arrastar o token do turno. **Cancelar** ou Esc descarta a prévia. O aviso de oportunidade considera o caminho, o lado dos participantes e o alcance informado na ficha (1,5 m por padrão). O mestre resolve a reação. Desengajar suprime o aviso. **Finalizar turno** fica à direita do rodapé. A HUD fecha ao encerrar o combate.
 
+## Selecionar vários alvos
+
+Mísseis Mágicos inicia uma seleção de três dardos. Cada clique acrescenta um dardo ao alvo e permite repetir a criatura. Use **Desfazer** para retirar a última escolha, **Concluir seleção** para revisar a distribuição e **Executar** para gastar a ação e o espaço. O círculo de 2º nível distribui quatro dardos e gasta o espaço correspondente. Há uma rolagem de dano por dardo.
+
+Bênção, quando presente na ficha, aceita de um a três alvos distintos no 1º círculo. Clique novamente numa criatura para desmarcá-la. A confirmação é liberada depois do primeiro alvo. O efeito soma 1d4 aos ataques e salvaguardas enquanto sua concentração estiver ativa. A duração termina no início do décimo turno seguinte do conjurador. Dano exige o teste de concentração. Os campos `selecao.min`, `selecao.max` e `selecao.repetirAlvo` configuram a seleção de outras magias e rajadas. Ataques múltiplos rolam por projétil, magias de salvaguarda rolam por alvo.
+
+Encontros anteriores recebem a automação de Mísseis Mágicos e Bênção ao carregar as fichas reconhecidas pelo nome. A amostra da Nikki contém Mísseis Mágicos. Bênção foi testada em uma ficha temporária.
+
+A aba **Ficha do personagem** mostra o personagem selecionado no mapa ou um personagem vinculado ao jogador. **Controle do mestre** reúne importação, vínculo, preparação e encerramento do encontro, descansos e ajustes. O botão Ficha da HUD abre o personagem exibido na barra. Os quadrados de habilidades exibem nomes e mostram descrição, custo, alcance, dano, teste e regras de seleção ao passar o mouse ou receber foco.
+
 ## Contrato de importação
 
 [Esquema JSON versão 1](site/fichas/ficha.schema.json) · [Nikki Lauda](site/fichas/nikki.json) · [Soldado nível 3](site/fichas/soldado.json) · [Arquitetura](../Arquitetura.md)
@@ -41,7 +51,7 @@ O formato aceita classes e multiclasses cuja soma seja de 1 a 10. Recursos, espa
 | Escalonamento | O motor reconhece a sequência declarativa simples de ataque contra CA seguido de uma parcela de dano e a tabela `escalaPorNivelTotal`. Demais variantes podem ser descritas como opções separadas ou resolvidas pelo mestre. |
 | Reações, preparação, concentração, duração, gatilhos, efeitos, equipamento e passivas | O formato guarda os dados e preserva descrições. Reações assistidas descontam seus custos fora do turno. O mestre verifica o gatilho, aplica consequências e ajusta PV ou recursos quando necessário. |
 
-O combate automático disponível para Nikki inclui adaga principal, lança, Raio de Fogo, Despedaçar e Feitiçaria Inata. Os soldados têm lança e espada curta em corpo a corpo. A ficha mantém textos sobre arremesso, Feitiçaria Inata, metamagia, preparadas, equipamentos e demais habilidades. Inata usa a ação bônus, dura dez turnos e aumenta a CD de Despedaçar. Raio de Fogo é infernal nesta ficha e mantém seu bônus normal. Variações como espaço superior, concentração, oportunidade automática, terreno, linha de visão e gatilhos de equipamento ainda exigem arbitragem. O painel permite ajustes ao d20 e aos saldos. Para uma variação cujo custo ou efeito difira da opção automática, o mestre deve conferir o resultado e os saldos. O painel tático aceita destino e área por clique. Na sala do Owlbear, a HUD oferece seleção e confirmação diretamente no mapa.
+O combate automático disponível para Nikki inclui adaga principal, lança, Raio de Fogo, Despedaçar, Mísseis Mágicos e Feitiçaria Inata. Os soldados têm lança e espada curta em corpo a corpo. A ficha mantém textos sobre arremesso, Feitiçaria Inata, metamagia, preparadas, equipamentos e demais habilidades. Inata usa a ação bônus, dura dez turnos e aumenta a CD de Despedaçar. Raio de Fogo é infernal nesta ficha e mantém seu bônus normal. Variações como espaço superior, concentração, oportunidade automática, terreno, linha de visão e gatilhos de equipamento ainda exigem arbitragem. O painel permite ajustes ao d20 e aos saldos. Para uma variação cujo custo ou efeito difira da opção automática, o mestre deve conferir o resultado e os saldos. O painel tático aceita destino e área por clique. Na sala do Owlbear, a HUD oferece seleção e confirmação diretamente no mapa.
 
 ## Verificação
 

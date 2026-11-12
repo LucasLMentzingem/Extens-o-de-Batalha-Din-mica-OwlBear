@@ -6,10 +6,48 @@ const nomeOK = nome => typeof nome === 'string' && nome.trim().length > 0;
 function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
+export function atualizarMagias(f){
+  for(const o of f.opcoes??[]){
+    if(o.categoria!=='magia'||o.automacao||typeof o.nome!=='string')continue;
+    const nome=o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().split('|').pop().split('·')[0].trim();
+    const circulo=o.circuloBase??1;
+    if(nome==='misseis magicos'){
+      o.automacao={tipo:'projeteis',alcanceM:36,dano:'1d4+1',elemento:'energetico'};
+      o.selecao={tipo:'alvos',min:2+circulo,max:2+circulo,repetirAlvo:true};
+    }
+    if(nome==='bencao'){
+      o.automacao={tipo:'bencao',alcanceM:9};
+      o.selecao={tipo:'alvos',min:1,max:2+circulo,repetirAlvo:false};
+    }
+  }
+  // Expor círculos superiores como opções com o custo e o número de alvos correspondentes.
+  for(const o of [...(f.opcoes??[])]){
+    if(!['projeteis','bencao'].includes(o.automacao?.tipo)||o.varianteDe||!o.selecao)continue;
+    const base=o.circuloBase??1;
+    if(!o.custo?.some(c=>c.id==='espaco-'+base))continue;
+    for(let n=base+1;n<=5;n++){
+      const id=o.id+'-c'+n;
+      if(!f.recursos?.some(r=>r.id==='espaco-'+n)||f.opcoes.some(x=>x.id===id))continue;
+      const v=structuredClone(o);v.id=id;v.varianteDe=o.id;v.circuloBase=n;
+      v.nome=o.nome.replace(/^\dº\s*\|\s*/,'').split(' · ')[0]+' ('+n+'º círculo)';
+      v.custo.find(c=>c.id==='espaco-'+base).id='espaco-'+n;
+      v.selecao.max+=n-base;if(v.selecao.repetirAlvo)v.selecao.min+=n-base;
+      f.opcoes.push(v);
+    }
+  }
+}
+export const multi=o=>o?.selecao?.tipo==='alvos'&&(o.selecao.max>1||['projeteis','bencao'].includes(o.automacao?.tipo))?o.selecao:null;
+export function incluirAlvo(lista,id,regra){
+  if(!regra.repetirAlvo&&lista.includes(id))return lista.filter(x=>x!==id);
+  exigir(lista.length<regra.max,'Seleção completa. Desfaça uma escolha para trocar o alvo.');
+  return [...lista,id];
+}
 export function validar(f) {
   exigir(f?.versaoFormato===1 && idOK(f.id) && nomeOK(f.nome) && ['pj','npc'].includes(f.tipo),'Informe versaoFormato 1, id, nome e tipo pj/npc.');
   exigir(Array.isArray(f.classes) && f.classes.every(c=>idOK(c.id)&&inteiro(c.nivel,1,10)) && inteiro(f.classes.reduce((n,c)=>n+c.nivel,0),1,10),'A soma dos níveis deve estar entre 1 e 10.');
   exigir(atributos.every(k=>inteiro(f.atributos?.[k],1,30)) && inteiro(f.pvMaximos,1,9999) && inteiro(f.caBase,0,99) && Number.isFinite(f.deslocamentosM?.andar) && f.deslocamentosM.andar>=0,'Verifique atributos, PV, CA e deslocamento.');
+  exigir(Array.isArray(f.opcoes)&&Array.isArray(f.recursos),'Opções e recursos devem ser listas.');
+  f=structuredClone(f);atualizarMagias(f);
   lista(f.recursos,'Recursos'); lista(f.opcoes,'Opções');
   for(const r of f.recursos) exigir(nomeOK(r.nome)&&inteiro(r.maximo,0,9999)&&inteiro(r.saldoInicial,0,r.maximo),'Saldo inválido em '+r.id);
   for(const o of f.opcoes) {
@@ -17,7 +55,12 @@ export function validar(f) {
     for(const c of o.custo??[]) exigir(['acao','bonus','reacao','recurso'].includes(c.tipo) && inteiro(c.quantidade,1,999) && (c.tipo!=='recurso'||f.recursos.some(r=>r.id===c.id)), 'Custo inválido em '+o.id);
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','disparada','desengajar','efeito_conjuracao'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','disparada','desengajar','efeito_conjuracao','projeteis','bencao'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    if(multi(o)||['projeteis','bencao'].includes(a.tipo)){
+      const r=o.selecao;
+      exigir(r?.tipo==='alvos'&&inteiro(r.max,1,64)&&inteiro(r.min,1,r.max)&&typeof r.repetirAlvo==='boolean'&&Number.isFinite(a.alcanceM)&&a.alcanceM>=0,'Seleção de alvos inválida em '+o.id);
+      if(a.tipo==='projeteis')exigir(/^\d{1,2}d(?:4|6|8|10|12)(?:[+-]\d{1,2})?$/.test(a.dano),'Dano por projétil inválido.');
+    }
     if(a.tipo==='efeito_conjuracao')exigir(inteiro(a.turnos,1,100)&&idOK(a.origem)&&inteiro(a.bonusCD,0,10),'Duração, origem ou bônus de CD inválido.');
     if(['ataque','salva'].includes(a.tipo)) {
       exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0 && /^(?:[1-9]|[1-9][0-9])d(?:4|6|8|10|12)(?:[+-]\d{1,2})?$/.test(a.dano),'Dano ou alcance inválido em '+o.id);
@@ -64,6 +107,9 @@ function ativar(a){
 export async function aplicar(s,c,u,rolar) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
+  for(const p of s.atores)atualizarMagias(p.ficha);
+  const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
+  const dadoBencao=async p=>abencoado(p)?await rolar('1d4'):0;
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
@@ -105,6 +151,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(gm && a && inteiro(c.valor,-9999,9999),'Ajuste reservado ao mestre.');
       if(c.campo==='pv')a.pv=Math.min(a.ficha.pvMaximos,Math.max(0,a.pv+c.valor));
       else {const r=a.ficha.recursos.find(r=>r.id===c.campo);exigir(r,'Recurso desconhecido.');a.rec[r.id]=Math.min(r.maximo,Math.max(0,a.rec[r.id]+c.valor));}
+      if(a.pv===0)delete a.bencao;
       msg='Ajuste do mestre em '+a.nome;break;
     }
     case 'teste': {
@@ -113,7 +160,7 @@ export async function aplicar(s,c,u,rolar) {
       let dado=await rolar('1d20');
       if(c.modo==='vantagem')dado=Math.max(dado,await rolar('1d20'));
       if(c.modo==='desvantagem')dado=Math.min(dado,await rolar('1d20'));
-      msg=a.nome+' • '+c.chave+': '+(dado+bonus+(c.ajuste??0));break;
+      msg=a.nome+' • '+c.chave+': '+(dado+bonus+(c.ajuste??0)+(c.grupo==='salvaguardas'?await dadoBencao(a):0));break;
     }
     case 'reagir': {
       const o=a.ficha.opcoes.find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
@@ -125,18 +172,19 @@ export async function aplicar(s,c,u,rolar) {
       msg=a.nome+' • '+o.nome+' (gatilho e efeito conferidos pela mesa)';break;
     }
     case 'encerrar':
+      for(const p of s.atores)delete p.bencao;
       s.fase='preparo';s.ordem=[];s.rodada=0;msg='Combate encerrado.';break;
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       for(const p of s.atores.filter(x=>x.ficha.tipo==='pj')){
         for(const r of p.ficha.recursos) if(r.recuperacao?.some(v=>v.evento==='descanso_'+c.periodo && v.modo==='completar'))p.rec[r.id]=r.maximo;
-        p.efeitosAtivos=[];
+        p.efeitosAtivos=[];delete p.bencao;
         if(c.periodo==='longo')p.pv=p.ficha.pvMaximos;
       } msg='Descanso '+c.periodo+' dos jogadores.';break;
     default: {
       exigir(s.fase==='turnos' && atual(s)?.id===a.id,'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
-        s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;ativar(atual(s));msg=a.nome+' encerrou o turno.';break;
+        s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;ativar(atual(s));const iniciado=atual(s);if(iniciado.bencao&&--iniciado.bencao.turnos<=0)delete iniciado.bencao;msg=a.nome+' encerrou o turno.';break;
       }
       exigir(a.pv>0,'Personagem a 0 PV.');
       if(c.tipo==='mover'){
@@ -153,6 +201,7 @@ export async function aplicar(s,c,u,rolar) {
         exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+o.nome);bag[key]-=custo.quantidade;
       }
       msg=a.nome+' • '+o.nome;
+      if(o.concentracao)delete a.bencao;
       if(!rule){msg+=' (resolução pelo mestre)';break;}
       if(rule.tipo==='efeito_conjuracao'){
         a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>e.id!==o.id);
@@ -162,10 +211,20 @@ export async function aplicar(s,c,u,rolar) {
       const efeitos=(a.efeitosAtivos??[]).filter(e=>e.origem===o.origem);
       if(rule.tipo==='disparada'){a.metros+=a.ficha.deslocamentosM.andar;break;}
       if(rule.tipo==='desengajar'){a.desengajado=true;break;}
-      const alvo=s.atores.find(x=>x.id===c.alvo);
+      const selecao=multi(o);let escolhidos;
+      if(selecao){
+        exigir(Array.isArray(c.alvos)&&c.alvos.length>=selecao.min&&c.alvos.length<=selecao.max,'Quantidade de alvos inválida.');
+        exigir(selecao.repetirAlvo||new Set(c.alvos).size===c.alvos.length,'Escolha criaturas diferentes.');
+        escolhidos=c.alvos.map(id=>s.atores.find(x=>x.id===id));
+        exigir(escolhidos.every(p=>p&&distancia(a,p)<=rule.alcanceM+1e-8),'Alvo ausente ou fora do alcance.');
+        if(rule.tipo==='bencao'){
+          a.bencao={alvos:[...c.alvos],turnos:10};msg+=' • '+escolhidos.map(p=>p.nome).join(', ');break;
+        }
+      }
+      const alvo=escolhidos?.[0]??s.atores.find(x=>x.id===c.alvo);
       const centro=rule.raioM?c.ponto:alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
-      const afetados=rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo];
+      const afetados=escolhidos??(rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo]);
       const ajuste=c.ajuste??0;exigir(inteiro(ajuste,-20,20),'Ajuste inválido.');
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque));
       const desvantagem=c.modo==='desvantagem';
@@ -173,25 +232,28 @@ export async function aplicar(s,c,u,rolar) {
         const n=await rolar('1d20');if(vantagem===desvantagem)return n;
         const b=await rolar('1d20');return vantagem?Math.max(n,b):Math.min(n,b);
       };
+      const danoComum=rule.tipo==='salva'?await rolar(rule.dano):null;
+      for(const p of afetados){
       let formula=rule.dano;
       if(rule.tipo==='ataque'){
-        const face=await d20();const total=face+rule.bonus+ajuste;
+        const face=await d20();const total=face+rule.bonus+ajuste+await dadoBencao(a);
         msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
-        if(face===1 || (face!==20 && total<alvo.ficha.caBase)){msg+=' • errou';break;}
+        if(face===1 || (face!==20 && total<p.ficha.caBase)){msg+=' • errou '+p.nome;continue;}
         if(face===20){formula=formula.replace(/^\d+/,n=>String(+n+1));msg+=' • crítico';}
       }
-      const dano=await rolar(formula);
-      for(const p of afetados){
+      const dano=danoComum??await rolar(formula);
         let valor=dano;
         if(rule.tipo==='salva'){
           const bonus=p.ficha.salvaguardas?.[rule.atributo]??mod(p.ficha.atributos[rule.atributo]);
           const cd=rule.cd+Math.max(0,...efeitos.map(e=>e.bonusCD));
-          if((await d20())+bonus+ajuste>=cd) valor=rule.metade?Math.floor(valor/2):0;
+          if((await d20())+bonus+ajuste+await dadoBencao(p)>=cd) valor=rule.metade?Math.floor(valor/2):0;
         }
         if(p.ficha.imunidades?.includes(rule.elemento))valor=0;
         if(p.ficha.resistencias?.includes(rule.elemento)) valor=Math.floor(valor/2);
         if(p.ficha.vulnerabilidades?.includes(rule.elemento))valor*=2;
-        p.pv=Math.max(0,p.pv-valor);msg+=' • '+p.nome+' sofreu '+valor;
+        p.pv=Math.max(0,p.pv-valor);
+        if(p.bencao&&valor>0&&(p.pv===0||(await rolar('1d20'))+(p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con))+await dadoBencao(p)<Math.max(10,Math.floor(valor/2))))delete p.bencao;
+        msg+=' • '+p.nome+' sofreu '+valor;
       }
     }
   }
@@ -200,6 +262,7 @@ export async function aplicar(s,c,u,rolar) {
 export function publico(s){
   const v=structuredClone(s);
   for(const a of v.atores)if(a.ficha.tipo==='npc'){
+    delete a.bencao;
     a.ficha={tipo:'npc',nome:a.nome,opcoes:[]};delete a.pv;delete a.rec;
   }
   return v;
