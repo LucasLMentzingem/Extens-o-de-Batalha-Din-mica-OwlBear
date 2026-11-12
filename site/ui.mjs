@@ -36,7 +36,7 @@ function render(){
   let h='<nav class="paginas">'+btn('ficha','Ficha do personagem',!mestre?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+'</nav>';
   if(info.modo==='ensaio') h+='<div class="linha">'+btn('teste',testar?'Voltar ao mestre':'Testar como jogador')+'</div>';
   if(mestre&&s.fase==='preparo')h+='<section><h2>Preparar encontro</h2><div class="campos">'+btn('exemplo','Carregar Nikki + 2 soldados','primario')+'<label>Importar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label>'+btn('iniciar','Iniciar combate')+'</div></section>';
-  if(mestre&&s.fase!=='preparo')h+='<section><h2>'+(s.fase==='iniciativa'?'Iniciativa':'Rodada '+s.rodada)+'</h2><div class="ordem">'+(s.ordem.length?s.ordem:s.atores.map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(gm&&s.fase==='iniciativa'?btn('npcs','Rolar NPCs pendentes'):'')+'</section>';
+  if(mestre&&s.fase!=='preparo')h+='<section><h2>'+(s.fase==='iniciativa'?'Iniciativa':'Rodada '+s.rodada)+'</h2><div class="ordem">'+(s.ordem.length?s.ordem:s.atores.filter(x=>x.emCombate!==false).map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(gm&&s.fase==='iniciativa'?btn('npcs','Rolar NPCs pendentes'):'')+'</section>';
   h+='<div class="colunas '+(mestre?'gestao':'folha')+'"><section><h2>'+(mestre?'Participantes':'Personagens')+'</h2>';
   if(!a)h+='<p class="muted">'+(gm?'Importe uma ficha ou carregue o encontro de exemplo.':'Aguardando o mestre vincular uma ficha a você.')+'</p>';
   for(const p of disponiveis)h+='<button class="pessoa" data-ator="'+esc(p.id)+'" aria-pressed="'+(p===a)+'">'+(p.ficha.id==='soldado'?'<img src="fichas/soldado.png" alt="">':'<span class="avatar">'+esc(p.nome[0])+'</span>')+'<span>'+esc(p.nome)+'<br><small>'+esc(p.ficha.tipo.toUpperCase())+' · '+(p.token?'token vinculado':'sem token')+'</small></span></button>';
@@ -136,7 +136,7 @@ async function executar(k){
   }
   if(k==='selecao'){const id=await api.selecionado();if(!info.tokens.some(t=>t.id===id))throw Error('Selecione um token da camada Personagem.');$('token').value=id;return;}
   if(k==='vincular')return enviar(k,{token:$('token')?.value??('sim-'+a.id),dono:$('dono')?.value});
-  if(k==='npcs'){for(const p of s.atores.filter(x=>x.ficha.tipo==='npc'&&x.init===null))await enviar('iniciativa',{ator:p.id});return;}
+  if(k==='npcs'){for(const p of s.atores.filter(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null))await enviar('iniciativa',{ator:p.id});return;}
   if(['curto','longo'].includes(k)){if(await confirma('Executar descanso '+k+'?','Aplica a recuperação aos jogadores do encontro.'))await enviar('descanso',{periodo:k});return;}
   if(['encerrar','remover'].includes(k)){if(await confirma(k==='encerrar'?'Encerrar combate?':'Retirar participante?',a?.nome??''))await enviar(k);return;}
   if(['iniciar','criarPeca'].includes(k))return enviar(k);

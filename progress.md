@@ -38,3 +38,16 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Testes finais: 19 testes do motor, integração simulada da HUD e cliente de navegador sem erros novos.
 - Capturas conferidas: `work/pericias-hud-v041.png` e `work/pericias-pre-combate-v041.png`.
 
+## Etapa seguinte: menu de contexto da ficha
+
+- [x] Segmento incorporado no menu de contexto para tokens de Personagem.
+- [x] Retirar e recolocar a ficha na ordem de combate sem perder o vínculo.
+- [x] Abrir diretamente a ficha do personagem.
+- [x] Barras e campos Atual/Máximo para PV e todos os recursos declarados no JSON.
+- [x] Bloquear o token ao entrar e restaurar seu bloqueio anterior ao sair do combate.
+- [x] Teste integrado do painel, edição de Pontos de Feitiçaria e inspeção visual.
+- [x] Publicar a versão 0.5.0.
+
+- Testes finais: 21 testes do motor, painel de contexto integrado, HUD completa e navegador sem erros novos.
+- Captura conferida: `work/contexto-recursos-v05.png`.
+

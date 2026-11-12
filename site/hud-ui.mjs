@@ -21,15 +21,15 @@ function render(){
   const meus=s.atores.filter(x=>gm||x.dono===eu.id);
   let html='';
   if(parte==='ordem'){
-    const ordem=s.fase==='iniciativa'?s.atores.map(x=>x.id):s.vez<0?s.ordem:[...s.ordem.slice(s.vez),...s.ordem.slice(0,s.vez)];
+    const ordem=s.fase==='iniciativa'?s.atores.filter(x=>x.emCombate!==false).map(x=>x.id):s.vez<0?s.ordem:[...s.ordem.slice(s.vez),...s.ordem.slice(0,s.vez)];
     html='<nav><strong>'+(s.rodada?'Rodada '+s.rodada:'Iniciativa')+'</strong>'+ordem.map(id=>{
       const x=s.atores.find(a=>a.id===id);if(!x)return '';
       return btn('ator','<i>'+retrato(x)+'</i><span>'+esc(x.nome)+'<small>'+esc(x.init??'…')+'</small></span>',
         'data-id="'+esc(id)+'" class="ord '+(id===ativo?'atual ':'')+(meus.includes(x)?'':'observador')+'"');
     }).join('')+'</nav>';
   }else if(parte==='iniciativa'){
-    html='<section class="prompt"><strong>Iniciativa</strong><div>'+meus.filter(x=>x.init===null&&x.ficha.tipo==='pj').map(x=>btn('iniciativa','Rolar · '+esc(x.nome),'data-id="'+esc(x.id)+'"')).join('')+
-      (gm&&s.atores.some(x=>x.ficha.tipo==='npc'&&x.init===null)?btn('npcs','Rolar NPCs pendentes'):'')+'</div></section>';
+    html='<section class="prompt"><strong>Iniciativa</strong><div>'+meus.filter(x=>x.emCombate!==false&&x.init===null&&x.ficha.tipo==='pj').map(x=>btn('iniciativa','Rolar · '+esc(x.nome),'data-id="'+esc(x.id)+'"')).join('')+
+      (gm&&s.atores.some(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null)?btn('npcs','Rolar NPCs pendentes'):'')+'</div></section>';
   }else if(parte==='confirmar'&&p){
     const mesmo=root.dataset.titulo===p.titulo&&root.dataset.rev===String(p.rev);
     const modo=mesmo?document.querySelector('#modo')?.value:'normal',ajuste=mesmo?document.querySelector('#ajuste')?.value:0;

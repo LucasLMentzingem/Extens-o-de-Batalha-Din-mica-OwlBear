@@ -101,10 +101,11 @@ export function validar(f) {
 export const novo = () => ({rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[]});
 export function adicionar(s,f,nome=f.nome) {
   const ficha=validar(f);
-  const a={id:crypto.randomUUID(),nome,ficha,token:null,dono:null,pv:f.pvMaximos,rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
+  const a={id:crypto.randomUUID(),nome,ficha,token:null,dono:null,emCombate:true,pv:f.pvMaximos,rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
   s.atores.push(a); return a;
 }
 export const atual = s=>s.atores.find(a=>a.id===s.ordem[s.vez]);
+export const ativos = s=>s.atores.filter(a=>a.emCombate!==false);
 export const mod = n=>Math.floor((n-10)/2);
 export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 const distancia=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -121,7 +122,7 @@ export function oportunidades(s,movente,destino){
   return s.atores.flatMap(reator=>{
     const alcance=reator.ficha.alcanceCorpoACorpoM??1.5;
     const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='sair_alcance'&&o.custo?.some(c=>c.tipo==='reacao'));
-    if(reator===movente||lado(reator)===lado(movente)||reator.pv<=0||reator.reacao<=0||!opcoes.length)return [];
+    if(reator.emCombate===false||movente.emCombate===false||reator===movente||lado(reator)===lado(movente)||reator.pv<=0||reator.reacao<=0||!opcoes.length)return [];
     if(distancia(reator,movente)>alcance+1e-8||distancia(reator,destino)<=alcance+1e-8)return [];
     const ponto=pontoSaida(movente,destino,reator,alcance);
     return ponto?[{reator:reator.id,ponto:{x:ponto.x,y:ponto.y},t:ponto.t,opcoes:opcoes.map(o=>o.id)}]:[];
@@ -149,6 +150,11 @@ function ativar(a){
   a.acao=1;a.bonus=1;a.reacao=1;a.metros=a.ficha.deslocamentosM.andar;a.desengajado=false;
   a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>--e.turnos>0);
 }
+function iniciarTurnos(s){
+  const participantes=ativos(s);if(!participantes.length||participantes.some(x=>x.init===null))return false;
+  s.ordem=[...participantes].sort((x,y)=>y.init-x.init||y.ficha.atributos.des-x.ficha.atributos.des).map(x=>x.id);
+  s.vez=0;s.rodada=1;s.fase='turnos';participantes.forEach(ativar);return true;
+}
 export async function aplicar(s,c,u,rolar) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
@@ -162,7 +168,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','adicionar','vincular','iniciar','encerrar','descanso','remover'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','adicionar','vincular','iniciar','encerrar','descanso','remover','alternarCombate','definirRecurso'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -184,17 +190,45 @@ export async function aplicar(s,c,u,rolar) {
     case 'remover':
       exigir(s.fase==='preparo' && a,'Remova participantes na preparação.');
       s.atores=s.atores.filter(x=>x!==a);msg=a.nome+' saiu da lista.';break;
+    case 'alternarCombate': {
+      exigir(a,'Ficha não encontrada.');
+      const entrando=a.emCombate===false;
+      if(entrando){
+        a.emCombate=true;
+        if(s.fase==='turnos'){
+          const atualId=atual(s)?.id;a.init=(await rolar('1d20'))+mod(a.ficha.atributos.des);s.ordem.push(a.id);
+          s.ordem.sort((x,y)=>{const p=s.atores.find(a=>a.id===x),q=s.atores.find(a=>a.id===y);return q.init-p.init||q.ficha.atributos.des-p.ficha.atributos.des;});
+          s.vez=Math.max(0,s.ordem.indexOf(atualId));ativar(a);
+        }else a.init=null;
+        msg=a.nome+' entrou no combate.';
+      }else{
+        exigir(!s.reacaoPendente&&ativos(s).length>1,'Resolva a reação pendente e mantenha ao menos um participante.');
+        const atualId=atual(s)?.id,eraAtual=atualId===a.id,indice=s.vez;a.emCombate=false;a.init=null;s.ordem=s.ordem.filter(id=>id!==a.id);
+        if(s.fase==='turnos'&&s.ordem.length){
+          s.vez=eraAtual?Math.min(indice,s.ordem.length-1):Math.max(0,s.ordem.indexOf(atualId));
+          if(eraAtual)ativar(atual(s));
+        }else if(s.fase==='iniciativa')iniciarTurnos(s);
+        msg=a.nome+' saiu do combate.';
+      }
+      break;
+    }
+    case 'definirRecurso': {
+      exigir(a&&inteiro(c.atual,0,9999)&&inteiro(c.maximo,1,9999)&&c.atual<=c.maximo,'Valores de recurso inválidos.');
+      if(c.campo==='pv'){a.ficha.pvMaximos=c.maximo;a.pv=c.atual;if(!a.pv)delete a.bencao;}
+      else{const r=a.ficha.recursos.find(r=>r.id===c.campo);exigir(r,'Recurso desconhecido.');r.maximo=c.maximo;a.rec[r.id]=c.atual;}
+      msg='Recurso atualizado em '+a.nome+'.';break;
+    }
     case 'vincular':
       exigir(a && (!c.token || !s.atores.some(x=>x!==a && x.token===c.token)),'Esse token já está vinculado.');
       exigir(!c.dono || a.ficha.tipo==='pj','NPC é controlado pelo mestre.');
       a.token=c.token||null;a.dono=c.dono||null;msg='Vínculo atualizado para '+a.nome+'.';break;
     case 'iniciar':
-      exigir(s.fase==='preparo' && s.atores.length>=2 && s.atores.every(x=>x.pv>0),'Inclua pelo menos dois participantes conscientes.');
+      exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).every(x=>x.pv>0),'Inclua pelo menos dois participantes conscientes no combate.');
       s.fase='iniciativa';s.atores.forEach(x=>x.init=null);msg='Rolem iniciativa.';break;
     case 'iniciativa':
-      exigir(s.fase==='iniciativa' && a.init===null,'Iniciativa já resolvida.');
+      exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await rolar('1d20'))+mod(a.ficha.atributos.des);msg=a.nome+' • iniciativa '+a.init;
-      if(s.atores.every(x=>x.init!==null)){s.ordem=[...s.atores].sort((x,y)=>y.init-x.init||y.ficha.atributos.des-x.ficha.atributos.des).map(x=>x.id);s.vez=0;s.rodada=1;s.fase='turnos';s.atores.forEach(ativar);}
+      iniciarTurnos(s);
       break;
     case 'ajustar': {
       exigir(gm && a && inteiro(c.valor,-9999,9999),'Ajuste reservado ao mestre.');

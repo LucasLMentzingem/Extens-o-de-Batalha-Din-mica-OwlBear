@@ -223,7 +223,7 @@ export async function iniciarHud(){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
       // Each acknowledgment follows its snapshot; let the view queue settle between NPCs.
       ocupado=true;transmitir();
-      try{let rev=estado.rev;for(const a of atores().filter(a=>a.ficha.tipo==='npc'&&a.init===null)){await api.enviar({tipo:'iniciativa',ator:a.id,rev});rev++;}}finally{ocupado=false;}
+      try{let rev=estado.rev;for(const a of atores().filter(a=>a.emCombate!==false&&a.ficha.tipo==='npc'&&a.init===null)){await api.enviar({tipo:'iniciativa',ator:a.id,rev});rev++;}}finally{ocupado=false;}
     }else if(['usar','mover','passar','iniciativa'].includes(d.tipo)){
       if(d.ator){if(!atores().some(a=>a.id===d.ator&&controla(a)))return;atorId=d.ator;}
       await preparar(d);

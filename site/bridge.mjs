@@ -104,7 +104,7 @@ export async function host(){
         a.token=token.id;a.x=token.position.x/dpi;a.y=token.position.y/dpi;s.rev++;
         localStorage.setItem(key,JSON.stringify(s));await mostrar(s);await reply({});return;
       }
-      if(c.tipo==='iniciar' && s.atores.some(a=>!tokens.some(t=>t.id===a.token)))throw Error('Antes de iniciar, crie ou vincule um token para cada participante.');
+      if(c.tipo==='iniciar' && s.atores.filter(a=>a.emCombate!==false).some(a=>!tokens.some(t=>t.id===a.token)))throw Error('Antes de iniciar, crie ou vincule um token para cada participante do combate.');
       if(c.tipo==='vincular' && s.fase!=='preparo' && s.atores.find(a=>a.id===c.ator)?.token!==c.token)throw Error('Troque a peça na preparação. O controlador pode ser alterado em combate.');
       if(c.tipo==='vincular'){
         if(c.token&&!tokens.some(t=>t.id===c.token))throw Error('Token ausente da camada Personagem.');
@@ -124,11 +124,11 @@ export async function host(){
         const alvo=s.atores.find(a=>a.id===c.alvo);
         if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
       }
-      const alvoReacao=s.reacaoPendente?.alvo;
+      const alvoReacao=s.reacaoPendente?.alvo,faseAntes=s.fase;
       const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(eu.name,eu.id));
       if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
-        const ids=next.atores.filter(a=>a.token).map(a=>a.token);
+        const ids=next.atores.filter(a=>a.token&&(c.tipo==='encerrar'||a.emCombate!==false)).map(a=>a.token);
         if(ids.length)await OBR.scene.items.updateItems(ids,items=>{
           for(const item of items){
             const k=ns+'/bloqueio-anterior';
@@ -136,6 +136,14 @@ export async function host(){
             else if(k in item.metadata){item.locked=Boolean(item.metadata[k]);delete item.metadata[k];}
           }
         });
+      }
+      if(c.tipo==='alternarCombate'&&faseAntes!=='preparo'){
+        const a=next.atores.find(x=>x.id===c.ator);
+        if(a?.token)await OBR.scene.items.updateItems([a.token],items=>{for(const item of items){
+          const k=ns+'/bloqueio-anterior';
+          if(a.emCombate!==false){if(!(k in item.metadata))item.metadata[k]=item.locked;item.locked=true;}
+          else if(k in item.metadata){item.locked=Boolean(item.metadata[k]);delete item.metadata[k];}
+        }});
       }
       if(c.tipo==='mover'){
         const a=next.atores.find(x=>x.id===c.ator);
@@ -156,7 +164,10 @@ export async function host(){
   }));
   const sync=()=>serial(async()=>{if(await OBR.scene.isReady())await mostrar((await carregar()).s);});
   OBR.party.onChange(sync);OBR.scene.onReadyChange(ready=>{if(ready)sync();else ch.postMessage({vista:novo(),info:{...eu,modo:'sem cena',players:[],tokens:[]}});});
-  await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'Vincular ficha ao token',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]}}],onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
+  const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
+  await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · ficha e combate',filter:filtro}],
+    embed:{url:new URL('./contexto.html',location.href).href,height:420},
+    onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
 }
 export async function sala(onView){
   await pronto();const eu=await identidade();const ch=local(),espera=new Map();
