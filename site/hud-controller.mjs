@@ -241,7 +241,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=['rolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const imediato=e.data?.pedir===true||['rolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };

@@ -60,7 +60,7 @@ function dadoSala(usuario,ch,pedidos){
         fase='resultado';await enviar({tipo:'resultado',pedido,destino,resultado,status,meta:metaPublica});
       }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:e.message});}
     });
-    enviar({tipo:'ajuste',pedido,destino,formula,meta:metaPublica}).catch(finalizar);
+    Promise.resolve(enviar({tipo:'ajuste',pedido,destino,formula,meta:metaPublica})).catch(finalizar);
   });
 }
 function validarNotacao(notation){

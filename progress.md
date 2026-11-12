@@ -75,3 +75,9 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Testes: 22 testes do motor aprovados e fluxo Playwright de ajuste/resultado/próxima rolagem aprovado.
 - Capturas conferidas: `work/ajuste-vantagem-v061.png` e `work/ajuste-dano-v061.png`.
 
+## Correção 0.6.2: falha no envio local do mestre
+
+- [x] Corrigir `Cannot read properties of undefined (reading 'catch')` no `BroadcastChannel.postMessage`.
+- [x] Preservar a sequência: acerto → ajuste de dano → dano → confirmação dos custos.
+- [x] Validar acertos e falhas consumindo a ação após a resolução completa.
+
