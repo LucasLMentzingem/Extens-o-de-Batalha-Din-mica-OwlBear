@@ -341,6 +341,12 @@ export async function iniciarHud(){
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };
+  // O Owlbear preserva ferramentas registradas enquanto a sala continua
+  // aberta. Ao atualizar a extensão, tentar criar o mesmo ID novamente lança
+  // erro e interrompe o controlador antes de ele abrir rodapé e carrossel.
+  // Remover e recriar torna a inicialização segura após deploy ou F5.
+  await OBR.tool.remove(tool).catch(()=>{});
+  await OBR.tool.removeMode(mode).catch(()=>{});
   await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
     onToolClick:(_,e)=>{if(!pendente)return true;serial(()=>escolher(e));return false;},
     onToolDragStart:(_,e)=>{

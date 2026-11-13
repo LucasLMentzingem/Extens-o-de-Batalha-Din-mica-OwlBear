@@ -339,6 +339,12 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Testes do motor: 72 aprovados.
 - Validações visuais Playwright aprovadas para inventário, clique direito, Livro de Habilidades e catálogo.
 
+### Versão 0.7.20: reinicialização real da HUD
+
+- [x] Remover registros antigos da ferramenta de mira antes de recriá-la após F5 ou atualização.
+- [x] Impedir que IDs de ferramenta preservados pelo Owlbear interrompam o controlador antes do rodapé e do carrossel.
+- [x] Exibir uma notificação visível se a inicialização da HUD falhar novamente.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.
