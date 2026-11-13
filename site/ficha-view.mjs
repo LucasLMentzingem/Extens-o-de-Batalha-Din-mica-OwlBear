@@ -1,4 +1,4 @@
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,inventarioNormalizado,pesoInventario,slotsEquipamento,opcaoPreparada,opcaoDisponivel} from './engine.mjs';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,inventarioNormalizado,pesoInventario,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel} from './engine.mjs';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function detalhes(o,f){
   const r=o.automacao??{},s=o.selecao;
@@ -22,20 +22,22 @@ const resumoItem=i=>{
   return [i.nome,'Tipo: '+i.tipo,i.descricao,ca,...mods,'Quantidade: '+i.quantidade,'Peso: '+((Number(i.pesoKg)||0)*i.quantidade).toLocaleString('pt-BR')+' kg'].filter(Boolean).join('\n');
 };
 function inventarioFicha(a,podeEditar){
-  const inv=inventarioNormalizado(a.ficha),itens=inv.itens,equipados=Object.fromEntries(itens.filter(i=>i.equipado).map(i=>[i.equipadoSlot,i]));
+  const inv=inventarioNormalizado(a.ficha),itens=inv.itens,equipados=Object.fromEntries(itens.filter(i=>i.equipado).flatMap(i=>slotsOcupadosItem(i).map(slot=>[slot,i])));
   const po=itens.filter(i=>i.tipo==='moeda'&&(!i.moeda||i.moeda==='po')).reduce((n,i)=>n+i.quantidade,0);
   const carregados=itens.filter(i=>!i.equipado),totalCelulas=Math.max(25,Math.ceil(carregados.length/5)*5),peso=pesoInventario({...a,ficha:{...a.ficha,inventario:inv}}),percentual=Math.min(100,100*peso/inv.capacidadeCargaKg);
   const icone=i=>'<b>'+(i.icone?'<img src="'+esc(i.icone)+'" alt="">':esc(i.nome.slice(0,2).toUpperCase()))+'</b>';
   const info=(i,comparar=true)=>{const equivalente=comparar&&i.slotEquipamento?(i.slotEquipamento==='acessorio'?(equipados.acessorio_1??equipados.acessorio_2):equipados[i.slotEquipamento]):null;return resumoItem(i)+(equivalente&&equivalente!==i?'\n\nEQUIPADO NO MESMO SLOT\n'+resumoItem(equivalente):'');};
-  const slots=slotsEquipamento.map(slot=>{const i=equipados[slot];return '<article class="slot-equipamento '+(i?'ocupado':'')+'"><small>'+nomesSlots[slot]+'</small>'+(i?'<button type="button" class="icone-item" data-item-id="'+esc(i.id)+'" data-item-local="equipado" title="'+esc(info(i,false))+'">'+icone(i)+'<span>'+esc(i.nome)+'</span></button>':'<div class="slot-vazio">+</div>')+'</article>';}).join('');
+  const slots=slotsEquipamento.map(slot=>{const i=equipados[slot],dupla=i&&slotsOcupadosItem(i).length===2;return '<article class="slot-equipamento '+(i?'ocupado ':'')+(dupla?'duas-maos':'')+'"><small>'+nomesSlots[slot]+'</small>'+(i?'<button type="button" class="icone-item" data-item-id="'+esc(i.id)+'" data-item-slot="'+slot+'" data-item-local="equipado" title="'+esc(info(i,false))+'">'+icone(i)+'<span>'+esc(i.nome)+(dupla?' · 2 mãos':'')+'</span></button>':'<div class="slot-vazio">+</div>')+'</article>';}).join('');
   const celulas=Array.from({length:totalCelulas},(_,n)=>{const i=carregados[n];if(!i)return '<div class="celula-item vazia" aria-hidden="true"></div>';return '<button type="button" class="celula-item" data-item-id="'+esc(i.id)+'" data-item-local="inventario" title="'+esc(info(i))+'">'+icone(i)+(i.quantidade>1?'<em>'+i.quantidade+'</em>':'')+'<span>'+esc(i.nome)+'</span></button>';}).join('');
   return '<section class="pagina-inventario"><header><div><small>INVENTÁRIO</small><h2>Equipamentos e carga</h2></div><strong class="contador-po">◉ '+po+' PO</strong></header><h3>Equipamentos</h3><p class="muted">Clique com o botão direito para equipar ou desequipar. Em combate a troca custa 1 ação.</p><div class="slots-equipamento">'+slots+'</div><h3>Inventário</h3><div class="grade-inventario">'+celulas+'</div><div class="carga-inventario"><div><span style="width:'+percentual+'%"></span></div><strong>'+peso.toLocaleString('pt-BR',{maximumFractionDigits:2})+' / '+inv.capacidadeCargaKg.toLocaleString('pt-BR')+' kg</strong></div>'+(podeEditar?'':'<p class="muted">Inventário disponível somente para consulta.</p>')+'</section>';
 }
-const habilidadeIcone=o=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa ':'')+(o.indisponivel?'indisponivel':'')+'" data-habilidade-id="'+esc(o.id??'')+'" data-habilidade-tipo="'+esc(o.tipoLivro??'opcao')+'" title="'+esc(o.info??o.descricao??o.nome)+'"><b>'+esc((o.nome??'?').slice(0,2).toUpperCase())+'</b><span>'+esc(o.nome??'')+'</span></button>';
+const habilidadeIcone=o=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa ':'')+(o.indisponivel?'indisponivel':'')+'" data-habilidade-id="'+esc(o.id??'')+'" data-habilidade-tipo="'+esc(o.tipoLivro??'opcao')+'" data-info="'+esc(o.info??o.descricao??o.nome)+'"><b>'+esc((o.nome??'?').slice(0,2).toUpperCase())+'</b><span>'+esc(o.nome??'')+'</span></button>';
 function livroHabilidades(a,pagina='classe',podeEditar=false){
   const f=a.ficha,prep=f.preparacao??{vagas:0,preparadas:[],semprePreparadas:[]},preparadas=new Set(prep.preparadas),sempre=new Set(prep.semprePreparadas);
+  const classeNome=f.classes.map(c=>c.nome??c.id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase())).join(' / ');
+  const comInfo=o=>({...o,info:o.tipoLivro==='passiva'?(o.nome+'\n'+(o.descricao??'')):detalhes(o,f)});
   const magiasBase=f.opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe),reacoes=f.opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao')&&opcaoPreparada(f,o));
-  const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(habilidadeIcone).join('')+'</div></section>':'';
+  const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(comInfo).map(habilidadeIcone).join('')+'</div></section>':'';
   const comum=o=>o.categoria!=='magia'&&(/ataque de oportunidade|golpe desarmado|agarrar|derrubar|empurrar|disparada|desengajar|esquivar|ajudar|esconder|procurar|preparar \| ação|estudar|influenciar|utilizar|usar magia/i.test(o.nome)||o.automacao?.tipo==='ataque'&&!o.origem);
   let corpo='';
   if(pagina==='reacoes')corpo=grade('Reações disponíveis',reacoes.map(o=>({...o,ativa:o.ativa!==false,indisponivel:o.ativa===false})));
@@ -49,7 +51,8 @@ function livroHabilidades(a,pagina='classe',podeEditar=false){
     const circulos=[...new Set(magias.map(o=>o.circuloBase??0).filter(Boolean))].sort((x,y)=>y-x);
     corpo+=circulos.map(n=>grade(n+'º círculo',magias.filter(o=>(o.circuloBase??0)===n).map(o=>({...o,preparada:preparadas.has(o.id)||sempre.has(o.id),indisponivel:!preparadas.has(o.id)&&!sempre.has(o.id)})))).join('')+grade('Habilidades de classe passivas',(f.passivas??[]).map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   }
-  return '<section class="livro-habilidades"><header><div><small>LIVRO DE HABILIDADES</small><h2>'+({classe:'Classe',comum:'Comum',reacoes:'Reações'})[pagina]+'</h2></div><nav>'+['classe','comum','reacoes'].map(id=>'<button type="button" data-livro-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+({classe:'Classe',comum:'Comum',reacoes:'Reações'})[id]+'</button>').join('')+'</nav></header><p class="muted">'+(podeEditar?'Clique com o botão direito para preparar magias ou ativar e desativar passivas e reações.':'Livro disponível somente para consulta.')+'</p>'+corpo+'</section>';
+  const nomes={classe:classeNome,comum:'Comum',reacoes:'Reações'};
+  return '<section class="livro-habilidades"><header><div><small>LIVRO DE HABILIDADES</small><h2>'+esc(nomes[pagina])+'</h2></div><nav>'+['classe','comum','reacoes'].map(id=>'<button type="button" data-livro-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+esc(nomes[id])+'</button>').join('')+'</nav></header><p class="muted">'+(podeEditar?'Clique com o botão direito para preparar magias ou ativar e desativar passivas e reações.':'Livro disponível somente para consulta.')+'</p>'+corpo+'</section>';
 }
 export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe'){
   const f=a.ficha,bloqueado=podeEditar?'':'disabled',nivel=f.classes.reduce((n,c)=>n+c.nivel,0);

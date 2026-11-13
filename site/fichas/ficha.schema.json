@@ -207,6 +207,7 @@
     "inventario": {
       "type": "object",
       "properties": {
+        "versaoOcupacao": {"type": "integer", "minimum": 1},
         "capacidadeCargaKg": {
           "type": "number",
           "exclusiveMinimum": 0
@@ -226,6 +227,10 @@
               "slotEquipamento": {"enum": ["cabeca", "capa", "vestes", "botas", "mao_forte", "mao_fraca", "arma_distancia", "colar", "acessorio", "acessorio_1", "acessorio_2"]},
               "equipado": {"type": "boolean"},
               "equipadoSlot": {"enum": ["cabeca", "capa", "vestes", "botas", "mao_forte", "mao_fraca", "arma_distancia", "colar", "acessorio_1", "acessorio_2"]},
+              "duasMaos": {"type": "boolean"},
+              "leve": {"type": "boolean"},
+              "bonusAtaque": {"type": "number"},
+              "categoriaArmadura": {"enum": ["leve", "media", "pesada", "escudo", "veste"]},
               "moeda": {"enum": ["po", "pp", "pc", "pe", "pl"]},
               "icone": {"type": "string"},
               "acoes": {
@@ -240,7 +245,10 @@
                 "type": "object",
                 "properties": {
                   "tipo": {"enum": ["base", "bonus"]},
-                  "valor": {"type": "number"}
+                  "valor": {"type": "number"},
+                  "classe": {"enum": ["leve", "media", "pesada", "escudo", "veste"]},
+                  "atributo": {"enum": ["for", "des", "con", "int", "sab", "car"]},
+                  "limiteAtributo": {"type": "number"}
                 },
                 "required": ["tipo", "valor"]
               }

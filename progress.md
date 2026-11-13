@@ -323,6 +323,22 @@ Meta atual: construir primeiro os módulos reutilizáveis, depois configurar as 
 
 Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha-Inventario-Livro-Habilidades.md` no projeto principal.
 
+### Versão 0.7.19: ocupação de mãos, Livro e catálogo do Victor
+
+- [x] Migrar pilhas de armas para itens individuais e equipar primeiro a arma com maior bônus de ataque.
+- [x] Equipar as duas adagas da Nikki, uma em cada mão, mantendo a lança guardada.
+- [x] Fazer armas de duas mãos ocuparem mão forte e mão fraca ao mesmo tempo.
+- [x] Corrigir equipar e desequipar pelo menu de contexto do botão direito.
+- [x] Igualar a grade do Livro de Habilidades aos ícones 50 × 50 da HUD e reutilizar os balões detalhados.
+- [x] Substituir o rótulo genérico “Classe” pelo nome real da classe da ficha.
+- [x] Classificar vestes, armaduras e escudos; veste comum não bloqueia Armadura Arcana, mas armaduras e escudos bloqueiam.
+- [x] Suportar CA base com atributo, limite de atributo e bônus de escudo.
+- [x] Configurar os 24 itens comuns da Ferraria de Victor com preços, slots, mãos, CA e modelos de ataque.
+- [x] Incluir os itens do Victor na página Conteúdo configurado.
+
+- Testes do motor: 72 aprovados.
+- Validações visuais Playwright aprovadas para inventário, clique direito, Livro de Habilidades e catálogo.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.

@@ -133,32 +133,78 @@ export function atualizarMagias(f){
     }
   }
 }
+const textoNormal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const armaLeve=i=>i?.leve===true||/adaga|foice|espada curta|cimitarra|clava leve|machadinha/.test(textoNormal(i?.nome));
+const armaDuasMaos=i=>{
+  const nome=textoNormal(i?.nome),texto=textoNormal((i?.nome??'')+' '+(i?.descricao??''));
+  return i?.duasMaos===true||/arco longo|espada grande/.test(nome)||(!/uma ou duas maos|com duas maos/.test(texto)&&/(?:^|[.;])\s*(?:arma de )?(?:duas|2) maos\b/.test(texto));
+};
+const bonusAtaqueItem=i=>Number.isFinite(i?.bonusAtaque)?Number(i.bonusAtaque):Number(/ataque\s*([+-]\d+)/i.exec(i?.descricao??'')?.[1]??-99);
+const nomeUnidade=nome=>String(nome).replace(/^\d+\s+/,'').replace(/\bAdagas\b/i,'Adaga').replace(/\bAzagaias\b/i,'Azagaia').replace(/\bFoices\b/i,'Foice').replace(/\bLan[cç]as\b/i,'Lança').replace(/\bEspadas curtas\b/i,'Espada curta').replace(/\bCimitarras\b/i,'Cimitarra');
+function dadosArmadura(nome,descricao='',existente={}){
+  const nomeNormal=textoNormal(nome),categoria=existente.categoriaArmadura??(
+    /couro|acolchoada/.test(nomeNormal)?'leve':
+    /camisa de malha|camisao|coura[cç]a|meia armadura|escamas/.test(nomeNormal)?'media':
+    /cota de malha|placas|armadura de placas/.test(nomeNormal)?'pesada':
+    /robe|veste/.test(nomeNormal)?'veste':
+    /escudo/.test(nomeNormal)?'escudo':undefined
+  );
+  if(!categoria)return {};
+  if(existente.classeArmadura)return {categoriaArmadura:categoria,classeArmadura:existente.classeArmadura};
+  if(categoria==='escudo')return {categoriaArmadura:categoria,classeArmadura:{tipo:'bonus',valor:Number(/\+\s*(\d+)/.exec(descricao)?.[1]??2),classe:'escudo'}};
+  const base=Number(/\bca\s*(\d+)/i.exec(descricao)?.[1]??(categoria==='veste'?10:0));
+  return {categoriaArmadura:categoria,classeArmadura:{tipo:'base',valor:base,classe:categoria,...(/\+\s*des/i.test(descricao)||categoria==='veste'?{atributo:'des'}:{}),...(categoria==='media'?{limiteAtributo:2}:{})}};
+}
+export function slotsOcupadosItem(item){
+  if(!item?.equipado||!item.equipadoSlot)return [];
+  return armaDuasMaos(item)&&['mao_forte','mao_fraca'].includes(item.equipadoSlot)?['mao_forte','mao_fraca']:[item.equipadoSlot];
+}
+const ocupaSlot=(item,slot)=>slotsOcupadosItem(item).includes(slot);
 function slotLegado(nome){
-  const t=String(nome).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const t=textoNormal(nome);
   if(/arco|besta/.test(t))return 'arma_distancia';
   if(/adaga|espada|cimitarra|lanca|machado|martelo|clava|cajado|rapieira|tridente/.test(t))return 'mao_forte';
   if(/armadura|couro|malha|placa|robe|veste/.test(t))return 'vestes';
   if(/escudo/.test(t))return 'mao_fraca';if(/bota/.test(t))return 'botas';if(/capa/.test(t))return 'capa';if(/colar|amuleto/.test(t))return 'colar';if(/elmo|capacete|chapeu|coroa/.test(t))return 'cabeca';if(/anel|luva/.test(t))return 'acessorio_1';return null;
 }
+function separarCopias(itens){
+  const usados=new Set(itens.map(i=>i.id)),saida=[];
+  for(const item of itens){
+    const quantidade=item.tipo==='equipamento'?Math.max(1,Number(item.quantidade)||1):1;
+    if(quantidade===1){saida.push(item);continue;}
+    for(let n=1;n<=quantidade;n++){
+      let id=n===1?item.id:slug(item.id+'-'+n);while(usados.has(id)&&id!==item.id)id=slug(id+'-copia');usados.add(id);
+      saida.push({...structuredClone(item),id,nome:nomeUnidade(item.nome),quantidade:1,empilhavel:false,equipado:false,equipadoSlot:undefined});
+    }
+  }
+  return saida;
+}
+function equiparInicial(itens){
+  for(const item of itens){item.equipado=false;delete item.equipadoSlot;if(item.tipo==='equipamento'&&item.slotEquipamento==='mao_fraca'&&!/escudo/i.test(item.nome))item.slotEquipamento='mao_forte';}
+  const equipar=(item,slot)=>{if(!item)return;item.equipado=true;item.equipadoSlot=slot;};
+  const outros=itens.filter(i=>i.tipo==='equipamento'&&!['mao_forte','mao_fraca'].includes(i.slotEquipamento));
+  for(const slot of slotsEquipamento.filter(s=>!['mao_forte','mao_fraca'].includes(s))){
+    const candidatos=outros.filter(i=>i.slotEquipamento===slot).sort((a,b)=>Number(b.preferido)-Number(a.preferido));equipar(candidatos[0],slot);
+  }
+  const armas=itens.filter(i=>i.tipo==='equipamento'&&i.slotEquipamento==='mao_forte').sort((a,b)=>bonusAtaqueItem(b)-bonusAtaqueItem(a)||Number(b.preferido)-Number(a.preferido));
+  const principal=armas[0];equipar(principal,'mao_forte');
+  if(principal&&!armaDuasMaos(principal)&&armaLeve(principal))equipar(armas.find(i=>i!==principal&&armaLeve(i)&&!armaDuasMaos(i)),'mao_fraca');
+  if(!itens.some(i=>ocupaSlot(i,'mao_fraca')))equipar(itens.find(i=>i.tipo==='equipamento'&&i.slotEquipamento==='mao_fraca'&&/escudo/i.test(i.nome)),'mao_fraca');
+}
 export function inventarioNormalizado(f){
-  if(f.inventario?.itens)return f.inventario;
+  if(f.inventario?.itens){
+    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===3)return inv;
+    inv.itens=separarCopias(inv.itens).map(i=>({...i,...dadosArmadura(i.nome,i.descricao,i)}));equiparInicial(inv.itens);inv.versaoOcupacao=3;return inv;
+  }
   const usados=new Set(),ocupados=new Set(),itens=(f.equipamentos??[]).map((e,i)=>{
     const nome=e.nome??e.name??('Item '+(i+1)),moeda=/moedas?.*?(\d+)\s*po/i.exec(nome),quantidade=/^(\d+)\s+/.exec(nome);
     let id=idOK(e.id)?e.id:slug(nome);while(usados.has(id))id=slug(id+'-'+(i+1));usados.add(id);
     const slot=slotLegado(nome),tipo=moeda?'moeda':slot?'equipamento':'etc';
     const equipado=Boolean(e.inUse&&slot&&!ocupados.has(slot));if(equipado)ocupados.add(slot);
-    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg??0),slotEquipamento:slot,equipado,equipadoSlot:equipado?slot:undefined,modificadores:structuredClone(e.modificadores??{}),acoes:Array.isArray(e.acoes)?[...e.acoes]:undefined};
+    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg??0),slotEquipamento:slot,equipado,equipadoSlot:equipado?slot:undefined,preferido:Boolean(e.inUse),duasMaos:Boolean(e.duasMaos),leve:Boolean(e.leve),bonusAtaque:Number.isFinite(e.bonusAtaque)?Number(e.bonusAtaque):undefined,modificadores:structuredClone(e.modificadores??{}),acoes:Array.isArray(e.acoes)?[...e.acoes]:undefined,...dadosArmadura(nome,e.descricao??e.description??'',e)};
   });
-  // Fichas antigas do Forge nem sempre marcavam a arma em uso. Para que a
-  // migração não deixe o personagem desarmado, o primeiro equipamento de
-  // cada slot vazio entra equipado. Os demais permanecem no inventário.
-  for(const item of itens){
-    if(item.tipo!=='equipamento'||item.equipado)continue;
-    let slot=item.slotEquipamento;
-    if(ocupados.has(slot)&&slot==='mao_forte'&&!ocupados.has('mao_fraca')&&/adaga|cimitarra|espada curta|clava leve|machadinha/i.test(item.nome)){slot='mao_fraca';item.slotEquipamento='mao_fraca';}
-    if(ocupados.has(slot))continue;item.equipado=true;item.equipadoSlot=slot;ocupados.add(slot);
-  }
-  return {capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens};
+  const separados=separarCopias(itens);equiparInicial(separados);
+  return {versaoOcupacao:3,capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens:separados};
 }
 export const multi=o=>o?.selecao?.tipo==='alvos'&&(o.selecao.max>1||['projeteis','bencao'].includes(o.automacao?.tipo))?o.selecao:null;
 export function incluirAlvo(lista,id,regra){
@@ -263,9 +309,12 @@ export function validar(f) {
     exigir(inteiro(item.quantidade,1,999999)&&Number.isFinite(item.pesoKg)&&item.pesoKg>=0,'Quantidade ou peso inválido em '+item.id);
     if(item.tipo==='equipamento')exigir(slotsEquipamento.includes(item.slotEquipamento)||item.slotEquipamento==='acessorio','Slot de equipamento inválido em '+item.id);
     if(item.equipado)exigir(slotsEquipamento.includes(item.equipadoSlot),'Slot equipado inválido em '+item.id);
+    if(item.duasMaos!==undefined)exigir(typeof item.duasMaos==='boolean','Propriedade de duas mãos inválida em '+item.id);
+    if(item.leve!==undefined)exigir(typeof item.leve==='boolean','Propriedade leve inválida em '+item.id);
     if(item.acoes!==undefined)exigir(Array.isArray(item.acoes)&&item.acoes.every(id=>out.opcoes.some(o=>o.id===id)),'Ação de item inválida em '+item.id);
   }
-  exigir(new Set(out.inventario.itens.filter(i=>i.equipado).map(i=>i.equipadoSlot)).size===out.inventario.itens.filter(i=>i.equipado).length,'Dois equipamentos ocupam o mesmo slot.');
+  const ocupacao=out.inventario.itens.flatMap(slotsOcupadosItem);
+  exigir(new Set(ocupacao).size===ocupacao.length,'Dois equipamentos ocupam o mesmo slot.');
   const nivel=out.classes.reduce((n,c)=>n+c.nivel,0);
   for(const o of out.opcoes){
     // Somente traduzir a sequência inteira quando todas as etapas são conhecidas.
@@ -284,8 +333,9 @@ export function validar(f) {
   const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/^\d+\s+/,'').replace(/s\b/g,'');
   const armas=out.inventario.itens.filter(i=>['mao_forte','mao_fraca','arma_distancia'].includes(i.slotEquipamento));
   for(const o of out.opcoes){
-    if(o.requerItemEquipado||o.categoria==='magia'||o.automacao?.tipo!=='ataque')continue;
-    const nome=normal(o.nome),item=armas.find(i=>{const n=normal(i.nome);return n.length>2&&(nome.includes(n)||n.includes(nome.split(/[|\u00b7—]/)[0].trim()));});
+    if(o.categoria==='magia'||o.automacao?.tipo!=='ataque')continue;
+    const nome=normal(o.nome),candidatos=armas.filter(i=>{const n=normal(i.nome);return n.length>2&&(nome.includes(n)||n.includes(nome.split(/[|\u00b7—]/)[0].trim()));});
+    const secundaria=/segunda|mao fraca/.test(nome),item=secundaria?(candidatos.find(i=>i.equipadoSlot==='mao_fraca')??candidatos[1]??candidatos[0]):(candidatos.find(i=>i.equipadoSlot==='mao_forte')??candidatos[0]);
     if(item){o.requerItemEquipado=item.id;item.acoes=[...new Set([...(item.acoes??[]),o.id])];}
   }
   // Regra da campanha: nenhuma seleção de ataque, magia, item ou habilidade
@@ -330,7 +380,7 @@ export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Numb
 export const bonusPassiva=(a,campo)=>(a?.ficha?.passivas??[]).filter(p=>p.ativa!==false).reduce((n,p)=>n+(Number(p.modificadores?.[campo])||0),0);
 export const caAtual=a=>{
   let base=a?.ficha?.caBase??0,bonus=0;
-  for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base')base=Math.max(base,Number(ca.valor)||0);if(ca?.tipo==='bonus')bonus+=Number(ca.valor)||0;}
+  for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base'){let valor=Number(ca.valor)||0;if(ca.atributo){let modificador=mod(a?.ficha?.atributos?.[ca.atributo]??10);if(Number.isFinite(ca.limiteAtributo))modificador=Math.min(modificador,ca.limiteAtributo);valor+=modificador;}base=Math.max(base,valor);}if(ca?.tipo==='bonus')bonus+=Number(ca.valor)||0;}
   return base+bonus+bonusEquipamento(a,'ca')+bonusPassiva(a,'ca')+bonusEfeito(a,'ca');
 };
 export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusPassiva(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
@@ -403,7 +453,14 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distancia(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
   if(r.umaVezPorTurno)a.usosTurno[r.umaVezPorTurno]=true;
 }
-const usaArmadura=a=>typeof a.ficha.armaduraEquipada==='boolean'?a.ficha.armaduraEquipada:(a.ficha.equipamentos??[]).some(e=>e.inUse&&/(armadura|couro|malha|placas|escudo)/i.test((e.nome??e.name??'')+' '+(e.descricao??e.description??'')));
+const usaArmadura=a=>{
+  const itens=a?.ficha?.inventario?.itens;
+  if(Array.isArray(itens))return itensEquipados(a).some(i=>{
+    const classe=textoNormal(i.categoriaArmadura??i.classeArmadura?.classe);
+    return ['leve','media','pesada','escudo'].includes(classe)||/escudo/.test(textoNormal(i.nome));
+  });
+  return typeof a?.ficha?.armaduraEquipada==='boolean'?a.ficha.armaduraEquipada:(a?.ficha?.equipamentos??[]).some(e=>e.inUse&&/(armadura|couro|malha|placas|escudo)/i.test((e.nome??e.name??'')+' '+(e.descricao??e.description??'')));
+};
 const distancia=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function dentroDaArea(origem,ponto,alvo,regra){
   const area=regra?.area??(regra?.raioM?{forma:'circulo',raioM:regra.raioM}:null);if(!area)return false;
@@ -536,7 +593,7 @@ export async function aplicar(s,c,u,rolar) {
   s=structuredClone(s);
   s.filaReacoes??=[];
   for(const p of s.atores){
-    atualizarMagias(p.ficha);p.ficha.inventario=p.ficha.inventario??structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
+    atualizarMagias(p.ficha);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
   }
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
   const soma=(n)=>n>0?'+'+n:n<0?String(n):'';
@@ -730,10 +787,13 @@ export async function aplicar(s,c,u,rolar) {
         exigir(item.tipo==='equipamento'&&!item.equipado,'Este item não pode ser equipado agora.');
         let slot=c.slot??item.slotEquipamento;
         if(slot==='acessorio')slot=!a.ficha.inventario.itens.some(i=>i.equipado&&i.equipadoSlot==='acessorio_1')?'acessorio_1':'acessorio_2';
-        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'),'Slot incompatível com o item.');
-        const anterior=a.ficha.inventario.itens.find(i=>i.equipado&&i.equipadoSlot===slot);
-        if(anterior){anterior.equipado=false;delete anterior.equipadoSlot;}
-        item.equipado=true;item.equipadoSlot=slot;msg=a.nome+' equipou '+item.nome+(anterior?' e guardou '+anterior.nome:'')+'.';
+        const armaUmaMao=item.slotEquipamento==='mao_forte'&&!armaDuasMaos(item);
+        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item.');
+        const exigidos=armaDuasMaos(item)&&['mao_forte','mao_fraca'].includes(slot)?['mao_forte','mao_fraca']:[slot];
+        const anteriores=a.ficha.inventario.itens.filter(i=>i.equipado&&i!==item&&exigidos.some(s=>ocupaSlot(i,s)));
+        for(const anterior of anteriores){anterior.equipado=false;delete anterior.equipadoSlot;}
+        item.equipado=true;item.equipadoSlot=armaDuasMaos(item)?'mao_forte':slot;
+        msg=a.nome+' equipou '+item.nome+(anteriores.length?' e guardou '+anteriores.map(i=>i.nome).join(' e '):'')+'.';
       }else if(c.operacao==='desequipar'){
         exigir(item.tipo==='equipamento'&&item.equipado,'Este item não está equipado.');item.equipado=false;delete item.equipadoSlot;msg=a.nome+' desequipou '+item.nome+'.';
       }else{

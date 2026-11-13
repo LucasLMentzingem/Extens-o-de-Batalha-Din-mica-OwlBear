@@ -4,7 +4,7 @@
     "classes": 6,
     "racas": 6,
     "comuns": 19,
-    "itens": 35
+    "itens": 51
   },
   "classes": [
     {
@@ -836,8 +836,16 @@
       "status": "Dados registrados"
     },
     {
+      "nome": "Adaga",
+      "status": "Ataque e equipamento configurados"
+    },
+    {
       "nome": "Aljava com 20 Flechas",
       "status": "Dados registrados"
+    },
+    {
+      "nome": "Anel simples de oficina",
+      "status": "Item, preço e slot configurados"
     },
     {
       "nome": "Arco Longo",
@@ -856,12 +864,48 @@
       "status": "Dados registrados"
     },
     {
+      "nome": "Armadura de placas",
+      "status": "CA, classe e slot configurados"
+    },
+    {
+      "nome": "Azagaia",
+      "status": "Ataque e equipamento configurados"
+    },
+    {
+      "nome": "Botas de marcha (par)",
+      "status": "Item, preço e slot configurados"
+    },
+    {
+      "nome": "Camisão de malha",
+      "status": "CA, classe e slot configurados"
+    },
+    {
+      "nome": "Capa de viagem",
+      "status": "Item, preço e slot configurados"
+    },
+    {
       "nome": "Cimitarra",
       "status": "Dados registrados"
     },
     {
+      "nome": "Colar simples de oficina",
+      "status": "Item, preço e slot configurados"
+    },
+    {
+      "nome": "Corrente (3 m)",
+      "status": "Item, preço e slot configurados"
+    },
+    {
       "nome": "Cota de Malha",
       "status": "Dados registrados"
+    },
+    {
+      "nome": "Couro batido",
+      "status": "CA, classe e slot configurados"
+    },
+    {
+      "nome": "Escudo",
+      "status": "CA, classe e slot configurados"
     },
     {
       "nome": "Espada Curta",
@@ -878,6 +922,14 @@
     {
       "nome": "Ferramentas de Entalhador",
       "status": "Dados registrados"
+    },
+    {
+      "nome": "Ferramentas de ferreiro",
+      "status": "Item, preço e slot configurados"
+    },
+    {
+      "nome": "Flechas (20)",
+      "status": "Item, preço e slot configurados"
     },
     {
       "nome": "Foco Arcano (cristal)",
@@ -920,6 +972,10 @@
       "status": "Dados registrados"
     },
     {
+      "nome": "Luvas de treino (par)",
+      "status": "Item, preço e slot configurados"
+    },
+    {
       "nome": "Mangual",
       "status": "Dados registrados"
     },
@@ -954,6 +1010,14 @@
     {
       "nome": "Pacote de Explorador de Masmorras",
       "status": "Dados registrados"
+    },
+    {
+      "nome": "Pé de cabra",
+      "status": "Item, preço e slot configurados"
+    },
+    {
+      "nome": "Veste simples",
+      "status": "CA, classe e slot configurados"
     },
     {
       "nome": "Violino",

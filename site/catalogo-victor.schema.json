@@ -1,0 +1,10 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["versaoFormato","loja","itens"],
+  "properties":{
+    "versaoFormato":{"const":1},
+    "loja":{"type":"string"},
+    "itens":{"type":"array","minItems":1,"items":{"type":"object","required":["id","nome","tipo","categoria","preco","pesoKg","descricao"],"properties":{"id":{"type":"string","pattern":"^[a-z0-9][a-z0-9-]+$"},"nome":{"type":"string","minLength":1},"tipo":{"enum":["equipamento","consumivel","etc"]},"categoria":{"type":"string"},"preco":{"type":"object","required":["valor","moeda"],"properties":{"valor":{"type":"number","exclusiveMinimum":0},"moeda":{"enum":["pc","pp","pe","po","pl"]}}},"pesoKg":{"type":"number","minimum":0},"slotEquipamento":{"enum":["cabeca","capa","vestes","botas","mao_forte","mao_fraca","arma_distancia","colar","acessorio"]},"duasMaos":{"type":"boolean"},"leve":{"type":"boolean"},"categoriaArmadura":{"enum":["leve","media","pesada","escudo","veste"]},"descricao":{"type":"string"},"modelosAcoes":{"type":"array"}}}}
+  }
+}

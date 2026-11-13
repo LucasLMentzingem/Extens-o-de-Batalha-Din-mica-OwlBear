@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,slotsOcupadosItem} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
+const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
@@ -253,8 +254,13 @@ test('Armadura Arcana usa CA base 13, aplica +2 fora de combate e termina no des
 
 test('Armadura Arcana rejeita alvo com armadura sem gastar o espaço',async()=>{
  const m=mesa(),o=m.a.ficha.opcoes.find(o=>o.nome.includes('Armadura Arcana')),antes=structuredClone(m.s);
- await m.go('vincular',{ator:m.a.id,dono:'p'});m.b.ficha.armaduraEquipada=true;
+ await m.go('vincular',{ator:m.a.id,dono:'p'});
  const estado=structuredClone(m.s);await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.b.id},player),/usando armadura/);assert.deepEqual(m.s,estado);assert.notDeepEqual(m.s,antes);
+});
+test('Armadura Arcana aceita veste comum, mas escudo e armaduras leve, média ou pesada bloqueiam',async()=>{
+ const preparar=(categoria,nome='Veste de viagem')=>{const m=mesa(),o=m.a.ficha.opcoes.find(o=>o.nome.includes('Armadura Arcana'));m.b.ficha.inventario.itens=m.b.ficha.inventario.itens.map(i=>({...i,equipado:false,equipadoSlot:undefined}));m.b.ficha.inventario.itens.push({id:'proteção-teste',nome,descricao:'',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:categoria==='escudo'?'mao_fraca':'vestes',equipado:true,equipadoSlot:categoria==='escudo'?'mao_fraca':'vestes',categoriaArmadura:categoria,classeArmadura:{tipo:categoria==='escudo'?'bonus':'base',valor:categoria==='veste'?10:12,classe:categoria}});return {m,o};};
+ const comum=preparar('veste');await comum.m.go('vincular',{ator:comum.m.a.id,dono:'p'});await comum.m.go('usar',{ator:comum.m.a.id,opcao:comum.o.id,alvo:comum.m.b.id},player);assert.equal(comum.m.s.atores[1].efeitosAtivos.at(-1).nome,'Armadura Arcana');
+ for(const categoria of ['leve','media','pesada','escudo']){const {m,o}=preparar(categoria,categoria==='escudo'?'Escudo':'Armadura '+categoria);await m.go('vincular',{ator:m.a.id,dono:'p'});await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.b.id},player),/usando armadura/);}
 });
 
 test('ações e magias ficam liberadas fora de combate sem consumir a economia de turno',async()=>{
@@ -389,7 +395,7 @@ test('estado inconsciente concede vantagem e ataques corpo a corpo causam duas f
 test('aprimoramento após acerto entra no ajuste de dano e só então gasta o recurso',async()=>{
  const m=mesa();m.a.ficha.recursos.push({id:'superioridade',nome:'Dados de Superioridade',maximo:4,saldoInicial:4});m.a.rec.superioridade=4;
  m.a.ficha.opcoes.push({id:'ataque-ameacador',nome:'Ataque Ameaçador',categoria:'acao',descricao:'Após acertar, some 1d8 e force salva de SAB.',gatilho:'apos_acerto',umaVezPorTurno:true,custo:[{tipo:'recurso',id:'superioridade',quantidade:1}],aprimoramento:{dano:'1d8',elemento:'perfurante',requisitos:{tagsAtaque:['arma']},salva:{atributo:'sab',cd:13,efeitoFalha:{nome:'Amedrontado',condicao:'amedrontado',turnos:1,expira:'fim_origem'}}}});
- await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao),chamadas=[];
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe),chamadas=[];
  const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{
    chamadas.push({formula,meta});if(meta.tipo==='ataque')return {total:17,natural:15,formula,resumo:'15 + 2 = 17'};
    if(meta.tipo==='dano'){assert.equal(meta.adicionais[0].id,'ataque-ameacador');return {total:11,natural:null,formula,resumo:'dano',resultados:[{total:6,resumo:'1d8 = 6'},{total:5,resumo:'1d8 = 5'}],recursosAtivos:['ataque-ameacador'],rerrolagensUsadas:[]};}
@@ -401,7 +407,7 @@ test('aprimoramento após acerto entra no ajuste de dano e só então gasta o re
 test('ignorar aprimoramento preserva o recurso e crítico prepara seu dado adicional',async()=>{
  const m=mesa();m.a.ficha.recursos.push({id:'superioridade',nome:'Dados de Superioridade',maximo:4,saldoInicial:4});m.a.rec.superioridade=4;
  m.a.ficha.opcoes.push({id:'manobra',nome:'Manobra',categoria:'acao',gatilho:'apos_acerto',custo:[{tipo:'recurso',id:'superioridade',quantidade:1}],aprimoramento:{dano:'1d8',elemento:'perfurante'}});
- await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);
  const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{
    if(meta.tipo==='ataque')return {total:20,natural:20,formula,resumo:'20'};
    assert.equal(meta.adicionais[0].formula,'2d8');return {total:7,natural:null,formula,resumo:'2d8 = 7',recursosAtivos:[],rerrolagensUsadas:[]};
@@ -411,7 +417,7 @@ test('ignorar aprimoramento preserva o recurso e crítico prepara seu dado adici
 test('recurso de rerrolagem é oferecido no resultado e cobrado quando usado',async()=>{
  const m=mesa();m.a.ficha.recursos.push({id:'sorte',nome:'Sorte',maximo:2,saldoInicial:2});m.a.rec.sorte=2;
  m.a.ficha.opcoes.push({id:'rerrolar-dano',nome:'Sorte no Dano',categoria:'acao',descricao:'Rerrole o dano.',gatilho:'apos_rolagem_dano',custo:[{tipo:'recurso',id:'sorte',quantidade:1}],rerrolagem:{tipo:'dano',modo:'todos'}});
- await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);
  const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{
    if(meta.tipo==='ataque')return {total:17,natural:15,formula,resumo:'17'};
    assert.equal(meta.rerrolagens[0].id,'rerrolar-dano');return {total:8,natural:null,formula,resumo:'1d8 = 8',recursosAtivos:[],rerrolagensUsadas:['rerrolar-dano']};
@@ -421,7 +427,7 @@ test('recurso de rerrolagem é oferecido no resultado e cobrado quando usado',as
 test('segundo golpe exige ataque anterior e respeita limite de uma vez por turno',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'segunda-arma',nome:'Segunda arma',categoria:'acao',custo:[{tipo:'bonus',quantidade:1}],requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'segunda-arma'},automacao:{tipo:'ataque',bonus:4,dano:'1d4',elemento:'perfurante',alcanceM:1.5}});
  await m.iniciar();await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'segunda-arma',alvo:m.b.id},player),/depois de realizar/);
- const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
+ const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
  await m.go('usar',{ator:m.a.id,opcao:'segunda-arma',alvo:m.b.id},player,[15,3]);assert.equal(m.s.atores[0].bonus,0);assert.equal(m.s.atores[1].pv,16);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'segunda-arma',alvo:m.b.id},player),/já foi usada|Saldo insuficiente/);
 });
@@ -433,7 +439,7 @@ test('sequência resolve armas diferentes contra dois alvos pagando uma única a
 });
 test('segundo alvo condicionado precisa ser diferente e próximo do primeiro',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'horda',nome:'Destruidor de Hordas',categoria:'acao',requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'horda',alvoDiferenteDoAnterior:true,distanciaDoAlvoAnteriorM:1.5},automacao:{tipo:'ataque',bonus:4,dano:'1d6',elemento:'perfurante',alcanceM:18}});
- await m.iniciar();const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
+ await m.iniciar();const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=2.4;
  await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,4]);assert.equal(m.s.atores[2].pv,20);
 });
@@ -505,9 +511,11 @@ test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recurso
  assert.deepEqual(metabolismo.automacao.recuperarRecursos,['pontos-de-foco']);assert.equal(monge.opcoes.find(o=>o.id==='pico-adrenalina').automacao.disparada,true);
 });
 
-test('inventário legado é migrado para pilhas, moedas e capacidade de carga',()=>{
+test('inventário legado separa armas, prioriza o melhor acerto e ocupa uma mão por adaga',()=>{
  const f=validar(nikki),moedas=f.inventario.itens.find(i=>i.tipo==='moeda');
- assert.ok(f.inventario.capacidadeCargaKg>0);assert.equal(moedas.quantidade,28);assert.equal(moedas.tipo,'moeda');assert.equal(f.inventario.itens.find(i=>i.nome==='2 Adagas').quantidade,2);
+ const adagas=f.inventario.itens.filter(i=>i.nome==='Adaga'),lanca=f.inventario.itens.find(i=>i.nome==='Lança');
+ assert.ok(f.inventario.capacidadeCargaKg>0);assert.equal(moedas.quantidade,28);assert.equal(moedas.tipo,'moeda');
+ assert.equal(adagas.length,2);assert.deepEqual(adagas.map(i=>i.equipadoSlot).sort(),['mao_forte','mao_fraca']);assert.equal(lanca.equipado,false);
 });
 test('equipar troca o slot e aplica modificadores dinâmicos de CA, PV e deslocamento',async()=>{
  const m=mesa();m.a.dono='p';m.a.ficha.inventario.itens.push(
@@ -526,11 +534,18 @@ test('trocar equipamento ou usar consumível em combate exige o turno e gasta um
  await assert.rejects(m.go('inventario',{ator:m.a.id,operacao:'usar',itemId:'pocao-teste'},player),/ação disponível/);
 });
 test('equipamento controla dinamicamente os ataques exibidos',async()=>{
- const m=mesa();m.a.dono='p';const item=m.a.ficha.inventario.itens.find(i=>i.nome.includes('Adagas')),ataque=m.a.ficha.opcoes.find(o=>o.requerItemEquipado===item.id);
+ const m=mesa();m.a.dono='p';const item=m.a.ficha.inventario.itens.find(i=>i.nome==='Adaga'&&i.equipadoSlot==='mao_forte'),ataque=m.a.ficha.opcoes.find(o=>o.requerItemEquipado===item.id);
  assert.ok(item.equipado&&ataque&&opcoesDisponiveis(m.a).some(o=>o.id===ataque.id));
  await m.go('inventario',{ator:m.a.id,operacao:'desequipar',itemId:item.id},player);
  assert.equal(opcoesDisponiveis(m.s.atores[0]).some(o=>o.id===ataque.id),false);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player),/equipamento adequado/);
+});
+test('arma de duas mãos ocupa as duas mãos e guarda as armas anteriores',async()=>{
+ const m=mesa();m.a.dono='p';m.a.ficha.inventario.itens.push({id:'espada-grande-teste',nome:'Espada grande',descricao:'Arma de duas mãos.',tipo:'equipamento',quantidade:1,pesoKg:3,slotEquipamento:'mao_forte',duasMaos:true,equipado:false});
+ await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'espada-grande-teste',slot:'mao_forte'},player);
+ const itens=m.s.atores[0].ficha.inventario.itens,espada=itens.find(i=>i.id==='espada-grande-teste');
+ assert.equal(espada.equipadoSlot,'mao_forte');assert.deepEqual(slotsOcupadosItem(espada),['mao_forte','mao_fraca']);assert.equal(itens.filter(i=>i.nome==='Adaga').some(i=>i.equipado),false);
+ await m.go('inventario',{ator:m.a.id,operacao:'desequipar',itemId:espada.id},player);assert.equal(m.s.atores[0].ficha.inventario.itens.find(i=>i.id===espada.id).equipado,false);
 });
 test('Livro de Habilidades prepara magias, alterna passivas e trava em combate',async()=>{
  const m=mesa();m.a.dono='p';const p=m.a.ficha.preparacao,id=p.preparadas[0],passiva=m.a.ficha.passivas[0];
@@ -538,4 +553,9 @@ test('Livro de Habilidades prepara magias, alterna passivas e trava em combate',
  await m.go('livro',{ator:m.a.id,operacao:'preparar',habilidadeId:id},player);assert.equal(m.s.atores[0].ficha.preparacao.preparadas.includes(id),true);
  await m.go('livro',{ator:m.a.id,operacao:'desativar',habilidadeId:passiva.id},player);assert.equal(m.s.atores[0].ficha.passivas[0].ativa,false);
  await m.iniciar();await assert.rejects(m.go('livro',{ator:m.a.id,operacao:'ativar',habilidadeId:passiva.id},player),/somente fora de combate/);
+});
+test('catálogo do Victor registra todas as armas, proteções, acessórios e suprimentos',()=>{
+ assert.equal(catalogoVictor.itens.length,24);assert.equal(new Set(catalogoVictor.itens.map(i=>i.id)).size,24);
+ const armas=catalogoVictor.itens.filter(i=>i.categoria==='arma'),placas=catalogoVictor.itens.find(i=>i.id==='victor-armadura-placas'),escudo=catalogoVictor.itens.find(i=>i.id==='victor-escudo'),veste=catalogoVictor.itens.find(i=>i.id==='victor-veste-simples');
+ assert.equal(armas.length,9);assert.ok(armas.every(i=>i.modelosAcoes?.length));assert.equal(placas.preco.valor,1500);assert.equal(placas.classeArmadura.valor,18);assert.equal(escudo.slotEquipamento,'mao_fraca');assert.equal(escudo.classeArmadura.valor,2);assert.equal(veste.categoriaArmadura,'veste');
 });

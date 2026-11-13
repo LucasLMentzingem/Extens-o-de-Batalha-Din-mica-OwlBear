@@ -3,6 +3,7 @@ import {validar} from './site/engine.mjs';
 
 const ids=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichas=await Promise.all(ids.map(async id=>validar(JSON.parse(await readFile('./site/fichas/'+id+'.json','utf8')))));
+const catalogoVictor=JSON.parse(await readFile('./site/catalogo-victor.json','utf8'));
 const semAcento=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const nomesComuns=['agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','golpe desarmado','ataque de oportunidade'];
 const comum=o=>nomesComuns.some(n=>semAcento(o.nome).startsWith(n));
@@ -27,7 +28,10 @@ for(const f of fichas){
 }
 
 const comuns=unicos(fichas.flatMap(f=>f.opcoes.filter(comum).map(habilidade)));
-const itens=unicos(fichas.flatMap(f=>(f.equipamentos??[]).map(e=>({nome:e.nome??e.name,status:e.automacao||e.modificadores?'Efeito configurado':'Dados registrados'}))).filter(x=>x.nome));
+const itens=unicos([
+  ...catalogoVictor.itens.map(i=>({nome:i.nome,status:i.categoria==='arma'?'Ataque e equipamento configurados':i.categoria==='armadura'||i.categoria==='escudo'||i.categoria==='veste'?'CA, classe e slot configurados':'Item, preço e slot configurados'})),
+  ...fichas.flatMap(f=>(f.equipamentos??[]).map(e=>({nome:e.nome??e.name,status:e.automacao||e.modificadores?'Efeito configurado':'Dados registrados'})))]
+ .filter(x=>x.nome));
 const modulos=[
   'Ataques, críticos, vantagem e desvantagem','Salvaguardas e perícias','Dano, cura e PV temporários','Ações, bônus, reações e deslocamento',
   'Áreas circulares, quadradas, cones e linhas','Concentração, duração, buffs e condições','Reações preventivas e após dano','Recursos, descansos e economia adicional',

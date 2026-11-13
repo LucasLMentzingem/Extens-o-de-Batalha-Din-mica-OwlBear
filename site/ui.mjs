@@ -12,7 +12,8 @@ function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
-let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,habilidadeContexto=null;
+let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null;
+const dicaLivro=document.createElement('div');dicaLivro.className='dica-livro';dicaLivro.hidden=true;dicaLivro.setAttribute('role','tooltip');document.body.append(dicaLivro);
 let testePendente;
 function view(estado,i){
   if(s?.rev!==estado.rev)alvos=[];
@@ -167,7 +168,7 @@ async function alterarItem(operacao,slot){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
   const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
   await enviar('inventario',{operacao,itemId:itemContexto,slot,confirmado});
-  itemContexto=null;$('itemMenu').close();aviso(operacao==='usar'?'Consumível usado.':'Equipamento atualizado.');
+  itemContexto=null;itemContextoSlot=null;$('itemMenu').close();aviso(operacao==='usar'?'Consumível usado.':'Equipamento atualizado.');
 }
 async function alterarHabilidade(operacao){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!habilidadeContexto)return;
@@ -256,17 +257,21 @@ $('app').oncontextmenu=e=>{
  const item=e.target.closest('[data-item-id]');
  if(item){
    e.preventDefault();const a=s.atores.find(x=>x.id===escolhido),gm=info.role==='GM'&&!testar,pode=gm||(a?.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));if(!pode)return;
-   const i=a.ficha.inventario?.itens.find(x=>x.id===item.dataset.itemId);if(!i)return;itemContexto=i.id;
+   const i=a.ficha.inventario?.itens.find(x=>x.id===item.dataset.itemId);if(!i)return;itemContexto=i.id;itemContextoSlot=item.dataset.itemSlot??null;
    $('itemMenuTitulo').textContent=i.nome;$('itemMenuDescricao').textContent=i.descricao||'Sem descrição adicional.';
    let acoes='<button type="button" data-item-fechar>Cancelar</button>';
    if(i.tipo==='equipamento'&&i.equipado)acoes+='<button type="button" data-item-acao="desequipar" class="primario">Desequipar</button>';
    else if(i.tipo==='equipamento'&&i.slotEquipamento==='acessorio')acoes+='<button type="button" data-item-acao="equipar" data-item-slot="acessorio_1" class="primario">Equipar no acessório I</button><button type="button" data-item-acao="equipar" data-item-slot="acessorio_2" class="primario">Equipar no acessório II</button>';
+   else if(i.tipo==='equipamento'&&i.slotEquipamento==='mao_forte'&&(i.duasMaos||/arco longo|espada grande/i.test(i.nome)))acoes+='<button type="button" data-item-acao="equipar" data-item-slot="mao_forte" class="primario">Equipar nas duas mãos</button>';
+   else if(i.tipo==='equipamento'&&i.slotEquipamento==='mao_forte')acoes+='<button type="button" data-item-acao="equipar" data-item-slot="mao_forte" class="primario">Equipar na mão forte</button><button type="button" data-item-acao="equipar" data-item-slot="mao_fraca" class="primario">Equipar na mão fraca</button>';
    else if(i.tipo==='equipamento')acoes+='<button type="button" data-item-acao="equipar" class="primario">Equipar</button>';
    else if(i.tipo==='consumivel')acoes+='<button type="button" data-item-acao="usar" class="primario">Usar</button>';
    else acoes+='<small>Este item não possui uma ação contextual.</small>';
    $('itemMenuAcoes').innerHTML=acoes;$('itemMenuCusto').textContent=s.fase==='turnos'?'Durante o combate esta operação gasta 1 ação.':'Fora de combate não há custo de ação.';$('itemMenu').showModal();return;
  }
  const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
+$('app').onpointerover=e=>{const alvo=e.target.closest('.icone-habilidade[data-info]');if(!alvo)return;dicaLivro.textContent=alvo.dataset.info;dicaLivro.hidden=false;const r=alvo.getBoundingClientRect(),w=Math.min(340,innerWidth-16);dicaLivro.style.width=w+'px';dicaLivro.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right+8))+'px';dicaLivro.style.top=Math.max(8,Math.min(innerHeight-dicaLivro.offsetHeight-8,r.top))+'px';};
+$('app').onpointerout=e=>{if(e.target.closest('.icone-habilidade[data-info]'))dicaLivro.hidden=true;};
 $('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
 $('habilidadeMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-habilidade-fechar'))return $('habilidadeMenu').close();if(b.dataset.habilidadeAcao)tarefa(()=>alterarHabilidade(b.dataset.habilidadeAcao));};
 try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
