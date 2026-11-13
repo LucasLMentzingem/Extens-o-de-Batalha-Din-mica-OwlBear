@@ -532,6 +532,21 @@
                 "car"
               ]
             },
+            "atributos": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "for",
+                  "des",
+                  "con",
+                  "int",
+                  "sab",
+                  "car"
+                ]
+              }
+            },
             "cd": {
               "type": "integer"
             },
@@ -540,6 +555,22 @@
             },
             "raioM": {
               "type": "number"
+            },
+            "deslocamentoForcado": {
+              "type": "object",
+              "properties": {
+                "distanciaM": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "direcao": {
+                  "const": "afastar"
+                }
+              },
+              "required": [
+                "distanciaM",
+                "direcao"
+              ]
             },
             "turnos": {
               "type": "integer",

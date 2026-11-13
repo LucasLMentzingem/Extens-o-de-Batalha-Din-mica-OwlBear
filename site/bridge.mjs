@@ -167,7 +167,7 @@ export async function host(){
         const alvo=s.atores.find(a=>a.id===c.alvo);
         if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
       }
-      const alvoReacao=s.reacaoPendente?.alvo,faseAntes=s.fase;
+      const faseAntes=s.fase;
       const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id));
       if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
@@ -188,14 +188,8 @@ export async function host(){
           else if(k in item.metadata){item.locked=Boolean(item.metadata[k]);delete item.metadata[k];}
         }});
       }
-      if(c.tipo==='mover'){
-        const a=next.atores.find(x=>x.id===c.ator);
-        await OBR.scene.items.updateItems([a.token],items=>{for(const t of items)t.position={x:a.x*dpi,y:a.y*dpi};});
-      }
-      if(c.tipo==='resolverReacao'&&alvoReacao){
-        const a=next.atores.find(x=>x.id===alvoReacao);
-        if(a?.token)await OBR.scene.items.updateItems([a.token],items=>{for(const t of items)t.position={x:a.x*dpi,y:a.y*dpi};});
-      }
+      const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
+      if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*dpi,y:a.y*dpi};}});
       localStorage.setItem(key,JSON.stringify(next));await mostrar(next);await reply({});
     }catch(e){await reply({erro:e.message});}
   }

@@ -44,6 +44,12 @@ Clique numa habilidade e depois no alvo ou centro da área. O círculo dourado m
 
 Enquanto o combate estiver parado, todas as ações e magias ficam liberadas. A extensão ignora ação, ação bônus e reação fora do combate, mas ainda desconta espaços de magia e outros recursos declarados. Se um token for movido pela ferramenta normal do Owlbear durante a escolha de uma habilidade, o centro do alcance acompanha a nova posição por evento da cena; não há varredura contínua do mapa.
 
+### Deslocamento forçado
+
+Agarrar, Derrubar e Empurrar são opções separadas. **Empurrar** seleciona uma criatura a até 1,5 m, usa a melhor salvaguarda dela entre FOR e DES contra CD 10 e, em uma falha, move o alvo 1,5 m diretamente para longe do personagem. Antes da execução, uma seta branca nasce no alvo e termina exatamente no destino previsto. O movimento não consome o deslocamento do alvo.
+
+O campo JSON `deslocamentoForcado` pode acompanhar ataques e salvaguardas. Em habilidades de alvo, o vetor parte do conjurador em direção ao alvo. Em habilidades de área, cada vetor parte do centro escolhido para a respectiva criatura. Depois de uma falha na salvaguarda ou de um ataque bem-sucedido, a posição da ficha e do token no Owlbear é atualizada automaticamente. Nesta versão o vetor é geométrico; colisões com paredes e bordas ainda ficam sob arbitragem do mestre.
+
 Antes de um ataque, a confirmação permite escolher rolagem normal, vantagem ou desvantagem, acrescentar até quatro dados (`1d4 + 1d6`, por exemplo) e aplicar um modificador entre −20 e +20. O menu **Linhas** da barra aceita de uma a cinco linhas. Clique duas vezes no retrato para recolher a barra e deixar somente retrato e PV; repita para expandir. Clique duas vezes em qualquer participante do carrossel para centralizar e aproximar a câmera no token.
 
 Ao lado de **Linhas**, as abas **Perícias** e **Salva guarda** abrem os testes rápidos no próprio rodapé. Perícias contém as 18 perícias; Salva guarda contém FOR, DES, CON, INT, SAB e CAR. Essas rolagens não consomem ação, ação bônus ou reação e ficam disponíveis na preparação, na iniciativa e durante qualquer turno, inclusive o turno de outro personagem.

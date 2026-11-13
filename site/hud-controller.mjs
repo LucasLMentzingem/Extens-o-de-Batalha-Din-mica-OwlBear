@@ -1,6 +1,6 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
 import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs';
-import {atual,multi,incluirAlvo} from './engine.mjs';
+import {atual,multi,incluirAlvo,destinoDeslocamento} from './engine.mjs';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
 const url=new URL('./hud.html',import.meta.url);
@@ -90,6 +90,15 @@ export async function iniciarHud(){
     const ang=Math.atan2(b.y-a.y,b.x-a.x),tam=Math.min(dpi*.22,tamLinha*.22),p1={x:b.x-tam*Math.cos(ang-.5),y:b.y-tam*Math.sin(ang-.5)},p2={x:b.x-tam*Math.cos(ang+.5),y:b.y-tam*Math.sin(ang+.5)};
     return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor('#e5c079').strokeWidth(4).layer('CONTROL').locked(true).disableHit(true).build());
   }
+  function setaDeslocamento(origem,fim){
+    const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(dpi*.28,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
+    const p1={x:fim.x-tam*Math.cos(ang-.52),y:fim.y-tam*Math.sin(ang-.52)},p2={x:fim.x-tam*Math.cos(ang+.52),y:fim.y-tam*Math.sin(ang+.52)};
+    return [[origem,fim],[fim,p1],[fim,p2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#ffffff').strokeWidth(5).layer('CONTROL').locked(true).disableHit(true).build());
+  }
+  function marcasDeslocamento(rule,origem,alvos){
+    const regra=rule?.deslocamentoForcado;if(!regra)return [];
+    return alvos.flatMap(alvo=>{const inicio=pos(alvo),fim=destinoDeslocamento(origem,inicio,regra.distanciaM*dpi);return fim?[...setaDeslocamento(inicio,fim),circulo(fim,dpi*.2,'#ffffff')]:[];});
+  }
   async function cancelar(){
     pendente=null;await limparMarcas();
     if(anterior&&anterior!==tool&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(anterior);
@@ -129,7 +138,7 @@ export async function iniciarHud(){
     p.pronto=ids.length>=p.regraLista.min;p.detalhe='Selecione no mapa · '+ids.length+'/'+p.regraLista.max+(ids.length?' · '+unicos.map(a=>a.nome+' ×'+ids.filter(id=>id===a.id).length).join(', '):'');
     const contagem=Object.fromEntries(unicos.map(a=>[a.id,ids.filter(id=>id===a.id).length])),vistos={};
     const trajetorias=ids.flatMap(id=>{const alvo=atores().find(a=>a.id===id),i=vistos[id]??0;vistos[id]=i+1;return setaAlvo(p.origem,pos(alvo),i,contagem[id]);});
-    await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias]);
+    await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias,...marcasDeslocamento(p.rule,p.origem,unicos)]);
     await layout();transmitir();
   }
   async function sincronizarTokens(items){
@@ -151,7 +160,9 @@ export async function iniciarHud(){
     if(!ponto){await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079')]);transmitir();return;}
     const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi,raio=p.rule?.raioM;
     p.pronto=distancia<=p.raio+1e-8;
-    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1')];
+    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):raio?atores().filter(x=>Math.hypot(pos(x).x-ponto.x,pos(x).y-ponto.y)<=raio*dpi):[];
+    const origemVetor=raio?ponto:p.origem;
+    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1'),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
     await desenhar(marcas);
     const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
@@ -181,12 +192,13 @@ export async function iniciarHud(){
     if(p.escolha==='area')p.cmd.ponto=celula;
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
     const raio=p.rule?.raioM;
-    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1')];
+    const afetados=raio?atores().filter(a=>Math.hypot(pos(a).x-ponto.x,pos(a).y-ponto.y)<=raio*dpi):alvo?[alvo]:[];
+    const origemVetor=raio?ponto:p.origem;
+    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1'),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
     if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('CONTROL').disableHit(true).build());
     await desenhar(items);
-    const afetados=raio?atores().filter(a=>Math.hypot(pos(a).x-ponto.x,pos(a).y-ponto.y)<=raio*dpi).map(a=>a.nome):[];
-    p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(raio?' · raio '+medida(raio)+' · '+(afetados.join(', ')||'área vazia'):'');
+    p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(raio?' · raio '+medida(raio)+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'');
     if(p.escolha==='destino'&&!ator().desengajado){
       const ameacas=atores().flatMap(outro=>{
         const lado=a=>a.ficha.lado??a.ficha.tipo;

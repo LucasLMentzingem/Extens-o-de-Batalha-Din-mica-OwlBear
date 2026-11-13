@@ -29,9 +29,9 @@ function cartaoAcao(o,f){
   const r=o.automacao??{},s=o.selecao,custos=(o.custo??[]).map(c=>c.quantidade+' '+(c.tipo==='recurso'?(f.recursos?.find(x=>x.id===c.id)?.nome??c.id):({acao:'ação',bonus:'ação bônus',reacao:'reação'})[c.tipo])).join(' + ');
   const linha=(nome,valor)=>valor?'<div><dt>'+esc(nome)+'</dt><dd>'+esc(valor)+'</dd></div>':'';
   const uso=custos||'Sem custo',alcance=r.arremesso?r.alcanceNormalM+'/'+r.alcanceM+' m':r.alcanceM!=null?r.alcanceM+' m':'—';
-  const resistencia=r.cd?r.atributo.toUpperCase()+' · CD '+r.cd:r.tipo==='ataque'?'Ataque '+(r.bonus>=0?'+':'')+r.bonus:'—';
+  const resistencia=r.cd?(r.atributos??[r.atributo]).map(x=>x.toUpperCase()).join(' ou ')+' · CD '+r.cd:r.tipo==='ataque'?'Ataque '+(r.bonus>=0?'+':'')+r.bonus:'—';
   const efeito=(o.descricao??'').replace(/\n+/g,' · ');
-  return '<section class="carta-acao"><header><h2>'+esc(o.nome)+'</h2><small>'+esc([o.categoria,o.circuloBase!=null?(o.circuloBase?o.circuloBase+'º círculo':'Truque'):'',o.origem].filter(Boolean).join(' · '))+'</small></header><dl>'+linha('Uso',uso)+linha('Alcance',alcance)+linha('Área',r.raioM?r.raioM+' m de raio':'')+linha(r.tipo==='ataque'?'Ataque':'Resistência',resistencia)+linha('Dano',r.dano?[r.dano,r.elemento].filter(Boolean).join(' '):'')+linha('Alvos',s?.max?('de '+s.min+' a '+s.max+(s.repetirAlvo?' · pode repetir':' · distintos')):'')+linha('Efeito',efeito)+'</dl></section>';
+  return '<section class="carta-acao"><header><h2>'+esc(o.nome)+'</h2><small>'+esc([o.categoria,o.circuloBase!=null?(o.circuloBase?o.circuloBase+'º círculo':'Truque'):'',o.origem].filter(Boolean).join(' · '))+'</small></header><dl>'+linha('Uso',uso)+linha('Alcance',alcance)+linha('Área',r.raioM?r.raioM+' m de raio':'')+linha(r.tipo==='ataque'?'Ataque':'Resistência',resistencia)+linha('Dano',r.dano?[r.dano,r.elemento].filter(Boolean).join(' '):'')+linha('Deslocamento',r.deslocamentoForcado?'Empurra '+r.deslocamentoForcado.distanciaM+' m para longe da origem':'')+linha('Alvos',s?.max?('de '+s.min+' a '+s.max+(s.repetirAlvo?' · pode repetir':' · distintos')):'')+linha('Efeito',efeito)+'</dl></section>';
 }
 function render(){
   if(!v)return;

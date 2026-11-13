@@ -174,3 +174,18 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright aprovou centro sincronizado após movimento normal, área transparente, grade `50px 50px`, seis itens visíveis e rolagem do sétimo.
 - Captura conferida: `work/buffs-grid-esquerda-v076.png`.
 
+## Versão 0.7.7: Empurrar e deslocamento forçado
+
+- [x] Separar Agarrar, Derrubar e Empurrar em habilidades distintas, migrando também fichas antigas que possuíam a opção combinada.
+- [x] Automatizar Empurrar com alcance de 1,5 m, CD 10 e a melhor salvaguarda entre FOR e DES.
+- [x] Criar o contrato reutilizável `deslocamentoForcado`, com distância e direção para longe da origem.
+- [x] Desenhar uma seta branca do alvo até seu destino previsto antes da confirmação.
+- [x] Usar personagem/conjurador como origem em habilidades de alvo e o centro escolhido em habilidades de área.
+- [x] Mover a ficha e o token real somente após falha na salvaguarda ou acerto da habilidade.
+- [x] Sincronizar qualquer posição alterada pelo motor com o token correspondente, incluindo movimento normal, reações e empurrões.
+
+- Testes do motor: 37 aprovados, incluindo falha, sucesso e vetores diferentes para dois alvos de uma área.
+- Integração Playwright aprovou habilidades separadas, carta com FOR ou DES, três segmentos brancos da seta, distância visual de 150 px para 1,5 m e token movido ao destino previsto.
+- Capturas conferidas: `work/empurrar-previa-v077.png` e `work/empurrar-resolvido-v077.png`.
+- Próximo passo sugerido: detectar paredes, limites e terrenos bloqueados antes de encurtar ou cancelar o deslocamento forçado.
+

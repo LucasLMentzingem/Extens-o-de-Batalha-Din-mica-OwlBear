@@ -82,6 +82,19 @@ test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
  const m=mesa();await m.iniciar();m.s.atores[1].x=20;m.s.atores[2].x=22;await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
  await assert.rejects(m.go('mover',{ator:m.a.id,x:7,y:8},player),/insuficiente/);
 });
+test('Agarrar, Derrubar e Empurrar são habilidades distintas; Empurrar desloca só na falha',async()=>{
+ const nomes=mesa().a.ficha.opcoes.map(o=>o.nome);assert.ok(nomes.includes('Agarrar | ação'));assert.ok(nomes.includes('Derrubar | ação'));assert.ok(nomes.includes('Empurrar | ação'));assert.ok(!nomes.some(n=>n.includes('Agarrar ou empurrar')));
+ const antiga=structuredClone(nikki),base='be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe';antiga.opcoes=antiga.opcoes.filter(o=>!o.id.startsWith(base));antiga.opcoes.push({id:base,nome:'Agarrar ou empurrar | ação',categoria:'acao',descricao:'Opção antiga combinada.',custo:[{tipo:'acao',quantidade:1}]});const migrada=validar(antiga);assert.deepEqual(migrada.opcoes.filter(o=>o.id.startsWith(base)).map(o=>o.nome),['Agarrar | ação','Derrubar | ação','Empurrar | ação']);
+ const falha=mesa();await falha.iniciar();const empurrar=falha.a.ficha.opcoes.find(o=>o.nome==='Empurrar | ação');
+ await falha.go('usar',{ator:falha.a.id,opcao:empurrar.id,alvo:falha.b.id},player,[5]);assert.equal(falha.s.atores[1].x,2.5);assert.equal(falha.s.atores[1].y,0);assert.match(falha.s.historico[0],/empurrado 1.5 m/);
+ const sucesso=mesa();await sucesso.iniciar();const outra=sucesso.a.ficha.opcoes.find(o=>o.nome==='Empurrar | ação');await sucesso.go('usar',{ator:sucesso.a.id,opcao:outra.id,alvo:sucesso.b.id},player,[10]);assert.equal(sucesso.s.atores[1].x,1);
+});
+test('deslocamento forçado de área usa o centro da magia como origem do vetor',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'onda-area',nome:'Onda de teste',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'salva',atributos:['for','des'],cd:20,alcanceM:18,raioM:3,excluirConjurador:true,deslocamentoForcado:{distanciaM:1.5,direcao:'afastar'}}});
+ await m.iniciar();m.s.atores[1].x=2;m.s.atores[1].y=0;m.s.atores[2].x=1;m.s.atores[2].y=1;
+ await m.go('usar',{ator:m.a.id,opcao:'onda-area',ponto:{x:1,y:0}},player,[1,1]);
+ assert.equal(m.s.atores[1].x,3.5);assert.equal(m.s.atores[1].y,0);assert.equal(m.s.atores[2].x,1);assert.equal(m.s.atores[2].y,2.5);
+});
 test('falha de dados, revisão obsoleta e alvo fora do alcance preservam saldos',async()=>{
  const m=mesa();await m.iniciar();const o=nikki.opcoes.find(o=>o.automacao?.raioM);
  const antes=structuredClone(m.s);
