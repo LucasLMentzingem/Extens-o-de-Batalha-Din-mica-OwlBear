@@ -34,6 +34,7 @@
     "andar": 10.5
   },
   "proficiencia": 2,
+  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["leve","media","escudo"],"maestrias":["arco_longo","cimitarra"]},
   "sentidos": "Visão no Escuro 18 m. Percepção passiva 16.",
   "idiomas": "Élfico; Silvestre (idioma raro, depende do mestre; alternativa: Anão); Comum mais 2 idiomas pendentes de escolha.",
   "pericias": {

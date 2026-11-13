@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis} from './engine.mjs';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.7.26';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.7.26';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.26';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -114,7 +114,7 @@ function render(){
   if(mestre)h+='<footer>'+(s.fase==='preparo'?btn('curto','Descanso curto')+btn('longo','Descanso longo'):btn('encerrar','Encerrar combate'))+'</footer>';
   $('app').innerHTML=h;
   if($('tabuleiro')){
-    const rule=a.ficha.opcoes.find(o=>o.id===acao)?.automacao;
+    const rule=opcaoPorId(a,acao)?.automacao;
     const board=$('tabuleiro');
     for(let j=-4;j<=4;j++)for(let i=-6;i<=6;i++){
       const x=Math.round(a.x)+i,y=Math.round(a.y)+j;
@@ -133,7 +133,7 @@ function render(){
         if(tipo==='mover'){
           $('x').value=x;$('y').value=y;$('x').closest('details').open=true;
         }else if(tipo==='centro'){$('cx').value=x;$('cy').value=y;}
-        else if(who&&multi(a.ficha.opcoes.find(o=>o.id===acao))){alvo=who.id;tarefa(()=>executar('marcar'));return;}
+        else if(who&&multi(opcaoPorId(a,acao))){alvo=who.id;tarefa(()=>executar('marcar'));return;}
         else if(who&&$('alvo')){alvo=who.id;$('alvo').value=alvo;}
         for(const t of board.children)t.classList.remove('marcada');
         tile.classList.add('marcada');
@@ -147,9 +147,10 @@ function renderCatalogo(){
   if(!catalogo)return '<section><h2>Conteúdo configurado</h2><p class="muted">Carregando catálogo…</p></section>';
   const lista=xs=>'<div class="lista-catalogo">'+xs.map(x=>'<div><span>'+esc(x.nome)+'</span><small>'+esc(x.status)+'</small></div>').join('')+'</div>';
   const grupos=(titulo,xs,rotulo='habilidades')=>'<section class="grupo-catalogo"><h2>'+esc(titulo)+'</h2>'+xs.map(x=>'<details><summary><span>'+esc(x.nome)+(x.nivelMax?' · até o nível '+x.nivelMax:'')+'</span><b>'+x[rotulo].length+'</b></summary>'+lista(x[rotulo])+'</details>').join('')+'</section>';
+  const eq=catalogo.sistemaEquipamentos,linhasEq=eq?[{nome:'Alcance máximo',status:eq.alcanceMaximoM+' m'},{nome:'Ataques visíveis',status:eq.ataquesVisiveis},{nome:'Cálculo de armas',status:eq.calculoArmas},{nome:'Dano de armas',status:eq.danoArmas},{nome:'Portabilidade',status:eq.portabilidade},{nome:'Armaduras',status:eq.classesArmadura.join(', ')},{nome:'Propriedades',status:eq.propriedadesArmas.join(', ')}]:[];
   return '<section class="cabecalho-catalogo"><small>VISÃO DO SISTEMA</small><h2>Conteúdo configurado</h2><p>Esta página é gerada das sete fichas de jogadores. As seções começam retraídas e distinguem automações de resoluções assistidas pelo mestre.</p></section>'+
     grupos('Classes',catalogo.classes)+grupos('Raças',catalogo.racas)+
-    '<section class="grupo-catalogo"><h2>Bibliotecas</h2><details><summary><span>Ações e habilidades comuns</span><b>'+catalogo.comuns.length+'</b></summary>'+lista(catalogo.comuns)+'</details><details><summary><span>Itens registrados</span><b>'+catalogo.itens.length+'</b></summary>'+lista(catalogo.itens)+'</details><details><summary><span>Módulos do motor</span><b>'+catalogo.modulos.length+'</b></summary>'+lista(catalogo.modulos)+'</details></section>';
+    '<section class="grupo-catalogo"><h2>Bibliotecas</h2>'+(eq?'<details><summary><span>Sistema de equipamentos</span><b>'+linhasEq.length+'</b></summary>'+lista(linhasEq)+'</details>':'')+'<details><summary><span>Ações e habilidades comuns</span><b>'+catalogo.comuns.length+'</b></summary>'+lista(catalogo.comuns)+'</details><details><summary><span>Itens registrados</span><b>'+catalogo.itens.length+'</b></summary>'+lista(catalogo.itens)+'</details><details><summary><span>Módulos do motor</span><b>'+catalogo.modulos.length+'</b></summary>'+lista(catalogo.modulos)+'</details></section>';
 }
 function coord(id,label,value){return '<label>'+label+'<input type="number" step="any" class="curto" id="'+id+'" value="'+Number(value)+'"></label>';}
 const num=id=>Number($(id)?.value??0);
@@ -223,7 +224,7 @@ async function executar(k){
   if(k==='gm'||k==='ficha'||k==='catalogo'){secao=k;return render();}
   if(k==='npcs-toggle'){npcsAbertos=!npcsAbertos;return render();}
   if(k==='marcar'||k==='desfazer'){
-    if(k==='desfazer')alvos.pop();else alvos=incluirAlvo(alvos,alvo,multi(a.ficha.opcoes.find(o=>o.id===acao)));
+    if(k==='desfazer')alvos.pop();else alvos=incluirAlvo(alvos,alvo,multi(opcaoPorId(a,acao)));
     return render();
   }
   if(k==='teste'){testar=!testar;return view(recebido,info);}
@@ -247,7 +248,7 @@ async function executar(k){
       await enviar(k,extra);
     }return;
   }
-  const o=a.ficha.opcoes.find(x=>x.id===acao);
+  const o=opcaoPorId(a,acao);
   let detalhe=k==='usar'?(o.descricao??o.nome):a.nome;
   if(k==='mover')detalhe='Percorrer '+Math.hypot(num('x')-a.x,num('y')-a.y).toFixed(2)+' m.';
   if(k==='usar'&&multi(o)){

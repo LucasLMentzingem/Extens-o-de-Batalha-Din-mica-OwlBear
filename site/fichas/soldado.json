@@ -35,6 +35,7 @@
   },
   "resistencias": [],
   "proficiencia": 2,
+  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["media","escudo"],"maestrias":[]},
   "sentidos": "Percepção passiva 12; visão normal.",
   "idiomas": "Comum",
   "pericias": {

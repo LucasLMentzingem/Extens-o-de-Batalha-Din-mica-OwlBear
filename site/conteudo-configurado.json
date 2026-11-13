@@ -4,7 +4,17 @@
     "classes": 6,
     "racas": 6,
     "comuns": 19,
-    "itens": 51
+    "itens": 52
+  },
+  "sistemaEquipamentos": {
+    "status": "Configurado",
+    "alcanceMaximoM": 18,
+    "calculoArmas": "Atributo da propriedade e do modo + bônus de proficiência do portador quando proficiente + bônus do item e estilo aplicável.",
+    "danoArmas": "Dado, tipo de dano e propriedades pertencem ao item; o modificador pertence ao portador e é recalculado em cada troca.",
+    "ataquesVisiveis": "Somente armas equipadas geram ataques. Golpes desarmados permanecem livres.",
+    "classesArmadura": ["sem_armadura (veste)", "leve", "media", "pesada", "escudo"],
+    "propriedadesArmas": ["corpo_a_corpo", "distancia", "acuidade", "leve", "pesada", "versatil", "duas_maos", "arremessavel", "municao"],
+    "portabilidade": "O item guarda suas próprias classificações, peso, dados, dano, alcance e efeitos; proficiência, atributo, maestria, ataque e dano final são derivados da ficha que o equipa."
   },
   "classes": [
     {
@@ -878,6 +888,10 @@
     {
       "nome": "Camisão de malha",
       "status": "CA, classe e slot configurados"
+    },
+    {
+      "nome": "Camisa de malha",
+      "status": "CA, classe média, peso e slot configurados"
     },
     {
       "nome": "Capa de viagem",

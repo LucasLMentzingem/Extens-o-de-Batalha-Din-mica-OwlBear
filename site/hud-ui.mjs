@@ -1,7 +1,7 @@
-import {detalhes} from './ficha-view.mjs';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,opcoesDisponiveis} from './engine.mjs';
-import {pronto} from './bridge.mjs';
-import {canalHud} from './hud-controller.mjs';
+import {detalhes} from './ficha-view.mjs?v=0.7.26';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.26';
+import {pronto} from './bridge.mjs?v=0.7.26';
+import {canalHud} from './hud-controller.mjs?v=0.7.26';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -64,7 +64,7 @@ function render(){
     html='<section class="prompt"><strong>Iniciativa</strong><div>'+meus.filter(x=>x.emCombate!==false&&x.init===null&&x.ficha.tipo==='pj').map(x=>btn('iniciativa','Rolar · '+esc(x.nome),'data-id="'+esc(x.id)+'"')).join('')+
       (gm&&s.atores.some(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null)?btn('npcs','Rolar NPCs pendentes'):'')+'</div></section>';
   }else if(parte==='acao'&&p&&a){
-    const o=a.ficha.opcoes.find(x=>x.id===p.opcao);
+    const o=opcaoPorId(a,p.opcao);
     const executar=p.lista?btn('confirmar','Executar seleção','class="ouro" '+(p.pronto?'':'disabled')):(p.pronto?btn('confirmar',p.substitui?'Executar pelo jogador':'Executar','class="ouro"'):'');
     const desfazer=p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled'):'';
     html='<section class="painel-acao">'+cartaoAcao(o,a.ficha)+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+desfazer+executar+btn('cancelar','Cancelar')+'</div></div></section>';

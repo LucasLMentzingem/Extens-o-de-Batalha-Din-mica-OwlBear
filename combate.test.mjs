@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,slotsOcupadosItem} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,slotsOcupadosItem,ataquesEquipados,proficienteComArma,LIMITE_ALCANCE_M} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
+const conteudoConfigurado=JSON.parse(await readFile(new URL('./site/conteudo-configurado.json',import.meta.url),'utf8'));
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
@@ -307,9 +308,8 @@ test('ataque que falha também confirma o custo da ação',async()=>{
 });
 
 test('armas arremessáveis recebem ações próprias e desvantagem após o alcance normal',async()=>{
- const m=mesa(),variantes=m.a.ficha.opcoes.filter(o=>o.varianteArremessoDe);
- assert.deepEqual(variantes.map(o=>o.nome),['Adaga +4 · arremesso | ação','Segunda adaga +4 · arremesso | ação bônus','Lança +2 · arremesso | ação · uma mão']);
- assert.deepEqual(opcoesDisponiveis(m.a).filter(o=>o.varianteArremessoDe).map(o=>o.nome),['Adaga +4 · arremesso | ação','Segunda adaga +4 · arremesso | ação bônus']);
+ const m=mesa(),variantes=opcoesDisponiveis(m.a).filter(o=>o.geradaPorItem&&o.automacao.arremesso);
+ assert.equal(variantes.length,2);assert.deepEqual(variantes.map(o=>o.automacao.alcanceNormalM),[6,6]);assert.ok(variantes.every(o=>o.automacao.alcanceM===18));
  await m.iniciar();m.s.atores[1].x=10;const adaga=variantes[0],formulas=[];
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async f=>{formulas.push(f);return {total:9,natural:4,formula:f,resumo:'4+5=9'};});
  assert.equal(formulas[0],'2d20kl1+4');assert.equal(s.atores[0].acao,0);assert.match(s.historico[0],/errou/);
@@ -543,11 +543,11 @@ test('trocar equipamento ou usar consumível em combate exige o turno e gasta um
  await assert.rejects(m.go('inventario',{ator:m.a.id,operacao:'usar',itemId:'pocao-teste'},player),/ação disponível/);
 });
 test('equipamento controla dinamicamente os ataques exibidos',async()=>{
- const m=mesa();m.a.dono='p';const item=m.a.ficha.inventario.itens.find(i=>i.nome==='Adaga'&&i.equipadoSlot==='mao_forte'),ataque=m.a.ficha.opcoes.find(o=>o.requerItemEquipado===item.id);
+ const m=mesa();m.a.dono='p';const item=m.a.ficha.inventario.itens.find(i=>i.nome==='Adaga'&&i.equipadoSlot==='mao_forte'),ataque=opcoesDisponiveis(m.a).find(o=>o.origemItem===item.id&&!o.automacao.arremesso);
  assert.ok(item.equipado&&ataque&&opcoesDisponiveis(m.a).some(o=>o.id===ataque.id));
  await m.go('inventario',{ator:m.a.id,operacao:'desequipar',itemId:item.id},player);
  assert.equal(opcoesDisponiveis(m.s.atores[0]).some(o=>o.id===ataque.id),false);
- await assert.rejects(m.go('usar',{ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player),/equipamento adequado/);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player),/Opção desconhecida|equipamento adequado/);
 });
 test('migração de encontro antigo religa ataques às armas e oculta a lança guardada',()=>{
  const m=mesa(),f=m.a.ficha;
@@ -556,7 +556,7 @@ test('migração de encontro antigo religa ataques às armas e oculta a lança g
  atualizarMagias(f);
  const visiveis=opcoesDisponiveis(m.a).map(o=>o.nome);
  assert.ok(visiveis.some(n=>n.startsWith('Adaga +4')));
- assert.ok(visiveis.some(n=>n.startsWith('Segunda adaga +4')));
+ assert.equal(visiveis.filter(n=>n.startsWith('Adaga')).length,4);
  assert.equal(visiveis.some(n=>n.startsWith('Lança +2')),false);
 });
 test('HUD lógica oferece apenas magias preparadas, sempre preparadas e truques',()=>{
@@ -589,4 +589,38 @@ test('catálogo do Victor registra todas as armas, proteções, acessórios e su
  assert.equal(catalogoVictor.itens.length,24);assert.equal(new Set(catalogoVictor.itens.map(i=>i.id)).size,24);
  const armas=catalogoVictor.itens.filter(i=>i.categoria==='arma'),placas=catalogoVictor.itens.find(i=>i.id==='victor-armadura-placas'),escudo=catalogoVictor.itens.find(i=>i.id==='victor-escudo'),veste=catalogoVictor.itens.find(i=>i.id==='victor-veste-simples');
  assert.equal(armas.length,9);assert.ok(armas.every(i=>i.modelosAcoes?.length));assert.equal(placas.preco.valor,1500);assert.equal(placas.classeArmadura.valor,18);assert.equal(escudo.slotEquipamento,'mao_fraca');assert.equal(escudo.classeArmadura.valor,2);assert.equal(veste.categoriaArmadura,'veste');
+});
+test('ataques de arma são derivados somente dos itens equipados e desarmados continuam livres',()=>{
+ const f=fichasJogadores.find(x=>x.id==='draven-thorne'),s=novo(),d=adicionar(s,f),nomes=opcoesDisponiveis(d).map(o=>o.nome);
+ const armas=ataquesEquipados(d);assert.deepEqual(armas.map(o=>o.dadosEquipamento.tipoArma),['espada_grande']);
+ assert.equal(armas[0].automacao.bonus,5);assert.equal(armas[0].automacao.dano,'2d6+3');assert.equal(armas[0].automacao.elemento,'cortante');assert.equal(armas[0].dadosEquipamento.proficiente,true);assert.equal(armas[0].dadosEquipamento.maestria,true);
+ assert.equal(nomes.some(n=>/Azagaia|Mangual/.test(n)),false);assert.equal(nomes.some(n=>/Golpe desarmado/i.test(n)),true);
+});
+test('o mesmo item recalcula acerto, dano e proficiência para o novo portador',()=>{
+ const s=novo(),d=adicionar(s,fichasJogadores.find(x=>x.id==='draven-thorne')),n=adicionar(s,nikki),espada=structuredClone(d.ficha.inventario.itens.find(i=>i.tipoArma==='espada_grande'));
+ for(const i of n.ficha.inventario.itens)if(i.equipado&&['mao_forte','mao_fraca'].includes(i.equipadoSlot)){i.equipado=false;delete i.equipadoSlot;}
+ espada.id='espada-transferida';espada.equipado=true;espada.equipadoSlot='mao_forte';n.ficha.inventario.itens.push(espada);
+ const original=ataquesEquipados(d)[0],transferida=ataquesEquipados(n).find(o=>o.origemItem===espada.id);
+ assert.equal(original.automacao.bonus,5);assert.equal(original.automacao.dano,'2d6+3');assert.equal(transferida.automacao.bonus,0);assert.equal(transferida.automacao.dano,'2d6');assert.equal(transferida.dadosEquipamento.proficiente,false);assert.equal(proficienteComArma(n.ficha,espada),false);
+});
+test('acuidade, distância, arremesso, duas mãos e Artes Marciais usam os dados do item',()=>{
+ const s=novo(),n=adicionar(s,nikki),z=adicionar(s,fichasJogadores.find(x=>x.id==='zurich')),l=adicionar(s,fichasJogadores.find(x=>x.id==='loteria'));
+ const adaga=ataquesEquipados(n).find(o=>o.automacao.arremesso),arco=ataquesEquipados(z).find(o=>o.dadosEquipamento.tipoArma==='arco_longo'),lanca=ataquesEquipados(l).find(o=>o.dadosEquipamento.tipoArma==='lanca'&&!o.automacao.arremesso);
+ assert.equal(adaga.dadosEquipamento.atributo,'des');assert.equal(adaga.automacao.bonus,4);assert.equal(adaga.automacao.elemento,'perfurante');
+ assert.equal(arco.dadosEquipamento.atributo,'des');assert.equal(arco.automacao.bonus,7);assert.equal(arco.automacao.alcanceM,18);
+ assert.equal(lanca.dadosEquipamento.atributo,'des');assert.equal(lanca.automacao.dano,'1d8+3');
+});
+test('todo ataque ou habilidade respeita o teto sistêmico de dezoito metros',()=>{
+ for(const ficha of [...fichasJogadores,soldado]){const s=novo(),a=adicionar(s,ficha);for(const o of opcoesDisponiveis(a)){if(Number.isFinite(o.automacao?.alcanceM))assert.ok(o.automacao.alcanceM<=LIMITE_ALCANCE_M,o.nome);if(Number.isFinite(o.selecao?.alcanceM))assert.ok(o.selecao.alcanceM<=LIMITE_ALCANCE_M,o.nome);}}
+});
+test('armadura pesada usa classificação, escudo independente e requisito de força',()=>{
+ const s=novo(),n=adicionar(s,nikki),placas=structuredClone(catalogoVictor.itens.find(i=>i.id==='victor-armadura-placas')),escudo=structuredClone(catalogoVictor.itens.find(i=>i.id==='victor-escudo'));
+ for(const i of n.ficha.inventario.itens)i.equipado=false;Object.assign(placas,{id:'placas-teste',quantidade:1,equipado:true,equipadoSlot:'vestes'});Object.assign(escudo,{id:'escudo-teste',quantidade:1,equipado:true,equipadoSlot:'mao_fraca'});n.ficha.inventario.itens.push(placas,escudo);
+ assert.equal(caAtual(n),20);assert.equal(deslocamentoMaximo(n),6);assert.equal(placas.categoriaArmadura,'pesada');assert.equal(escudo.categoriaArmadura,'escudo');
+});
+test('Conteúdo configurado cobre os itens das sete fichas, soldados e Forja do Victor',()=>{
+ const normal=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),nomes=new Set(conteudoConfigurado.itens.map(i=>normal(i.nome)));
+ for(const f of [...fichasJogadores,soldado])for(const item of f.equipamentos??f.inventario?.itens??[])assert.ok(nomes.has(normal(item.nome??item.name)),'faltou '+(item.nome??item.name));
+ for(const item of catalogoVictor.itens)assert.ok(nomes.has(normal(item.nome)),'faltou '+item.nome);
+ assert.equal(conteudoConfigurado.sistemaEquipamentos.alcanceMaximoM,18);assert.equal(conteudoConfigurado.sistemaEquipamentos.status,'Configurado');
 });

@@ -34,6 +34,7 @@
     "andar": 9
   },
   "proficiencia": 2,
+  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["leve","media","escudo"],"maestrias":["arco_longo","cimitarra"]},
   "sentidos": "Visão no escuro 18 m; Percepção passiva 16",
   "idiomas": "Comum; Dracônico; Abissal.",
   "pericias": {

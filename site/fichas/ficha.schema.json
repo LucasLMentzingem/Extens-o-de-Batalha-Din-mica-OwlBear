@@ -127,6 +127,15 @@
     "proficiencia": {
       "type": "integer"
     },
+    "proficienciasEquipamento": {
+      "type": "object",
+      "properties": {
+        "armas": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "armaduras": {"type": "array", "uniqueItems": true, "items": {"enum": ["leve", "media", "pesada", "escudo", "veste"]}},
+        "maestrias": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "estiloDuasArmas": {"type": "boolean"}
+      }
+    },
     "salvaguardas": {
       "type": "object",
       "properties": {
@@ -229,6 +238,15 @@
               "equipadoSlot": {"enum": ["cabeca", "capa", "vestes", "botas", "mao_forte", "mao_fraca", "arma_distancia", "colar", "acessorio_1", "acessorio_2"]},
               "duasMaos": {"type": "boolean"},
               "leve": {"type": "boolean"},
+              "categoria": {"type": "string"},
+              "tipoArma": {"type": "string"},
+              "grupoProficiencia": {"enum": ["simples", "marcial"]},
+              "propriedades": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+              "modelosAcoes": {"type": "array", "items": {"type": "object"}},
+              "bonusMagico": {"type": "number"},
+              "bonusDano": {"type": "number"},
+              "requisitos": {"type": "object"},
+              "penalidades": {"type": "object"},
               "bonusAtaque": {"type": "number"},
               "categoriaArmadura": {"enum": ["leve", "media", "pesada", "escudo", "veste"]},
               "moeda": {"enum": ["po", "pp", "pc", "pe", "pl"]},

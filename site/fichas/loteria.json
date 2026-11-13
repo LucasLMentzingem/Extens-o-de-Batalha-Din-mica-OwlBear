@@ -34,6 +34,7 @@
     "andar": 12
   },
   "proficiencia": 2,
+  "proficienciasEquipamento": {"armas":["simples","marciais_leves"],"armaduras":[],"maestrias":[]},
   "sentidos": "Visão no Escuro 36 m. Percepção passiva 13.",
   "idiomas": "Comum; mais 2 idiomas pendentes de escolha (sugestão: Orc e Anão).",
   "pericias": {

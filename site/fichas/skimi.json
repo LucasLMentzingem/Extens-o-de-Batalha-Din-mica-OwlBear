@@ -34,6 +34,7 @@
     "andar": 9
   },
   "proficiencia": 2,
+  "proficienciasEquipamento": {"armas":["simples"],"armaduras":["leve"],"maestrias":[]},
   "sentidos": "Percepção passiva 13.",
   "idiomas": "Comum; Élfico; Goblin. Telepatia pela Mente Desperta.",
   "pericias": {

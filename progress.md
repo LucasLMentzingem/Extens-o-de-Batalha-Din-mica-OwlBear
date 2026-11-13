@@ -430,3 +430,22 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Testes do motor: 47 aprovados.
 - Próximo módulo: composição de ataques e gatilhos após acerto.
 
+### Versão 0.7.26: equipamentos portáteis e ataques derivados
+
+- [x] Aplicar o teto sistêmico de 18 m a ataques, magias, habilidades e modos de arremesso/distância.
+- [x] Substituir ataques estáticos de armas por ações geradas somente a partir dos itens equipados.
+- [x] Manter golpes desarmados livres mesmo com armas equipadas.
+- [x] Recalcular atributo, proficiência, bônus de ataque, dano, tipo de dano e maestria para o portador atual do item.
+- [x] Cobrir acuidade, distância, arremesso, mão fraca, duas mãos, versátil, munição e Artes Marciais.
+- [x] Registrar proficiências de armas, armaduras e maestrias nas sete fichas e no soldado.
+- [x] Classificar vestes sem armadura, armaduras leves, médias, pesadas e escudos; aplicar requisito de FOR das pesadas ao deslocamento.
+- [x] Completar as definições das nove armas e todas as proteções, acessórios e suprimentos da Forja do Victor.
+- [x] Exibir classificação e proficiência calculada nos balões do inventário.
+- [x] Documentar a regra e todos os itens das sete fichas, soldados e Forja do Victor em Conteúdo configurado.
+- [x] Adicionar cache-busting 0.7.26 também nas dependências internas dos módulos.
+
+- Testes do motor: 81 aprovados.
+- Fluxo visual de inventário, equipar/desequipar e Livro de Habilidades aprovado em Playwright.
+- Capturas conferidas: `work/playwright-v0726/shot-0.png`, `work/playwright-v0726-carregado/shot-0.png`, `work/playwright-v0726-catalogo/shot-0.png`, `work/inventario-v0716.png` e `work/livro-habilidades-v0716.png`.
+- Próxima expansão sugerida: operações de transferir, saquear e furtar reutilizando o item portátil já implementado.
+

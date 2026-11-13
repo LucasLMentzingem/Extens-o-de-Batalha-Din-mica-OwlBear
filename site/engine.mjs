@@ -154,6 +154,31 @@ export function atualizarMagias(f){
   vincularAcoesEquipamentos(f);
 }
 const textoNormal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+export const definicoesArmas=Object.freeze({
+  azagaia:{tipoArma:'azagaia',grupoProficiencia:'simples',propriedades:['corpo_a_corpo','arremessavel'],slotEquipamento:'mao_forte',pesoKg:1,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d6',tipoDano:'perfurante'},{modo:'arremesso',alcanceNormalM:9,alcanceM:18,dano:'1d6',tipoDano:'perfurante'}]},
+  foice:{tipoArma:'foice',grupoProficiencia:'simples',propriedades:['corpo_a_corpo','leve'],slotEquipamento:'mao_forte',pesoKg:1,leve:true,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d4',tipoDano:'cortante'}]},
+  lanca:{tipoArma:'lanca',grupoProficiencia:'simples',propriedades:['corpo_a_corpo','versatil','arremessavel'],slotEquipamento:'mao_forte',pesoKg:1.5,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d6',danoDuasMaos:'1d8',tipoDano:'perfurante'},{modo:'arremesso',alcanceNormalM:6,alcanceM:18,dano:'1d6',tipoDano:'perfurante'}]},
+  adaga:{tipoArma:'adaga',grupoProficiencia:'simples',propriedades:['corpo_a_corpo','acuidade','leve','arremessavel'],slotEquipamento:'mao_forte',pesoKg:.5,leve:true,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d4',tipoDano:'perfurante'},{modo:'arremesso',alcanceNormalM:6,alcanceM:18,dano:'1d4',tipoDano:'perfurante'}]},
+  espada_curta:{tipoArma:'espada_curta',grupoProficiencia:'marcial',propriedades:['corpo_a_corpo','acuidade','leve'],slotEquipamento:'mao_forte',pesoKg:1,leve:true,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d6',tipoDano:'perfurante'}]},
+  mangual:{tipoArma:'mangual',grupoProficiencia:'marcial',propriedades:['corpo_a_corpo'],slotEquipamento:'mao_forte',pesoKg:1,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d8',tipoDano:'contundente'}]},
+  cimitarra:{tipoArma:'cimitarra',grupoProficiencia:'marcial',propriedades:['corpo_a_corpo','acuidade','leve'],slotEquipamento:'mao_forte',pesoKg:1.5,leve:true,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'1d6',tipoDano:'cortante'}]},
+  arco_longo:{tipoArma:'arco_longo',grupoProficiencia:'marcial',propriedades:['distancia','duas_maos','pesada','municao'],slotEquipamento:'arma_distancia',pesoKg:1,duasMaos:true,modelosAcoes:[{modo:'distancia',alcanceNormalM:18,alcanceM:18,dano:'1d8',tipoDano:'perfurante'}]},
+  espada_grande:{tipoArma:'espada_grande',grupoProficiencia:'marcial',propriedades:['corpo_a_corpo','duas_maos','pesada'],slotEquipamento:'mao_forte',pesoKg:3,duasMaos:true,modelosAcoes:[{modo:'corpo_a_corpo',alcanceM:1.5,dano:'2d6',tipoDano:'cortante'}]}
+});
+function chaveArma(item){
+  if(item?.tipoArma&&definicoesArmas[item.tipoArma])return item.tipoArma;
+  const n=textoNormal(item?.nome).replace(/^\d+\s+/,'');
+  return Object.keys(definicoesArmas).find(k=>n.includes(k.replaceAll('_',' ')));
+}
+function normalizarItemEquipamento(item){
+  const chave=chaveArma(item),base=chave?definicoesArmas[chave]:null;
+  if(base){
+    const explicitos=structuredClone(item),modelos=Array.isArray(item.modelosAcoes)&&item.modelosAcoes.length?item.modelosAcoes:base.modelosAcoes;
+    Object.assign(item,structuredClone(base),explicitos,{categoria:'arma',tipo:'equipamento',tipoArma:chave,slotEquipamento:explicitos.slotEquipamento??base.slotEquipamento,grupoProficiencia:item.grupoProficiencia??base.grupoProficiencia,propriedades:[...new Set([...(base.propriedades??[]),...(item.propriedades??[])])],modelosAcoes:structuredClone(modelos)});
+  }
+  Object.assign(item,dadosArmadura(item.nome,item.descricao,item));
+  return item;
+}
 const armaLeve=i=>i?.leve===true||/adaga|foice|espada curta|cimitarra|clava leve|machadinha/.test(textoNormal(i?.nome));
 const armaDuasMaos=i=>{
   const nome=textoNormal(i?.nome),texto=textoNormal((i?.nome??'')+' '+(i?.descricao??''));
@@ -210,24 +235,24 @@ function separarCopias(itens){
   }
   return saida;
 }
-function equiparInicial(itens){
+function equiparInicial(itens,ficha){
   for(const item of itens){item.equipado=false;delete item.equipadoSlot;if(item.tipo==='equipamento'&&item.slotEquipamento==='mao_fraca'&&!/escudo/i.test(item.nome))item.slotEquipamento='mao_forte';}
   const equipar=(item,slot)=>{if(!item)return;item.equipado=true;item.equipadoSlot=slot;};
   const outros=itens.filter(i=>i.tipo==='equipamento'&&!['mao_forte','mao_fraca'].includes(i.slotEquipamento));
   for(const slot of slotsEquipamento.filter(s=>!['mao_forte','mao_fraca'].includes(s))){
     const candidatos=outros.filter(i=>i.slotEquipamento===slot).sort((a,b)=>Number(b.preferido)-Number(a.preferido));equipar(candidatos[0],slot);
   }
-  const armas=itens.filter(i=>i.tipo==='equipamento'&&i.slotEquipamento==='mao_forte').sort((a,b)=>bonusAtaqueItem(b)-bonusAtaqueItem(a)||Number(b.preferido)-Number(a.preferido));
+  const armas=itens.filter(i=>i.tipo==='equipamento'&&i.slotEquipamento==='mao_forte').sort((a,b)=>bonusPrevistoArma(ficha,b)-bonusPrevistoArma(ficha,a)||bonusAtaqueItem(b)-bonusAtaqueItem(a)||Number(b.preferido)-Number(a.preferido));
   const principal=armas[0];equipar(principal,'mao_forte');
   if(principal&&!armaDuasMaos(principal)&&armaLeve(principal))equipar(armas.find(i=>i!==principal&&armaLeve(i)&&!armaDuasMaos(i)),'mao_fraca');
   if(!itens.some(i=>ocupaSlot(i,'mao_fraca')))equipar(itens.find(i=>i.tipo==='equipamento'&&i.slotEquipamento==='mao_fraca'&&/escudo/i.test(i.nome)),'mao_fraca');
 }
 export function inventarioNormalizado(f){
   if(f.inventario?.itens){
-    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===4)return inv;
+    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===5)return inv;
     const preservaEquipados=Number(inv.versaoOcupacao)>=3;
-    inv.itens=separarCopias(inv.itens.map(i=>({...i,pesoKg:Number(i.pesoKg)>0?Number(i.pesoKg):pesoItemPadrao(i.nome,i.descricao)}))).map(i=>({...i,...dadosArmadura(i.nome,i.descricao,i)}));
-    if(!preservaEquipados)equiparInicial(inv.itens);inv.versaoOcupacao=4;return inv;
+    inv.itens=separarCopias(inv.itens.map(i=>normalizarItemEquipamento({...i,pesoKg:Number(i.pesoKg)>0?Number(i.pesoKg):pesoItemPadrao(i.nome,i.descricao)})));
+    if(!preservaEquipados)equiparInicial(inv.itens,f);inv.versaoOcupacao=5;return inv;
   }
   const usados=new Set(),ocupados=new Set(),itens=(f.equipamentos??[]).map((e,i)=>{
     const nome=e.nome??e.name??('Item '+(i+1)),moeda=/moedas?.*?(\d+)\s*po/i.exec(nome),quantidade=/^(\d+)\s+/.exec(nome);
@@ -236,8 +261,8 @@ export function inventarioNormalizado(f){
     const equipado=Boolean(e.inUse&&slot&&!ocupados.has(slot));if(equipado)ocupados.add(slot);
     return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg)>0?Number(e.pesoKg):pesoItemPadrao(nome,e.descricao??e.description??''),slotEquipamento:slot,equipado,equipadoSlot:equipado?slot:undefined,preferido:Boolean(e.inUse),duasMaos:Boolean(e.duasMaos),leve:Boolean(e.leve),bonusAtaque:Number.isFinite(e.bonusAtaque)?Number(e.bonusAtaque):undefined,modificadores:structuredClone(e.modificadores??{}),acoes:Array.isArray(e.acoes)?[...e.acoes]:undefined,...dadosArmadura(nome,e.descricao??e.description??'',e)};
   });
-  const separados=separarCopias(itens);equiparInicial(separados);
-  return {versaoOcupacao:4,capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens:separados};
+  const separados=separarCopias(itens.map(normalizarItemEquipamento));equiparInicial(separados,f);
+  return {versaoOcupacao:5,capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens:separados};
 }
 export const multi=o=>o?.selecao?.tipo==='alvos'&&(o.selecao.max>1||['projeteis','bencao'].includes(o.automacao?.tipo))?o.selecao:null;
 export function incluirAlvo(lista,id,regra){
@@ -332,6 +357,11 @@ export function validar(f) {
   }
   for(const [k,n] of Object.entries(f.salvaguardas??{}))exigir(atributos.includes(k)&&inteiro(n,-30,50),'Salvaguarda inválida.');
   for(const n of Object.values(f.pericias??{}))exigir(inteiro(n,-30,50),'Bônus de perícia inválido.');
+  if(f.proficienciasEquipamento){
+    const p=f.proficienciasEquipamento;
+    exigir(['armas','armaduras','maestrias'].every(k=>p[k]===undefined||Array.isArray(p[k])&&p[k].every(nomeOK)),'Proficiências de equipamento inválidas.');
+    exigir(p.estiloDuasArmas===undefined||typeof p.estiloDuasArmas==='boolean','Estilo de duas armas inválido.');
+  }
   for(const k of ['equipamentos','notas','passivas','condicoes','efeitos','resistencias','imunidades','vulnerabilidades'])if(f[k]!==undefined)exigir(Array.isArray(f[k]),'Esperada uma lista em '+k);
   const out=structuredClone(f);
   out.inventario=structuredClone(inventarioNormalizado(out));
@@ -344,6 +374,10 @@ export function validar(f) {
     if(item.equipado)exigir(slotsEquipamento.includes(item.equipadoSlot),'Slot equipado inválido em '+item.id);
     if(item.duasMaos!==undefined)exigir(typeof item.duasMaos==='boolean','Propriedade de duas mãos inválida em '+item.id);
     if(item.leve!==undefined)exigir(typeof item.leve==='boolean','Propriedade leve inválida em '+item.id);
+    if(item.categoria==='arma'){
+      exigir(idOK(item.tipoArma)&&['simples','marcial'].includes(item.grupoProficiencia)&&Array.isArray(item.propriedades)&&Array.isArray(item.modelosAcoes)&&item.modelosAcoes.length>0,'Classificação de arma inválida em '+item.id);
+      for(const m of item.modelosAcoes)exigir(['corpo_a_corpo','arremesso','distancia'].includes(m.modo)&&formulaDanoValida(m.dano)&&Number.isFinite(m.alcanceM)&&m.alcanceM>=0,'Modo de ataque inválido em '+item.id);
+    }
     if(item.acoes!==undefined)exigir(Array.isArray(item.acoes)&&item.acoes.every(id=>out.opcoes.some(o=>o.id===id)),'Ação de item inválida em '+item.id);
   }
   const ocupacao=out.inventario.itens.flatMap(slotsOcupadosItem);
@@ -388,6 +422,67 @@ export function adicionar(s,f,nome=f.nome) {
 export const atual = s=>s.atores.find(a=>a.id===s.ordem[s.vez]);
 export const ativos = s=>s.atores.filter(a=>a.emCombate!==false);
 export const mod = n=>Math.floor((n-10)/2);
+const classesArmas={
+  guerreiro:['simples','marcial'],guardiao:['simples','marcial'],soldado:['simples','marcial'],
+  monge:['simples','marciais_leves'],bardo:['simples'],feiticeiro:['simples'],bruxo:['simples']
+};
+function proficienciasArmas(f){
+  const declaradas=f?.proficienciasEquipamento?.armas;
+  if(Array.isArray(declaradas))return new Set(declaradas.map(textoNormal));
+  return new Set((f?.classes??[]).flatMap(c=>classesArmas[textoNormal(c.id)]??[]));
+}
+export function proficienteComArma(f,item){
+  const d=definicoesArmas[chaveArma(item)],p=proficienciasArmas(f);if(!d)return false;
+  return p.has('todas')||p.has(d.tipoArma)||p.has(d.grupoProficiencia)||d.grupoProficiencia==='marcial'&&p.has('marciais_leves')&&d.propriedades.includes('leve');
+}
+function mongeUsaArma(f,item){
+  const monge=(f?.classes??[]).some(c=>textoNormal(c.id)==='monge');
+  const d=definicoesArmas[chaveArma(item)];
+  return monge&&d&&(d.grupoProficiencia==='simples'||d.grupoProficiencia==='marcial'&&d.propriedades.includes('leve'))&&!d.propriedades.includes('pesada');
+}
+function atributoAtaqueArma(f,item,modelo){
+  const d=definicoesArmas[chaveArma(item)]??item,props=d.propriedades??[];
+  if(modelo.modo==='distancia')return 'des';
+  if(props.includes('acuidade')||mongeUsaArma(f,item))return mod(f.atributos.des)>mod(f.atributos.for)?'des':'for';
+  return 'for';
+}
+function bonusEstiloArma(f,item,modelo){
+  if(modelo.modo!=='distancia')return 0;
+  return (f?.passivas??[]).some(p=>/arquearia/i.test((p.nome??'')+' '+(p.descricao??'')))?2:0;
+}
+function formulaComBonus(dados,bonus){return bonus===0?dados:dados+(bonus>0?'+':'')+bonus;}
+function dadoMinimoMonge(f,item,dados){
+  if(!mongeUsaArma(f,item))return dados;
+  const m=/^(\d+)d(\d+)$/.exec(dados);return m&&Number(m[1])===1&&Number(m[2])<6?'1d6':dados;
+}
+function maestriaDaArma(f,item){
+  const tipo=chaveArma(item),declaradas=f?.proficienciasEquipamento?.maestrias??[];
+  if(Array.isArray(f?.proficienciasEquipamento?.maestrias))return declaradas.map(textoNormal).includes(tipo);
+  const texto=(f?.passivas??[]).map(p=>(p.nome??'')+' '+(p.descricao??'')).join(' ');
+  return new RegExp((item.nome??'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(texto)&&/maestria/i.test(texto);
+}
+function nomeMaestria(item){return item.maestria??/maestria\s+([\p{L}]+)/iu.exec(item.descricao??'')?.[1];}
+export function bonusPrevistoArma(f,item,modelo){
+  const d=definicoesArmas[chaveArma(item)]??item,m=modelo??d.modelosAcoes?.[0];if(!m||!f?.atributos)return -99;
+  const atributo=atributoAtaqueArma(f,item,m),prof=proficienteComArma(f,item)?Number(f.proficiencia??(2+Math.floor(((f.classes??[]).reduce((n,c)=>n+c.nivel,0)-1)/4))):0;
+  return mod(f.atributos[atributo])+prof+bonusEstiloArma(f,item,m)+(Number(item.bonusMagico)||0)+(Number(item.modificadores?.ataque)||0);
+}
+function ataqueGeradoArma(a,item,modelo,indice){
+  const f=a.ficha,d=definicoesArmas[chaveArma(item)]??item,atributo=atributoAtaqueArma(f,item,modelo),proficiente=proficienteComArma(f,item);
+  const bonus=bonusPrevistoArma(f,item,modelo),secundaria=item.equipadoSlot==='mao_fraca'&&!armaDuasMaos(item),modDano=secundaria&&!f.proficienciasEquipamento?.estiloDuasArmas?0:mod(f.atributos[atributo]);
+  const duasMaos=armaDuasMaos(item)||d.propriedades?.includes('versatil')&&!itensEquipados(a).some(i=>i!==item&&ocupaSlot(i,'mao_fraca'));
+  const dadoBase=duasMaos&&modelo.danoDuasMaos?modelo.danoDuasMaos:modelo.dano,dado=dadoMinimoMonge(f,item,dadoBase);
+  const dano=formulaComBonus(dado,modDano+(Number(item.bonusDano)||0)+(Number(item.modificadores?.dano)||0));
+  const modoNome=modelo.modo==='arremesso'?' · arremesso':modelo.modo==='distancia'?' · distância':'';
+  const custoTipo=secundaria?'bonus':'acao',alcance=Math.min(LIMITE_ALCANCE_M,Number(modelo.alcanceM)||1.5),maestria=maestriaDaArma(f,item),nomeM=nomeMaestria(item);
+  return {id:'item-'+slug(item.id)+'-'+(modelo.modo??indice),nome:item.nome+modoNome+' '+(bonus>=0?'+':'')+bonus+' | '+(custoTipo==='bonus'?'ação bônus':'ação'),categoria:'acao',origem:'equipamento',origemItem:item.id,geradaPorItem:true,
+    descricao:[modelo.modo==='distancia'?'Ataque à distância':modelo.modo==='arremesso'?'Arremesso':'Ataque corpo a corpo','Atributo '+atributo.toUpperCase(),proficiente?'proficiente':'sem proficiência',maestria?'maestria'+(nomeM?' '+nomeM:''):'sem maestria','dano '+dano+' '+modelo.tipoDano].join(' · ')+'.',
+    custo:[{tipo:custoTipo,quantidade:1}],automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[])]},
+    dadosEquipamento:{itemId:item.id,tipoArma:d.tipoArma,grupoProficiencia:d.grupoProficiencia,propriedades:[...(d.propriedades??[])],atributo,proficiente,maestria,tipoDano:modelo.tipoDano}};
+}
+export function ataquesEquipados(a){
+  return itensEquipados(a).filter(i=>chaveArma(i)).flatMap(item=>(item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).map((m,n)=>ataqueGeradoArma(a,item,m,n)));
+}
 export const bonusEfeito=(a,campo)=>(a?.efeitosAtivos??[]).reduce((n,e)=>n+(Number(e.modificadores?.[campo])||0),0);
 export const itensEquipados=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.equipado);
 function vincularAcoesEquipamentos(f){
@@ -405,7 +500,7 @@ function vincularAcoesEquipamentos(f){
       const secundaria=/segunda|mao fraca/.test(nome);
       item=secundaria?(candidatos.find(i=>i.equipadoSlot==='mao_fraca')??candidatos[1]??candidatos[0]):(candidatos.find(i=>i.equipadoSlot==='mao_forte')??candidatos[0]);
     }
-    if(item){o.requerItemEquipado=item.id;item.acoes=[...new Set([...(item.acoes??[]),o.id])];}
+    if(item){o.requerItemEquipado=item.id;o.ataqueLegadoDeItem=true;item.acoes=[...new Set([...(item.acoes??[]),o.id])];}
   }
 }
 export function opcaoPreparada(f,o){
@@ -419,7 +514,16 @@ export function opcaoDisponivel(a,o){
   if(o.origemItem&&!itensEquipados(a).some(i=>i.id===o.origemItem))return false;
   return true;
 }
-export const opcoesDisponiveis=a=>(a?.ficha?.opcoes??[]).filter(o=>opcaoDisponivel(a,o));
+export const opcoesCalculadas=a=>[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem),...ataquesEquipados(a)];
+export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>opcaoDisponivel(a,o));
+export const opcaoPorId=(a,id)=>{
+  const calculada=opcoesCalculadas(a).find(o=>o.id===id);if(calculada)return calculada;
+  const antiga=a?.ficha?.opcoes?.find(o=>o.id===id);if(!antiga?.ataqueLegadoDeItem)return antiga;
+  const candidatas=ataquesEquipados(a).filter(o=>o.origemItem===antiga.requerItemEquipado);
+  const arremesso=antiga.varianteArremessoDe||/arremesso/i.test(antiga.nome);
+  const secundaria=/segunda|m[aã]o fraca|a[cç][aã]o b[oô]nus/i.test(antiga.nome);
+  return candidatas.find(o=>Boolean(o.automacao.arremesso)===Boolean(arremesso)&&Boolean(o.custo?.some(c=>c.tipo==='bonus'))===Boolean(secundaria))??candidatas.find(o=>Boolean(o.automacao.arremesso)===Boolean(arremesso));
+};
 export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Number(i.modificadores?.[campo])||0),0);
 export const bonusPassiva=(a,campo)=>(a?.ficha?.passivas??[]).filter(p=>p.ativa!==false).reduce((n,p)=>n+(Number(p.modificadores?.[campo])||0),0);
 export const caAtual=a=>{
@@ -428,7 +532,10 @@ export const caAtual=a=>{
   return base+bonus+bonusEquipamento(a,'ca')+bonusPassiva(a,'ca')+bonusEfeito(a,'ca');
 };
 export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusPassiva(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
-export const deslocamentoMaximo=a=>Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusPassiva(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM'));
+export const deslocamentoMaximo=a=>{
+  const penalidade=itensEquipados(a).some(i=>i.categoriaArmadura==='pesada'&&Number(i.requisitos?.forca)>(a?.ficha?.atributos?.for??0))?3:0;
+  return Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusPassiva(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM')-penalidade);
+};
 export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(1,Number(i.quantidade)||1),0);
 export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 export function curarAtor(a,valor){
@@ -823,7 +930,7 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'inventario': {
       exigir(a&&['equipar','desequipar','usar'].includes(c.operacao),'Operação de inventário inválida.');
-      const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');
+      const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');normalizarItemEquipamento(item);
       const emTurno=s.fase==='turnos';
       exigir(!emTurno||atual(s)?.id===a.id,'Equipamentos e itens só podem ser alterados no turno do personagem.');
       if(emTurno){exigir(a.acao>=1,'É preciso ter uma ação disponível.');a.acao--;}
@@ -951,7 +1058,7 @@ export async function aplicar(s,c,u,rolar) {
       } msg='Descanso '+c.periodo+' dos jogadores.';break;
     default: {
       exigir(!s.reacaoPendente,'Resolva a reação pendente antes de continuar.');
-      const opcaoDeclarada=c.tipo==='usar'?a.ficha.opcoes.find(x=>x.id===c.opcao):null;
+      const opcaoDeclarada=c.tipo==='usar'?opcaoPorId(a,c.opcao):null;
       const foraCombate=c.tipo==='usar'&&s.fase==='preparo';
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {

@@ -38,6 +38,7 @@
     "fogo"
   ],
   "proficiencia": 2,
+  "proficienciasEquipamento": {"armas":["simples"],"armaduras":[],"maestrias":[]},
   "sentidos": "Visão no Escuro 18 m. Percepção passiva 13.",
   "idiomas": "Comum; mais 2 idiomas pendentes de escolha (sugestão: Dracônico e Élfico).",
   "pericias": {
