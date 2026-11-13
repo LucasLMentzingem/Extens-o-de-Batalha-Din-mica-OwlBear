@@ -28,7 +28,7 @@ function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
-  const partesHud=['ordem','barra','iniciativa','acao','reacao','dados'];
+  const partesHud=['ordem','barra','efeitos','iniciativa','acao','reacao','dados'];
   let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
@@ -65,12 +65,15 @@ export async function iniciarHud(){
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
       const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
-      espacoEfeitos=temEfeitos?Math.min(128,Math.max(88,Math.floor(w*.22))):0;
-      const largura=Math.max(260,Math.min(800,w-14-espacoEfeitos)),altura=Math.min(124+linhas*54,Math.floor(h*.55));
+      const faixaEfeitos=temEfeitos?118:0;
+      espacoEfeitos=0;
+      const largura=Math.max(300,Math.min(1120,w-18-faixaEfeitos)),altura=Math.min(154+linhas*54,Math.floor(h*.65));
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
       if(ator()){
-        const larguraCorpo=compacto?92:largura,total=larguraCorpo+espacoEfeitos,alturaBarra=compacto?Math.max(102,temEfeitos?164:102):altura;
-        caixas.barra=[Math.round((w-total)/2),h-alturaBarra-48,total,alturaBarra];
+        const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
+        const left=Math.round((w-total)/2)+faixaEfeitos,top=h-alturaBarra-48;
+        caixas.barra=[left,top,larguraCorpo,alturaBarra];
+        if(temEfeitos)caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-Math.min(164,alturaBarra))/2),112,Math.min(164,alturaBarra)];
       }
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
       if(pendente){

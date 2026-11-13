@@ -1,6 +1,8 @@
-:root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;color-scheme:dark;background:transparent}
+:root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
-body{margin:0;background:transparent}
+html,body,#hud{margin:0;background:transparent!important}
+body:not(.efeitos){color-scheme:dark}
+body.efeitos{color-scheme:normal}
 button,select,input{font:inherit;color:inherit;background:#24312f;border:1px solid #6a7160;border-radius:4px;padding:3px 7px}
 button{cursor:pointer}
 button:hover:enabled,button:focus-visible,button[aria-pressed=true]{border-color:#f1ca88;background:#38433a}
@@ -137,4 +139,7 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .filtros-hud button{white-space:nowrap}.filtros-hud button[aria-pressed=true]{border-color:#e6bf7a;background:#50442f;color:#fff0c9}.filtros-hud .ouro{margin-left:auto}
 .dock .resultado{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .efeitos-hud{background:transparent!important;border:0!important;box-shadow:none!important}
+body.efeitos,body.efeitos #hud{width:100%;height:100vh;overflow:visible;background:transparent!important}
+.efeitos-only{position:relative;width:100%;height:100vh;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible}
+.efeitos-only .efeitos-hud{left:0;top:50%;width:112px;padding:0;background:transparent!important}
 @media(max-width:620px){.topo-hud{align-items:flex-start;flex-wrap:wrap;height:auto}.ferramentas-hud{width:100%;margin-left:0}.filtros-hud button{padding-inline:4px;font-size:10px}.recurso-hud{flex-basis:38px;width:38px;height:38px}.movimento-hud{flex-basis:56px;grid-template-columns:5px 46px}}

@@ -345,6 +345,16 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - [x] Impedir que IDs de ferramenta preservados pelo Owlbear interrompam o controlador antes do rodapé e do carrossel.
 - [x] Exibir uma notificação visível se a inicialização da HUD falhar novamente.
 
+### Versão 0.7.21: grade ampliada e buffs transparentes
+
+- [x] Ampliar a largura máxima e a altura útil do rodapé para dar mais espaço à grade de habilidades.
+- [x] Separar buffs, condições e concentração em uma camada própria à esquerda do rodapé.
+- [x] Remover o painel escuro que ocupava os espaços vazios entre os ícones de efeitos.
+- [x] Manter o conjunto de buffs centralizado e independente da quantidade de linhas da grade.
+
+- Testes do motor: 72 aprovados.
+- Validação Playwright aprovada para a grade ampliada e a transparência dos efeitos.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.
