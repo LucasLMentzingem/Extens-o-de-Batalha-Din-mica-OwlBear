@@ -12,6 +12,7 @@
     }
   ],
   "especie": "Tiferino — legado Infernal",
+  "armaduraEquipada": false,
   "atributos": {
     "for": 10,
     "des": 14,
@@ -29,7 +30,7 @@
     "car": 5
   },
   "pvMaximos": 20,
-  "caBase": 15,
+  "caBase": 13,
   "deslocamentosM": {
     "andar": 9
   },
@@ -656,7 +657,23 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "foraCombate": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 1.5,
+        "efeito": {
+          "nome": "Armadura Arcana",
+          "tipo": "buff",
+          "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+          "removeEm": "descanso_longo",
+          "caMinima": 13,
+          "requisitos": {
+            "semArmadura": true
+          },
+          "modificadores": {}
+        }
+      }
     },
     {
       "id": "4a8dd984-a70f-540b-9260-1864589e63eb",
@@ -881,7 +898,7 @@
     },
     {
       "nome": "Combate | 9 m por turno",
-      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA 12 sem Armadura Arcana ou 15 com ela ativa (8 h). Se a conjurar com espaço, desconte o espaço.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
+      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA base 13. Armadura Arcana concede +2 nesta ficha, chegando a CA 15, e termina no descanso longo.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
     },
     {
       "nome": "Conjuração | ataque +5 · CD 13",

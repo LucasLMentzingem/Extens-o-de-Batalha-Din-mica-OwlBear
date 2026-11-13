@@ -145,3 +145,19 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright aprovada nas visões de mestre e jogador, com edição persistente, NPCs recolhíveis e isolamento do painel do GM.
 - Capturas conferidas: `work/controle-mestre-v074.png`, `work/ficha-editavel-gm-v074.png` e `work/ficha-editavel-player-v074.png`.
 
+## Versão 0.7.5: bônus derivados, buffs e condições
+
+- [x] Separar valores-base dos bônus ativos de CA, PV máximo e deslocamento.
+- [x] Mostrar cada bônus em um campo curto imediatamente à direita do respectivo valor-base.
+- [x] Usar os totais derivados em ataques contra CA, barras de PV, movimento e painel de contexto.
+- [x] Criar um modelo genérico de efeito para buffs e condições, com modificadores, requisitos, duração e restrições.
+- [x] Exibir buffs e condições na ficha e como ícones flutuantes semitransparentes à direita da HUD.
+- [x] Mostrar a descrição completa do efeito ao passar o mouse ou focar o ícone.
+- [x] Automatizar Armadura Arcana com alvo, requisito sem armadura, uso dentro ou fora de combate e remoção no descanso longo.
+- [x] Corrigir a Nikki para CA base 13 e bônus +2 da Armadura Arcana, migrando também encontros já armazenados.
+- [x] Permitir que o mesmo modelo aumente PV máximo/atual e deslocamento.
+
+- Testes do motor: 34 aprovados, incluindo Armadura Arcana, requisito de armadura, descanso longo, PV adicional, deslocamento e condição de congelamento.
+- Integração Playwright aprovada para conjuração fora do combate, seleção do alvo, ícone flutuante, tooltip e campos base/bônus da ficha.
+- Capturas conferidas: `work/buff-armadura-hud-v075.png` e `work/ficha-buff-v075.png`.
+

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
@@ -214,6 +214,31 @@ test('jogador não edita NPC e mestre edita qualquer ficha com confirmação par
 test('salvamento inválido é atômico e não corrompe a ficha carregada',async()=>{
  const m=mesa();await m.go('vincular',{ator:m.a.id,dono:'p'});const antes=structuredClone(m.s),ruim=structuredClone(m.a.ficha);ruim.atributos.for=99;
  await assert.rejects(m.go('atualizarFicha',{ator:m.a.id,ficha:ruim,pv:20,rec:m.a.rec},player),/atributos/);assert.deepEqual(m.s,antes);
+});
+
+test('Armadura Arcana usa CA base 13, aplica +2 fora de combate e termina no descanso longo',async()=>{
+ const m=mesa(),o=m.a.ficha.opcoes.find(o=>o.nome.includes('Armadura Arcana'));
+ assert.equal(m.a.ficha.caBase,13);assert.equal(o.automacao.tipo,'efeito');assert.equal(caAtual(m.a),13);
+ await m.go('vincular',{ator:m.a.id,dono:'p'});const espacos=m.a.rec['espaco-1'];
+ await m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.a.id},player);
+ assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec['espaco-1'],espacos-1);assert.equal(caAtual(m.s.atores[0]),15);
+ assert.equal(m.s.atores[0].efeitosAtivos[0].modificadores.ca,2);assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
+ await m.go('descanso',{periodo:'curto'});assert.equal(caAtual(m.s.atores[0]),15);
+ await m.go('descanso',{periodo:'longo'});assert.equal(caAtual(m.s.atores[0]),13);assert.equal(m.s.atores[0].efeitosAtivos.length,0);
+});
+
+test('Armadura Arcana rejeita alvo com armadura sem gastar o espaço',async()=>{
+ const m=mesa(),o=m.a.ficha.opcoes.find(o=>o.nome.includes('Armadura Arcana')),antes=structuredClone(m.s);
+ await m.go('vincular',{ator:m.a.id,dono:'p'});m.b.ficha.armaduraEquipada=true;
+ const estado=structuredClone(m.s);await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.b.id},player),/usando armadura/);assert.deepEqual(m.s,estado);assert.notDeepEqual(m.s,antes);
+});
+
+test('efeitos genéricos somam PV máximo e deslocamento e condições restringem o turno',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'vigor-movel',nome:'Vigor e mobilidade',categoria:'magia',foraCombate:true,custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'efeito',alcanceM:1.5,efeito:{nome:'Vigor e mobilidade',tipo:'buff',modificadores:{pvMaximos:5,deslocamentoM:3},removeEm:'descanso_longo',aumentaPVAtual:true}}});
+ await m.go('vincular',{ator:m.a.id,dono:'p'});await m.go('usar',{ator:m.a.id,opcao:'vigor-movel',alvo:m.a.id},player);
+ assert.equal(m.s.atores[0].pv,25);assert.equal(pvMaximosAtuais(m.s.atores[0]),25);assert.equal(deslocamentoMaximo(m.s.atores[0]),12);
+ m.s.atores[0].efeitosAtivos.push({id:'congelado',nome:'Congelado',tipo:'condicao',restricoes:{imovel:true,semReacao:true}});
+ await m.iniciar();assert.equal(m.s.atores[0].metros,0);assert.equal(m.s.atores[0].reacao,0);
 });
 
 test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crítico',async()=>{

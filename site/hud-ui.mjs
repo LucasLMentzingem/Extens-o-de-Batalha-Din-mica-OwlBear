@@ -1,5 +1,5 @@
 import {detalhes} from './ficha-view.mjs';
-import {periciasPadrao,bonusPericia,mod} from './engine.mjs';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais} from './engine.mjs';
 import {pronto} from './bridge.mjs';
 import {canalHud} from './hud-controller.mjs';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
@@ -19,6 +19,10 @@ function ajustarModo(valor,modo){
 function retrato(a){
   const src=v.imagens[a.id];
   return src?'<img alt="" src="'+esc(src)+'">':'<b>'+esc(a.nome.slice(0,1))+'</b>';
+}
+function efeitosHud(a){
+  const resumo=e=>{const m=e.modificadores??{},mods=Object.entries(m).map(([k,n])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'deslocamento'}[k]??k)+' '+(n>=0?'+':'')+n);return [e.nome,e.descricao,...mods,e.turnos!=null?e.turnos+' turno(s)':e.removeEm==='descanso_longo'?'Até o descanso longo':e.removeEm==='descanso_curto'?'Até o descanso curto':'Duração especial'].filter(Boolean).join('\n');};
+  const lista=a.efeitosAtivos??[];return lista.length?'<div class="efeitos-hud" aria-label="Buffs e condições ativas">'+lista.map(e=>'<span class="efeito-hud '+esc(e.tipo??'efeito')+'" tabindex="0" data-info="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':'✦')+'</b><small>'+esc(e.nome)+'</small></span>').join('')+'</div>':'';
 }
 function cartaoAcao(o,f){
   if(!o)return '';
@@ -73,21 +77,23 @@ function render(){
       }
     }
   }else if(parte==='barra'&&a){
-    if(v.compacto){html='<section class="dock compacta"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside></section>';root.innerHTML=html;return;}
+    const pvMax=pvMaximosAtuais(a),efeitos=efeitosHud(a);
+    if(v.compacto){html='<section class="dock compacta"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside>'+efeitos+'</section>';root.innerHTML=html;return;}
     const turno=ativo===a.id;
     const ops=a.ficha.opcoes??[];
     const disp=ops.filter(o=>grupo(o)===aba),pericias=aba==='Perícias',salvas=aba==='Salva guarda';
     const recurso=(a.ficha.recursos??[]).map(r=>'<span title="'+esc(r.nome)+'">'+esc(r.nome)+' <b>'+esc(a.rec[r.id])+'/'+r.maximo+'</b></span>').join('');
-    html='<section class="dock"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside><article><header><strong>'+esc(a.nome)+'</strong><span>'+a.acao+' ação · '+a.bonus+' bônus · '+a.reacao+' reação · '+Number(a.metros.toFixed(2))+' m</span>'+btn('ficha','Ficha')+'</header>'+
+    html='<section class="dock"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside><article><header><strong>'+esc(a.nome)+'</strong><span>'+a.acao+' ação · '+a.bonus+' bônus · '+a.reacao+' reação · '+Number(a.metros.toFixed(2))+' m</span>'+btn('ficha','Ficha')+'</header>'+
       '<div class="rec">'+recurso+'</div><div class="abas">'+['Ações','Bônus','Magias','Reações'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+
       '<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+['Perícias','Salva guarda'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+'</div>'+
       '<div class="grade" style="--linhas:'+v.linhas+'">'+(pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a.ficha,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',esc(chave.toUpperCase()+' '+(bonus>=0?'+':'')+bonus),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):disp.map(o=>{
-        const bloqueio=(grupo(o)!=='Reações'&&!turno)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
+        const livre=s.fase==='preparo'&&o.foraCombate===true;
+        const bloqueio=(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           (o.custo??[]).some(c=>(c.tipo==='recurso'?a.rec[c.id]:a[c.tipo])<c.quantidade)?'Recurso insuficiente':
           !o.automacao&&!gm&&grupo(o)!=='Reações'?'Resolução pelo mestre':'';
         return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       }).join(''))+'</div><footer>'+(p?'<small>Ação aberta no painel de execução.</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+
-      (!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</footer></article></section>';
+      (!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</footer></article>'+efeitos+'</section>';
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
   ocultarDica();root.innerHTML=html;

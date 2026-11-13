@@ -370,6 +370,9 @@
         "concentracao": {
           "type": "boolean"
         },
+        "foraCombate": {
+          "type": "boolean"
+        },
         "duracao": {
           "type": "string"
         },
@@ -501,6 +504,7 @@
                 "salva",
                 "disparada",
                 "desengajar",
+                "efeito",
                 "efeito_conjuracao",
                 "projeteis",
                 "bencao"
@@ -550,6 +554,9 @@
             },
             "vantagemAtaque": {
               "type": "boolean"
+            },
+            "efeito": {
+              "type": "object"
             },
             "origemArea": {
               "enum": [

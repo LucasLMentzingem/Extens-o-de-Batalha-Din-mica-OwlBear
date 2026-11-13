@@ -26,6 +26,14 @@ No menu de contexto de um token de Personagem, o segmento **La Arte · personage
 
 **Controle do mestre** é exclusivo do GM. Ele mostra a lista inteira do combate, tipo, iniciativa, PV e estado de cada participante, permite abrir a ficha, retirar ou recolocar um ator e iniciar ou parar o combate. Importação, descansos e histórico permanecem no mesmo painel.
 
+### Valores-base, buffs e condições
+
+CA, PV máximo e deslocamento conservam um valor-base editável. O campo curto imediatamente à direita mostra a soma dos bônus ativos; o cabeçalho mostra os totais usados pelo combate. Buffs e condições aparecem em uma seção própria da ficha e em ícones semitransparentes no canto direito da HUD. Passe o mouse ou use foco de teclado para ler descrição, modificadores e duração.
+
+O efeito estruturado aceita modificadores de `ca`, `pvMaximos` e `deslocamentoM`, requisitos como `semArmadura`, remoção em descanso e restrições de condições. Isso permite representar atordoado, congelado, envenenado e efeitos semelhantes sem reescrever os valores-base. Efeitos de PV podem aumentar também o PV atual quando `aumentaPVAtual` estiver habilitado.
+
+Na ficha de exemplo, Nikki possui **CA base 13**. **Armadura Arcana** pode ser usada dentro ou fora do combate, seleciona uma criatura sem armadura a até 1,5 m e concede o bônus necessário para chegar a `13 + DES`; em Nikki, isso aparece como `13 + 2 = CA 15`. O efeito termina no descanso longo.
+
 O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel usa células de um metro e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
 
 ## Jogar com a ficha fechada

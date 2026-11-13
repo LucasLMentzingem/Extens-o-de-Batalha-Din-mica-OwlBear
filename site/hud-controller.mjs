@@ -97,11 +97,12 @@ export async function iniciarHud(){
     const o=a.ficha.opcoes.find(o=>o.id===d.opcao),rule=o?.automacao;
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
-    if(d.tipo!=='iniciativa'&&!reacao&&atual(estado)?.id!==a.id)return;
+    const foraCombate=d.tipo==='usar'&&estado.fase==='preparo'&&o?.foraCombate===true;
+    if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:o?.id,assistido:!rule};
     let escolha=null;
     if(d.tipo==='mover')escolha='destino';
-    if(rule?.tipo==='ataque'||rule?.tipo==='salva')escolha=rule.raioM?(rule.origemArea==='conjurador'?null:'area'):'alvo';
+    if(rule?.tipo==='ataque'||rule?.tipo==='salva'||rule?.tipo==='efeito')escolha=rule.raioM?(rule.origemArea==='conjurador'?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
