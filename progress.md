@@ -196,3 +196,9 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - [x] Preservar o uso livre fora de combate: a economia de turno não é consumida, mas espaços e demais recursos continuam sendo gastos.
 - [ ] Retomar o mapeamento SRD 5.2.1 de recursos de personagens até o nível 10.
 
+## Versão 0.7.9: economia livre na HUD
+
+- [x] Ignorar ação, ação bônus e reação ao calcular disponibilidade de habilidades fora de combate.
+- [x] Continuar bloqueando custos reais de recursos, como espaços de magia, foco e Pontos de Feitiçaria.
+- [x] Mostrar `∞ ação · ∞ bônus · ∞ reação` no cabeçalho enquanto o combate estiver parado.
+

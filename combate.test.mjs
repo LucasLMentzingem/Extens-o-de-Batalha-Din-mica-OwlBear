@@ -249,10 +249,11 @@ test('Armadura Arcana rejeita alvo com armadura sem gastar o espaço',async()=>{
 test('ações e magias ficam liberadas fora de combate sem consumir a economia de turno',async()=>{
  const m=mesa();await m.go('vincular',{ator:m.a.id,dono:'p'});
  const adaga=m.a.ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe),misseis=m.a.ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe),espacos=m.a.rec['espaco-1'];
+ m.s.atores[0].acao=0;m.s.atores[0].bonus=0;m.s.atores[0].reacao=0;
  await m.go('usar',{ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,[15,3]);
- assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[1].pv,21);
+ assert.equal(m.s.atores[0].acao,0);assert.equal(m.s.atores[0].bonus,0);assert.equal(m.s.atores[0].reacao,0);assert.equal(m.s.atores[1].pv,21);
  await m.go('usar',{ator:m.a.id,opcao:misseis.id,alvos:[m.b.id,m.b.id,m.c.id]},player,[2,2,2]);
- assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec['espaco-1'],espacos-1);
+ assert.equal(m.s.atores[0].acao,0);assert.equal(m.s.atores[0].rec['espaco-1'],espacos-1);
 });
 
 test('encerrar restaura a barra e permite usar outra habilidade fora de combate',async()=>{

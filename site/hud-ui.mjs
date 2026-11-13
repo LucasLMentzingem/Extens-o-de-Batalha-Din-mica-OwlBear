@@ -84,13 +84,15 @@ function render(){
     const ops=a.ficha.opcoes??[];
     const disp=ops.filter(o=>grupo(o)===aba),pericias=aba==='Perícias',salvas=aba==='Salva guarda';
     const recurso=(a.ficha.recursos??[]).map(r=>'<span title="'+esc(r.nome)+'">'+esc(r.nome)+' <b>'+esc(a.rec[r.id])+'/'+r.maximo+'</b></span>').join('');
-    html='<section class="dock" '+reserva+'>'+efeitos+'<div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside><article><header><strong>'+esc(a.nome)+'</strong><span>'+a.acao+' ação · '+a.bonus+' bônus · '+a.reacao+' reação · '+Number(a.metros.toFixed(2))+' m</span>'+btn('ficha','Ficha')+'</header>'+
+    const foraCombate=s.fase==='preparo',economia=foraCombate?'∞ ação · ∞ bônus · ∞ reação':a.acao+' ação · '+a.bonus+' bônus · '+a.reacao+' reação';
+    html='<section class="dock" '+reserva+'>'+efeitos+'<div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside><article><header><strong>'+esc(a.nome)+'</strong><span>'+economia+' · '+Number(a.metros.toFixed(2))+' m</span>'+btn('ficha','Ficha')+'</header>'+
       '<div class="rec">'+recurso+'</div><div class="abas">'+['Ações','Bônus','Magias','Reações'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+
       '<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+['Perícias','Salva guarda'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+'</div>'+
       '<div class="grade" style="--linhas:'+v.linhas+'">'+(pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a.ficha,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',esc(chave.toUpperCase()+' '+(bonus>=0?'+':'')+bonus),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):disp.map(o=>{
         const livre=s.fase==='preparo';
+        const custoIndisponivel=(o.custo??[]).some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
         const bloqueio=(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
-          (o.custo??[]).some(c=>(c.tipo==='recurso'?a.rec[c.id]:a[c.tipo])<c.quantidade)?'Recurso insuficiente':
+          custoIndisponivel?'Recurso insuficiente':
           !o.automacao&&!gm&&grupo(o)!=='Reações'?'Resolução pelo mestre':'';
         return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       }).join(''))+'</div><footer>'+(p?'<small>Ação aberta no painel de execução.</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+
