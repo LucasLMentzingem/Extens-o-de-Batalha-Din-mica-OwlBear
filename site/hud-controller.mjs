@@ -3,7 +3,7 @@ import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs';
 import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html',import.meta.url);
+const url=new URL('./hud.html?v=0.7.25',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
 const medida=n=>Number(n.toFixed(2)).toLocaleString('pt-BR')+' m';
@@ -55,7 +55,8 @@ export async function iniciarHud(){
     // idempotente e impede que um pop-up órfão bloqueie toda a HUD.
     await OBR.popover.close(id).catch(()=>{});
     const [left,top,width,height]=box;
-    await OBR.popover.open({id,url:url.href+'?parte='+parte,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,
+    const pagina=new URL(url.href);pagina.searchParams.set('parte',parte);
+    await OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,
       anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
     abertos.set(parte,key);
   }
@@ -357,17 +358,22 @@ export async function iniciarHud(){
   // aberta. Ao atualizar a extensão, tentar criar o mesmo ID novamente lança
   // erro e interrompe o controlador antes de ele abrir rodapé e carrossel.
   // Remover e recriar torna a inicialização segura após deploy ou F5.
-  await OBR.tool.remove(tool).catch(()=>{});
-  await OBR.tool.removeMode(mode).catch(()=>{});
-  await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
-    onToolClick:(_,e)=>{if(!pendente)return true;serial(()=>escolher(e));return false;},
-    onToolDragStart:(_,e)=>{
-      const a=estado&&atual(estado);
-      if(!pendente&&a&&controla(a)&&a.token===e.target?.id)serial(async()=>{atorId=a.id;await preparar({tipo:'mover'});transmitir();});
-    },
-    onToolDragEnd:(_,e)=>serial(()=>escolher(e)),
-    onKeyDown:(_,e)=>{if(e.code==='Escape')serial(()=>mensagem({tipo:'cancelar'}));}});
-  await OBR.tool.create({id:tool,icons,defaultMode:mode});
+  try{
+    await OBR.tool.remove(tool).catch(()=>{});
+    await OBR.tool.removeMode(mode).catch(()=>{});
+    await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
+      onToolClick:(_,e)=>{if(!pendente)return true;serial(()=>escolher(e));return false;},
+      onToolDragStart:(_,e)=>{
+        const a=estado&&atual(estado);
+        if(!pendente&&a&&controla(a)&&a.token===e.target?.id)serial(async()=>{atorId=a.id;await preparar({tipo:'mover'});transmitir();});
+      },
+      onToolDragEnd:(_,e)=>serial(()=>escolher(e)),
+      onKeyDown:(_,e)=>{if(e.code==='Escape')serial(()=>mensagem({tipo:'cancelar'}));}});
+    await OBR.tool.create({id:tool,icons,defaultMode:mode});
+  }catch(e){
+    console.warn('Ferramenta de mira indisponível; a HUD continuará ativa.',e);
+    Promise.resolve(OBR.notification.show('A HUD foi recuperada, mas a ferramenta de mira precisa recarregar a sala.','WARNING')).catch(()=>{});
+  }
   api=await sala((s,i)=>serial(()=>atualizar(s,i)));
   responderDado=await interfaceRolagens(async d=>{
     if(d.tipo==='erro')pedidoDado={...pedidoDado,tipo:'ajuste',erro:d.mensagem};

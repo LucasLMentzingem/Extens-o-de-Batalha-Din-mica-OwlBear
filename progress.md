@@ -391,6 +391,17 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Integração Playwright aprovada para sete fichas, upload JSON, tokens selecionados, jogadores online e vínculo pelo menu de contexto.
 - Capturas conferidas: `work/controle-fichas-v0724.png` e `work/contexto-vinculo-v0724.png`.
 
+### Versão 0.7.25: hotfix de inicialização da HUD
+
+- [x] Impedir que uma falha temporária ao registrar a ferramenta de mira encerre o controlador do rodapé e do carrossel.
+- [x] Tornar o registro do menu de contexto idempotente após atualizações da extensão.
+- [x] Versionar as entradas do background, painel, HUD, CSS e menu de contexto para evitar arquivos antigos no cache do Owlbear/Chrome.
+- [x] Preservar a HUD funcional mesmo quando a ferramenta de mira falha durante a inicialização.
+
+- Testes do motor: 75 aprovados.
+- Integração Playwright aprovada em inicialização normal e com falha simulada da ferramenta de mira.
+- Captura conferida: `work/rodape-v0717.png`, com carrossel, rodapé, recursos, habilidades e efeitos visíveis.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.
