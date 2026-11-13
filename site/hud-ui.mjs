@@ -95,6 +95,8 @@ function render(){
         html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+painelAdicionais+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }
     }
+  }else if(parte==='dica-efeito'&&v.dicaEfeito){
+    html='<section class="dica-efeito-card" role="tooltip">'+esc(v.dicaEfeito)+'</section>';
   }else if(parte==='efeitos'&&a){
     html='<section class="efeitos-only">'+efeitosHud(a)+'</section>';
   }else if(parte==='barra'&&a){
@@ -145,9 +147,17 @@ function render(){
   if(root.querySelector('.grade'))root.querySelector('.grade').scrollLeft=scroll;
 }
 const dica=document.createElement('div');dica.className='dica-skill';dica.hidden=true;dica.setAttribute('role','tooltip');document.body.append(dica);
-function ocultarDica(){dica.hidden=true;}
+let dicaEfeitoAtual=null;
+function ocultarDica(){
+  dica.hidden=true;
+  if(parte==='efeitos'&&dicaEfeitoAtual){dicaEfeitoAtual=null;bus?.postMessage({tipo:'dicaEfeito',info:null});}
+}
 function mostrarDica(e){
   const b=e.target.closest('[data-info]');if(!b){ocultarDica();return;}
+  if(parte==='efeitos'){
+    if(dicaEfeitoAtual!==b.dataset.info){dicaEfeitoAtual=b.dataset.info;bus?.postMessage({tipo:'dicaEfeito',info:dicaEfeitoAtual});}
+    return;
+  }
   dica.textContent=b.dataset.info;dica.hidden=false;
   const caixa=b.getBoundingClientRect();
   dica.style.left=(caixa.left>innerWidth/2?4:Math.max(4,innerWidth-dica.offsetWidth-4))+'px';
@@ -185,6 +195,10 @@ root.ondblclick=e=>{
   const ordem=e.target.closest('[data-cmd="ator"]');if(ordem){e.preventDefault();bus.postMessage({tipo:'focar',id:ordem.dataset.id});return;}
   if(e.target.closest('.retrato')){e.preventDefault();bus.postMessage({tipo:'compactar'});}
 };
-await pronto();bus=await canalHud();bus.onmessage=e=>{if(e.data.vista){v=e.data.vista;render();}};bus.postMessage({pedir:true});
+const assinaturaEfeitos=vista=>{
+  const ator=vista?.estado?.atores?.find(x=>x.id===vista.atorId);
+  return JSON.stringify([vista?.atorId,ator?.efeitosAtivos??[],ator?.concentracaoAtiva??null]);
+};
+await pronto();bus=await canalHud();bus.onmessage=e=>{if(e.data.vista){const proxima=e.data.vista;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}};bus.postMessage({pedir:true});
 if(parte==='reacao')setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250);
 

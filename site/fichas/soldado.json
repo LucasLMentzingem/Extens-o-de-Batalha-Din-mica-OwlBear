@@ -29,7 +29,7 @@
     "car": 0
   },
   "pvMaximos": 24,
-  "caBase": 16,
+  "caBase": 10,
   "deslocamentosM": {
     "andar": 9
   },
@@ -44,20 +44,36 @@
   "equipamentos": [
     {
       "id": "e716a84c-5580-57f4-a940-878f77922409",
-      "name": "Camisa de malha e escudo",
-      "description": "CA 16; sem escudo 14.",
+      "name": "Camisa de malha",
+      "description": "Armadura média. CA 13 + DES, máximo +2 de DES.",
+      "pesoKg": 10,
+      "slotEquipamento": "vestes",
+      "categoriaArmadura": "media",
+      "classeArmadura": {"tipo":"base","valor":13,"classe":"media","atributo":"des","limiteAtributo":2},
+      "inUse": true
+    },
+    {
+      "id": "soldado-escudo",
+      "name": "Escudo",
+      "description": "Empunhado na mão fraca. +2 à CA.",
+      "pesoKg": 3,
+      "slotEquipamento": "mao_fraca",
+      "categoriaArmadura": "escudo",
+      "classeArmadura": {"tipo":"bonus","valor":2,"classe":"escudo"},
       "inUse": true
     },
     {
       "id": "479757f0-6224-50c5-b207-c3105fa9fd81",
       "name": "Lança",
       "description": "Uma mão e escudo; 1d6+2.",
+      "pesoKg": 1.5,
       "inUse": true
     },
     {
       "id": "8cbccc7f-d4ea-5192-b1de-c010c6566b15",
       "name": "Espada curta",
       "description": "Reserva, 1d6+2.",
+      "pesoKg": 1,
       "inUse": false
     }
   ],

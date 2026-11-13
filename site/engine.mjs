@@ -34,6 +34,23 @@ function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
 export function atualizarMagias(f){
+  // Migração das fichas de guarda antigas: a CA 16 era gravada como base e
+  // camisa + escudo formavam um único item. Separar as peças permite que a CA
+  // caia para 14 ao guardar o escudo, inclusive em encontros já persistidos.
+  if(f.id==='soldado'){
+    if(f.caBase===16)f.caBase=10;
+    const separarProtecao=itens=>{
+      if(!Array.isArray(itens))return;
+      const combinado=itens.find(i=>/camisa de malha e escudo/i.test(i.nome??i.name??''));
+      if(combinado){
+        if('name'in combinado)combinado.name='Camisa de malha';else combinado.nome='Camisa de malha';
+        if('description'in combinado)combinado.description='Armadura média. CA 13 + DES, máximo +2 de DES.';else combinado.descricao='Armadura média. CA 13 + DES, máximo +2 de DES.';
+        Object.assign(combinado,{pesoKg:10,slotEquipamento:'vestes',categoriaArmadura:'media',classeArmadura:{tipo:'base',valor:13,classe:'media',atributo:'des',limiteAtributo:2}});
+      }
+      if(!itens.some(i=>/escudo/i.test(i.nome??i.name??'')))itens.push({id:'soldado-escudo',nome:'Escudo',name:'Escudo',descricao:'Empunhado na mão fraca. +2 à CA.',description:'Empunhado na mão fraca. +2 à CA.',tipo:'equipamento',quantidade:1,pesoKg:3,slotEquipamento:'mao_fraca',categoriaArmadura:'escudo',classeArmadura:{tipo:'bonus',valor:2,classe:'escudo'},inUse:true,equipado:true,equipadoSlot:'mao_fraca'});
+    };
+    separarProtecao(f.equipamentos);separarProtecao(f.inventario?.itens);
+  }
   const textoPropriedades=x=>[x.descricao??x.description??'',...(Array.isArray(x.propriedades??x.properties)?(x.propriedades??x.properties):[x.propriedades??x.properties??''])].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const arremessaveis=[];
   for(const o of [...(f.opcoes??[])]){
@@ -141,6 +158,17 @@ const armaDuasMaos=i=>{
 };
 const bonusAtaqueItem=i=>Number.isFinite(i?.bonusAtaque)?Number(i.bonusAtaque):Number(/ataque\s*([+-]\d+)/i.exec(i?.descricao??'')?.[1]??-99);
 const nomeUnidade=nome=>String(nome).replace(/^\d+\s+/,'').replace(/\bAdagas\b/i,'Adaga').replace(/\bAzagaias\b/i,'Azagaia').replace(/\bFoices\b/i,'Foice').replace(/\bLan[cç]as\b/i,'Lança').replace(/\bEspadas curtas\b/i,'Espada curta').replace(/\bCimitarras\b/i,'Cimitarra');
+function pesoItemPadrao(nome,descricao=''){
+  const t=textoNormal(nome+' '+descricao);
+  const tabela=[
+    [/moedas?/,0.01],[/flechas?/,0.025],[/azagaias?/,0.9],[/adagas?/,0.5],[/lanca/,1.5],[/espada grande/,3],[/espada curta/,1],[/mangual/,1],[/cimitarra/,1.5],[/arco longo/,1],
+    [/cota de malha/,27.5],[/camisa de malha|camisao de malha/,10],[/couro batido/,6.5],[/armadura de couro/,5],[/escudo/,3],
+    [/foco arcano.*cristal|foco druidico/,0.1],[/orbe/,1.5],[/violino/,0.5],[/kit de artista/,17],[/ferramentas de entalhador/,2.5],
+    [/kit de explorador de masmorras|pacote de explorador de masmorras/,27.5],[/kit de aventureiro/,20],[/livro das sombras/,1.5],[/kit de falsificacao/,2.5],
+    [/livro de ocultismo.*kit de estudioso/,7],[/fantasia.*roupas finas/,3]
+  ];
+  return tabela.find(([re])=>re.test(t))?.[1]??0.5;
+}
 function dadosArmadura(nome,descricao='',existente={}){
   const nomeNormal=textoNormal(nome),categoria=existente.categoriaArmadura??(
     /couro|acolchoada/.test(nomeNormal)?'leve':
@@ -193,18 +221,20 @@ function equiparInicial(itens){
 }
 export function inventarioNormalizado(f){
   if(f.inventario?.itens){
-    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===3)return inv;
-    inv.itens=separarCopias(inv.itens).map(i=>({...i,...dadosArmadura(i.nome,i.descricao,i)}));equiparInicial(inv.itens);inv.versaoOcupacao=3;return inv;
+    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===4)return inv;
+    const preservaEquipados=Number(inv.versaoOcupacao)>=3;
+    inv.itens=separarCopias(inv.itens.map(i=>({...i,pesoKg:Number(i.pesoKg)>0?Number(i.pesoKg):pesoItemPadrao(i.nome,i.descricao)}))).map(i=>({...i,...dadosArmadura(i.nome,i.descricao,i)}));
+    if(!preservaEquipados)equiparInicial(inv.itens);inv.versaoOcupacao=4;return inv;
   }
   const usados=new Set(),ocupados=new Set(),itens=(f.equipamentos??[]).map((e,i)=>{
     const nome=e.nome??e.name??('Item '+(i+1)),moeda=/moedas?.*?(\d+)\s*po/i.exec(nome),quantidade=/^(\d+)\s+/.exec(nome);
     let id=idOK(e.id)?e.id:slug(nome);while(usados.has(id))id=slug(id+'-'+(i+1));usados.add(id);
     const slot=slotLegado(nome),tipo=moeda?'moeda':slot?'equipamento':'etc';
     const equipado=Boolean(e.inUse&&slot&&!ocupados.has(slot));if(equipado)ocupados.add(slot);
-    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg??0),slotEquipamento:slot,equipado,equipadoSlot:equipado?slot:undefined,preferido:Boolean(e.inUse),duasMaos:Boolean(e.duasMaos),leve:Boolean(e.leve),bonusAtaque:Number.isFinite(e.bonusAtaque)?Number(e.bonusAtaque):undefined,modificadores:structuredClone(e.modificadores??{}),acoes:Array.isArray(e.acoes)?[...e.acoes]:undefined,...dadosArmadura(nome,e.descricao??e.description??'',e)};
+    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg)>0?Number(e.pesoKg):pesoItemPadrao(nome,e.descricao??e.description??''),slotEquipamento:slot,equipado,equipadoSlot:equipado?slot:undefined,preferido:Boolean(e.inUse),duasMaos:Boolean(e.duasMaos),leve:Boolean(e.leve),bonusAtaque:Number.isFinite(e.bonusAtaque)?Number(e.bonusAtaque):undefined,modificadores:structuredClone(e.modificadores??{}),acoes:Array.isArray(e.acoes)?[...e.acoes]:undefined,...dadosArmadura(nome,e.descricao??e.description??'',e)};
   });
   const separados=separarCopias(itens);equiparInicial(separados);
-  return {versaoOcupacao:3,capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens:separados};
+  return {versaoOcupacao:4,capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens:separados};
 }
 export const multi=o=>o?.selecao?.tipo==='alvos'&&(o.selecao.max>1||['projeteis','bencao'].includes(o.automacao?.tipo))?o.selecao:null;
 export function incluirAlvo(lista,id,regra){

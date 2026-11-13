@@ -28,8 +28,8 @@ function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
-  const partesHud=['ordem','barra','efeitos','iniciativa','acao','reacao','dados'];
-  let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
+  const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados'];
+  let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
@@ -39,7 +39,7 @@ export async function iniciarHud(){
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
   function transmitir(){
-    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,
+    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,
       imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,
       pendente:pendente&&{titulo:pendente.titulo,detalhe:pendente.detalhe,pronto:pendente.pronto,
         opcao:pendente.cmd.opcao,lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,max:pendente.regraLista?.max,
@@ -74,6 +74,10 @@ export async function iniciarHud(){
         const left=Math.round((w-total)/2)+faixaEfeitos,top=h-alturaBarra-48;
         caixas.barra=[left,top,larguraCorpo,alturaBarra];
         if(temEfeitos)caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-Math.min(164,alturaBarra))/2),112,Math.min(164,alturaBarra)];
+        if(temEfeitos&&dicaEfeito){
+          const dw=Math.min(380,w-16),linhasDica=dicaEfeito.split('\n').length,dh=Math.min(190,h-16,Math.max(82,36+linhasDica*22));
+          caixas['dica-efeito']=[Math.max(8,Math.min(w-dw-8,left)),Math.max(8,top-dh-8),dw,dh];
+        }
       }
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
       if(pendente){
@@ -264,6 +268,9 @@ export async function iniciarHud(){
   }
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
+    if(d.tipo==='dicaEfeito'){
+      dicaEfeito=typeof d.info==='string'&&d.info.trim()?d.info:null;await layout();transmitir();return;
+    }
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
       const dados=pedidoDado.meta?.adicionais??[],validos=new Set(dados.map(x=>x.id));if(!validos.has(d.id)||dados.find(x=>x.id===d.id)?.automatico)return;
       const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};transmitir();
@@ -340,7 +347,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=e.data?.pedir===true||['alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const imediato=e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };

@@ -32,7 +32,7 @@ function mesa(){
   return {a,b,c,go,iniciar,get s(){return s;}};
 }
 test('importa números das fichas originais e separa as instâncias dos soldados',()=>{
- const m=mesa();assert.equal(m.a.pv,20);assert.equal(m.a.rec.feiticaria,3);assert.equal(m.b.pv,24);assert.equal(m.b.ficha.caBase,16);assert.notEqual(m.b.id,m.c.id);assert.equal(nikki.preparacao.preparadas.length,6);
+ const m=mesa();assert.equal(m.a.pv,20);assert.equal(m.a.rec.feiticaria,3);assert.equal(m.b.pv,24);assert.equal(m.b.ficha.caBase,10);assert.equal(caAtual(m.b),16);assert.notEqual(m.b.id,m.c.id);assert.equal(nikki.preparacao.preparadas.length,6);
  assert.equal(publico(m.s).atores[1].ficha.caBase,undefined);
 });
 test('autorização de vínculo, comando do jogador e ação excepcional do mestre',async()=>{
@@ -493,6 +493,7 @@ test('as sete fichas de jogadores carregam juntas com recursos e automações pr
  let s=novo();s=await aplicar(s,{tipo:'grupoTeste',rev:s.rev,fichas:fichasJogadores,ensaio:true},gm,async()=>1);
  assert.equal(s.atores.length,7);assert.deepEqual(new Set(s.atores.map(a=>a.ficha.id)),new Set(idsJogadores));
  assert.ok(s.atores.every(a=>a.dono==='teste'&&a.token==='sim-'+a.id));
+ assert.ok(s.atores.every(a=>a.ficha.inventario.itens.every(i=>i.pesoKg>0)),'todos os itens das sete fichas precisam ter peso');
  const porId=id=>s.atores.find(a=>a.ficha.id===id).ficha;
  assert.equal(porId('draven-thorne').opcoes.find(o=>o.id==='surto-de-acao-acao').automacao.tipo,'economia');
  assert.equal(porId('loteria').opcoes.find(o=>/Defletir Ataques/i.test(o.nome)).gatilho,'ser_atingido');
@@ -516,14 +517,21 @@ test('inventário legado separa armas, prioriza o melhor acerto e ocupa uma mão
  const adagas=f.inventario.itens.filter(i=>i.nome==='Adaga'),lanca=f.inventario.itens.find(i=>i.nome==='Lança');
  assert.ok(f.inventario.capacidadeCargaKg>0);assert.equal(moedas.quantidade,28);assert.equal(moedas.tipo,'moeda');
  assert.equal(adagas.length,2);assert.deepEqual(adagas.map(i=>i.equipadoSlot).sort(),['mao_forte','mao_fraca']);assert.equal(lanca.equipado,false);
+ assert.ok(f.inventario.itens.every(i=>i.pesoKg>0),'todos os itens migrados precisam ter peso');
+});
+test('escudo do soldado ocupa a mão fraca e altera a CA ao ser guardado',async()=>{
+ const m=mesa(),escudo=m.b.ficha.inventario.itens.find(i=>i.nome==='Escudo');
+ assert.ok(escudo?.equipado&&escudo.equipadoSlot==='mao_fraca');assert.equal(caAtual(m.b),16);
+ await m.go('inventario',{ator:m.b.id,operacao:'desequipar',itemId:escudo.id});
+ assert.equal(caAtual(m.s.atores[1]),14);
 });
 test('equipar troca o slot e aplica modificadores dinâmicos de CA, PV e deslocamento',async()=>{
- const m=mesa();m.a.dono='p';m.a.ficha.inventario.itens.push(
+ const m=mesa();m.a.dono='p';const pesoAntes=pesoInventario(m.a);m.a.ficha.inventario.itens.push(
   {id:'capa-teste',nome:'Capa de teste',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:'capa',equipado:false,modificadores:{ca:1,pvMaximos:3,deslocamentoM:1.5}},
   {id:'capa-antiga',nome:'Capa antiga',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:2,slotEquipamento:'capa',equipado:true,equipadoSlot:'capa',modificadores:{ca:2}}
  );
  assert.equal(caAtual(m.a),15);await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'capa-teste'},player);
- const a=m.s.atores[0];assert.equal(caAtual(a),14);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),3);
+ const a=m.s.atores[0];assert.equal(caAtual(a),14);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),pesoAntes+3);
 });
 test('trocar equipamento ou usar consumível em combate exige o turno e gasta uma ação',async()=>{
  const m=mesa();m.a.ficha.inventario.itens.push({id:'pocao-teste',nome:'Poção',descricao:'',tipo:'consumivel',quantidade:2,pesoKg:.5});

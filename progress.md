@@ -355,6 +355,20 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Testes do motor: 72 aprovados.
 - Validação Playwright aprovada para a grade ampliada e a transparência dos efeitos.
 
+### Versão 0.7.22: buffs legíveis, escudos e carga real
+
+- [x] Deixar os ícones de buffs e condições com 100% de opacidade.
+- [x] Abrir a descrição completa do efeito em um balão independente, amplo e sem recorte.
+- [x] Separar camisa de malha e escudo dos soldados em dois itens equipáveis.
+- [x] Calcular CA 14 com camisa de malha e CA 16 somente quando o escudo estiver equipado.
+- [x] Migrar automaticamente soldados já carregados sem perder o estado do encontro.
+- [x] Atribuir pesos realistas aos itens legados dos sete jogadores e dos soldados.
+- [x] Exibir os balões do inventário com o mesmo padrão visual dos balões de habilidades.
+- [x] Posicionar a barra vertical de deslocamento à direita do botão Mover, inclusive em telas estreitas.
+
+- Testes do motor: 73 aprovados.
+- Validações Playwright aprovadas para rodapé, buffs, inventário, escudo, pesos e Livro de Habilidades.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.

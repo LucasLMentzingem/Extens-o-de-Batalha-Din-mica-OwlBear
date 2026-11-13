@@ -43,8 +43,8 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .prompt input{width:56px}
 .prompt .ouro{margin-left:auto}
 .efeitos-hud{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:108px;max-height:158px;display:grid;grid-template-columns:repeat(2,50px);grid-auto-rows:50px;gap:4px 6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#9d865d transparent;pointer-events:auto;padding-right:2px}
-.efeito-hud{pointer-events:auto;width:50px;height:50px;display:grid;place-items:center;align-content:center;border:1px solid #b79869;border-radius:6px;background:#2c2538;opacity:.5;overflow:hidden;cursor:help;transition:opacity .15s,transform .15s}
-.efeito-hud:hover,.efeito-hud:focus{opacity:1;transform:translateY(-3px);outline:1px solid #f1ca88}
+.efeito-hud{pointer-events:auto;width:50px;height:50px;display:grid;place-items:center;align-content:center;border:1px solid #b79869;border-radius:6px;background:#2c2538;opacity:1;overflow:hidden;cursor:help;transition:filter .15s,transform .15s}
+.efeito-hud:hover,.efeito-hud:focus{filter:brightness(1.22);transform:translateY(-3px);outline:1px solid #f1ca88}
 .efeito-hud.condicao{border-color:#b95b5f;background:#47272d}
 .efeito-hud.concentracao{border-color:#70b7c7;background:#203d48;color:#bdebf2}
 .efeito-hud b{font-size:15px;line-height:1}
@@ -131,10 +131,10 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .centro-hud{display:flex;min-height:0;flex:1;gap:5px;overflow:hidden}
 .centro-hud>.grade{flex:1;min-width:0;align-content:start}
 .vazio-grade{display:grid;place-items:center;grid-row:1/-1;min-width:180px;color:#a8b4ac}
-.movimento-hud{display:grid;grid-template-columns:6px 50px;grid-template-rows:1fr auto;gap:3px 5px;flex:0 0 62px;align-items:center;justify-items:center}
-.movimento-hud .barra-movimento{grid-row:1/3;width:6px;height:100%;min-height:48px;display:flex;align-items:flex-end;overflow:hidden;border:1px solid #80745d;border-radius:5px;background:#2b2527}
+.movimento-hud{display:grid;grid-template-columns:50px 6px;grid-template-rows:1fr auto;gap:3px 5px;flex:0 0 62px;align-items:center;justify-items:center}
+.movimento-hud .barra-movimento{grid-column:2;grid-row:1/3;width:6px;height:100%;min-height:48px;display:flex;align-items:flex-end;overflow:hidden;border:1px solid #80745d;border-radius:5px;background:#2b2527}
 .movimento-hud .barra-movimento i{display:block;width:100%;background:linear-gradient(#e6c474,#78ceb1)}
-.movimento-hud button{width:50px;height:42px;padding:2px;text-align:center}.movimento-hud b{font-size:10px;color:#e7d8ae}.movimento-hud small{font-size:9px;text-align:center;white-space:normal}
+.movimento-hud button,.movimento-hud>small,.movimento-hud>b{grid-column:1}.movimento-hud button{width:50px;height:42px;padding:2px;text-align:center}.movimento-hud b{font-size:10px;color:#e7d8ae}.movimento-hud small{font-size:9px;text-align:center;white-space:normal}
 .filtros-hud{display:flex;align-items:center;gap:3px;min-height:28px;overflow-x:auto;scrollbar-width:thin}
 .filtros-hud button{white-space:nowrap}.filtros-hud button[aria-pressed=true]{border-color:#e6bf7a;background:#50442f;color:#fff0c9}.filtros-hud .ouro{margin-left:auto}
 .dock .resultado{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -142,4 +142,5 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 body.efeitos,body.efeitos #hud{width:100%;height:100vh;overflow:visible;background:transparent!important}
 .efeitos-only{position:relative;width:100%;height:100vh;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible}
 .efeitos-only .efeitos-hud{left:0;top:50%;width:112px;padding:0;background:transparent!important}
-@media(max-width:620px){.topo-hud{align-items:flex-start;flex-wrap:wrap;height:auto}.ferramentas-hud{width:100%;margin-left:0}.filtros-hud button{padding-inline:4px;font-size:10px}.recurso-hud{flex-basis:38px;width:38px;height:38px}.movimento-hud{flex-basis:56px;grid-template-columns:5px 46px}}
+.dica-efeito-card{height:100vh;overflow:auto;padding:12px 14px;white-space:pre-line;border:1px solid #ad90bf;border-radius:7px;color:#f4edf7;background:linear-gradient(145deg,#2b2334fa,#171d1cfa);box-shadow:0 8px 24px #0009;font-size:13px;line-height:1.45}
+@media(max-width:620px){.topo-hud{align-items:flex-start;flex-wrap:wrap;height:auto}.ferramentas-hud{width:100%;margin-left:0}.filtros-hud button{padding-inline:4px;font-size:10px}.recurso-hud{flex-basis:38px;width:38px;height:38px}.movimento-hud{flex-basis:56px;grid-template-columns:46px 5px}}
