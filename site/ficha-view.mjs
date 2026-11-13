@@ -4,7 +4,7 @@ export function detalhes(o,f){
   const r=o.automacao??{},s=o.selecao;
   const custos=(o.custo??[]).map(c=>c.quantidade+' '+(c.tipo==='recurso'?f.recursos?.find(x=>x.id===c.id)?.nome??c.id:({acao:'ação',bonus:'ação bônus',reacao:'reação'})[c.tipo]));
   const modificadores=r.efeito?.modificadores??{},bonus=Object.entries(modificadores).map(([k,v])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'deslocamento'}[k]??k)+' '+(v>=0?'+':'')+v).join(' · ');
-  const linhas=[o.nome,o.descricao,custos.length?'Custo: '+custos.join(' + '):'',r.alcanceM!=null?'Alcance: '+r.alcanceM+' m':'',r.dano?'Dano: '+r.dano+' '+(r.elemento??''):'',r.cd?'Salvaguarda: '+r.atributo.toUpperCase()+' · CD '+r.cd:'',r.bonus!=null?'Ataque: '+(r.bonus>=0?'+':'')+r.bonus:'',r.efeito?'Efeito: '+r.efeito.nome+(bonus?' · '+bonus:''):'',s?.max>1?'Seleção: '+s.min+' a '+s.max+(s.repetirAlvo?' · permite repetir':' · alvos distintos'):'',o.foraCombate?'Uso: dentro ou fora de combate':'',o.origem?'Origem: '+o.origem:''];
+  const linhas=[o.nome,o.descricao,custos.length?'Custo: '+custos.join(' + '):'',r.alcanceM!=null?'Alcance: '+r.alcanceM+' m':'',r.dano?'Dano: '+r.dano+' '+(r.elemento??''):'',r.cd?'Salvaguarda: '+r.atributo.toUpperCase()+' · CD '+r.cd:'',r.bonus!=null?'Ataque: '+(r.bonus>=0?'+':'')+r.bonus:'',r.efeito?'Efeito: '+r.efeito.nome+(bonus?' · '+bonus:''):'',s?.max>1?'Seleção: '+s.min+' a '+s.max+(s.repetirAlvo?' · permite repetir':' · alvos distintos'):'','Uso: dentro ou fora de combate nesta versão',o.origem?'Origem: '+o.origem:''];
   return linhas.filter(Boolean).join('\n');
 }
 export function cabecalhoFicha(a){

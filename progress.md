@@ -161,3 +161,16 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright aprovada para conjuração fora do combate, seleção do alvo, ícone flutuante, tooltip e campos base/bônus da ficha.
 - Capturas conferidas: `work/buff-armadura-hud-v075.png` e `work/ficha-buff-v075.png`.
 
+## Versão 0.7.6: grade de efeitos e sincronização do token
+
+- [x] Mover buffs e condições para uma faixa transparente à esquerda do corpo da HUD.
+- [x] Fixar a visualização em uma grade de 2 colunas por 3 linhas, com rolagem pelo mouse a partir do sétimo item.
+- [x] Manter tooltip, foco de teclado e distinção visual entre buff e condição.
+- [x] Acompanhar movimentos normais dos tokens pelo evento `scene.items.onChange`, agrupado por quadro, sem polling adicional.
+- [x] Recalcular o centro, alcance e trajetórias da ação pendente quando conjurador ou alvo se move.
+- [x] Liberar temporariamente todas as ações e magias fora de combate, preservando o gasto de recursos e ignorando a economia de turno.
+
+- Testes do motor: 35 aprovados, incluindo arma e magia fora de combate.
+- Integração Playwright aprovou centro sincronizado após movimento normal, área transparente, grade `50px 50px`, seis itens visíveis e rolagem do sétimo.
+- Captura conferida: `work/buffs-grid-esquerda-v076.png`.
+

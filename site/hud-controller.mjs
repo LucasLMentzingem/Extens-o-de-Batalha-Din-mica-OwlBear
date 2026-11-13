@@ -16,7 +16,7 @@ function circulo(centro,raio,cor){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
-  let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3;
+  let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
@@ -26,7 +26,7 @@ export async function iniciarHud(){
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
   function transmitir(){
-    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,
+    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,
       imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,
       pendente:pendente&&{titulo:pendente.titulo,detalhe:pendente.detalhe,pronto:pendente.pronto,
         opcao:pendente.cmd.opcao,lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,max:pendente.regraLista?.max,
@@ -48,9 +48,14 @@ export async function iniciarHud(){
     const caixas={};
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
-      const largura=Math.min(800,w-14),altura=Math.min(124+linhas*54,Math.floor(h*.55));
+      const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0;
+      espacoEfeitos=temEfeitos?Math.min(128,Math.max(88,Math.floor(w*.22))):0;
+      const largura=Math.max(260,Math.min(800,w-14-espacoEfeitos)),altura=Math.min(124+linhas*54,Math.floor(h*.55));
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
-      if(ator())caixas.barra=compacto?[Math.round((w-92)/2),h-150,92,102]:[Math.round((w-largura)/2),h-altura-48,largura,altura];
+      if(ator()){
+        const larguraCorpo=compacto?92:largura,total=larguraCorpo+espacoEfeitos,alturaBarra=compacto?Math.max(102,temEfeitos?164:102):altura;
+        caixas.barra=[Math.round((w-total)/2),h-alturaBarra-48,total,alturaBarra];
+      }
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
       if(pendente){
         const cw=Math.min(410,w-12),ch=Math.min(480,h-72),left=Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
@@ -97,7 +102,7 @@ export async function iniciarHud(){
     const o=a.ficha.opcoes.find(o=>o.id===d.opcao),rule=o?.automacao;
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
-    const foraCombate=d.tipo==='usar'&&estado.fase==='preparo'&&o?.foraCombate===true;
+    const foraCombate=d.tipo==='usar'&&estado.fase==='preparo';
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:o?.id,assistido:!rule};
     let escolha=null;
@@ -125,6 +130,32 @@ export async function iniciarHud(){
     const contagem=Object.fromEntries(unicos.map(a=>[a.id,ids.filter(id=>id===a.id).length])),vistos={};
     const trajetorias=ids.flatMap(id=>{const alvo=atores().find(a=>a.id===id),i=vistos[id]??0;vistos[id]=i+1;return setaAlvo(p.origem,pos(alvo),i,contagem[id]);});
     await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias]);
+    await layout();transmitir();
+  }
+  async function sincronizarTokens(items){
+    if(!estado)return;
+    const ids=new Set(atores().map(a=>a.token).filter(Boolean)),antes=new Map(tokens.map(t=>[t.id,t.position]));
+    const proximos=items.filter(t=>ids.has(t.id)),mudou=proximos.some(t=>{const p=antes.get(t.id);return !p||p.x!==t.position.x||p.y!==t.position.y;});
+    tokens=proximos;if(!mudou)return;
+    const p=pendente,a=ator();
+    if(!p?.escolha||!a){transmitir();return;}
+    p.origem=pos(a);
+    if(p.escolha==='lista'){await atualizarLista(p);return;}
+    if(p.escolha==='destino'){
+      p.pronto=false;delete p.cmd.x;delete p.cmd.y;delete p.ponto;
+      p.detalhe='Marque o destino no mapa · '+medida(p.raio);
+      await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079')]);transmitir();return;
+    }
+    const alvoSelecionado=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
+    let ponto=alvoSelecionado?pos(alvoSelecionado):p.ponto;
+    if(!ponto){await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079')]);transmitir();return;}
+    const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi,raio=p.rule?.raioM;
+    p.pronto=distancia<=p.raio+1e-8;
+    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1')];
+    if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
+    await desenhar(marcas);
+    const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
+    p.ponto=ponto;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(distancia)+(p.pronto?'':' · fora do alcance');
     await layout();transmitir();
   }
   async function escolher(evento){
@@ -285,6 +316,10 @@ export async function iniciarHud(){
     if(r)await api.notify();
   }));
   OBR.player.onChange(p=>{const a=atores().find(x=>x.token===p.selection?.[0]);if(a&&controla(a)&&!pendente&&a.id!==atorId)serial(()=>mensagem({tipo:'ator',id:a.id}));});
+  if(typeof OBR.scene.items.onChange==='function'){
+    let quadro=0,ultimos;
+    OBR.scene.items.onChange(items=>{ultimos=items;if(quadro)return;quadro=requestAnimationFrame(()=>{quadro=0;const lote=ultimos;serial(()=>sincronizarTokens(lote));});});
+  }
   await api.notify();
   let verificando=false;
   setInterval(()=>{if(verificando)return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}finally{verificando=false;}});},1200);

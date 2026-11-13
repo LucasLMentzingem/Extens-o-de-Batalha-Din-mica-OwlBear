@@ -28,7 +28,7 @@ No menu de contexto de um token de Personagem, o segmento **La Arte · personage
 
 ### Valores-base, buffs e condições
 
-CA, PV máximo e deslocamento conservam um valor-base editável. O campo curto imediatamente à direita mostra a soma dos bônus ativos; o cabeçalho mostra os totais usados pelo combate. Buffs e condições aparecem em uma seção própria da ficha e em ícones semitransparentes no canto direito da HUD. Passe o mouse ou use foco de teclado para ler descrição, modificadores e duração.
+CA, PV máximo e deslocamento conservam um valor-base editável. O campo curto imediatamente à direita mostra a soma dos bônus ativos; o cabeçalho mostra os totais usados pelo combate. Buffs e condições aparecem em uma seção própria da ficha e em ícones semitransparentes numa faixa invisível à esquerda da HUD. A faixa mantém uma grade de duas colunas por três linhas; do sétimo efeito em diante, use a roda do mouse para revelar os demais. Passe o mouse ou use foco de teclado para ler descrição, modificadores e duração.
 
 O efeito estruturado aceita modificadores de `ca`, `pvMaximos` e `deslocamentoM`, requisitos como `semArmadura`, remoção em descanso e restrições de condições. Isso permite representar atordoado, congelado, envenenado e efeitos semelhantes sem reescrever os valores-base. Efeitos de PV podem aumentar também o PV atual quando `aumentaPVAtual` estiver habilitado.
 
@@ -41,6 +41,8 @@ O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Du
 Ao iniciar a iniciativa, a extensão mostra o botão de rolagem no centro e a ordem no topo. Durante os turnos, o rodapé traz o retrato do token, PV, movimento, recursos e as abas Ações, Bônus, Magias e Reações. Escolha de três a cinco linhas. A preferência fica salva no navegador. O mestre pode alternar entre participantes no carrossel. O jogador vê as fichas que controla e pode responder com uma reação assistida fora de seu turno.
 
 Clique numa habilidade e depois no alvo ou centro da área. O círculo dourado marca o alcance. A marca verde indica o alvo ou o raio de efeito. Confira o d20 e o ajuste na confirmação. Para mover, clique em **Mover**, marque o destino e confira a distância. Com a ferramenta da HUD ativa, também é possível arrastar o token do turno. **Cancelar** ou Esc descarta a prévia. O aviso de oportunidade considera o caminho, o lado dos participantes e o alcance informado na ficha (1,5 m por padrão). O mestre resolve a reação. Desengajar suprime o aviso. **Finalizar turno** fica à direita do rodapé. A HUD fecha ao encerrar o combate.
+
+Enquanto o combate estiver parado, todas as ações e magias ficam liberadas. A extensão ignora ação, ação bônus e reação fora do combate, mas ainda desconta espaços de magia e outros recursos declarados. Se um token for movido pela ferramenta normal do Owlbear durante a escolha de uma habilidade, o centro do alcance acompanha a nova posição por evento da cena; não há varredura contínua do mapa.
 
 Antes de um ataque, a confirmação permite escolher rolagem normal, vantagem ou desvantagem, acrescentar até quatro dados (`1d4 + 1d6`, por exemplo) e aplicar um modificador entre −20 e +20. O menu **Linhas** da barra aceita de uma a cinco linhas. Clique duas vezes no retrato para recolher a barra e deixar somente retrato e PV; repita para expandir. Clique duas vezes em qualquer participante do carrossel para centralizar e aproximar a câmera no token.
 

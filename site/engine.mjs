@@ -395,7 +395,7 @@ export async function aplicar(s,c,u,rolar) {
     default: {
       exigir(!s.reacaoPendente,'Resolva a reação pendente antes de continuar.');
       const opcaoDeclarada=c.tipo==='usar'?a.ficha.opcoes.find(x=>x.id===c.opcao):null;
-      const foraCombate=c.tipo==='usar'&&s.fase==='preparo'&&opcaoDeclarada?.foraCombate===true;
+      const foraCombate=c.tipo==='usar'&&s.fase==='preparo';
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
         s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;ativar(atual(s));const iniciado=atual(s);if(iniciado.bencao&&--iniciado.bencao.turnos<=0)delete iniciado.bencao;msg=a.nome+' encerrou o turno.';break;
