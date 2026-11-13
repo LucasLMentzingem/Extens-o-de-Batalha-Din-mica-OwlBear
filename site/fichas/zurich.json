@@ -1,0 +1,775 @@
+{
+  "$schema": "./ficha.schema.json",
+  "versaoFormato": 1,
+  "id": "zurich",
+  "nome": "Zurich",
+  "tipo": "pj",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "guardiao",
+      "nivel": 3
+    }
+  ],
+  "especie": "Elfo — linhagem Elfo Silvestre",
+  "atributos": {
+    "for": 12,
+    "des": 17,
+    "con": 14,
+    "int": 8,
+    "sab": 14,
+    "car": 10
+  },
+  "salvaguardas": {
+    "for": 3,
+    "des": 5,
+    "con": 2,
+    "int": -1,
+    "sab": 2,
+    "car": 0
+  },
+  "pvMaximos": 28,
+  "caBase": 15,
+  "deslocamentosM": {
+    "andar": 10.5
+  },
+  "proficiencia": 2,
+  "sentidos": "Visão no Escuro 18 m. Percepção passiva 16.",
+  "idiomas": "Élfico; Silvestre (idioma raro, depende do mestre; alternativa: Anão); Comum mais 2 idiomas pendentes de escolha.",
+  "pericias": {
+    "Furtividade": 5,
+    "Intuição": 4,
+    "Lidar com Animais": 4,
+    "Sobrevivência": 4
+  },
+  "resistencias": [],
+  "imunidades": [],
+  "vulnerabilidades": [],
+  "recursos": [
+    {
+      "id": "passos-largos-da-linhagem",
+      "nome": "Passos Largos da linhagem",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-1",
+      "nome": "Espaços de 1º círculo",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "marca-do-predador",
+      "nome": "Marca do Predador",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "palavra-curativa-do-talento",
+      "nome": "Palavra Curativa do talento",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "dados-de-vida",
+      "nome": "Dados de Vida",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        },
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "opcoes": [
+    {
+      "id": "arco-longo-7-acao-0",
+      "nome": "Arco longo +7 | ação",
+      "categoria": "acao",
+      "descricao": "45/180 m · perfurante · duas mãos, uma flecha. Lentidão: reduza 3 m de deslocamento do alvo atingido até o início do seu próximo turno.\nNormal [1d20+7]\nDano [1d8+3] · Crítico [2d8+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 7,
+        "dano": "1d8+3",
+        "elemento": "perfurante",
+        "alcanceM": 18
+      }
+    },
+    {
+      "id": "cimitarra-5-acao-1",
+      "nome": "Cimitarra +5 | ação",
+      "categoria": "acao",
+      "descricao": "1,5 m · cortante · Leve, Ágil. Permite o ataque com a segunda arma Leve dentro da ação Atacar.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "cortante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "espada-curta-5-acao-ataque-principal-2",
+      "nome": "Espada curta +5 | ação · ataque principal",
+      "categoria": "acao",
+      "descricao": "1,5 m · perfurante. Use este modo ao escolher a espada para o ataque principal.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "perfurante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "espada-curta-extra-5-na-acao-atacar-agil-3",
+      "nome": "Espada curta extra +5 | na ação Atacar · Ágil",
+      "categoria": "acao",
+      "descricao": "Após atacar com a cimitarra, use a outra arma Leve uma vez neste turno. A ação bônus continua disponível. A propriedade Leve concede um único ataque extra por turno.\nNormal [1d20+5]\nDano [1d6] · Crítico [2d6]",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "golpe-desarmado-3-acao-4",
+      "nome": "Golpe desarmado +3 | ação",
+      "categoria": "acao",
+      "descricao": "1,5 m · Normal [1d20+3]\nDano contundente 2, também no crítico (dano fixo).",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-5",
+      "nome": "Agarrar ou empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 11.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "disparada-acao-6",
+      "nome": "Disparada | ação",
+      "categoria": "acao",
+      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "disparada"
+      }
+    },
+    {
+      "id": "desengajar-acao-7",
+      "nome": "Desengajar | ação",
+      "categoria": "acao",
+      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "desengajar"
+      }
+    },
+    {
+      "id": "esquivar-acao-8",
+      "nome": "Esquivar | ação",
+      "categoria": "acao",
+      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "ajudar-acao-9",
+      "nome": "Ajudar | ação",
+      "categoria": "acao",
+      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "esconder-se-acao-10",
+      "nome": "Esconder-se | ação",
+      "categoria": "acao",
+      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "preparar-acao-11",
+      "nome": "Preparar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        }
+      ],
+      "concentracao": true
+    },
+    {
+      "id": "procurar-acao-12",
+      "nome": "Procurar | ação",
+      "categoria": "acao",
+      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "estudar-acao-13",
+      "nome": "Estudar | ação",
+      "categoria": "acao",
+      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "influenciar-acao-14",
+      "nome": "Influenciar | ação",
+      "categoria": "acao",
+      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "utilizar-acao-15",
+      "nome": "Utilizar | ação",
+      "categoria": "acao",
+      "descricao": "Manipule um objeto que exija uma ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "usar-magia-acao-16",
+      "nome": "Usar Magia | ação",
+      "categoria": "acao",
+      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "ataque-de-oportunidade-reacao-17",
+      "nome": "Ataque de oportunidade | reação",
+      "categoria": "acao",
+      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        }
+      ],
+      "gatilho": "sair_alcance"
+    },
+    {
+      "id": "assassino-de-colossos-18",
+      "nome": "Assassino de Colossos",
+      "categoria": "acao",
+      "descricao": "Uma vez por turno, ao acertar com arma uma criatura que já está abaixo dos PV máximos: +[1d8] de dano. Pode trocar por Destruidor de Hordas ao fim de um descanso curto ou longo.",
+      "custo": [],
+      "gatilho": "apos_acerto",
+      "umaVezPorTurno": true,
+      "automatico": true,
+      "aprimoramento": {
+        "dano": "1d8",
+        "requisitos": {
+          "tagsAtaque": [
+            "arma"
+          ],
+          "alvoFerido": true
+        }
+      }
+    },
+    {
+      "id": "destruidor-de-hordas-19",
+      "nome": "Destruidor de Hordas",
+      "categoria": "acao",
+      "descricao": "Uma vez por turno, ao atacar com arma, faz outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original. Ativar no lugar do Assassino de Colossos após um descanso.",
+      "custo": [],
+      "requisitosUso": {
+        "aposAtaque": true,
+        "tagsAtaqueAnterior": [
+          "arma"
+        ],
+        "umaVezPorTurno": "destruidor-de-hordas-19",
+        "alvoDiferenteDoAnterior": true,
+        "distanciaDoAlvoAnteriorM": 1.5
+      },
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 7,
+        "dano": "1d8+3",
+        "elemento": "perfurante",
+        "alcanceM": 18
+      }
+    },
+    {
+      "id": "pericia-prestidigitacao-3-20",
+      "nome": "Perícia | Prestidigitação +3",
+      "categoria": "acao",
+      "descricao": "DES · Sem proficiência\nNormal [1d20+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-atuacao-0-21",
+      "nome": "Perícia | Atuação +0",
+      "categoria": "acao",
+      "descricao": "CAR · Sem proficiência\nNormal [1d20]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-enganacao-0-22",
+      "nome": "Perícia | Enganação +0",
+      "categoria": "acao",
+      "descricao": "CAR · Sem proficiência\nNormal [1d20]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-intimidacao-0-23",
+      "nome": "Perícia | Intimidação +0",
+      "categoria": "acao",
+      "descricao": "CAR · Sem proficiência\nNormal [1d20]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-investigacao-1-24",
+      "nome": "Perícia | Investigação -1",
+      "categoria": "acao",
+      "descricao": "INT · Sem proficiência\nNormal [1d20-1]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "nota-de-importacao-25",
+      "nome": "Nota de importação",
+      "categoria": "acao",
+      "descricao": "Ficha montada pelas escolhas desta conversa, conferidas no Livro do Jogador 2024 em português. Magias na lista própria (Z039). O dono do token deve ser atribuído no Forge depois de importar.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "1-saraivada-de-espinhos-26",
+      "nome": "1º | Saraivada de Espinhos",
+      "categoria": "magia",
+      "descricao": "Ação Bônus logo após acertar com arma à distância: alvo e criaturas a 1,5 m dele fazem salvaguarda de DES CD 12; [1d10] perfurante, metade se passar. +1d10 por círculo acima.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "1-marca-do-predador-sempre-concentracao-27",
+      "nome": "1º | Marca do Predador · sempre, Concentração",
+      "categoria": "magia",
+      "descricao": "Ação Bônus, 27 m, até 1 h: +[1d6] energético por acerto no alvo. Se o alvo cair, pode mudar a marca para outro com Ação Bônus. 2x grátis por descanso longo.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "marca-do-predador",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 18,
+        "efeito": {
+          "nome": "Marca do Predador",
+          "tipo": "debuff",
+          "descricao": "A origem causa 1d6 energético adicional ao acertar este alvo com arma.",
+          "danoAoSerAtingido": {
+            "formula": "1d6",
+            "elemento": "energetico",
+            "tagsAtaque": [
+              "arma"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "1-curar-ferimentos-28",
+      "nome": "1º | Curar Ferimentos",
+      "categoria": "magia",
+      "descricao": "Ação, toque: cura [2d8+2] PV. +2d8 por círculo acima.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "automacao": {
+        "tipo": "cura",
+        "formula": "2d8+2",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "1-emaranhar-concentracao-29",
+      "nome": "1º | Emaranhar · Concentração",
+      "categoria": "magia",
+      "descricao": "Ação, 27 m, quadrado de 6 m de terreno difícil por 1 min. Criaturas na área: salvaguarda de FOR CD 12 ou ficam Contidas (ataques contra elas com Vantagem). Uma ação e teste de FOR (Atletismo) CD 12 para se soltar.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "for",
+        "cd": 12,
+        "alcanceM": 18,
+        "area": {
+          "forma": "quadrado",
+          "tamanhoM": 6
+        },
+        "efeitoFalha": {
+          "nome": "Imobilizado por Emaranhar",
+          "condicao": "imobilizado",
+          "turnos": 10
+        }
+      }
+    },
+    {
+      "id": "1-falar-com-animais-ritual-30",
+      "nome": "1º | Falar com Animais · Ritual",
+      "categoria": "magia",
+      "descricao": "Ação ou ritual (+10 min), 10 min: entende e conversa com feras. Informações sobre a área, perigos e o que viram recentemente.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "1-palavra-curativa-iniciado-31",
+      "nome": "1º | Palavra Curativa · Iniciado",
+      "categoria": "magia",
+      "descricao": "Ação Bônus, 18 m: cura [2d4+2] PV. 1x grátis por descanso longo; depois com espaço de magia. +2d4 por círculo acima.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "automacao": {
+        "tipo": "cura",
+        "formula": "2d4+2",
+        "alcanceM": 18
+      }
+    },
+    {
+      "id": "1-passos-largos-elfo-32",
+      "nome": "1º | Passos Largos · Elfo",
+      "categoria": "magia",
+      "descricao": "Ação, toque, 1 h: +3 m de Deslocamento. 1x grátis por descanso longo; também na lista do Guardião.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "truque-acudir-os-moribundos-iniciado-33",
+      "nome": "Truque | Acudir os Moribundos · Iniciado",
+      "categoria": "magia",
+      "descricao": "Ação, 4,5 m: uma criatura com 0 PV que não esteja morta fica Estável.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0
+    },
+    {
+      "id": "truque-arte-druidica-elfo-34",
+      "nome": "Truque | Arte Druídica · Elfo",
+      "categoria": "magia",
+      "descricao": "Pequenos efeitos da natureza: prever o tempo, fazer uma flor desabrochar, efeitos sensoriais inofensivos, acender ou apagar uma chama pequena.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0
+    },
+    {
+      "id": "truque-orientacao-iniciado-concentracao-35",
+      "nome": "Truque | Orientação · Iniciado, Concentração",
+      "categoria": "magia",
+      "descricao": "Ação, toque, 1 min: o alvo soma [1d4] nos testes de uma perícia escolhida.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0
+    }
+  ],
+  "equipamentos": [
+    {
+      "id": "cec923eb-4c1d-5878-a3bc-733544cbb4d0",
+      "name": "Armadura de Couro Batido",
+      "description": "CA 12 + DES = 15. Sem penalidade em Furtividade.",
+      "inUse": true
+    },
+    {
+      "id": "cc8e6520-186a-5ade-ab7d-4051d5022a3d",
+      "name": "Arco Longo",
+      "description": "Ataque +7; dano 1d8+3 perfurante; 45/180 m. Lentidão.",
+      "inUse": true
+    },
+    {
+      "id": "3b63a32a-a1e2-50e0-9d83-830373b4868d",
+      "name": "Aljava com 20 Flechas",
+      "description": "Após a luta, 1 minuto recupera metade das flechas usadas. Controle a munição manualmente.",
+      "inUse": true
+    },
+    {
+      "id": "6e35b573-f770-57cd-8c00-632ec9b47442",
+      "name": "Cimitarra",
+      "description": "Ataque +5; dano 1d6+3 cortante. Ágil.",
+      "inUse": false
+    },
+    {
+      "id": "746a489e-3118-5b0d-8d97-885ca01c7ff2",
+      "name": "Espada Curta",
+      "description": "Ataque extra +5; dano 1d6 perfurante.",
+      "inUse": false
+    },
+    {
+      "id": "922046ca-16ce-54b2-b8c9-58f270b27046",
+      "name": "Foco Druídico (ramo de visco)",
+      "description": "Foco de conjuração.",
+      "inUse": false
+    },
+    {
+      "id": "24d40c0b-b311-5964-b3e2-45ff098c92e4",
+      "name": "Kit de Aventureiro",
+      "description": "Mochila, caixa para fogo, cantil, corda, 2 potes de óleo, 10 dias de rações, saco de dormir, 10 tochas.",
+      "inUse": false
+    },
+    {
+      "id": "67860861-316e-5f77-9988-32e489d4508d",
+      "name": "Moedas — 7 PO",
+      "description": "Saldo do kit inicial do Guardião (opção A).",
+      "inUse": false
+    }
+  ],
+  "passivas": [
+    {
+      "nome": "Passiva | Arquearia",
+      "descricao": "+2 nas jogadas de ataque com armas à distância (já incluído no Arco Longo)."
+    },
+    {
+      "nome": "Passiva | Maestria em Arma",
+      "descricao": "Ativas: Arco Longo (Lentidão) e Cimitarra (Ágil). Pode trocar os tipos a cada descanso longo."
+    },
+    {
+      "nome": "Passiva | Explorador Hábil",
+      "descricao": "Especialização em Percepção (+6). Dois idiomas extras: Élfico e Silvestre (Silvestre depende do mestre; alternativa Anão)."
+    },
+    {
+      "nome": "Passiva | Iniciado em Magia (Druida)",
+      "descricao": "Usa Sabedoria. Truques: Orientação e Acudir os Moribundos. Palavra Curativa: 1x grátis por descanso longo (controle 1/1) e também com espaços de magia."
+    },
+    {
+      "nome": "Passiva | Elfo Silvestre",
+      "descricao": "Visão no Escuro 18 m. Ancestralidade Feérica: Vantagem em salvaguardas contra ficar Enfeitiçado. Transe: descanso longo em 4 h, sem dormir; magia não o faz dormir. Sentidos Aguçados: Percepção. Truque Arte Druídica.  Passos Largos usa o saldo no topo."
+    },
+    {
+      "nome": "Passiva | Proficiências",
+      "descricao": "Armas simples e marciais; armaduras leves, médias e escudos. Ferramentas de Cartógrafo. Perícias: Furtividade, Sobrevivência (Guia); Percepção (Elfo); Intuição, Lidar com Animais, Atletismo (Guardião). Salvaguardas: FOR e DES."
+    }
+  ],
+  "notas": [
+    {
+      "titulo": "Fonte",
+      "descricao": "Convertida da ficha Forge Zurich-Nv3.json."
+    }
+  ]
+}

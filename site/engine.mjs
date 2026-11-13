@@ -23,7 +23,7 @@ export const condicoesCombate = Object.freeze({
   surdo:{nome:'Surdo',restricoes:{}}
 });
 const expiraValido=new Set(['inicio_alvo','fim_alvo','inicio_origem','fim_origem']);
-const formulaDanoValida=f=>typeof f==='string'&&/^(?:[1-9]|[1-9][0-9])d(?:4|6|8|10|12)(?:[+-]\d{1,2})?$/.test(f);
+const formulaDanoValida=f=>typeof f==='string'&&(/^(?:[1-9]|[1-9][0-9])d(?:4|6|8|10|12)(?:[+-]\d{1,2})?$/.test(f)||/^\d{1,3}$/.test(f));
 export function exigir(ok, msg) { if (!ok) throw new Error(msg); }
 const inteiro = (n,min,max) => Number.isInteger(n) && n >= min && n <= max;
 const idOK = id => typeof id === 'string' && /^[a-z0-9][a-z0-9_-]{0,79}$/i.test(id) && !Object.hasOwn(Object.prototype,id);
@@ -51,9 +51,17 @@ export function atualizarMagias(f){
     }
   }
   for(const o of f.opcoes??[]){
+    const nomeCompleto=String(o.nome??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),nome=nomeCompleto.split('|').pop().split('·')[0].trim();
     if(typeof o.nome==='string'&&o.custo?.some(c=>c.tipo==='reacao')&&o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes('ataque de oportunidade'))o.gatilho='sair_alcance';
+    const descricao=String(o.descricao??''),hit=/Normal\s*\[1d20([+-]\d+)?\]/i.exec(descricao),dano=/Dano(?:\s+\w+)?\s*(?:\[([^\]]+)\]|(?:contundente\s+)?(\d+))/i.exec(descricao);
+    if(!o.automacao&&nomeCompleto.startsWith('golpe desarmado')&&hit&&dano)o.automacao={tipo:'ataque',bonus:Number(hit[1]||0),dano:dano[1]??dano[2],elemento:'contundente',alcanceM:1.5,tags:['desarmado']};
+    if(!o.automacao&&nomeCompleto.startsWith('esquivar'))o.automacao={tipo:'economia',esquivar:true};
+    if(!o.automacao&&nomeCompleto.startsWith('agarrar'))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Agarrado',condicao:'agarrado',turnos:10}};
+    if(!o.automacao&&nomeCompleto.startsWith('derrubar'))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Caído',condicao:'caido',turnos:1,expira:'fim_origem'}};
+    if(!o.automacao&&nomeCompleto.startsWith('segunda adaga')&&hit&&dano){o.requisitosUso={aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:o.id};o.automacao={tipo:'ataque',bonus:Number(hit[1]||0),dano:dano[1]??dano[2],elemento:'perfurante',alcanceM:1.5,tags:['arma']};}
+    if(nomeCompleto.includes('mao de dolo')){o.gatilho='apos_acerto';o.umaVezPorTurno=true;o.aprimoramento={dano:'1d6+1',elemento:'necrotico',requisitos:{tagsAtaque:['desarmado']}};delete o.automacao;}
+    if(nomeCompleto.includes('mao de cura'))o.automacao={tipo:'cura',formula:'1d6+1',alcanceM:1.5};
     if(o.categoria!=='magia'||typeof o.nome!=='string')continue;
-    const nome=o.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().split('|').pop().split('·')[0].trim();
     if(nome==='armadura arcana'){
       o.foraCombate=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Armadura Arcana',tipo:'buff',descricao:'A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.',removeEm:'descanso_longo',caMinima:13,requisitos:{semArmadura:true},modificadores:{}}};
       if(f.id==='nikki'&&f.caBase===15)f.caBase=13;if(f.id==='nikki'&&f.armaduraEquipada===undefined)f.armaduraEquipada=false;
@@ -73,6 +81,18 @@ export function atualizarMagias(f){
     if(nome==='sussurros dissonantes')o.automacao={tipo:'salva',atributo:'sab',cd:13,dano:'3d6',alcanceM:18,metade:true,elemento:'psiquico',efeitoFalha:{nome:'Fuga Dissonante',turnos:1,consomeReacao:true}};
     if(nome==='bracos de hadar')o.automacao={tipo:'salva',atributo:'for',cd:13,dano:'2d6',alcanceM:0,raioM:3,origemArea:'conjurador',excluirConjurador:true,metade:true,elemento:'necrotico',efeitoFalha:{nome:'Sem reações',turnos:1,consomeReacao:true}};
     if(nome==='acalmar emocoes')o.automacao={tipo:'salva',atributo:'car',cd:13,alcanceM:18,raioM:6,efeitoFalha:{nome:'Emoções acalmadas',turnos:10}};
+    if(nome.includes('escudo da fe')){o.concentracao=true;o.automacao={tipo:'efeito',alcanceM:18,efeito:{nome:'Escudo da Fé',tipo:'buff',descricao:'+2 na Classe de Armadura.',modificadores:{ca:2},duracao:{turnos:100,expira:'inicio_origem'}}};}
+    if(nome.includes('passos largos'))o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Passos Largos',tipo:'buff',descricao:'+3 m de deslocamento.',modificadores:{deslocamentoM:3},removeEm:'descanso_longo'}};
+    if(nome.includes('acudir os moribundos'))o.automacao={tipo:'estabilizar',alcanceM:4.5};
+    if(nome.includes('orientacao')){o.concentracao=true;o.automacao={tipo:'conceder_dado',alcanceM:1.5,modificador:{nome:'Orientação',formula:'1d4',tipos:['teste'],removeAoUsar:true}};}
+    if(nome.includes('repreensao diabolica')){o.gatilho='sofrer_dano';o.automacao={tipo:'salva',atributo:'des',cd:13,dano:'2d10',metade:true,elemento:'fogo',alcanceM:18};}
+    if(nome.includes('toque chocante'))o.automacao={tipo:'ataque',bonus:5,dano:'1d8',elemento:'raio',alcanceM:1.5};
+    if(nome.includes('explosao elemental'))o.automacao={tipo:'ataque',bonus:5,dano:'1d8',elemento:'elemental',alcanceM:18};
+    if(nome.includes('protecao contra laminas')){o.concentracao=true;o.automacao={tipo:'efeito',alcanceM:0,efeito:{nome:'Proteção contra Lâminas',tipo:'buff',descricao:'Ataques contra o alvo subtraem 1d4 da jogada de ataque.',restricoes:{penalidadeAtaquesContra:'1d4'},duracao:{turnos:10,expira:'inicio_origem'}}};}
+    if(nome.includes('invisibilidade')){o.concentracao=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Invisível',tipo:'condicao',condicao:'invisivel',descricao:'Invisível até atacar, causar dano ou conjurar.',duracao:{turnos:100,expira:'inicio_origem'}}};}
+    if(nome.includes('amizade')){o.concentracao=true;o.automacao={tipo:'salva',atributo:'sab',cd:13,alcanceM:3,efeitoFalha:{nome:'Enfeitiçado',condicao:'enfeiticado',turnos:10}};}
+    if(nome.includes('sugestao')){o.concentracao=true;o.automacao={tipo:'salva',atributo:'sab',cd:13,alcanceM:9,efeitoFalha:{nome:'Sob Sugestão',condicao:'enfeiticado',turnos:100}};}
+    if(nome.includes('enfeiticar pessoa'))o.automacao={tipo:'salva',atributo:'sab',cd:13,alcanceM:9,efeitoFalha:{nome:'Enfeitiçado',condicao:'enfeiticado',turnos:100}};
   }
   // Cada uso corpo a corpo de uma arma arremessável recebe uma ação à distância separada.
   for(const o of [...(f.opcoes??[])]){
@@ -146,7 +166,14 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    if(a.tipo==='economia'){
+      exigir(['acao','bonus','reacao'].every(k=>a.adicionar?.[k]===undefined||inteiro(a.adicionar[k],0,5)),'Economia adicional inválida em '+o.id);
+      exigir(['disparada','desengajar','esquivar'].every(k=>a[k]===undefined||typeof a[k]==='boolean'),'Estado de economia inválido em '+o.id);
+      exigir(a.pvTemporarios===undefined||inteiro(a.pvTemporarios,1,9999),'PV temporário de economia inválido em '+o.id);
+      exigir(a.cura===undefined||formulaDanoValida(a.cura),'Cura de economia inválida em '+o.id);
+      exigir(a.recuperarRecursos===undefined||Array.isArray(a.recuperarRecursos)&&a.recuperarRecursos.every(id=>f.recursos.some(r=>r.id===id)),'Recuperação de recurso inválida em '+o.id);
+    }
     if(a.tipo==='reduzir_dano')exigir(formulaDanoValida(a.formula),'Redução de dano inválida em '+o.id);
     if(a.tipo==='conceder_dado')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0&&formulaDanoValida(a.modificador?.formula)&&Array.isArray(a.modificador.tipos)&&a.modificador.tipos.length&&a.modificador.tipos.every(x=>['ataque','salvaguarda','teste'].includes(x)),'Dado concedido inválido em '+o.id);
     if(multi(o)||['projeteis','bencao'].includes(a.tipo)){
@@ -458,7 +485,7 @@ export async function aplicar(s,c,u,rolar) {
     const modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
     const modificadores=(p?.efeitosAtivos??[]).filter(e=>e.modificadorRolagem?.tipos?.includes(meta.tipo)),metaAdicionais=modificadores.map(e=>({id:e.id,nome:e.nome,formula:e.modificadorRolagem.formula,descricao:e.descricao??e.nome}));
     const rerrolagens=opcoesRerrolagemD20(p),metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:'todos',custo:g.custo??[],descricao:g.descricao??''}));
-    const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva,modo),{...meta,adicionais:metaAdicionais,rotuloAdicionais:'Dados disponíveis para esta rolagem',combinarAdicionais:true,rerrolagens:metaRerrolagens});
+    const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva??meta.penalidade,modo),{...meta,adicionais:metaAdicionais,rotuloAdicionais:'Dados disponíveis para esta rolagem',combinarAdicionais:true,rerrolagens:metaRerrolagens});
     const ativos=Array.isArray(r.recursosAtivos)?r.recursosAtivos:[];exigir(ativos.every(id=>modificadores.some(e=>e.id===id)),'Modificador de d20 inválido.');
     if(ativos.length)p.efeitosAtivos=p.efeitosAtivos.filter(e=>!ativos.includes(e.id)||e.modificadorRolagem?.removeAoUsar===false);
     const usados=Array.isArray(r.rerrolagensUsadas)?r.rerrolagensUsadas:[];exigir(usados.every(id=>rerrolagens.some(g=>g.id===id)),'Rerrolagem de d20 inválida.');
@@ -482,7 +509,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','adicionar','vincular','iniciar','encerrar','descanso','remover','alternarCombate','definirRecurso'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','encerrar','descanso','remover','alternarCombate','definirRecurso'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -497,6 +524,12 @@ export async function aplicar(s,c,u,rolar) {
         if(c.ensaio){p.token='sim-'+p.id;if(p.ficha.tipo==='pj')p.dono='teste';}
       }
       msg='Nikki e os dois soldados entraram no encontro.';break;
+    }
+    case 'grupoTeste': {
+      exigir(gm && s.fase==='preparo' && s.atores.length===0,'Carregue o grupo em um encontro vazio.');
+      exigir(Array.isArray(c.fichas)&&c.fichas.length===7,'O grupo de teste precisa das sete fichas.');
+      for(const ficha of c.fichas){const p=adicionar(s,ficha,ficha.nome);if(c.ensaio){p.token='sim-'+p.id;p.dono='teste';}}
+      msg='As sete fichas de jogadores entraram no encontro.';break;
     }
     case 'adicionar':
       exigir(s.fase==='preparo','Encerre o encontro para mudar os participantes.');
@@ -620,7 +653,7 @@ export async function aplicar(s,c,u,rolar) {
         exigir(distancia(a,alvo)<=Math.min(LIMITE_ALCANCE_M,rule.alcanceM)+1e-8,'O alvo saiu do alcance da reação.');
         for(const custo of o.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
         if(rule.tipo==='ataque'){
-          const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Reação · '+o.nome,alvo:alvo.nome,cd:defesa}),face=rr.natural;
+          const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Reação · '+o.nome,alvo:alvo.nome,cd:defesa,penalidade:restricoesAtivas(alvo).penalidadeAtaquesContra}),face=rr.natural;
           const acertou=face!==1&&(face===20||rr.total>=defesa);msg=a.nome+' reagiu com '+o.nome+' • '+(acertou?'acertou':'errou')+' '+alvo.nome;
           if(acertou){const critico=face===20,formula=critico?formulaCritica(rule.dano):rule.dano,bruto=(await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:alvo.nome})).total;
             msg+=' e causou '+await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{critico,origem:a});}
@@ -659,7 +692,7 @@ export async function aplicar(s,c,u,rolar) {
       const vantagem=c.modo==='vantagem'||ra.vantagemAtaques||rt.vantagemAtaquesContra||(rt.caido&&distancia(a,alvo)<=1.5+1e-8);
       const desvantagem=c.modo==='desvantagem'||ra.desvantagemAtaques||rt.desvantagemAtaquesContra||(rt.caido&&distancia(a,alvo)>1.5+1e-8);
       c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
-      const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:o.nome+' · '+ataque.nome,alvo:alvo.nome,cd:defesa});
+      const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:o.nome+' · '+ataque.nome,alvo:alvo.nome,cd:defesa,penalidade:restricoesAtivas(alvo).penalidadeAtaquesContra});
       const face=rr.natural,total=rr.total;
       const acertou=face!==1&&(face===20||total>=defesa);
       msg=a.nome+' • '+o.nome+' com '+ataque.nome+' • '+total+(acertou?' acertou':' errou');
@@ -735,6 +768,20 @@ export async function aplicar(s,c,u,rolar) {
       const efeitos=(a.efeitosAtivos??[]).filter(e=>e.origem===o.origem);
       if(rule.tipo==='disparada'){a.metros+=deslocamentoMaximo(a);break;}
       if(rule.tipo==='desengajar'){a.desengajado=true;break;}
+      if(rule.tipo==='economia'){
+        for(const k of ['acao','bonus','reacao'])if(rule.adicionar?.[k])a[k]+=rule.adicionar[k];
+        for(const id of rule.recuperarRecursos??[]){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=r.maximo;}
+        if(rule.disparada)a.metros+=deslocamentoMaximo(a);
+        if(rule.desengajar)a.desengajado=true;
+        if(rule.esquivar){
+          const id=o.id+'-'+a.id;
+          a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>e.id!==id);
+          a.efeitosAtivos.push({id,nome:'Esquiva',tipo:'buff',descricao:'Ataques contra você têm desvantagem e suas salvaguardas de DES têm vantagem.',origemAtorId:a.id,duracao:{turnos:1,restante:1,expira:'inicio_origem'},restricoes:{desvantagemAtaquesContra:true,vantagemSalvas:['des']}});
+        }
+        if(rule.pvTemporarios)concederPVTemporarios(a,rule.pvTemporarios);
+        if(rule.cura){const valor=(await resultado(rule.cura,{tipo:'cura',titulo:'Cura · '+o.nome})).total;curarAtor(a,valor);}
+        break;
+      }
       const selecao=multi(o);let escolhidos;
       if(selecao){
         exigir(Array.isArray(c.alvos)&&c.alvos.length>=selecao.min&&c.alvos.length<=selecao.max,'Quantidade de alvos inválida.');
@@ -807,7 +854,7 @@ export async function aplicar(s,c,u,rolar) {
       if(rule.tipo==='ataque'&&afetados.length>1){
         const acertos=[],nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*classe.*$/i,'');
         for(let i=0;i<afetados.length;i++){
-          const p=afetados[i],regraAtaque=rule.ataques?.[i]??rule,defesa=caAtual(p),rr=await rolarD20(regraAtaque.bonus,a,{tipo:'ataque',titulo:'Ataque '+(i+1)+' · '+o.nome,alvo:p.nome,cd:defesa}),face=rr.natural,total=rr.total,evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,regraAtaque),acertou:face!==1&&(face===20||total>=defesa)};a.eventosTurno.ataques.push(evento);
+          const p=afetados[i],regraAtaque=rule.ataques?.[i]??rule,defesa=caAtual(p),rr=await rolarD20(regraAtaque.bonus,a,{tipo:'ataque',titulo:'Ataque '+(i+1)+' · '+o.nome,alvo:p.nome,cd:defesa,penalidade:restricoesAtivas(p).penalidadeAtaquesContra}),face=rr.natural,total=rr.total,evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,regraAtaque),acertou:face!==1&&(face===20||total>=defesa)};a.eventosTurno.ataques.push(evento);
           msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
           if(face===1||(face!==20&&total<defesa)){msg+=' • errou '+p.nome;continue;}
           a.eventosTurno.acertos.push(evento);const critico=face===20||(restricoesAtivas(p).criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),formula=critico?formulaCritica(regraAtaque.dano):regraAtaque.dano;
@@ -838,7 +885,7 @@ export async function aplicar(s,c,u,rolar) {
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a});msg+=' • '+r.p.nome+' sofreu '+valor;}
           if(!r.sucesso)deslocarForcado(r.p);
           if(!r.sucesso&&rule.efeitoFalha){
-            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva};
+            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva};
             r.p.efeitosAtivos=(r.p.efeitosAtivos??[]).filter(e=>e.id!==o.id);r.p.efeitosAtivos.push(efeito);
             if(rule.efeitoFalha.consomeReacao)r.p.reacao=0;msg+=' • efeito: '+efeito.nome;
             if(restricoesAtivas(r.p).semAcoes)encerrarConcentracao(s,r.p,'incapacitado');
@@ -850,7 +897,7 @@ export async function aplicar(s,c,u,rolar) {
       let formula=rule.dano;
       let critico=false;
       if(rule.tipo==='ataque'){
-        const defesa=caAtual(p),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Ataque · '+o.nome,alvo:p.nome,cd:defesa});const face=rr.natural,total=rr.total;
+        const defesa=caAtual(p),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Ataque · '+o.nome,alvo:p.nome,cd:defesa,penalidade:restricoesAtivas(p).penalidadeAtaquesContra});const face=rr.natural,total=rr.total;
         msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
         const acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,rule),acertou};a.eventosTurno.ataques.push(evento);
         if(!acertou){msg+=' • errou '+p.nome;continue;}

@@ -4,6 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
+const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
+const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
 function mesa(){
   let s=novo();
@@ -189,6 +191,7 @@ test('ataque de oportunidade pausa e interrompe o movimento no ponto do acerto',
  assert.equal(m.s.atores[0].x,0);assert.equal(m.s.reacaoPendente.alvo,m.a.id);assert.equal(m.s.reacaoPendente.reator,m.b.id);
  const opcao=m.b.ficha.opcoes.find(o=>o.gatilho==='sair_alcance');
  await m.go('resolverReacao',{ator:m.b.id,opcao:opcao.id,modo:'normal',ajuste:0,dadosAjuste:[]},gm,[15,5]);
+ assert.equal(m.s.reacaoPendente.gatilho,'sofrer_dano');await m.go('resolverReacao',{ator:m.a.id,opcao:null},player);
  assert.equal(m.s.atores[0].pv,15);assert.equal(m.s.atores[0].x,2.5);assert.equal(m.s.atores[0].metros,6.5);assert.equal(m.s.atores[1].reacao,0);assert.equal(m.s.reacaoPendente,undefined);
  await m.go('mover',{ator:m.a.id,x:4,y:0},player);assert.equal(m.s.atores[0].x,4);
 });
@@ -477,4 +480,26 @@ test('áreas de quadrado, cone e linha usam a geometria declarada',async()=>{
  assert.equal(dentroDaArea({x:0,y:0},{x:3,y:0},{x:2.5,y:.6},{area:{forma:'linha',comprimentoM:3,larguraM:1.5}}),true);assert.equal(dentroDaArea({x:0,y:0},{x:3,y:0},{x:2.5,y:1},{area:{forma:'linha',comprimentoM:3,larguraM:1.5}}),false);
  const m=mesa();m.a.ficha.opcoes.push({id:'quadrado-teste',nome:'Área quadrada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,dano:'2d6',metade:true,elemento:'fogo',alcanceM:18,area:{forma:'quadrado',tamanhoM:2}}});
  await m.iniciar();await m.go('usar',{ator:m.a.id,opcao:'quadrado-teste',ponto:{x:1.5,y:0}},player,[6,10,15]);assert.deepEqual(m.s.atores.map(x=>x.pv),[20,18,21]);
+});
+test('as sete fichas de jogadores carregam juntas com recursos e automações próprias',async()=>{
+ for(const f of fichasJogadores)validar(f);
+ let s=novo();s=await aplicar(s,{tipo:'grupoTeste',rev:s.rev,fichas:fichasJogadores,ensaio:true},gm,async()=>1);
+ assert.equal(s.atores.length,7);assert.deepEqual(new Set(s.atores.map(a=>a.ficha.id)),new Set(idsJogadores));
+ assert.ok(s.atores.every(a=>a.dono==='teste'&&a.token==='sim-'+a.id));
+ const porId=id=>s.atores.find(a=>a.ficha.id===id).ficha;
+ assert.equal(porId('draven-thorne').opcoes.find(o=>o.id==='surto-de-acao-acao').automacao.tipo,'economia');
+ assert.equal(porId('loteria').opcoes.find(o=>/Defletir Ataques/i.test(o.nome)).gatilho,'ser_atingido');
+ assert.equal(porId('hannah-montana').opcoes.find(o=>o.id==='inspiracao-bardo-acao').automacao.tipo,'conceder_dado');
+ assert.equal(porId('skimi').opcoes.find(o=>o.id==='ponto-sorte-rerrolagem').gatilho,'apos_rolagem_d20');
+});
+test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recursos',async()=>{
+ let s=novo(),d=adicionar(s,fichasJogadores.find(f=>f.id==='draven-thorne')),g=adicionar(s,soldado,'Alvo');
+ const rolar=async formula=>({total:/d20/.test(formula)?20:/d10/.test(formula)?8:5,natural:/d20/.test(formula)?20:null,formula,resumo:'teste'});
+ const go=async(tipo,extra={},u=gm)=>s=await aplicar(s,{tipo,rev:s.rev,...extra},u,rolar);
+ await go('vincular',{ator:d.id,dono:'p'});await go('iniciar');await go('iniciativa',{ator:d.id},player);await go('iniciativa',{ator:g.id});
+ await go('usar',{ator:d.id,opcao:'surto-de-acao-acao'},player);assert.equal(s.atores[0].acao,2);assert.equal(s.atores[0].rec['surto-de-acao'],0);
+ await go('ajustar',{ator:d.id,campo:'pv',valor:-10,confirmado:true});await go('usar',{ator:d.id,opcao:'recuperar-folego-acao'},player);
+ assert.equal(s.atores[0].pv,s.atores[0].ficha.pvMaximos-2);assert.equal(s.atores[0].bonus,0);assert.equal(s.atores[0].rec['recuperar-folego'],1);
+ const monge=fichasJogadores.find(f=>f.id==='loteria'),metabolismo=monge.opcoes.find(o=>o.id==='metabolismo-incomum-acao');
+ assert.deepEqual(metabolismo.automacao.recuperarRecursos,['pontos-de-foco']);assert.equal(monge.opcoes.find(o=>o.id==='pico-adrenalina').automacao.disparada,true);
 });

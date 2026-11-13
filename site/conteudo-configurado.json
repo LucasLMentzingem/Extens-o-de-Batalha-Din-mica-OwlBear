@@ -1,0 +1,1013 @@
+{
+  "versaoFormato": 1,
+  "resumo": {
+    "classes": 6,
+    "racas": 6,
+    "comuns": 19,
+    "itens": 35
+  },
+  "classes": [
+    {
+      "id": "bardo",
+      "nome": "Bardo",
+      "nivelMax": 3,
+      "habilidades": [
+        {
+          "nome": "1º | Curar Ferimentos",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Detectar Magia · Ritual, Concentração",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Enfeitiçar Pessoa · Glamour, sempre",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Falar com Animais · Ritual",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Fogo das Fadas · Concentração",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Palavra Curativa",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Passos Largos · Elfo",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Arrombar",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "2º | Reflexos · Glamour, sempre",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Adaga +4 · arremesso | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Adaga +4 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Inspiração de Bardo",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Manto de Inspiração",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Nota de importação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Atuação +5",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Enganação +4",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Intimidação +4",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Investigação +4",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Prestidigitação +3",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Segunda adaga +4 · arremesso | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Segunda adaga +4 | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Arte Druídica · Elfo",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Ilusão Menor",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Zombaria Perversa",
+          "status": "Automatizada"
+        }
+      ]
+    },
+    {
+      "id": "bruxo",
+      "nome": "Bruxo",
+      "nivelMax": 3,
+      "habilidades": [
+        {
+          "nome": "1º | Compreender Idiomas",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Disfarçar-se",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Encontrar Familiar",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Enfeitiçar Pessoa",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Riso Histérico de Tasha",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Sussurros Dissonantes",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Detectar Pensamentos",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "2º | Força Fantasmagórica",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "2º | Imobilizar Pessoa",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Invisibilidade",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Sugestão",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Adaga +4 · arremesso | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Adaga +4 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Foice +1 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Perícia | Atuação +5",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Enganação +5",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Intimidação +5",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Investigação +0",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Prestidigitação +4",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Ponto de Sorte",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Segunda adaga +4 · arremesso | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Segunda adaga +4 | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Amizade",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Mãos Mágicas",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Mensagem",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Rajada Mística",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Taumaturgia",
+          "status": "Assistida pelo mestre"
+        }
+      ]
+    },
+    {
+      "id": "feiticeiro",
+      "nome": "Feiticeiro",
+      "nivelMax": 3,
+      "habilidades": [
+        {
+          "nome": "1º | Armadura Arcana · defesa · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Braços de Hadar · salva de FOR · aberrante",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Detectar Magia · ritual · concentração · classe",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Mísseis Mágicos · acerto automático · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Queda Suave · reação · classe",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Repreensão Diabólica · reação · salva de DES · infernal",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Sussurros Dissonantes · salva de SAB · aberrante",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Acalmar Emoções · salva de CAR · concentração · aberrante",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Despedaçar · salva de CON · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "2º | Detectar Pensamentos · sondagem · concentração · aberrante",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "2º | Sopro de Dragão · salva de DES · concentração · classe",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Adaga +4 · arremesso | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Adaga +4 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Fala Telepática | ação bônus",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Feitiçaria Inata",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Lança +2 · arremesso | ação · uma mão",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Lança +2 | ação · duas mãos",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Lança +2 | ação · uma mão",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Magia Duplicada | ao conjurar",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Magia Potencializada | ao rolar dano",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Mísseis Mágicos (2º círculo)",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Segunda adaga +4 · arremesso | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Segunda adaga +4 | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Mãos Mágicas · utilidade · classe",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Proteção Contra Lâminas · concentração · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Raio de Fogo · ataque +5 · infernal",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Talho Mental · salva de INT · aberrante",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Taumaturgia · utilidade · infernal",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Toque Chocante · ataque +5 · classe",
+          "status": "Automatizada"
+        }
+      ]
+    },
+    {
+      "id": "guardiao",
+      "nome": "Guardiao",
+      "nivelMax": 3,
+      "habilidades": [
+        {
+          "nome": "(Habilitado) Destruidor de Hordas",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Curar Ferimentos",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Emaranhar · Concentração",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Escudo da Fé",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Falar com Animais · Ritual",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Golpe Constritor",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "1º | Marca do Predador",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Marca do Predador · sempre, Concentração",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Palavra Curativa · Iniciado",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Passos Largos · Elfo",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "1º | Saraivada de Espinhos",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Arco longo +7 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Assassino de Colossos",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Cimitarra +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Concentração e turno",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Destruidor de Hordas",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Espada curta +5 | ação · ataque principal",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Espada curta extra +5 | na ação Atacar · Ágil",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Nota de importação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Atuação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Atuação +0",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Enganação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Enganação +0",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Intimidação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Intimidação +0",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Investigação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Investigação +3",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Prestidigitação +3",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Presa do Caçador",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Acudir os Moribundos · Iniciado",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Arte Druídica · Elfo",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Truque | Golpe Certeiro",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Orientação · Iniciado, Concentração",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Proteção contra Lâminas",
+          "status": "Automatizada"
+        }
+      ]
+    },
+    {
+      "id": "guerreiro",
+      "nome": "Guerreiro",
+      "nivelMax": 3,
+      "habilidades": [
+        {
+          "nome": "Ataque Ameaçador",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Ataque de Desarme",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Ataque Prostrador",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Azagaia +5 · arremesso | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Azagaia +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Espada grande +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Mangual +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Manobras",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Atuação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Enganação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Intimidação +1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Investigação +0",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Prestidigitação +1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Recuperar Fôlego",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Surto de Ação",
+          "status": "Automatizada"
+        }
+      ]
+    },
+    {
+      "id": "monge",
+      "nome": "Monge",
+      "nivelMax": 3,
+      "habilidades": [
+        {
+          "nome": "Adaga +5 · arremesso | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Adaga +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Defesa Paciente",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Defesa Paciente · Foco",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Defletir Ataques",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Lança em duas mãos +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Lança em uma mão +5 · arremesso | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Lança em uma mão +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Mão de Cura",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Mão de Dolo",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Metabolismo Incomum",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Nota de importação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Passo do Vento",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Passo do Vento · Foco",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Perícia | Atuação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Enganação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Intimidação -1",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Investigação +0",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Perícia | Prestidigitação +3",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Pico de Adrenalina",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Soco +5 | ação ou ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Torrente de Golpes +5 | ação bônus · 1 Foco",
+          "status": "Automatizada"
+        }
+      ]
+    }
+  ],
+  "racas": [
+    {
+      "nome": "Draconato de Bronze",
+      "habilidades": []
+    },
+    {
+      "nome": "Elfo — linhagem Elfo Silvestre",
+      "habilidades": [
+        {
+          "nome": "1º | Passos Largos · Elfo",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Passiva | Elfo Silvestre",
+          "status": "Passiva registrada"
+        },
+        {
+          "nome": "Passiva | Explorador Hábil",
+          "status": "Passiva registrada"
+        },
+        {
+          "nome": "Passiva | Proficiências",
+          "status": "Passiva registrada"
+        },
+        {
+          "nome": "Truque | Arte Druídica · Elfo",
+          "status": "Assistida pelo mestre"
+        }
+      ]
+    },
+    {
+      "nome": "Golias — ancestralidade Gigante de Fogo",
+      "habilidades": [
+        {
+          "nome": "Passiva | Perícias e idiomas",
+          "status": "Passiva registrada"
+        }
+      ]
+    },
+    {
+      "nome": "Humano",
+      "habilidades": [
+        {
+          "nome": "2º | Imobilizar Pessoa",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Passiva | Humano",
+          "status": "Passiva registrada"
+        }
+      ]
+    },
+    {
+      "nome": "Orc",
+      "habilidades": []
+    },
+    {
+      "nome": "Tiferino — legado Infernal",
+      "habilidades": [
+        {
+          "nome": "1º | Repreensão Diabólica · reação · salva de DES · infernal",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Passivas | concentração e Feitiçaria Inata",
+          "status": "Passiva registrada"
+        },
+        {
+          "nome": "Passivas | preparação e origem",
+          "status": "Passiva registrada"
+        },
+        {
+          "nome": "Truque | Raio de Fogo · ataque +5 · infernal",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Taumaturgia · utilidade · infernal",
+          "status": "Assistida pelo mestre"
+        }
+      ]
+    }
+  ],
+  "comuns": [
+    {
+      "nome": "Agarrar | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Ajudar | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Ataque de oportunidade | reação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Derrubar | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Desengajar | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Disparada | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Empurrar | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Esconder-se | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Esquivar | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Estudar | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Golpe desarmado +1 | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Golpe desarmado +2 | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Golpe desarmado +3 | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Golpe desarmado +5 | ação",
+      "status": "Automatizada"
+    },
+    {
+      "nome": "Influenciar | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Preparar | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Procurar | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Usar Magia | ação",
+      "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Utilizar | ação",
+      "status": "Assistida pelo mestre"
+    }
+  ],
+  "itens": [
+    {
+      "nome": "2 Adagas",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "20 flechas e aljava",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "5 Adagas",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "8 Azagaias",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Aljava com 20 Flechas",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Arco Longo",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Armadura Couro Batido",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Armadura de Couro",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Armadura de Couro Batido",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Cimitarra",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Cota de Malha",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Espada Curta",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Espada Grande",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Fantasia e roupas finas",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Ferramentas de Entalhador",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Foco Arcano (cristal)",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Foco Druídico (ramo de visco)",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Foice",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Kit de Artista",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Kit de Aventureiro",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Kit de Explorador de Masmorras",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Kit de Falsificação",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Lança",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Livro das Sombras",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Livro de ocultismo e Kit de Estudioso",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Mangual",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Moedas — 11 PO",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Moedas — 19 PO",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Moedas — 28 PO",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Moedas — 30 PO",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Moedas — 4 PO",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Moedas — 7 PO",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Orbe (foco arcano)",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Pacote de Explorador de Masmorras",
+      "status": "Dados registrados"
+    },
+    {
+      "nome": "Violino",
+      "status": "Dados registrados"
+    }
+  ],
+  "modulos": [
+    {
+      "nome": "Ataques, críticos, vantagem e desvantagem",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Salvaguardas e perícias",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Dano, cura e PV temporários",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Ações, bônus, reações e deslocamento",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Áreas circulares, quadradas, cones e linhas",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Concentração, duração, buffs e condições",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Reações preventivas e após dano",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Recursos, descansos e economia adicional",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Rajadas, múltiplos alvos e alvos repetidos",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Dano adicional, rerrolagens e dados concedidos",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Empurrão e deslocamento forçado",
+      "status": "Configurado"
+    },
+    {
+      "nome": "Alcance máximo de 18 m",
+      "status": "Configurado"
+    }
+  ]
+}

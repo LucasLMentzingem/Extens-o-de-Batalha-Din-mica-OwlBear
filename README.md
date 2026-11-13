@@ -4,11 +4,12 @@
 
 Abra **Iniciar simulador.cmd** no Windows ou execute `node servir.mjs` nesta pasta com Node 22 ou superior. Acesse [o simulador local](http://127.0.0.1:4178/). O servidor atende somente neste computador. O ensaio usa dados locais e guarda o encontro no navegador.
 
-1. Clique em **Carregar Nikki + 2 soldados**. As três peças são vinculadas automaticamente no ensaio. Nikki tem 20 PV e CA 15 conforme a ficha de origem. Cada soldado tem 24 PV e CA 16. A imagem dos soldados vem da pasta da guarda. Para Nikki, usamos a inicial no painel e um marcador genérico ao criar peça no Owlbear.
+1. Clique em **Carregar os 7 jogadores** para validar Dragoberto, Draven Thorne, Hannah Montana, Loteria, Nikki Lauda, Skimi e Zurich juntos. O ensaio **Carregar Nikki + 2 soldados** continua disponível para testes rápidos de combate.
 2. Clique em **Iniciar combate** e depois em **Testar como jogador**. Selecione Nikki e role sua iniciativa. Volte ao mestre e clique em **Rolar NPCs pendentes**. Também é possível rolar a iniciativa de Nikki como mestre mediante confirmação.
 3. No turno de Nikki, selecione **Raio de Fogo**, escolha um soldado na lista ou no mapa e clique em **Executar**. Para testar uma área, selecione **Despedaçar** e marque o centro. O sistema gasta um espaço de 2º círculo, rola um único dano e uma salvaguarda por participante na área. A área pode atingir a própria Nikki.
 4. No turno de um soldado, selecione **Lança** e Nikki. Se estiver fora do alcance, escolha **Marcar destino de movimento** no mapa tático e confirme o trajeto. O custo é a distância euclidiana em metros. Finalize o turno.
 5. Para atuar por um PJ, o mestre seleciona sua ficha. A janela identifica em nome de quem a ação será feita. A confirmação vale apenas para aquele comando e o histórico registra a intervenção. O jogador continua vinculado.
+6. Abra **Conteúdo configurado** para consultar classes, raças, ações comuns, itens e módulos já reconhecidos. As listas começam retraídas e mostram sua quantidade no cabeçalho.
 
 Em preparação, **Importar ficha JSON** adiciona uma instância independente. Inclusive é possível importar o mesmo soldado várias vezes. Ao encerrar o combate os PV e recursos são preservados. O mestre pode ajustar saldos ou executar descansos. Para um ensaio novo, retire os participantes ou use outro perfil do navegador.
 

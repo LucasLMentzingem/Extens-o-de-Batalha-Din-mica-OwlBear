@@ -11,6 +11,15 @@ export async function exemplos(){
     const r=await fetch('./fichas/'+k+'.json');if(!r.ok)throw Error('Falha ao carregar '+k);return r.json();
   }));
 }
+export async function grupoJogadores(){
+  const ids=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
+  return Promise.all(ids.map(async k=>{
+    const r=await fetch('./fichas/'+k+'.json');if(!r.ok)throw Error('Falha ao carregar '+k);return r.json();
+  }));
+}
+export async function conteudoConfigurado(){
+  const r=await fetch('./conteudo-configurado.json');if(!r.ok)throw Error('Falha ao carregar o catálogo configurado.');return r.json();
+}
 export async function demo(onView){
   const key=ns+'/ensaio';
   let s=JSON.parse(localStorage.getItem(key)||'null')??novo(),timerReacao;

@@ -570,6 +570,7 @@
                 "estabilizar",
                 "disparada",
                 "desengajar",
+                "economia",
                 "efeito",
                 "efeito_conjuracao",
                 "projeteis",
@@ -622,6 +623,20 @@
             "multiplicador": {
               "type": "number"
             },
+            "adicionar": {
+              "type": "object",
+              "properties": {
+                "acao": {"type": "integer", "minimum": 0, "maximum": 5},
+                "bonus": {"type": "integer", "minimum": 0, "maximum": 5},
+                "reacao": {"type": "integer", "minimum": 0, "maximum": 5}
+              }
+            },
+            "disparada": {"type": "boolean"},
+            "desengajar": {"type": "boolean"},
+            "esquivar": {"type": "boolean"},
+            "pvTemporarios": {"type": "integer", "minimum": 1},
+            "cura": {"type": "string"},
+            "recuperarRecursos": {"type": "array", "items": {"type": "string"}},
             "elemento": {
               "type": "string"
             },

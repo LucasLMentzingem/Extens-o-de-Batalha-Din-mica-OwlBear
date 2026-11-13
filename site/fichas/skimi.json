@@ -1,0 +1,816 @@
+{
+  "$schema": "./ficha.schema.json",
+  "versaoFormato": 1,
+  "id": "skimi",
+  "nome": "Skimi",
+  "tipo": "pj",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "bruxo",
+      "nivel": 3
+    }
+  ],
+  "especie": "Humano",
+  "atributos": {
+    "for": 8,
+    "des": 14,
+    "con": 14,
+    "int": 10,
+    "sab": 12,
+    "car": 17
+  },
+  "salvaguardas": {
+    "for": -1,
+    "des": 2,
+    "con": 2,
+    "int": 0,
+    "sab": 3,
+    "car": 5
+  },
+  "pvMaximos": 24,
+  "caBase": 13,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "proficiencia": 2,
+  "sentidos": "Percepção passiva 13.",
+  "idiomas": "Comum; Élfico; Goblin. Telepatia pela Mente Desperta.",
+  "pericias": {
+    "Arcanismo": 2,
+    "Atuação": 5,
+    "Enganação": 5,
+    "Intimidação": 5,
+    "Intuição": 3,
+    "Percepção": 3,
+    "Persuasão": 5
+  },
+  "resistencias": [],
+  "imunidades": [],
+  "vulnerabilidades": [],
+  "recursos": [
+    {
+      "id": "espaco-2",
+      "nome": "Espaços de 2º círculo",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "astucia-magica",
+      "nome": "Astúcia Mágica",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "pontos-de-sorte",
+      "nome": "Pontos de sorte",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "dados-de-vida",
+      "nome": "Dados de Vida",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        },
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "opcoes": [
+    {
+      "id": "adaga-4-acao-0",
+      "nome": "Adaga +4 | ação",
+      "categoria": "acao",
+      "descricao": "Corpo a corpo ou arremesso 6/18 m · perfurante.\nNormal [1d20+4]\nDano [1d4+2] · Crítico [2d4+2]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4+2",
+        "elemento": "perfurante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "segunda-adaga-4-acao-bonus-1",
+      "nome": "Segunda adaga +4 | ação bônus",
+      "categoria": "acao",
+      "descricao": "Após atacar com outra arma Leve na ação Atacar neste turno. Perfurante.\nNormal [1d20+4]\nDano [1d4] · Crítico [2d4]",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4",
+        "elemento": "perfurante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "foice-1-acao-2",
+      "nome": "Foice +1 | ação",
+      "categoria": "acao",
+      "descricao": "1,5 m · cortante · Leve.\nNormal [1d20+1]\nDano [1d4-1] · Crítico [2d4-1]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 1,
+        "dano": "1d4-1",
+        "elemento": "cortante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "golpe-desarmado-1-acao-3",
+      "nome": "Golpe desarmado +1 | ação",
+      "categoria": "acao",
+      "descricao": "1,5 m · Normal [1d20+1]\nDano contundente 0, também no crítico (dano fixo).",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4",
+      "nome": "Agarrar ou empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 9.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "disparada-acao-5",
+      "nome": "Disparada | ação",
+      "categoria": "acao",
+      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 9 m, pode percorrer até 18 m neste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "disparada"
+      }
+    },
+    {
+      "id": "desengajar-acao-6",
+      "nome": "Desengajar | ação",
+      "categoria": "acao",
+      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "desengajar"
+      }
+    },
+    {
+      "id": "esquivar-acao-7",
+      "nome": "Esquivar | ação",
+      "categoria": "acao",
+      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "ajudar-acao-8",
+      "nome": "Ajudar | ação",
+      "categoria": "acao",
+      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "esconder-se-acao-9",
+      "nome": "Esconder-se | ação",
+      "categoria": "acao",
+      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "preparar-acao-10",
+      "nome": "Preparar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        }
+      ],
+      "concentracao": true
+    },
+    {
+      "id": "procurar-acao-11",
+      "nome": "Procurar | ação",
+      "categoria": "acao",
+      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "estudar-acao-12",
+      "nome": "Estudar | ação",
+      "categoria": "acao",
+      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "influenciar-acao-13",
+      "nome": "Influenciar | ação",
+      "categoria": "acao",
+      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "utilizar-acao-14",
+      "nome": "Utilizar | ação",
+      "categoria": "acao",
+      "descricao": "Manipule um objeto que exija uma ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "usar-magia-acao-15",
+      "nome": "Usar Magia | ação",
+      "categoria": "acao",
+      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "ataque-de-oportunidade-reacao-16",
+      "nome": "Ataque de oportunidade | reação",
+      "categoria": "acao",
+      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        }
+      ],
+      "gatilho": "sair_alcance"
+    },
+    {
+      "id": "pericia-atuacao-5-17",
+      "nome": "Perícia | Atuação +5",
+      "categoria": "acao",
+      "descricao": "CAR · Proficiente\nNormal [1d20+5]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-enganacao-5-18",
+      "nome": "Perícia | Enganação +5",
+      "categoria": "acao",
+      "descricao": "CAR · Proficiente\nNormal [1d20+5]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-intimidacao-5-19",
+      "nome": "Perícia | Intimidação +5",
+      "categoria": "acao",
+      "descricao": "CAR · Proficiente\nNormal [1d20+5]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-prestidigitacao-4-20",
+      "nome": "Perícia | Prestidigitação +4",
+      "categoria": "acao",
+      "descricao": "DES · Proficiente\nNormal [1d20+4]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-investigacao-0-21",
+      "nome": "Perícia | Investigação +0",
+      "categoria": "acao",
+      "descricao": "INT · Sem proficiência\nNormal [1d20]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "2-forca-fantasmagorica-22",
+      "nome": "2º | Força Fantasmagórica",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m, salvaguarda de INT CD 13, ilusão que o alvo acredita ser real, concentração; silenciosa. Até 1 min. Quando a ilusão pode logicamente ferir o alvo, pode causar [2d8] psíquico por turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 2,
+      "concentracao": true
+    },
+    {
+      "id": "2-detectar-pensamentos-23",
+      "nome": "2º | Detectar Pensamentos",
+      "categoria": "magia",
+      "descricao": "Ação · pessoal · concentração até 1 min. Detecte pensamentos em 9 m ou leia os superficiais. Em turno posterior, use Usar Magia para sondar mais fundo. O alvo faz salvaguarda de SAB CD 13 e percebe a sondagem. No sucesso, a magia termina.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 2,
+      "concentracao": true
+    },
+    {
+      "id": "2-imobilizar-pessoa-24",
+      "nome": "2º | Imobilizar Pessoa",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m, salvaguarda de SAB CD 13, paralisa um humanoide, concentração 1 min (repete a salvaguarda a cada turno); silenciosa.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 2,
+      "concentracao": true,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "alcanceM": 18,
+        "efeitoFalha": {
+          "nome": "Paralisado",
+          "condicao": "paralisado",
+          "turnos": 10
+        }
+      }
+    },
+    {
+      "id": "2-invisibilidade-25",
+      "nome": "2º | Invisibilidade",
+      "categoria": "magia",
+      "descricao": "Ação · toque, concentração até 1 h, acaba ao atacar, causar dano ou conjurar; silenciosa.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 2,
+      "concentracao": true
+    },
+    {
+      "id": "2-sugestao-26",
+      "nome": "2º | Sugestão",
+      "categoria": "magia",
+      "descricao": "Ação · 9 m, salvaguarda de SAB CD 13, ordem razoável de até 25 palavras, concentração até 8 h; silenciosa.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 2,
+      "concentracao": true
+    },
+    {
+      "id": "1-sussurros-dissonantes-27",
+      "nome": "1º | Sussurros Dissonantes",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · espaço de Pacto de 2º círculo. O alvo rola SAB CD 13. Falha: [4d6] psíquico e usa a reação disponível para se afastar pela rota mais segura. Sucesso: metade do dano.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "1-compreender-idiomas-28",
+      "nome": "1º | Compreender Idiomas",
+      "categoria": "magia",
+      "descricao": "Ação ou ritual (+10 min) · pessoal · 1 h. Compreenda o sentido literal de idiomas falados e, por toque, escritos.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "1-disfarcar-se-29",
+      "nome": "1º | Disfarçar-se",
+      "categoria": "magia",
+      "descricao": "Ação · pessoal · 1 h. Pela Máscara de Muitas Faces, conjure à vontade sem espaço. Muda rosto, corpo e roupas; quem tocar sente o corpo real e a voz não muda. Teste de Investigação contra CD 13 revela a ilusão. Silenciosa.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "1-encontrar-familiar-30",
+      "nome": "1º | Encontrar Familiar",
+      "categoria": "magia",
+      "descricao": "1 h, ou 1 h + 10 min como ritual · 3 m. Consome componentes de 10 PO. Invoca familiar. Ação bônus para usar os sentidos dele.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1
+    },
+    {
+      "id": "1-enfeiticar-pessoa-31",
+      "nome": "1º | Enfeitiçar Pessoa",
+      "categoria": "magia",
+      "descricao": "Ação · 9 m, salvaguarda de SAB CD 13, até 2 alvos (2º círculo), 1 hora, sem concentração; o alvo sabe que foi enfeitiçado quando acaba; silenciosa.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "concentracao": true
+    },
+    {
+      "id": "1-riso-histerico-de-tasha-32",
+      "nome": "1º | Riso Histérico de Tasha",
+      "categoria": "magia",
+      "descricao": "Ação · 9 m · concentração até 1 min. Com espaço de Pacto de 2º círculo, até 2 alvos rolam SAB CD 13. Na falha, ficam caídos e incapacitados, rindo. Repetem a salvaguarda ao fim de cada turno e ao sofrer dano (com vantagem nesse último caso).",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "concentracao": true,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "alcanceM": 9,
+        "efeitoFalha": {
+          "nome": "Rindo no chão",
+          "turnos": 10,
+          "restricoes": {
+            "semAcoes": true,
+            "semBonus": true,
+            "caido": true
+          }
+        }
+      }
+    },
+    {
+      "id": "truque-rajada-mistica-33",
+      "nome": "Truque | Rajada Mística",
+      "categoria": "magia",
+      "descricao": "Ação · 36 m · energético ou psíquico. Rajada Agonizante incluída.\nNormal [1d20+5]\nDano [1d10+3] · Crítico [2d10+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d10+3",
+        "elemento": "psiquico",
+        "alcanceM": 18
+      },
+      "circuloBase": 0
+    },
+    {
+      "id": "truque-amizade-34",
+      "nome": "Truque | Amizade",
+      "categoria": "magia",
+      "descricao": "Ação · enfeitiça 1 criatura a 3 m por 1 minuto, salvaguarda de SAB CD 13, concentração, silenciosa.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "concentracao": true
+    },
+    {
+      "id": "truque-maos-magicas-35",
+      "nome": "Truque | Mãos Mágicas",
+      "categoria": "magia",
+      "descricao": "Ação · mão fantasma a 9 m, 1 minuto, carrega até 5 kg.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "astucia-magica",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0
+    },
+    {
+      "id": "truque-mensagem-36",
+      "nome": "Truque | Mensagem",
+      "categoria": "magia",
+      "descricao": "Ação · sussurro a até 36 m que só o alvo ouve e pode responder.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0
+    },
+    {
+      "id": "truque-taumaturgia-37",
+      "nome": "Truque | Taumaturgia",
+      "categoria": "magia",
+      "descricao": "Ação · tremores, sons, fogo e portas a até 9 m; olhos e voz só em você.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0
+    },
+    {
+      "id": "ponto-sorte-rerrolagem",
+      "nome": "Ponto de Sorte",
+      "categoria": "acao",
+      "descricao": "Depois de ver um d20, pode rerrolá-lo.",
+      "gatilho": "apos_rolagem_d20",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "pontos-de-sorte",
+          "quantidade": 1
+        }
+      ],
+      "rerrolagem": {
+        "tipo": "d20",
+        "modo": "todos"
+      }
+    }
+  ],
+  "equipamentos": [
+    {
+      "id": "7243759c-88ca-43f0-8d79-ea0da54a2e49",
+      "name": "Armadura de Couro",
+      "description": "CA 11 + DES = 13.",
+      "inUse": true
+    },
+    {
+      "id": "82ce2b66-29ce-4ca9-a248-7101d18d4b94",
+      "name": "2 Adagas",
+      "description": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+      "inUse": false
+    },
+    {
+      "id": "c0e8edc0-911b-4be2-a945-bf9006f54b3f",
+      "name": "Foice",
+      "description": "Ataque +1; dano 1d4-1 cortante.",
+      "inUse": false
+    },
+    {
+      "id": "816d1d1a-2c5c-424f-9b04-e334d88b7cc2",
+      "name": "Orbe (foco arcano)",
+      "description": "Foco de conjuração.",
+      "inUse": true
+    },
+    {
+      "id": "58561082-8080-4aec-ac1e-32e081f3f341",
+      "name": "Livro das Sombras",
+      "description": "Pacto do Tomo: truques e rituais extras; também serve de foco.",
+      "inUse": false
+    },
+    {
+      "id": "538ab031-4b9a-406d-885b-8823ce8ee1b3",
+      "name": "Kit de Falsificação",
+      "description": "Cria documentos, selos e assinaturas falsos.",
+      "inUse": false
+    },
+    {
+      "id": "38184cf9-1c17-4560-8d69-a71eeeea8f84",
+      "name": "Livro de ocultismo e Kit de Estudioso",
+      "description": "Pacote inicial do Bruxo.",
+      "inUse": false
+    },
+    {
+      "id": "260b8104-423f-41d5-b120-a5ad3ac1a2f2",
+      "name": "Fantasia e roupas finas",
+      "description": "Do antecedente Charlatão. Úteis para golpes e disfarces.",
+      "inUse": false
+    },
+    {
+      "id": "e3790670-aaa3-4c74-8d3d-c9b8ec5fb71f",
+      "name": "Moedas — 30 PO",
+      "description": "Conforme a ficha.",
+      "inUse": false
+    }
+  ],
+  "passivas": [
+    {
+      "nome": "Passiva | Magias Psíquicas",
+      "descricao": "Magias de Encantamento e Ilusão de Bruxo saem sem palavras nem gestos (silenciosas): ninguém percebe que você está conjurando. Pode trocar o tipo de dano das magias de Bruxo para psíquico."
+    },
+    {
+      "nome": "Passiva | Rajada Agonizante",
+      "descricao": "Soma o modificador de Carisma (+3) ao dano da Rajada Mística."
+    },
+    {
+      "nome": "Passiva | Humano",
+      "descricao": "Engenhoso: ganha Inspiração Heroica a cada Descanso Longo (rerrola 1 dado). Habilidoso: proficiência em Percepção. Versátil: talento de origem Sortudo. Tamanho Médio; deslocamento 9 m."
+    },
+    {
+      "nome": "Passiva | Habilidoso",
+      "descricao": "Proficiência em Persuasão, Atuação e Intuição."
+    },
+    {
+      "nome": "Passiva | Proficiências",
+      "descricao": "Armaduras Leves. Armas Simples. Kit de Falsificação. Perícias: Arcanismo, Atuação, Enganação, Intimidação, Intuição, Percepção, Persuasão e Prestidigitação. Salvaguardas: Sabedoria e Carisma."
+    }
+  ],
+  "notas": [
+    {
+      "titulo": "Fonte",
+      "descricao": "Convertida da ficha Forge Skimi-Nv3.json."
+    }
+  ]
+}

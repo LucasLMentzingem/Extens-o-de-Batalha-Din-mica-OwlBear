@@ -1,20 +1,28 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
-## Em desenvolvimento local — reações preventivas
+## Reações preventivas
 
 - O gatilho `ser_atingido` pausa um ataque depois do acerto e antes da rolagem de dano.
 - A resolução pendente conserva fonte, alvo, fórmula, elemento e estado crítico sem expor esses dados no estado público.
 - `reduzir_dano` rola a reação, retoma o dano com o controlador original e aplica apenas o restante.
 - Recusar ou deixar o temporizador terminar também retoma automaticamente a rolagem de dano.
-- Testes locais: 58 unitários. Publicação retida até concluir o pacote solicitado.
+- Integrado ao pacote das sete fichas.
 
-## Em desenvolvimento local — modificadores e dano persistente
+## Modificadores e dano persistente
 
 - Rerrolagens completas de d20 podem ser escolhidas na página de resultado e cobram o recurso somente quando usadas.
 - `conceder_dado` entrega um modificador temporário a outro ator; ele aparece bloqueado no ajuste, combina a fórmula com o d20 e some quando escolhido.
 - Efeitos podem declarar dano persistente condicionado à origem e às tags do ataque, com aplicação automática e crítica da campanha.
 - A base cobre Pontos de Sorte, Inspiração de Bardo e Marca do Predador; decisões após uma falha conhecida e rerrolagem de dados individuais ainda serão ampliadas.
-- Testes locais: 61 unitários. Publicação retida.
+- Integrado ao pacote das sete fichas.
+
+## Formas de área
+
+- O motor aceita círculo, quadrado, cone e linha com dimensões declaradas no JSON.
+- Cone e linha usam direção, projeção e largura; quadrados usam o centro escolhido.
+- A HUD desenha polígonos correspondentes e lista os participantes realmente contidos antes da confirmação.
+- Salvaguardas, dano, efeitos e deslocamento forçado reutilizam a mesma lista geométrica.
+- Integrado ao pacote das sete fichas. A suíte completa possui 64 testes unitários.
 
 ## 2026-11-13 — primeira fila genérica de reações 0.7.14
 
@@ -258,6 +266,22 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 ## Em desenvolvimento: módulos de combate das sete fichas
 
 Meta atual: construir primeiro os módulos reutilizáveis, depois configurar as skills e finalmente importar as sete fichas de jogadores para testes integrados.
+
+## 2026-11-13 — sete fichas integradas e catálogo configurado 0.7.15
+
+- [x] Converter e validar Dragoberto, Draven Thorne, Hannah Montana, Loteria, Nikki Lauda, Skimi e Zurich no formato próprio da extensão.
+- [x] Carregar as sete fichas juntas no simulador e no controle do mestre.
+- [x] Automatizar economia adicional, cura própria, Disparada, Desengajar, Esquivar e recuperação de recursos.
+- [x] Configurar Surto de Ação, Recuperar Fôlego, Defesa Paciente, Passo do Vento, Metabolismo Incomum e Pico de Adrenalina.
+- [x] Configurar manobras, dados concedidos, rerrolagens, condições, concentração, áreas e reações das fichas.
+- [x] Automatizar ações comuns mensuráveis, como ataques desarmados, Agarrar e Derrubar.
+- [x] Manter ilusões, familiares, telepatia e decisões narrativas como resolução assistida pelo mestre.
+- [x] Criar **Conteúdo configurado**, com classes e nível coberto, raças, comuns, itens e módulos em seções retraídas com contadores.
+- [x] Gerar o catálogo a partir das próprias fichas para evitar divergência manual.
+
+- Testes do motor: 64 aprovados.
+- Validação visual Playwright aprovada para o catálogo e o carregamento simultâneo das sete fichas.
+- Capturas conferidas: `work/conteudo-configurado-v0715.png` e `work/sete-fichas-v0715.png`.
 
 ### Núcleo de condições, duração e concentração
 

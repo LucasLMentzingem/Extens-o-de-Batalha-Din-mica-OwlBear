@@ -1,12 +1,12 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos} from './bridge.mjs';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs';
 import {fichaEditavel,biblioteca} from './ficha-view.mjs';
 import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais} from './engine.mjs';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
 const btn=(id,n,cls='')=>'<button data-do="'+id+'" class="'+cls+'">'+n+'</button>';
-let s,info,api,escolhido,acao,alvo,ocupado=false,testar=false;
+let s,info,api,escolhido,acao,alvo,ocupado=false,testar=false,catalogo;
 const aviso=t=>{$('aviso').textContent=t;};
 function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
@@ -28,17 +28,19 @@ function render(){
   const gm=info.role==='GM'&&!testar,ativo=atual(s);
   const disponiveis=gm?s.atores.filter(x=>x.ficha.tipo==='pj').concat(s.atores.filter(x=>x.ficha.tipo==='npc')):s.atores.filter(x=>x.ficha.tipo==='pj');
   const a=disponiveis.find(x=>x.id===escolhido)??disponiveis[0];
-  if(!gm)secao='ficha';else if(!a)secao='gm';
+  if(!gm&&secao==='gm')secao='ficha';else if(gm&&!a&&secao==='ficha')secao='gm';
   const mestre=gm&&secao==='gm';
+  const catalogando=secao==='catalogo';
   escolhido=a?.id;
   const meu=a&&(gm||(a.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id)));
   $('modo').textContent=info.modo==='ensaio'?'Simulador local · '+(testar?'Jogador':'Mestre'):'Owlbear · '+(gm?'Mestre':'Jogador');
-  let h='<nav class="paginas">'+btn('ficha','Controle de fichas',!mestre?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+'</nav>';
+  let h='<nav class="paginas">'+btn('ficha','Controle de fichas',!mestre&&!catalogando?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+btn('catalogo','Conteúdo configurado',catalogando?'ativa':'')+'</nav>';
   if(info.modo==='ensaio') h+='<div class="linha">'+btn('teste',testar?'Voltar ao mestre':'Testar como jogador')+'</div>';
+  if(catalogando){h+=renderCatalogo();$('app').innerHTML=h;return;}
   if(mestre){
     const emCombate=s.atores.filter(x=>x.emCombate!==false);
     h+='<section class="controle-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle do combate</h2><p>'+(s.fase==='preparo'?'Combate parado':s.fase==='iniciativa'?'Aguardando iniciativas':'Rodada '+s.rodada+' · turno de '+esc(ativo?.nome??'—'))+'</p></div><div>'+(s.fase==='preparo'?btn('iniciar','Iniciar combate','primario'):btn('encerrar','Parar combate','perigo'))+'</div></div>';
-    if(s.fase==='preparo')h+='<div class="preparar-encontro"><div class="campos">'+(s.atores.length?'' : btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Importar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>';
+    if(s.fase==='preparo')h+='<div class="preparar-encontro"><div class="campos">'+(s.atores.length?'':btn('grupoTeste','Carregar os 7 jogadores')+btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Importar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>';
     if(s.fase!=='preparo')h+='<div class="ordem">'+(s.ordem.length?s.ordem:emCombate.map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(s.fase==='iniciativa'?btn('npcs','Rolar iniciativas dos NPCs'):'');
     h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
     if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
@@ -120,6 +122,14 @@ function render(){
     }
   }
 }
+function renderCatalogo(){
+  if(!catalogo)return '<section><h2>Conteúdo configurado</h2><p class="muted">Carregando catálogo…</p></section>';
+  const lista=xs=>'<div class="lista-catalogo">'+xs.map(x=>'<div><span>'+esc(x.nome)+'</span><small>'+esc(x.status)+'</small></div>').join('')+'</div>';
+  const grupos=(titulo,xs,rotulo='habilidades')=>'<section class="grupo-catalogo"><h2>'+esc(titulo)+'</h2>'+xs.map(x=>'<details><summary><span>'+esc(x.nome)+(x.nivelMax?' · até o nível '+x.nivelMax:'')+'</span><b>'+x[rotulo].length+'</b></summary>'+lista(x[rotulo])+'</details>').join('')+'</section>';
+  return '<section class="cabecalho-catalogo"><small>VISÃO DO SISTEMA</small><h2>Conteúdo configurado</h2><p>Esta página é gerada das sete fichas de jogadores. As seções começam retraídas e distinguem automações de resoluções assistidas pelo mestre.</p></section>'+
+    grupos('Classes',catalogo.classes)+grupos('Raças',catalogo.racas)+
+    '<section class="grupo-catalogo"><h2>Bibliotecas</h2><details><summary><span>Ações e habilidades comuns</span><b>'+catalogo.comuns.length+'</b></summary>'+lista(catalogo.comuns)+'</details><details><summary><span>Itens registrados</span><b>'+catalogo.itens.length+'</b></summary>'+lista(catalogo.itens)+'</details><details><summary><span>Módulos do motor</span><b>'+catalogo.modulos.length+'</b></summary>'+lista(catalogo.modulos)+'</details></section>';
+}
 function coord(id,label,value){return '<label>'+label+'<input type="number" step="any" class="curto" id="'+id+'" value="'+Number(value)+'"></label>';}
 const num=id=>Number($(id)?.value??0);
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
@@ -164,7 +174,7 @@ async function rolarTeste(grupo,chave){
 }
 async function executar(k){
   const a=s.atores.find(x=>x.id===escolhido);
-  if(k==='gm'||k==='ficha'){secao=k;return render();}
+  if(k==='gm'||k==='ficha'||k==='catalogo'){secao=k;return render();}
   if(k==='npcs-toggle'){npcsAbertos=!npcsAbertos;return render();}
   if(k==='marcar'||k==='desfazer'){
     if(k==='desfazer')alvos.pop();else alvos=incluirAlvo(alvos,alvo,multi(a.ficha.opcoes.find(o=>o.id===acao)));
@@ -174,6 +184,7 @@ async function executar(k){
   if(k==='exemplo'){
     return enviar('exemplo',{fichas:await exemplos(),ensaio:info.modo==='ensaio'});
   }
+  if(k==='grupoTeste')return enviar('grupoTeste',{fichas:await grupoJogadores(),ensaio:info.modo==='ensaio'});
   if(k==='selecao'){const id=await api.selecionado();if(!info.tokens.some(t=>t.id===id))throw Error('Selecione um token da camada Personagem.');$('token').value=id;return;}
   if(k==='vincular')return enviar(k,{token:$('token')?.value??('sim-'+a.id),dono:$('dono')?.value});
   if(k==='npcs'){for(const p of s.atores.filter(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null))await enviar('iniciativa',{ator:p.id});return;}
@@ -215,7 +226,7 @@ $('app').onsubmit=e=>{if(e.target.id==='formFicha'){e.preventDefault();tarefa(sa
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
 $('app').oncontextmenu=e=>{const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
-try{api=await (emSala?sala:demo)(view);await api.notify();
+try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
    function pedido(raw){if(!raw)return;const d=JSON.parse(raw);if(Date.now()-d.quando>30000)return;

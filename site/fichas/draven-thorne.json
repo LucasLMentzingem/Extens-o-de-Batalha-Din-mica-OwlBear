@@ -1,0 +1,715 @@
+{
+  "$schema": "./ficha.schema.json",
+  "versaoFormato": 1,
+  "id": "draven-thorne",
+  "nome": "Draven Thorne",
+  "tipo": "pj",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "guerreiro",
+      "nivel": 3
+    }
+  ],
+  "especie": "Golias — ancestralidade Gigante de Fogo",
+  "atributos": {
+    "for": 17,
+    "des": 13,
+    "con": 15,
+    "int": 10,
+    "sab": 12,
+    "car": 8
+  },
+  "salvaguardas": {
+    "for": 5,
+    "des": 1,
+    "con": 4,
+    "int": 0,
+    "sab": 1,
+    "car": -1
+  },
+  "pvMaximos": 28,
+  "caBase": 16,
+  "deslocamentosM": {
+    "andar": 10.5
+  },
+  "proficiencia": 2,
+  "sentidos": "Percepção passiva 13.",
+  "idiomas": "Comum; Gigante; Anão.",
+  "pericias": {
+    "Atletismo": 5,
+    "Acrobacia": 3,
+    "Intuição": 3,
+    "Percepção": 3
+  },
+  "resistencias": [],
+  "imunidades": [],
+  "vulnerabilidades": [],
+  "recursos": [
+    {
+      "id": "dados-de-superioridade",
+      "nome": "Dados de Superioridade",
+      "maximo": 4,
+      "saldoInicial": 4,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "recuperar-folego",
+      "nome": "Recuperar Fôlego",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "surto-de-acao",
+      "nome": "Surto de Ação",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "queimadura-de-fogo",
+      "nome": "Queimadura de Fogo",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "dados-de-vida",
+      "nome": "Dados de Vida",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "completar"
+        },
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "opcoes": [
+    {
+      "id": "espada-grande-5-acao-0",
+      "nome": "Espada grande +5 | ação",
+      "categoria": "acao",
+      "descricao": "Duas mãos · 1,5 m · cortante. Garantido: 3 de dano se errar. Para Combate com Armas Grandes, leia cada 1 ou 2 de dano como 3. Atacante Selvagem: 1x/turno, role os dados de dano da arma duas vezes e escolha o maior total.\nNormal [1d20+5]\nDano [2d6+3] · Crítico [3d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "2d6+3",
+        "elemento": "cortante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "mangual-5-acao-1",
+      "nome": "Mangual +5 | ação",
+      "categoria": "acao",
+      "descricao": "1,5 m · contundente. Drenar: desvantagem no próximo ataque do alvo antes de começar seu próximo turno.\nNormal [1d20+5]\nDano [1d8+3] · Crítico [2d8+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8+3",
+        "elemento": "contundente",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "azagaia-5-acao-2",
+      "nome": "Azagaia +5 | ação",
+      "categoria": "acao",
+      "descricao": "Corpo a corpo ou arremesso 9/36 m · perfurante. Lentidão: reduz 3 m até o início de seu próximo turno.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "perfurante",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "golpe-desarmado-5-acao-3",
+      "nome": "Golpe desarmado +5 | ação",
+      "categoria": "acao",
+      "descricao": "1,5 m · Normal [1d20+5]\nDano contundente 4, também no crítico (dano fixo).",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4",
+      "nome": "Agarrar ou empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 13.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "disparada-acao-5",
+      "nome": "Disparada | ação",
+      "categoria": "acao",
+      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "disparada"
+      }
+    },
+    {
+      "id": "desengajar-acao-6",
+      "nome": "Desengajar | ação",
+      "categoria": "acao",
+      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "desengajar"
+      }
+    },
+    {
+      "id": "esquivar-acao-7",
+      "nome": "Esquivar | ação",
+      "categoria": "acao",
+      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "ajudar-acao-8",
+      "nome": "Ajudar | ação",
+      "categoria": "acao",
+      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "esconder-se-acao-9",
+      "nome": "Esconder-se | ação",
+      "categoria": "acao",
+      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "preparar-acao-10",
+      "nome": "Preparar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "concentracao": true
+    },
+    {
+      "id": "procurar-acao-11",
+      "nome": "Procurar | ação",
+      "categoria": "acao",
+      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "estudar-acao-12",
+      "nome": "Estudar | ação",
+      "categoria": "acao",
+      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "influenciar-acao-13",
+      "nome": "Influenciar | ação",
+      "categoria": "acao",
+      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "utilizar-acao-14",
+      "nome": "Utilizar | ação",
+      "categoria": "acao",
+      "descricao": "Manipule um objeto que exija uma ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "usar-magia-acao-15",
+      "nome": "Usar Magia | ação",
+      "categoria": "acao",
+      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "ataque-de-oportunidade-reacao-16",
+      "nome": "Ataque de oportunidade | reação",
+      "categoria": "acao",
+      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        }
+      ],
+      "gatilho": "sair_alcance"
+    },
+    {
+      "id": "manobras-17",
+      "nome": "Manobras",
+      "categoria": "acao",
+      "descricao": "Prostrar: teste de FOR ou Caído (Grande ou menor). Ataque Ameaçador: teste de SAB ou Amedrontado até o fim do próximo turno do Draven. Desarme: teste de FOR ou larga um objeto à escolha do Draven. Todas usadas após acertar.",
+      "custo": []
+    },
+    {
+      "id": "pericia-intimidacao-1-18",
+      "nome": "Perícia | Intimidação +1",
+      "categoria": "acao",
+      "descricao": "CAR · Proficiente\nNormal [1d20+1]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-prestidigitacao-1-19",
+      "nome": "Perícia | Prestidigitação +1",
+      "categoria": "acao",
+      "descricao": "DES · Sem proficiência\nNormal [1d20+1]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-investigacao-0-20",
+      "nome": "Perícia | Investigação +0",
+      "categoria": "acao",
+      "descricao": "INT · Sem proficiência\nNormal [1d20]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-atuacao-1-21",
+      "nome": "Perícia | Atuação -1",
+      "categoria": "acao",
+      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "pericia-enganacao-1-22",
+      "nome": "Perícia | Enganação -1",
+      "categoria": "acao",
+      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": "manobra-prostrar",
+      "nome": "Ataque Prostrador",
+      "categoria": "acao",
+      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
+      "gatilho": "apos_acerto",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-superioridade",
+          "quantidade": 1
+        }
+      ],
+      "aprimoramento": {
+        "dano": "1d8",
+        "requisitos": {
+          "tagsAtaque": [
+            "arma"
+          ]
+        },
+        "salva": {
+          "atributo": "for",
+          "cd": 13,
+          "efeitoFalha": {
+            "nome": "Ataque Prostrador",
+            "condicao": "caido",
+            "turnos": 1,
+            "expira": "fim_origem"
+          }
+        }
+      }
+    },
+    {
+      "id": "manobra-ameacador",
+      "nome": "Ataque Ameaçador",
+      "categoria": "acao",
+      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
+      "gatilho": "apos_acerto",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-superioridade",
+          "quantidade": 1
+        }
+      ],
+      "aprimoramento": {
+        "dano": "1d8",
+        "requisitos": {
+          "tagsAtaque": [
+            "arma"
+          ]
+        },
+        "salva": {
+          "atributo": "sab",
+          "cd": 13,
+          "efeitoFalha": {
+            "nome": "Ataque Ameaçador",
+            "condicao": "amedrontado",
+            "turnos": 1,
+            "expira": "fim_origem"
+          }
+        }
+      }
+    },
+    {
+      "id": "manobra-desarmar",
+      "nome": "Ataque de Desarme",
+      "categoria": "acao",
+      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
+      "gatilho": "apos_acerto",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-superioridade",
+          "quantidade": 1
+        }
+      ],
+      "aprimoramento": {
+        "dano": "1d8",
+        "requisitos": {
+          "tagsAtaque": [
+            "arma"
+          ]
+        },
+        "salva": {
+          "atributo": "for",
+          "cd": 13,
+          "efeitoFalha": {
+            "nome": "Desarmado",
+            "turnos": 1,
+            "expira": "fim_origem"
+          }
+        }
+      }
+    },
+    {
+      "id": "recuperar-folego-acao",
+      "nome": "Recuperar Fôlego",
+      "categoria": "bonus",
+      "descricao": "Recupere 1d10+3 PV.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "recuperar-folego",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d10+3"
+      }
+    },
+    {
+      "id": "surto-de-acao-acao",
+      "nome": "Surto de Ação",
+      "categoria": "acao",
+      "descricao": "Receba uma ação adicional neste turno.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "adicionar": {
+          "acao": 1
+        }
+      }
+    }
+  ],
+  "equipamentos": [
+    {
+      "id": "147999d7-bd72-57f1-9771-9dff7bcac8e9",
+      "name": "Cota de Malha",
+      "description": "CA 16. Exige FOR 13. Desvantagem em Furtividade.",
+      "inUse": true
+    },
+    {
+      "id": "8958d021-6528-5fca-aabc-9176a270bdd7",
+      "name": "Espada Grande",
+      "description": "Ataque +5; dano 2d6+3 cortante. Maestria Garantido.",
+      "inUse": true
+    },
+    {
+      "id": "232bf97f-7f19-5171-a794-9349df4d62c9",
+      "name": "Mangual",
+      "description": "Ataque +5; dano 1d8+3 contundente. Maestria Drenar.",
+      "inUse": false
+    },
+    {
+      "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
+      "name": "8 Azagaias",
+      "description": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+      "inUse": false
+    },
+    {
+      "id": "0f60fbd6-9cf4-50d4-995c-b8daf42fc4bf",
+      "name": "Pacote de Explorador de Masmorras",
+      "description": "Kit inicial do Guerreiro.",
+      "inUse": false
+    },
+    {
+      "id": "b387dc40-8da5-5fd1-b9d6-ca9b966ac2f0",
+      "name": "Moedas — 4 PO",
+      "description": "Saldo inicial do kit do Guerreiro.",
+      "inUse": false
+    }
+  ],
+  "passivas": [
+    {
+      "nome": "Passiva | Defesas e sentidos",
+      "descricao": "Testes de resistência: FOR +5, DES +1, CON +4, INT +0, SAB +1, CAR -1. Ponto fraco: testes de SAB (medo, encantamento). Percepção passiva 13; Intuição passiva 13. Sem resistências ou imunidades a dano. Vantagem para se soltar de Imobilizado (Porte Poderoso)."
+    },
+    {
+      "nome": "Passiva | Perícias e idiomas",
+      "descricao": "Atletismo +5, Acrobacia +3, Intuição +3, Percepção +3, Intimidação +1. Ferramentas: kit de jogo (dados), Ferramentas de Ferreiro. Idiomas: Comum, Gigante, Anão."
+    }
+  ],
+  "notas": [
+    {
+      "titulo": "Fonte",
+      "descricao": "Convertida da ficha Forge Draven-Thorne-Nv3.json."
+    }
+  ]
+}
