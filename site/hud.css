@@ -44,6 +44,7 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .efeito-hud{pointer-events:auto;width:50px;height:50px;display:grid;place-items:center;align-content:center;border:1px solid #b79869;border-radius:6px;background:#2c2538;opacity:.5;overflow:hidden;cursor:help;transition:opacity .15s,transform .15s}
 .efeito-hud:hover,.efeito-hud:focus{opacity:1;transform:translateY(-3px);outline:1px solid #f1ca88}
 .efeito-hud.condicao{border-color:#b95b5f;background:#47272d}
+.efeito-hud.concentracao{border-color:#70b7c7;background:#203d48;color:#bdebf2}
 .efeito-hud b{font-size:15px;line-height:1}
 .efeito-hud small{max-width:46px;font-size:8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:520px){.dock-corpo{gap:4px;padding:5px}.dock aside{width:47px}.retrato{width:44px;height:44px}header{flex-wrap:wrap;gap:2px}header strong{font-size:13px}.abas{gap:2px}.abas button{padding:3px}.grade{grid-auto-columns:94px}}

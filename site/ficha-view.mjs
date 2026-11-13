@@ -32,9 +32,10 @@ export function fichaEditavel(a,podeEditar){
     '<details class="editor-avancado"><summary>Editor avançado · ações, magias, equipamentos e passivas</summary><p class="muted">Use quando precisar alterar campos que ainda não possuem uma caixa própria. O formato JSON completo continua compatível com a importação.</p><textarea id="fichaJson" rows="18" spellcheck="false" '+bloqueado+'>'+esc(JSON.stringify(f,null,2))+'</textarea></details></form>';
 }
 export function efeitosFicha(a){
-  const lista=a.efeitosAtivos??[];if(!lista.length)return '<section class="efeitos-ficha"><h3>Buffs e condições ativas</h3><p class="muted">Nenhum efeito ativo.</p></section>';
-  const resumo=e=>{const m=e.modificadores??{},mods=Object.entries(m).map(([k,v])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'deslocamento'}[k]??k)+' '+(v>=0?'+':'')+v);return [e.descricao,...mods,e.turnos!=null?e.turnos+' turno(s)':e.removeEm==='descanso_longo'?'Até o descanso longo':e.removeEm==='descanso_curto'?'Até o descanso curto':'Duração especial'].filter(Boolean).join(' · ');};
-  return '<section class="efeitos-ficha"><h3>Buffs e condições ativas</h3><div>'+lista.map(e=>'<article class="efeito '+esc(e.tipo??'efeito')+'" title="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':'✦')+'</b><span><strong>'+esc(e.nome)+'</strong><small>'+esc(resumo(e))+'</small></span></article>').join('')+'</div></section>';
+  const lista=[...(a.efeitosAtivos??[])];if(a.concentracaoAtiva)lista.unshift({nome:a.concentracaoAtiva.nome,tipo:'concentracao',descricao:'Concentração ativa'});
+  if(!lista.length)return '<section class="efeitos-ficha"><h3>Buffs, condições e concentração</h3><p class="muted">Nenhum efeito ativo.</p></section>';
+  const resumo=e=>{const m=e.modificadores??{},mods=Object.entries(m).map(([k,v])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'deslocamento'}[k]??k)+' '+(v>=0?'+':'')+v),restante=e.duracao?.restante??e.turnos;return [e.descricao,...mods,restante!=null?restante+' turno(s)':e.removeEm==='descanso_longo'?'Até o descanso longo':e.removeEm==='descanso_curto'?'Até o descanso curto':e.tipo==='concentracao'?'Termina ao perder ou encerrar a concentração':'Duração especial'].filter(Boolean).join(' · ');};
+  return '<section class="efeitos-ficha"><h3>Buffs, condições e concentração</h3><div>'+lista.map(e=>'<article class="efeito '+esc(e.tipo??'efeito')+'" title="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':e.tipo==='concentracao'?'◉':'✦')+'</b><span><strong>'+esc(e.nome)+'</strong><small>'+esc(resumo(e))+'</small></span></article>').join('')+'</div></section>';
 }
 export function biblioteca(a){
   const f=a.ficha,grupos=[

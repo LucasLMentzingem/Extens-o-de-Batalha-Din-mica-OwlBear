@@ -48,7 +48,7 @@ export async function iniciarHud(){
     const caixas={};
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
-      const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0;
+      const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
       espacoEfeitos=temEfeitos?Math.min(128,Math.max(88,Math.floor(w*.22))):0;
       const largura=Math.max(260,Math.min(800,w-14-espacoEfeitos)),altura=Math.min(124+linhas*54,Math.floor(h*.55));
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
@@ -290,6 +290,12 @@ export async function iniciarHud(){
       await cancelar();pendente={cmd:{tipo:'teste',ator:a.id,rev:estado.rev,grupo,chave},rev:estado.rev,
         escolha:null,titulo:(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave,pronto:true,rolagem:false,
         substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'Rolagem rápida de '+a.nome+' · não consome ações.'};
+    }else if(d.tipo==='encerrarConcentracao'){
+      const a=ator();if(!controla(a)||!a.concentracaoAtiva)return;
+      ocupado=true;transmitir();try{await api.enviar({tipo:'encerrarConcentracao',ator:a.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
+    }else if(d.tipo==='salvaguardaMorte'){
+      const a=ator();if(!controla(a)||a.pv!==0||a.estadoVida!=='inconsciente'||estado.ordem[estado.vez]!==a.id)return;
+      await cancelar();pendente={cmd:{tipo:'salvaguardaMorte',ator:a.id,rev:estado.rev},rev:estado.rev,escolha:null,titulo:'Salvaguarda contra a morte · '+a.nome,pronto:true,rolagem:false,substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'10 ou mais: sucesso · 1 natural: duas falhas · 20 natural: recupera 1 PV.'};
     }else if(d.tipo==='npcs'){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
       // Each acknowledgment follows its snapshot; let the view queue settle between NPCs.

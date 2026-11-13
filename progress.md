@@ -202,3 +202,49 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - [x] Continuar bloqueando custos reais de recursos, como espaços de magia, foco e Pontos de Feitiçaria.
 - [x] Mostrar `∞ ação · ∞ bônus · ∞ reação` no cabeçalho enquanto o combate estiver parado.
 
+## Em desenvolvimento: módulos de combate das sete fichas
+
+Meta atual: construir primeiro os módulos reutilizáveis, depois configurar as skills e finalmente importar as sete fichas de jogadores para testes integrados.
+
+### Núcleo de condições, duração e concentração
+
+- [x] Criar catálogo normalizado de condições e suas restrições de combate.
+- [x] Aplicar vantagem/desvantagem, falhas automáticas e críticos corpo a corpo derivados das condições.
+- [x] Criar duração por evento: início/fim do turno do alvo ou da origem.
+- [x] Criar concentração genérica com uma única concentração por personagem.
+- [x] Remover efeitos vinculados ao trocar, falhar ou encerrar a concentração.
+- [x] Pedir salvaguarda de CON ao sofrer dano e encerrar concentração a 0 PV.
+- [x] Mostrar concentração na HUD e na ficha, com comando para encerrá-la.
+- [x] Preservar efeitos e concentração ao simplesmente encerrar o modo de combate.
+
+- Testes do motor: 43 aprovados.
+- Cliente de jogo carregado sem erros; captura inicial conferida em `work/condicoes-v0710/shot-0.png`.
+- Próximo módulo: cura, PV temporários, estado de 0 PV e salvaguardas contra a morte.
+
+### Expansão de ficha registrada
+
+- [ ] Criar navegação entre Ficha de personagem, Inventário e Livro de Habilidades.
+- [ ] Inventário com dez slots de equipamento, grade 5 × 5 expansível, pilhas, PO e carga.
+- [ ] Aplicar dinamicamente atributos, ações e habilidades concedidas pelos equipamentos.
+- [ ] Travar troca gratuita durante combate e cobrar 1 ação para equipar/desequipar.
+- [ ] Adicionar aba Itens à HUD de combate.
+- [ ] Livro de Habilidades com páginas Classe, Comum e Reações.
+- [ ] Preparação de magias, ativação de passivas e reações configuráveis.
+- [ ] Solicitar capturas de BG3 ao usuário antes da implementação visual do Livro.
+
+Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha-Inventario-Livro-Habilidades.md` no projeto principal.
+
+### Cura, PV temporários e estado de 0 PV
+
+- [x] Criar automações genéricas de cura, PV temporários e estabilização.
+- [x] Impedir cura acima do máximo e restaurar consciência ao recuperar PV.
+- [x] Manter somente o maior valor de PV temporários e absorver dano por eles primeiro.
+- [x] Diferenciar consciente, inconsciente, estável e morto.
+- [x] Implementar três sucessos/falhas contra a morte, 1 e 20 naturais.
+- [x] Aplicar duas falhas ao sofrer crítico inconsciente e morte por dano massivo.
+- [x] Exibir PV temporários, estado e marcadores de morte na HUD.
+- [x] Disponibilizar a salvaguarda contra a morte no próprio turno.
+
+- Testes do motor: 47 aprovados.
+- Próximo módulo: composição de ataques e gatilhos após acerto.
+

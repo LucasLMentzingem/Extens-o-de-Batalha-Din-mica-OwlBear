@@ -502,6 +502,9 @@
               "enum": [
                 "ataque",
                 "salva",
+                "cura",
+                "pv_temporario",
+                "estabilizar",
                 "disparada",
                 "desengajar",
                 "efeito",
@@ -518,6 +521,15 @@
             },
             "dano": {
               "type": "string"
+            },
+            "formula": {
+              "type": "string"
+            },
+            "valor": {
+              "type": "integer"
+            },
+            "multiplicador": {
+              "type": "number"
             },
             "elemento": {
               "type": "string"
@@ -613,6 +625,31 @@
                 },
                 "consomeReacao": {
                   "type": "boolean"
+                },
+                "condicao": {
+                  "enum": [
+                    "agarrado",
+                    "amedrontado",
+                    "atordoado",
+                    "caido",
+                    "cego",
+                    "enfeiticado",
+                    "envenenado",
+                    "incapacitado",
+                    "inconsciente",
+                    "imobilizado",
+                    "invisivel",
+                    "paralisado",
+                    "surdo"
+                  ]
+                },
+                "expira": {
+                  "enum": [
+                    "inicio_alvo",
+                    "fim_alvo",
+                    "inicio_origem",
+                    "fim_origem"
+                  ]
                 }
               },
               "required": [

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
@@ -295,4 +295,83 @@ test('armas arremessáveis recebem ações próprias e desvantagem após o alcan
  await m.iniciar();m.s.atores[1].x=10;const adaga=variantes[0],formulas=[];
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async f=>{formulas.push(f);return {total:9,natural:4,formula:f,resumo:'4+5=9'};});
  assert.equal(formulas[0],'2d20kl1+4');assert.equal(s.atores[0].acao,0);assert.match(s.historico[0],/errou/);
+});
+
+test('nova concentração encerra a anterior e remove seus efeitos de todos os alvos',async()=>{
+ const m=mesa();
+ m.a.ficha.opcoes.push(
+  {id:'concentracao-a',nome:'Concentração A',categoria:'magia',concentracao:true,custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'efeito',alcanceM:18,efeito:{nome:'Imobilizado A',tipo:'condicao',condicao:'imobilizado',duracao:{turnos:10,expira:'inicio_origem'}}}},
+  {id:'concentracao-b',nome:'Concentração B',categoria:'magia',concentracao:true,custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'efeito',alcanceM:18,efeito:{nome:'Imobilizado B',tipo:'condicao',condicao:'imobilizado',duracao:{turnos:10,expira:'inicio_origem'}}}}
+ );
+ await m.go('vincular',{ator:m.a.id,dono:'p'});
+ await m.go('usar',{ator:m.a.id,opcao:'concentracao-a',alvo:m.b.id},player);const primeira=m.s.atores[0].concentracaoAtiva.id;
+ assert.ok(temCondicao(m.s.atores[1],'imobilizado'));assert.equal(m.s.atores[1].efeitosAtivos[0].concentracaoId,primeira);
+ await m.go('usar',{ator:m.a.id,opcao:'concentracao-b',alvo:m.c.id},player);
+ assert.notEqual(m.s.atores[0].concentracaoAtiva.id,primeira);assert.equal(m.s.atores[1].efeitosAtivos.length,0);assert.ok(temCondicao(m.s.atores[2],'imobilizado'));
+ await m.go('encerrarConcentracao',{ator:m.a.id},player);assert.equal(m.s.atores[0].concentracaoAtiva,undefined);assert.equal(m.s.atores[2].efeitosAtivos.length,0);
+});
+
+test('dano pede salvaguarda de concentração e remove efeito vinculado na falha',async()=>{
+ const m=mesa();
+ m.a.ficha.opcoes.push({id:'concentracao-dano',nome:'Concentração de teste',categoria:'magia',concentracao:true,custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'efeito',alcanceM:18,efeito:{nome:'Alvo preso',tipo:'condicao',condicao:'imobilizado',duracao:{turnos:10,expira:'inicio_origem'}}}});
+ await m.go('vincular',{ator:m.a.id,dono:'p'});
+ await m.go('usar',{ator:m.a.id,opcao:'concentracao-dano',alvo:m.b.id},player);await m.iniciar();await m.go('passar',{ator:m.a.id},player);await m.go('passar',{ator:m.b.id},gm);
+ m.s.atores[2].x=1;const ataque=m.c.ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');await m.go('usar',{ator:m.c.id,opcao:ataque.id,alvo:m.a.id},gm,[15,5,4]);
+ assert.equal(m.s.atores[0].concentracaoAtiva,undefined);assert.equal(m.s.atores[1].efeitosAtivos.length,0);assert.match(m.s.historico[1],/perdeu a concentração/);
+});
+
+test('duração expira no evento configurado e condições alimentam restrições genéricas',async()=>{
+ const m=mesa();
+ m.a.ficha.opcoes.push({id:'efeito-curto',nome:'Efeito curto',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'efeito',alcanceM:18,efeito:{nome:'Imobilizado',tipo:'condicao',condicao:'imobilizado',duracao:{turnos:1,expira:'fim_origem'}}}});
+ await m.go('vincular',{ator:m.a.id,dono:'p'});
+ await m.go('usar',{ator:m.a.id,opcao:'efeito-curto',alvo:m.b.id},player);assert.deepEqual(restricoesAtivas(m.s.atores[1]).desvantagemSalvas,['des']);
+ await m.iniciar();assert.ok(temCondicao(m.s.atores[1],'imobilizado'));await m.go('passar',{ator:m.a.id},player);assert.equal(m.s.atores[1].efeitosAtivos.length,0);
+});
+
+test('salvaguarda falha automaticamente quando a condição determina',async()=>{
+ const m=mesa();m.b.efeitosAtivos=[{id:'atordoado',nome:'Atordoado',tipo:'condicao',condicao:'atordoado'}];let rolou=false;
+ const s=await aplicar(m.s,{tipo:'teste',rev:m.s.rev,ator:m.b.id,grupo:'salvaguardas',chave:'for'},gm,async()=>{rolou=true;return 20;});
+ assert.equal(rolou,false);assert.match(s.historico[0],/falha automática/);
+});
+
+test('condições alteram vantagem de ataques e crítico corpo a corpo',async()=>{
+ const m=mesa();await m.iniciar();m.s.atores[1].x=10;m.s.atores[1].efeitosAtivos=[{id:'paralisado',nome:'Paralisado',tipo:'condicao',condicao:'paralisado'}];
+ const fogo=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),formulas=[];
+ const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,async(formula,meta)=>{formulas.push({formula,meta});return formulas.length===1?{total:19,natural:14,formula,resumo:'19'}:{total:8,natural:null,formula,resumo:'8'};});
+ assert.equal(formulas[0].formula,'2d20kh1+5');assert.equal(formulas[1].formula,'1d10');assert.equal(s.atores[1].pv,16);
+ const corpo=mesa();await corpo.iniciar();corpo.s.atores[1].efeitosAtivos=[{id:'paralisado',nome:'Paralisado',tipo:'condicao',condicao:'paralisado'}];
+ const adaga=corpo.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe),usadas=[];
+ await aplicar(corpo.s,{tipo:'usar',rev:corpo.s.rev,ator:corpo.a.id,opcao:adaga.id,alvo:corpo.b.id},player,async(formula,meta)=>{usadas.push({formula,meta});return usadas.length===1?{total:19,natural:15,formula,resumo:'19'}:{total:6,natural:null,formula,resumo:'6'};});
+ assert.equal(usadas[0].formula,'2d20kh1+4');assert.equal(usadas[1].formula,'2d4+2');assert.equal(usadas[1].meta.critico,true);
+});
+
+test('cura respeita PV máximo e remove o estado inconsciente',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'cura-teste',nome:'Cura de teste',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'cura',alcanceM:18,formula:'1d8+3'}});await m.go('vincular',{ator:m.a.id,dono:'p'});
+ m.s.atores[1].pv=0;m.s.atores[1].estadoVida='inconsciente';m.s.atores[1].salvaguardasMorte={sucessos:1,falhas:2};
+ await m.go('usar',{ator:m.a.id,opcao:'cura-teste',alvo:m.b.id},player,[9]);assert.equal(m.s.atores[1].pv,9);assert.equal(m.s.atores[1].estadoVida,'consciente');assert.deepEqual(m.s.atores[1].salvaguardasMorte,{sucessos:0,falhas:0});
+ m.s.atores[1].pv=22;await m.go('usar',{ator:m.a.id,opcao:'cura-teste',alvo:m.b.id},player,[9]);assert.equal(m.s.atores[1].pv,24);
+});
+
+test('PV temporários conservam o maior valor e absorvem dano antes dos PV',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'temp-oito',nome:'PV temporários 8',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'pv_temporario',alcanceM:18,valor:8}},{id:'temp-cinco',nome:'PV temporários 5',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'pv_temporario',alcanceM:18,valor:5}});await m.go('vincular',{ator:m.a.id,dono:'p'});
+ await m.go('usar',{ator:m.a.id,opcao:'temp-oito',alvo:m.b.id},player);await m.go('usar',{ator:m.a.id,opcao:'temp-cinco',alvo:m.b.id},player);assert.equal(m.s.atores[1].pvTemporarios,8);
+ await m.go('ajustar',{ator:m.b.id,campo:'pv',valor:-10});assert.equal(m.s.atores[1].pvTemporarios,0);assert.equal(m.s.atores[1].pv,22);
+});
+
+test('redução a 0 PV, salvaguarda contra a morte e 20 natural recuperando 1 PV',async()=>{
+ const m=mesa();await m.iniciar();await m.go('ajustar',{ator:m.a.id,campo:'pv',valor:-20,confirmado:true});assert.equal(m.s.atores[0].pv,0);assert.equal(m.s.atores[0].estadoVida,'inconsciente');
+ await m.go('salvaguardaMorte',{ator:m.a.id},player,[20]);assert.equal(m.s.atores[0].pv,1);assert.equal(m.s.atores[0].estadoVida,'consciente');assert.match(m.s.historico[0],/20 natural/);
+});
+
+test('dano massivo mata e estabilizar encerra salvaguardas contra a morte',async()=>{
+ const m=mesa();await m.go('ajustar',{ator:m.b.id,campo:'pv',valor:-50});assert.equal(m.s.atores[1].estadoVida,'morto');
+ const outro=mesa();outro.a.ficha.opcoes.push({id:'estabilizar',nome:'Estabilizar',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'estabilizar',alcanceM:1.5}});await outro.go('vincular',{ator:outro.a.id,dono:'p'});outro.s.atores[1].pv=0;outro.s.atores[1].estadoVida='inconsciente';outro.s.atores[1].salvaguardasMorte={sucessos:1,falhas:2};
+ await outro.go('usar',{ator:outro.a.id,opcao:'estabilizar',alvo:outro.b.id},player);assert.equal(outro.s.atores[1].estadoVida,'estavel');assert.deepEqual(outro.s.atores[1].salvaguardasMorte,{sucessos:0,falhas:0});
+});
+
+test('estado inconsciente concede vantagem e ataques corpo a corpo causam duas falhas',async()=>{
+ const m=mesa();await m.iniciar();m.s.atores[1].pv=0;m.s.atores[1].estadoVida='inconsciente';m.s.atores[1].salvaguardasMorte={sucessos:0,falhas:0};
+ const adaga=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe),formulas=[];
+ const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async(formula,meta)=>{formulas.push({formula,meta});return formulas.length===1?{total:19,natural:15,formula,resumo:'19'}:{total:4,natural:null,formula,resumo:'4'};});
+ assert.equal(formulas[0].formula,'2d20kh1+4');assert.equal(formulas[1].formula,'2d4+2');assert.equal(s.atores[1].salvaguardasMorte.falhas,2);
 });
