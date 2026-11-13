@@ -316,6 +316,20 @@ Meta atual: construir primeiro os módulos reutilizáveis, depois configurar as 
 
 Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha-Inventario-Livro-Habilidades.md` no projeto principal.
 
+### Versão 0.7.17: Rodapé tático por recursos
+
+- [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.
+- [x] Esmaecer recursos gastos e mostrar saldo atual/máximo nos recursos com cargas.
+- [x] Filtrar a grade ao clicar em um recurso, mantendo as habilidades de todas as origens compatíveis.
+- [x] Reorganizar a grade central com filtros Comum, classe, Itens, Passivas e Personalizado reservado.
+- [x] Manter Linhas, Perícias e Salva guarda ao lado dos recursos.
+- [x] Levar Mover, saldo de metros e barra vertical de deslocamento para a direita.
+- [x] Deixar a área de buffs, condições e concentração totalmente transparente.
+
+- Testes do motor: 69 aprovados.
+- Validação Playwright aprovada para recursos, filtros, perícias, movimento e efeitos.
+- Captura conferida: `work/rodape-v0717.png`.
+
 ### Cura, PV temporários e estado de 0 PV
 
 - [x] Criar automações genéricas de cura, PV temporários e estabilização.

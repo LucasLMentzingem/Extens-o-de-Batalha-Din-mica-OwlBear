@@ -1,5 +1,5 @@
 import {detalhes} from './ficha-view.mjs';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,opcoesDisponiveis} from './engine.mjs';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,opcoesDisponiveis} from './engine.mjs';
 import {pronto} from './bridge.mjs';
 import {canalHud} from './hud-controller.mjs';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
@@ -8,7 +8,17 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
 const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
 const grupo=o=>o.origemItem||o.categoria==='item'?'Itens':o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
-let v,aba='Ações',bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null;
+const normalizar=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const comuns=['golpe desarmado','agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
+const nomeClasse=f=>{const id=f.classes?.[0]?.nome??f.classes?.[0]?.id??'Classe';return ({guardiao:'Guardião',guerreiro:'Guerreiro',bardo:'Bardo',monge:'Monge',feiticeiro:'Feiticeiro',bruxo:'Bruxo'})[normalizar(id)]??id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase());};
+function categoriaHud(o){
+  if(o.filtroHud)return o.filtroHud;
+  const texto=normalizar(o.nome+' '+(o.origem??''));
+  if(o.origemItem||o.categoria==='item'||/item|equipamento|consumivel/.test(normalizar(o.origem)))return 'Itens';
+  if(comuns.some(n=>texto.startsWith(n))||o.categoria!=='magia'&&o.automacao?.tipo==='ataque')return 'Comum';
+  return 'Classe';
+}
+let v,filtro='Comum',recursoAtivo=null,bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null;
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 const modoFormula=valor=>/^2d\d+kh1/i.test(valor)?'vantagem':/^2d\d+kl1/i.test(valor)?'desvantagem':'normal';
 function ajustarModo(valor,modo){
@@ -90,13 +100,22 @@ function render(){
     const reserva='style="--efeitos-reserva:'+Number(v.espacoEfeitos??0)+'px"';
     if(v.compacto){html='<section class="dock compacta" '+reserva+'>'+efeitos+'<div class="dock-corpo"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside></div></section>';root.innerHTML=html;return;}
     const turno=ativo===a.id;
-    const ops=opcoesDisponiveis(a),disp=ops.filter(o=>grupo(o)===aba),pericias=aba==='Perícias',salvas=aba==='Salva guarda',itens=aba==='Itens',consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
-    const recurso=(a.ficha.recursos??[]).map(r=>'<span title="'+esc(r.nome)+'">'+esc(r.nome)+' <b>'+esc(a.rec[r.id])+'/'+r.maximo+'</b></span>').join('');
-    const foraCombate=s.fase==='preparo',economia=foraCombate?'∞ ação · ∞ bônus · ∞ reação':a.acao+' ação · '+a.bonus+' bônus · '+a.reacao+' reação';
-    html='<section class="dock" '+reserva+'>'+efeitos+'<div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong><span>'+economia+' · '+Number(a.metros.toFixed(2))+' m</span>'+btn('ficha','Ficha')+'</header>'+
-      '<div class="rec">'+recurso+'</div><div class="abas">'+['Ações','Bônus','Magias','Reações','Itens'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+
-      '<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+['Perícias','Salva guarda'].map(g=>btn('aba',g,'data-id="'+g+'" aria-pressed="'+(aba===g)+'"')).join('')+'</div>'+
-      '<div class="grade" style="--linhas:'+v.linhas+'">'+(pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a.ficha,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',esc(chave.toUpperCase()+' '+(bonus>=0?'+':'')+bonus),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):itens?consumiveis.map(i=>btn('usarItem',esc(i.nome+' ×'+i.quantidade),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join('')+disp.map(o=>btn('usar',esc(curto(o)),'data-id="'+esc(o.id)+'" data-info="'+esc(detalhes(o,a.ficha))+'"')).join(''):disp.map(o=>{
+    const ops=opcoesDisponiveis(a);
+    const foraCombate=s.fase==='preparo',pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',passivas=!recursoAtivo&&filtro==='Passivas';
+    const recursosFicha=a.ficha.recursos??[],idsRecursos=new Set(['acao','bonus','reacao',...recursosFicha.map(r=>'recurso:'+r.id)]);
+    if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;
+    const usaRecurso=o=>!recursoAtivo||(o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
+    const disp=ops.filter(o=>usaRecurso(o)&&(recursoAtivo||categoriaHud(o)===filtro));
+    const recuperacao=r=>(r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', ')||'Recuperação especial';
+    const recursos=[
+      {id:'acao',nome:'Ação',simbolo:'●',atual:foraCombate?'∞':a.acao,maximo:1,descricao:'Seu recurso principal no combate. Recarga: uma vez por turno.'},
+      {id:'bonus',nome:'Ação Bônus',simbolo:'▲',atual:foraCombate?'∞':a.bonus,maximo:1,descricao:'Seu recurso secundário no combate. Recarga: uma vez por turno.'},
+      {id:'reacao',nome:'Reação',simbolo:'✦',atual:foraCombate?'∞':a.reacao,maximo:1,descricao:'Usada por gatilhos fora do seu turno. Recarga: no início do turno.'},
+      ...recursosFicha.map(r=>({id:'recurso:'+r.id,nome:r.nome,simbolo:'◆',atual:a.rec[r.id],maximo:r.maximo,descricao:'Recurso renovável. Recarga: '+recuperacao(r)+'.'}))
+    ];
+    const botoesRecursos=recursos.map(r=>btn('recurso','<b>'+r.simbolo+'</b><small>'+esc(r.atual)+(r.maximo>1?'/'+r.maximo:'')+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"')).join('');
+    const consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
+    const renderOpcao=o=>{
         const livre=s.fase==='preparo';
         const custoIndisponivel=(o.custo??[]).some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
         const req=o.requisitosUso??{},ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[];
@@ -107,8 +126,17 @@ function render(){
           !o.automacao&&!gm&&grupo(o)!=='Reações'?'Resolução pelo mestre':'';
         const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
         return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
-      }).join(''))+'</div><footer>'+(p?'<small>Ação aberta no painel de execução.</small>':a.pv===0&&a.estadoVida==='inconsciente'&&turno?btn('salvaguardaMorte','Salvaguarda contra a morte'):btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+
-      (!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</footer></article></div></section>';
+      };
+    const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',esc(i.nome+' ×'+i.quantidade),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
+    const conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a.ficha,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
+      salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',esc(chave.toUpperCase()+' '+(bonus>=0?'+':'')+bonus),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
+      passivas?(a.ficha.passivas??[]).map(x=>btn('passiva',esc(curto(x)),'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"')).join(''):itensGrade+disp.map(renderOpcao).join('');
+    const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Itens','Itens'],['Passivas','Passivas']].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
+    const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
+    html='<section class="dock" '+reserva+'>'+efeitos+'<div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+btn('ficha','Ficha')+'</header>'+
+      '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud"><label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
+      '<div class="centro-hud"><div class="grade" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+(p?'<small>Ação aberta</small>':a.pv===0&&a.estadoVida==='inconsciente'&&turno?btn('salvaguardaMorte','Morte'):btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
+      '<div class="filtros-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</div>'+(!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+'</article></div></section>';
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
   ocultarDica();root.innerHTML=html;
@@ -141,7 +169,8 @@ root.onclick=e=>{
   if(tipo==='alternarAdicional'){bus.postMessage({tipo:'alternarAdicional',id});return;}
   if(tipo==='escolherRerrolagem'){rerrolagemAtiva=rerrolagemAtiva===id?null:id;render();return;}
   if(tipo==='rerrolarDado'){if(!rerrolagemAtiva)return;bus.postMessage({tipo,rerrolagem:rerrolagemAtiva});rerrolagemAtiva=null;return;}
-  if(tipo==='aba'){aba=id;render();return;}
+  if(tipo==='filtro'){filtro=id;recursoAtivo=null;render();return;}
+  if(tipo==='recurso'){recursoAtivo=recursoAtivo===id?null:id;if(recursoAtivo)filtro='Comum';render();return;}
   const reacao=tipo==='resolverReacao';
   bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
