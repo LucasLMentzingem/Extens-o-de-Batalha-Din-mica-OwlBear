@@ -196,6 +196,26 @@ test('painel de contexto altera valor atual e máximo de PV e recursos',async()=
  await m.go('definirRecurso',{ator:m.a.id,campo:'feiticaria',atual:4,maximo:5});assert.equal(m.s.atores[0].rec.feiticaria,4);assert.equal(m.s.atores[0].ficha.recursos.find(r=>r.id==='feiticaria').maximo,5);
 });
 
+test('dono salva sua ficha sem alterar identidade, tipo ou vínculo',async()=>{
+ const m=mesa();await m.go('vincular',{ator:m.a.id,dono:'p',token:'nikki-token'});
+ const editada=structuredClone(m.a.ficha);editada.id='tentativa-de-troca';editada.tipo='npc';editada.nome='Nikki Editada';editada.atributos.car=18;editada.pvMaximos=22;editada.recursos.find(r=>r.id==='feiticaria').maximo=4;
+ await m.go('atualizarFicha',{ator:m.a.id,ficha:editada,pv:19,rec:{...m.a.rec,feiticaria:4}},player);
+ const a=m.s.atores[0];assert.equal(a.ficha.id,'nikki');assert.equal(a.ficha.tipo,'pj');assert.equal(a.nome,'Nikki Editada');assert.equal(a.ficha.atributos.car,18);assert.equal(a.pv,19);assert.equal(a.rec.feiticaria,4);assert.equal(a.token,'nikki-token');assert.equal(a.dono,'p');
+});
+
+test('jogador não edita NPC e mestre edita qualquer ficha com confirmação para PJ',async()=>{
+ const m=mesa();await m.go('vincular',{ator:m.a.id,dono:'p'});const npc=structuredClone(m.b.ficha);npc.caBase=18;
+ await assert.rejects(m.go('atualizarFicha',{ator:m.b.id,ficha:npc,pv:m.b.pv,rec:{}},player),/não controla/);
+ await m.go('atualizarFicha',{ator:m.b.id,ficha:npc,pv:m.b.pv,rec:{}},gm);assert.equal(m.s.atores[1].ficha.caBase,18);
+ const pj=structuredClone(m.a.ficha);pj.caBase=17;await assert.rejects(m.go('atualizarFicha',{ator:m.a.id,ficha:pj,pv:m.a.pv,rec:m.a.rec},gm),/Confirme/);
+ await m.go('atualizarFicha',{ator:m.a.id,ficha:pj,pv:m.a.pv,rec:m.a.rec,confirmado:true},gm);assert.equal(m.s.atores[0].ficha.caBase,17);
+});
+
+test('salvamento inválido é atômico e não corrompe a ficha carregada',async()=>{
+ const m=mesa();await m.go('vincular',{ator:m.a.id,dono:'p'});const antes=structuredClone(m.s),ruim=structuredClone(m.a.ficha);ruim.atributos.for=99;
+ await assert.rejects(m.go('atualizarFicha',{ator:m.a.id,ficha:ruim,pv:20,rec:m.a.rec},player),/atributos/);assert.deepEqual(m.s,antes);
+});
+
 test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crítico',async()=>{
  const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];
  const rolar=async(formula,meta)=>{chamadas.push({formula,meta});return chamadas.length===1?{total:27,natural:20,formula,resumo:'20+7=27'}:{total:14,natural:null,formula,resumo:'14'};};

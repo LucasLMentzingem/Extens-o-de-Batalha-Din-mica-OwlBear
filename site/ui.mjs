@@ -1,6 +1,6 @@
 import OBR from './vendor/sdk.mjs';
 import {ns,emSala,sala,demo,exemplos} from './bridge.mjs';
-import {cabecalhoFicha,biblioteca} from './ficha-view.mjs';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs';
 import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod} from './engine.mjs';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -12,7 +12,7 @@ function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
-let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[];
+let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false;
 let testePendente;
 function view(estado,i){
   if(s?.rev!==estado.rev)alvos=[];
@@ -26,24 +26,35 @@ function view(estado,i){
 function render(){
   if(!s)return;
   const gm=info.role==='GM'&&!testar,ativo=atual(s);
-  const disponiveis=gm?s.atores:s.atores.filter(x=>x.ficha.tipo==='pj'&&x.dono===(testar?'teste':info.id));
+  const disponiveis=gm?s.atores.filter(x=>x.ficha.tipo==='pj').concat(s.atores.filter(x=>x.ficha.tipo==='npc')):s.atores.filter(x=>x.ficha.tipo==='pj');
   const a=disponiveis.find(x=>x.id===escolhido)??disponiveis[0];
   if(!gm)secao='ficha';else if(!a)secao='gm';
   const mestre=gm&&secao==='gm';
   escolhido=a?.id;
   const meu=a&&(gm||(a.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id)));
   $('modo').textContent=info.modo==='ensaio'?'Simulador local · '+(testar?'Jogador':'Mestre'):'Owlbear · '+(gm?'Mestre':'Jogador');
-  let h='<nav class="paginas">'+btn('ficha','Ficha do personagem',!mestre?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+'</nav>';
+  let h='<nav class="paginas">'+btn('ficha','Controle de fichas',!mestre?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+'</nav>';
   if(info.modo==='ensaio') h+='<div class="linha">'+btn('teste',testar?'Voltar ao mestre':'Testar como jogador')+'</div>';
-  if(mestre&&s.fase==='preparo')h+='<section><h2>Preparar encontro</h2><div class="campos">'+btn('exemplo','Carregar Nikki + 2 soldados','primario')+'<label>Importar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label>'+btn('iniciar','Iniciar combate')+'</div></section>';
-  if(mestre&&s.fase!=='preparo')h+='<section><h2>'+(s.fase==='iniciativa'?'Iniciativa':'Rodada '+s.rodada)+'</h2><div class="ordem">'+(s.ordem.length?s.ordem:s.atores.filter(x=>x.emCombate!==false).map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(gm&&s.fase==='iniciativa'?btn('npcs','Rolar NPCs pendentes'):'')+'</section>';
+  if(mestre){
+    const emCombate=s.atores.filter(x=>x.emCombate!==false);
+    h+='<section class="controle-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle do combate</h2><p>'+(s.fase==='preparo'?'Combate parado':s.fase==='iniciativa'?'Aguardando iniciativas':'Rodada '+s.rodada+' · turno de '+esc(ativo?.nome??'—'))+'</p></div><div>'+(s.fase==='preparo'?btn('iniciar','Iniciar combate','primario'):btn('encerrar','Parar combate','perigo'))+'</div></div>';
+    if(s.fase==='preparo')h+='<div class="preparar-encontro"><div class="campos">'+(s.atores.length?'' : btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Importar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>';
+    if(s.fase!=='preparo')h+='<div class="ordem">'+(s.ordem.length?s.ordem:emCombate.map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(s.fase==='iniciativa'?btn('npcs','Rolar iniciativas dos NPCs'):'');
+    h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+p.ficha.pvMaximos+' PV')+'</span><span class="acoes-linha"><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
+    if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
+    h+='</section>'+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+    $('app').innerHTML=h;return;
+  }
   h+='<div class="colunas '+(mestre?'gestao':'folha')+'"><section><h2>'+(mestre?'Participantes':'Personagens')+'</h2>';
   if(!a)h+='<p class="muted">'+(gm?'Importe uma ficha ou carregue o encontro de exemplo.':'Aguardando o mestre vincular uma ficha a você.')+'</p>';
-  for(const p of disponiveis)h+='<button class="pessoa" data-ator="'+esc(p.id)+'" aria-pressed="'+(p===a)+'">'+(p.ficha.id==='soldado'?'<img src="fichas/soldado.png" alt="">':'<span class="avatar">'+esc(p.nome[0])+'</span>')+'<span>'+esc(p.nome)+'<br><small>'+esc(p.ficha.tipo.toUpperCase())+' · '+(p.token?'token vinculado':'sem token')+'</small></span></button>';
+  const jogadores=disponiveis.filter(p=>p.ficha.tipo==='pj'),npcs=disponiveis.filter(p=>p.ficha.tipo==='npc');
+  const pessoa=p=>'<button class="pessoa" data-ator="'+esc(p.id)+'" aria-pressed="'+(p===a)+'">'+(p.ficha.id==='soldado'?'<img src="fichas/soldado.png" alt="">':'<span class="avatar">'+esc(p.nome[0])+'</span>')+'<span>'+esc(p.nome)+'<br><small>'+(p.ficha.tipo==='pj'?'JOGADOR':'NPC')+' · '+(p.token?'token vinculado':'sem token')+'</small></span></button>';
+  h+=jogadores.map(pessoa).join('');
+  if(gm&&npcs.length)h+='<div class="grupo-npcs"><button class="titulo-grupo" data-do="npcs-toggle" aria-expanded="'+npcsAbertos+'"><span>NPCs carregados</span><b>'+(npcsAbertos?'−':'+')+'</b></button>'+(npcsAbertos?'<div>'+npcs.map(pessoa).join('')+'</div>':'')+'</div>';
   h+='</section><section>';
   if(a){
     const f=a.ficha;
-    h+=mestre?'<h2>'+esc(a.nome)+'</h2>':cabecalhoFicha(a);
+    h+=fichaEditavel(a,meu);
     if(!mestre){
     if(f.pvMaximos)h+='<div class="numeros">'+[['PV',a.pv+' / '+f.pvMaximos],['CA',f.caBase],['Movimento',Number(a.metros.toFixed(2))+' m'],['Ação',a.acao],['Bônus',a.bonus],['Reação',a.reacao]].map(([k,v])=>'<span><small>'+k+'</small><b>'+esc(v)+'</b></span>').join('')+'</div><div class="barra"><i style="width:'+100*a.pv/f.pvMaximos+'%"></i></div>';
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
@@ -67,7 +78,7 @@ function render(){
     }
     h+=biblioteca(a);
     }
-    if(mestre){
+    if(gm){
       h+='<details><summary>Ajustar PV ou recurso</summary><div class="campos"><select id="campo">'+opt('pv','Pontos de vida')+(f.recursos??[]).map(r=>opt(r.id,r.nome)).join('')+'</select>'+coord('delta','Somar ou subtrair',0)+btn('ajustar','Aplicar ajuste')+'</div></details>';
       h+='<details class="panel" '+(s.fase==='preparo'?'open':'')+'><summary>Vínculo e controle</summary><div class="campos">';
       if(info.modo==='ensaio')h+='<small>Token simulado · uma peça por instância</small>';
@@ -114,6 +125,35 @@ function coord(id,label,value){return '<label>'+label+'<input type="number" step
 const num=id=>Number($(id)?.value??0);
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 async function enviar(tipo,extra={}){await api.enviar({tipo,rev:s.rev,ator:escolhido,comoJogador:testar,...extra});}
+function lerFicha(a){
+  const form=$('formFicha'),valor=n=>form.elements.namedItem(n)?.value??'',numero=n=>Number(valor(n));
+  let f;
+  try{f=JSON.parse($('fichaJson').value);}catch{throw Error('O JSON do editor avançado não é válido.');}
+  f.nome=valor('nome').trim();f.especie=valor('especie').trim();f.proficiencia=numero('proficiencia');
+  f.classes=(f.classes??[]).map((c,i)=>{
+    const controle=form.elements.namedItem('classe-id-'+i);if(!controle)return c;
+    const nome=controle.value.trim(),id=nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||c.id;
+    return {...c,id,nome,nivel:numero('classe-nivel-'+i)};
+  });
+  f.atributos=Object.fromEntries(['for','des','con','int','sab','car'].map(k=>[k,numero('atributo-'+k)]));
+  f.salvaguardas=Object.fromEntries(['for','des','con','int','sab','car'].map(k=>[k,numero('salva-'+k)]));
+  f.pericias=Object.fromEntries(Object.keys(periciasPadrao).map(k=>[k,numero('pericia-'+k)]));
+  f.pvMaximos=numero('pv-max');f.caBase=numero('ca');f.deslocamentosM={...(f.deslocamentosM??{}),andar:numero('deslocamento')};
+  f.sentidos=valor('sentidos').trim();f.idiomas=valor('idiomas').trim();f.anotacoes=valor('anotacoes').trim();
+  const rec={};
+  for(const linha of form.querySelectorAll('[data-recurso]')){
+    const id=linha.dataset.recurso,r=f.recursos.find(x=>x.id===id);if(!r)continue;
+    r.nome=linha.querySelector('[name="recurso-nome"]').value.trim();r.maximo=Number(linha.querySelector('[name="recurso-max"]').value);r.saldoInicial=Math.min(r.saldoInicial,r.maximo);
+    rec[id]=Number(linha.querySelector('[name="recurso-atual"]').value);
+  }
+  return {ficha:validar(f),pv:numero('pv-atual'),rec};
+}
+async function salvarFicha(){
+  const a=s.atores.find(x=>x.id===escolhido);if(!a)return;
+  const gm=info.role==='GM'&&!testar,pode=gm||(a.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));
+  if(!pode)throw Error('Somente o mestre ou o dono da ficha pode alterá-la.');
+  const dados=lerFicha(a);await enviar('atualizarFicha',{...dados,confirmado:gm&&a.ficha.tipo==='pj'});aviso('Alterações salvas.');
+}
 async function rolarTeste(grupo,chave){
   const a=s.atores.find(x=>x.id===escolhido);if(!a)return;
   const bonus=grupo==='pericias'?bonusPericia(a.ficha,chave):(a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]));
@@ -126,6 +166,7 @@ async function rolarTeste(grupo,chave){
 async function executar(k){
   const a=s.atores.find(x=>x.id===escolhido);
   if(k==='gm'||k==='ficha'){secao=k;return render();}
+  if(k==='npcs-toggle'){npcsAbertos=!npcsAbertos;return render();}
   if(k==='marcar'||k==='desfazer'){
     if(k==='desfazer')alvos.pop();else alvos=incluirAlvo(alvos,alvo,multi(a.ficha.opcoes.find(o=>o.id===acao)));
     return render();
@@ -167,7 +208,11 @@ async function executar(k){
   await enviar(k,args);
 }
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
-$('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;if(b.dataset.ator){escolhido=b.dataset.ator;acao=null;alvos=[];return render();}if(b.dataset.teste){return tarefa(()=>rolarTeste(b.dataset.teste,b.dataset.chave));}if(b.dataset.do)tarefa(()=>executar(b.dataset.do));};
+$('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
+ if(b.dataset.verFicha){escolhido=b.dataset.verFicha;secao='ficha';npcsAbertos=true;acao=null;alvos=[];return render();}
+ if(b.dataset.combate){escolhido=b.dataset.combate;return tarefa(async()=>{const p=s.atores.find(x=>x.id===escolhido);if(await confirma((p.emCombate===false?'Adicionar ':'Retirar ')+p.nome+'?',p.emCombate===false?'A ficha entrará na lista de combate.':'A ficha e o token continuarão vinculados.'))await enviar('alternarCombate');});}
+ if(b.dataset.ator){escolhido=b.dataset.ator;acao=null;alvos=[];return render();}if(b.dataset.teste){return tarefa(()=>rolarTeste(b.dataset.teste,b.dataset.chave));}if(b.dataset.do)tarefa(()=>executar(b.dataset.do));};
+$('app').onsubmit=e=>{if(e.target.id==='formFicha'){e.preventDefault();tarefa(salvarFicha);}};
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
 $('app').oncontextmenu=e=>{const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};

@@ -270,6 +270,25 @@ export async function aplicar(s,c,u,rolar) {
       else{const r=a.ficha.recursos.find(r=>r.id===c.campo);exigir(r,'Recurso desconhecido.');r.maximo=c.maximo;a.rec[r.id]=c.atual;}
       msg='Recurso atualizado em '+a.nome+'.';break;
     }
+    case 'atualizarFicha': {
+      exigir(a&&c.ficha&&typeof c.ficha==='object','Ficha ausente.');
+      // Identidade técnica e tipo pertencem ao ator carregado. Eles não podem ser
+      // usados pelo editor para trocar propriedade ou elevar um PJ a NPC do mestre.
+      const candidata=structuredClone(c.ficha);
+      candidata.id=a.ficha.id;candidata.tipo=a.ficha.tipo;
+      const ficha=validar(candidata);
+      const pv=c.pv===undefined?Math.min(a.pv,ficha.pvMaximos):c.pv;
+      exigir(inteiro(pv,0,ficha.pvMaximos),'PV atual inválido.');
+      const rec={};
+      for(const r of ficha.recursos){
+        const valor=c.rec?.[r.id]??a.rec?.[r.id]??r.saldoInicial;
+        exigir(inteiro(valor,0,r.maximo),'Saldo inválido em '+r.nome+'.');rec[r.id]=valor;
+      }
+      a.ficha=ficha;a.nome=ficha.nome;a.pv=pv;a.rec=rec;
+      a.metros=Math.min(a.metros,ficha.deslocamentosM.andar);
+      if(!a.pv)delete a.bencao;
+      msg='Ficha de '+a.nome+' salva.';break;
+    }
     case 'vincular':
       exigir(a && (!c.token || !s.atores.some(x=>x!==a && x.token===c.token)),'Esse token já está vinculado.');
       exigir(!c.dono || a.ficha.tipo==='pj','NPC é controlado pelo mestre.');
@@ -290,7 +309,7 @@ export async function aplicar(s,c,u,rolar) {
       msg='Ajuste do mestre em '+a.nome;break;
     }
     case 'teste': {
-      const bonus=c.grupo==='pericias'?bonusPericia(a.ficha,c.chave):a.ficha.salvaguardas?.[c.chave];
+      const bonus=c.grupo==='pericias'?bonusPericia(a.ficha,c.chave):(a.ficha.salvaguardas?.[c.chave]??mod(a.ficha.atributos[c.chave]));
       exigir(Number.isInteger(bonus)&&inteiro(c.ajuste??0,-20,20),'Teste inválido.');
       const r=await rolarD20(bonus,c.grupo==='salvaguardas'?a:null,{tipo:c.grupo==='salvaguardas'?'salvaguarda':'teste',titulo:(c.grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+c.chave});
       msg=a.nome+' • '+c.chave+': '+r.total;break;

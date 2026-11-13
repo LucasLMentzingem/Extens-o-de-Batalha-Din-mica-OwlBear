@@ -129,3 +129,19 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright aprovada para seleção, falha contra CD, dano posterior, efeito persistente e salvaguarda distribuída à tela do jogador com dano retornando ao mestre.
 - Capturas conferidas: `painel-salva-v073.png`, `ajuste-salva-v073.png`, `resultado-salva-v073.png` e `salva-distribuida-player-v073.png`.
 
+## Versão 0.7.4: controle de fichas e painel do mestre
+
+- [x] Separar **Controle de fichas** e **Controle do mestre** em abas próprias.
+- [x] Manter o painel do mestre invisível para jogadores.
+- [x] Mostrar ao mestre a lista completa do combate, com iniciativa, PV, estado e controles para abrir, retirar ou recolocar cada ficha.
+- [x] Iniciar e parar o combate diretamente no painel exclusivo do mestre.
+- [x] Mostrar aos jogadores somente fichas de PJ e deixar fichas de outros donos em modo de leitura.
+- [x] Agrupar os NPCs ao final da lista do mestre em uma seção recolhível com +/−.
+- [x] Remodelar a ficha como formulário de D&D com identidade, classe, nível, atributos, combate, salvaguardas, perícias, recursos e características.
+- [x] Fixar **Salvar alterações** no topo e restringir edição ao GM ou dono da ficha.
+- [x] Preservar ID, tipo, dono e token durante a edição e manter um editor JSON avançado para todas as variáveis do nível 1 ao 10.
+
+- Testes do motor: 31 aprovados, incluindo propriedade, edição de NPC pelo GM, proteção de identidade e falha atômica.
+- Integração Playwright aprovada nas visões de mestre e jogador, com edição persistente, NPCs recolhíveis e isolamento do painel do GM.
+- Capturas conferidas: `work/controle-mestre-v074.png`, `work/ficha-editavel-gm-v074.png` e `work/ficha-editavel-player-v074.png`.
+

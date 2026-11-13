@@ -20,6 +20,12 @@ Instale e habilite a extensão e o Dice+ na sala, abra uma cena e entre como mes
 
 No menu de contexto de um token de Personagem, o segmento **La Arte · personagem** permite retirar ou recolocar a ficha no combate, abrir diretamente sua ficha e editar os recursos. O painel mostra PV e todas as reservas declaradas no JSON, como mana, foco, Pontos de Feitiçaria, espaços de magia e usos especiais. Cada reserva possui uma barra entre zero e o máximo, além dos campos **Atual** e **Máximo**. Retirar do combate preserva ficha, vínculo, PV e recursos; durante um combate também libera o token, e recolocá-lo rola a iniciativa e volta a bloqueá-lo.
 
+## Controle de fichas e do mestre
+
+**Controle de fichas** mostra aos jogadores apenas fichas de jogadores; somente o dono pode alterar a sua. O mestre vê primeiro os jogadores e, ao final, uma seção recolhível de NPCs. A ficha editável organiza identidade, classe e nível, atributos, PV, CA, deslocamento, salvaguardas, perícias, recursos, sentidos, idiomas e anotações no formato de uma ficha de D&D. **Salvar alterações** fica sempre no topo. Ações, magias, equipamento e passivas continuam disponíveis e também podem ser alteradas no editor JSON avançado. ID, tipo, dono e token não podem ser trocados pelo editor.
+
+**Controle do mestre** é exclusivo do GM. Ele mostra a lista inteira do combate, tipo, iniciativa, PV e estado de cada participante, permite abrir a ficha, retirar ou recolocar um ator e iniciar ou parar o combate. Importação, descansos e histórico permanecem no mesmo painel.
+
 O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel usa células de um metro e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
 
 ## Jogar com a ficha fechada
@@ -50,7 +56,7 @@ Magias de salvaguarda contra um alvo selecionam a criatura antes da execução e
 
 Encontros anteriores recebem a automação de Mísseis Mágicos e Bênção ao carregar as fichas reconhecidas pelo nome. A amostra da Nikki contém Mísseis Mágicos. Bênção foi testada em uma ficha temporária.
 
-A aba **Ficha do personagem** mostra o personagem selecionado no mapa ou um personagem vinculado ao jogador. **Controle do mestre** reúne importação, vínculo, preparação e encerramento do encontro, descansos e ajustes. O botão Ficha da HUD abre o personagem exibido na barra. Os quadrados de habilidades exibem nomes e mostram descrição, custo, alcance, dano, teste e regras de seleção ao passar o mouse ou receber foco.
+A aba **Controle de fichas** mostra o personagem selecionado no mapa ou uma ficha de jogador. **Controle do mestre** reúne a lista do combate, importação, vínculo, preparação e encerramento do encontro, descansos e ajustes. O botão Ficha da HUD abre o personagem exibido na barra. Os quadrados de habilidades exibem nomes e mostram descrição, custo, alcance, dano, teste e regras de seleção ao passar o mouse ou receber foco.
 
 ## Contrato de importação
 
@@ -71,7 +77,7 @@ O combate automático disponível para Nikki inclui adaga principal, lança, Rai
 
 ## Verificação
 
-Execute `node --test combate.test.mjs`. Os testes usam as fichas distribuídas. Cobrem vínculo, permissões, intervenção do mestre, duas instâncias de soldado, transição de turno, ação, dano e crítico, área, metros, recurso de reação, descanso e importação até o nível 10. Um erro do Dice+ descarta a resolução pendente. Uma revisão antiga do turno é recusada.
+Execute `node --test combate.test.mjs`. Os testes usam as fichas distribuídas. Cobrem vínculo, permissões, edição atômica da ficha, intervenção do mestre, duas instâncias de soldado, transição de turno, ação, dano e crítico, área, metros, recurso de reação, descanso e importação até o nível 10. Um erro do Dice+ descarta a resolução pendente. Uma revisão antiga do turno é recusada.
 
 No navegador foram exercitados um encontro local até a rodada 2, recarga do progresso e um mestre e um jogador com transporte e dados do Owlbear simulados. A validação final requer uma sala real com Dice+ habilitado para conferir hospedagem das peças, entrega dos resultados e visibilidade de rolagens. A extensão usa o SDK Owlbear 3.1.0 distribuído com sua licença em `site/vendor`.
 
