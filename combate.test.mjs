@@ -57,6 +57,27 @@ test('salva por alvo e um dano compartilhado, círculo gasto, resistência e cr�
  const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
  await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20+5','2d10']);
 });
+test('salva de alvo acontece antes do dano, aplica efeito na falha e consome a penalidade futura',async()=>{
+ const m=mesa();await m.iniciar();const talho=m.a.ficha.opcoes.find(o=>o.nome.includes('Talho Mental'));
+ assert.equal(talho.automacao.tipo,'salva');assert.equal(talho.automacao.atributo,'int');
+ await m.go('usar',{ator:m.a.id,opcao:talho.id,alvo:m.b.id},player,[10,4]);
+ assert.equal(m.s.atores[1].pv,20);assert.equal(m.s.atores[1].efeitosAtivos[0].penalidadeProximaSalva,'1d4');assert.equal(m.s.atores[0].acao,0);
+ await m.go('teste',{ator:m.b.id,grupo:'salvaguardas',chave:'con'},gm,[10,3]);
+ assert.match(m.s.historico[0],/11/);assert.equal(m.s.atores[1].efeitosAtivos.length,0);
+});
+test('sucesso que anula o efeito cancela a rolagem de dano',async()=>{
+ const m=mesa();await m.iniciar();const talho=m.a.ficha.opcoes.find(o=>o.nome.includes('Talho Mental'));let chamadas=0;
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:talho.id,alvo:m.b.id},player,async(formula,meta)=>{chamadas++;assert.equal(meta.tipo,'salvaguarda');return {total:18,natural:18,formula,resumo:'18'};});
+ assert.equal(chamadas,1);assert.equal(next.atores[1].pv,24);assert.equal(next.atores[1].efeitosAtivos?.length??0,0);
+});
+test('salva com metade rola depois do teste no alvo direto; área rola dano antes e envia cada teste ao controlador',async()=>{
+ const m=mesa();await m.iniciar();const sussurros=m.a.ficha.opcoes.find(o=>o.nome.includes('Sussurros Dissonantes')),ordem=[];
+ const alvo=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:sussurros.id,alvo:m.b.id},player,async(formula,meta)=>{ordem.push(meta.tipo);return meta.tipo==='salvaguarda'?{total:18,natural:18,formula,resumo:'18'}:{total:8,natural:null,formula,resumo:'8'};});
+ assert.deepEqual(ordem,['salvaguarda','dano']);assert.equal(alvo.atores[1].pv,20);
+ const area=mesa();await area.iniciar();const desp=area.a.ficha.opcoes.find(o=>o.automacao?.raioM&&!o.automacao.origemArea),chamadas=[];
+ await aplicar(area.s,{tipo:'usar',rev:area.s.rev,ator:area.a.id,opcao:desp.id,ponto:{x:1,y:0}},player,async(formula,meta)=>{chamadas.push(meta);return {total:meta.tipo==='dano'?12:20,natural:meta.tipo==='salvaguarda'?16:null,formula,resumo:'teste'};});
+ assert.equal(chamadas[0].tipo,'dano');assert.deepEqual(chamadas.filter(x=>x.tipo==='salvaguarda').map(x=>x.destinoId),['p','GM','GM']);
+});
 test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
  const m=mesa();await m.iniciar();m.s.atores[1].x=20;m.s.atores[2].x=22;await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
  await assert.rejects(m.go('mover',{ator:m.a.id,x:7,y:8},player),/insuficiente/);

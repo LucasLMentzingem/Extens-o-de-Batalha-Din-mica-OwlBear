@@ -37,6 +37,10 @@ export function atualizarMagias(f){
       o.automacao={tipo:'bencao',alcanceM:9};
       o.selecao={tipo:'alvos',min:1,max:2+circulo,repetirAlvo:false};
     }
+    if(nome==='talho mental')o.automacao={tipo:'salva',atributo:'int',cd:13,dano:'1d6',alcanceM:18,elemento:'psiquico',efeitoFalha:{nome:'Mente Talhada',turnos:2,penalidadeProximaSalva:'1d4'}};
+    if(nome==='sussurros dissonantes')o.automacao={tipo:'salva',atributo:'sab',cd:13,dano:'3d6',alcanceM:18,metade:true,elemento:'psiquico',efeitoFalha:{nome:'Fuga Dissonante',turnos:1,consomeReacao:true}};
+    if(nome==='bracos de hadar')o.automacao={tipo:'salva',atributo:'for',cd:13,dano:'2d6',alcanceM:0,raioM:3,origemArea:'conjurador',excluirConjurador:true,metade:true,elemento:'necrotico',efeitoFalha:{nome:'Sem reações',turnos:1,consomeReacao:true}};
+    if(nome==='acalmar emocoes')o.automacao={tipo:'salva',atributo:'car',cd:13,alcanceM:18,raioM:6,efeitoFalha:{nome:'Emoções acalmadas',turnos:10}};
   }
   // Cada uso corpo a corpo de uma arma arremessável recebe uma ação à distância separada.
   for(const o of [...(f.opcoes??[])]){
@@ -102,9 +106,11 @@ export function validar(f) {
     }
     if(a.tipo==='efeito_conjuracao')exigir(inteiro(a.turnos,1,100)&&idOK(a.origem)&&inteiro(a.bonusCD,0,10),'Duração, origem ou bônus de CD inválido.');
     if(['ataque','salva'].includes(a.tipo)) {
-      exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0 && /^(?:[1-9]|[1-9][0-9])d(?:4|6|8|10|12)(?:[+-]\d{1,2})?$/.test(a.dano),'Dano ou alcance inválido em '+o.id);
+      const danoValido=typeof a.dano==='string'&&/^(?:[1-9]|[1-9][0-9])d(?:4|6|8|10|12)(?:[+-]\d{1,2})?$/.test(a.dano);
+      exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0 && (a.tipo==='salva'?!a.dano||danoValido:danoValido),'Dano ou alcance inválido em '+o.id);
       exigir(a.tipo==='ataque'?inteiro(a.bonus,-20,40):atributos.includes(a.atributo)&&inteiro(a.cd,1,40),'Ataque/CD inválido em '+o.id);
       if(a.raioM!==undefined) exigir(a.tipo==='salva'&&Number.isFinite(a.raioM)&&a.raioM>0,'Área inválida.');
+      if(a.efeitoFalha!==undefined)exigir(nomeOK(a.efeitoFalha.nome)&&inteiro(a.efeitoFalha.turnos,1,100),'Efeito de falha inválido em '+o.id);
     }
   }
   if(f.preparacao){
@@ -192,10 +198,10 @@ export async function aplicar(s,c,u,rolar) {
   for(const p of s.atores)atualizarMagias(p.ficha);
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
   const soma=(n)=>n>0?'+'+n:n<0?String(n):'';
-  const formulaD20=(bonus=0,p=null)=>{
+  const formulaD20=(bonus=0,p=null,penalidade=null)=>{
     const xs=c.dadosAjuste??[];exigir(dadosExtrasValidos(xs),'Dados extras inválidos.');
     const modo=c.modo==='vantagem'?'2d20kh1':c.modo==='desvantagem'?'2d20kl1':'1d20';
-    return modo+soma(bonus+(c.ajuste??0))+(abencoado(p)?'+1d4':'')+xs.map(x=>'+'+x).join('');
+    return modo+soma(bonus+(c.ajuste??0))+(abencoado(p)?'+1d4':'')+(penalidade?'-'+penalidade:'')+xs.map(x=>'+'+x).join('');
   };
   const resultado=async(formula,meta={})=>{
     const r=await rolar(formula,meta);return typeof r==='number'?{total:r,natural:/d20/.test(formula)?r:null,formula,resumo:String(r)}:r;
@@ -205,7 +211,12 @@ export async function aplicar(s,c,u,rolar) {
     exigir(Array.isArray(lista)&&lista.length===formulas.length,'A rolagem conjunta não retornou todos os resultados.');
     return lista.map((x,i)=>typeof x==='number'?{total:x,natural:null,formula:formulas[i],resumo:String(x)}:x);
   };
-  const rolarD20=(bonus,p,meta)=>resultado(formulaD20(bonus,p),meta);
+  const rolarD20=async(bonus,p,meta)=>{
+    const efeito=meta.tipo==='salvaguarda'?p?.efeitosAtivos?.find(e=>e.penalidadeProximaSalva):null;
+    const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva),meta);
+    if(efeito)p.efeitosAtivos=p.efeitosAtivos.filter(e=>e!==efeito);
+    return r;
+  };
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
@@ -391,9 +402,9 @@ export async function aplicar(s,c,u,rolar) {
         }
       }
       const alvo=escolhidos?.[0]??s.atores.find(x=>x.id===c.alvo);
-      const centro=rule.raioM?c.ponto:alvo;
+      const centro=rule.raioM?(rule.origemArea==='conjurador'?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
-      const afetados=escolhidos??(rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo]);
+      const afetados=(escolhidos??(rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo])).filter(x=>x&&(!rule.excluirConjurador||x!==a));
       const ajuste=c.ajuste??0;exigir(inteiro(ajuste,-20,20),'Ajuste inválido.');
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque));
       const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distancia(a,p)>rule.alcanceNormalM+1e-8));
@@ -428,7 +439,30 @@ export async function aplicar(s,c,u,rolar) {
         }
         c.modo=modoOriginal;break;
       }
-      const danoComum=rule.tipo==='salva'?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
+      if(rule.tipo==='salva'){
+        const cd=rule.cd+Math.max(0,...efeitos.map(e=>e.bonusCD)),resultadosSalva=new Array(afetados.length),grupos=new Map();
+        for(let i=0;i<afetados.length;i++){
+          const p=afetados[i],controlador=p.ficha.tipo==='pj'&&p.dono?p.dono:'GM';
+          if(!grupos.has(controlador))grupos.set(controlador,[]);grupos.get(controlador).push({p,i});
+        }
+        let danoBase=rule.raioM&&rule.dano?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
+        await Promise.all([...grupos.entries()].map(async([controlador,itens])=>{for(const {p,i} of itens){
+          const bonus=p.ficha.salvaguardas?.[rule.atributo]??mod(p.ficha.atributos[rule.atributo]);
+          const rr=await rolarD20(bonus,p,{tipo:'salvaguarda',titulo:'Salvaguarda de '+rule.atributo.toUpperCase()+' · '+p.nome,alvo:p.nome,cd,destinoId:controlador,roladorNome:p.nome});
+          resultadosSalva[i]={p,total:rr.total,sucesso:rr.total>=cd};
+        }}));
+        for(const r of resultadosSalva)msg+=' • '+r.p.nome+' '+(r.sucesso?'passou':'falhou')+' na salvaguarda ('+r.total+')';
+        if(!rule.raioM&&rule.dano&&(rule.metade||resultadosSalva.some(r=>!r.sucesso)))danoBase=(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total;
+        for(const r of resultadosSalva){
+          if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,valor=await aplicarDano(r.p,bruto);msg+=' • '+r.p.nome+' sofreu '+valor;}
+          if(!r.sucesso&&rule.efeitoFalha){
+            const efeito={id:o.id,nome:rule.efeitoFalha.nome,turnos:rule.efeitoFalha.turnos,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva};
+            r.p.efeitosAtivos=(r.p.efeitosAtivos??[]).filter(e=>e.id!==o.id);r.p.efeitosAtivos.push(efeito);
+            if(rule.efeitoFalha.consomeReacao)r.p.reacao=0;msg+=' • efeito: '+efeito.nome;
+          }
+        }
+        c.modo=modoOriginal;break;
+      }
       for(const p of afetados){
       let formula=rule.dano;
       if(rule.tipo==='ataque'){
@@ -437,14 +471,8 @@ export async function aplicar(s,c,u,rolar) {
         if(face===1 || (face!==20 && total<p.ficha.caBase)){msg+=' • errou '+p.nome;continue;}
         if(face===20){formula=formula.replace(/^\d+/,n=>String(+n+1));msg+=' • crítico';}
       }
-      const dano=danoComum??(await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico:formula!==rule.dano,alvo:p.nome})).total;
+      const dano=(await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico:formula!==rule.dano,alvo:p.nome})).total;
         let valor=dano;
-        if(rule.tipo==='salva'){
-          const bonus=p.ficha.salvaguardas?.[rule.atributo]??mod(p.ficha.atributos[rule.atributo]);
-          const cd=rule.cd+Math.max(0,...efeitos.map(e=>e.bonusCD));
-          const rr=await rolarD20(bonus,p,{tipo:'salvaguarda',titulo:'Salvaguarda de '+rule.atributo.toUpperCase()+' · '+p.nome,cd});
-          if(rr.total>=cd) valor=rule.metade?Math.floor(valor/2):0;
-        }
         valor=await aplicarDano(p,valor);
         msg+=' • '+p.nome+' sofreu '+valor;
       }

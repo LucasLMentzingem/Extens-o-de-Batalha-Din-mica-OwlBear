@@ -115,3 +115,17 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright confirmou o centro horizontal do painel na metade direita, sem regressão na seleção e execução de ações.
 - Captura conferida: `painel-acao-centro-direita-v072.png`.
 
+## Versão 0.7.3: salvaguardas por alvo e área
+
+- [x] Migrar Talho Mental, Sussurros Dissonantes, Braços de Hadar e Acalmar Emoções para automação estruturada.
+- [x] Exigir seleção de alvo para magias de salvaguarda direta.
+- [x] Resolver salvaguardas diretas antes do dano e omitir o dano quando todos os sucessos o anularem.
+- [x] Rolar o dano de área antes das salvaguardas e aplicar dano integral, reduzido ou nulo individualmente.
+- [x] Enviar a janela de salvaguarda para o jogador que controla o alvo; manter NPCs em fila na tela do mestre.
+- [x] Mostrar alvo e CD no ajuste e Sucesso ou Falha no resultado.
+- [x] Aplicar efeitos estruturados de falha, incluindo a penalidade do Talho Mental e consumo de reação.
+
+- Testes do motor: 28 aprovados.
+- Integração Playwright aprovada para seleção, falha contra CD, dano posterior, efeito persistente e salvaguarda distribuída à tela do jogador com dano retornando ao mestre.
+- Capturas conferidas: `painel-salva-v073.png`, `ajuste-salva-v073.png`, `resultado-salva-v073.png` e `salva-distribuida-player-v073.png`.
+

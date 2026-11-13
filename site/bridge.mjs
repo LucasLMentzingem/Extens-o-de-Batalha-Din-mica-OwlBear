@@ -40,11 +40,12 @@ function extrairResultado(result){
   const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo};}):null;
   return {total:result.totalValue,natural:Number.isFinite(natural)?natural:null,formula:result.diceNotation,resumo:result.rollSummary,grupos:result.groups??[],resultados};
 }
-function dadoSala(usuario,ch,pedidos){
+function dadoSala(usuario,ch,pedidos,mestreId){
   return (formula,meta={})=>new Promise((resolve,reject)=>{
-    const pedido=crypto.randomUUID(),destino=usuario.id;
-    const {cd:_defesaOculta,...metaPublica}=meta;
-    const enviar=d=>usuario.role==='GM'?ch.postMessage({rolagem:d}):OBR.broadcast.sendMessage(canais.roll,d,{destination:'REMOTE'});
+    const pedido=crypto.randomUUID(),destino=meta.destinoId==='GM'?mestreId:(meta.destinoId??usuario.id);
+    const {destinoId:_destinoOculto,roladorNome,...metaPublica}=meta;
+    if(meta.tipo==='ataque')delete metaPublica.cd;
+    const enviar=d=>destino===mestreId?ch.postMessage({rolagem:d}):OBR.broadcast.sendMessage(canais.roll,d,{destination:'REMOTE'});
     let fase='ajuste',resultado;
     const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),120000);
     function finalizar(erro,valor){clearTimeout(timer);pedidos.delete(pedido);erro?reject(erro):resolve(valor);}
@@ -57,9 +58,9 @@ function dadoSala(usuario,ch,pedidos){
       try{
         for(const expressao of expressoes){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:validacao.error||'Expressão inválida.'});return;}}
         const notacao=expressoes.length>1?expressoes.map((f,i)=>f+'#Seta '+(i+1)).join(', '):expressoes[0];
-        resultado=await executarDice(usuario,notacao);
+        resultado=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
         const status=meta.tipo==='ataque'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Acerto crítico':resultado.total>=meta.cd?'Acerto':'Falha'):
-          meta.tipo==='salvaguarda'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Sucesso crítico':resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':'';
+          meta.tipo==='salvaguarda'?(resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':'';
         fase='resultado';await enviar({tipo:'resultado',pedido,destino,resultado,status,meta:metaPublica});
       }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:e.message});}
     });
@@ -167,7 +168,7 @@ export async function host(){
         if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
       }
       const alvoReacao=s.reacaoPendente?.alvo,faseAntes=s.fase;
-      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos));
+      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id));
       if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
         const ids=next.atores.filter(a=>a.token&&(c.tipo==='encerrar'||a.emCombate!==false)).map(a=>a.token);

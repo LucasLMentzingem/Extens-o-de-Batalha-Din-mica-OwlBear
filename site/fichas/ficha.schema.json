@@ -550,6 +550,37 @@
             },
             "vantagemAtaque": {
               "type": "boolean"
+            },
+            "origemArea": {
+              "enum": [
+                "conjurador"
+              ]
+            },
+            "excluirConjurador": {
+              "type": "boolean"
+            },
+            "efeitoFalha": {
+              "type": "object",
+              "properties": {
+                "nome": {
+                  "type": "string"
+                },
+                "turnos": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "penalidadeProximaSalva": {
+                  "type": "string"
+                },
+                "consomeReacao": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "nome",
+                "turnos"
+              ]
             }
           },
           "required": [
