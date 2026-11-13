@@ -1,4 +1,4 @@
-import {bonusEfeito,caAtual,pvMaximosAtuais,deslocamentoMaximo} from './engine.mjs';
+import {bonusEfeito,caAtual,pvMaximosAtuais,deslocamentoMaximo,inventarioNormalizado,pesoInventario,slotsEquipamento} from './engine.mjs';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function detalhes(o,f){
   const r=o.automacao??{},s=o.selecao;
@@ -15,7 +15,41 @@ export function cabecalhoFicha(a){
     '<div class="atributos">'+Object.entries(f.atributos).map(([k,n])=>{const b=Math.floor((n-10)/2);return '<button type="button" class="atributo" data-save="'+esc(k)+'" title="Clique com o botão direito para rolar a salvaguarda"><small>'+esc(k.toUpperCase())+'</small><strong>'+(b>=0?'+':'')+b+'</strong><span>'+n+'</span></button>';}).join('')+'</div>';
 }
 const campo=(rotulo,nome,valor,tipo='text',extra='',bloqueado='')=>'<label>'+rotulo+'<input name="'+nome+'" type="'+tipo+'" value="'+esc(valor)+'" '+extra+' '+bloqueado+'></label>';
-export function fichaEditavel(a,podeEditar){
+const nomesSlots={cabeca:'Cabeça',capa:'Capa',vestes:'Vestes',botas:'Botas',mao_forte:'Mão forte',mao_fraca:'Mão fraca',arma_distancia:'Arma à distância',colar:'Colar',acessorio_1:'Acessório I',acessorio_2:'Acessório II'};
+const resumoItem=i=>{
+  const mods=Object.entries(i.modificadores??{}).map(([k,v])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'Deslocamento',ataque:'Ataque',dano:'Dano'}[k]??k)+' '+(v>=0?'+':'')+v);
+  const ca=i.classeArmadura?['CA',i.classeArmadura.tipo==='base'?'base':'bônus',i.classeArmadura.valor].join(' '):'';
+  return [i.nome,'Tipo: '+i.tipo,i.descricao,ca,...mods,'Quantidade: '+i.quantidade,'Peso: '+((Number(i.pesoKg)||0)*i.quantidade).toLocaleString('pt-BR')+' kg'].filter(Boolean).join('\n');
+};
+function inventarioFicha(a,podeEditar){
+  const inv=inventarioNormalizado(a.ficha),itens=inv.itens,equipados=Object.fromEntries(itens.filter(i=>i.equipado).map(i=>[i.equipadoSlot,i]));
+  const po=itens.filter(i=>i.tipo==='moeda'&&(!i.moeda||i.moeda==='po')).reduce((n,i)=>n+i.quantidade,0);
+  const carregados=itens.filter(i=>!i.equipado),totalCelulas=Math.max(25,Math.ceil(carregados.length/5)*5),peso=pesoInventario({...a,ficha:{...a.ficha,inventario:inv}}),percentual=Math.min(100,100*peso/inv.capacidadeCargaKg);
+  const icone=i=>'<b>'+(i.icone?'<img src="'+esc(i.icone)+'" alt="">':esc(i.nome.slice(0,2).toUpperCase()))+'</b>';
+  const info=(i,comparar=true)=>{const equivalente=comparar&&i.slotEquipamento?(i.slotEquipamento==='acessorio'?(equipados.acessorio_1??equipados.acessorio_2):equipados[i.slotEquipamento]):null;return resumoItem(i)+(equivalente&&equivalente!==i?'\n\nEQUIPADO NO MESMO SLOT\n'+resumoItem(equivalente):'');};
+  const slots=slotsEquipamento.map(slot=>{const i=equipados[slot];return '<article class="slot-equipamento '+(i?'ocupado':'')+'"><small>'+nomesSlots[slot]+'</small>'+(i?'<button type="button" class="icone-item" data-item-id="'+esc(i.id)+'" data-item-local="equipado" title="'+esc(info(i,false))+'">'+icone(i)+'<span>'+esc(i.nome)+'</span></button>':'<div class="slot-vazio">+</div>')+'</article>';}).join('');
+  const celulas=Array.from({length:totalCelulas},(_,n)=>{const i=carregados[n];if(!i)return '<div class="celula-item vazia" aria-hidden="true"></div>';return '<button type="button" class="celula-item" data-item-id="'+esc(i.id)+'" data-item-local="inventario" title="'+esc(info(i))+'">'+icone(i)+(i.quantidade>1?'<em>'+i.quantidade+'</em>':'')+'<span>'+esc(i.nome)+'</span></button>';}).join('');
+  return '<section class="pagina-inventario"><header><div><small>INVENTÁRIO</small><h2>Equipamentos e carga</h2></div><strong class="contador-po">◉ '+po+' PO</strong></header><h3>Equipamentos</h3><p class="muted">Clique com o botão direito para equipar ou desequipar. Em combate a troca custa 1 ação.</p><div class="slots-equipamento">'+slots+'</div><h3>Inventário</h3><div class="grade-inventario">'+celulas+'</div><div class="carga-inventario"><div><span style="width:'+percentual+'%"></span></div><strong>'+peso.toLocaleString('pt-BR',{maximumFractionDigits:2})+' / '+inv.capacidadeCargaKg.toLocaleString('pt-BR')+' kg</strong></div>'+(podeEditar?'':'<p class="muted">Inventário disponível somente para consulta.</p>')+'</section>';
+}
+const habilidadeIcone=o=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa':'')+'" data-habilidade="'+esc(o.id??'')+'" title="'+esc(o.info??o.descricao??o.nome)+'"><b>'+esc((o.nome??'?').slice(0,2).toUpperCase())+'</b><span>'+esc(o.nome??'')+'</span></button>';
+function livroHabilidades(a,pagina='classe'){
+  const f=a.ficha,prep=f.preparacao??{vagas:0,preparadas:[],semprePreparadas:[]},preparadas=new Set(prep.preparadas),sempre=new Set(prep.semprePreparadas),reacoes=f.opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao'));
+  const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(habilidadeIcone).join('')+'</div></section>':'';
+  let corpo='';
+  if(pagina==='reacoes')corpo=grade('Reações disponíveis',reacoes.map(o=>({...o,ativa:o.ativa!==false})));
+  else if(pagina==='comum'){
+    const comuns=f.opcoes.filter(o=>o.categoria!=='magia'&&!o.custo?.some(c=>c.tipo==='reacao'));
+    corpo=grade('Ações de arma',comuns.filter(o=>o.automacao?.tipo==='ataque'))+grade('Ações comuns',comuns.filter(o=>o.automacao?.tipo!=='ataque'))+grade('Passivas',f.passivas??[]);
+  }else{
+    const magias=f.opcoes.filter(o=>o.categoria==='magia'&&!o.custo?.some(c=>c.tipo==='reacao'));
+    const acoes=f.opcoes.filter(o=>o.categoria!=='magia'&&!o.custo?.some(c=>c.tipo==='reacao'));
+    corpo=grade('Ações de classe',acoes)+grade('Truques',magias.filter(o=>(o.circuloBase??0)===0))+grade('Magias sempre preparadas',magias.filter(o=>sempre.has(o.id)).map(o=>({...o,preparada:true})))+grade('Magias preparadas',magias.filter(o=>preparadas.has(o.id)).map(o=>({...o,preparada:true})),'<small>'+preparadas.size+'/'+prep.vagas+'</small>');
+    const circulos=[...new Set(magias.map(o=>o.circuloBase??0).filter(Boolean))].sort((x,y)=>y-x);
+    corpo+=circulos.map(n=>grade(n+'º círculo',magias.filter(o=>(o.circuloBase??0)===n).map(o=>({...o,preparada:preparadas.has(o.id)||sempre.has(o.id)})))).join('')+grade('Habilidades de classe passivas',f.passivas??[]);
+  }
+  return '<section class="livro-habilidades"><header><div><small>LIVRO DE HABILIDADES</small><h2>'+({classe:'Classe',comum:'Comum',reacoes:'Reações'})[pagina]+'</h2></div><nav>'+['classe','comum','reacoes'].map(id=>'<button type="button" data-livro-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+({classe:'Classe',comum:'Comum',reacoes:'Reações'})[id]+'</button>').join('')+'</nav></header><p class="muted">Envie as referências visuais de Baldur’s Gate 3 para refinarmos ícones, separadores e estados ativos.</p>'+corpo+'</section>';
+}
+export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe'){
   const f=a.ficha,bloqueado=podeEditar?'':'disabled',nivel=f.classes.reduce((n,c)=>n+c.nivel,0);
   const bonusCA=bonusEfeito(a,'ca'),bonusPV=bonusEfeito(a,'pvMaximos'),bonusMov=bonusEfeito(a,'deslocamentoM');
   const classes=f.classes.map((c,i)=>'<div class="linha-classe">'+campo('Classe','classe-id-'+i,c.nome??c.id,'text','data-classe="'+i+'"',bloqueado)+campo('Nível','classe-nivel-'+i,c.nivel,'number','min="1" max="10" data-nivel="'+i+'"',bloqueado)+'</div>').join('');
@@ -24,12 +58,14 @@ export function fichaEditavel(a,podeEditar){
   const pericias=Object.entries({Acrobacia:'des','Adestrar Animais':'sab',Arcanismo:'int',Atletismo:'for','Atuação':'car','Enganação':'car',Furtividade:'des','História':'int','Intimidação':'car','Intuição':'sab','Investigação':'int',Medicina:'sab',Natureza:'int','Percepção':'sab','Persuasão':'car','Prestidigitação':'des','Religião':'int','Sobrevivência':'sab'}).map(([k,at])=>campo(k,'pericia-'+k,f.pericias?.[k]??Math.floor((f.atributos[at]-10)/2),'number','min="-30" max="50"',bloqueado)).join('');
   const recursos=(f.recursos??[]).map(r=>'<div class="recurso-editavel" data-recurso="'+esc(r.id)+'"><label><span>'+esc(r.nome)+'</span><input name="recurso-nome" value="'+esc(r.nome)+'" '+bloqueado+'></label><label>Atual<input name="recurso-atual" type="number" min="0" max="9999" value="'+esc(a.rec?.[r.id]??r.saldoInicial)+'" '+bloqueado+'></label><label>Máximo<input name="recurso-max" type="number" min="0" max="9999" value="'+r.maximo+'" '+bloqueado+'></label></div>').join('')||'<p class="muted">Esta ficha não possui recursos com saldo.</p>';
   const baseBonus=(classe,rotuloBase,nomeBase,valorBase,extraBase,rotuloBonus,valorBonus,sufixo='')=>'<div class="valor-com-bonus '+classe+'">'+campo(rotuloBase,nomeBase,valorBase,'number',extraBase,bloqueado)+campo(rotuloBonus,nomeBase+'-bonus',(valorBonus>=0?'+':'')+valorBonus+sufixo,'text','','disabled')+'</div>';
-  return '<form id="formFicha" class="ficha-dnd" data-nivel="'+nivel+'"><div class="barra-salvar"><div><strong>Ficha de personagem</strong><small>'+(podeEditar?'Você pode alterar esta ficha.':'Somente o mestre ou o dono pode editar.')+'</small></div><button type="submit" class="primario" '+bloqueado+'>Salvar alterações</button></div>'+
+  const conteudoFicha=
     '<section class="cabecalho-dnd"><div class="marca-dnd">D&amp;D</div><div class="identificacao-ficha">'+campo('Nome do personagem','nome',f.nome,'text','required maxlength="100"',bloqueado)+'<div class="classes-ficha">'+classes+'</div></div><div class="identificacao-menor">'+campo('Espécie','especie',f.especie??'','text','',bloqueado)+campo('Bônus de proficiência','proficiencia',f.proficiencia??(2+Math.floor((nivel-1)/4)),'number','min="0" max="10"',bloqueado)+'</div></section>'+
     '<section class="atributos-editaveis">'+atributos+'</section>'+
     '<section class="combate-ficha"><h3>Combate <small>Totais: '+pvMaximosAtuais(a)+' PV · CA '+caAtual(a)+' · '+deslocamentoMaximo(a)+' m</small></h3><div class="valores-combate">'+campo('PV atual','pv-atual',a.pv,'number','min="0" max="9999"',bloqueado)+baseBonus('pv-total','PV máximo · base','pv-max',f.pvMaximos,'min="1" max="9999"','Bônus',bonusPV)+baseBonus('ca-total','CA · base','ca',f.caBase,'min="0" max="99"','Bônus',bonusCA)+baseBonus('mov-total','Deslocamento · base','deslocamento',f.deslocamentosM.andar,'min="0" max="999" step="0.5"','Bônus',bonusMov,' m')+'</div></section>'+efeitosFicha(a)+
     '<div class="corpo-ficha"><section><h3>Salvaguardas</h3><div class="campos-ficha salvas-editaveis">'+salvas+'</div><h3>Perícias</h3><div class="campos-ficha pericias-editaveis">'+pericias+'</div></section><section><h3>Recursos</h3><div class="recursos-editaveis">'+recursos+'</div><h3>Características</h3><div class="campos-ficha texto-ficha">'+campo('Sentidos','sentidos',f.sentidos??'','text','',bloqueado)+campo('Idiomas','idiomas',f.idiomas??'','text','',bloqueado)+'<label>Anotações livres<textarea name="anotacoes" rows="6" '+bloqueado+'>'+esc(f.anotacoes??'')+'</textarea></label></div></section></div>'+
-    '<details class="editor-avancado"><summary>Editor avançado · ações, magias, equipamentos e passivas</summary><p class="muted">Use quando precisar alterar campos que ainda não possuem uma caixa própria. O formato JSON completo continua compatível com a importação.</p><textarea id="fichaJson" rows="18" spellcheck="false" '+bloqueado+'>'+esc(JSON.stringify(f,null,2))+'</textarea></details></form>';
+    '<details class="editor-avancado"><summary>Editor avançado · ações, magias, equipamentos e passivas</summary><p class="muted">Use quando precisar alterar campos que ainda não possuem uma caixa própria. O formato JSON completo continua compatível com a importação.</p><textarea id="fichaJson" rows="18" spellcheck="false" '+bloqueado+'>'+esc(JSON.stringify(f,null,2))+'</textarea></details>';
+  const abas=[['personagem','Ficha de personagem'],['inventario','Inventário'],['habilidades','Livro de Habilidades']];
+  return '<form id="formFicha" class="ficha-dnd" data-nivel="'+nivel+'"><div class="barra-salvar"><div><strong>'+esc(abas.find(x=>x[0]===pagina)?.[1]??abas[0][1])+'</strong><small>'+(podeEditar?'Você pode alterar esta ficha.':'Somente o mestre ou o dono pode editar.')+'</small></div><nav class="abas-ficha">'+abas.map(([id,nome])=>'<button type="button" data-ficha-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+nome+'</button>').join('')+'</nav><button type="submit" class="primario" '+bloqueado+'>Salvar alterações</button></div><div class="conteudo-pagina-ficha" '+(pagina==='personagem'?'':'hidden')+'>'+conteudoFicha+'</div><div class="conteudo-pagina-ficha" '+(pagina==='inventario'?'':'hidden')+'>'+inventarioFicha(a,podeEditar)+'</div><div class="conteudo-pagina-ficha" '+(pagina==='habilidades'?'':'hidden')+'>'+livroHabilidades(a,paginaLivro)+'</div></form>';
 }
 export function efeitosFicha(a){
   const lista=[...(a.efeitosAtivos??[])];if(a.concentracaoAtiva)lista.unshift({nome:a.concentracaoAtiva.nome,tipo:'concentracao',descricao:'Concentração ativa'});

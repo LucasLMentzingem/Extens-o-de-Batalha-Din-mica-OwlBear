@@ -1,5 +1,6 @@
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
+export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
 export const periciasPadrao = {
   'Acrobacia':'des','Adestrar Animais':'sab','Arcanismo':'int','Atletismo':'for',
   'Atuação':'car','Enganação':'car','Furtividade':'des','História':'int',
@@ -28,6 +29,7 @@ export function exigir(ok, msg) { if (!ok) throw new Error(msg); }
 const inteiro = (n,min,max) => Number.isInteger(n) && n >= min && n <= max;
 const idOK = id => typeof id === 'string' && /^[a-z0-9][a-z0-9_-]{0,79}$/i.test(id) && !Object.hasOwn(Object.prototype,id);
 const nomeOK = nome => typeof nome === 'string' && nome.trim().length > 0;
+const slug=s=>String(s??'item').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,64)||'item';
 function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
@@ -131,6 +133,23 @@ export function atualizarMagias(f){
     }
   }
 }
+function slotLegado(nome){
+  const t=String(nome).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(/arco|besta/.test(t))return 'arma_distancia';
+  if(/adaga|espada|cimitarra|lanca|machado|martelo|clava|cajado|rapieira|tridente/.test(t))return 'mao_forte';
+  if(/armadura|couro|malha|placa|robe|veste/.test(t))return 'vestes';
+  if(/escudo/.test(t))return 'mao_fraca';if(/bota/.test(t))return 'botas';if(/capa/.test(t))return 'capa';if(/colar|amuleto/.test(t))return 'colar';if(/elmo|capacete|chapeu|coroa/.test(t))return 'cabeca';if(/anel|luva/.test(t))return 'acessorio_1';return null;
+}
+export function inventarioNormalizado(f){
+  if(f.inventario?.itens)return f.inventario;
+  const usados=new Set(),itens=(f.equipamentos??[]).map((e,i)=>{
+    const nome=e.nome??e.name??('Item '+(i+1)),moeda=/moedas?.*?(\d+)\s*po/i.exec(nome),quantidade=/^(\d+)\s+/.exec(nome);
+    let id=idOK(e.id)?e.id:slug(nome);while(usados.has(id))id=slug(id+'-'+(i+1));usados.add(id);
+    const slot=slotLegado(nome),tipo=moeda?'moeda':slot?'equipamento':'etc';
+    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg??0),slotEquipamento:slot,equipado:Boolean(e.inUse&&slot),equipadoSlot:e.inUse&&slot?slot:undefined,modificadores:structuredClone(e.modificadores??{})};
+  });
+  return {capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens};
+}
 export const multi=o=>o?.selecao?.tipo==='alvos'&&(o.selecao.max>1||['projeteis','bencao'].includes(o.automacao?.tipo))?o.selecao:null;
 export function incluirAlvo(lista,id,regra){
   if(!regra.repetirAlvo&&lista.includes(id))return lista.filter(x=>x!==id);
@@ -221,6 +240,15 @@ export function validar(f) {
   for(const n of Object.values(f.pericias??{}))exigir(inteiro(n,-30,50),'Bônus de perícia inválido.');
   for(const k of ['equipamentos','notas','passivas','condicoes','efeitos','resistencias','imunidades','vulnerabilidades'])if(f[k]!==undefined)exigir(Array.isArray(f[k]),'Esperada uma lista em '+k);
   const out=structuredClone(f);
+  out.inventario=structuredClone(inventarioNormalizado(out));
+  exigir(Number.isFinite(out.inventario.capacidadeCargaKg)&&out.inventario.capacidadeCargaKg>0,'Capacidade de carga inválida.');
+  lista(out.inventario.itens,'Inventário');
+  for(const item of out.inventario.itens){
+    exigir(nomeOK(item.nome)&&['equipamento','consumivel','etc','moeda'].includes(item.tipo),'Item inválido em '+item.id);
+    exigir(inteiro(item.quantidade,1,999999)&&Number.isFinite(item.pesoKg)&&item.pesoKg>=0,'Quantidade ou peso inválido em '+item.id);
+    if(item.tipo==='equipamento')exigir(slotsEquipamento.includes(item.slotEquipamento)||item.slotEquipamento==='acessorio','Slot de equipamento inválido em '+item.id);
+    if(item.equipado)exigir(slotsEquipamento.includes(item.equipadoSlot),'Slot equipado inválido em '+item.id);
+  }
   const nivel=out.classes.reduce((n,c)=>n+c.nivel,0);
   for(const o of out.opcoes){
     // Somente traduzir a sequência inteira quando todas as etapas são conhecidas.
@@ -258,9 +286,16 @@ export const atual = s=>s.atores.find(a=>a.id===s.ordem[s.vez]);
 export const ativos = s=>s.atores.filter(a=>a.emCombate!==false);
 export const mod = n=>Math.floor((n-10)/2);
 export const bonusEfeito=(a,campo)=>(a?.efeitosAtivos??[]).reduce((n,e)=>n+(Number(e.modificadores?.[campo])||0),0);
-export const caAtual=a=>(a?.ficha?.caBase??0)+bonusEfeito(a,'ca');
-export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEfeito(a,'pvMaximos');
-export const deslocamentoMaximo=a=>Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEfeito(a,'deslocamentoM'));
+export const itensEquipados=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.equipado);
+export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Number(i.modificadores?.[campo])||0),0);
+export const caAtual=a=>{
+  let base=a?.ficha?.caBase??0,bonus=0;
+  for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base')base=Math.max(base,Number(ca.valor)||0);if(ca?.tipo==='bonus')bonus+=Number(ca.valor)||0;}
+  return base+bonus+bonusEquipamento(a,'ca')+bonusEfeito(a,'ca');
+};
+export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
+export const deslocamentoMaximo=a=>Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM'));
+export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(1,Number(i.quantidade)||1),0);
 export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 export function curarAtor(a,valor){
   const antes=a.pv,quantidade=Math.max(0,Math.floor(Number(valor)||0));
@@ -461,7 +496,7 @@ export async function aplicar(s,c,u,rolar) {
   s=structuredClone(s);
   s.filaReacoes??=[];
   for(const p of s.atores){
-    atualizarMagias(p.ficha);p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
+    atualizarMagias(p.ficha);p.ficha.inventario=p.ficha.inventario??structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
   }
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
   const soma=(n)=>n>0?'+'+n:n<0?String(n):'';
@@ -625,6 +660,27 @@ export async function aplicar(s,c,u,rolar) {
     case 'encerrarConcentracao':
       exigir(a?.concentracaoAtiva,'Este personagem não está se concentrando.');
       msg=a.nome+' encerrou a concentração em '+a.concentracaoAtiva.nome+'.';encerrarConcentracao(s,a);break;
+    case 'inventario': {
+      exigir(a&&['equipar','desequipar','usar'].includes(c.operacao),'Operação de inventário inválida.');
+      const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');
+      const emTurno=s.fase==='turnos';
+      exigir(!emTurno||atual(s)?.id===a.id,'Equipamentos e itens só podem ser alterados no turno do personagem.');
+      if(emTurno){exigir(a.acao>=1,'É preciso ter uma ação disponível.');a.acao--;}
+      if(c.operacao==='equipar'){
+        exigir(item.tipo==='equipamento'&&!item.equipado,'Este item não pode ser equipado agora.');
+        let slot=c.slot??item.slotEquipamento;
+        if(slot==='acessorio')slot=!a.ficha.inventario.itens.some(i=>i.equipado&&i.equipadoSlot==='acessorio_1')?'acessorio_1':'acessorio_2';
+        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'),'Slot incompatível com o item.');
+        const anterior=a.ficha.inventario.itens.find(i=>i.equipado&&i.equipadoSlot===slot);
+        if(anterior){anterior.equipado=false;delete anterior.equipadoSlot;}
+        item.equipado=true;item.equipadoSlot=slot;msg=a.nome+' equipou '+item.nome+(anterior?' e guardou '+anterior.nome:'')+'.';
+      }else if(c.operacao==='desequipar'){
+        exigir(item.tipo==='equipamento'&&item.equipado,'Este item não está equipado.');item.equipado=false;delete item.equipadoSlot;msg=a.nome+' desequipou '+item.nome+'.';
+      }else{
+        exigir(item.tipo==='consumivel'&&item.quantidade>0,'Este item não é um consumível disponível.');item.quantidade--;if(item.quantidade===0)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);msg=a.nome+' usou '+item.nome+' (efeito assistido pelo mestre).';
+      }
+      a.pv=Math.min(a.pv,pvMaximosAtuais(a));a.metros=Math.min(a.metros,deslocamentoMaximo(a));break;
+    }
     case 'resolverReacao': {
       const p=s.reacaoPendente;
       exigir(s.fase==='turnos'&&p&&p.reator===a?.id,'Esta reação não está mais disponível.');

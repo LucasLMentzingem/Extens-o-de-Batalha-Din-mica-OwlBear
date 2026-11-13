@@ -204,6 +204,49 @@
         "type": "object"
       }
     },
+    "inventario": {
+      "type": "object",
+      "properties": {
+        "capacidadeCargaKg": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "itens": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+              "nome": {"type": "string", "minLength": 1},
+              "descricao": {"type": "string"},
+              "tipo": {"enum": ["equipamento", "consumivel", "etc", "moeda"]},
+              "quantidade": {"type": "integer", "minimum": 1, "maximum": 999999},
+              "empilhavel": {"type": "boolean"},
+              "pesoKg": {"type": "number", "minimum": 0},
+              "slotEquipamento": {"enum": ["cabeca", "capa", "vestes", "botas", "mao_forte", "mao_fraca", "arma_distancia", "colar", "acessorio", "acessorio_1", "acessorio_2"]},
+              "equipado": {"type": "boolean"},
+              "equipadoSlot": {"enum": ["cabeca", "capa", "vestes", "botas", "mao_forte", "mao_fraca", "arma_distancia", "colar", "acessorio_1", "acessorio_2"]},
+              "moeda": {"enum": ["po", "pp", "pc", "pe", "pl"]},
+              "icone": {"type": "string"},
+              "modificadores": {
+                "type": "object",
+                "additionalProperties": {"type": "number"}
+              },
+              "classeArmadura": {
+                "type": "object",
+                "properties": {
+                  "tipo": {"enum": ["base", "bonus"]},
+                  "valor": {"type": "number"}
+                },
+                "required": ["tipo", "valor"]
+              }
+            },
+            "required": ["id", "nome", "tipo", "quantidade", "pesoKg"]
+          }
+        }
+      },
+      "required": ["capacidadeCargaKg", "itens"]
+    },
     "passivas": {
       "type": "array",
       "items": {

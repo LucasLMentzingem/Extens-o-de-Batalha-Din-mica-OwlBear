@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
@@ -502,4 +502,24 @@ test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recurso
  assert.equal(s.atores[0].pv,s.atores[0].ficha.pvMaximos-2);assert.equal(s.atores[0].bonus,0);assert.equal(s.atores[0].rec['recuperar-folego'],1);
  const monge=fichasJogadores.find(f=>f.id==='loteria'),metabolismo=monge.opcoes.find(o=>o.id==='metabolismo-incomum-acao');
  assert.deepEqual(metabolismo.automacao.recuperarRecursos,['pontos-de-foco']);assert.equal(monge.opcoes.find(o=>o.id==='pico-adrenalina').automacao.disparada,true);
+
+test('inventário legado é migrado para pilhas, moedas e capacidade de carga',()=>{
+ const f=validar(nikki),moedas=f.inventario.itens.find(i=>i.tipo==='moeda');
+ assert.ok(f.inventario.capacidadeCargaKg>0);assert.equal(moedas.quantidade,28);assert.equal(moedas.tipo,'moeda');assert.equal(f.inventario.itens.find(i=>i.nome==='2 Adagas').quantidade,2);
+});
+test('equipar troca o slot e aplica modificadores dinâmicos de CA, PV e deslocamento',async()=>{
+ const m=mesa();m.a.dono='p';m.a.ficha.inventario.itens.push(
+  {id:'capa-teste',nome:'Capa de teste',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:'capa',equipado:false,modificadores:{ca:1,pvMaximos:3,deslocamentoM:1.5}},
+  {id:'capa-antiga',nome:'Capa antiga',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:2,slotEquipamento:'capa',equipado:true,equipadoSlot:'capa',modificadores:{ca:2}}
+ );
+ assert.equal(caAtual(m.a),15);await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'capa-teste'},player);
+ const a=m.s.atores[0];assert.equal(caAtual(a),14);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),3);
+});
+test('trocar equipamento ou usar consumível em combate exige o turno e gasta uma ação',async()=>{
+ const m=mesa();m.a.ficha.inventario.itens.push({id:'pocao-teste',nome:'Poção',descricao:'',tipo:'consumivel',quantidade:2,pesoKg:.5});
+ m.b.ficha.inventario.itens.push({id:'elmo-teste',nome:'Elmo',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:'cabeca',equipado:false});
+ await m.iniciar();
+ await assert.rejects(m.go('inventario',{ator:m.b.id,operacao:'equipar',itemId:'elmo-teste'},gm),/turno/);
+ await m.go('inventario',{ator:m.a.id,operacao:'usar',itemId:'pocao-teste'},player);const a=m.s.atores[0];assert.equal(a.acao,0);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='pocao-teste').quantidade,1);
+ await assert.rejects(m.go('inventario',{ator:m.a.id,operacao:'usar',itemId:'pocao-teste'},player),/ação disponível/);
 });

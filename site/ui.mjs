@@ -12,7 +12,7 @@ function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
-let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false;
+let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null;
 let testePendente;
 function view(estado,i){
   if(s?.rev!==estado.rev)alvos=[];
@@ -56,7 +56,7 @@ function render(){
   h+='</section><section>';
   if(a){
     const f=a.ficha;
-    h+=fichaEditavel(a,meu);
+    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro);
     if(!mestre){
     if(f.pvMaximos)h+='<div class="numeros">'+[['PV',a.pv+' / '+pvMaximosAtuais(a)],['CA',caAtual(a)],['Movimento',Number(a.metros.toFixed(2))+' m'],['Ação',a.acao],['Bônus',a.bonus],['Reação',a.reacao]].map(([k,v])=>'<span><small>'+k+'</small><b>'+esc(v)+'</b></span>').join('')+'</div><div class="barra"><i style="width:'+100*a.pv/pvMaximosAtuais(a)+'%"></i></div>';
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
@@ -163,6 +163,12 @@ async function salvarFicha(){
   if(!pode)throw Error('Somente o mestre ou o dono da ficha pode alterá-la.');
   const dados=lerFicha(a);await enviar('atualizarFicha',{...dados,confirmado:gm&&a.ficha.tipo==='pj'});aviso('Alterações salvas.');
 }
+async function alterarItem(operacao,slot){
+  const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
+  const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
+  await enviar('inventario',{operacao,itemId:itemContexto,slot,confirmado});
+  itemContexto=null;$('itemMenu').close();aviso(operacao==='usar'?'Consumível usado.':'Equipamento atualizado.');
+}
 async function rolarTeste(grupo,chave){
   const a=s.atores.find(x=>x.id===escolhido);if(!a)return;
   const bonus=grupo==='pericias'?bonusPericia(a.ficha,chave):(a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]));
@@ -219,13 +225,30 @@ async function executar(k){
 }
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
 $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
+ if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
+ if(b.dataset.livroAba){paginaLivro=b.dataset.livroAba;return render();}
  if(b.dataset.verFicha){escolhido=b.dataset.verFicha;secao='ficha';npcsAbertos=true;acao=null;alvos=[];return render();}
  if(b.dataset.combate){escolhido=b.dataset.combate;return tarefa(async()=>{const p=s.atores.find(x=>x.id===escolhido);if(await confirma((p.emCombate===false?'Adicionar ':'Retirar ')+p.nome+'?',p.emCombate===false?'A ficha entrará na lista de combate.':'A ficha e o token continuarão vinculados.'))await enviar('alternarCombate');});}
  if(b.dataset.ator){escolhido=b.dataset.ator;acao=null;alvos=[];return render();}if(b.dataset.teste){return tarefa(()=>rolarTeste(b.dataset.teste,b.dataset.chave));}if(b.dataset.do)tarefa(()=>executar(b.dataset.do));};
 $('app').onsubmit=e=>{if(e.target.id==='formFicha'){e.preventDefault();tarefa(salvarFicha);}};
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
-$('app').oncontextmenu=e=>{const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
+$('app').oncontextmenu=e=>{
+ const item=e.target.closest('[data-item-id]');
+ if(item){
+   e.preventDefault();const a=s.atores.find(x=>x.id===escolhido),gm=info.role==='GM'&&!testar,pode=gm||(a?.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));if(!pode)return;
+   const i=a.ficha.inventario?.itens.find(x=>x.id===item.dataset.itemId);if(!i)return;itemContexto=i.id;
+   $('itemMenuTitulo').textContent=i.nome;$('itemMenuDescricao').textContent=i.descricao||'Sem descrição adicional.';
+   let acoes='<button type="button" data-item-fechar>Cancelar</button>';
+   if(i.tipo==='equipamento'&&i.equipado)acoes+='<button type="button" data-item-acao="desequipar" class="primario">Desequipar</button>';
+   else if(i.tipo==='equipamento'&&i.slotEquipamento==='acessorio')acoes+='<button type="button" data-item-acao="equipar" data-item-slot="acessorio_1" class="primario">Equipar no acessório I</button><button type="button" data-item-acao="equipar" data-item-slot="acessorio_2" class="primario">Equipar no acessório II</button>';
+   else if(i.tipo==='equipamento')acoes+='<button type="button" data-item-acao="equipar" class="primario">Equipar</button>';
+   else if(i.tipo==='consumivel')acoes+='<button type="button" data-item-acao="usar" class="primario">Usar</button>';
+   else acoes+='<small>Este item não possui uma ação contextual.</small>';
+   $('itemMenuAcoes').innerHTML=acoes;$('itemMenuCusto').textContent=s.fase==='turnos'?'Durante o combate esta operação gasta 1 ação.':'Fora de combate não há custo de ação.';$('itemMenu').showModal();return;
+ }
+ const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
+$('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
 try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
