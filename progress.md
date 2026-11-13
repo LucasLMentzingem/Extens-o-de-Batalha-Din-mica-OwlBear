@@ -1,5 +1,14 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-13 — ataques encadeados e pré-requisitos 0.7.13
+
+- O JSON pode exigir ataque ou acerto anterior, tags do golpe anterior, novo alvo próximo e diferente e uso único por turno.
+- A HUD bloqueia habilidades dependentes até o requisito básico de turno ser cumprido.
+- Sequências declarativas executam perfis diferentes de ataque e dano dentro de uma única habilidade, cobrando a ação apenas uma vez.
+- Cada golpe registra seu próprio alvo, tags, acerto, elemento, crítico e dano; isso alimenta habilidades seguintes como ataque com a mão secundária e Destruidor de Hordas.
+- O esquema de importação valida que uma sequência possua exatamente um alvo selecionado para cada perfil de ataque.
+- Testes: 55 unitários e regressão visual Playwright do fluxo completo de dano adicional/rerrolagem.
+
 ## 2026-11-13 — gatilhos após acerto e rerrolagem 0.7.12
 
 - Habilidades `apos_acerto` passam a ser oferecidas somente depois que o ataque acerta e antes de confirmar o dano.

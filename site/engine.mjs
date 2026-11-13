@@ -134,6 +134,13 @@ export function validar(f) {
       if(p.salva)exigir(atributos.includes(p.salva.atributo)&&inteiro(p.salva.cd,1,40),'Salvaguarda do aprimoramento inválida em '+o.id);
     }
     if(o.gatilho==='apos_rolagem_dano')exigir(o.rerrolagem?.tipo==='dano'&&['todos','dados_com_resultado'].includes(o.rerrolagem.modo),'Rerrolagem de dano inválida em '+o.id);
+    if(o.requisitosUso){
+      const r=o.requisitosUso;
+      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
+      exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
+      exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
+    }
     const a=o.automacao;
     if(!a) continue;
     exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','efeito','efeito_conjuracao','projeteis','bencao'].includes(a.tipo), 'Automação desconhecida em '+o.id);
@@ -169,6 +176,7 @@ export function validar(f) {
         if(a.efeitoFalha.expira!==undefined)exigir(expiraValido.has(a.efeitoFalha.expira),'Expiração de falha inválida em '+o.id);
       }
       if(a.deslocamentoForcado!==undefined)exigir(Number.isFinite(a.deslocamentoForcado.distanciaM)&&a.deslocamentoForcado.distanciaM>0&&a.deslocamentoForcado.direcao==='afastar','Deslocamento forçado inválido em '+o.id);
+      if(a.tipo==='ataque'&&a.ataques!==undefined)exigir(Array.isArray(a.ataques)&&a.ataques.length>=2&&o.selecao?.min===a.ataques.length&&o.selecao?.max===a.ataques.length&&a.ataques.every(x=>inteiro(x.bonus,-20,40)&&formulaDanoValida(x.dano)&&Number.isFinite(x.alcanceM??a.alcanceM)),'Sequência de ataques inválida em '+o.id);
     }
   }
   if(f.preparacao){
@@ -272,6 +280,17 @@ function opcoesDepoisDoAcerto(a,o,alvo){
 }
 function opcoesRerrolagemDano(a){return (a.ficha.opcoes??[]).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 const formulaCritica=f=>f.replace(/^(\d+)d/,(_,n)=>(Number(n)+1)+'d');
+function validarRequisitosUso(s,a,o,alvo){
+  const r=o.requisitosUso;if(!r)return;
+  const ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[],anterior=[...(r.aposAcerto?acertos:ataques)].at(-1);
+  if(r.aposAtaque)exigir(ataques.length>0,'Use esta habilidade somente depois de realizar um ataque neste turno.');
+  if(r.aposAcerto)exigir(acertos.length>0,'Use esta habilidade somente depois de acertar um ataque neste turno.');
+  if(r.tagsAtaqueAnterior?.length)exigir(anterior&&r.tagsAtaqueAnterior.every(t=>anterior.tags?.includes(t)),'O ataque anterior não cumpre os requisitos desta habilidade.');
+  if(r.umaVezPorTurno)exigir(!a.usosTurno?.[r.umaVezPorTurno],'Esta habilidade já foi usada neste turno.');
+  if(r.alvoDiferenteDoAnterior)exigir(anterior&&alvo&&anterior.alvo!==alvo.id,'Escolha uma criatura diferente do alvo anterior.');
+  if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distancia(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
+  if(r.umaVezPorTurno)a.usosTurno[r.umaVezPorTurno]=true;
+}
 const usaArmadura=a=>typeof a.ficha.armaduraEquipada==='boolean'?a.ficha.armaduraEquipada:(a.ficha.equipamentos??[]).some(e=>e.inUse&&/(armadura|couro|malha|placas|escudo)/i.test((e.nome??e.name??'')+' '+(e.descricao??e.description??'')));
 const distancia=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function destinoDeslocamento(origem,alvo,distanciaM){
@@ -629,6 +648,7 @@ export async function aplicar(s,c,u,rolar) {
       const centro=rule.raioM?(rule.origemArea==='conjurador'?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
       const afetados=(escolhidos??(rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo])).filter(x=>x&&(!rule.excluirConjurador||x!==a));
+      validarRequisitosUso(s,a,o,afetados[0]);
       const deslocarForcado=p=>{
         const regra=rule.deslocamentoForcado;if(!regra)return false;
         const origemVetor=rule.raioM?centro:a,destino=destinoDeslocamento(origemVetor,p,regra.distanciaM);
@@ -677,18 +697,18 @@ export async function aplicar(s,c,u,rolar) {
         for(let i=0;i<afetados.length;i++){msg+=' • '+afetados[i].nome+' sofreu '+await aplicarDanoNoAtor(afetados[i],danos[i].total,rule.elemento);deslocarForcado(afetados[i]);}
         c.modo=modoOriginal;break;
       }
-      if(rule.tipo==='ataque'&&selecao?.repetirAlvo&&afetados.length>1){
+      if(rule.tipo==='ataque'&&afetados.length>1){
         const acertos=[],nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*classe.*$/i,'');
         for(let i=0;i<afetados.length;i++){
-          const p=afetados[i],defesa=caAtual(p),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Ataque '+(i+1)+' · '+o.nome,alvo:p.nome,cd:defesa}),face=rr.natural,total=rr.total;
+          const p=afetados[i],regraAtaque=rule.ataques?.[i]??rule,defesa=caAtual(p),rr=await rolarD20(regraAtaque.bonus,a,{tipo:'ataque',titulo:'Ataque '+(i+1)+' · '+o.nome,alvo:p.nome,cd:defesa}),face=rr.natural,total=rr.total,evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,regraAtaque),acertou:face!==1&&(face===20||total>=defesa)};a.eventosTurno.ataques.push(evento);
           msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
           if(face===1||(face!==20&&total<defesa)){msg+=' • errou '+p.nome;continue;}
-          const critico=face===20||(restricoesAtivas(p).criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),formula=critico?rule.dano.replace(/^\d+/,n=>String(+n+1)):rule.dano;
-          if(critico)msg+=' • crítico';acertos.push({p,formula,indice:i});
+          a.eventosTurno.acertos.push(evento);const critico=face===20||(restricoesAtivas(p).criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),formula=critico?formulaCritica(regraAtaque.dano):regraAtaque.dano;
+          if(critico)msg+=' • crítico';acertos.push({p,formula,indice:i,regraAtaque,critico});
         }
         if(acertos.length){
-          const danos=await resultadoLote(acertos.map(x=>x.formula),{tipo:'dano-lote',titulo:'Danos · '+nome,instancias:acertos.map(x=>({titulo:'Seta '+(x.indice+1),alvo:x.p.nome,critico:x.formula!==rule.dano}))});
-          for(let i=0;i<acertos.length;i++){msg+=' • '+acertos[i].p.nome+' sofreu '+await aplicarDanoNoAtor(acertos[i].p,danos[i].total,rule.elemento,{critico:acertos[i].formula!==rule.dano});deslocarForcado(acertos[i].p);}
+          const danos=await resultadoLote(acertos.map(x=>x.formula),{tipo:'dano-lote',titulo:'Danos · '+nome,instancias:acertos.map(x=>({titulo:'Ataque '+(x.indice+1),alvo:x.p.nome,critico:x.critico}))});
+          for(let i=0;i<acertos.length;i++){msg+=' • '+acertos[i].p.nome+' sofreu '+await aplicarDanoNoAtor(acertos[i].p,danos[i].total,acertos[i].regraAtaque.elemento??rule.elemento,{critico:acertos[i].critico});deslocarForcado(acertos[i].p);}
         }
         c.modo=modoOriginal;break;
       }

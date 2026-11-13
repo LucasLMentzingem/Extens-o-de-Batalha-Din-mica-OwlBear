@@ -414,3 +414,22 @@ test('recurso de rerrolagem é oferecido no resultado e cobrado quando usado',as
  });
  assert.equal(next.atores[0].rec.sorte,1);assert.equal(next.atores[1].pv,16);
 });
+test('segundo golpe exige ataque anterior e respeita limite de uma vez por turno',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'segunda-arma',nome:'Segunda arma',categoria:'acao',custo:[{tipo:'bonus',quantidade:1}],requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'segunda-arma'},automacao:{tipo:'ataque',bonus:4,dano:'1d4',elemento:'perfurante',alcanceM:1.5}});
+ await m.iniciar();await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'segunda-arma',alvo:m.b.id},player),/depois de realizar/);
+ const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
+ await m.go('usar',{ator:m.a.id,opcao:'segunda-arma',alvo:m.b.id},player,[15,3]);assert.equal(m.s.atores[0].bonus,0);assert.equal(m.s.atores[1].pv,16);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'segunda-arma',alvo:m.b.id},player),/já foi usada|Saldo insuficiente/);
+});
+test('sequência resolve armas diferentes contra dois alvos pagando uma única ação',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'duas-armas',nome:'Cimitarra + Espada',categoria:'acao',custo:[{tipo:'acao',quantidade:1}],selecao:{tipo:'alvos',min:2,max:2,repetirAlvo:true},automacao:{tipo:'ataque',bonus:5,dano:'1d6+3',elemento:'cortante',alcanceM:1.5,ataques:[{bonus:5,dano:'1d6+3',elemento:'cortante',alcanceM:1.5,tags:['arma']},{bonus:5,dano:'1d6',elemento:'perfurante',alcanceM:1.5,tags:['arma']}]}});
+ m.c.x=1.4;
+ await m.iniciar();await m.go('usar',{ator:m.a.id,opcao:'duas-armas',alvos:[m.b.id,m.c.id]},player,[15,14,9,4]);
+ assert.deepEqual(m.s.atores.map(a=>a.pv),[20,15,20]);assert.equal(m.s.atores[0].acao,0);assert.equal(m.s.atores[0].eventosTurno.ataques.length,2);assert.equal(m.s.atores[0].eventosTurno.acertos.length,2);
+});
+test('segundo alvo condicionado precisa ser diferente e próximo do primeiro',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'horda',nome:'Destruidor de Hordas',categoria:'acao',requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'horda',alvoDiferenteDoAnterior:true,distanciaDoAlvoAnteriorM:1.5},automacao:{tipo:'ataque',bonus:4,dano:'1d6',elemento:'perfurante',alcanceM:18}});
+ await m.iniciar();const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=2.4;
+ await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,4]);assert.equal(m.s.atores[2].pv,20);
+});

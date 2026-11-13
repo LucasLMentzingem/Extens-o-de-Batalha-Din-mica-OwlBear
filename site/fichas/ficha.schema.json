@@ -471,6 +471,17 @@
             "type": "object"
           }
         },
+        "requisitosUso": {
+          "type": "object",
+          "properties": {
+            "aposAtaque": {"type": "boolean"},
+            "aposAcerto": {"type": "boolean"},
+            "tagsAtaqueAnterior": {"type": "array", "items": {"type": "string"}},
+            "umaVezPorTurno": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+            "alvoDiferenteDoAnterior": {"type": "boolean"},
+            "distanciaDoAlvoAnteriorM": {"type": "number", "minimum": 0}
+          }
+        },
         "selecao": {
           "type": "object",
           "properties": {
@@ -560,6 +571,21 @@
             },
             "dano": {
               "type": "string"
+            },
+            "ataques": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "bonus": {"type": "integer"},
+                  "dano": {"type": "string"},
+                  "elemento": {"type": "string"},
+                  "alcanceM": {"type": "number"},
+                  "tags": {"type": "array", "items": {"type": "string"}}
+                },
+                "required": ["bonus", "dano"]
+              }
             },
             "formula": {
               "type": "string"
