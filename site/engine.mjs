@@ -142,12 +142,22 @@ function slotLegado(nome){
 }
 export function inventarioNormalizado(f){
   if(f.inventario?.itens)return f.inventario;
-  const usados=new Set(),itens=(f.equipamentos??[]).map((e,i)=>{
+  const usados=new Set(),ocupados=new Set(),itens=(f.equipamentos??[]).map((e,i)=>{
     const nome=e.nome??e.name??('Item '+(i+1)),moeda=/moedas?.*?(\d+)\s*po/i.exec(nome),quantidade=/^(\d+)\s+/.exec(nome);
     let id=idOK(e.id)?e.id:slug(nome);while(usados.has(id))id=slug(id+'-'+(i+1));usados.add(id);
     const slot=slotLegado(nome),tipo=moeda?'moeda':slot?'equipamento':'etc';
-    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg??0),slotEquipamento:slot,equipado:Boolean(e.inUse&&slot),equipadoSlot:e.inUse&&slot?slot:undefined,modificadores:structuredClone(e.modificadores??{})};
+    const equipado=Boolean(e.inUse&&slot&&!ocupados.has(slot));if(equipado)ocupados.add(slot);
+    return {id,nome,descricao:e.descricao??e.description??'',tipo,quantidade:moeda?Number(moeda[1]):Number(quantidade?.[1]??1),empilhavel:Boolean(moeda||quantidade),pesoKg:Number(e.pesoKg??0),slotEquipamento:slot,equipado,equipadoSlot:equipado?slot:undefined,modificadores:structuredClone(e.modificadores??{}),acoes:Array.isArray(e.acoes)?[...e.acoes]:undefined};
   });
+  // Fichas antigas do Forge nem sempre marcavam a arma em uso. Para que a
+  // migração não deixe o personagem desarmado, o primeiro equipamento de
+  // cada slot vazio entra equipado. Os demais permanecem no inventário.
+  for(const item of itens){
+    if(item.tipo!=='equipamento'||item.equipado)continue;
+    let slot=item.slotEquipamento;
+    if(ocupados.has(slot)&&slot==='mao_forte'&&!ocupados.has('mao_fraca')&&/adaga|cimitarra|espada curta|clava leve|machadinha/i.test(item.nome)){slot='mao_fraca';item.slotEquipamento='mao_fraca';}
+    if(ocupados.has(slot))continue;item.equipado=true;item.equipadoSlot=slot;ocupados.add(slot);
+  }
   return {capacidadeCargaKg:Math.max(1,Number(f.atributos?.for??10)*7.5),itens};
 }
 export const multi=o=>o?.selecao?.tipo==='alvos'&&(o.selecao.max>1||['projeteis','bencao'].includes(o.automacao?.tipo))?o.selecao:null;
@@ -162,6 +172,11 @@ export function validar(f) {
   exigir(atributos.every(k=>inteiro(f.atributos?.[k],1,30)) && inteiro(f.pvMaximos,1,9999) && inteiro(f.caBase,0,99) && Number.isFinite(f.deslocamentosM?.andar) && f.deslocamentosM.andar>=0,'Verifique atributos, PV, CA e deslocamento.');
   exigir(Array.isArray(f.opcoes)&&Array.isArray(f.recursos),'Opções e recursos devem ser listas.');
   f=structuredClone(f);atualizarMagias(f);
+  f.passivas=(f.passivas??[]).map((p,i)=>typeof p==='string'?{id:'passiva-'+(i+1),nome:p,descricao:p,ativa:true}:{...p,id:idOK(p.id)?p.id:'passiva-'+(i+1),nome:p.nome??('Passiva '+(i+1)),ativa:p.ativa!==false});
+  if(!f.preparacao){
+    const conhecidas=f.opcoes.filter(o=>o.categoria==='magia'&&(o.circuloBase??0)>0&&!o.varianteDe).map(o=>o.id);
+    f.preparacao={vagas:0,preparadas:[],semprePreparadas:conhecidas};
+  }
   lista(f.recursos,'Recursos'); lista(f.opcoes,'Opções');
   for(const r of f.recursos) exigir(nomeOK(r.nome)&&inteiro(r.maximo,0,9999)&&inteiro(r.saldoInicial,0,r.maximo),'Saldo inválido em '+r.id);
   for(const o of f.opcoes) {
@@ -248,7 +263,9 @@ export function validar(f) {
     exigir(inteiro(item.quantidade,1,999999)&&Number.isFinite(item.pesoKg)&&item.pesoKg>=0,'Quantidade ou peso inválido em '+item.id);
     if(item.tipo==='equipamento')exigir(slotsEquipamento.includes(item.slotEquipamento)||item.slotEquipamento==='acessorio','Slot de equipamento inválido em '+item.id);
     if(item.equipado)exigir(slotsEquipamento.includes(item.equipadoSlot),'Slot equipado inválido em '+item.id);
+    if(item.acoes!==undefined)exigir(Array.isArray(item.acoes)&&item.acoes.every(id=>out.opcoes.some(o=>o.id===id)),'Ação de item inválida em '+item.id);
   }
+  exigir(new Set(out.inventario.itens.filter(i=>i.equipado).map(i=>i.equipadoSlot)).size===out.inventario.itens.filter(i=>i.equipado).length,'Dois equipamentos ocupam o mesmo slot.');
   const nivel=out.classes.reduce((n,c)=>n+c.nivel,0);
   for(const o of out.opcoes){
     // Somente traduzir a sequência inteira quando todas as etapas são conhecidas.
@@ -260,6 +277,16 @@ export function validar(f) {
     if(!/^[1-9]\d?d(4|6|8|10|12)([+-]\d{1,2})?$/.test(dano)||!Number.isFinite(o.selecao.alcanceM))continue;
     const bonus=mod(out.atributos[hit.atributo])+(hit.somarProficiencia?(out.proficiencia??(2+Math.floor((nivel-1)/4))):0);
     o.automacao={tipo:'ataque',bonus,dano,elemento:parcela.tipo,alcanceM:o.selecao.alcanceM};
+  }
+  // Vincula ataques de arma aos equipamentos correspondentes. O campo pode
+  // ser informado explicitamente no JSON; a inferência existe para migrar as
+  // sete fichas atuais sem exigir edição manual.
+  const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/^\d+\s+/,'').replace(/s\b/g,'');
+  const armas=out.inventario.itens.filter(i=>['mao_forte','mao_fraca','arma_distancia'].includes(i.slotEquipamento));
+  for(const o of out.opcoes){
+    if(o.requerItemEquipado||o.categoria==='magia'||o.automacao?.tipo!=='ataque')continue;
+    const nome=normal(o.nome),item=armas.find(i=>{const n=normal(i.nome);return n.length>2&&(nome.includes(n)||n.includes(nome.split(/[|\u00b7—]/)[0].trim()));});
+    if(item){o.requerItemEquipado=item.id;item.acoes=[...new Set([...(item.acoes??[]),o.id])];}
   }
   // Regra da campanha: nenhuma seleção de ataque, magia, item ou habilidade
   // começa além de 18 m. O raio da área permanece inalterado.
@@ -287,14 +314,27 @@ export const ativos = s=>s.atores.filter(a=>a.emCombate!==false);
 export const mod = n=>Math.floor((n-10)/2);
 export const bonusEfeito=(a,campo)=>(a?.efeitosAtivos??[]).reduce((n,e)=>n+(Number(e.modificadores?.[campo])||0),0);
 export const itensEquipados=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.equipado);
+export function opcaoPreparada(f,o){
+  if(o?.categoria!=='magia'||(o.circuloBase??0)===0)return true;
+  const p=f.preparacao;if(!p)return true;const id=o.varianteDe??o.id;
+  return p.preparadas.includes(id)||p.semprePreparadas.includes(id);
+}
+export function opcaoDisponivel(a,o){
+  if(!o||o.ativa===false||!opcaoPreparada(a.ficha,o))return false;
+  if(o.requerItemEquipado&&!itensEquipados(a).some(i=>i.id===o.requerItemEquipado))return false;
+  if(o.origemItem&&!itensEquipados(a).some(i=>i.id===o.origemItem))return false;
+  return true;
+}
+export const opcoesDisponiveis=a=>(a?.ficha?.opcoes??[]).filter(o=>opcaoDisponivel(a,o));
 export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Number(i.modificadores?.[campo])||0),0);
+export const bonusPassiva=(a,campo)=>(a?.ficha?.passivas??[]).filter(p=>p.ativa!==false).reduce((n,p)=>n+(Number(p.modificadores?.[campo])||0),0);
 export const caAtual=a=>{
   let base=a?.ficha?.caBase??0,bonus=0;
   for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base')base=Math.max(base,Number(ca.valor)||0);if(ca?.tipo==='bonus')bonus+=Number(ca.valor)||0;}
-  return base+bonus+bonusEquipamento(a,'ca')+bonusEfeito(a,'ca');
+  return base+bonus+bonusEquipamento(a,'ca')+bonusPassiva(a,'ca')+bonusEfeito(a,'ca');
 };
-export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
-export const deslocamentoMaximo=a=>Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM'));
+export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusPassiva(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
+export const deslocamentoMaximo=a=>Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusPassiva(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM'));
 export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(1,Number(i.quantidade)||1),0);
 export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 export function curarAtor(a,valor){
@@ -343,14 +383,14 @@ const tagsAtaque=(o,rule)=>{
 const custoDisponivel=(a,c)=>(c.tipo==='recurso'?a.rec?.[c.id]:a?.[c.tipo])>=c.quantidade;
 function opcoesDepoisDoAcerto(a,o,alvo){
   const tags=tagsAtaque(o,o.automacao),usos=a.usosTurno??{};
-  const manuais=(a.ficha.opcoes??[]).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!usos[g.id])).filter(g=>{
+  const manuais=opcoesDisponiveis(a).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!usos[g.id])).filter(g=>{
     const r=g.aprimoramento.requisitos??{};return (!r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t)))&&(!r.alvoFerido||alvo.pv<pvMaximosAtuais(alvo));
   });
   const persistentes=(alvo.efeitosAtivos??[]).filter(e=>e.danoAoSerAtingido?.origemAtorId===a.id).filter(e=>!e.danoAoSerAtingido.tagsAtaque?.length||e.danoAoSerAtingido.tagsAtaque.every(t=>tags.includes(t))).map(e=>({id:e.id,nome:e.nome,descricao:e.descricao,custo:[],automatico:true,aprimoramento:{dano:e.danoAoSerAtingido.formula,elemento:e.danoAoSerAtingido.elemento,critico:e.danoAoSerAtingido.critico!==false}}));
   return [...manuais,...persistentes];
 }
-function opcoesRerrolagemDano(a){return (a.ficha.opcoes??[]).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
-function opcoesRerrolagemD20(a){return (a?.ficha.opcoes??[]).filter(o=>o.gatilho==='apos_rolagem_d20'&&o.rerrolagem?.tipo==='d20'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
+function opcoesRerrolagemDano(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
+function opcoesRerrolagemD20(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_d20'&&o.rerrolagem?.tipo==='d20'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 const formulaCritica=f=>f.replace(/^(\d+)d/,(_,n)=>(Number(n)+1)+'d');
 function validarRequisitosUso(s,a,o,alvo){
   const r=o.requisitosUso;if(!r)return;
@@ -393,7 +433,7 @@ function pontoSaida(origem,destino,centro,raio){
 export function oportunidades(s,movente,destino){
   return s.atores.flatMap(reator=>{
     const alcance=reator.ficha.alcanceCorpoACorpoM??1.5;
-    const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='sair_alcance'&&o.custo?.some(c=>c.tipo==='reacao'));
+    const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='sair_alcance'&&o.custo?.some(c=>c.tipo==='reacao'));
     if(reator.emCombate===false||movente.emCombate===false||reator===movente||lado(reator)===lado(movente)||reator.pv<=0||reator.reacao<=0||!opcoes.length)return [];
     if(distancia(reator,movente)>alcance+1e-8||distancia(reator,destino)<=alcance+1e-8)return [];
     const ponto=pontoSaida(movente,destino,reator,alcance);
@@ -431,7 +471,7 @@ function abrirProximaReacaoEvento(s){
 }
 function enfileirarReacaoAoSofrerDano(s,reator,origem,valor,elemento){
   if(s.fase!=='turnos'||!reator||!origem||reator===origem||valor<=0||reator.pv<=0||reator.reacao<=0)return;
-  const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='sofrer_dano'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
+  const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='sofrer_dano'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
   if(!opcoes.length)return;
   s.filaReacoes??=[];s.filaReacoes.push({gatilho:'sofrer_dano',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
     descricao:reator.nome+' sofreu '+valor+(elemento?' de dano '+elemento:' de dano')+' de '+origem.nome+'.',contexto:{dano:valor,elemento}});
@@ -439,7 +479,7 @@ function enfileirarReacaoAoSofrerDano(s,reator,origem,valor,elemento){
 }
 function abrirReacaoPreventiva(s,reator,origem,resolucao){
   if(s.fase!=='turnos'||s.reacaoPendente||!reator||!origem||reator===origem||reator.pv<=0||reator.reacao<=0)return false;
-  const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
+  const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
   if(!opcoes.length)return false;
   s.resolucaoPendente={...resolucao,tipo:'dano_ataque',origem:origem.id,alvo:reator.id};
   s.reacaoPendente={id:crypto.randomUUID(),gatilho:'ser_atingido',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
@@ -660,6 +700,26 @@ export async function aplicar(s,c,u,rolar) {
     case 'encerrarConcentracao':
       exigir(a?.concentracaoAtiva,'Este personagem não está se concentrando.');
       msg=a.nome+' encerrou a concentração em '+a.concentracaoAtiva.nome+'.';encerrarConcentracao(s,a);break;
+    case 'livro': {
+      exigir(a&&s.fase==='preparo','Prepare magias e altere passivas somente fora de combate.');
+      exigir(['preparar','despreparar','ativar','desativar'].includes(c.operacao),'Operação do Livro de Habilidades inválida.');
+      const o=a.ficha.opcoes.find(x=>x.id===c.habilidadeId),passiva=a.ficha.passivas?.find(x=>x.id===c.habilidadeId);
+      exigir(o||passiva,'Habilidade não encontrada.');
+      if(c.operacao==='preparar'||c.operacao==='despreparar'){
+        exigir(o?.categoria==='magia'&&(o.circuloBase??0)>0&&!o.varianteDe,'Somente uma magia base pode ser preparada.');
+        const p=a.ficha.preparacao,id=o.id;
+        exigir(!p.semprePreparadas.includes(id),'Esta magia está sempre preparada.');
+        if(c.operacao==='preparar'){
+          exigir(!p.preparadas.includes(id),'Esta magia já está preparada.');
+          exigir(p.preparadas.length<p.vagas,'Todos os espaços de preparação estão ocupados.');p.preparadas.push(id);
+        }else{exigir(p.preparadas.includes(id),'Esta magia não está preparada.');p.preparadas=p.preparadas.filter(x=>x!==id);}
+        msg=a.nome+' '+(c.operacao==='preparar'?'preparou ':'despreparou ')+o.nome+'.';
+      }else{
+        const habilidade=o??passiva;habilidade.ativa=c.operacao==='ativar';
+        msg=a.nome+' '+(habilidade.ativa?'ativou ':'desativou ')+habilidade.nome+'.';
+      }
+      break;
+    }
     case 'inventario': {
       exigir(a&&['equipar','desequipar','usar'].includes(c.operacao),'Operação de inventário inválida.');
       const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');
@@ -739,7 +799,7 @@ export async function aplicar(s,c,u,rolar) {
         exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para reagir.');bag[key]-=custo.quantidade;
       }
       const alcance=a.ficha.alcanceCorpoACorpoM??1.5;
-      const ataque=(o.automacao?.tipo==='ataque'?o:a.ficha.opcoes.filter(x=>x.automacao?.tipo==='ataque'&&x.automacao.alcanceM<=alcance+1e-8&&x.categoria!=='magia')
+      const ataque=(o.automacao?.tipo==='ataque'?o:opcoesDisponiveis(a).filter(x=>x.automacao?.tipo==='ataque'&&x.automacao.alcanceM<=alcance+1e-8&&x.categoria!=='magia')
         .sort((x,y)=>y.automacao.bonus-x.automacao.bonus)[0]);
       exigir(ataque,'Nenhum ataque corpo a corpo configurado para esta reação.');
       const rule=ataque.automacao,alvo=s.atores.find(x=>x.id===p.alvo),ajuste=c.ajuste??0;
@@ -766,7 +826,7 @@ export async function aplicar(s,c,u,rolar) {
       break;
     }
     case 'reagir': {
-      const o=a.ficha.opcoes.find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
+      const o=opcoesDisponiveis(a).find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
       exigir(s.fase==='turnos'&&a.pv>0&&o,'Reação indisponível.');
       for(const v of o.custo){
         const bag=v.tipo==='recurso'?a.rec:a,key=v.tipo==='recurso'?v.id:v.tipo;
@@ -805,7 +865,7 @@ export async function aplicar(s,c,u,rolar) {
         break;
       }
       exigir(c.tipo==='usar','Comando desconhecido.');
-      const o=opcaoDeclarada;exigir(o,'Opção desconhecida.');
+      const o=opcaoDeclarada;exigir(o,'Opção desconhecida.');exigir(opcaoDisponivel(a,o),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
       const rule=o.automacao;
       exigir(rule || (gm && c.assistido),'Opção assistida. O mestre precisa confirmar a resolução.');
       for(const custo of o.custo??[]){

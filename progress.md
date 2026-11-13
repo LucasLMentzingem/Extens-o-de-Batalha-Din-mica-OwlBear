@@ -298,16 +298,21 @@ Meta atual: construir primeiro os módulos reutilizáveis, depois configurar as 
 - Cliente de jogo carregado sem erros; captura inicial conferida em `work/condicoes-v0710/shot-0.png`.
 - Próximo módulo: cura, PV temporários, estado de 0 PV e salvaguardas contra a morte.
 
-### Expansão de ficha registrada
+### Versão 0.7.16: Inventário e Livro de Habilidades
 
-- [ ] Criar navegação entre Ficha de personagem, Inventário e Livro de Habilidades.
-- [ ] Inventário com dez slots de equipamento, grade 5 × 5 expansível, pilhas, PO e carga.
-- [ ] Aplicar dinamicamente atributos, ações e habilidades concedidas pelos equipamentos.
-- [ ] Travar troca gratuita durante combate e cobrar 1 ação para equipar/desequipar.
-- [ ] Adicionar aba Itens à HUD de combate.
-- [ ] Livro de Habilidades com páginas Classe, Comum e Reações.
-- [ ] Preparação de magias, ativação de passivas e reações configuráveis.
-- [ ] Solicitar capturas de BG3 ao usuário antes da implementação visual do Livro.
+- [x] Criar navegação entre Ficha de personagem, Inventário e Livro de Habilidades.
+- [x] Inventário com dez slots de equipamento, grade 5 × 5 expansível, pilhas, PO e carga.
+- [x] Aplicar dinamicamente CA, PV máximo, deslocamento, ações de arma e habilidades concedidas pelos equipamentos.
+- [x] Travar troca gratuita durante combate e cobrar 1 ação para equipar, desequipar ou consumir.
+- [x] Adicionar aba Itens à HUD de combate.
+- [x] Livro de Habilidades com páginas Classe, Comum e Reações.
+- [x] Organizar magias do maior círculo para o menor, com truques e passivas em seções próprias.
+- [x] Implementar preparação de magias e ativação de passivas e reações pelo botão direito.
+- [x] Usar as capturas de BG3 fornecidas como referência de hierarquia e estados.
+
+- Testes do motor: 69 aprovados.
+- Validação visual Playwright aprovada para dez slots, grade 5×5, menu contextual, páginas do Livro e preparação.
+- Capturas conferidas: `work/inventario-v0716.png` e `work/livro-habilidades-v0716.png`.
 
 Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha-Inventario-Livro-Habilidades.md` no projeto principal.
 

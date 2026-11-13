@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
@@ -159,6 +159,7 @@ test('alvos incompletos, duplicados proibidos ou ausentes não gastam recursos',
 test('Bênção permite menos alvos, recusa repetição e aplica dado nas salvas',async()=>{
  const m=mesa();
  m.a.ficha.opcoes.push({id:'bencao-teste',nome:'Bênção',categoria:'magia',circuloBase:1,custo:[{tipo:'acao',quantidade:1},{tipo:'recurso',id:'espaco-1',quantidade:1}]});
+ m.a.ficha.preparacao.semprePreparadas.push('bencao-teste');
  await m.iniciar();
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'bencao-teste',alvos:[m.a.id,m.a.id]},player),/diferentes/);
  await m.go('usar',{ator:m.a.id,opcao:'bencao-teste',alvos:[m.a.id]},player);
@@ -502,6 +503,7 @@ test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recurso
  assert.equal(s.atores[0].pv,s.atores[0].ficha.pvMaximos-2);assert.equal(s.atores[0].bonus,0);assert.equal(s.atores[0].rec['recuperar-folego'],1);
  const monge=fichasJogadores.find(f=>f.id==='loteria'),metabolismo=monge.opcoes.find(o=>o.id==='metabolismo-incomum-acao');
  assert.deepEqual(metabolismo.automacao.recuperarRecursos,['pontos-de-foco']);assert.equal(monge.opcoes.find(o=>o.id==='pico-adrenalina').automacao.disparada,true);
+});
 
 test('inventário legado é migrado para pilhas, moedas e capacidade de carga',()=>{
  const f=validar(nikki),moedas=f.inventario.itens.find(i=>i.tipo==='moeda');
@@ -522,4 +524,18 @@ test('trocar equipamento ou usar consumível em combate exige o turno e gasta um
  await assert.rejects(m.go('inventario',{ator:m.b.id,operacao:'equipar',itemId:'elmo-teste'},gm),/turno/);
  await m.go('inventario',{ator:m.a.id,operacao:'usar',itemId:'pocao-teste'},player);const a=m.s.atores[0];assert.equal(a.acao,0);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='pocao-teste').quantidade,1);
  await assert.rejects(m.go('inventario',{ator:m.a.id,operacao:'usar',itemId:'pocao-teste'},player),/ação disponível/);
+});
+test('equipamento controla dinamicamente os ataques exibidos',async()=>{
+ const m=mesa();m.a.dono='p';const item=m.a.ficha.inventario.itens.find(i=>i.nome.includes('Adagas')),ataque=m.a.ficha.opcoes.find(o=>o.requerItemEquipado===item.id);
+ assert.ok(item.equipado&&ataque&&opcoesDisponiveis(m.a).some(o=>o.id===ataque.id));
+ await m.go('inventario',{ator:m.a.id,operacao:'desequipar',itemId:item.id},player);
+ assert.equal(opcoesDisponiveis(m.s.atores[0]).some(o=>o.id===ataque.id),false);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player),/equipamento adequado/);
+});
+test('Livro de Habilidades prepara magias, alterna passivas e trava em combate',async()=>{
+ const m=mesa();m.a.dono='p';const p=m.a.ficha.preparacao,id=p.preparadas[0],passiva=m.a.ficha.passivas[0];
+ await m.go('livro',{ator:m.a.id,operacao:'despreparar',habilidadeId:id},player);assert.equal(m.s.atores[0].ficha.preparacao.preparadas.includes(id),false);
+ await m.go('livro',{ator:m.a.id,operacao:'preparar',habilidadeId:id},player);assert.equal(m.s.atores[0].ficha.preparacao.preparadas.includes(id),true);
+ await m.go('livro',{ator:m.a.id,operacao:'desativar',habilidadeId:passiva.id},player);assert.equal(m.s.atores[0].ficha.passivas[0].ativa,false);
+ await m.iniciar();await assert.rejects(m.go('livro',{ator:m.a.id,operacao:'ativar',habilidadeId:passiva.id},player),/somente fora de combate/);
 });

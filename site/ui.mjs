@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
 import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs';
 import {fichaEditavel,biblioteca} from './ficha-view.mjs';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais} from './engine.mjs';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis} from './engine.mjs';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -12,7 +12,7 @@ function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
-let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null;
+let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,habilidadeContexto=null;
 let testePendente;
 function view(estado,i){
   if(s?.rev!==estado.rev)alvos=[];
@@ -62,7 +62,7 @@ function render(){
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
     if(s.fase==='iniciativa'&&meu&&a.init===null)h+=btn('iniciativa','Rolar iniciativa','primario');
     if(s.fase==='turnos'&&ativo===a&&meu){
-      const ops=(f.opcoes??[]).filter(x=>x.automacao || (gm && !(x.custo??[]).some(y=>y.tipo==='reacao')));
+      const ops=opcoesDisponiveis(a).filter(x=>x.automacao || (gm && !(x.custo??[]).some(y=>y.tipo==='reacao')));
       const o=ops.find(x=>x.id===acao)??ops[0];acao=o?.id;
       h+='<div class="painel"><h3>Turno de '+esc(a.nome)+'</h3><label>Ação ou magia<select id="acao">'+ops.map(x=>opt(x.id,x.nome+(x.automacao?'':' · assistida'),x===o)).join('')+'</select></label>';
       const targets=s.atores.filter(x=>x!==a).concat(a);const target=targets.find(x=>x.id===alvo)??targets[0];alvo=target.id;
@@ -169,6 +169,12 @@ async function alterarItem(operacao,slot){
   await enviar('inventario',{operacao,itemId:itemContexto,slot,confirmado});
   itemContexto=null;$('itemMenu').close();aviso(operacao==='usar'?'Consumível usado.':'Equipamento atualizado.');
 }
+async function alterarHabilidade(operacao){
+  const a=s.atores.find(x=>x.id===escolhido);if(!a||!habilidadeContexto)return;
+  const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
+  await enviar('livro',{operacao,habilidadeId:habilidadeContexto,confirmado});
+  habilidadeContexto=null;$('habilidadeMenu').close();aviso('Livro de Habilidades atualizado.');
+}
 async function rolarTeste(grupo,chave){
   const a=s.atores.find(x=>x.id===escolhido);if(!a)return;
   const bonus=grupo==='pericias'?bonusPericia(a.ficha,chave):(a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]));
@@ -234,6 +240,19 @@ $('app').onsubmit=e=>{if(e.target.id==='formFicha'){e.preventDefault();tarefa(sa
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
 $('app').oncontextmenu=e=>{
+ const habilidade=e.target.closest('[data-habilidade-id]');
+ if(habilidade){
+   e.preventDefault();const a=s.atores.find(x=>x.id===escolhido),gm=info.role==='GM'&&!testar,pode=gm||(a?.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));if(!pode)return;
+   const o=a.ficha.opcoes.find(x=>x.id===habilidade.dataset.habilidadeId),passiva=a.ficha.passivas?.find(x=>x.id===habilidade.dataset.habilidadeId),h=o??passiva;if(!h)return;habilidadeContexto=h.id;
+   $('habilidadeMenuTitulo').textContent=h.nome;$('habilidadeMenuDescricao').textContent=h.descricao||'Sem descrição adicional.';
+   let acoes='<button type="button" data-habilidade-fechar>Cancelar</button>';
+   const prep=a.ficha.preparacao??{preparadas:[],semprePreparadas:[],vagas:0},preparada=prep.preparadas.includes(h.id),sempre=prep.semprePreparadas.includes(h.id);
+   if(o?.categoria==='magia'&&(o.circuloBase??0)>0&&!o.varianteDe&&!sempre)acoes+='<button type="button" data-habilidade-acao="'+(preparada?'despreparar':'preparar')+'" class="primario">'+(preparada?'Despreparar':'Preparar')+'</button>';
+   else if(passiva||o?.custo?.some(c=>c.tipo==='reacao'))acoes+='<button type="button" data-habilidade-acao="'+(h.ativa===false?'ativar':'desativar')+'" class="primario">'+(h.ativa===false?'Ativar':'Desativar')+'</button>';
+   else acoes+='<small>Esta habilidade não possui configuração contextual.</small>';
+   if(s.fase!=='preparo')acoes='<button type="button" data-habilidade-fechar>Fechar</button><small>Prepare magias e altere passivas somente fora de combate.</small>';
+   $('habilidadeMenuAcoes').innerHTML=acoes;$('habilidadeMenuEstado').textContent=s.fase==='preparo'?'Alterações permitidas fora de combate.':'Configuração travada durante o combate.';$('habilidadeMenu').showModal();return;
+ }
  const item=e.target.closest('[data-item-id]');
  if(item){
    e.preventDefault();const a=s.atores.find(x=>x.id===escolhido),gm=info.role==='GM'&&!testar,pode=gm||(a?.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));if(!pode)return;
@@ -249,6 +268,7 @@ $('app').oncontextmenu=e=>{
  }
  const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
 $('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
+$('habilidadeMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-habilidade-fechar'))return $('habilidadeMenu').close();if(b.dataset.habilidadeAcao)tarefa(()=>alterarHabilidade(b.dataset.habilidadeAcao));};
 try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;

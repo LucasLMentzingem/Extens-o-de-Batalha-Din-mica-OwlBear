@@ -1,6 +1,6 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
 import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea} from './engine.mjs';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
 const url=new URL('./hud.html',import.meta.url);
@@ -122,7 +122,7 @@ export async function iniciarHud(){
     const a=ator();
     if(!controla(a))return;
     await cancelar();
-    const o=a.ficha.opcoes.find(o=>o.id===d.opcao),rule=o?.automacao;
+    const o=opcoesDisponiveis(a).find(o=>o.id===d.opcao),rule=o?.automacao;
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
     const foraCombate=d.tipo==='usar'&&estado.fase==='preparo';
@@ -315,6 +315,9 @@ export async function iniciarHud(){
     }else if(d.tipo==='salvaguardaMorte'){
       const a=ator();if(!controla(a)||a.pv!==0||a.estadoVida!=='inconsciente'||estado.ordem[estado.vez]!==a.id)return;
       await cancelar();pendente={cmd:{tipo:'salvaguardaMorte',ator:a.id,rev:estado.rev},rev:estado.rev,escolha:null,titulo:'Salvaguarda contra a morte · '+a.nome,pronto:true,rolagem:false,substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'10 ou mais: sucesso · 1 natural: duas falhas · 20 natural: recupera 1 PV.'};
+    }else if(d.tipo==='usarItem'){
+      const a=ator(),item=a?.ficha.inventario?.itens.find(i=>i.id===d.itemId&&i.tipo==='consumivel'&&i.quantidade>0);if(!controla(a)||!item)return;
+      ocupado=true;transmitir();try{await api.enviar({tipo:'inventario',ator:a.id,operacao:'usar',itemId:item.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
     }else if(d.tipo==='npcs'){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
       // Each acknowledgment follows its snapshot; let the view queue settle between NPCs.

@@ -228,6 +228,10 @@
               "equipadoSlot": {"enum": ["cabeca", "capa", "vestes", "botas", "mao_forte", "mao_fraca", "arma_distancia", "colar", "acessorio_1", "acessorio_2"]},
               "moeda": {"enum": ["po", "pp", "pc", "pe", "pl"]},
               "icone": {"type": "string"},
+              "acoes": {
+                "type": "array",
+                "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"}
+              },
               "modificadores": {
                 "type": "object",
                 "additionalProperties": {"type": "number"}
