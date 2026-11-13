@@ -369,6 +369,16 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Testes do motor: 73 aprovados.
 - Validações Playwright aprovadas para rodapé, buffs, inventário, escudo, pesos e Livro de Habilidades.
 
+### Versão 0.7.23: grade de uma linha e opções realmente disponíveis
+
+- [x] Aumentar ligeiramente a altura do rodapé quando a grade usa uma linha, preservando os 50 px dos ícones e a barra de rolagem.
+- [x] Reaplicar em encontros persistidos o vínculo entre ataques e o item de origem.
+- [x] Exibir golpes somente das armas atualmente equipadas; a lança guardada da Nikki não aparece mais na HUD.
+- [x] Confirmar que a HUD oferece somente magias preparadas, sempre preparadas e truques.
+
+- Testes do motor: 75 aprovados, incluindo migração de encontro antigo, arma guardada e preparação de magias.
+- Cliente Playwright executado sem erros novos; a inspeção visual final da HUD permanece vinculada ao popover do Owlbear.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.

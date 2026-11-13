@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,slotsOcupadosItem} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,slotsOcupadosItem} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
@@ -309,6 +309,7 @@ test('ataque que falha também confirma o custo da ação',async()=>{
 test('armas arremessáveis recebem ações próprias e desvantagem após o alcance normal',async()=>{
  const m=mesa(),variantes=m.a.ficha.opcoes.filter(o=>o.varianteArremessoDe);
  assert.deepEqual(variantes.map(o=>o.nome),['Adaga +4 · arremesso | ação','Segunda adaga +4 · arremesso | ação bônus','Lança +2 · arremesso | ação · uma mão']);
+ assert.deepEqual(opcoesDisponiveis(m.a).filter(o=>o.varianteArremessoDe).map(o=>o.nome),['Adaga +4 · arremesso | ação','Segunda adaga +4 · arremesso | ação bônus']);
  await m.iniciar();m.s.atores[1].x=10;const adaga=variantes[0],formulas=[];
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async f=>{formulas.push(f);return {total:9,natural:4,formula:f,resumo:'4+5=9'};});
  assert.equal(formulas[0],'2d20kl1+4');assert.equal(s.atores[0].acao,0);assert.match(s.historico[0],/errou/);
@@ -547,6 +548,28 @@ test('equipamento controla dinamicamente os ataques exibidos',async()=>{
  await m.go('inventario',{ator:m.a.id,operacao:'desequipar',itemId:item.id},player);
  assert.equal(opcoesDisponiveis(m.s.atores[0]).some(o=>o.id===ataque.id),false);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player),/equipamento adequado/);
+});
+test('migração de encontro antigo religa ataques às armas e oculta a lança guardada',()=>{
+ const m=mesa(),f=m.a.ficha;
+ for(const o of f.opcoes)delete o.requerItemEquipado;
+ for(const i of f.inventario.itens)delete i.acoes;
+ atualizarMagias(f);
+ const visiveis=opcoesDisponiveis(m.a).map(o=>o.nome);
+ assert.ok(visiveis.some(n=>n.startsWith('Adaga +4')));
+ assert.ok(visiveis.some(n=>n.startsWith('Segunda adaga +4')));
+ assert.equal(visiveis.some(n=>n.startsWith('Lança +2')),false);
+});
+test('HUD lógica oferece apenas magias preparadas, sempre preparadas e truques',()=>{
+ const m=mesa(),p=m.a.ficha.preparacao,magias=m.a.ficha.opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe);
+ const preparada=magias.find(o=>p.preparadas.includes(o.id));
+ const sempre=magias.find(o=>p.semprePreparadas.includes(o.id));
+ const truque=magias.find(o=>(o.circuloBase??0)===0);
+ assert.ok(preparada&&sempre&&truque);
+ p.preparadas=p.preparadas.filter(id=>id!==preparada.id);
+ const disponiveis=opcoesDisponiveis(m.a).map(o=>o.id);
+ assert.equal(disponiveis.includes(preparada.id),false);
+ assert.equal(disponiveis.includes(sempre.id),true);
+ assert.equal(disponiveis.includes(truque.id),true);
 });
 test('arma de duas mãos ocupa as duas mãos e guarda as armas anteriores',async()=>{
  const m=mesa();m.a.dono='p';m.a.ficha.inventario.itens.push({id:'espada-grande-teste',nome:'Espada grande',descricao:'Arma de duas mãos.',tipo:'equipamento',quantidade:1,pesoKg:3,slotEquipamento:'mao_forte',duasMaos:true,equipado:false});

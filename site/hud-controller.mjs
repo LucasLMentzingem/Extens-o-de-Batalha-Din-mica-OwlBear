@@ -67,7 +67,9 @@ export async function iniciarHud(){
       const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
       const faixaEfeitos=temEfeitos?118:0;
       espacoEfeitos=0;
-      const largura=Math.max(300,Math.min(1120,w-18-faixaEfeitos)),altura=Math.min(154+linhas*54,Math.floor(h*.65));
+      // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
+      // histórico e a barra de rolagem sem comprimir os ícones da grade.
+      const largura=Math.max(300,Math.min(1120,w-18-faixaEfeitos)),altura=Math.min(176+linhas*54,Math.floor(h*.65));
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
       if(ator()){
         const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;

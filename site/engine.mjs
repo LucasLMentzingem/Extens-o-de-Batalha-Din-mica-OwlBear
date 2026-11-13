@@ -149,6 +149,9 @@ export function atualizarMagias(f){
       f.opcoes.push(v);
     }
   }
+  // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
+  // vínculo na migração impede que armas guardadas continuem na HUD.
+  vincularAcoesEquipamentos(f);
 }
 const textoNormal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const armaLeve=i=>i?.leve===true||/adaga|foice|espada curta|cimitarra|clava leve|machadinha/.test(textoNormal(i?.nome));
@@ -358,16 +361,9 @@ export function validar(f) {
     o.automacao={tipo:'ataque',bonus,dano,elemento:parcela.tipo,alcanceM:o.selecao.alcanceM};
   }
   // Vincula ataques de arma aos equipamentos correspondentes. O campo pode
-  // ser informado explicitamente no JSON; a inferência existe para migrar as
-  // sete fichas atuais sem exigir edição manual.
-  const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/^\d+\s+/,'').replace(/s\b/g,'');
-  const armas=out.inventario.itens.filter(i=>['mao_forte','mao_fraca','arma_distancia'].includes(i.slotEquipamento));
-  for(const o of out.opcoes){
-    if(o.categoria==='magia'||o.automacao?.tipo!=='ataque')continue;
-    const nome=normal(o.nome),candidatos=armas.filter(i=>{const n=normal(i.nome);return n.length>2&&(nome.includes(n)||n.includes(nome.split(/[|\u00b7—]/)[0].trim()));});
-    const secundaria=/segunda|mao fraca/.test(nome),item=secundaria?(candidatos.find(i=>i.equipadoSlot==='mao_fraca')??candidatos[1]??candidatos[0]):(candidatos.find(i=>i.equipadoSlot==='mao_forte')??candidatos[0]);
-    if(item){o.requerItemEquipado=item.id;item.acoes=[...new Set([...(item.acoes??[]),o.id])];}
-  }
+  // ser informado explicitamente no JSON; a inferência também migra as sete
+  // fichas atuais e encontros persistidos sem exigir edição manual.
+  vincularAcoesEquipamentos(out);
   // Regra da campanha: nenhuma seleção de ataque, magia, item ou habilidade
   // começa além de 18 m. O raio da área permanece inalterado.
   for(const o of out.opcoes){
@@ -394,6 +390,24 @@ export const ativos = s=>s.atores.filter(a=>a.emCombate!==false);
 export const mod = n=>Math.floor((n-10)/2);
 export const bonusEfeito=(a,campo)=>(a?.efeitosAtivos??[]).reduce((n,e)=>n+(Number(e.modificadores?.[campo])||0),0);
 export const itensEquipados=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.equipado);
+function vincularAcoesEquipamentos(f){
+  const itens=f?.inventario?.itens;if(!Array.isArray(itens))return;
+  const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/^\d+\s+/,'').replace(/s\b/g,'');
+  const armas=itens.filter(i=>['mao_forte','mao_fraca','arma_distancia'].includes(i.slotEquipamento));
+  const idsOpcoes=new Set((f.opcoes??[]).map(o=>o.id));
+  for(const item of armas)item.acoes=[...new Set((item.acoes??[]).filter(id=>idsOpcoes.has(id)))];
+  for(const o of f.opcoes??[]){
+    if(o.categoria==='magia'||o.automacao?.tipo!=='ataque')continue;
+    let item=armas.find(i=>i.id===o.requerItemEquipado);
+    if(!item){
+      delete o.requerItemEquipado;
+      const nome=normal(o.nome),candidatos=armas.filter(i=>{const n=normal(i.nome);return n.length>2&&(nome.includes(n)||n.includes(nome.split(/[|\u00b7—]/)[0].trim()));});
+      const secundaria=/segunda|mao fraca/.test(nome);
+      item=secundaria?(candidatos.find(i=>i.equipadoSlot==='mao_fraca')??candidatos[1]??candidatos[0]):(candidatos.find(i=>i.equipadoSlot==='mao_forte')??candidatos[0]);
+    }
+    if(item){o.requerItemEquipado=item.id;item.acoes=[...new Set([...(item.acoes??[]),o.id])];}
+  }
+}
 export function opcaoPreparada(f,o){
   if(o?.categoria!=='magia'||(o.circuloBase??0)===0)return true;
   const p=f.preparacao;if(!p)return true;const id=o.varianteDe??o.id;
