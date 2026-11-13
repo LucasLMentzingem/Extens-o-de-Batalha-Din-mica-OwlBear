@@ -612,7 +612,7 @@
       "id": "504bc18e-d20e-5bc0-ae01-5109c41f7f29",
       "nome": "1º | Mísseis Mágicos · acerto automático · classe",
       "categoria": "magia",
-      "descricao": "Ação · 36 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos.",
+      "descricao": "Ação · 18 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos.",
       "custo": [
         {
           "tipo": "acao",
@@ -754,7 +754,7 @@
       "id": "85d5ca59-d87f-5a49-bbff-2fddf271736d",
       "nome": "Truque | Raio de Fogo · ataque +5 · infernal",
       "categoria": "magia",
-      "descricao": "Ação · 36 m · Ígneo · Criatura ou objeto.\nNormal [1d20+5]\nDano [1d10] · Crítico [2d10]",
+      "descricao": "Ação · 18 m · Ígneo · Criatura ou objeto.\nNormal [1d20+5]\nDano [1d10] · Crítico [2d10]",
       "custo": [
         {
           "tipo": "acao",
@@ -775,7 +775,7 @@
       "id": "80382f78-315c-5279-be65-98a7df74fb0c",
       "nome": "Truque | Explosão Elemental · ataque +5 · classe",
       "categoria": "magia",
-      "descricao": "Ação · 36 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
       "custo": [
         {
           "tipo": "acao",
@@ -883,7 +883,7 @@
       "id": "504bc18e-d20e-5bc0-ae01-5109c41f7f29-c2",
       "nome": "Mísseis Mágicos (2º círculo)",
       "categoria": "magia",
-      "descricao": "Ação · 36 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos.",
+      "descricao": "Ação · 18 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos.",
       "custo": [
         {
           "tipo": "acao",

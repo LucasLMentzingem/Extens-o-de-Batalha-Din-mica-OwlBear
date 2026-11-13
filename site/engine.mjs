@@ -1,4 +1,5 @@
 export const atributos = ['for','des','con','int','sab','car'];
+export const LIMITE_ALCANCE_M = 18;
 export const periciasPadrao = {
   'Acrobacia':'des','Adestrar Animais':'sab','Arcanismo':'int','Atletismo':'for',
   'Atuação':'car','Enganação':'car','Furtividade':'des','História':'int',
@@ -59,7 +60,7 @@ export function atualizarMagias(f){
     if(o.automacao)continue;
     const circulo=o.circuloBase??1;
     if(nome==='misseis magicos'){
-      o.automacao={tipo:'projeteis',alcanceM:36,dano:'1d4+1',elemento:'energetico'};
+      o.automacao={tipo:'projeteis',alcanceM:LIMITE_ALCANCE_M,dano:'1d4+1',elemento:'energetico'};
       o.selecao={tipo:'alvos',min:2+circulo,max:2+circulo,repetirAlvo:true};
     }
     if(nome==='bencao'){
@@ -182,6 +183,19 @@ export function validar(f) {
     if(!/^[1-9]\d?d(4|6|8|10|12)([+-]\d{1,2})?$/.test(dano)||!Number.isFinite(o.selecao.alcanceM))continue;
     const bonus=mod(out.atributos[hit.atributo])+(hit.somarProficiencia?(out.proficiencia??(2+Math.floor((nivel-1)/4))):0);
     o.automacao={tipo:'ataque',bonus,dano,elemento:parcela.tipo,alcanceM:o.selecao.alcanceM};
+  }
+  // Regra da campanha: nenhuma seleção de ataque, magia, item ou habilidade
+  // começa além de 18 m. O raio da área permanece inalterado.
+  for(const o of out.opcoes){
+    const alcancesOriginais=[o.automacao?.alcanceM,o.selecao?.alcanceM].filter(Number.isFinite);
+    const maiorOriginal=Math.max(0,...alcancesOriginais);
+    if(Number.isFinite(o.automacao?.alcanceM))o.automacao.alcanceM=Math.min(LIMITE_ALCANCE_M,o.automacao.alcanceM);
+    if(Number.isFinite(o.automacao?.alcanceNormalM))o.automacao.alcanceNormalM=Math.min(LIMITE_ALCANCE_M,o.automacao.alcanceNormalM,o.automacao.alcanceM??LIMITE_ALCANCE_M);
+    if(Number.isFinite(o.selecao?.alcanceM))o.selecao.alcanceM=Math.min(LIMITE_ALCANCE_M,o.selecao.alcanceM);
+    if(maiorOriginal>LIMITE_ALCANCE_M&&typeof o.descricao==='string'){
+      const numero=String(maiorOriginal).replace('.', '[,.]');
+      o.descricao=o.descricao.replace(new RegExp('\\b'+numero+'\\s*m\\b','gi'),LIMITE_ALCANCE_M+' m');
+    }
   }
   return out;
 }

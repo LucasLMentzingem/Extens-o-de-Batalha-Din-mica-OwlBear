@@ -1,5 +1,11 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-13 — alcance global 0.7.11
+
+- Todo ataque, magia, item e habilidade passa a ter alcance de seleção limitado a 18 m.
+- O limite também corrige fichas JSON antigas durante a importação.
+- Áreas mantêm seu raio original; apenas a distância até o centro escolhido é limitada.
+
 ## Estado
 
 - Versão publicada antes desta etapa: 0.3.0.

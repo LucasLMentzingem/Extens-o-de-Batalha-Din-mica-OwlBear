@@ -124,7 +124,14 @@ test('Feitiçaria Inata custa uma ação bônus, conserva a ação e modifica a 
 test('ataque declarativo usa escala de nível total e proficiência',()=>{
  const f=structuredClone(nikki);f.classes[0].nivel=10;
  f.opcoes.push({id:'teste',nome:'Ataque escalonado',categoria:'magia',selecao:{tipo:'alvos',max:1,alcanceM:36},etapas:[{tipo:'ataque_contra_ca',atributo:'car',somarProficiencia:true},{tipo:'dano',quando:'acerto',parcelas:[{tipo:'fogo',dados:'1d10',escalaPorNivelTotal:[{nivel:5,dados:'2d10'}]}]}]});
- assert.equal(validar(f).opcoes.find(o=>o.id==='teste').automacao.dano,'2d10');
+ const opcao=validar(f).opcoes.find(o=>o.id==='teste');
+ assert.equal(opcao.automacao.dano,'2d10');assert.equal(opcao.automacao.alcanceM,18);assert.equal(opcao.selecao.alcanceM,18);
+});
+test('alcances acima de 18 m são limitados sem reduzir o raio da área',()=>{
+ const f=structuredClone(nikki);
+ f.opcoes.push({id:'area-longa',nome:'Área longa',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,alcanceM:45,raioM:6,dano:'2d6'},descricao:'Ação · 45 m · esfera de 6 m.'});
+ const o=validar(f).opcoes.find(x=>x.id==='area-longa');
+ assert.equal(o.automacao.alcanceM,18);assert.equal(o.automacao.raioM,6);assert.match(o.descricao,/18 m/);
 });
 
 
