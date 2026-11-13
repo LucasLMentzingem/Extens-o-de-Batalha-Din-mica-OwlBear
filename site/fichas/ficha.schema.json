@@ -514,6 +514,17 @@
             "raioM": {
               "type": "number"
             },
+            "area": {
+              "type": "object",
+              "properties": {
+                "forma": {"enum": ["circulo", "quadrado", "cone", "linha"]},
+                "raioM": {"type": "number", "exclusiveMinimum": 0},
+                "tamanhoM": {"type": "number", "exclusiveMinimum": 0},
+                "comprimentoM": {"type": "number", "exclusiveMinimum": 0},
+                "larguraM": {"type": "number", "exclusiveMinimum": 0}
+              },
+              "required": ["forma"]
+            },
             "comprimentoM": {
               "type": "number"
             },

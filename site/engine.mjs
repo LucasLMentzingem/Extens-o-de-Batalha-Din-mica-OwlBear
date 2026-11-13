@@ -176,6 +176,7 @@ export function validar(f) {
       const atributosSalva=a.atributos??[a.atributo];
       exigir(a.tipo==='ataque'?inteiro(a.bonus,-20,40):Array.isArray(atributosSalva)&&atributosSalva.length>=1&&atributosSalva.every(k=>atributos.includes(k))&&inteiro(a.cd,1,40),'Ataque/CD inválido em '+o.id);
       if(a.raioM!==undefined) exigir(a.tipo==='salva'&&Number.isFinite(a.raioM)&&a.raioM>0,'Área inválida.');
+      if(a.area!==undefined){const z=a.area;exigir(a.tipo==='salva'&&['circulo','quadrado','cone','linha'].includes(z.forma),'Forma de área inválida em '+o.id);if(z.forma==='circulo')exigir(Number.isFinite(z.raioM)&&z.raioM>0,'Raio inválido em '+o.id);if(z.forma==='quadrado')exigir(Number.isFinite(z.tamanhoM)&&z.tamanhoM>0,'Quadrado inválido em '+o.id);if(['cone','linha'].includes(z.forma))exigir(Number.isFinite(z.comprimentoM)&&z.comprimentoM>0&&(z.larguraM===undefined||Number.isFinite(z.larguraM)&&z.larguraM>0),'Área direcional inválida em '+o.id);}
       if(a.efeitoFalha!==undefined){
         exigir(nomeOK(a.efeitoFalha.nome)&&inteiro(a.efeitoFalha.turnos,1,100),'Efeito de falha inválido em '+o.id);
         exigir(a.efeitoFalha.condicao===undefined||Object.hasOwn(condicoesCombate,a.efeitoFalha.condicao),'Condição de falha desconhecida em '+o.id);
@@ -302,6 +303,17 @@ function validarRequisitosUso(s,a,o,alvo){
 }
 const usaArmadura=a=>typeof a.ficha.armaduraEquipada==='boolean'?a.ficha.armaduraEquipada:(a.ficha.equipamentos??[]).some(e=>e.inUse&&/(armadura|couro|malha|placas|escudo)/i.test((e.nome??e.name??'')+' '+(e.descricao??e.description??'')));
 const distancia=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+export function dentroDaArea(origem,ponto,alvo,regra){
+  const area=regra?.area??(regra?.raioM?{forma:'circulo',raioM:regra.raioM}:null);if(!area)return false;
+  if(area.forma==='circulo')return distancia(ponto,alvo)<=area.raioM+1e-8;
+  if(area.forma==='quadrado'){const metade=area.tamanhoM/2;return Math.abs(alvo.x-ponto.x)<=metade+1e-8&&Math.abs(alvo.y-ponto.y)<=metade+1e-8;}
+  const dx=ponto.x-origem.x,dy=ponto.y-origem.y,norma=Math.hypot(dx,dy);if(norma<=1e-8)return false;
+  const ux=dx/norma,uy=dy/norma,ax=alvo.x-origem.x,ay=alvo.y-origem.y,frente=ax*ux+ay*uy,lado=Math.abs(ax*-uy+ay*ux),comprimento=area.comprimentoM;
+  if(frente<0||frente>comprimento+1e-8)return false;
+  if(area.forma==='linha')return lado<=(area.larguraM??1.5)/2+1e-8;
+  if(area.forma==='cone'){const larguraFinal=area.larguraM??comprimento;return lado<=larguraFinal/2*(frente/comprimento)+1e-8;}
+  return false;
+}
 export function destinoDeslocamento(origem,alvo,distanciaM){
   const dx=alvo.x-origem.x,dy=alvo.y-origem.y,tamanho=Math.hypot(dx,dy);
   if(!Number.isFinite(distanciaM)||distanciaM<=0||tamanho<=1e-8)return null;
@@ -734,13 +746,13 @@ export async function aplicar(s,c,u,rolar) {
         }
       }
       const alvo=escolhidos?.[0]??s.atores.find(x=>x.id===c.alvo);
-      const centro=rule.raioM?(rule.origemArea==='conjurador'?a:c.ponto):alvo;
+      const temArea=Boolean(rule.raioM||rule.area),centro=temArea?(rule.origemArea==='conjurador'?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
-      const afetados=(escolhidos??(rule.raioM?s.atores.filter(x=>distancia(x,centro)<=rule.raioM+1e-8):[alvo])).filter(x=>x&&(!rule.excluirConjurador||x!==a));
+      const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&(!rule.excluirConjurador||x!==a));
       validarRequisitosUso(s,a,o,afetados[0]);
       const deslocarForcado=p=>{
         const regra=rule.deslocamentoForcado;if(!regra)return false;
-        const origemVetor=rule.raioM?centro:a,destino=destinoDeslocamento(origemVetor,p,regra.distanciaM);
+        const origemVetor=temArea?(['cone','linha'].includes(rule.area?.forma)?a:centro):a,destino=destinoDeslocamento(origemVetor,p,regra.distanciaM);
         if(!destino)return false;p.x=destino.x;p.y=destino.y;msg+=' • '+p.nome+' foi empurrado '+regra.distanciaM+' m';return true;
       };
       if(rule.tipo==='conceder_dado'){
@@ -813,7 +825,7 @@ export async function aplicar(s,c,u,rolar) {
           const p=afetados[i],controlador=p.ficha.tipo==='pj'&&p.dono?p.dono:'GM';
           if(!grupos.has(controlador))grupos.set(controlador,[]);grupos.get(controlador).push({p,i});
         }
-        let danoBase=rule.raioM&&rule.dano?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
+        let danoBase=temArea&&rule.dano?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
         await Promise.all([...grupos.entries()].map(async([controlador,itens])=>{for(const {p,i} of itens){
           const escolhas=rule.atributos??[rule.atributo],atributo=escolhas.reduce((melhor,k)=>{const bonus=p.ficha.salvaguardas?.[k]??mod(p.ficha.atributos[k]);return !melhor||bonus>melhor.bonus?{k,bonus}:melhor;},null);
           const falhaAutomatica=restricoesAtivas(p).falhaSalvas?.includes(atributo.k);
@@ -821,7 +833,7 @@ export async function aplicar(s,c,u,rolar) {
           resultadosSalva[i]={p,total:rr.total,sucesso:!falhaAutomatica&&rr.total>=cd,falhaAutomatica};
         }}));
         for(const r of resultadosSalva)msg+=' • '+r.p.nome+' '+(r.sucesso?'passou':'falhou')+' na salvaguarda ('+r.total+')';
-        if(!rule.raioM&&rule.dano&&(rule.metade||resultadosSalva.some(r=>!r.sucesso)))danoBase=(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total;
+        if(!temArea&&rule.dano&&(rule.metade||resultadosSalva.some(r=>!r.sucesso)))danoBase=(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total;
         for(const r of resultadosSalva){
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a});msg+=' • '+r.p.nome+' sofreu '+valor;}
           if(!r.sucesso)deslocarForcado(r.p);

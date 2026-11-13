@@ -1,6 +1,6 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
 import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs';
-import {atual,multi,incluirAlvo,destinoDeslocamento} from './engine.mjs';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea} from './engine.mjs';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
 const url=new URL('./hud.html',import.meta.url);
@@ -12,6 +12,18 @@ function circulo(centro,raio,cor){
   const pontos=Array.from({length:80},(_,i)=>({x:raio*Math.cos(i*Math.PI/40),y:raio*Math.sin(i*Math.PI/40)}));
   return buildCurve().position(centro).points(pontos).closed(true).fillColor(cor).fillOpacity(.08)
     .strokeColor(cor).strokeWidth(3).layer('CONTROL').locked(true).disableHit(true).build();
+}
+function poligono(posicao,pontos,cor){return buildCurve().position(posicao).points(pontos).closed(true).fillColor(cor).fillOpacity(.10).strokeColor(cor).strokeWidth(3).layer('CONTROL').locked(true).disableHit(true).build();}
+function marcaArea(rule,origem,ponto,dpi){
+  const area=rule?.area??(rule?.raioM?{forma:'circulo',raioM:rule.raioM}:null);if(!area)return [];
+  if(area.forma==='circulo')return [circulo(ponto,area.raioM*dpi,'#79cfb1')];
+  if(area.forma==='quadrado'){const m=area.tamanhoM*dpi/2;return [poligono(ponto,[{x:-m,y:-m},{x:m,y:-m},{x:m,y:m},{x:-m,y:m}],'#79cfb1')];}
+  const dx=ponto.x-origem.x,dy=ponto.y-origem.y,n=Math.hypot(dx,dy)||1,ux=dx/n,uy=dy/n,l=area.comprimentoM*dpi,w=(area.larguraM??(area.forma==='cone'?area.comprimentoM:1.5))*dpi/2,fx=ux*l,fy=uy*l,px=-uy*w,py=ux*w;
+  return area.forma==='cone'?[poligono(origem,[{x:0,y:0},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py}],'#79cfb1')]:[poligono(origem,[{x:px,y:py},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py},{x:-px,y:-py}],'#79cfb1')];
+}
+function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
+  const origemM={x:origem.x/dpi,y:origem.y/dpi},pontoM={x:ponto.x/dpi,y:ponto.y/dpi};
+  return atores.filter(a=>{const p=pos(a);return dentroDaArea(origemM,pontoM,{x:p.x/dpi,y:p.y/dpi},rule);});
 }
 export async function iniciarHud(){
   await pronto();
@@ -118,7 +130,7 @@ export async function iniciarHud(){
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:o?.id,assistido:!rule};
     let escolha=null;
     if(d.tipo==='mover')escolha='destino';
-    if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=rule.raioM?(rule.origemArea==='conjurador'?null:'area'):'alvo';
+    if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
@@ -160,11 +172,11 @@ export async function iniciarHud(){
     const alvoSelecionado=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
     let ponto=alvoSelecionado?pos(alvoSelecionado):p.ponto;
     if(!ponto){await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079')]);transmitir();return;}
-    const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi,raio=p.rule?.raioM;
+    const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi,temArea=Boolean(p.rule?.raioM||p.rule?.area);
     p.pronto=distancia<=p.raio+1e-8;
-    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):raio?atores().filter(x=>Math.hypot(pos(x).x-ponto.x,pos(x).y-ponto.y)<=raio*dpi):[];
-    const origemVetor=raio?ponto:p.origem;
-    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1'),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
+    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,dpi):[];
+    const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
+    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
     await desenhar(marcas);
     const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
@@ -193,14 +205,13 @@ export async function iniciarHud(){
     if(alvo)p.cmd.alvo=alvo.id;
     if(p.escolha==='area')p.cmd.ponto=celula;
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
-    const raio=p.rule?.raioM;
-    const afetados=raio?atores().filter(a=>Math.hypot(pos(a).x-ponto.x,pos(a).y-ponto.y)<=raio*dpi):alvo?[alvo]:[];
-    const origemVetor=raio?ponto:p.origem;
-    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1'),...marcasDeslocamento(p.rule,origemVetor,afetados)];
+    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,dpi):alvo?[alvo]:[];
+    const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
+    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
     if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('CONTROL').disableHit(true).build());
     await desenhar(items);
-    p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(raio?' · raio '+medida(raio)+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'');
+    const forma=p.rule?.area?.forma??(p.rule?.raioM?'círculo':'');p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(temArea?' · '+forma+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'');
     if(p.escolha==='destino'&&!ator().desengajado){
       const ameacas=atores().flatMap(outro=>{
         const lado=a=>a.ficha.lado??a.ficha.tipo;

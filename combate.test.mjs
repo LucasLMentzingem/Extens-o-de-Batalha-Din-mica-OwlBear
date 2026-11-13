@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
@@ -471,4 +471,10 @@ test('marca persistente adiciona dano automaticamente nos ataques válidos da or
  const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');let chamada=0;
  const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{chamada++;if(chamada===1)return {total:19,natural:15,formula,resumo:'19'};assert.equal(meta.adicionais[0].automatico,true);assert.equal(meta.adicionais[0].formula,'1d6');return {total:8,natural:null,formula,resumo:'5 + 3',recursosAtivos:[marca.id],resultados:[{total:5,resumo:'5'},{total:3,resumo:'3'}]};});
  assert.equal(next.atores[1].pv,16);assert.equal(next.atores[1].efeitosAtivos.some(e=>e.id===marca.id),true);
+});
+test('áreas de quadrado, cone e linha usam a geometria declarada',async()=>{
+ assert.equal(dentroDaArea({x:0,y:0},{x:3,y:0},{x:2,y:0.5},{area:{forma:'cone',comprimentoM:3,larguraM:3}}),true);assert.equal(dentroDaArea({x:0,y:0},{x:3,y:0},{x:2,y:2},{area:{forma:'cone',comprimentoM:3,larguraM:3}}),false);
+ assert.equal(dentroDaArea({x:0,y:0},{x:3,y:0},{x:2.5,y:.6},{area:{forma:'linha',comprimentoM:3,larguraM:1.5}}),true);assert.equal(dentroDaArea({x:0,y:0},{x:3,y:0},{x:2.5,y:1},{area:{forma:'linha',comprimentoM:3,larguraM:1.5}}),false);
+ const m=mesa();m.a.ficha.opcoes.push({id:'quadrado-teste',nome:'Área quadrada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,dano:'2d6',metade:true,elemento:'fogo',alcanceM:18,area:{forma:'quadrado',tamanhoM:2}}});
+ await m.iniciar();await m.go('usar',{ator:m.a.id,opcao:'quadrado-teste',ponto:{x:1.5,y:0}},player,[6,10,15]);assert.deepEqual(m.s.atores.map(x=>x.pv),[20,18,21]);
 });
