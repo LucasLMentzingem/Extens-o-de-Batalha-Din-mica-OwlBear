@@ -31,7 +31,9 @@ jobs:
           node --input-type=module <<'JS'
           import fs from 'node:fs';
           const p='site/manifest.json', m=JSON.parse(fs.readFileSync(p));
-          for(const [obj,key] of [[m,'icon'],[m,'background_url'],[m.action,'icon'],[m.action,'popover']])obj[key]=new URL(obj[key],process.env.BASE+'/').pathname;
+          for(const [obj,key] of [[m,'icon'],[m,'background_url'],[m.action,'icon'],[m.action,'popover']]){
+            const url=new URL(obj[key],process.env.BASE+'/');obj[key]=url.pathname+url.search;
+          }
           fs.writeFileSync(p,JSON.stringify(m,null,2));
           JS
       - uses: actions/upload-pages-artifact@v3
