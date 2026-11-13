@@ -107,3 +107,11 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright aprovada para três setas, ajuste individual da segunda, uma única execução, resultados separados e itens visuais na camada frontal.
 - Capturas conferidas: `work/ajuste-rajada-v071.png` e `work/resultado-rajada-v071.png`.
 
+## Versão 0.7.2: painel de ação no centro-direita
+
+- [x] Mover a instância persistente da ação do centro-esquerda para o centro da metade direita da tela.
+- [x] Limitar a posição para manter o painel inteiramente visível em janelas menores.
+
+- Integração Playwright confirmou o centro horizontal do painel na metade direita, sem regressão na seleção e execução de ações.
+- Captura conferida: `painel-acao-centro-direita-v072.png`.
+

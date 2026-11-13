@@ -52,7 +52,10 @@ export async function iniciarHud(){
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
       if(ator())caixas.barra=compacto?[Math.round((w-92)/2),h-150,92,102]:[Math.round((w-largura)/2),h-altura-48,largura,altura];
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
-      if(pendente){const cw=Math.min(410,w-12),ch=Math.min(480,h-72);caixas.acao=[Math.round(Math.max(10,w*.06)),Math.round(Math.max(62,(h-ch)/2)),cw,ch];}
+      if(pendente){
+        const cw=Math.min(410,w-12),ch=Math.min(480,h-72),left=Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
+        caixas.acao=[Math.round(left),Math.round(Math.max(62,(h-ch)/2)),cw,ch];
+      }
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado){
