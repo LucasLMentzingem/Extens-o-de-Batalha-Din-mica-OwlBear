@@ -134,6 +134,7 @@ export function validar(f) {
       if(p.salva)exigir(atributos.includes(p.salva.atributo)&&inteiro(p.salva.cd,1,40),'Salvaguarda do aprimoramento inválida em '+o.id);
     }
     if(o.gatilho==='apos_rolagem_dano')exigir(o.rerrolagem?.tipo==='dano'&&['todos','dados_com_resultado'].includes(o.rerrolagem.modo),'Rerrolagem de dano inválida em '+o.id);
+    if(o.gatilho==='apos_rolagem_d20')exigir(o.rerrolagem?.tipo==='d20'&&o.rerrolagem.modo==='todos','Rerrolagem de d20 inválida em '+o.id);
     if(o.gatilho==='sofrer_dano')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao&&['ataque','salva'].includes(o.automacao.tipo),'Reação ao sofrer dano inválida em '+o.id);
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
@@ -145,8 +146,9 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado'].includes(a.tipo), 'Automação desconhecida em '+o.id);
     if(a.tipo==='reduzir_dano')exigir(formulaDanoValida(a.formula),'Redução de dano inválida em '+o.id);
+    if(a.tipo==='conceder_dado')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0&&formulaDanoValida(a.modificador?.formula)&&Array.isArray(a.modificador.tipos)&&a.modificador.tipos.length&&a.modificador.tipos.every(x=>['ataque','salvaguarda','teste'].includes(x)),'Dado concedido inválido em '+o.id);
     if(multi(o)||['projeteis','bencao'].includes(a.tipo)){
       const r=o.selecao;
       exigir(r?.tipo==='alvos'&&inteiro(r.max,1,64)&&inteiro(r.min,1,r.max)&&typeof r.repetirAlvo==='boolean'&&Number.isFinite(a.alcanceM)&&a.alcanceM>=0,'Seleção de alvos inválida em '+o.id);
@@ -161,10 +163,11 @@ export function validar(f) {
     if(a.tipo==='estabilizar')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0,'Alcance de estabilização inválido em '+o.id);
     if(a.tipo==='efeito'){
       const e=a.efeito,m=e?.modificadores??{};
-      exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0&&e&&nomeOK(e.nome)&&['buff','condicao'].includes(e.tipo),'Efeito ou alcance inválido em '+o.id);
+      exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0&&e&&nomeOK(e.nome)&&['buff','debuff','condicao'].includes(e.tipo),'Efeito ou alcance inválido em '+o.id);
       exigir(['ca','pvMaximos','deslocamentoM'].every(k=>m[k]===undefined||Number.isFinite(m[k])),'Modificador de efeito inválido em '+o.id);
       exigir(e.removeEm===undefined||['descanso_curto','descanso_longo'].includes(e.removeEm),'Recuperação do efeito inválida em '+o.id);
       exigir(e.condicao===undefined||Object.hasOwn(condicoesCombate,e.condicao),'Condição desconhecida em '+o.id);
+      if(e.danoAoSerAtingido!==undefined)exigir(formulaDanoValida(e.danoAoSerAtingido.formula)&&(e.danoAoSerAtingido.tagsAtaque===undefined||Array.isArray(e.danoAoSerAtingido.tagsAtaque)&&e.danoAoSerAtingido.tagsAtaque.every(nomeOK)),'Dano persistente inválido em '+o.id);
       if(e.duracao!==undefined)exigir(inteiro(e.duracao.turnos,1,100)&&expiraValido.has(e.duracao.expira),'Duração de efeito inválida em '+o.id);
     }
     if(['ataque','salva'].includes(a.tipo)) {
@@ -277,11 +280,14 @@ const tagsAtaque=(o,rule)=>{
 const custoDisponivel=(a,c)=>(c.tipo==='recurso'?a.rec?.[c.id]:a?.[c.tipo])>=c.quantidade;
 function opcoesDepoisDoAcerto(a,o,alvo){
   const tags=tagsAtaque(o,o.automacao),usos=a.usosTurno??{};
-  return (a.ficha.opcoes??[]).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!usos[g.id])).filter(g=>{
+  const manuais=(a.ficha.opcoes??[]).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!usos[g.id])).filter(g=>{
     const r=g.aprimoramento.requisitos??{};return (!r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t)))&&(!r.alvoFerido||alvo.pv<pvMaximosAtuais(alvo));
   });
+  const persistentes=(alvo.efeitosAtivos??[]).filter(e=>e.danoAoSerAtingido?.origemAtorId===a.id).filter(e=>!e.danoAoSerAtingido.tagsAtaque?.length||e.danoAoSerAtingido.tagsAtaque.every(t=>tags.includes(t))).map(e=>({id:e.id,nome:e.nome,descricao:e.descricao,custo:[],automatico:true,aprimoramento:{dano:e.danoAoSerAtingido.formula,elemento:e.danoAoSerAtingido.elemento,critico:e.danoAoSerAtingido.critico!==false}}));
+  return [...manuais,...persistentes];
 }
 function opcoesRerrolagemDano(a){return (a.ficha.opcoes??[]).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
+function opcoesRerrolagemD20(a){return (a?.ficha.opcoes??[]).filter(o=>o.gatilho==='apos_rolagem_d20'&&o.rerrolagem?.tipo==='d20'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 const formulaCritica=f=>f.replace(/^(\d+)d/,(_,n)=>(Number(n)+1)+'d');
 function validarRequisitosUso(s,a,o,alvo){
   const r=o.requisitosUso;if(!r)return;
@@ -438,7 +444,13 @@ export async function aplicar(s,c,u,rolar) {
     const restricoes=meta.tipo==='salvaguarda'?restricoesAtivas(p):{},atributo=meta.atributo;
     const vantagem=c.modo==='vantagem'||(atributo&&restricoes.vantagemSalvas?.includes(atributo)),desvantagem=c.modo==='desvantagem'||(atributo&&restricoes.desvantagemSalvas?.includes(atributo));
     const modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
-    const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva,modo),meta);
+    const modificadores=(p?.efeitosAtivos??[]).filter(e=>e.modificadorRolagem?.tipos?.includes(meta.tipo)),metaAdicionais=modificadores.map(e=>({id:e.id,nome:e.nome,formula:e.modificadorRolagem.formula,descricao:e.descricao??e.nome}));
+    const rerrolagens=opcoesRerrolagemD20(p),metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:'todos',custo:g.custo??[],descricao:g.descricao??''}));
+    const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva,modo),{...meta,adicionais:metaAdicionais,rotuloAdicionais:'Dados disponíveis para esta rolagem',combinarAdicionais:true,rerrolagens:metaRerrolagens});
+    const ativos=Array.isArray(r.recursosAtivos)?r.recursosAtivos:[];exigir(ativos.every(id=>modificadores.some(e=>e.id===id)),'Modificador de d20 inválido.');
+    if(ativos.length)p.efeitosAtivos=p.efeitosAtivos.filter(e=>!ativos.includes(e.id)||e.modificadorRolagem?.removeAoUsar===false);
+    const usados=Array.isArray(r.rerrolagensUsadas)?r.rerrolagensUsadas:[];exigir(usados.every(id=>rerrolagens.some(g=>g.id===id)),'Rerrolagem de d20 inválida.');
+    for(const id of usados){const g=rerrolagens.find(x=>x.id===id);for(const custo of g.custo??[]){const bag=custo.tipo==='recurso'?p.rec:p,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;}}
     if(efeito)p.efeitosAtivos=p.efeitosAtivos.filter(e=>e!==efeito);
     return r;
   };
@@ -731,11 +743,17 @@ export async function aplicar(s,c,u,rolar) {
         const origemVetor=rule.raioM?centro:a,destino=destinoDeslocamento(origemVetor,p,regra.distanciaM);
         if(!destino)return false;p.x=destino.x;p.y=destino.y;msg+=' • '+p.nome+' foi empurrado '+regra.distanciaM+' m';return true;
       };
+      if(rule.tipo==='conceder_dado'){
+        exigir(afetados.length===1,'Escolha uma criatura para receber o dado.');const p=afetados[0],def=structuredClone(rule.modificador),id=o.id+'-'+a.id;
+        p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.id!==id);p.efeitosAtivos.push({id,nome:def.nome??o.nome,tipo:'buff',descricao:def.descricao??o.descricao,origemAtorId:a.id,removeEm:def.removeEm,
+          modificadorRolagem:{formula:def.formula,tipos:[...def.tipos],removeAoUsar:def.removeAoUsar!==false}});msg+=' • '+p.nome+' recebeu '+(def.nome??o.nome);break;
+      }
       if(rule.tipo==='efeito'){
-        exigir(afetados.length===1,'Escolha um alvo para o efeito.');const p=afetados[0],def=structuredClone(rule.efeito);
+        exigir(afetados.length===1,'Escolha um alvo para o efeito.');const p=afetados[0],def=structuredClone(rule.efeito),id=o.id+'-'+a.id;
         exigir(!def.requisitos?.semArmadura||!usaArmadura(p),p.nome+' está usando armadura.');
-        const maxAntes=pvMaximosAtuais(p);p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.id!==o.id);
-        def.id=o.id;def.origem=o.origem;def.origemAtorId=a.id;def.concentracaoId=concentracaoId??undefined;def.descricao=def.descricao??o.descricao;def.modificadores=def.modificadores??{};
+        const maxAntes=pvMaximosAtuais(p);p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.id!==o.id&&e.id!==id);
+        def.id=id;def.origem=o.origem;def.origemAtorId=a.id;def.concentracaoId=concentracaoId??undefined;def.descricao=def.descricao??o.descricao;def.modificadores=def.modificadores??{};
+        if(def.danoAoSerAtingido)def.danoAoSerAtingido={...def.danoAoSerAtingido,origemAtorId:a.id};
         if(def.duracao)def.duracao={...def.duracao,restante:def.duracao.turnos};
         if(Number.isFinite(def.caMinima))def.modificadores.ca=Math.max(0,def.caMinima+mod(p.ficha.atributos.des)-caAtual(p));
         p.efeitosAtivos.push(def);const maxDepois=pvMaximosAtuais(p);
@@ -829,11 +847,12 @@ export async function aplicar(s,c,u,rolar) {
       }
       if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,critico,nome:o.nome})){msg+=' • aguardando reação de '+p.nome;continue;}
       const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=opcoesRerrolagemDano(a);
-      const metaAdicionais=adicionais.map(g=>({id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,custo:g.custo??[],descricao:g.descricao??''}));
+      const metaAdicionais=adicionais.map(g=>({id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??''}));
       const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
       const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,adicionais:metaAdicionais,rerrolagens:metaRerrolagens});
       const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
       exigir(new Set(idsAdicionais).size===idsAdicionais.length&&idsAdicionais.every(id=>adicionais.some(g=>g.id===id)),'Aprimoramento de dano inválido.');
+      exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');
       exigir(idsRerrolagem.every(id=>rerrolagens.some(g=>g.id===id)),'Rerrolagem de dano inválida.');
       const escolhidos=idsAdicionais.map(id=>adicionais.find(g=>g.id===id)),usadosRerrolagem=idsRerrolagem.map(id=>rerrolagens.find(g=>g.id===id));
       for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){

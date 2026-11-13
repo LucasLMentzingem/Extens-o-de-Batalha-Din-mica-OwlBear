@@ -46,7 +46,7 @@ function dadoSala(usuario,ch,pedidos,mestreId){
     const {destinoId:_destinoOculto,roladorNome,...metaPublica}=meta;
     if(meta.tipo==='ataque')delete metaPublica.cd;
     const enviar=d=>destino===mestreId?ch.postMessage({rolagem:d}):OBR.broadcast.sendMessage(canais.roll,d,{destination:'REMOTE'});
-    let fase='ajuste',resultado,recursosAtivos=[],rerrolagensUsadas=[];
+    let fase='ajuste',resultado,recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id),rerrolagensUsadas=[];
     const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),120000);
     function finalizar(erro,valor){clearTimeout(timer);pedidos.delete(pedido);erro?reject(erro):resolve(valor);}
     pedidos.set(pedido,async resposta=>{
@@ -62,7 +62,7 @@ function dadoSala(usuario,ch,pedidos,mestreId){
       recursosAtivos=Array.isArray(resposta.recursosAtivos)?resposta.recursosAtivos:[];
       const extras=(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id));
       if(new Set(recursosAtivos).size!==recursosAtivos.length||recursosAtivos.some(id=>!extras.some(x=>x.id===id)))return;
-      const expressoes=bases.length===1&&extras.length?[bases[0],...extras.map(x=>x.formula)]:bases;
+      const expressoes=bases.length===1&&extras.length?(meta.combinarAdicionais?[bases[0]+extras.map(x=>'+'+x.formula).join('')]:[bases[0],...extras.map(x=>x.formula)]):bases;
       if(fase!=='ajuste'||!expressoes.length)return;
       fase='rolando';
       try{

@@ -118,7 +118,7 @@ export async function iniciarHud(){
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:o?.id,assistido:!rule};
     let escolha=null;
     if(d.tipo==='mover')escolha='destino';
-    if(rule?.tipo==='ataque'||rule?.tipo==='salva'||rule?.tipo==='efeito')escolha=rule.raioM?(rule.origemArea==='conjurador'?null:'area'):'alvo';
+    if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=rule.raioM?(rule.origemArea==='conjurador'?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
@@ -245,7 +245,7 @@ export async function iniciarHud(){
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
-      const validos=new Set(pedidoDado.meta?.adicionais?.map(x=>x.id)??[]);if(!validos.has(d.id))return;
+      const dados=pedidoDado.meta?.adicionais??[],validos=new Set(dados.map(x=>x.id));if(!validos.has(d.id)||dados.find(x=>x.id===d.id)?.automatico)return;
       const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};transmitir();
     }else if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
       const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();

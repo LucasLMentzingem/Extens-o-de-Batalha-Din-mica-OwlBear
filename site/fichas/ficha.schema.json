@@ -426,6 +426,7 @@
             "conjurar_magia",
             "ser_atingido",
             "apos_acerto",
+            "apos_rolagem_d20",
             "apos_rolagem_dano"
           ]
         },
@@ -460,7 +461,7 @@
         "rerrolagem": {
           "type": "object",
           "properties": {
-            "tipo": {"const": "dano"},
+            "tipo": {"enum": ["dano", "d20"]},
             "modo": {"enum": ["todos", "dados_com_resultado"]},
             "resultados": {"type": "array", "items": {"type": "integer", "minimum": 1}}
           },
@@ -562,7 +563,8 @@
                 "efeito_conjuracao",
                 "projeteis",
                 "bencao",
-                "reduzir_dano"
+                "reduzir_dano",
+                "conceder_dado"
               ]
             },
             "alcanceM": {
@@ -591,6 +593,17 @@
             },
             "formula": {
               "type": "string"
+            },
+            "modificador": {
+              "type": "object",
+              "properties": {
+                "nome": {"type": "string"},
+                "descricao": {"type": "string"},
+                "formula": {"type": "string"},
+                "tipos": {"type": "array", "items": {"enum": ["ataque", "salvaguarda", "teste"]}},
+                "removeAoUsar": {"type": "boolean"},
+                "removeEm": {"enum": ["descanso_curto", "descanso_longo"]}
+              }
             },
             "valor": {
               "type": "integer"

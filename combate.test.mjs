@@ -452,3 +452,23 @@ test('reação preventiva interrompe o ataque entre o acerto e o dano',async()=>
  await m.go('usar',{ator:m.b.id,opcao:ataque.id,alvo:m.a.id},gm,[15]);assert.equal(m.s.atores[0].pv,20);assert.equal(m.s.atores[1].acao,0);assert.equal(m.s.reacaoPendente.gatilho,'ser_atingido');assert.equal(m.s.resolucaoPendente.tipo,'dano_ataque');
  await m.go('resolverReacao',{ator:m.a.id,opcao:'defletir-teste'},player,[4,5]);assert.equal(m.s.atores[0].pv,19);assert.equal(m.s.atores[0].reacao,0);assert.equal(m.s.reacaoPendente,undefined);assert.equal(m.s.resolucaoPendente,undefined);
 });
+test('rerrolagem de d20 aparece no resultado e cobra o recurso somente quando usada',async()=>{
+ const m=mesa();m.a.ficha.recursos.push({id:'sorte-d20',nome:'Ponto de Sorte',maximo:1,saldoInicial:1});m.a.rec['sorte-d20']=1;m.a.ficha.opcoes.push({id:'sorte-d20-opcao',nome:'Ponto de Sorte',categoria:'acao',gatilho:'apos_rolagem_d20',custo:[{tipo:'recurso',id:'sorte-d20',quantidade:1}],rerrolagem:{tipo:'d20',modo:'todos'}});
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');let chamada=0;
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{chamada++;if(chamada===1){assert.equal(meta.rerrolagens[0].id,'sorte-d20-opcao');return {total:19,natural:15,formula,resumo:'15 + 4 = 19',rerrolagensUsadas:['sorte-d20-opcao']};}return {total:5,natural:null,formula,resumo:'5'};});
+ assert.equal(next.atores[0].rec['sorte-d20'],0);assert.equal(next.atores[1].pv,19);
+});
+test('dado concedido acompanha o alvo, entra no ajuste de d20 e some quando escolhido',async()=>{
+ const m=mesa();m.a.ficha.recursos.push({id:'inspiracao',nome:'Inspiração de Bardo',maximo:1,saldoInicial:1});m.a.rec.inspiracao=1;m.a.ficha.opcoes.push({id:'inspirar-teste',nome:'Inspiração de Bardo',categoria:'acao',custo:[{tipo:'bonus',quantidade:1},{tipo:'recurso',id:'inspiracao',quantidade:1}],automacao:{tipo:'conceder_dado',alcanceM:18,modificador:{nome:'Inspirado',formula:'1d6',tipos:['ataque','salvaguarda','teste'],removeAoUsar:true,removeEm:'descanso_longo'}}});
+ await m.go('usar',{ator:m.a.id,opcao:'inspirar-teste',alvo:m.b.id,confirmado:true},gm);assert.equal(m.s.atores[0].rec.inspiracao,0);assert.equal(m.s.atores[1].efeitosAtivos[0].modificadorRolagem.formula,'1d6');
+ await m.iniciar();await m.go('passar',{ator:m.a.id},player);const ataque=m.s.atores[1].ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');let chamada=0,id=m.s.atores[1].efeitosAtivos[0].id;
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.b.id,opcao:ataque.id,alvo:m.c.id},gm,async(formula,meta)=>{chamada++;if(chamada===1){assert.equal(meta.adicionais[0].formula,'1d6');assert.equal(meta.combinarAdicionais,true);return {total:19,natural:14,formula,resumo:'14 + 4 + 1 = 19',recursosAtivos:[id]};}return {total:5,natural:null,formula,resumo:'5'};});
+ assert.equal(next.atores[1].efeitosAtivos.some(e=>e.id===id),false);assert.equal(next.atores[2].pv,19);
+});
+test('marca persistente adiciona dano automaticamente nos ataques válidos da origem',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'marca-teste',nome:'Marca do Predador',categoria:'magia',concentracao:true,custo:[{tipo:'bonus',quantidade:1}],automacao:{tipo:'efeito',alcanceM:18,efeito:{nome:'Marcado pelo Predador',tipo:'debuff',descricao:'Ataques com arma da origem causam 1d6 adicional.',danoAoSerAtingido:{formula:'1d6',elemento:'perfurante',tagsAtaque:['arma']}}}});
+ await m.iniciar();await m.go('usar',{ator:m.a.id,opcao:'marca-teste',alvo:m.b.id},player);const marca=m.s.atores[1].efeitosAtivos[0];assert.equal(marca.danoAoSerAtingido.origemAtorId,m.a.id);assert.ok(m.s.atores[0].concentracaoAtiva);
+ const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');let chamada=0;
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{chamada++;if(chamada===1)return {total:19,natural:15,formula,resumo:'19'};assert.equal(meta.adicionais[0].automatico,true);assert.equal(meta.adicionais[0].formula,'1d6');return {total:8,natural:null,formula,resumo:'5 + 3',recursosAtivos:[marca.id],resultados:[{total:5,resumo:'5'},{total:3,resumo:'3'}]};});
+ assert.equal(next.atores[1].pv,16);assert.equal(next.atores[1].efeitosAtivos.some(e=>e.id===marca.id),true);
+});

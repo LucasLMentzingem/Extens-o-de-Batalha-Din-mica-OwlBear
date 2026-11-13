@@ -8,6 +8,14 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Recusar ou deixar o temporizador terminar também retoma automaticamente a rolagem de dano.
 - Testes locais: 58 unitários. Publicação retida até concluir o pacote solicitado.
 
+## Em desenvolvimento local — modificadores e dano persistente
+
+- Rerrolagens completas de d20 podem ser escolhidas na página de resultado e cobram o recurso somente quando usadas.
+- `conceder_dado` entrega um modificador temporário a outro ator; ele aparece bloqueado no ajuste, combina a fórmula com o d20 e some quando escolhido.
+- Efeitos podem declarar dano persistente condicionado à origem e às tags do ataque, com aplicação automática e crítica da campanha.
+- A base cobre Pontos de Sorte, Inspiração de Bardo e Marca do Predador; decisões após uma falha conhecida e rerrolagem de dados individuais ainda serão ampliadas.
+- Testes locais: 61 unitários. Publicação retida.
+
 ## 2026-11-13 — primeira fila genérica de reações 0.7.14
 
 - O gatilho declarativo `sofrer_dano` abre uma reação fora do turno somente durante o combate.
