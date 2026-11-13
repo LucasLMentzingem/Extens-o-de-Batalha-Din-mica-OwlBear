@@ -10,6 +10,12 @@ const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.
 const grupo=o=>o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
 let v,aba='Ações',bus;
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
+const modoFormula=valor=>/^2d\d+kh1/i.test(valor)?'vantagem':/^2d\d+kl1/i.test(valor)?'desvantagem':'normal';
+function ajustarModo(valor,modo){
+  const m=/^(?:1d(\d+)|2d(\d+)k[hl]1)/i.exec(valor);if(!m)return valor;
+  const lados=m[1]??m[2],prefixo=modo==='vantagem'?'2d'+lados+'kh1':modo==='desvantagem'?'2d'+lados+'kl1':'1d'+lados;
+  return valor.replace(m[0],prefixo);
+}
 function retrato(a){
   const src=v.imagens[a.id];
   return src?'<img alt="" src="'+esc(src)+'">':'<b>'+esc(a.nome.slice(0,1))+'</b>';
@@ -53,12 +59,18 @@ function render(){
     const d=v.pedidoDado,m=d.meta??{};
     if(d.tipo==='resultado'){
       const r=d.resultado,classe=/crític/i.test(d.status)?'critico':/falha/i.test(d.status)?'falha':'acerto';
-      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CA/CD '+m.cd].filter(Boolean).join(' · '))+'</small><output>'+esc(r.resumo||r.total)+'</output>'+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
+      const lote=r.resultados?.length?r.resultados:null;
+      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??{};return '<article><strong>'+esc(info.titulo||'Seta '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' de dano'+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
+      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CA/CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
     }else{
-      const valor=document.querySelector('#formulaDado')?.value||d.formula||'';
-      const temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor);
-      const modo=/^2d20kh1/i.test(valor)?'vantagem':/^2d20kl1/i.test(valor)?'desvantagem':'normal',botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
-      html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+      const formulas=d.formulas?.map((x,i)=>document.querySelector('[data-formula-lote="'+i+'"]')?.value||x);
+      if(formulas){
+        const campos=formulas.map((valor,i)=>{const info=m.instancias?.[i]??{},modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDadoLote',label,'data-index="'+i+'" data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');return '<article class="ajuste-seta"><header><strong>'+esc(info.titulo||'Seta '+(i+1))+'</strong><small>'+esc(info.alvo||'')+(info.critico?' · crítico':'')+'</small></header><div class="modos-d20" role="group" aria-label="Modo da seta '+(i+1)+'">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div><label>Comando do Dice+<input data-formula-lote="'+i+'" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label></article>';}).join('');
+        html='<section class="prompt rolagem rolagem-lote"><strong>'+esc(m.titulo||'Ajustar rolagens')+'</strong><small>Revise cada seta. O Dice+ lançará todas juntas.</small><div class="ajustes-lote">'+campos+'</div>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div class="acoes-rolagem">'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+      }else{
+        const valor=document.querySelector('#formulaDado')?.value||d.formula||'',temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor),modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
+        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+      }
     }
   }else if(parte==='barra'&&a){
     if(v.compacto){html='<section class="dock compacta"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/a.ficha.pvMaximos))+'%"></i></div><b>'+a.pv+' / '+a.ficha.pvMaximos+' PV</b></aside></section>';root.innerHTML=html;return;}
@@ -92,7 +104,7 @@ function mostrarDica(e){
 root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
-  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
+  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','rolarDado','continuarDado','cancelarDado'].includes(tipo);
   if(v.ocupado&&!controleDado)return;
   if(tipo==='modoDado'){
     const campo=document.querySelector('#formulaDado');if(!campo)return;
@@ -100,9 +112,14 @@ root.onclick=e=>{
     campo.value=campo.value.replace(/^(?:1d20|2d20k[hl]1)/i,prefixo);
     document.querySelectorAll('[data-cmd="modoDado"]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));campo.focus();return;
   }
+  if(tipo==='modoDadoLote'){
+    const indice=b.dataset.index,campo=document.querySelector('[data-formula-lote="'+indice+'"]');if(!campo)return;
+    campo.value=ajustarModo(campo.value,b.dataset.modo);
+    document.querySelectorAll('[data-cmd="modoDadoLote"][data-index="'+indice+'"]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));campo.focus();return;
+  }
   if(tipo==='aba'){aba=id;render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
+  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});

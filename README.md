@@ -42,7 +42,7 @@ Na ficha, as 18 perícias aparecem como botões com o bônus pronto. As salvagua
 
 ## Selecionar vários alvos
 
-Mísseis Mágicos inicia uma seleção de três dardos. Cada clique acrescenta um dardo ao alvo e permite repetir a criatura. Use **Desfazer** para retirar a última escolha, **Concluir seleção** para revisar a distribuição e **Executar** para gastar a ação e o espaço. O círculo de 2º nível distribui quatro dardos e gasta o espaço correspondente. Há uma rolagem de dano por dardo.
+Mísseis Mágicos inicia uma seleção de três dardos. Cada clique acrescenta um dardo ao alvo e permite repetir a criatura. Use **Desfazer** para retirar a última escolha e **Executar seleção** para confirmar a distribuição. O círculo de 2º nível distribui quatro dardos e gasta o espaço correspondente. O ajuste reúne todos os dardos em uma janela, mas mantém fórmula, modo e alvo independentes para cada seta; **Rolar dados** envia a rajada inteira ao Dice+ de uma só vez. O resultado mostra a conta e o dano de cada seta separadamente. Rajadas com testes de ataque agrupam da mesma maneira os danos das setas que acertaram.
 
 Bênção, quando presente na ficha, aceita de um a três alvos distintos no 1º círculo. Clique novamente numa criatura para desmarcá-la. A confirmação é liberada depois do primeiro alvo. O efeito soma 1d4 aos ataques e salvaguardas enquanto sua concentração estiver ativa. A duração termina no início do décimo turno seguinte do conjurador. Dano exige o teste de concentração. Os campos `selecao.min`, `selecao.max` e `selecao.repetirAlvo` configuram a seleção de outras magias e rajadas. Ataques múltiplos rolam por projétil, magias de salvaguarda rolam por alvo.
 

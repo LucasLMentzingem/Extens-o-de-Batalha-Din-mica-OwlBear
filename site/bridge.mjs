@@ -36,7 +36,9 @@ async function identidade(){
 function extrairResultado(result){
   const grupo=result.groups?.find(g=>g.diceType==='d20');
   const natural=grupo?.dice?.find(d=>d.kept!==false)?.value;
-  return {total:result.totalValue,natural:Number.isFinite(natural)?natural:null,formula:result.diceNotation,resumo:result.rollSummary,grupos:result.groups??[]};
+  const segmentos=String(result.rollSummary??'').split(/\s*\|\s*/).filter(Boolean);
+  const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo};}):null;
+  return {total:result.totalValue,natural:Number.isFinite(natural)?natural:null,formula:result.diceNotation,resumo:result.rollSummary,grupos:result.groups??[],resultados};
 }
 function dadoSala(usuario,ch,pedidos){
   return (formula,meta={})=>new Promise((resolve,reject)=>{
@@ -49,18 +51,19 @@ function dadoSala(usuario,ch,pedidos){
     pedidos.set(pedido,async resposta=>{
       if(resposta.cancelar)return finalizar(Error('Rolagem cancelada.'));
       if(fase==='resultado'&&resposta.continuar)return finalizar(null,resultado);
-      if(fase!=='ajuste'||typeof resposta.formula!=='string')return;
+      const expressoes=Array.isArray(resposta.formulas)?resposta.formulas:typeof resposta.formula==='string'?[resposta.formula]:[];
+      if(fase!=='ajuste'||!expressoes.length)return;
       fase='rolando';
       try{
-        const validacao=await validarNotacao(resposta.formula);
-        if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:validacao.error||'Expressão inválida.'});return;}
-        resultado=await executarDice(usuario,resposta.formula);
+        for(const expressao of expressoes){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:validacao.error||'Expressão inválida.'});return;}}
+        const notacao=expressoes.length>1?expressoes.map((f,i)=>f+'#Seta '+(i+1)).join(', '):expressoes[0];
+        resultado=await executarDice(usuario,notacao);
         const status=meta.tipo==='ataque'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Acerto crítico':resultado.total>=meta.cd?'Acerto':'Falha'):
-          meta.tipo==='salvaguarda'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Sucesso crítico':resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':'';
+          meta.tipo==='salvaguarda'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Sucesso crítico':resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':'';
         fase='resultado';await enviar({tipo:'resultado',pedido,destino,resultado,status,meta:metaPublica});
       }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:e.message});}
     });
-    Promise.resolve(enviar({tipo:'ajuste',pedido,destino,formula,meta:metaPublica})).catch(finalizar);
+    Promise.resolve(enviar({tipo:'ajuste',pedido,destino,...(Array.isArray(formula)?{formulas:formula}:{formula}),meta:metaPublica})).catch(finalizar);
   });
 }
 function validarNotacao(notation){

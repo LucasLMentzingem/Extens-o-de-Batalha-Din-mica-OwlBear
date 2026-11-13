@@ -200,6 +200,11 @@ export async function aplicar(s,c,u,rolar) {
   const resultado=async(formula,meta={})=>{
     const r=await rolar(formula,meta);return typeof r==='number'?{total:r,natural:/d20/.test(formula)?r:null,formula,resumo:String(r)}:r;
   };
+  const resultadoLote=async(formulas,meta={})=>{
+    const r=await rolar(formulas,meta),lista=Array.isArray(r)?r:r?.resultados;
+    exigir(Array.isArray(lista)&&lista.length===formulas.length,'A rolagem conjunta não retornou todos os resultados.');
+    return lista.map((x,i)=>typeof x==='number'?{total:x,natural:null,formula:formulas[i],resumo:String(x)}:x);
+  };
   const rolarD20=(bonus,p,meta)=>resultado(formulaD20(bonus,p),meta);
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
@@ -393,6 +398,36 @@ export async function aplicar(s,c,u,rolar) {
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque));
       const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distancia(a,p)>rule.alcanceNormalM+1e-8));
       const modoOriginal=c.modo;c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
+      const aplicarDano=async(p,dano)=>{
+        let valor=dano;
+        if(p.ficha.imunidades?.includes(rule.elemento))valor=0;
+        if(p.ficha.resistencias?.includes(rule.elemento))valor=Math.floor(valor/2);
+        if(p.ficha.vulnerabilidades?.includes(rule.elemento))valor*=2;
+        p.pv=Math.max(0,p.pv-valor);
+        if(p.bencao&&valor>0){const cdCon=Math.max(10,Math.floor(valor/2));if(p.pv===0||(await rolarD20(p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con),p,{tipo:'salvaguarda',titulo:'Concentração · '+p.nome,cd:cdCon})).total<cdCon)delete p.bencao;}
+        return valor;
+      };
+      if(rule.tipo==='projeteis'){
+        const formulas=afetados.map(()=>rule.dano),instancias=afetados.map((p,i)=>({titulo:'Seta '+(i+1),alvo:p.nome})),nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*(?:acerto automático|classe).*$/i,'');
+        const danos=await resultadoLote(formulas,{tipo:'dano-lote',titulo:'Danos · '+nome,instancias});
+        for(let i=0;i<afetados.length;i++)msg+=' • '+afetados[i].nome+' sofreu '+await aplicarDano(afetados[i],danos[i].total);
+        c.modo=modoOriginal;break;
+      }
+      if(rule.tipo==='ataque'&&selecao?.repetirAlvo&&afetados.length>1){
+        const acertos=[],nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*classe.*$/i,'');
+        for(let i=0;i<afetados.length;i++){
+          const p=afetados[i],rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Ataque '+(i+1)+' · '+o.nome,alvo:p.nome,cd:p.ficha.caBase}),face=rr.natural,total=rr.total;
+          msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
+          if(face===1||(face!==20&&total<p.ficha.caBase)){msg+=' • errou '+p.nome;continue;}
+          const formula=face===20?rule.dano.replace(/^\d+/,n=>String(+n+1)):rule.dano;
+          if(face===20)msg+=' • crítico';acertos.push({p,formula,indice:i});
+        }
+        if(acertos.length){
+          const danos=await resultadoLote(acertos.map(x=>x.formula),{tipo:'dano-lote',titulo:'Danos · '+nome,instancias:acertos.map(x=>({titulo:'Seta '+(x.indice+1),alvo:x.p.nome,critico:x.formula!==rule.dano}))});
+          for(let i=0;i<acertos.length;i++)msg+=' • '+acertos[i].p.nome+' sofreu '+await aplicarDano(acertos[i].p,danos[i].total);
+        }
+        c.modo=modoOriginal;break;
+      }
       const danoComum=rule.tipo==='salva'?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total:null;
       for(const p of afetados){
       let formula=rule.dano;
@@ -410,11 +445,7 @@ export async function aplicar(s,c,u,rolar) {
           const rr=await rolarD20(bonus,p,{tipo:'salvaguarda',titulo:'Salvaguarda de '+rule.atributo.toUpperCase()+' · '+p.nome,cd});
           if(rr.total>=cd) valor=rule.metade?Math.floor(valor/2):0;
         }
-        if(p.ficha.imunidades?.includes(rule.elemento))valor=0;
-        if(p.ficha.resistencias?.includes(rule.elemento)) valor=Math.floor(valor/2);
-        if(p.ficha.vulnerabilidades?.includes(rule.elemento))valor*=2;
-        p.pv=Math.max(0,p.pv-valor);
-        if(p.bencao&&valor>0){const cdCon=Math.max(10,Math.floor(valor/2));if(p.pv===0||(await rolarD20(p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con),p,{tipo:'salvaguarda',titulo:'Concentração · '+p.nome,cd:cdCon})).total<cdCon)delete p.bencao;}
+        valor=await aplicarDano(p,valor);
         msg+=' • '+p.nome+' sofreu '+valor;
       }
       c.modo=modoOriginal;
@@ -442,6 +473,7 @@ export function avaliarFormula(formula,sortear=l=>1+Math.floor(Math.random()*l))
   return {total,natural,formula,resumo:formula+' = '+total,grupos};
 }
 export function dadoLocal(f) {
+  if(Array.isArray(f))return {resultados:f.map(x=>avaliarFormula(x))};
   return avaliarFormula(f).total;
 }
 

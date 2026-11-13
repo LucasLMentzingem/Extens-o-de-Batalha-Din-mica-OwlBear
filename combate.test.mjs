@@ -9,7 +9,7 @@ function mesa(){
   let s=novo();
   const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I'),c=adicionar(s,soldado,'Soldado II');
   const go=async(tipo,extra={},u=gm,dados=[])=>{
-    const rolar=async formula=>{
+    const rolarUma=async formula=>{
       assert.ok(dados.length,'faltou um dado no teste');
       if(!/d20/.test(formula))return {total:dados.shift(),natural:null,formula,resumo:formula};
       const m=/(\d+)d20(?:(kh|kl)1)?/.exec(formula),faces=Array.from({length:Number(m[1])},()=>{assert.ok(dados.length,'faltou um d20');return dados.shift();});
@@ -17,6 +17,7 @@ function mesa(){
       for(const termo of formula.replace(m[0],'').match(/[+-](?:\d+d\d+|\d+)/g)??[]){const sinal=termo[0]==='-'?-1:1;total+=sinal*(termo.includes('d')?(assert.ok(dados.length,'faltou dado extra'),dados.shift()):Number(termo.slice(1)));}
       return {total,natural,formula,resumo:formula+' = '+total};
     };
+    const rolar=async formula=>Array.isArray(formula)?{resultados:await Promise.all(formula.map(rolarUma))}:rolarUma(formula);
     s=await aplicar(s,{rev:s.rev,tipo,...extra},u,rolar);return s;
   };
   const iniciar=async()=>{
@@ -99,6 +100,12 @@ test('Mísseis Mágicos migram, repetem alvos e gastam um espaço por conjuraç�
  await m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,m.c.id]},player,[3,4,5]);
  assert.deepEqual(m.s.atores.map(a=>a.pv),[20,17,19]);assert.equal(m.s.atores[0].rec['espaco-1'],3);
 });
+test('Mísseis Mágicos enviam todas as setas em uma rolagem conjunta identificada',async()=>{
+ const m=mesa();await m.iniciar();const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe);let chamada;
+ const proximo=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,m.c.id]},player,async(formulas,meta)=>{chamada={formulas,meta};return {resultados:[4,5,6]};});
+ assert.deepEqual(chamada.formulas,['1d4+1','1d4+1','1d4+1']);assert.equal(chamada.meta.tipo,'dano-lote');
+ assert.deepEqual(chamada.meta.instancias.map(x=>x.alvo),['Soldado I','Soldado I','Soldado II']);assert.deepEqual(proximo.atores.map(a=>a.pv),[20,15,18]);
+});
 test('alvos incompletos, duplicados proibidos ou ausentes não gastam recursos',async()=>{
  const m=mesa();await m.iniciar();
  const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe);
@@ -120,7 +127,7 @@ test('rajada com testes de ataque resolve cada projétil e suporta alvos repetid
  const m=mesa();
  m.a.ficha.opcoes.push({id:'rajada',nome:'Rajada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],selecao:{tipo:'alvos',min:3,max:3,repetirAlvo:true},automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'fogo',alcanceM:18}});
  await m.iniciar();
- await m.go('usar',{ator:m.a.id,opcao:'rajada',alvos:[m.b.id,m.c.id,m.b.id]},player,[12,3,1,18,4]);
+ await m.go('usar',{ator:m.a.id,opcao:'rajada',alvos:[m.b.id,m.c.id,m.b.id]},player,[12,1,18,3,4]);
  assert.deepEqual(m.s.atores.map(a=>a.pv),[20,17,24]);
 });
 test('círculo superior requer quatro dardos e gasta o recurso correto',async()=>{

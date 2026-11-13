@@ -11,7 +11,7 @@ const medida=n=>Number(n.toFixed(2)).toLocaleString('pt-BR')+' m';
 function circulo(centro,raio,cor){
   const pontos=Array.from({length:80},(_,i)=>({x:raio*Math.cos(i*Math.PI/40),y:raio*Math.sin(i*Math.PI/40)}));
   return buildCurve().position(centro).points(pontos).closed(true).fillColor(cor).fillOpacity(.08)
-    .strokeColor(cor).strokeWidth(3).layer('DRAWING').locked(true).disableHit(true).build();
+    .strokeColor(cor).strokeWidth(3).layer('CONTROL').locked(true).disableHit(true).build();
 }
 export async function iniciarHud(){
   await pronto();
@@ -55,7 +55,11 @@ export async function iniciarHud(){
       if(pendente){const cw=Math.min(410,w-12),ch=Math.min(480,h-72);caixas.acao=[Math.round(Math.max(10,w*.06)),Math.round(Math.max(62,(h-ch)/2)),cw,ch];}
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
-      if(pedidoDado)caixas.dados=[Math.round((w-Math.min(440,w-12))/2),Math.round(Math.max(62,(h-260)/2)),Math.min(440,w-12),pedidoDado.tipo==='resultado'?245:210];
+      if(pedidoDado){
+        const n=pedidoDado.formulas?.length??pedidoDado.resultado?.resultados?.length??1;
+        const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82:160+n*116);
+        caixas.dados=[Math.round((w-Math.min(470,w-12))/2),Math.round(Math.max(62,(h-ch)/2)),Math.min(470,w-12),ch];
+      }
     }
     for(const k of ['ordem','barra','iniciativa','acao','reacao','dados'])await janela(k,caixas[k]);
   }
@@ -70,13 +74,13 @@ export async function iniciarHud(){
     const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(dpi*.32,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
     const ponta1={x:fim.x-tam*Math.cos(ang-.55),y:fim.y-tam*Math.sin(ang-.55)};
     const ponta2={x:fim.x-tam*Math.cos(ang+.55),y:fim.y-tam*Math.sin(ang+.55)};
-    return [[origem,fim],[fim,ponta1],[fim,ponta2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#e54848').strokeWidth(5).layer('DRAWING').locked(true).disableHit(true).build());
+    return [[origem,fim],[fim,ponta1],[fim,ponta2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#e54848').strokeWidth(5).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function setaAlvo(origem,fim,indice=0,total=1){
     const dx=fim.x-origem.x,dy=fim.y-origem.y,tamLinha=Math.hypot(dx,dy)||1,offset=(indice-(total-1)/2)*dpi*.12;
     const ox=-dy/tamLinha*offset,oy=dx/tamLinha*offset,a={x:origem.x+ox,y:origem.y+oy},b={x:fim.x+ox,y:fim.y+oy};
     const ang=Math.atan2(b.y-a.y,b.x-a.x),tam=Math.min(dpi*.22,tamLinha*.22),p1={x:b.x-tam*Math.cos(ang-.5),y:b.y-tam*Math.sin(ang-.5)},p2={x:b.x-tam*Math.cos(ang+.5),y:b.y-tam*Math.sin(ang+.5)};
-    return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor('#e5c079').strokeWidth(4).layer('DRAWING').locked(true).disableHit(true).build());
+    return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor('#e5c079').strokeWidth(4).layer('CONTROL').locked(true).disableHit(true).build());
   }
   async function cancelar(){
     pendente=null;await limparMarcas();
@@ -144,7 +148,7 @@ export async function iniciarHud(){
     const raio=p.rule?.raioM;
     const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),circulo(ponto,(raio||.43)*dpi,'#79cfb1')];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
-    if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('DRAWING').disableHit(true).build());
+    if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('CONTROL').disableHit(true).build());
     await desenhar(items);
     const afetados=raio?atores().filter(a=>Math.hypot(pos(a).x-ponto.x,pos(a).y-ponto.y)<=raio*dpi).map(a=>a.nome):[];
     p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(raio?' · raio '+medida(raio)+' · '+(afetados.join(', ')||'área vazia'):'');
@@ -191,7 +195,10 @@ export async function iniciarHud(){
     if(d.pedir){transmitir();return;}
     if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
       const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();
-      await responderDado({pedido,formula:String(d.formula||'').replace(/\s+/g,'')});
+      const resposta={pedido};
+      if(Array.isArray(d.formulas)&&d.formulas.length)resposta.formulas=d.formulas.map(x=>String(x||'').replace(/\s+/g,''));
+      else resposta.formula=String(d.formula||'').replace(/\s+/g,'');
+      await responderDado(resposta);
     }else if(d.tipo==='continuarDado'&&pedidoDado?.tipo==='resultado'){
       const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,continuar:true});
     }else if(d.tipo==='cancelarDado'&&pedidoDado){

@@ -94,3 +94,16 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Integração Playwright aprovada para variante de arremesso, painel da ação, seleção 2/3, botão bloqueado e trajetórias repetidas.
 - Capturas conferidas: `work/painel-arremesso-v07.png`, `work/painel-misseis-v07.png` e `work/painel-acao-v07.png`.
 
+## Versão 0.7.1: rajadas agrupadas e linhas sobre os tokens
+
+- [x] Colocar alcance, trajetória de ataque, movimento e ameaça de oportunidade na camada de controle, acima dos tokens.
+- [x] Reunir os danos de Mísseis Mágicos e outras rajadas em uma única solicitação ao Dice+.
+- [x] Mostrar um campo configurável por seta, com Normal, Vantagem e Desvantagem independentes.
+- [x] Manter apenas um botão **Rolar dados** para toda a rajada.
+- [x] Exibir conta, alvo e dano de cada seta em seções próprias no resultado conjunto.
+- [x] Preservar crítico, resistência, vulnerabilidade, imunidade e concentração por alvo.
+
+- Testes do motor: 25 aprovados, incluindo fórmulas agrupadas, alvos repetidos e danos separados.
+- Integração Playwright aprovada para três setas, ajuste individual da segunda, uma única execução, resultados separados e itens visuais na camada frontal.
+- Capturas conferidas: `work/ajuste-rajada-v071.png` e `work/resultado-rajada-v071.png`.
+
