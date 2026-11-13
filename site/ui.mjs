@@ -21,8 +21,29 @@ function view(estado,i){
 
   const id=solicitacaoFicha??s.atores.find(a=>tokenSelecionado&&a.token===tokenSelecionado)?.id;
   if(id){const p=s.atores.find(a=>a.id===id&&(i.role==='GM'||a.dono===i.id));if(p)escolhido=p.id;}
-  tokenSelecionado=null;solicitacaoFicha=null;
+  solicitacaoFicha=null;
   render();
+}
+const jogadoresOnline=()=>info.players.filter(p=>p.role!=='GM');
+function opcoesDono(a,id='dono-vinculo-'+a.id){
+  if(a.ficha.tipo!=='pj')return '<span class="vinculo-mestre">Controlado pelo mestre</span>';
+  return '<label>Jogador online<select id="'+esc(id)+'">'+opt('','Mestre',!a.dono)+(a.dono&&!jogadoresOnline().some(p=>p.id===a.dono)?opt(a.dono,'Jogador desconectado',true):'')+jogadoresOnline().map(p=>opt(p.id,p.name,p.id===a.dono)).join('')+'</select></label>';
+}
+function tokensDisponiveis(a){
+  return info.tokens.filter(t=>!s.atores.some(x=>x!==a&&x.token===t.id));
+}
+function renderControleFichasMestre(){
+  const tokenAtual=info.tokens.find(t=>t.id===tokenSelecionado),atorDoToken=s.atores.find(a=>a.token===tokenAtual?.id);
+  const candidatasToken=tokenAtual?s.atores.filter(a=>!a.token||a===atorDoToken):[];
+  const fichaToken=candidatasToken.find(a=>a.id===escolhido)??atorDoToken??candidatasToken[0];
+  const resumoToken=tokenAtual?'<div class="token-selecionado"><div><small>TOKEN SELECIONADO NO MAPA</small><h3>'+esc(tokenAtual.name||tokenAtual.id)+'</h3><p>'+(atorDoToken?'Vinculado atualmente a '+esc(atorDoToken.nome)+'.':'Ainda não possui ficha vinculada.')+'</p></div>'+(candidatasToken.length?'<label>Ficha<select id="ficha-token-selecionado">'+candidatasToken.map(a=>opt(a.id,a.nome,a===fichaToken)).join('')+'</select></label>'+opcoesDono(fichaToken,'dono-token-selecionado')+'<button type="button" class="primario" data-vincular-selecionado>Vincular ao token selecionado</button>':'<p class="muted">Todas as fichas carregadas já possuem token.</p>')+'</div>':'<div class="token-selecionado vazio"><div><small>TOKEN SELECIONADO NO MAPA</small><h3>Nenhum token selecionado</h3><p>Selecione uma peça da camada Personagem para configurá-la aqui.</p></div></div>';
+  const linhas=s.atores.map(a=>{
+    const tokens=tokensDisponiveis(a),tokenAusente=a.token&&!info.tokens.some(t=>t.id===a.token);
+    const seletor='<label>Token<select id="token-vinculo-'+esc(a.id)+'">'+opt('','Sem token',!a.token)+(tokenAusente?opt(a.token,'Token indisponível',true):'')+tokens.map(t=>opt(t.id,t.name||t.id,t.id===a.token)).join('')+'</select></label>';
+    return '<article class="linha-vinculo '+(a.id===escolhido?'selecionada':'')+'"><div><strong>'+esc(a.nome)+'</strong><small>'+(a.ficha.tipo==='pj'?'PERSONAGEM':'NPC')+' · '+(a.token?'token vinculado':'sem token')+'</small></div>'+seletor+opcoesDono(a)+'<div class="acoes-vinculo"><button type="button" data-usar-selecao-vinculo="'+esc(a.id)+'">Usar seleção</button><button type="button" class="primario" data-salvar-vinculo="'+esc(a.id)+'">Salvar vínculo</button><button type="button" data-ver-ficha="'+esc(a.id)+'">Abrir ficha</button></div></article>';
+  }).join('');
+  const importar=s.fase==='preparo'?'<div class="importar-fichas"><div class="campos">'+(s.atores.length?'':btn('grupoTeste','Carregar os 7 jogadores')+btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>':'<p class="muted">Pare o combate para importar ou retirar fichas. Os vínculos de jogadores continuam editáveis.</p>';
+  return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
 }
 function render(){
   if(!s)return;
@@ -41,11 +62,10 @@ function render(){
   if(mestre){
     const emCombate=s.atores.filter(x=>x.emCombate!==false);
     h+='<section class="controle-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle do combate</h2><p>'+(s.fase==='preparo'?'Combate parado':s.fase==='iniciativa'?'Aguardando iniciativas':'Rodada '+s.rodada+' · turno de '+esc(ativo?.nome??'—'))+'</p></div><div>'+(s.fase==='preparo'?btn('iniciar','Iniciar combate','primario'):btn('encerrar','Parar combate','perigo'))+'</div></div>';
-    if(s.fase==='preparo')h+='<div class="preparar-encontro"><div class="campos">'+(s.atores.length?'':btn('grupoTeste','Carregar os 7 jogadores')+btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Importar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>';
     if(s.fase!=='preparo')h+='<div class="ordem">'+(s.ordem.length?s.ordem:emCombate.map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(s.fase==='iniciativa'?btn('npcs','Rolar iniciativas dos NPCs'):'');
-    h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
+    h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-configurar-vinculo="'+esc(p.id)+'">Configurar</button><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
     if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
-    h+='</section>'+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+    h+='</section>'+renderControleFichasMestre()+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
     $('app').innerHTML=h;return;
   }
   h+='<div class="colunas '+(mestre?'gestao':'folha')+'"><section><h2>'+(mestre?'Participantes':'Personagens')+'</h2>';
@@ -135,6 +155,19 @@ function coord(id,label,value){return '<label>'+label+'<input type="number" step
 const num=id=>Number($(id)?.value??0);
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 async function enviar(tipo,extra={}){await api.enviar({tipo,rev:s.rev,ator:escolhido,comoJogador:testar,...extra});}
+async function usarSelecaoNoVinculo(atorId){
+  const id=await api.selecionado();
+  if(!info.tokens.some(t=>t.id===id))throw Error('Selecione um token da camada Personagem.');
+  const ocupadoPor=s.atores.find(a=>a.id!==atorId&&a.token===id);if(ocupadoPor)throw Error('Este token já está vinculado a '+ocupadoPor.nome+'.');
+  tokenSelecionado=id;const campo=$('token-vinculo-'+atorId);if(campo)campo.value=id;
+}
+async function salvarVinculoAtor(atorId,{token,dono}={}){
+  const a=s.atores.find(x=>x.id===atorId);if(!a)throw Error('Ficha não encontrada.');
+  const tokenFinal=token??$('token-vinculo-'+atorId)?.value??a.token??'';
+  const donoFinal=a.ficha.tipo==='pj'?(dono??$('dono-vinculo-'+atorId)?.value??a.dono??''):'';
+  await api.enviar({tipo:'vincular',rev:s.rev,ator:a.id,token:tokenFinal,dono:donoFinal,comoJogador:false});
+  escolhido=a.id;tokenSelecionado=tokenFinal||tokenSelecionado;aviso('Vínculo de '+a.nome+' atualizado.');
+}
 function lerFicha(a){
   const form=$('formFicha'),valor=n=>form.elements.namedItem(n)?.value??'',numero=n=>Number(valor(n));
   let f;
@@ -234,11 +267,16 @@ async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn(
 $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
  if(b.dataset.livroAba){paginaLivro=b.dataset.livroAba;return render();}
+ if(b.dataset.configurarVinculo){escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}
+ if(b.dataset.usarSelecaoVinculo)return tarefa(()=>usarSelecaoNoVinculo(b.dataset.usarSelecaoVinculo));
+ if(b.dataset.salvarVinculo)return tarefa(()=>salvarVinculoAtor(b.dataset.salvarVinculo));
+ if(b.hasAttribute('data-vincular-selecionado'))return tarefa(async()=>{const id=$('ficha-token-selecionado')?.value,token=info.tokens.find(t=>t.id===tokenSelecionado);if(!id||!token)throw Error('Selecione um token e uma ficha.');await salvarVinculoAtor(id,{token:token.id,dono:$('dono-token-selecionado')?.value});});
  if(b.dataset.verFicha){escolhido=b.dataset.verFicha;secao='ficha';npcsAbertos=true;acao=null;alvos=[];return render();}
  if(b.dataset.combate){escolhido=b.dataset.combate;return tarefa(async()=>{const p=s.atores.find(x=>x.id===escolhido);if(await confirma((p.emCombate===false?'Adicionar ':'Retirar ')+p.nome+'?',p.emCombate===false?'A ficha entrará na lista de combate.':'A ficha e o token continuarão vinculados.'))await enviar('alternarCombate');});}
  if(b.dataset.ator){escolhido=b.dataset.ator;acao=null;alvos=[];return render();}if(b.dataset.teste){return tarefa(()=>rolarTeste(b.dataset.teste,b.dataset.chave));}if(b.dataset.do)tarefa(()=>executar(b.dataset.do));};
 $('app').onsubmit=e=>{if(e.target.id==='formFicha'){e.preventDefault();tarefa(salvarFicha);}};
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
+ if(e.target.id==='ficha-token-selecionado'){escolhido=e.target.value;render();}
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
 $('app').oncontextmenu=e=>{
  const habilidade=e.target.closest('[data-habilidade-id]');
@@ -281,7 +319,7 @@ try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);awai
      secao='ficha';solicitacaoFicha=d.id;if(s)view(recebido,info);localStorage.removeItem(chave);}
    window.addEventListener('storage',e=>{if(e.key===chave)pedido(e.newValue);});pedido(localStorage.getItem(chave));
    let ultimo;
-   const selecionar=id=>{if(!id||id===ultimo){ultimo=id;return;}ultimo=id;if(!s){tokenSelecionado=id;return;}const a=s?.atores.find(x=>x.token===id&&(info?.role==='GM'||x.dono===info?.id));if(a){escolhido=a.id;acao=null;alvos=[];render();}};
+   const selecionar=id=>{tokenSelecionado=id||null;if(!id||id===ultimo){ultimo=id;return;}ultimo=id;if(!s)return;const a=s?.atores.find(x=>x.token===id&&(info?.role==='GM'||x.dono===info?.id));if(a){escolhido=a.id;acao=null;alvos=[];}if(info?.role==='GM'&&secao==='gm'||a)render();};
    api.observarSelecao(selecionar);const id=await api.selecionado();
    selecionar(id);
  }

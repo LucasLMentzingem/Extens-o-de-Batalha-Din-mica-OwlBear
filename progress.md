@@ -379,6 +379,18 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Testes do motor: 75 aprovados, incluindo migração de encontro antigo, arma guardada e preparação de magias.
 - Cliente Playwright executado sem erros novos; a inspeção visual final da HUD permanece vinculada ao popover do Owlbear.
 
+### Versão 0.7.24: controle central de fichas e vínculos
+
+- [x] Separar no painel exclusivo do mestre o Controle do combate e o Controle de fichas.
+- [x] Reunir importação JSON, vínculo com tokens e vínculo com jogadores online no Controle de fichas.
+- [x] Adicionar “Configurar” à lista de combate para levar diretamente ao vínculo do participante.
+- [x] Mostrar o token selecionado no mapa e permitir ligá-lo a uma ficha ainda sem token.
+- [x] Permitir o mesmo vínculo pelo menu de contexto da extensão em um token sem ficha.
+
+- Testes do motor: 75 aprovados.
+- Integração Playwright aprovada para sete fichas, upload JSON, tokens selecionados, jogadores online e vínculo pelo menu de contexto.
+- Capturas conferidas: `work/controle-fichas-v0724.png` e `work/contexto-vinculo-v0724.png`.
+
 ### Versão 0.7.17: Rodapé tático por recursos
 
 - [x] Transformar ação, ação bônus, reação, espaços de magia e demais reservas em botões quadrados.
