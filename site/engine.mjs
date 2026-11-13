@@ -135,6 +135,7 @@ export function validar(f) {
     }
     if(o.gatilho==='apos_rolagem_dano')exigir(o.rerrolagem?.tipo==='dano'&&['todos','dados_com_resultado'].includes(o.rerrolagem.modo),'Rerrolagem de dano inválida em '+o.id);
     if(o.gatilho==='sofrer_dano')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao&&['ataque','salva'].includes(o.automacao.tipo),'Reação ao sofrer dano inválida em '+o.id);
+    if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
       exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
@@ -144,7 +145,8 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','efeito','efeito_conjuracao','projeteis','bencao'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    if(a.tipo==='reduzir_dano')exigir(formulaDanoValida(a.formula),'Redução de dano inválida em '+o.id);
     if(multi(o)||['projeteis','bencao'].includes(a.tipo)){
       const r=o.selecao;
       exigir(r?.tipo==='alvos'&&inteiro(r.max,1,64)&&inteiro(r.min,1,r.max)&&typeof r.repetirAlvo==='boolean'&&Number.isFinite(a.alcanceM)&&a.alcanceM>=0,'Seleção de alvos inválida em '+o.id);
@@ -355,6 +357,15 @@ function enfileirarReacaoAoSofrerDano(s,reator,origem,valor,elemento){
     descricao:reator.nome+' sofreu '+valor+(elemento?' de dano '+elemento:' de dano')+' de '+origem.nome+'.',contexto:{dano:valor,elemento}});
   abrirProximaReacaoEvento(s);
 }
+function abrirReacaoPreventiva(s,reator,origem,resolucao){
+  if(s.fase!=='turnos'||s.reacaoPendente||!reator||!origem||reator===origem||reator.pv<=0||reator.reacao<=0)return false;
+  const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
+  if(!opcoes.length)return false;
+  s.resolucaoPendente={...resolucao,tipo:'dano_ataque',origem:origem.id,alvo:reator.id};
+  s.reacaoPendente={id:crypto.randomUUID(),gatilho:'ser_atingido',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
+    descricao:reator.nome+' foi atingido por '+origem.nome+'. O dano aguarda esta reação.',terminaEm:Date.now()+20000};
+  return true;
+}
 const dadosExtrasValidos=xs=>Array.isArray(xs)&&xs.length<=4&&xs.every(x=>/^\d{1,2}d(?:4|6|8|10|12|20)$/.test(x));
 export function registrar(s,t) { s.historico.unshift(t); s.historico.length=Math.min(s.historico.length,45); }
 export function encerrarConcentracao(s,a,motivo=''){
@@ -560,6 +571,22 @@ export async function aplicar(s,c,u,rolar) {
     case 'resolverReacao': {
       const p=s.reacaoPendente;
       exigir(s.fase==='turnos'&&p&&p.reator===a?.id,'Esta reação não está mais disponível.');
+      if(p.gatilho==='ser_atingido'){
+        const pend=s.resolucaoPendente,origem=s.atores.find(x=>x.id===pend?.origem),alvo=s.atores.find(x=>x.id===pend?.alvo);
+        exigir(pend?.tipo==='dano_ataque'&&origem&&alvo&&alvo===a,'O ataque pendente não está mais disponível.');
+        let reducao=0,nomeReacao='nenhuma reação';
+        if(c.opcao){
+          const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='ser_atingido');
+          exigir(o?.automacao?.tipo==='reduzir_dano'&&custosDisponiveis(a,o),'Reação preventiva indisponível.');
+          for(const custo of o.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
+          reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;nomeReacao=o.nome;
+        }
+        const controlador=origem.ficha.tipo==='pj'&&origem.dono?origem.dono:'GM';
+        const bruto=(await resultado(pend.formula,{tipo:'dano',titulo:'Dano · '+pend.nome,critico:pend.critico,alvo:alvo.nome,destinoId:controlador,roladorNome:origem.nome})).total;
+        const restante=Math.max(0,bruto-reducao),dano=await aplicarDanoNoAtor(alvo,restante,pend.elemento,{critico:pend.critico,origem});
+        msg=alvo.nome+' respondeu com '+nomeReacao+' • dano '+bruto+' − redução '+reducao+' = '+dano;
+        delete s.resolucaoPendente;delete s.reacaoPendente;abrirProximaReacaoEvento(s);break;
+      }
       if(p.gatilho!=='sair_alcance'){
         const alvo=s.atores.find(x=>x.id===p.alvo);
         exigir(alvo,'O alvo da reação não está mais disponível.');
@@ -635,7 +662,7 @@ export async function aplicar(s,c,u,rolar) {
       msg=a.nome+' • '+o.nome+' (gatilho e efeito conferidos pela mesa)';break;
     }
     case 'encerrar':
-      delete s.reacaoPendente;delete s.movimentoPendente;s.filaReacoes=[];
+      delete s.reacaoPendente;delete s.movimentoPendente;delete s.resolucaoPendente;s.filaReacoes=[];
       s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(restaurarEconomia);msg='Combate encerrado.';break;
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
@@ -800,6 +827,7 @@ export async function aplicar(s,c,u,rolar) {
         a.eventosTurno.acertos.push(evento);
         if(face===20||(restricoesAtivas(p).criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8)){critico=true;formula=formulaCritica(formula);msg+=' • crítico';}
       }
+      if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,critico,nome:o.nome})){msg+=' • aguardando reação de '+p.nome;continue;}
       const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=opcoesRerrolagemDano(a);
       const metaAdicionais=adicionais.map(g=>({id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,custo:g.custo??[],descricao:g.descricao??''}));
       const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
@@ -830,7 +858,7 @@ export async function aplicar(s,c,u,rolar) {
 }
 export function publico(s){
   const v=structuredClone(s);
-  delete v.filaReacoes;
+  delete v.filaReacoes;delete v.resolucaoPendente;
   for(const a of v.atores)if(a.ficha.tipo==='npc'){
     delete a.bencao;
     a.ficha={tipo:'npc',nome:a.nome,opcoes:[]};delete a.pv;delete a.rec;

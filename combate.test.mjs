@@ -446,3 +446,9 @@ test('fila de reações apresenta em ordem todos os alvos que sofreram dano',asy
  const primeiro=m.s.reacaoPendente.reator;assert.equal(m.s.filaReacoes.length,1);await m.go('resolverReacao',{ator:primeiro,opcao:null},gm);assert.notEqual(m.s.reacaoPendente.reator,primeiro);assert.equal(m.s.filaReacoes.length,0);
  await m.go('resolverReacao',{ator:m.s.reacaoPendente.reator,opcao:null},gm);assert.equal(m.s.reacaoPendente,undefined);
 });
+test('reação preventiva interrompe o ataque entre o acerto e o dano',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'defletir-teste',nome:'Defletir Ataques',categoria:'acao',gatilho:'ser_atingido',custo:[{tipo:'reacao',quantidade:1}],automacao:{tipo:'reduzir_dano',formula:'1d10+3'}});
+ await m.iniciar();await m.go('passar',{ator:m.a.id},player);const ataque=m.s.atores[1].ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');
+ await m.go('usar',{ator:m.b.id,opcao:ataque.id,alvo:m.a.id},gm,[15]);assert.equal(m.s.atores[0].pv,20);assert.equal(m.s.atores[1].acao,0);assert.equal(m.s.reacaoPendente.gatilho,'ser_atingido');assert.equal(m.s.resolucaoPendente.tipo,'dano_ataque');
+ await m.go('resolverReacao',{ator:m.a.id,opcao:'defletir-teste'},player,[4,5]);assert.equal(m.s.atores[0].pv,19);assert.equal(m.s.atores[0].reacao,0);assert.equal(m.s.reacaoPendente,undefined);assert.equal(m.s.resolucaoPendente,undefined);
+});

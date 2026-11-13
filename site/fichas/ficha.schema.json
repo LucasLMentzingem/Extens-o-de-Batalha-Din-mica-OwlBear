@@ -424,6 +424,7 @@
             "ser_alvo",
             "falhar_teste",
             "conjurar_magia",
+            "ser_atingido",
             "apos_acerto",
             "apos_rolagem_dano"
           ]
@@ -560,7 +561,8 @@
                 "efeito",
                 "efeito_conjuracao",
                 "projeteis",
-                "bencao"
+                "bencao",
+                "reduzir_dano"
               ]
             },
             "alcanceM": {

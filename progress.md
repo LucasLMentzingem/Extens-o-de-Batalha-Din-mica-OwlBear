@@ -1,5 +1,13 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## Em desenvolvimento local — reações preventivas
+
+- O gatilho `ser_atingido` pausa um ataque depois do acerto e antes da rolagem de dano.
+- A resolução pendente conserva fonte, alvo, fórmula, elemento e estado crítico sem expor esses dados no estado público.
+- `reduzir_dano` rola a reação, retoma o dano com o controlador original e aplica apenas o restante.
+- Recusar ou deixar o temporizador terminar também retoma automaticamente a rolagem de dano.
+- Testes locais: 58 unitários. Publicação retida até concluir o pacote solicitado.
+
 ## 2026-11-13 — primeira fila genérica de reações 0.7.14
 
 - O gatilho declarativo `sofrer_dano` abre uma reação fora do turno somente durante o combate.
