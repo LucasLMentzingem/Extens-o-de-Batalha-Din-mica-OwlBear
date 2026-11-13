@@ -222,7 +222,9 @@ export async function iniciarHud(){
   async function atualizar(s,i){
     if(!pronta)return;
     const novoTurno=atual(s)?.id!==atual(estado??{ordem:[],atores:[]})?.id;
-    if(pendente&&(pendente.rev!==s.rev||s.fase==='preparo'))await cancelar();
+    // Em preparacao o HUD tambem e a central de uso livre. Uma atualizacao da
+    // sala com a mesma revisao nao pode fechar a selecao recem-aberta.
+    if(pendente&&pendente.rev!==s.rev)await cancelar();
     estado=s;eu=i;
     const ativo=atual(s);
     if(!controla(ator())||novoTurno)atorId=(controla(ativo)?ativo:atores().find(controla))?.id;

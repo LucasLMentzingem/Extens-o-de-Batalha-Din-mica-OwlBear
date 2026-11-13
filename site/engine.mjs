@@ -399,7 +399,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'encerrar':
       for(const p of s.atores)delete p.bencao;
       delete s.reacaoPendente;delete s.movimentoPendente;
-      s.fase='preparo';s.ordem=[];s.rodada=0;msg='Combate encerrado.';break;
+      s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(ativar);msg='Combate encerrado.';break;
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       for(const p of s.atores.filter(x=>x.ficha.tipo==='pj')){

@@ -189,3 +189,10 @@ Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD c
 - Capturas conferidas: `work/empurrar-previa-v077.png` e `work/empurrar-resolvido-v077.png`.
 - Próximo passo sugerido: detectar paredes, limites e terrenos bloqueados antes de encurtar ou cancelar o deslocamento forçado.
 
+## Versão 0.7.8: habilidades fora de combate
+
+- [x] Impedir que atualizações da sala na fase de preparação fechem a seleção de uma habilidade recém-aberta.
+- [x] Restaurar a apresentação de ação, ação bônus, reação e deslocamento quando o combate é encerrado.
+- [x] Preservar o uso livre fora de combate: a economia de turno não é consumida, mas espaços e demais recursos continuam sendo gastos.
+- [ ] Retomar o mapeamento SRD 5.2.1 de recursos de personagens até o nível 10.
+
