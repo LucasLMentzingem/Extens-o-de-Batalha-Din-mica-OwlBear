@@ -28,6 +28,7 @@ function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
+  const partesHud=['ordem','barra','iniciativa','acao','reacao','dados'];
   let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
@@ -46,10 +47,13 @@ export async function iniciarHud(){
   }
   async function janela(parte,box){
     const id=ns+'/hud/'+parte;
-    if(!box){if(abertos.has(parte)){await OBR.popover.close(id);abertos.delete(parte);}return;}
+    if(!box){if(abertos.has(parte)){await OBR.popover.close(id).catch(()=>{});abertos.delete(parte);}return;}
     const key=JSON.stringify(box);
     if(abertos.get(parte)===key)return;
-    if(abertos.has(parte))await OBR.popover.close(id);
+    // Uma atualização da extensão pode reiniciar o controlador enquanto o
+    // Owlbear ainda conserva o pop-up antigo. Fechar pelo ID torna a abertura
+    // idempotente e impede que um pop-up órfão bloqueie toda a HUD.
+    await OBR.popover.close(id).catch(()=>{});
     const [left,top,width,height]=box;
     await OBR.popover.open({id,url:url.href+'?parte='+parte,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,
       anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -83,7 +87,9 @@ export async function iniciarHud(){
         caixas.dados=[Math.round((w-Math.min(470,w-12))/2),Math.round(Math.max(62,(h-ch)/2)),Math.min(470,w-12),ch];
       }
     }
-    for(const k of ['ordem','barra','iniciativa','acao','reacao','dados'])await janela(k,caixas[k]);
+    const resultados=await Promise.allSettled(partesHud.map(k=>janela(k,caixas[k])));
+    const falhas=resultados.flatMap((r,i)=>r.status==='rejected'?[partesHud[i]+': '+(r.reason?.message??r.reason)]:[]);
+    if(falhas.length)throw Error('Falha ao abrir a HUD — '+falhas.join(' · '));
   }
   async function limparMarcas(){
     const ids=marcas;marcas=[];
@@ -362,6 +368,9 @@ export async function iniciarHud(){
     let quadro=0,ultimos;
     OBR.scene.items.onChange(items=>{ultimos=items;if(quadro)return;quadro=requestAnimationFrame(()=>{quadro=0;const lote=ultimos;serial(()=>sincronizarTokens(lote));});});
   }
+  // Remove instâncias que possam ter sobrevivido ao recarregamento do
+  // background antes da primeira sincronização com o encontro.
+  await Promise.all(partesHud.map(parte=>OBR.popover.close(ns+'/hud/'+parte).catch(()=>{})));
   await api.notify();
   let verificando=false;
   setInterval(()=>{if(verificando)return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}finally{verificando=false;}});},1200);

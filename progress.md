@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-13 — hotfix de abertura da HUD 0.7.18
+
+- O controlador agora fecha pop-ups órfãos pelo ID antes de abrir rodapé, carrossel e demais janelas.
+- A abertura das partes da HUD é independente; uma falha identifica a janela afetada sem deixar as demais silenciosamente bloqueadas.
+- A inicialização limpa instâncias que tenham sobrevivido à atualização do background do Owlbear.
+- Próxima pendência: corrigir regras de ocupação das mãos e equipamento inicial.
+
 ## Reações preventivas
 
 - O gatilho `ser_atingido` pausa um ataque depois do acerto e antes da rolagem de dano.
