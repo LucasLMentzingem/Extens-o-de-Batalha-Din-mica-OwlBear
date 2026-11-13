@@ -382,3 +382,35 @@ test('estado inconsciente concede vantagem e ataques corpo a corpo causam duas f
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async(formula,meta)=>{formulas.push({formula,meta});return formulas.length===1?{total:19,natural:15,formula,resumo:'19'}:{total:4,natural:null,formula,resumo:'4'};});
  assert.equal(formulas[0].formula,'2d20kh1+4');assert.equal(formulas[1].formula,'2d4+2');assert.equal(s.atores[1].salvaguardasMorte.falhas,2);
 });
+test('aprimoramento após acerto entra no ajuste de dano e só então gasta o recurso',async()=>{
+ const m=mesa();m.a.ficha.recursos.push({id:'superioridade',nome:'Dados de Superioridade',maximo:4,saldoInicial:4});m.a.rec.superioridade=4;
+ m.a.ficha.opcoes.push({id:'ataque-ameacador',nome:'Ataque Ameaçador',categoria:'acao',descricao:'Após acertar, some 1d8 e force salva de SAB.',gatilho:'apos_acerto',umaVezPorTurno:true,custo:[{tipo:'recurso',id:'superioridade',quantidade:1}],aprimoramento:{dano:'1d8',elemento:'perfurante',requisitos:{tagsAtaque:['arma']},salva:{atributo:'sab',cd:13,efeitoFalha:{nome:'Amedrontado',condicao:'amedrontado',turnos:1,expira:'fim_origem'}}}});
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao),chamadas=[];
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{
+   chamadas.push({formula,meta});if(meta.tipo==='ataque')return {total:17,natural:15,formula,resumo:'15 + 2 = 17'};
+   if(meta.tipo==='dano'){assert.equal(meta.adicionais[0].id,'ataque-ameacador');return {total:11,natural:null,formula,resumo:'dano',resultados:[{total:6,resumo:'1d8 = 6'},{total:5,resumo:'1d8 = 5'}],recursosAtivos:['ataque-ameacador'],rerrolagensUsadas:[]};}
+   return {total:9,natural:7,formula,resumo:'7 + 2 = 9'};
+ });
+ assert.equal(next.atores[0].rec.superioridade,3);assert.equal(next.atores[1].pv,13);assert.equal(next.atores[1].efeitosAtivos.at(-1).condicao,'amedrontado');assert.equal(next.atores[0].usosTurno['ataque-ameacador'],true);
+ assert.deepEqual(chamadas.map(x=>x.meta.tipo),['ataque','dano','salvaguarda']);
+});
+test('ignorar aprimoramento preserva o recurso e crítico prepara seu dado adicional',async()=>{
+ const m=mesa();m.a.ficha.recursos.push({id:'superioridade',nome:'Dados de Superioridade',maximo:4,saldoInicial:4});m.a.rec.superioridade=4;
+ m.a.ficha.opcoes.push({id:'manobra',nome:'Manobra',categoria:'acao',gatilho:'apos_acerto',custo:[{tipo:'recurso',id:'superioridade',quantidade:1}],aprimoramento:{dano:'1d8',elemento:'perfurante'}});
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{
+   if(meta.tipo==='ataque')return {total:20,natural:20,formula,resumo:'20'};
+   assert.equal(meta.adicionais[0].formula,'2d8');return {total:7,natural:null,formula,resumo:'2d8 = 7',recursosAtivos:[],rerrolagensUsadas:[]};
+ });
+ assert.equal(next.atores[0].rec.superioridade,4);assert.equal(next.atores[1].pv,17);
+});
+test('recurso de rerrolagem é oferecido no resultado e cobrado quando usado',async()=>{
+ const m=mesa();m.a.ficha.recursos.push({id:'sorte',nome:'Sorte',maximo:2,saldoInicial:2});m.a.rec.sorte=2;
+ m.a.ficha.opcoes.push({id:'rerrolar-dano',nome:'Sorte no Dano',categoria:'acao',descricao:'Rerrole o dano.',gatilho:'apos_rolagem_dano',custo:[{tipo:'recurso',id:'sorte',quantidade:1}],rerrolagem:{tipo:'dano',modo:'todos'}});
+ await m.iniciar();const ataque=m.s.atores[0].ficha.opcoes.find(o=>o.nome.includes('Lança +2')&&o.automacao);
+ const next=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:ataque.id,alvo:m.b.id},player,async(formula,meta)=>{
+   if(meta.tipo==='ataque')return {total:17,natural:15,formula,resumo:'17'};
+   assert.equal(meta.rerrolagens[0].id,'rerrolar-dano');return {total:8,natural:null,formula,resumo:'1d8 = 8',recursosAtivos:[],rerrolagensUsadas:['rerrolar-dano']};
+ });
+ assert.equal(next.atores[0].rec.sorte,1);assert.equal(next.atores[1].pv,16);
+});

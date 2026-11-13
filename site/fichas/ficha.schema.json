@@ -423,8 +423,47 @@
             "sofrer_dano",
             "ser_alvo",
             "falhar_teste",
-            "conjurar_magia"
+            "conjurar_magia",
+            "apos_acerto",
+            "apos_rolagem_dano"
           ]
+        },
+        "umaVezPorTurno": {
+          "type": "boolean"
+        },
+        "aprimoramento": {
+          "type": "object",
+          "properties": {
+            "dano": {"type": "string"},
+            "elemento": {"type": "string"},
+            "critico": {"type": "boolean"},
+            "requisitos": {
+              "type": "object",
+              "properties": {
+                "tagsAtaque": {"type": "array", "items": {"type": "string"}},
+                "alvoFerido": {"type": "boolean"}
+              }
+            },
+            "salva": {
+              "type": "object",
+              "properties": {
+                "atributo": {"enum": ["for", "des", "con", "int", "sab", "car"]},
+                "cd": {"type": "integer", "minimum": 1, "maximum": 40},
+                "efeitoFalha": {"type": "object"}
+              },
+              "required": ["atributo", "cd"]
+            }
+          },
+          "required": ["dano"]
+        },
+        "rerrolagem": {
+          "type": "object",
+          "properties": {
+            "tipo": {"const": "dano"},
+            "modo": {"enum": ["todos", "dados_com_resultado"]},
+            "resultados": {"type": "array", "items": {"type": "integer", "minimum": 1}}
+          },
+          "required": ["tipo", "modo"]
         },
         "requisitos": {
           "type": "array",

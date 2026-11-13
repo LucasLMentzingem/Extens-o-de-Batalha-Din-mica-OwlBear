@@ -65,7 +65,9 @@ export async function iniciarHud(){
       if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado){
         const n=pedidoDado.formulas?.length??pedidoDado.resultado?.resultados?.length??1;
-        const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82:160+n*116);
+        const extraResultado=pedidoDado.tipo==='resultado'&&pedidoDado.meta?.rerrolagens?.length?105:0;
+        const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?115:0;
+        const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82+extraResultado:160+n*116+extraAjuste);
         caixas.dados=[Math.round((w-Math.min(470,w-12))/2),Math.round(Math.max(62,(h-ch)/2)),Math.min(470,w-12),ch];
       }
     }
@@ -242,12 +244,18 @@ export async function iniciarHud(){
   }
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
-    if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
+    if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
+      const validos=new Set(pedidoDado.meta?.adicionais?.map(x=>x.id)??[]);if(!validos.has(d.id))return;
+      const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};transmitir();
+    }else if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
       const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();
       const resposta={pedido};
       if(Array.isArray(d.formulas)&&d.formulas.length)resposta.formulas=d.formulas.map(x=>String(x||'').replace(/\s+/g,''));
       else resposta.formula=String(d.formula||'').replace(/\s+/g,'');
+      resposta.recursosAtivos=Array.isArray(d.recursosAtivos)?d.recursosAtivos:[];
       await responderDado(resposta);
+    }else if(d.tipo==='rerrolarDado'&&pedidoDado?.tipo==='resultado'&&d.rerrolagem){
+      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();await responderDado({pedido,rerrolar:true,rerrolagem:d.rerrolagem});
     }else if(d.tipo==='continuarDado'&&pedidoDado?.tipo==='resultado'){
       const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,continuar:true});
     }else if(d.tipo==='cancelarDado'&&pedidoDado){
@@ -309,7 +317,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=e.data?.pedir===true||['rolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const imediato=e.data?.pedir===true||['alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };

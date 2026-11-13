@@ -46,25 +46,35 @@ function dadoSala(usuario,ch,pedidos,mestreId){
     const {destinoId:_destinoOculto,roladorNome,...metaPublica}=meta;
     if(meta.tipo==='ataque')delete metaPublica.cd;
     const enviar=d=>destino===mestreId?ch.postMessage({rolagem:d}):OBR.broadcast.sendMessage(canais.roll,d,{destination:'REMOTE'});
-    let fase='ajuste',resultado;
+    let fase='ajuste',resultado,recursosAtivos=[],rerrolagensUsadas=[];
     const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),120000);
     function finalizar(erro,valor){clearTimeout(timer);pedidos.delete(pedido);erro?reject(erro):resolve(valor);}
     pedidos.set(pedido,async resposta=>{
       if(resposta.cancelar)return finalizar(Error('Rolagem cancelada.'));
-      if(fase==='resultado'&&resposta.continuar)return finalizar(null,resultado);
-      const expressoes=Array.isArray(resposta.formulas)?resposta.formulas:typeof resposta.formula==='string'?[resposta.formula]:[];
+      if(fase==='resultado'&&resposta.continuar)return finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});
+      if(fase==='resultado'&&resposta.rerrolar){
+        const opcao=meta.rerrolagens?.find(r=>r.id===resposta.rerrolagem);
+        if(!opcao||rerrolagensUsadas.includes(opcao.id))return;
+        rerrolagensUsadas.push(opcao.id);fase='ajuste';
+        await enviar({tipo:'ajuste',pedido,destino,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});return;
+      }
+      const bases=Array.isArray(resposta.formulas)?resposta.formulas:typeof resposta.formula==='string'?[resposta.formula]:[];
+      recursosAtivos=Array.isArray(resposta.recursosAtivos)?resposta.recursosAtivos:[];
+      const extras=(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id));
+      if(new Set(recursosAtivos).size!==recursosAtivos.length||recursosAtivos.some(id=>!extras.some(x=>x.id===id)))return;
+      const expressoes=bases.length===1&&extras.length?[bases[0],...extras.map(x=>x.formula)]:bases;
       if(fase!=='ajuste'||!expressoes.length)return;
       fase='rolando';
       try{
         for(const expressao of expressoes){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:validacao.error||'Expressão inválida.'});return;}}
-        const notacao=expressoes.length>1?expressoes.map((f,i)=>f+'#Seta '+(i+1)).join(', '):expressoes[0];
+        const notacao=expressoes.length>1?expressoes.map((f,i)=>f+'#'+(i===0?'Dano base':extras[i-1]?.nome??'Instância '+(i+1))).join(', '):expressoes[0];
         resultado=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
         const status=meta.tipo==='ataque'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Acerto crítico':resultado.total>=meta.cd?'Acerto':'Falha'):
           meta.tipo==='salvaguarda'?(resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':'';
-        fase='resultado';await enviar({tipo:'resultado',pedido,destino,resultado,status,meta:metaPublica});
+        fase='resultado';await enviar({tipo:'resultado',pedido,destino,resultado,status,recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});
       }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:e.message});}
     });
-    Promise.resolve(enviar({tipo:'ajuste',pedido,destino,...(Array.isArray(formula)?{formulas:formula}:{formula}),meta:metaPublica})).catch(finalizar);
+    Promise.resolve(enviar({tipo:'ajuste',pedido,destino,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica})).catch(finalizar);
   });
 }
 function validarNotacao(notation){

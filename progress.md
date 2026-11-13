@@ -1,5 +1,17 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-13 — gatilhos após acerto e rerrolagem 0.7.12
+
+- Habilidades `apos_acerto` passam a ser oferecidas somente depois que o ataque acerta e antes de confirmar o dano.
+- A habilidade válida brilha na barra; quando selecionada, seu dado aparece bloqueado e em cor própria no ajuste.
+- O Dice+ recebe dano base e danos adicionais simultaneamente, mantendo os resultados separados.
+- Custos dos dados adicionais são cobrados somente ao confirmar a rolagem; ignorar a habilidade preserva o recurso.
+- Críticos usam a regra da campanha e acrescentam um dado também ao aprimoramento aplicável.
+- Aprimoramentos podem pedir salvaguarda após o dano e aplicar condições, como Amedrontado.
+- Recursos `apos_rolagem_dano` aparecem no resultado, habilitam **Rerrolar** e retornam à tela de ajuste.
+- Dano base e parcelas adicionais do mesmo ataque contam como uma única fonte para a salvaguarda de concentração.
+- Testes: 52 unitários e um fluxo visual Playwright completo.
+
 ## 2026-11-13 — alcance global 0.7.11
 
 - Todo ataque, magia, item e habilidade passa a ter alcance de seleção limitado a 18 m.

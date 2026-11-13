@@ -8,7 +8,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
 const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
 const grupo=o=>o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
-let v,aba='Ações',bus;
+let v,aba='Ações',bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null;
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 const modoFormula=valor=>/^2d\d+kh1/i.test(valor)?'vantagem':/^2d\d+kl1/i.test(valor)?'desvantagem':'normal';
 function ajustarModo(valor,modo){
@@ -37,6 +37,8 @@ function cartaoAcao(o,f){
 function render(){
   if(!v)return;
   const {estado:s,eu,ocupado,pendente:p}=v;
+  if(v.pedidoDado?.pedido!==ultimoPedido){ultimoPedido=v.pedidoDado?.pedido??null;rerrolagemAtiva=null;}
+  adicionaisAtivos=new Set(v.pedidoDado?.recursosAtivos??[]);
   const ativo=s.ordem[s.vez],a=s.atores.find(a=>a.id===v.atorId),gm=eu.role==='GM';
   const meus=s.atores.filter(x=>gm||x.dono===eu.id);
   let html='';
@@ -64,9 +66,11 @@ function render(){
     const d=v.pedidoDado,m=d.meta??{};
     if(d.tipo==='resultado'){
       const r=d.resultado,classe=/crític/i.test(d.status)?'critico':/falha/i.test(d.status)?'falha':'acerto';
-      const lote=r.resultados?.length?r.resultados:null;
-      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??{};return '<article><strong>'+esc(info.titulo||'Seta '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' de dano'+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
-      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
+      const lote=r.resultados?.length?r.resultados:null,extras=(m.adicionaisAtivos??[]).map(id=>m.adicionais?.find(x=>x.id===id)).filter(Boolean);
+      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{});return '<article class="'+(i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' de dano'+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
+      const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id));
+      const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva?btn('rerrolarDado','Rerrolar','class="ouro"'):'')+'</div>':'';
+      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
     }else{
       const formulas=d.formulas?.map((x,i)=>document.querySelector('[data-formula-lote="'+i+'"]')?.value||x);
       if(formulas){
@@ -74,7 +78,9 @@ function render(){
         html='<section class="prompt rolagem rolagem-lote"><strong>'+esc(m.titulo||'Ajustar rolagens')+'</strong><small>Revise cada seta. O Dice+ lançará todas juntas.</small><div class="ajustes-lote">'+campos+'</div>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div class="acoes-rolagem">'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }else{
         const valor=document.querySelector('#formulaDado')?.value||d.formula||'',temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor),modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
-        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+        const adicionais=m.adicionais??[],selecionados=adicionais.filter(x=>adicionaisAtivos.has(x.id));
+        const painelAdicionais=adicionais.length?'<div class="recursos-rolagem adicionais"><small>Habilidades disponíveis após o acerto</small><div>'+adicionais.map(x=>btn('alternarAdicional',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+adicionaisAtivos.has(x.id)+'" data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(selecionados.length?'<div class="dados-bloqueados">'+selecionados.map(x=>'<span><b>'+esc(x.formula)+'</b> · '+esc(x.nome)+'</span>').join('')+'</div>':'')+'</div>':'';
+        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+painelAdicionais+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }
     }
   }else if(parte==='barra'&&a){
@@ -95,7 +101,8 @@ function render(){
         const bloqueio=(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           custoIndisponivel?'Recurso insuficiente':
           !o.automacao&&!gm&&grupo(o)!=='Reações'?'Resolução pelo mestre':'';
-        return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
+        const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
+        return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       }).join(''))+'</div><footer>'+(p?'<small>Ação aberta no painel de execução.</small>':a.pv===0&&a.estadoVida==='inconsciente'&&turno?btn('salvaguardaMorte','Salvaguarda contra a morte'):btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+
       (!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</footer></article></div></section>';
   }
@@ -114,7 +121,7 @@ function mostrarDica(e){
 root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
-  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','rolarDado','continuarDado','cancelarDado'].includes(tipo);
+  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
   if(v.ocupado&&!controleDado)return;
   if(tipo==='modoDado'){
     const campo=document.querySelector('#formulaDado');if(!campo)return;
@@ -127,9 +134,12 @@ root.onclick=e=>{
     campo.value=ajustarModo(campo.value,b.dataset.modo);
     document.querySelectorAll('[data-cmd="modoDadoLote"][data-index="'+indice+'"]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));campo.focus();return;
   }
+  if(tipo==='alternarAdicional'){bus.postMessage({tipo:'alternarAdicional',id});return;}
+  if(tipo==='escolherRerrolagem'){rerrolagemAtiva=rerrolagemAtiva===id?null:id;render();return;}
+  if(tipo==='rerrolarDado'){if(!rerrolagemAtiva)return;bus.postMessage({tipo,rerrolagem:rerrolagemAtiva});rerrolagemAtiva=null;return;}
   if(tipo==='aba'){aba=id;render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
+  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});
