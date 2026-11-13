@@ -61,7 +61,8 @@ function render(){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));
     const restante=Math.max(0,Math.ceil((rp.terminaEm-Date.now())/1000));
-    html='<section class="prompt reacao"><strong>Reação de '+esc(reator?.nome)+'</strong><small>'+esc(alvo?.nome)+' está deixando seu alcance corpo a corpo.</small><b class="timer">'+restante+' s</b><small>Ao escolher a reação, a janela de ajuste será aberta antes de cada rolagem.</small><div class="escolhas-reacao">'+btn('resolverReacao','Não fazer nada','data-id=""')+opcoes.map(o=>btn('resolverReacao',esc(curto(o)),'data-id="'+esc(o.id)+'" class="ouro"')).join('')+'</div></section>';
+    const descricao=rp.descricao??((alvo?.nome??'O alvo')+' está deixando seu alcance corpo a corpo.');
+    html='<section class="prompt reacao"><strong>Reação de '+esc(reator?.nome)+'</strong><small>'+esc(descricao)+'</small><b class="timer">'+restante+' s</b><small>Ao escolher a reação, a janela de ajuste será aberta antes de cada rolagem.</small><div class="escolhas-reacao">'+btn('resolverReacao','Não fazer nada','data-id=""')+opcoes.map(o=>btn('resolverReacao',esc(curto(o)),'data-id="'+esc(o.id)+'" class="ouro" data-info="'+esc(detalhes(o,reator.ficha))+'"')).join('')+'</div></section>';
   }else if(parte==='dados'&&v.pedidoDado){
     const d=v.pedidoDado,m=d.meta??{};
     if(d.tipo==='resultado'){

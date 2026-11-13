@@ -58,6 +58,8 @@ Ao lado de **Linhas**, as abas **Perícias** e **Salva guarda** abrem os testes 
 
 Ao marcar um deslocamento que saia do alcance corpo a corpo de um inimigo, a prévia desenha uma seta vermelha do inimigo até o ponto de saída. Depois da confirmação, o movimento fica pausado e o controlador desse inimigo recebe uma janela de 20 segundos. Ele pode não reagir ou escolher uma reação compatível com o gatilho, incluindo os mesmos ajustes de um ataque comum. O alvo da reação é sempre o personagem que iniciou o deslocamento.
 
+O mesmo temporizador agora atende ao gatilho declarativo `sofrer_dano`. Depois que a fonte aplica o dano, a extensão oferece ao personagem atingido somente reações cujos custos estejam disponíveis. A reação pode fazer um ataque ou exigir uma salvaguarda da fonte; essa salvaguarda aparece para o controlador correto. Áreas que provocam várias reações criam uma fila, sem abrir janelas sobrepostas. Reações preventivas que precisam reduzir ou cancelar um dano antes de sua aplicação permanecem na próxima etapa do módulo.
+
 Recusar ou errar permite que o deslocamento termine. Um acerto aplica o dano e interrompe o token no ponto exato em que deixou o alcance. A reação é gasta até o início do próximo turno do personagem; uma nova tentativa de movimento não provoca outra reação daquele mesmo inimigo. Se o tempo terminar, a extensão escolhe **Não fazer nada** e continua a ação. Desengajar impede a abertura desse gatilho.
 
 Na ficha, as 18 perícias aparecem como botões com o bônus pronto. As salvaguardas ficam em uma seção separada. O botão direito sobre FOR, DES, CON, INT, SAB ou CAR abre diretamente a salvaguarda correspondente, com vantagem, desvantagem, dados extras e modificador disponíveis.

@@ -433,3 +433,16 @@ test('segundo alvo condicionado precisa ser diferente e próximo do primeiro',as
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=2.4;
  await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,4]);assert.equal(m.s.atores[2].pv,20);
 });
+test('reação genérica ao sofrer dano pausa a mesa, usa o controlador correto e retoma depois',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'repreensao-teste',nome:'Repreensão Diabólica',categoria:'magia',gatilho:'sofrer_dano',descricao:'Quando sofrer dano de uma criatura visível, reaja com fogo infernal.',custo:[{tipo:'reacao',quantidade:1},{tipo:'recurso',id:'espaco-1',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,dano:'2d10',metade:true,elemento:'fogo',alcanceM:18}});
+ await m.iniciar();await m.go('passar',{ator:m.a.id},player);const ataque=m.s.atores[1].ficha.opcoes.find(o=>o.automacao?.tipo==='ataque');
+ await m.go('usar',{ator:m.b.id,opcao:ataque.id,alvo:m.a.id},gm,[15,5]);assert.equal(m.s.atores[0].pv,15);assert.equal(m.s.reacaoPendente.gatilho,'sofrer_dano');assert.equal(m.s.reacaoPendente.reator,m.a.id);assert.equal(m.s.reacaoPendente.alvo,m.b.id);
+ await assert.rejects(m.go('passar',{ator:m.b.id},gm),/reação pendente/);
+ await m.go('resolverReacao',{ator:m.a.id,opcao:'repreensao-teste'},player,[10,8]);assert.equal(m.s.atores[1].pv,16);assert.equal(m.s.atores[0].reacao,0);assert.equal(m.s.atores[0].rec['espaco-1'],3);assert.equal(m.s.reacaoPendente,undefined);
+});
+test('fila de reações apresenta em ordem todos os alvos que sofreram dano',async()=>{
+ const m=mesa(),reacao={id:'resposta-dano',nome:'Resposta ao dano',categoria:'acao',gatilho:'sofrer_dano',custo:[{tipo:'reacao',quantidade:1}],automacao:{tipo:'ataque',bonus:4,dano:'1d6',elemento:'perfurante',alcanceM:18}};m.b.ficha.opcoes.push(reacao);m.c.ficha.opcoes.push(structuredClone(reacao));
+ await m.iniciar();const area=m.a.ficha.opcoes.find(o=>o.automacao?.raioM);await m.go('usar',{ator:m.a.id,opcao:area.id,ponto:{x:1,y:0}},player,[12,12,12,6]);
+ const primeiro=m.s.reacaoPendente.reator;assert.equal(m.s.filaReacoes.length,1);await m.go('resolverReacao',{ator:primeiro,opcao:null},gm);assert.notEqual(m.s.reacaoPendente.reator,primeiro);assert.equal(m.s.filaReacoes.length,0);
+ await m.go('resolverReacao',{ator:m.s.reacaoPendente.reator,opcao:null},gm);assert.equal(m.s.reacaoPendente,undefined);
+});

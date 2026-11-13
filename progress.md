@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-13 — primeira fila genérica de reações 0.7.14
+
+- O gatilho declarativo `sofrer_dano` abre uma reação fora do turno somente durante o combate.
+- A janela identifica o evento, mostra apenas opções válidas, conserva o temporizador de 20 segundos e chega ao dono da ficha ou ao GM responsável pelo NPC.
+- Reações podem executar ataque ou salvaguarda, aplicar dano e efeito, cobrar reação e outros recursos e então devolver o controle à mesa.
+- Salvaguardas da reação são encaminhadas ao controlador do alvo, não ao controlador de quem reagiu.
+- Vários alvos atingidos pela mesma área entram numa fila e respondem em ordem; a próxima reação abre depois de resolver ou recusar a atual.
+- A fila ainda não é exposta no estado público antes de cada reação ficar ativa.
+- Testes: 57 unitários e fluxo visual Playwright com o pop-up de Repreensão Diabólica.
+
 ## 2026-11-13 — ataques encadeados e pré-requisitos 0.7.13
 
 - O JSON pode exigir ataque ou acerto anterior, tags do golpe anterior, novo alvo próximo e diferente e uso único por turno.

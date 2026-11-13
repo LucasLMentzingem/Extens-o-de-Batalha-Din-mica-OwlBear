@@ -134,6 +134,7 @@ export function validar(f) {
       if(p.salva)exigir(atributos.includes(p.salva.atributo)&&inteiro(p.salva.cd,1,40),'Salvaguarda do aprimoramento inválida em '+o.id);
     }
     if(o.gatilho==='apos_rolagem_dano')exigir(o.rerrolagem?.tipo==='dano'&&['todos','dados_com_resultado'].includes(o.rerrolagem.modo),'Rerrolagem de dano inválida em '+o.id);
+    if(o.gatilho==='sofrer_dano')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao&&['ataque','salva'].includes(o.automacao.tipo),'Reação ao sofrer dano inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
       exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
@@ -214,7 +215,7 @@ export function validar(f) {
   }
   return out;
 }
-export const novo = () => ({rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[]});
+export const novo = () => ({rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[],filaReacoes:[]});
 export function adicionar(s,f,nome=f.nome) {
   const ficha=validar(f);
   const a={id:crypto.randomUUID(),nome,ficha,token:null,dono:null,emCombate:true,pv:f.pvMaximos,pvTemporarios:0,estadoVida:'consciente',salvaguardasMorte:{sucessos:0,falhas:0},rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),usosTurno:{},eventosTurno:{ataques:[],acertos:[]},x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
@@ -333,6 +334,27 @@ function abrirProximaReacao(s){
   }
   delete s.reacaoPendente;return null;
 }
+function custosDisponiveis(a,o){return (o.custo??[]).every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade);}
+function abrirProximaReacaoEvento(s){
+  if(s.reacaoPendente)return s.atores.find(a=>a.id===s.reacaoPendente.reator)??null;
+  while(s.filaReacoes?.length){
+    const evento=s.filaReacoes.shift(),reator=s.atores.find(a=>a.id===evento.reator),alvo=s.atores.find(a=>a.id===evento.alvo);
+    const opcoes=(reator?.ficha.opcoes??[]).filter(o=>evento.opcoes.includes(o.id)&&o.gatilho===evento.gatilho&&custosDisponiveis(reator,o));
+    if(!reator||!alvo||reator.pv<=0||reator.reacao<=0||!opcoes.length)continue;
+    s.reacaoPendente={id:crypto.randomUUID(),gatilho:evento.gatilho,reator:reator.id,alvo:alvo.id,opcoes:opcoes.map(o=>o.id),
+      descricao:evento.descricao,contexto:evento.contexto,terminaEm:Date.now()+20000};
+    return reator;
+  }
+  delete s.reacaoPendente;return null;
+}
+function enfileirarReacaoAoSofrerDano(s,reator,origem,valor,elemento){
+  if(s.fase!=='turnos'||!reator||!origem||reator===origem||valor<=0||reator.pv<=0||reator.reacao<=0)return;
+  const opcoes=(reator.ficha.opcoes??[]).filter(o=>o.gatilho==='sofrer_dano'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
+  if(!opcoes.length)return;
+  s.filaReacoes??=[];s.filaReacoes.push({gatilho:'sofrer_dano',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
+    descricao:reator.nome+' sofreu '+valor+(elemento?' de dano '+elemento:' de dano')+' de '+origem.nome+'.',contexto:{dano:valor,elemento}});
+  abrirProximaReacaoEvento(s);
+}
 const dadosExtrasValidos=xs=>Array.isArray(xs)&&xs.length<=4&&xs.every(x=>/^\d{1,2}d(?:4|6|8|10|12|20)$/.test(x));
 export function registrar(s,t) { s.historico.unshift(t); s.historico.length=Math.min(s.historico.length,45); }
 export function encerrarConcentracao(s,a,motivo=''){
@@ -381,6 +403,7 @@ function iniciarTurnos(s){
 export async function aplicar(s,c,u,rolar) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
+  s.filaReacoes??=[];
   for(const p of s.atores){
     atualizarMagias(p.ficha);p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
   }
@@ -409,7 +432,7 @@ export async function aplicar(s,c,u,rolar) {
     return r;
   };
   const ajustarDano=(p,dano,elemento)=>{let valor=Math.max(0,Math.floor(dano));if(p.ficha.imunidades?.includes(elemento))valor=0;if(p.ficha.resistencias?.includes(elemento))valor=Math.floor(valor/2);if(p.ficha.vulnerabilidades?.includes(elemento))valor*=2;return valor;};
-  const aplicarDanoNoAtor=async(p,dano,elemento,{critico=false,ajustado=false}={})=>{
+  const aplicarDanoNoAtor=async(p,dano,elemento,{critico=false,ajustado=false,origem=null}={})=>{
     const valor=ajustado?Math.max(0,Math.floor(dano)):ajustarDano(p,dano,elemento);
     receberDanoBruto(p,valor,{critico});
     if(p.concentracaoAtiva&&valor>0){
@@ -418,6 +441,7 @@ export async function aplicar(s,c,u,rolar) {
       const total=falhaAutomatica?0:(await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:'con',titulo:'Concentração · '+p.nome,cd:cdCon})).total;
       if(total<cdCon)encerrarConcentracao(s,p,p.pv===0?'reduzido a 0 PV':'falhou na salvaguarda CD '+cdCon);
     }
+    enfileirarReacaoAoSofrerDano(s,p,origem,valor,elemento);
     return valor;
   };
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
@@ -534,8 +558,34 @@ export async function aplicar(s,c,u,rolar) {
       exigir(a?.concentracaoAtiva,'Este personagem não está se concentrando.');
       msg=a.nome+' encerrou a concentração em '+a.concentracaoAtiva.nome+'.';encerrarConcentracao(s,a);break;
     case 'resolverReacao': {
-      const p=s.reacaoPendente,mov=s.movimentoPendente;
-      exigir(s.fase==='turnos'&&p&&mov&&p.reator===a?.id,'Esta reação não está mais disponível.');
+      const p=s.reacaoPendente;
+      exigir(s.fase==='turnos'&&p&&p.reator===a?.id,'Esta reação não está mais disponível.');
+      if(p.gatilho!=='sair_alcance'){
+        const alvo=s.atores.find(x=>x.id===p.alvo);
+        exigir(alvo,'O alvo da reação não está mais disponível.');
+        if(!c.opcao){delete s.reacaoPendente;const seguinte=abrirProximaReacaoEvento(s);msg=a.nome+' não usou a reação.'+(seguinte?' '+seguinte.nome+' pode reagir.':'');break;}
+        const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho===p.gatilho),rule=o?.automacao;
+        exigir(o&&rule&&a.reacao>0&&custosDisponiveis(a,o),'Reação indisponível.');
+        exigir(distancia(a,alvo)<=Math.min(LIMITE_ALCANCE_M,rule.alcanceM)+1e-8,'O alvo saiu do alcance da reação.');
+        for(const custo of o.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
+        if(rule.tipo==='ataque'){
+          const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Reação · '+o.nome,alvo:alvo.nome,cd:defesa}),face=rr.natural;
+          const acertou=face!==1&&(face===20||rr.total>=defesa);msg=a.nome+' reagiu com '+o.nome+' • '+(acertou?'acertou':'errou')+' '+alvo.nome;
+          if(acertou){const critico=face===20,formula=critico?formulaCritica(rule.dano):rule.dano,bruto=(await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:alvo.nome})).total;
+            msg+=' e causou '+await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{critico,origem:a});}
+        }else{
+          const escolhas=rule.atributos??[rule.atributo],atributo=escolhas.reduce((melhor,k)=>{const bonus=alvo.ficha.salvaguardas?.[k]??mod(alvo.ficha.atributos[k]);return !melhor||bonus>melhor.bonus?{k,bonus}:melhor;},null);
+          const controlador=alvo.ficha.tipo==='pj'&&alvo.dono?alvo.dono:'GM',falhaAutomatica=restricoesAtivas(alvo).falhaSalvas?.includes(atributo.k);
+          const rr=falhaAutomatica?{total:0}:await rolarD20(atributo.bonus,alvo,{tipo:'salvaguarda',atributo:atributo.k,titulo:'Reação · '+o.nome+' · '+alvo.nome,alvo:alvo.nome,cd:rule.cd,destinoId:controlador,roladorNome:alvo.nome});
+          const sucesso=!falhaAutomatica&&rr.total>=rule.cd;msg=a.nome+' reagiu com '+o.nome+' • '+alvo.nome+(sucesso?' passou':' falhou')+' na salvaguarda';
+          if(rule.dano&&(!sucesso||rule.metade)){const total=(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome,alvo:alvo.nome})).total,bruto=sucesso?Math.floor(total/2):total;
+            msg+=' e sofreu '+await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{origem:a});}
+          if(!sucesso&&rule.efeitoFalha){const e={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,duracao:{restante:rule.efeitoFalha.turnos??1,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id};alvo.efeitosAtivos=(alvo.efeitosAtivos??[]).filter(x=>x.id!==o.id);alvo.efeitosAtivos.push(e);}
+        }
+        delete s.reacaoPendente;const seguinte=abrirProximaReacaoEvento(s);if(seguinte)msg+=' • '+seguinte.nome+' pode reagir.';break;
+      }
+      const mov=s.movimentoPendente;
+      exigir(mov,'O deslocamento que provocou a reação não existe mais.');
       exigir(p.alvo===mov.ator,'O alvo da reação mudou.');
       if(!c.opcao){
         const seguinte=abrirProximaReacao(s);
@@ -564,11 +614,11 @@ export async function aplicar(s,c,u,rolar) {
       msg=a.nome+' • '+o.nome+' com '+ataque.nome+' • '+total+(acertou?' acertou':' errou');
       if(acertou){
         const critico=face===20||(rt.criticoCorpoACorpo&&distancia(a,alvo)<=1.5+1e-8);let formula=rule.dano;if(critico)formula=formula.replace(/^\d+/,n=>String(+n+1));
-        const bruto=(await resultado(formula,{tipo:'dano',titulo:'Dano · '+ataque.nome,critico,alvo:alvo.nome})).total,dano=await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{critico});
+        const bruto=(await resultado(formula,{tipo:'dano',titulo:'Dano · '+ataque.nome,critico,alvo:alvo.nome})).total,dano=await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{critico,origem:a});
         const percorrida=distancia(mov.origem,p.ponto);
         alvo.x=p.ponto.x;alvo.y=p.ponto.y;alvo.metros=Math.max(0,alvo.metros-percorrida);
         msg+=' e causou '+dano+'. O movimento parou em '+percorrida.toFixed(2)+' m.';
-        delete s.movimentoPendente;delete s.reacaoPendente;
+        delete s.movimentoPendente;delete s.reacaoPendente;abrirProximaReacaoEvento(s);
       }else{
         const seguinte=abrirProximaReacao(s);msg+=seguinte?' • '+seguinte.nome+' pode reagir.':' • o deslocamento continuou.';
       }
@@ -585,7 +635,7 @@ export async function aplicar(s,c,u,rolar) {
       msg=a.nome+' • '+o.nome+' (gatilho e efeito conferidos pela mesa)';break;
     }
     case 'encerrar':
-      delete s.reacaoPendente;delete s.movimentoPendente;
+      delete s.reacaoPendente;delete s.movimentoPendente;s.filaReacoes=[];
       s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(restaurarEconomia);msg='Combate encerrado.';break;
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
@@ -694,7 +744,7 @@ export async function aplicar(s,c,u,rolar) {
       if(rule.tipo==='projeteis'){
         const formulas=afetados.map(()=>rule.dano),instancias=afetados.map((p,i)=>({titulo:'Seta '+(i+1),alvo:p.nome})),nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*(?:acerto automático|classe).*$/i,'');
         const danos=await resultadoLote(formulas,{tipo:'dano-lote',titulo:'Danos · '+nome,instancias});
-        for(let i=0;i<afetados.length;i++){msg+=' • '+afetados[i].nome+' sofreu '+await aplicarDanoNoAtor(afetados[i],danos[i].total,rule.elemento);deslocarForcado(afetados[i]);}
+        for(let i=0;i<afetados.length;i++){msg+=' • '+afetados[i].nome+' sofreu '+await aplicarDanoNoAtor(afetados[i],danos[i].total,rule.elemento,{origem:a});deslocarForcado(afetados[i]);}
         c.modo=modoOriginal;break;
       }
       if(rule.tipo==='ataque'&&afetados.length>1){
@@ -708,7 +758,7 @@ export async function aplicar(s,c,u,rolar) {
         }
         if(acertos.length){
           const danos=await resultadoLote(acertos.map(x=>x.formula),{tipo:'dano-lote',titulo:'Danos · '+nome,instancias:acertos.map(x=>({titulo:'Ataque '+(x.indice+1),alvo:x.p.nome,critico:x.critico}))});
-          for(let i=0;i<acertos.length;i++){msg+=' • '+acertos[i].p.nome+' sofreu '+await aplicarDanoNoAtor(acertos[i].p,danos[i].total,acertos[i].regraAtaque.elemento??rule.elemento,{critico:acertos[i].critico});deslocarForcado(acertos[i].p);}
+          for(let i=0;i<acertos.length;i++){msg+=' • '+acertos[i].p.nome+' sofreu '+await aplicarDanoNoAtor(acertos[i].p,danos[i].total,acertos[i].regraAtaque.elemento??rule.elemento,{critico:acertos[i].critico,origem:a});deslocarForcado(acertos[i].p);}
         }
         c.modo=modoOriginal;break;
       }
@@ -728,7 +778,7 @@ export async function aplicar(s,c,u,rolar) {
         for(const r of resultadosSalva)msg+=' • '+r.p.nome+' '+(r.sucesso?'passou':'falhou')+' na salvaguarda ('+r.total+')';
         if(!rule.raioM&&rule.dano&&(rule.metade||resultadosSalva.some(r=>!r.sucesso)))danoBase=(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome})).total;
         for(const r of resultadosSalva){
-          if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento);msg+=' • '+r.p.nome+' sofreu '+valor;}
+          if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a});msg+=' • '+r.p.nome+' sofreu '+valor;}
           if(!r.sucesso)deslocarForcado(r.p);
           if(!r.sucesso&&rule.efeitoFalha){
             const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva};
@@ -763,7 +813,7 @@ export async function aplicar(s,c,u,rolar) {
       }
       for(const g of escolhidos)if(g.umaVezPorTurno)a.usosTurno[g.id]=true;
       const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valores=[ajustarDano(p,base.total,rule.elemento),...escolhidos.map((g,i)=>ajustarDano(p,(parcelas[i+1]??{total:0}).total,g.aprimoramento.elemento))];
-      await aplicarDanoNoAtor(p,valores.reduce((n,x)=>n+x,0),null,{critico,ajustado:true});msg+=' • '+p.nome+' sofreu '+valores[0];
+      await aplicarDanoNoAtor(p,valores.reduce((n,x)=>n+x,0),null,{critico,ajustado:true,origem:a});msg+=' • '+p.nome+' sofreu '+valores[0];
       for(let i=0;i<escolhidos.length;i++){
         const g=escolhidos[i];msg+=' + '+valores[i+1]+' de '+g.nome;
         const salva=g.aprimoramento.salva;
@@ -780,6 +830,7 @@ export async function aplicar(s,c,u,rolar) {
 }
 export function publico(s){
   const v=structuredClone(s);
+  delete v.filaReacoes;
   for(const a of v.atores)if(a.ficha.tipo==='npc'){
     delete a.bencao;
     a.ficha={tipo:'npc',nome:a.nome,opcoes:[]};delete a.pv;delete a.rec;
