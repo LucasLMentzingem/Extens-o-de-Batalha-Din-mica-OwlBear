@@ -530,3 +530,18 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Ajuste e resultado de Atacante Selvagem/Queimadura validados visualmente em `work/atacante-ajuste-v0730.png` e `work/atacante-resultado-v0730.png`.
 - Smoke test final do painel validado com o cliente Playwright em `work/playwright-v0730-final/shot-0.png`, sem novos erros de console.
 
+### Versão 0.7.31: usos gratuitos por habilidade
+
+- [x] Vincular cada uso gratuito diretamente à habilidade pelo campo `usoGratuito`.
+- [x] Preservar na mesma habilidade o custo normal, incluindo espaços de magia.
+- [x] Adicionar a aba **Usos gratuitos** somente quando a ficha possuir habilidades configuradas para ela.
+- [x] Manter habilidades esgotadas visíveis e bloqueadas nessa aba, sem consumir silenciosamente o custo normal.
+- [x] Mostrar no balão da habilidade o saldo atual e máximo do uso gratuito.
+- [x] Nas abas Comum, Classe, Itens e Passivas, consumir primeiro o uso gratuito e depois recorrer ao custo normal.
+- [x] Configurar Marca do Predador, Passos Largos, Palavra Curativa e Repreensão Diabólica nas fichas que possuem suas conjurações gratuitas.
+- [x] Restaurar automaticamente a aba Comum ao trocar para uma ficha sem habilidades gratuitas.
+
+- Testes do motor: 97 aprovados.
+- Aba, contador, bloqueio por saldo e prioridade automática validados visualmente em `work/usos-gratuitos-disponivel-v0731.png` e `work/usos-gratuitos-esgotado-v0731.png`.
+- Smoke test final do painel validado com o cliente Playwright em `work/playwright-v0731-final/shot-0.png`, sem novos erros de console.
+

@@ -698,9 +698,14 @@
         {
           "tipo": "recurso",
           "quantidade": 1,
-          "id": "repreensao"
+          "id": "espaco-1"
         }
       ],
+      "usoGratuito": {
+        "recursoId": "repreensao",
+        "quantidade": 1,
+        "nome": "Repreensão gratuita da linhagem infernal"
+      },
       "circuloBase": 1,
       "origem": "infernal",
       "gatilho": "sofrer_dano",

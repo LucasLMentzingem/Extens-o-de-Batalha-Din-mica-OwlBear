@@ -565,10 +565,15 @@
         },
         {
           "tipo": "recurso",
-          "id": "marca-do-predador",
+          "id": "espaco-1",
           "quantidade": 1
         }
       ],
+      "usoGratuito": {
+        "recursoId": "marca-do-predador",
+        "quantidade": 1,
+        "nome": "Conjuração gratuita de Marca do Predador"
+      },
       "circuloBase": 1,
       "concentracao": true,
       "automacao": {
@@ -678,6 +683,11 @@
           "quantidade": 1
         }
       ],
+      "usoGratuito": {
+        "recursoId": "palavra-curativa-do-talento",
+        "quantidade": 1,
+        "nome": "Conjuração gratuita do talento"
+      },
       "circuloBase": 1,
       "automacao": {
         "tipo": "cura",
@@ -701,6 +711,11 @@
           "quantidade": 1
         }
       ],
+      "usoGratuito": {
+        "recursoId": "passos-largos-da-linhagem",
+        "quantidade": 1,
+        "nome": "Conjuração gratuita da linhagem"
+      },
       "circuloBase": 1,
       "automacao": {
         "tipo": "efeito",

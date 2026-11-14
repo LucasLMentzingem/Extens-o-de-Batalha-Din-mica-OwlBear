@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
@@ -94,6 +94,26 @@ test('Pau pra Toda Obra melhora iniciativa e as defesas do Monge dependem de est
  assert.equal(bonusIniciativa(h),3);assert.equal(caAtual(l),14);assert.equal(deslocamentoMaximo(l),12);
  l.ficha.inventario.itens.push({id:'couro-teste',nome:'Armadura de Couro',tipo:'equipamento',quantidade:1,pesoKg:5,slotEquipamento:'vestes',equipado:true,equipadoSlot:'vestes',categoriaArmadura:'leve',classeArmadura:{tipo:'base',valor:11,classe:'leve',atributo:'des'}});
  assert.equal(caAtual(l),14);assert.equal(deslocamentoMaximo(l),9);
+});
+test('usos gratuitos pertencem à habilidade, são exclusivos na aba e precedem o custo normal',async()=>{
+ const porId=id=>fichasJogadores.find(f=>f.id===id),hannah=porId('hannah-montana'),zurich=porId('zurich'),dragoberto=porId('dragoberto'),n=porId('nikki');
+ const configuradas=[
+  [hannah,'1-passos-largos-elfo-31','passos-largos-da-linhagem'],
+  [zurich,'1-marca-do-predador-sempre-concentracao-27','marca-do-predador'],
+  [zurich,'1-palavra-curativa-iniciado-31','palavra-curativa-do-talento'],
+  [zurich,'1-passos-largos-elfo-32','passos-largos-da-linhagem'],
+  [dragoberto,'1-marca-do-predador-25','marca-do-predador'],
+  [n,'af0ac3c8-7d39-5ef0-97e9-25839f116262','repreensao']
+ ];
+ for(const [f,id,recurso] of configuradas){const o=f.opcoes.find(x=>x.id===id);assert.equal(o.usoGratuito.recursoId,recurso);assert.ok(o.custo.some(c=>c.id==='espaco-1'),'o custo normal deve continuar disponível em '+id);}
+ let s=novo(),a=adicionar(s,hannah),o=a.ficha.opcoes.find(x=>x.id==='1-passos-largos-elfo-31');
+ assert.equal(usoGratuitoDisponivel(a,o),true);assert.equal(planoCustoOpcao(a,o).gratuito,true);assert.equal(planoCustoOpcao(a,o,'normal').gratuito,false);
+ s=await aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,alvo:a.id,confirmado:true,modoCusto:'automatico'},gm,async()=>1);
+ a=s.atores[0];assert.equal(a.rec['passos-largos-da-linhagem'],0);assert.equal(a.rec['espaco-1'],4);assert.equal(usoGratuitoDisponivel(a,o),false);
+ s=await aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,alvo:a.id,confirmado:true,modoCusto:'automatico'},gm,async()=>1);
+ a=s.atores[0];assert.equal(a.rec['espaco-1'],3);
+ await assert.rejects(aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,alvo:a.id,confirmado:true,modoCusto:'gratuito'},gm,async()=>1),/Saldo insuficiente/);
+ assert.equal(s.atores[0].rec['espaco-1'],3,'a aba gratuita não pode cair silenciosamente no custo normal');
 });
 test('autorização de vínculo, comando do jogador e ação excepcional do mestre',async()=>{
  const m=mesa();await m.iniciar();

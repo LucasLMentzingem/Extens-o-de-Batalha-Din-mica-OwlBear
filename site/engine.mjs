@@ -1,4 +1,4 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.7.30';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.7.31';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -303,6 +303,11 @@ export function validar(f) {
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
       exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
+    }
+    if(o.usoGratuito){
+      const g=o.usoGratuito;
+      exigir(idOK(g.recursoId)&&f.recursos.some(r=>r.id===g.recursoId)&&inteiro(g.quantidade??1,1,999),'Uso gratuito inválido em '+o.id);
+      exigir(g.nome===undefined||nomeOK(g.nome),'Nome do uso gratuito inválido em '+o.id);
     }
     const a=o.automacao;
     if(!a) continue;
@@ -678,7 +683,20 @@ function abrirProximaReacao(s){
   }
   delete s.reacaoPendente;return null;
 }
-function custosDisponiveis(a,o){return (o.custo??[]).every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade);}
+function custosGratuitos(o){
+  const g=o?.usoGratuito;if(!g)return null;
+  return [...(o.custo??[]).filter(c=>c.tipo!=='recurso'),{tipo:'recurso',id:g.recursoId,quantidade:g.quantidade??1}];
+}
+export const usoGratuitoDisponivel=(a,o)=>Boolean(o?.usoGratuito&&(a?.rec?.[o.usoGratuito.recursoId]??0)>=(o.usoGratuito.quantidade??1));
+export function planoCustoOpcao(a,o,modo='automatico'){
+  const normal={custos:structuredClone(o?.custo??[]),gratuito:false,modo:'normal'},gratis=custosGratuitos(o);
+  if(modo==='normal')return normal;
+  if(modo==='gratuito')return gratis?{custos:gratis,gratuito:true,modo:'gratuito'}:null;
+  return gratis&&usoGratuitoDisponivel(a,o)?{custos:gratis,gratuito:true,modo:'gratuito'}:normal;
+}
+function custosDisponiveis(a,o,modo='automatico'){
+  const plano=planoCustoOpcao(a,o,modo);return Boolean(plano&&plano.custos.every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade));
+}
 function abrirProximaReacaoEvento(s){
   if(s.reacaoPendente)return s.atores.find(a=>a.id===s.reacaoPendente.reator)??null;
   while(s.filaReacoes?.length){
@@ -988,8 +1006,9 @@ export async function aplicar(s,c,u,rolar) {
         let reducao=0,nomeReacao='nenhuma reação';
         if(c.opcao){
           const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='ser_atingido');
+          const plano=planoCustoOpcao(a,o,'automatico');
           exigir(o?.automacao?.tipo==='reduzir_dano'&&custosDisponiveis(a,o),'Reação preventiva indisponível.');
-          for(const custo of o.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
+          for(const custo of plano.custos){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
           reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;nomeReacao=o.nome;
         }
         const controlador=origem.ficha.tipo==='pj'&&origem.dono?origem.dono:'GM';
@@ -1003,9 +1022,10 @@ export async function aplicar(s,c,u,rolar) {
         exigir(alvo,'O alvo da reação não está mais disponível.');
         if(!c.opcao){delete s.reacaoPendente;const seguinte=abrirProximaReacaoEvento(s);msg=a.nome+' não usou a reação.'+(seguinte?' '+seguinte.nome+' pode reagir.':'');break;}
         const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho===p.gatilho),rule=o?.automacao;
+        const plano=planoCustoOpcao(a,o,'automatico');
         exigir(o&&rule&&a.reacao>0&&custosDisponiveis(a,o),'Reação indisponível.');
         exigir(distancia(a,alvo)<=Math.min(LIMITE_ALCANCE_M,rule.alcanceM)+1e-8,'O alvo saiu do alcance da reação.');
-        for(const custo of o.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
+        for(const custo of plano.custos){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
         if(rule.tipo==='ataque'){
           const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Reação · '+o.nome,alvo:alvo.nome,cd:defesa,penalidade:restricoesAtivas(alvo).penalidadeAtaquesContra}),face=rr.natural;
           const acertou=face!==1&&(face===20||rr.total>=defesa);msg=a.nome+' reagiu com '+o.nome+' • '+(acertou?'acertou':'errou')+' '+alvo.nome;
@@ -1032,7 +1052,8 @@ export async function aplicar(s,c,u,rolar) {
       }
       const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='sair_alcance');
       exigir(o&&a.reacao>0,'Reação indisponível.');
-      for(const custo of o.custo??[]){
+      const plano=planoCustoOpcao(a,o,'automatico');
+      for(const custo of plano.custos){
         const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;
         exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para reagir.');bag[key]-=custo.quantidade;
       }
@@ -1066,7 +1087,9 @@ export async function aplicar(s,c,u,rolar) {
     case 'reagir': {
       const o=opcoesDisponiveis(a).find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
       exigir(s.fase==='turnos'&&a.pv>0&&o,'Reação indisponível.');
-      for(const v of o.custo){
+      const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
+      exigir(plano&&custosDisponiveis(a,o,c.modoCusto??'automatico'),'Saldo insuficiente para reagir.');
+      for(const v of plano.custos){
         const bag=v.tipo==='recurso'?a.rec:a,key=v.tipo==='recurso'?v.id:v.tipo;
         exigir(bag[key]>=v.quantidade,'Saldo insuficiente para reagir.');bag[key]-=v.quantidade;
       }
@@ -1107,12 +1130,14 @@ export async function aplicar(s,c,u,rolar) {
       exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
       const rule=o.automacao;
       exigir(rule || (gm && c.assistido),'Opção assistida. O mestre precisa confirmar a resolução.');
-      for(const custo of o.custo??[]){
+      const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
+      exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
+      for(const custo of plano.custos){
         if(foraCombate&&custo.tipo!=='recurso')continue;
         const bag=custo.tipo==='recurso'?a.rec:a;const key=custo.tipo==='recurso'?custo.id:custo.tipo;
         exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+o.nome);bag[key]-=custo.quantidade;
       }
-      msg=a.nome+' • '+o.nome;
+      msg=a.nome+' • '+o.nome+(plano.gratuito?' • uso gratuito':'');
       const concentracaoId=o.concentracao?iniciarConcentracao(s,a,o):null;
       if(!rule){msg+=' (resolução pelo mestre)';break;}
       if(rule.tipo==='efeito_conjuracao'){

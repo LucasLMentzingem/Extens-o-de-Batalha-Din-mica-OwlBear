@@ -567,10 +567,15 @@
         },
         {
           "tipo": "recurso",
-          "id": "marca-do-predador",
+          "id": "espaco-1",
           "quantidade": 1
         }
       ],
+      "usoGratuito": {
+        "recursoId": "marca-do-predador",
+        "quantidade": 1,
+        "nome": "Conjuração gratuita de Marca do Predador"
+      },
       "circuloBase": 1,
       "concentracao": true,
       "automacao": {

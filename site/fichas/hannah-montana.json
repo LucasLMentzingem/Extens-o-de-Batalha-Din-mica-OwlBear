@@ -694,6 +694,11 @@
           "quantidade": 1
         }
       ],
+      "usoGratuito": {
+        "recursoId": "passos-largos-da-linhagem",
+        "quantidade": 1,
+        "nome": "Conjuração gratuita da linhagem"
+      },
       "circuloBase": 1,
       "automacao": {
         "tipo": "efeito",

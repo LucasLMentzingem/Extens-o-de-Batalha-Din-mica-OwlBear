@@ -1,6 +1,6 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal} from './engine.mjs?v=0.7.30';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.7.30';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal} from './engine.mjs?v=0.7.31';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.7.31';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -243,7 +243,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.7.30',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.7.31',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
 }
 export async function sala(onView){

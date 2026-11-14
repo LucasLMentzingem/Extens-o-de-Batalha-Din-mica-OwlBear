@@ -546,6 +546,15 @@
             "type": "object"
           }
         },
+        "usoGratuito": {
+          "type": "object",
+          "properties": {
+            "recursoId": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+            "quantidade": {"type": "integer", "minimum": 1},
+            "nome": {"type": "string"}
+          },
+          "required": ["recursoId"]
+        },
         "requisitosUso": {
           "type": "object",
           "properties": {
