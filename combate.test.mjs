@@ -148,11 +148,11 @@ test('autorização de vínculo, comando do jogador e ação excepcional do mest
 });
 test('Nikki ataca, o soldado responde e o próximo soldado permanece independente',async()=>{
  const m=mesa();await m.iniciar();
- const fogo=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ const fogo=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);m.s.atores[0].x=-3; // à distância, sem inimigo colado (#8)
  await m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,[15,7]);
  assert.equal(m.s.atores[1].pv,17);assert.equal(m.s.atores[2].pv,24);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player),/Saldo/);
- await m.go('passar',{ator:m.a.id},player);
+ await m.go('passar',{ator:m.a.id},player);m.s.atores[0].x=0;
  await m.go('usar',{ator:m.b.id,opcao:soldado.opcoes.find(o=>o.automacao?.tipo==='ataque').id,alvo:m.a.id},gm,[12,5]);
  assert.equal(m.s.atores[0].pv,15);
 });
@@ -161,7 +161,7 @@ test('salva por alvo e um dano compartilhado, círculo gasto, resistência e cr�
  await m.go('usar',{ator:m.a.id,opcao:sh.id,ponto:{x:1,y:0}},player,[12,19,1,18]);
  assert.deepEqual(m.s.atores.map(a=>a.pv),[14,12,18]);assert.equal(m.s.atores[0].rec['espaco-2'],1);
  const second=mesa();await second.iniciar();let formulas=[];
- const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);second.s.atores[0].x=-3;
  await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20+5','2d10']);
 });
 test('salva de alvo acontece antes do dano, aplica efeito na falha e consome a penalidade futura',async()=>{
@@ -275,7 +275,7 @@ test('Bênção permite menos alvos, recusa repetição e aplica dado nas salvas
 test('rajada com testes de ataque resolve cada projétil e suporta alvos repetidos',async()=>{
  const m=mesa();
  m.a.ficha.opcoes.push({id:'rajada',nome:'Rajada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],selecao:{tipo:'alvos',min:3,max:3,repetirAlvo:true},automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'fogo',alcanceM:18}});
- await m.iniciar();
+ await m.iniciar();m.s.atores[0].x=-3;
  await m.go('usar',{ator:m.a.id,opcao:'rajada',alvos:[m.b.id,m.c.id,m.b.id]},player,[12,1,18,3,4]);
  assert.deepEqual(m.s.atores.map(a=>a.pv),[20,17,24]);
 });
@@ -287,7 +287,7 @@ test('círculo superior requer quatro dardos e gasta o recurso correto',async()=
  assert.equal(m.s.atores[0].rec['espaco-1'],4);assert.equal(m.s.atores[0].rec['espaco-2'],1);
 });
 test('ataque aceita dado extra e modificador antes da rolagem',async()=>{
- const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);m.s.atores[0].x=-3;
  await m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id,dadosAjuste:['1d4'],ajuste:0},player,[10,2,7]);
  assert.equal(m.s.atores[1].pv,17);assert.match(m.s.historico[0],/total 17/);
 });
@@ -397,7 +397,7 @@ test('efeitos genéricos somam PV máximo e deslocamento e condições restringe
 });
 
 test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crítico',async()=>{
- const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];m.s.atores[0].x=-3;
  const rolar=async(formula,meta)=>{chamadas.push({formula,meta});return chamadas.length===1?{total:27,natural:20,formula,resumo:'20+7=27'}:{total:14,natural:null,formula,resumo:'14'};};
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id,modo:'vantagem',ajuste:2,dadosAjuste:['1d4']},player,rolar);
  assert.equal(chamadas.length,2);assert.equal(chamadas[0].formula,'2d20kh1+7+1d4');assert.equal(chamadas[0].meta.cd,16);
@@ -405,7 +405,7 @@ test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crític
 });
 
 test('ataque que falha também confirma o custo da ação',async()=>{
- const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];m.s.atores[0].x=-3;
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,async(formula,meta)=>{chamadas.push({formula,meta});return {total:9,natural:4,formula,resumo:'4+5=9'};});
  assert.equal(chamadas.length,1);assert.equal(s.atores[0].acao,0);assert.equal(s.atores[1].pv,24);assert.match(s.historico[0],/errou/);
 });
@@ -545,7 +545,7 @@ test('segundo alvo condicionado precisa ser diferente e próximo do primeiro',as
  const m=mesa();m.a.ficha.opcoes.push({id:'horda',nome:'Destruidor de Hordas',categoria:'acao',requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'horda',alvoDiferenteDoAnterior:true,distanciaDoAlvoAnteriorM:1.5},automacao:{tipo:'ataque',bonus:4,dano:'1d6',elemento:'perfurante',alcanceM:18}});
  await m.iniciar();const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=2.4;
- await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,4]);assert.equal(m.s.atores[2].pv,20);
+ await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,15,4]); // à distância com inimigo colado: Desvantagem (#8)assert.equal(m.s.atores[2].pv,20);
 });
 test('reação genérica ao sofrer dano pausa a mesa, usa o controlador correto e retoma depois',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'repreensao-teste',nome:'Repreensão Diabólica',categoria:'magia',gatilho:'sofrer_dano',descricao:'Quando sofrer dano de uma criatura visível, reaja com fogo infernal.',custo:[{tipo:'reacao',quantidade:1},{tipo:'recurso',id:'espaco-1',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,dano:'2d10',metade:true,elemento:'fogo',alcanceM:18}});
@@ -937,4 +937,19 @@ test('#6 só um espaço de magia por turno; truques e o turno seguinte continuam
   s.rodada=2;
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar);
   assert.equal(s.atores[0].espacoNoTurno,'2-0');
+});
+
+test('#8 ataque à distância com inimigo a 1,5 m tem Desvantagem; corpo a corpo e inimigo incapacitado não',async()=>{
+  let {s,a,b}=await duelo('zurich');const r=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,r.rolar);
+  assert.match(r.formulas.find(x=>x.meta.tipo==='ataque').f,/^2d20kl1/);
+  ({s,a,b}=await duelo('zurich',undefined,{distancia:6}));const r2=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,r2.rolar);
+  assert.match(r2.formulas.find(x=>x.meta.tipo==='ataque').f,/^1d20/);
+  ({s,a,b}=await duelo('zurich'));b.efeitosAtivos=[{id:'x',nome:'Atordoado',tipo:'condicao',condicao:'atordoado'}];const r3=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,r3.rolar);
+  assert.doesNotMatch(r3.formulas.find(x=>x.meta.tipo==='ataque').f,/kl1/);
+  ({s,a,b}=await duelo('zurich'));const r4=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,r4.rolar);
+  assert.match(r4.formulas.find(x=>x.meta.tipo==='ataque').f,/^1d20/);
 });

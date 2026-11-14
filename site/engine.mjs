@@ -1344,8 +1344,11 @@ export async function aplicar(s,c,u,rolar) {
       }
       const caidoPerto=rule.tipo==='ataque'&&afetados.some((p,i)=>restricoesAlvos[i].caido&&distancia(a,p)<=1.5+1e-8);
       const caidoLonge=rule.tipo==='ataque'&&afetados.some((p,i)=>restricoesAlvos[i].caido&&distancia(a,p)>1.5+1e-8);
+      // #8 Ataque à distância com inimigo a 1,5 m (que possa agir) tem Desvantagem.
+      const tagsRegra=rule.tags??[],ataqueDistancia=rule.tipo==='ataque'&&(tagsRegra.includes('distancia')||tagsRegra.includes('arremesso')||(!tagsRegra.includes('corpo_a_corpo')&&!tagsRegra.includes('desarmado')&&(rule.alcanceM??1.5)>1.5+1e-8));
+      const inimigoColado=ataqueDistancia&&s.atores.some(x=>x!==a&&x.emCombate!==false&&x.pv>0&&lado(x)!==lado(a)&&!restricoesAtivas(x).semAcoes&&distancia(a,x)<=1.5+1e-8);
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque))||(rule.tipo==='ataque'&&restricoesAtacante.vantagemAtaques)||(rule.tipo==='ataque'&&restricoesAlvos.some(r=>r.vantagemAtaquesContra))||caidoPerto;
-      const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&restricoesAtacante.desvantagemAtaques)||(rule.tipo==='ataque'&&restricoesAlvos.some(r=>r.desvantagemAtaquesContra))||caidoLonge||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distancia(a,p)>rule.alcanceNormalM+1e-8));
+      const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&restricoesAtacante.desvantagemAtaques)||(rule.tipo==='ataque'&&restricoesAlvos.some(r=>r.desvantagemAtaquesContra))||caidoLonge||inimigoColado||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distancia(a,p)>rule.alcanceNormalM+1e-8));
       const modoOriginal=c.modo;c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
       if(rule.tipo==='projeteis'){
         const formulas=afetados.map(()=>rule.dano),instancias=afetados.map((p,i)=>({titulo:'Seta '+(i+1),alvo:p.nome})),nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*(?:acerto automático|classe).*$/i,'');
