@@ -4,7 +4,7 @@ export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
 export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
 export const periciasPadrao = {
-  'Acrobacia':'des','Adestrar Animais':'sab','Arcanismo':'int','Atletismo':'for',
+  'Acrobacia':'des','Lidar com Animais':'sab','Arcanismo':'int','Atletismo':'for',
   'Atuação':'car','Enganação':'car','Furtividade':'des','História':'int',
   'Intimidação':'car','Intuição':'sab','Investigação':'int','Medicina':'sab',
   'Natureza':'int','Percepção':'sab','Persuasão':'car','Prestidigitação':'des',
@@ -38,6 +38,8 @@ function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
 export function atualizarMagias(f){
+  // #13 Nome da perícia no livro de 2024 em português.
+  if(f.pericias&&f.pericias['Adestrar Animais']!==undefined){f.pericias['Lidar com Animais']??=f.pericias['Adestrar Animais'];delete f.pericias['Adestrar Animais'];}
   // Migração das fichas de guarda antigas: a CA 16 era gravada como base e
   // camisa + escudo formavam um único item. Separar as peças permite que a CA
   // caia para 14 ao guardar o escudo, inclusive em encontros já persistidos.
@@ -79,7 +81,7 @@ export function atualizarMagias(f){
     const descricao=String(o.descricao??''),hit=/Normal\s*\[1d20([+-]\d+)?\]/i.exec(descricao),dano=/Dano(?:\s+\w+)?\s*(?:\[([^\]]+)\]|(?:contundente\s+)?(\d+))/i.exec(descricao);
     if(!o.automacao&&nomeCompleto.startsWith('golpe desarmado')&&hit&&dano)o.automacao={tipo:'ataque',bonus:Number(hit[1]||0),dano:dano[1]??dano[2],elemento:'contundente',alcanceM:1.5,tags:['desarmado']};
     if(!o.automacao&&nomeCompleto.startsWith('esquivar'))o.automacao={tipo:'economia',esquivar:true};
-    if(!o.automacao&&nomeCompleto.startsWith('agarrar'))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Agarrado',condicao:'agarrado',turnos:10}};
+    if(!o.automacao&&/^(agarrar|imobilizar \|)/.test(nomeCompleto))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Agarrado',condicao:'agarrado',turnos:10}};
     if(!o.automacao&&nomeCompleto.startsWith('derrubar'))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Caído',condicao:'caido',turnos:1,expira:'fim_origem'}};
     if(!o.automacao&&nomeCompleto.startsWith('segunda adaga')&&hit&&dano){o.requisitosUso={aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:o.id};o.automacao={tipo:'ataque',bonus:Number(hit[1]||0),dano:dano[1]??dano[2],elemento:'perfurante',alcanceM:1.5,tags:['arma']};}
     if(nomeCompleto.includes('mao de dolo')){o.gatilho='apos_acerto';o.umaVezPorTurno=true;o.aprimoramento={dano:'1d6+1',elemento:'necrotico',requisitos:{tagsAtaque:['desarmado']}};delete o.automacao;}
@@ -166,6 +168,9 @@ export function atualizarMagias(f){
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
+  // #13 Nomes das ações como no Livro do Jogador 2024 em português.
+  const RENOMEAR=[[/^Disparada\b/,'Correr'],[/^Estudar\b/,'Analisar'],[/^Utilizar\b/,'Usar Objeto'],[/^Esconder-se\b/,'Esconder'],[/^Agarrar(?= \|)/,'Imobilizar']];
+  for(const o of f.opcoes??[])for(const [de,para] of RENOMEAR)if(typeof o.nome==='string'&&de.test(o.nome))o.nome=o.nome.replace(de,para);
   // #29 Inspiração Heroica (Humano · Engenhoso): 1 por descanso longo; rerrola um d20 logo depois de ver o resultado.
   if((f.passivas??[]).some(p=>{const t=textoNormal(JSON.stringify(p));return t.includes('inspiracao heroica')&&/humano|engenhoso/.test(t);})){
     if(!f.recursos.some(r=>r.id==='inspiracao-heroica'))f.recursos.push({id:'inspiracao-heroica',nome:'Inspiração Heroica',maximo:1,saldoInicial:1,recuperacao:[{evento:'descanso_longo',modo:'completar'}]});
@@ -184,6 +189,7 @@ function corrigirMagiasRevisao(f){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
     if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno'}; // #18
+    if(nome==='talho mental'&&o.automacao?.efeitoFalha&&!o.automacao.efeitoFalha.expira){o.automacao.efeitoFalha.turnos=2;o.automacao.efeitoFalha.expira='fim_origem';} // #13 até o fim do próximo turno do conjurador
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano')o.automacao.elementos=['contundente','cortante','perfurante'];
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
     if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
@@ -226,7 +232,7 @@ function corrigirCdAtaqueDesarmado(f){
   const cd=8+prof+(monge?Math.max(m('for'),m('des')):m('for'));
   for(const o of f.opcoes??[]){
     const nome=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-    if(o.automacao?.tipo!=='salva'||!/^(agarrar|derrubar|empurrar)\b/.test(nome))continue;
+    if(o.automacao?.tipo!=='salva'||!/^(agarrar|imobilizar|derrubar|empurrar)\b/.test(nome))continue;
     o.automacao.cd=cd;
     if(typeof o.descricao==='string')o.descricao=o.descricao.replace(/CD \d+/,'CD '+cd);
   }

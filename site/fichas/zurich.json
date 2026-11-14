@@ -55,10 +55,10 @@
   "pericias": {
     "Furtividade": 5,
     "Intuição": 4,
-    "Adestrar Animais": 4,
     "Sobrevivência": 4,
     "Percepção": 6,
-    "Atletismo": 3
+    "Atletismo": 3,
+    "Lidar com Animais": 4
   },
   "resistencias": [],
   "imunidades": [],
@@ -233,7 +233,7 @@
     },
     {
       "id": "agarrar-ou-empurrar-acao-5",
-      "nome": "Agarrar | ação",
+      "nome": "Imobilizar | ação",
       "categoria": "acao",
       "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
@@ -259,7 +259,7 @@
     },
     {
       "id": "disparada-acao-6",
-      "nome": "Disparada | ação",
+      "nome": "Correr | ação",
       "categoria": "acao",
       "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
       "custo": [
@@ -317,7 +317,7 @@
     },
     {
       "id": "esconder-se-acao-10",
-      "nome": "Esconder-se | ação",
+      "nome": "Esconder | ação",
       "categoria": "acao",
       "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
       "custo": [
@@ -353,7 +353,7 @@
     },
     {
       "id": "estudar-acao-13",
-      "nome": "Estudar | ação",
+      "nome": "Analisar | ação",
       "categoria": "acao",
       "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
       "custo": [
@@ -377,7 +377,7 @@
     },
     {
       "id": "utilizar-acao-15",
-      "nome": "Utilizar | ação",
+      "nome": "Usar Objeto | ação",
       "categoria": "acao",
       "descricao": "Manipule um objeto que exija uma ação.",
       "custo": [

@@ -56,7 +56,6 @@
     "Investigação": 4,
     "Natureza": 1,
     "Religião": 1,
-    "Adestrar Animais": 2,
     "Intuição": 2,
     "Medicina": 2,
     "Percepção": 3,
@@ -64,7 +63,8 @@
     "Enganação": 4,
     "Intimidação": 4,
     "Atuação": 5,
-    "Persuasão": 7
+    "Persuasão": 7,
+    "Lidar com Animais": 2
   },
   "resistencias": [],
   "imunidades": [],
@@ -210,7 +210,7 @@
     },
     {
       "id": "agarrar-ou-empurrar-acao-3",
-      "nome": "Agarrar | ação",
+      "nome": "Imobilizar | ação",
       "categoria": "acao",
       "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
@@ -236,7 +236,7 @@
     },
     {
       "id": "disparada-acao-4",
-      "nome": "Disparada | ação",
+      "nome": "Correr | ação",
       "categoria": "acao",
       "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
       "custo": [
@@ -294,7 +294,7 @@
     },
     {
       "id": "esconder-se-acao-8",
-      "nome": "Esconder-se | ação",
+      "nome": "Esconder | ação",
       "categoria": "acao",
       "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
       "custo": [
@@ -330,7 +330,7 @@
     },
     {
       "id": "estudar-acao-11",
-      "nome": "Estudar | ação",
+      "nome": "Analisar | ação",
       "categoria": "acao",
       "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
       "custo": [
@@ -354,7 +354,7 @@
     },
     {
       "id": "utilizar-acao-13",
-      "nome": "Utilizar | ação",
+      "nome": "Usar Objeto | ação",
       "categoria": "acao",
       "descricao": "Manipule um objeto que exija uma ação.",
       "custo": [

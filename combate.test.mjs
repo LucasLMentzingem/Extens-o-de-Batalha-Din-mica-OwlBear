@@ -189,9 +189,9 @@ test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
  const m=mesa();await m.iniciar();m.s.atores[1].x=20;m.s.atores[2].x=22;await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
  await assert.rejects(m.go('mover',{ator:m.a.id,x:7,y:8},player),/insuficiente/);
 });
-test('Agarrar, Derrubar e Empurrar são habilidades distintas; Empurrar desloca só na falha',async()=>{
- const nomes=mesa().a.ficha.opcoes.map(o=>o.nome);assert.ok(nomes.includes('Agarrar | ação'));assert.ok(nomes.includes('Derrubar | ação'));assert.ok(nomes.includes('Empurrar | ação'));assert.ok(!nomes.some(n=>n.includes('Agarrar ou empurrar')));
- const antiga=structuredClone(nikki),base='be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe';antiga.opcoes=antiga.opcoes.filter(o=>!o.id.startsWith(base));antiga.opcoes.push({id:base,nome:'Agarrar ou empurrar | ação',categoria:'acao',descricao:'Opção antiga combinada.',custo:[{tipo:'acao',quantidade:1}]});const migrada=validar(antiga);assert.deepEqual(migrada.opcoes.filter(o=>o.id.startsWith(base)).map(o=>o.nome),['Agarrar | ação','Derrubar | ação','Empurrar | ação']);
+test('Imobilizar (antigo Agarrar), Derrubar e Empurrar são habilidades distintas; Empurrar desloca só na falha',async()=>{
+ const nomes=mesa().a.ficha.opcoes.map(o=>o.nome);assert.ok(nomes.includes('Imobilizar | ação'));assert.ok(nomes.includes('Derrubar | ação'));assert.ok(nomes.includes('Empurrar | ação'));assert.ok(!nomes.some(n=>n.includes('Agarrar ou empurrar')));
+ const antiga=structuredClone(nikki),base='be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe';antiga.opcoes=antiga.opcoes.filter(o=>!o.id.startsWith(base));antiga.opcoes.push({id:base,nome:'Agarrar ou empurrar | ação',categoria:'acao',descricao:'Opção antiga combinada.',custo:[{tipo:'acao',quantidade:1}]});const migrada=validar(antiga);assert.deepEqual(migrada.opcoes.filter(o=>o.id.startsWith(base)).map(o=>o.nome),['Imobilizar | ação','Derrubar | ação','Empurrar | ação']);
  const falha=mesa();await falha.iniciar();const empurrar=falha.a.ficha.opcoes.find(o=>o.nome==='Empurrar | ação');
  await falha.go('usar',{ator:falha.a.id,opcao:empurrar.id,alvo:falha.b.id},player,[5]);assert.equal(falha.s.atores[1].x,2.5);assert.equal(falha.s.atores[1].y,0);assert.match(falha.s.historico[0],/empurrado 1.5 m/);
  const sucesso=mesa();await sucesso.iniciar();const outra=sucesso.a.ficha.opcoes.find(o=>o.nome==='Empurrar | ação');await sucesso.go('usar',{ator:sucesso.a.id,opcao:outra.id,alvo:sucesso.b.id},player,[10]);assert.equal(sucesso.s.atores[1].x,1);
@@ -861,7 +861,7 @@ test('#22 Ataque de Sopro não atinge o próprio Dragoberto e o arco soma Arquea
 
 test('#7 CD de Agarrar/Derrubar/Empurrar vem da ficha (Monge pode usar DES)',async()=>{
   const esperado={skimi:9,'hannah-montana':9,nikki:10,dragoberto:10,zurich:11,'draven-thorne':13,loteria:13};
-  for(const [n,cd] of Object.entries(esperado)){const {a}=await duelo(n);for(const t of ['agarrar','derrubar','empurrar'])assert.equal(opRev(a,t).automacao.cd,cd,n+' '+t);}
+  for(const [n,cd] of Object.entries(esperado)){const {a}=await duelo(n);for(const t of ['imobilizar','derrubar','empurrar'])assert.equal(opRev(a,t).automacao.cd,cd,n+' '+t);}
 });
 
 test('#19/#20 ataque extra Leve exige ataque antes; com Ágil não gasta Ação Bônus',async()=>{
@@ -1059,4 +1059,12 @@ test('#29 Skimi (Humana) tem Inspiração Heroica como recurso e rerrolagem de d
   let {s,a}=await duelo('skimi');
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',assistido:true},player,roladorSala().rolar);
   assert.equal(s.atores[0].bonus,0);
+});
+
+test('#13 nomes do livro de 2024 e Talho Mental dura até o fim do próximo turno do conjurador',async()=>{
+  const {a}=await duelo('nikki'),nomes=opcoesDisponiveis(a).map(o=>o.nome);
+  for(const n of ['Correr | ação','Analisar | ação','Usar Objeto | ação','Esconder | ação','Imobilizar | ação'])assert.ok(nomes.includes(n),n);
+  assert.ok(!nomes.some(n=>/^(Disparada|Estudar|Utilizar|Esconder-se|Agarrar) \|/.test(n)));
+  assert.ok(a.ficha.pericias['Lidar com Animais']!==undefined&&a.ficha.pericias['Adestrar Animais']===undefined);
+  assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'talho mental').automacao.efeitoFalha),{turnos:2,expira:'fim_origem'});
 });
