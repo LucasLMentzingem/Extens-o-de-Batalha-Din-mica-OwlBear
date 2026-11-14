@@ -634,3 +634,23 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Mapeamento: `docs/mapeamento-nivel-3/README.md`.
 - Roadmap: `ROADMAP-COBERTURA-REGRAS.md`.
 
+### Versão 0.8.7: fechamento dos itens e pré-arquitetura do nível 3
+
+- [x] Automatizar os 12 itens especiais da La Arte que ainda dependiam de arbitragem manual.
+- [x] Fazer concessões de habilidades e recursos acompanharem o equipamento, sem duplicar definições na ficha compactada.
+- [x] Implementar cargas, rerrolagens condicionais, reações defensivas, cura a 0 PV, invisibilidade, teleporte, corrida/desengajar e testes de ferramenta concedidos por item.
+- [x] Aplicar treinamento de armadura e escudo à CA, testes de FOR/DES e conjuração; preservar a CA base da armadura mesmo sem treinamento.
+- [x] Integrar capacidade de carga derivada e terreno difícil não mágico ao movimento euclidiano da campanha.
+- [x] Classificar cada uma das 193 regras ainda não portáteis do mapa de nível 3 por módulos necessários.
+- [x] Definir 16 módulos propostos, contrato comum, ordem de implementação e critérios de aceite em `docs/mapeamento-nivel-3/PRE-ARQUITETURA-MODULOS.md`.
+- [x] Adicionar regressão que impede regra não portátil sem módulo ou referência a módulo inexistente.
+- [x] Iniciar a matriz de fechamento das sete fichas e comprovar o ataque básico da arma equipada em todas elas.
+
+- Testes do motor: 159 aprovados.
+- Smoke test visual aprovado com as sete fichas carregadas; `render_game_to_text` permaneceu sincronizado e não houve erro novo de console.
+- Capturas: `work/playwright-v087-final/shot-0.png` e `work/playwright-v087-sete-fichas/shot-0.png`.
+- Mapa: `docs/mapeamento-nivel-3/README.md`.
+- Pré-arquitetura: `docs/mapeamento-nivel-3/PRE-ARQUITETURA-MODULOS.md`.
+- Matriz das fichas: `docs/TESTES-SETE-FICHAS-NIVEL-3.md`.
+- Próxima etapa: revisar com o mestre as cinco decisões abertas da pré-arquitetura e continuar os turnos compostos na ordem Loteria/Draven, Zurich/Dragoberto, Nikki/Skimi e Hannah.
+

@@ -8,6 +8,26 @@ const destino=resolve(raiz,'docs/mapeamento-nivel-3');
 const catalogo=JSON.parse(await readFile(fonte,'utf8'));
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const contem=(s,...termos)=>termos.some(t=>normal(s).includes(normal(t)));
+const versao='0.8.7';
+
+const MODULOS_PLANEJADOS=Object.freeze({
+  'M01-ciclo-efeitos':{prioridade:1,nome:'Ciclo de vida declarativo de efeitos',escopo:'Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término.'},
+  'M02-gatilhos-interceptacoes':{prioridade:1,nome:'Barramento de gatilhos e interceptações',escopo:'Antes/depois de ataque, dano, cura, movimento, teste ou conjuração; permite cancelar, redirecionar ou substituir etapas.'},
+  'M03-escolhas-declarativas':{prioridade:1,nome:'Escolhas e variantes durante a resolução',escopo:'Prompt tipado para escolher dano, atributo, modo, alvo, benefício ou variante sem criar uma habilidade duplicada.'},
+  'M04-compositor-acoes':{prioridade:1,nome:'Compositor e modificador de ações',escopo:'Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação.'},
+  'M05-zonas-persistentes':{prioridade:1,nome:'Templates e zonas persistentes',escopo:'Cubo, cilindro, parede, emanação e áreas móveis, com entrada/saída/início/fim de turno e visual público.'},
+  'M06-entidades-vinculadas':{prioridade:1,nome:'Entidades, familiares e objetos vinculados',escopo:'Criar token e ficha derivada, definir dono, iniciativa, comandos, duração, PV e encerramento junto da origem.'},
+  'M07-sobreposicao-ficha':{prioridade:1,nome:'Transformações e sobreposição de ficha',escopo:'Substituir temporariamente estatísticas, tamanho, deslocamentos, sentidos, ações e token, preservando o estado original.'},
+  'M08-movimento-avancado':{prioridade:2,nome:'Movimento e trajetórias avançadas',escopo:'Puxar, fugir, direção escolhida, voo, escalada, salto, terreno difícil, deslocamento por zona e colisões.'},
+  'M09-modificadores-rolagem':{prioridade:2,nome:'Modificadores condicionais de rolagem',escopo:'Vantagem, desvantagem, rerrolagem, dados explosivos, mínimo/máximo e substituição de resultados por gatilho.'},
+  'M10-tags-restricoes':{prioridade:2,nome:'Tags de criatura e restrições sistêmicas',escopo:'Tipo de criatura, imunidades funcionais, bloqueio de cura, requisitos de alvo e exceções por condição.'},
+  'M11-vinculo-equipamento':{prioridade:2,nome:'Vínculo persistente com equipamento',escopo:'Encantar uma arma/armadura escolhida e recalcular dinamicamente ações e bônus enquanto o vínculo existir.'},
+  'M12-agendador':{prioridade:2,nome:'Agendador de efeitos e dano',escopo:'Executar dano, cura, teste ou efeito em um evento futuro específico, inclusive no fim do próximo turno.'},
+  'M13-dados-estendidos':{prioridade:3,nome:'Expressões de dados estendidas',escopo:'Dados explosivos e outras transformações que não cabem hoje nas fórmulas Dice+ simples.'},
+  'M14-adjudicacao-estruturada':{prioridade:3,nome:'Pedido estruturado de adjudicação ao mestre',escopo:'Para efeitos narrativos: coleta escolhas, alvo, CD e contexto, cobra custo e envia uma decisão auditável ao mestre.'},
+  'M15-escalonamento-variantes':{prioridade:3,nome:'Escalonamento e variantes por nível/círculo',escopo:'Resolver tabelas, quantidade de alvos, área, dados e opções conforme nível total, classe ou círculo gasto.'},
+  'M16-limites-cura-recursos':{prioridade:3,nome:'Limites de cura, PV temporários e recursos',escopo:'Distribuição de reserva, tetos por alvo, consumo parcial e recuperação condicionada.'}
+});
 
 const portaveis=new Set([
   'Attack','Dash','Disengage','Dodge','Grapple','Shove: Topple','Shove: Push','Opportunity Attack','Bless','Magic Missile','Mage Armor','Misty Step',
@@ -73,13 +93,44 @@ function avaliar(item){
   return {status_portabilidade:status,modulos_existentes:modulosExistentes(item),lacuna_atual:lacuna};
 }
 
+function modulosNecessarios(item,status){
+  if(status==='PORTAVEL')return [];
+  const texto=normal([item.nome,item.modelo_extensao,item.lacuna_principal,item.especial,item.formas].join(' ')),mods=new Set();
+  const add=id=>mods.add(id);
+  if(contem(texto,'concentracao','concentração','termino do efeito','término do efeito','condicao oficial','condição oficial','remocao','remoção','duracao'))add('M01-ciclo-efeitos');
+  if(contem(texto,'gatilho','antes de cada ataque','interceptacao','interceptação','reacao','reação','bloqueio de cura'))add('M02-gatilhos-interceptacoes');
+  if(contem(texto,'escolha','escolher','prompt declarativo','tipo de dano','modos'))add('M03-escolhas-declarativas');
+  if(contem(texto,'compor','alterar outra acao','alterar outra ação','ataques adicionais','vincular o buff a uma arma','modificador_de_acao','etapas compostas'))add('M04-compositor-acoes');
+  if(contem(texto,'templates espaciais','zona persistente','cilindro','parede','emanacao','emanação','web','moonbeam'))add('M05-zonas-persistentes');
+  if(contem(texto,'criar/controlar tokens','ficha derivada','familiar','servo','montaria','find familiar','find steed','unseen servant','wild companion','spiritual weapon'))add('M06-entidades-vinculadas');
+  if(contem(texto,'substituicao temporaria','substituição temporária','transformacao','transformação','alter self','wild shape'))add('M07-sobreposicao-ficha');
+  if(contem(texto,'puxar','direcao escolhida','direção escolhida','fuga','trajeto','voo','escalada','salto','terreno dificil','terreno difícil','movimento','floating disk','rope trick','spider climb','levitate','gust of wind'))add('M08-movimento-avancado');
+  if(contem(texto,'vantagem','desvantagem','rerrolagem','dados explosivos'))add('M09-modificadores-rolagem');
+  if(contem(texto,'mortos-vivos','morto-vivo','bloqueio de cura','tipo de criatura','imunidade funcional'))add('M10-tags-restricoes');
+  if(contem(texto,'vincular o buff a uma arma','magic weapon','shillelagh','flame blade'))add('M11-vinculo-equipamento');
+  if(contem(texto,'agendar','fim do proximo turno','fim do próximo turno','dano acido','dano ácido','inicio do turno','início do turno'))add('M12-agendador');
+  if(contem(texto,'dados explosivos'))add('M13-dados-estendidos');
+  if(contem(texto,'conferido pela mesa','resolucao narrativa','resolução narrativa','consequencia nao numerica','consequência não numérica')||item.modelo_extensao==='assistido')add('M14-adjudicacao-estruturada');
+  if(contem(texto,'escalonamento','revisar area','revisar área','por nivel','por nível','por circulo','por círculo'))add('M15-escalonamento-variantes');
+  if(contem(texto,'cura/pv temporario','cura/pv temporário','controlar o limite','saldo e recuperacao','saldo e recuperação','preserve life','lay on hands'))add('M16-limites-cura-recursos');
+  if(item.modelo_extensao==='invocacao'&&!mods.has('M06-entidades-vinculadas'))add('M06-entidades-vinculadas');
+  if(item.modelo_extensao==='transformacao')add('M07-sobreposicao-ficha');
+  if(item.modelo_extensao==='interceptacao_ataque')add('M02-gatilhos-interceptacoes');
+  if(item.modelo_extensao==='escolha')add('M03-escolhas-declarativas');
+  if(['modificador_de_acao','etapas_compostas'].includes(item.modelo_extensao))add('M04-compositor-acoes');
+  if(!mods.size)add(status==='ASSISTIDO'?'M14-adjudicacao-estruturada':'M01-ciclo-efeitos');
+  return [...mods].sort((a,b)=>MODULOS_PLANEJADOS[a].prioridade-MODULOS_PLANEJADOS[b].prioridade||a.localeCompare(b));
+}
+
 const nivelCorrigido=item=>item.nome==='Large Form'&&item.origem==='Goliath'?5:Number(item.nivel_minimo);
-const itens=catalogo.itens.filter(item=>item.categoria==='magia'?Number(item.circulo)<=2:nivelCorrigido(item)<=3).map(item=>({...item,nivel_minimo:nivelCorrigido(item),...avaliar(item),avaliado_na_versao:'0.8.6'}));
+const itens=catalogo.itens.filter(item=>item.categoria==='magia'?Number(item.circulo)<=2:nivelCorrigido(item)<=3).map(item=>{const avaliacao=avaliar(item);return {...item,nivel_minimo:nivelCorrigido(item),...avaliacao,modulos_necessarios:modulosNecessarios(item,avaliacao.status_portabilidade),avaliado_na_versao:versao};});
 const contagem=campo=>Object.fromEntries([...new Set(itens.map(x=>x[campo]))].sort().map(valor=>[valor,itens.filter(x=>x[campo]===valor).length]));
-const saida={versao:'0.8.6',escopo:'SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3',fonte:'https://www.dndbeyond.com/srd',geradoEm:'2026-11-14',criterios:{PORTAVEL:'O motor atual possui os módulos fundamentais; requer cadastro/teste da definição.',PARCIAL:'O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.',ASSISTIDO:'Pode ser registrado e ter custo, mas a consequência é decidida pelo mestre.',NOVO_MODULO:'Falta uma capacidade reutilizável essencial.'},resumo:{total:itens.length,porCategoria:contagem('categoria'),porPortabilidade:contagem('status_portabilidade')},itens};
+const porModulo=Object.fromEntries(Object.keys(MODULOS_PLANEJADOS).map(id=>[id,itens.filter(x=>x.modulos_necessarios.includes(id)).length]));
+const saida={versao,escopo:'SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3',fonte:'https://www.dndbeyond.com/srd',geradoEm:'2026-11-14',criterios:{PORTAVEL:'O motor atual possui os módulos fundamentais; requer cadastro/teste da definição.',PARCIAL:'O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.',ASSISTIDO:'Pode ser registrado e ter custo, mas a consequência é decidida pelo mestre.',NOVO_MODULO:'Falta uma capacidade reutilizável essencial.'},modulosPlanejados:MODULOS_PLANEJADOS,resumo:{total:itens.length,porCategoria:contagem('categoria'),porPortabilidade:contagem('status_portabilidade'),porModulo},itens};
 await mkdir(destino,{recursive:true});await writeFile(resolve(destino,'catalogo-nivel-3.json'),JSON.stringify(saida,null,2)+'\n');
-const campos=['id','nome','categoria','origem','nivel_minimo','circulo','ativacao','custo','recurso','alcance','alvo','formas','rolagem','dano_cura','tipos_dano','buff_debuff','duracao','concentracao','gatilho','status_portabilidade','modelo_extensao','modulos_existentes','lacuna_atual','fonte_secao'];
+const campos=['id','nome','categoria','origem','nivel_minimo','circulo','ativacao','custo','recurso','alcance','alvo','formas','rolagem','dano_cura','tipos_dano','buff_debuff','duracao','concentracao','gatilho','status_portabilidade','modelo_extensao','modulos_existentes','modulos_necessarios','lacuna_atual','fonte_secao'];
 const csv=v=>'"'+String(v??'').replaceAll('"','""')+'"';
 await writeFile(resolve(destino,'catalogo-nivel-3.csv'),[campos.join(','),...itens.map(item=>campos.map(c=>csv(Array.isArray(item[c])?item[c].join('|'):item[c])).join(','))].join('\n')+'\n');
 await writeFile(resolve(destino,'resumo.json'),JSON.stringify(saida.resumo,null,2)+'\n');
+await writeFile(resolve(destino,'modulos-nivel-3.json'),JSON.stringify({versao,modulos:MODULOS_PLANEJADOS,porModulo},null,2)+'\n');
 console.log(JSON.stringify(saida.resumo,null,2));

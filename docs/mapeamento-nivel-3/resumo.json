@@ -16,5 +16,23 @@
     "NOVO_MODULO": 16,
     "PARCIAL": 92,
     "PORTAVEL": 127
+  },
+  "porModulo": {
+    "M01-ciclo-efeitos": 32,
+    "M02-gatilhos-interceptacoes": 15,
+    "M03-escolhas-declarativas": 56,
+    "M04-compositor-acoes": 8,
+    "M05-zonas-persistentes": 13,
+    "M06-entidades-vinculadas": 10,
+    "M07-sobreposicao-ficha": 5,
+    "M08-movimento-avancado": 10,
+    "M09-modificadores-rolagem": 3,
+    "M10-tags-restricoes": 1,
+    "M11-vinculo-equipamento": 3,
+    "M12-agendador": 1,
+    "M13-dados-estendidos": 1,
+    "M14-adjudicacao-estruturada": 85,
+    "M15-escalonamento-variantes": 7,
+    "M16-limites-cura-recursos": 5
   }
 }

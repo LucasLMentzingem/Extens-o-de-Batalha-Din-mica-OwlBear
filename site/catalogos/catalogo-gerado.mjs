@@ -8205,7 +8205,10 @@ export default {
         },
         "descricao": "Guarda até 15 kg em um bolso extradimensional; o conteúdo pesa 1 kg para o portador.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "modificadores": {
+          "capacidadeCargaKg": 14
+        }
       }
     },
     {
@@ -8230,7 +8233,46 @@ export default {
         },
         "descricao": "Reação ao sofrer dano, 1 uso por descanso longo: reduza o dano em 1d6.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "recursosConcedidos": [
+          {
+            "id": "ultimo-folego",
+            "nome": "Último Fôlego",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "ultimo-folego",
+            "nome": "Último Fôlego",
+            "categoria": "item",
+            "origem": "Veste do Último Fôlego",
+            "gatilho": "ser_atingido",
+            "descricao": "Reação ao sofrer dano: reduza o dano em 1d6.",
+            "custo": [
+              {
+                "tipo": "reacao",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "ultimo-folego",
+                "quantidade": 1
+              }
+            ],
+            "automacao": {
+              "tipo": "reduzir_dano",
+              "formula": "1d6"
+            }
+          }
+        ]
       }
     },
     {
@@ -8389,7 +8431,30 @@ export default {
         "raridade": "incomum",
         "modificadores": {
           "abrirFechaduras": 1
-        }
+        },
+        "opcoesConcedidas": [
+          {
+            "id": "abrir-fechadura",
+            "nome": "Abrir fechadura",
+            "categoria": "item",
+            "origem": "Anel da Mão Firme",
+            "descricao": "Use ferramentas de ladrão para abrir uma fechadura. O anel concede +1 a este teste.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              }
+            ],
+            "automacao": {
+              "tipo": "teste",
+              "atributo": "des",
+              "pericia": "Prestidigitação",
+              "ferramenta": "ferramentas_de_ladrao",
+              "contexto": "abrirFechaduras",
+              "cd": 15
+            }
+          }
+        ]
       }
     },
     {
@@ -8407,7 +8472,64 @@ export default {
         "slotEquipamento": "colar",
         "descricao": "Ação bônus, 1 uso por descanso longo: respire debaixo d’água por 10 minutos.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "recursosConcedidos": [
+          {
+            "id": "folego-docas",
+            "nome": "Fôlego das Docas",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "respirar-agua",
+            "nome": "Fôlego das Docas",
+            "categoria": "item",
+            "origem": "Colar do Fôlego das Docas",
+            "descricao": "Respire debaixo d’água por 10 minutos.",
+            "custo": [
+              {
+                "tipo": "bonus",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "folego-docas",
+                "quantidade": 1
+              }
+            ],
+            "selecao": {
+              "tipo": "alvos",
+              "min": 1,
+              "max": 1,
+              "repetirAlvo": false,
+              "alcanceM": 1.5
+            },
+            "requisitosUso": {
+              "alvoIgualConjurador": true
+            },
+            "automacao": {
+              "tipo": "efeito",
+              "alcanceM": 1.5,
+              "efeito": {
+                "nome": "Respiração Aquática",
+                "tipo": "buff",
+                "descricao": "Pode respirar debaixo d’água por 10 minutos.",
+                "duracao": {
+                  "turnos": 100,
+                  "expira": "inicio_origem"
+                }
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -8446,7 +8568,46 @@ export default {
         "slotEquipamento": "capa",
         "descricao": "Ao usar Disparada, 1 uso por descanso curto ou longo: percorra mais 3 m no turno.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "recursosConcedidos": [
+          {
+            "id": "passo-mensageiro",
+            "nome": "Passo do Mensageiro",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_curto",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "disparada-mensageiro",
+            "nome": "Disparada do Mensageiro",
+            "categoria": "item",
+            "origem": "Capa do Mensageiro",
+            "descricao": "Use Disparada e percorra mais 3 m neste turno.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "passo-mensageiro",
+                "quantidade": 1
+              }
+            ],
+            "automacao": {
+              "tipo": "economia",
+              "disparada": true,
+              "adicionarDeslocamentoM": 3
+            }
+          }
+        ]
       }
     },
     {
@@ -8487,7 +8648,8 @@ export default {
         "slotEquipamento": "botas",
         "descricao": "Ignore o custo extra de terreno difícil não mágico.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "ignoraTerrenoDificilNaoMagico": true
       }
     },
     {
@@ -8905,7 +9067,45 @@ export default {
         },
         "descricao": "Ação bônus, 1 uso por descanso longo: teleporte-se até 9 m para um espaço visível desocupado.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "recursosConcedidos": [
+          {
+            "id": "passo-nebuloso",
+            "nome": "Passo Nebuloso da Veste",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "passo-nebuloso",
+            "nome": "Passo Nebuloso da Veste",
+            "categoria": "item",
+            "origem": "Veste do Passo Nebuloso",
+            "descricao": "Teleporte-se até 9 m para um espaço visível desocupado.",
+            "custo": [
+              {
+                "tipo": "bonus",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "passo-nebuloso",
+                "quantidade": 1
+              }
+            ],
+            "automacao": {
+              "tipo": "teleporte",
+              "alcanceM": 9
+            }
+          }
+        ]
       }
     },
     {
@@ -8930,7 +9130,47 @@ export default {
         },
         "descricao": "Ao falhar numa salvaguarda de CON para concentração, 1 uso por descanso longo: rerrole e use o novo resultado.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "recursosConcedidos": [
+          {
+            "id": "trama-serena",
+            "nome": "Trama Serena",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "trama-serena",
+            "nome": "Trama Serena",
+            "categoria": "item",
+            "origem": "Veste da Trama Serena",
+            "descricao": "Após falhar na salvaguarda de concentração, rerrole e use o novo resultado.",
+            "gatilho": "apos_rolagem_d20",
+            "custo": [
+              {
+                "tipo": "recurso",
+                "id": "trama-serena",
+                "quantidade": 1
+              }
+            ],
+            "rerrolagem": {
+              "tipo": "d20",
+              "modo": "todos",
+              "tipos": [
+                "salvaguarda"
+              ],
+              "somenteConcentracao": true,
+              "somenteFalha": true
+            }
+          }
+        ]
       }
     },
     {
@@ -8955,7 +9195,65 @@ export default {
         },
         "descricao": "Armadura leve, CA 12 + DES. Ação bônus, 1 uso por descanso longo: invisível até o início do próximo turno.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "recursosConcedidos": [
+          {
+            "id": "sombra-curta",
+            "nome": "Sombra Curta",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "sombra-curta",
+            "nome": "Sombra Curta",
+            "categoria": "item",
+            "origem": "Couro da Sombra Curta",
+            "descricao": "Fique invisível até o início do próximo turno.",
+            "custo": [
+              {
+                "tipo": "bonus",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "sombra-curta",
+                "quantidade": 1
+              }
+            ],
+            "selecao": {
+              "tipo": "alvos",
+              "min": 1,
+              "max": 1,
+              "repetirAlvo": false,
+              "alcanceM": 1.5
+            },
+            "requisitosUso": {
+              "alvoIgualConjurador": true
+            },
+            "automacao": {
+              "tipo": "efeito",
+              "alcanceM": 1.5,
+              "efeito": {
+                "nome": "Sombra Curta",
+                "tipo": "condicao",
+                "condicao": "invisivel",
+                "descricao": "Invisível até o início do próximo turno.",
+                "duracao": {
+                  "turnos": 1,
+                  "expira": "inicio_origem"
+                }
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -9083,7 +9381,46 @@ export default {
         "slotEquipamento": "acessorio",
         "descricao": "Ao falhar numa salvaguarda, 1 uso por descanso longo: rerrole e use o novo resultado.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "recursosConcedidos": [
+          {
+            "id": "segunda-chance",
+            "nome": "Segunda Chance",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "segunda-chance",
+            "nome": "Segunda Chance",
+            "categoria": "item",
+            "origem": "Anel da Segunda Chance",
+            "descricao": "Após falhar numa salvaguarda, rerrole e use o novo resultado.",
+            "gatilho": "apos_rolagem_d20",
+            "custo": [
+              {
+                "tipo": "recurso",
+                "id": "segunda-chance",
+                "quantidade": 1
+              }
+            ],
+            "rerrolagem": {
+              "tipo": "d20",
+              "modo": "todos",
+              "tipos": [
+                "salvaguarda"
+              ],
+              "somenteFalha": true
+            }
+          }
+        ]
       }
     },
     {
@@ -9101,7 +9438,57 @@ export default {
         "slotEquipamento": "colar",
         "descricao": "Ação e toque numa criatura viva com 0 PV, 1 uso por descanso longo: ela recupera 2d8+2 PV.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "recursosConcedidos": [
+          {
+            "id": "socorrista",
+            "nome": "Socorrista",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "socorrista",
+            "nome": "Socorrista",
+            "categoria": "item",
+            "origem": "Colar do Socorrista",
+            "descricao": "Toque uma criatura viva com 0 PV para recuperar 2d8+2 PV.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "socorrista",
+                "quantidade": 1
+              }
+            ],
+            "selecao": {
+              "tipo": "alvos",
+              "min": 1,
+              "max": 1,
+              "repetirAlvo": false,
+              "alcanceM": 1.5
+            },
+            "requisitosUso": {
+              "alvoComZeroPv": true,
+              "alvoVivo": true
+            },
+            "automacao": {
+              "tipo": "cura",
+              "alcanceM": 1.5,
+              "formula": "2d8+2"
+            }
+          }
+        ]
       }
     },
     {
@@ -9147,7 +9534,46 @@ export default {
         "slotEquipamento": "botas",
         "descricao": "Ação bônus, 1 uso por descanso longo: use Desengajar e Disparada juntos e não provoque ataques de oportunidade nesse turno.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "recursosConcedidos": [
+          {
+            "id": "passo-escapista",
+            "nome": "Passo Escapista",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "descanso_longo",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "passo-escapista",
+            "nome": "Passo Escapista",
+            "categoria": "item",
+            "origem": "Botas Escapistas +2",
+            "descricao": "Use Desengajar e Disparada juntos; não provoque ataques de oportunidade neste turno.",
+            "custo": [
+              {
+                "tipo": "bonus",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "passo-escapista",
+                "quantidade": 1
+              }
+            ],
+            "automacao": {
+              "tipo": "economia",
+              "disparada": true,
+              "desengajar": true
+            }
+          }
+        ]
       }
     }
   ],

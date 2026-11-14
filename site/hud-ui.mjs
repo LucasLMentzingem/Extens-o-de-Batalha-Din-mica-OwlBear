@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.6';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.6';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.6';
-import {pronto} from './bridge.mjs?v=0.8.6';
-import {canalHud} from './hud-controller.mjs?v=0.8.6';
+import {detalhes} from './ficha-view.mjs?v=0.8.7';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.7';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.7';
+import {pronto} from './bridge.mjs?v=0.8.7';
+import {canalHud} from './hud-controller.mjs?v=0.8.7';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -109,7 +109,7 @@ function render(){
       const r=d.resultado,classe=/crític/i.test(d.status)?'critico':/falha/i.test(d.status)?'falha':'acerto';
       const lote=r.resultados?.length?r.resultados:null,extras=(m.adicionaisAtivos??[]).map(id=>m.adicionais?.find(x=>x.id===id)).filter(Boolean);
       const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??'de dano')+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
-      const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id));
+      const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id)).filter(x=>!x.somenteFalha||!Number.isFinite(m.cd)||d.total<m.cd);
       const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" '+(editavel?'':'disabled ')+'data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva&&editavel?btn('rerrolarDado','Rerrolar','class="ouro"'):'')+'</div>':'';
       const alternativas=r.alternativasDano?.length?'<div class="alternativas-dano"><small>'+esc(r.modificadorDano?.nome??'Duas rolagens')+'</small>'+r.alternativasDano.map((x,i)=>'<span class="'+(x.total===Math.max(...r.alternativasDano.map(y=>y.total))?'escolhida':'')+'">Rolagem '+(i+1)+': <b>'+esc(x.resumo||x.total)+'</b></span>').join('')+'<strong>Maior resultado aplicado</strong></div>':'';
       const relatorio=resultadoDano(r.relatoriosDano);

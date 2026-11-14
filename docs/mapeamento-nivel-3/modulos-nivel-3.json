@@ -1,0 +1,103 @@
+{
+  "versao": "0.8.7",
+  "modulos": {
+    "M01-ciclo-efeitos": {
+      "prioridade": 1,
+      "nome": "Ciclo de vida declarativo de efeitos",
+      "escopo": "Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término."
+    },
+    "M02-gatilhos-interceptacoes": {
+      "prioridade": 1,
+      "nome": "Barramento de gatilhos e interceptações",
+      "escopo": "Antes/depois de ataque, dano, cura, movimento, teste ou conjuração; permite cancelar, redirecionar ou substituir etapas."
+    },
+    "M03-escolhas-declarativas": {
+      "prioridade": 1,
+      "nome": "Escolhas e variantes durante a resolução",
+      "escopo": "Prompt tipado para escolher dano, atributo, modo, alvo, benefício ou variante sem criar uma habilidade duplicada."
+    },
+    "M04-compositor-acoes": {
+      "prioridade": 1,
+      "nome": "Compositor e modificador de ações",
+      "escopo": "Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação."
+    },
+    "M05-zonas-persistentes": {
+      "prioridade": 1,
+      "nome": "Templates e zonas persistentes",
+      "escopo": "Cubo, cilindro, parede, emanação e áreas móveis, com entrada/saída/início/fim de turno e visual público."
+    },
+    "M06-entidades-vinculadas": {
+      "prioridade": 1,
+      "nome": "Entidades, familiares e objetos vinculados",
+      "escopo": "Criar token e ficha derivada, definir dono, iniciativa, comandos, duração, PV e encerramento junto da origem."
+    },
+    "M07-sobreposicao-ficha": {
+      "prioridade": 1,
+      "nome": "Transformações e sobreposição de ficha",
+      "escopo": "Substituir temporariamente estatísticas, tamanho, deslocamentos, sentidos, ações e token, preservando o estado original."
+    },
+    "M08-movimento-avancado": {
+      "prioridade": 2,
+      "nome": "Movimento e trajetórias avançadas",
+      "escopo": "Puxar, fugir, direção escolhida, voo, escalada, salto, terreno difícil, deslocamento por zona e colisões."
+    },
+    "M09-modificadores-rolagem": {
+      "prioridade": 2,
+      "nome": "Modificadores condicionais de rolagem",
+      "escopo": "Vantagem, desvantagem, rerrolagem, dados explosivos, mínimo/máximo e substituição de resultados por gatilho."
+    },
+    "M10-tags-restricoes": {
+      "prioridade": 2,
+      "nome": "Tags de criatura e restrições sistêmicas",
+      "escopo": "Tipo de criatura, imunidades funcionais, bloqueio de cura, requisitos de alvo e exceções por condição."
+    },
+    "M11-vinculo-equipamento": {
+      "prioridade": 2,
+      "nome": "Vínculo persistente com equipamento",
+      "escopo": "Encantar uma arma/armadura escolhida e recalcular dinamicamente ações e bônus enquanto o vínculo existir."
+    },
+    "M12-agendador": {
+      "prioridade": 2,
+      "nome": "Agendador de efeitos e dano",
+      "escopo": "Executar dano, cura, teste ou efeito em um evento futuro específico, inclusive no fim do próximo turno."
+    },
+    "M13-dados-estendidos": {
+      "prioridade": 3,
+      "nome": "Expressões de dados estendidas",
+      "escopo": "Dados explosivos e outras transformações que não cabem hoje nas fórmulas Dice+ simples."
+    },
+    "M14-adjudicacao-estruturada": {
+      "prioridade": 3,
+      "nome": "Pedido estruturado de adjudicação ao mestre",
+      "escopo": "Para efeitos narrativos: coleta escolhas, alvo, CD e contexto, cobra custo e envia uma decisão auditável ao mestre."
+    },
+    "M15-escalonamento-variantes": {
+      "prioridade": 3,
+      "nome": "Escalonamento e variantes por nível/círculo",
+      "escopo": "Resolver tabelas, quantidade de alvos, área, dados e opções conforme nível total, classe ou círculo gasto."
+    },
+    "M16-limites-cura-recursos": {
+      "prioridade": 3,
+      "nome": "Limites de cura, PV temporários e recursos",
+      "escopo": "Distribuição de reserva, tetos por alvo, consumo parcial e recuperação condicionada."
+    }
+  },
+  "porModulo": {
+    "M01-ciclo-efeitos": 32,
+    "M02-gatilhos-interceptacoes": 15,
+    "M03-escolhas-declarativas": 56,
+    "M04-compositor-acoes": 8,
+    "M05-zonas-persistentes": 13,
+    "M06-entidades-vinculadas": 10,
+    "M07-sobreposicao-ficha": 5,
+    "M08-movimento-avancado": 10,
+    "M09-modificadores-rolagem": 3,
+    "M10-tags-restricoes": 1,
+    "M11-vinculo-equipamento": 3,
+    "M12-agendador": 1,
+    "M13-dados-estendidos": 1,
+    "M14-adjudicacao-estruturada": 85,
+    "M15-escalonamento-variantes": 7,
+    "M16-limites-cura-recursos": 5
+  }
+}

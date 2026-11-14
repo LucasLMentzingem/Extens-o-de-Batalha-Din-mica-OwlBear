@@ -1,5 +1,5 @@
 {
-  "versao": "0.8.6",
+  "versao": "0.8.7",
   "escopo": "SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3",
   "fonte": "https://www.dndbeyond.com/srd",
   "geradoEm": "2026-11-14",
@@ -8,6 +8,88 @@
     "PARCIAL": "O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.",
     "ASSISTIDO": "Pode ser registrado e ter custo, mas a consequência é decidida pelo mestre.",
     "NOVO_MODULO": "Falta uma capacidade reutilizável essencial."
+  },
+  "modulosPlanejados": {
+    "M01-ciclo-efeitos": {
+      "prioridade": 1,
+      "nome": "Ciclo de vida declarativo de efeitos",
+      "escopo": "Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término."
+    },
+    "M02-gatilhos-interceptacoes": {
+      "prioridade": 1,
+      "nome": "Barramento de gatilhos e interceptações",
+      "escopo": "Antes/depois de ataque, dano, cura, movimento, teste ou conjuração; permite cancelar, redirecionar ou substituir etapas."
+    },
+    "M03-escolhas-declarativas": {
+      "prioridade": 1,
+      "nome": "Escolhas e variantes durante a resolução",
+      "escopo": "Prompt tipado para escolher dano, atributo, modo, alvo, benefício ou variante sem criar uma habilidade duplicada."
+    },
+    "M04-compositor-acoes": {
+      "prioridade": 1,
+      "nome": "Compositor e modificador de ações",
+      "escopo": "Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação."
+    },
+    "M05-zonas-persistentes": {
+      "prioridade": 1,
+      "nome": "Templates e zonas persistentes",
+      "escopo": "Cubo, cilindro, parede, emanação e áreas móveis, com entrada/saída/início/fim de turno e visual público."
+    },
+    "M06-entidades-vinculadas": {
+      "prioridade": 1,
+      "nome": "Entidades, familiares e objetos vinculados",
+      "escopo": "Criar token e ficha derivada, definir dono, iniciativa, comandos, duração, PV e encerramento junto da origem."
+    },
+    "M07-sobreposicao-ficha": {
+      "prioridade": 1,
+      "nome": "Transformações e sobreposição de ficha",
+      "escopo": "Substituir temporariamente estatísticas, tamanho, deslocamentos, sentidos, ações e token, preservando o estado original."
+    },
+    "M08-movimento-avancado": {
+      "prioridade": 2,
+      "nome": "Movimento e trajetórias avançadas",
+      "escopo": "Puxar, fugir, direção escolhida, voo, escalada, salto, terreno difícil, deslocamento por zona e colisões."
+    },
+    "M09-modificadores-rolagem": {
+      "prioridade": 2,
+      "nome": "Modificadores condicionais de rolagem",
+      "escopo": "Vantagem, desvantagem, rerrolagem, dados explosivos, mínimo/máximo e substituição de resultados por gatilho."
+    },
+    "M10-tags-restricoes": {
+      "prioridade": 2,
+      "nome": "Tags de criatura e restrições sistêmicas",
+      "escopo": "Tipo de criatura, imunidades funcionais, bloqueio de cura, requisitos de alvo e exceções por condição."
+    },
+    "M11-vinculo-equipamento": {
+      "prioridade": 2,
+      "nome": "Vínculo persistente com equipamento",
+      "escopo": "Encantar uma arma/armadura escolhida e recalcular dinamicamente ações e bônus enquanto o vínculo existir."
+    },
+    "M12-agendador": {
+      "prioridade": 2,
+      "nome": "Agendador de efeitos e dano",
+      "escopo": "Executar dano, cura, teste ou efeito em um evento futuro específico, inclusive no fim do próximo turno."
+    },
+    "M13-dados-estendidos": {
+      "prioridade": 3,
+      "nome": "Expressões de dados estendidas",
+      "escopo": "Dados explosivos e outras transformações que não cabem hoje nas fórmulas Dice+ simples."
+    },
+    "M14-adjudicacao-estruturada": {
+      "prioridade": 3,
+      "nome": "Pedido estruturado de adjudicação ao mestre",
+      "escopo": "Para efeitos narrativos: coleta escolhas, alvo, CD e contexto, cobra custo e envia uma decisão auditável ao mestre."
+    },
+    "M15-escalonamento-variantes": {
+      "prioridade": 3,
+      "nome": "Escalonamento e variantes por nível/círculo",
+      "escopo": "Resolver tabelas, quantidade de alvos, área, dados e opções conforme nível total, classe ou círculo gasto."
+    },
+    "M16-limites-cura-recursos": {
+      "prioridade": 3,
+      "nome": "Limites de cura, PV temporários e recursos",
+      "escopo": "Distribuição de reserva, tetos por alvo, consumo parcial e recuperação condicionada."
+    }
   },
   "resumo": {
     "total": 320,
@@ -27,6 +109,24 @@
       "NOVO_MODULO": 16,
       "PARCIAL": 92,
       "PORTAVEL": 127
+    },
+    "porModulo": {
+      "M01-ciclo-efeitos": 32,
+      "M02-gatilhos-interceptacoes": 15,
+      "M03-escolhas-declarativas": 56,
+      "M04-compositor-acoes": 8,
+      "M05-zonas-persistentes": 13,
+      "M06-entidades-vinculadas": 10,
+      "M07-sobreposicao-ficha": 5,
+      "M08-movimento-avancado": 10,
+      "M09-modificadores-rolagem": 3,
+      "M10-tags-restricoes": 1,
+      "M11-vinculo-equipamento": 3,
+      "M12-agendador": 1,
+      "M13-dados-estendidos": 1,
+      "M14-adjudicacao-estruturada": 85,
+      "M15-escalonamento-variantes": 7,
+      "M16-limites-cura-recursos": 5
     }
   },
   "itens": [
@@ -72,7 +172,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M12-agendador"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-acid-splash",
@@ -115,7 +218,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-aid",
@@ -158,7 +264,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-alarm",
@@ -202,7 +311,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Falta template persistente de cilindro, parede ou emanação móvel.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-alter-self",
@@ -245,7 +357,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M07-sobreposicao-ficha",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-animal-friendship",
@@ -288,7 +405,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-animal-messenger",
@@ -331,7 +451,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-arcane-lock",
@@ -371,7 +494,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-arcanist-s-magic-aura",
@@ -411,7 +537,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-augury",
@@ -451,7 +580,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-bane",
@@ -494,7 +626,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-barkskin",
@@ -537,7 +673,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-bless",
@@ -577,7 +717,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-blindness-deafness",
@@ -620,7 +761,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-blur",
@@ -664,7 +808,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-burning-hands",
@@ -708,7 +855,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-calm-emotions",
@@ -751,7 +899,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-charm-person",
@@ -794,7 +945,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M09-modificadores-rolagem"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-chill-touch",
@@ -838,7 +992,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M10-tags-restricoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-chromatic-orb",
@@ -882,7 +1040,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-color-spray",
@@ -926,7 +1087,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-command",
@@ -969,7 +1131,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-comprehend-languages",
@@ -1009,7 +1175,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-continual-flame",
@@ -1049,7 +1218,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-create-or-destroy-water",
@@ -1093,7 +1265,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Falta template persistente de cilindro, parede ou emanação móvel.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-cure-wounds",
@@ -1135,7 +1310,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-dancing-lights",
@@ -1178,7 +1354,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-darkness",
@@ -1222,7 +1401,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-darkvision",
@@ -1262,7 +1444,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-detect-evil-and-good",
@@ -1305,7 +1490,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-detect-magic",
@@ -1348,7 +1536,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-detect-poison-and-disease",
@@ -1391,7 +1582,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-detect-thoughts",
@@ -1434,7 +1628,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-disguise-self",
@@ -1477,7 +1674,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-dissonant-whispers",
@@ -1520,7 +1720,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-divine-favor",
@@ -1560,7 +1765,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-divine-smite",
@@ -1600,7 +1808,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-dragon-s-breath",
@@ -1644,7 +1855,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-druidcraft",
@@ -1688,7 +1900,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Falta template persistente de cilindro, parede ou emanação móvel.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-eldritch-blast",
@@ -1732,7 +1947,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-elementalism",
@@ -1776,7 +1994,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Falta template persistente de cilindro, parede ou emanação móvel.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-enhance-ability",
@@ -1819,7 +2040,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-enlarge-reduce",
@@ -1862,7 +2086,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-ensnaring-strike",
@@ -1905,7 +2132,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-entangle",
@@ -1948,7 +2178,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-enthrall",
@@ -1988,7 +2219,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-expeditious-retreat",
@@ -2031,7 +2266,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-faerie-fire",
@@ -2075,7 +2313,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-false-life",
@@ -2117,7 +2356,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-feather-fall",
@@ -2159,7 +2399,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-find-familiar",
@@ -2199,7 +2440,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-find-steed",
@@ -2239,7 +2484,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-find-traps",
@@ -2283,7 +2532,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Falta template persistente de cilindro, parede ou emanação móvel.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-fire-bolt",
@@ -2327,7 +2579,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-flame-blade",
@@ -2370,7 +2625,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M11-vinculo-equipamento"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-flaming-sphere",
@@ -2413,7 +2672,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-floating-disk",
@@ -2456,7 +2718,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-fog-cloud",
@@ -2499,7 +2765,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-gentle-repose",
@@ -2539,7 +2808,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-goodberry",
@@ -2579,7 +2851,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-grease",
@@ -2622,7 +2897,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-guidance",
@@ -2665,7 +2943,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-guiding-bolt",
@@ -2709,7 +2988,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M09-modificadores-rolagem"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-gust-of-wind",
@@ -2753,7 +3035,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-healing-word",
@@ -2795,7 +3081,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-heat-metal",
@@ -2838,7 +3125,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-hellish-rebuke",
@@ -2880,7 +3170,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-heroism",
@@ -2922,7 +3213,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-hex",
@@ -2966,7 +3258,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-hideous-laughter",
@@ -3009,7 +3302,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-hold-person",
@@ -3052,7 +3346,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-hunter-s-mark",
@@ -3096,7 +3391,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-ice-knife",
@@ -3140,7 +3436,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-identify",
@@ -3180,7 +3477,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-illusory-script",
@@ -3220,7 +3520,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-inflict-wounds",
@@ -3263,7 +3566,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-invisibility",
@@ -3307,7 +3613,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-jump",
@@ -3350,7 +3657,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-knock",
@@ -3390,7 +3701,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-lesser-restoration",
@@ -3430,7 +3744,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-levitate",
@@ -3474,7 +3791,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M05-zonas-persistentes",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-light",
@@ -3514,7 +3836,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-locate-animals-or-plants",
@@ -3554,7 +3879,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-locate-object",
@@ -3594,7 +3922,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-longstrider",
@@ -3637,7 +3968,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-mage-armor",
@@ -3680,7 +4012,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-mage-hand",
@@ -3720,7 +4053,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-magic-missile",
@@ -3762,7 +4098,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-magic-mouth",
@@ -3802,7 +4139,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-magic-weapon",
@@ -3845,7 +4185,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M04-compositor-acoes",
+        "M11-vinculo-equipamento"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-mending",
@@ -3885,7 +4229,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-message",
@@ -3925,7 +4272,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-mind-spike",
@@ -3968,7 +4318,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-minor-illusion",
@@ -4012,7 +4365,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-mirror-image",
@@ -4056,7 +4412,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-misty-step",
@@ -4097,7 +4456,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-moonbeam",
@@ -4137,7 +4497,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes",
+        "M07-sobreposicao-ficha"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-pass-without-trace",
@@ -4180,7 +4544,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-phantasmal-force",
@@ -4224,7 +4591,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-poison-spray",
@@ -4268,7 +4638,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-prayer-of-healing",
@@ -4310,7 +4683,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-prestidigitation",
@@ -4350,7 +4724,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-produce-flame",
@@ -4390,7 +4767,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-protection-from-evil-and-good",
@@ -4434,7 +4814,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-protection-from-poison",
@@ -4474,7 +4857,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-purify-food-and-drink",
@@ -4514,7 +4900,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-ray-of-enfeeblement",
@@ -4557,7 +4946,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-ray-of-frost",
@@ -4600,7 +4992,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-ray-of-sickness",
@@ -4644,7 +5037,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-resistance",
@@ -4687,7 +5083,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-rope-trick",
@@ -4730,7 +5127,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-sacred-flame",
@@ -4773,7 +5174,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-sanctuary",
@@ -4815,7 +5219,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-scorching-ray",
@@ -4859,7 +5267,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M15-escalonamento-variantes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-searing-smite",
@@ -4903,7 +5314,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-see-invisibility",
@@ -4943,7 +5355,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-shatter",
@@ -4986,7 +5401,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-shield",
@@ -5028,7 +5446,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-shield-of-faith",
@@ -5071,7 +5490,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-shillelagh",
@@ -5114,7 +5537,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M11-vinculo-equipamento"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-shining-smite",
@@ -5158,7 +5585,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-shocking-grasp",
@@ -5202,7 +5632,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-silence",
@@ -5245,7 +5676,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-silent-image",
@@ -5289,7 +5723,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-sleep",
@@ -5332,7 +5769,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-sorcerous-burst",
@@ -5376,7 +5817,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M09-modificadores-rolagem",
+        "M13-dados-estendidos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-spare-the-dying",
@@ -5416,7 +5862,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-speak-with-animals",
@@ -5456,7 +5905,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-spider-climb",
@@ -5499,7 +5951,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-spike-growth",
@@ -5542,7 +5998,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-spiritual-weapon",
@@ -5586,7 +6045,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M03-escolhas-declarativas",
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-starry-wisp",
@@ -5630,7 +6094,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-suggestion",
@@ -5673,7 +6140,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-thaumaturgy",
@@ -5716,7 +6186,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-thunderwave",
@@ -5760,7 +6233,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-true-strike",
@@ -5803,7 +6277,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-unseen-servant",
@@ -5846,7 +6323,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M06-entidades-vinculadas",
+        "M08-movimento-avancado"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-vicious-mockery",
@@ -5889,7 +6371,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-warding-bond",
@@ -5932,7 +6415,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M01-ciclo-efeitos",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-web",
@@ -5972,7 +6459,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M05-zonas-persistentes",
+        "M06-entidades-vinculadas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "spell-zone-of-truth",
@@ -6012,7 +6503,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-rage",
@@ -6056,7 +6550,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-unarmored-defense",
@@ -6096,7 +6594,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-weapon-mastery",
@@ -6139,7 +6638,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-danger-sense",
@@ -6182,7 +6685,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-reckless-attack",
@@ -6226,7 +6733,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-barbarian-subclass",
@@ -6266,7 +6777,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-primal-knowledge",
@@ -6306,7 +6818,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-barbarian-frenzy",
@@ -6349,7 +6865,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-bardic-inspiration",
@@ -6391,7 +6911,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-spellcasting",
@@ -6433,7 +6954,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-expertise",
@@ -6474,7 +6996,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-jack-of-all-trades",
@@ -6514,7 +7037,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-bard-subclass",
@@ -6554,7 +7078,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-bonus-proficiencies",
@@ -6595,7 +7120,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-bard-cutting-words",
@@ -6637,7 +7163,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-spellcasting",
@@ -6679,7 +7206,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-divine-order",
@@ -6719,7 +7247,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-channel-divinity",
@@ -6761,7 +7293,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M16-limites-cura-recursos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-cleric-subclass",
@@ -6801,7 +7337,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-disciple-of-life",
@@ -6843,7 +7380,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-life-domain-spells",
@@ -6885,7 +7423,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-cleric-preserve-life",
@@ -6927,7 +7466,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M16-limites-cura-recursos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-spellcasting",
@@ -6969,7 +7511,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-druidic",
@@ -7009,7 +7552,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-primal-order",
@@ -7049,7 +7595,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-wild-shape",
@@ -7091,7 +7641,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M07-sobreposicao-ficha",
+        "M16-limites-cura-recursos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-wild-companion",
@@ -7131,7 +7685,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M06-entidades-vinculadas",
+        "M07-sobreposicao-ficha"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-druid-subclass",
@@ -7171,7 +7729,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-circle-of-the-land-spells",
@@ -7213,7 +7772,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-druid-land-s-aid",
@@ -7255,7 +7815,12 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M07-sobreposicao-ficha",
+        "M16-limites-cura-recursos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-fighting-style",
@@ -7295,7 +7860,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-second-wind",
@@ -7337,7 +7903,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-weapon-mastery",
@@ -7380,7 +7947,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-action-surge",
@@ -7423,7 +7994,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-tactical-mind",
@@ -7463,7 +8035,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-fighter-subclass",
@@ -7503,7 +8078,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-improved-critical",
@@ -7547,7 +8123,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-fighter-remarkable-athlete",
@@ -7587,7 +8167,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-martial-arts",
@@ -7630,7 +8213,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-unarmored-defense",
@@ -7670,7 +8254,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-monk-s-focus",
@@ -7712,7 +8297,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-unarmored-movement",
@@ -7753,7 +8339,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-uncanny-metabolism",
@@ -7795,7 +8382,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-deflect-attacks",
@@ -7837,7 +8425,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-monk-subclass",
@@ -7877,7 +8466,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-monk-open-hand-technique",
@@ -7920,7 +8510,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-lay-on-hands",
@@ -7962,7 +8556,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-spellcasting",
@@ -8004,7 +8599,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-weapon-mastery",
@@ -8047,7 +8643,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-fighting-style",
@@ -8087,7 +8687,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-paladin-s-smite",
@@ -8127,7 +8728,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-channel-divinity",
@@ -8169,7 +8771,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M16-limites-cura-recursos"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-paladin-subclass",
@@ -8209,7 +8814,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-oath-of-devotion-spells",
@@ -8251,7 +8857,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-paladin-sacred-weapon",
@@ -8295,7 +8902,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-spellcasting",
@@ -8337,7 +8948,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-favored-enemy",
@@ -8377,7 +8989,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-weapon-mastery",
@@ -8420,7 +9033,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-deft-explorer",
@@ -8460,7 +9077,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-fighting-style",
@@ -8500,7 +9118,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-ranger-subclass",
@@ -8540,7 +9159,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-hunter-s-lore",
@@ -8580,7 +9200,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-ranger-hunter-s-prey",
@@ -8623,7 +9246,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-expertise",
@@ -8664,7 +9291,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-sneak-attack",
@@ -8708,7 +9336,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-thieves-cant",
@@ -8748,7 +9380,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-weapon-mastery",
@@ -8791,7 +9427,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-cunning-action",
@@ -8831,7 +9471,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-rogue-subclass",
@@ -8871,7 +9512,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-steady-aim",
@@ -8915,7 +9557,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-fast-hands",
@@ -8955,7 +9601,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-rogue-second-story-work",
@@ -8995,7 +9644,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-spellcasting",
@@ -9037,7 +9689,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-innate-sorcery",
@@ -9081,7 +9734,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-font-of-magic",
@@ -9121,7 +9778,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-metamagic",
@@ -9164,7 +9822,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-sorcerer-subclass",
@@ -9204,7 +9866,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-draconic-resilience",
@@ -9244,7 +9907,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-sorcerer-draconic-spells",
@@ -9286,7 +9950,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-warlock-eldritch-invocations",
@@ -9329,7 +9994,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M04-compositor-acoes"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-warlock-pact-magic",
@@ -9371,7 +10040,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-warlock-magical-cunning",
@@ -9411,7 +10081,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-warlock-warlock-subclass",
@@ -9451,7 +10122,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-warlock-dark-one-s-blessing",
@@ -9493,7 +10165,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-warlock-fiend-spells",
@@ -9535,7 +10208,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-spellcasting",
@@ -9577,7 +10251,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-ritual-adept",
@@ -9617,7 +10292,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-arcane-recovery",
@@ -9659,7 +10337,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-scholar",
@@ -9699,7 +10378,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M03-escolhas-declarativas",
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-wizard-subclass",
@@ -9739,7 +10422,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-evocation-savant",
@@ -9779,7 +10463,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "feature-wizard-potent-cantrip",
@@ -9823,7 +10510,11 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Ataque/salva/efeito básico é portável; regras secundárias do item ainda precisam ser modeladas.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M02-gatilhos-interceptacoes",
+        "M03-escolhas-declarativas"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-attack",
@@ -9863,7 +10554,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-dash",
@@ -9903,7 +10595,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-disengage",
@@ -9943,7 +10636,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-dodge",
@@ -9983,7 +10677,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-help",
@@ -10023,7 +10718,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-hide",
@@ -10063,7 +10761,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-influence",
@@ -10103,7 +10804,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-magic",
@@ -10143,7 +10847,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-ready",
@@ -10183,7 +10890,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-search",
@@ -10223,7 +10933,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-study",
@@ -10263,7 +10976,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-utilize",
@@ -10303,7 +11019,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-opportunity-attack",
@@ -10345,7 +11064,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-grapple",
@@ -10385,7 +11105,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-shove-push",
@@ -10428,7 +11149,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "acao-basica-regras-de-combate-shove-topple",
@@ -10468,7 +11190,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-cleave",
@@ -10508,7 +11231,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-graze",
@@ -10548,7 +11274,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-nick",
@@ -10588,7 +11315,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-push",
@@ -10628,7 +11356,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-sap",
@@ -10668,7 +11399,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-slow",
@@ -10708,7 +11442,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-topple",
@@ -10748,7 +11483,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "maestria-arma-weapon-mastery-vex",
@@ -10788,7 +11526,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-alert",
@@ -10828,7 +11569,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-magic-initiate",
@@ -10868,7 +11612,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-savage-attacker",
@@ -10908,7 +11655,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-skilled",
@@ -10948,7 +11696,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-archery",
@@ -10988,7 +11739,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-defense",
@@ -11028,7 +11780,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-great-weapon-fighting",
@@ -11068,7 +11821,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "talento-feats-two-weapon-fighting",
@@ -11108,7 +11864,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dragonborn-draconic-ancestry",
@@ -11148,7 +11905,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dragonborn-breath-weapon",
@@ -11188,7 +11948,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dragonborn-damage-resistance",
@@ -11228,7 +11989,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dragonborn-darkvision",
@@ -11269,7 +12031,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dwarf-darkvision",
@@ -11310,7 +12073,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dwarf-dwarven-resilience",
@@ -11350,7 +12114,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dwarf-dwarven-toughness",
@@ -11391,7 +12156,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-dwarf-stonecunning",
@@ -11431,7 +12197,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-elf-darkvision",
@@ -11472,7 +12241,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-elf-elven-lineage",
@@ -11512,7 +12282,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-elf-fey-ancestry",
@@ -11552,7 +12323,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-elf-keen-senses",
@@ -11593,7 +12365,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-elf-trance",
@@ -11633,7 +12406,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-gnome-darkvision",
@@ -11674,7 +12450,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-gnome-gnomish-cunning",
@@ -11714,7 +12491,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-gnome-gnomish-lineage",
@@ -11754,7 +12532,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-goliath-giant-ancestry",
@@ -11794,7 +12575,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-goliath-powerful-build",
@@ -11834,7 +12616,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-halfling-brave",
@@ -11874,7 +12659,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-halfling-halfling-nimbleness",
@@ -11914,7 +12700,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-halfling-luck",
@@ -11954,7 +12743,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-halfling-naturally-stealthy",
@@ -11994,7 +12784,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-human-resourceful",
@@ -12036,7 +12829,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-human-skillful",
@@ -12076,7 +12870,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável por sentidos, proficiências ou modificadores declarativos da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-human-versatile",
@@ -12116,7 +12911,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-orc-adrenaline-rush",
@@ -12156,7 +12952,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-orc-darkvision",
@@ -12197,7 +12994,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-orc-relentless-endurance",
@@ -12237,7 +13035,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-tiefling-darkvision",
@@ -12278,7 +13077,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-tiefling-fiendish-legacy",
@@ -12318,7 +13118,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "traco-especie-tiefling-otherworldly-presence",
@@ -12358,7 +13159,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-careful-spell",
@@ -12398,7 +13202,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-distant-spell",
@@ -12438,7 +13245,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-empowered-spell",
@@ -12478,7 +13288,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-extended-spell",
@@ -12518,7 +13329,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-heightened-spell",
@@ -12558,7 +13372,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-quickened-spell",
@@ -12598,7 +13415,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-seeking-spell",
@@ -12638,7 +13458,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-subtle-spell",
@@ -12678,7 +13501,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-transmuted-spell",
@@ -12718,7 +13544,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "metamagia-sorcerer-twinned-spell",
@@ -12758,7 +13587,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-agonizing-blast",
@@ -12798,7 +13630,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-armor-of-shadows",
@@ -12838,7 +13673,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-devil-s-sight",
@@ -12878,7 +13714,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-eldritch-mind",
@@ -12918,7 +13757,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-eldritch-spear",
@@ -12958,7 +13800,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-fiendish-vigor",
@@ -12998,7 +13843,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-lessons-of-the-first-ones",
@@ -13038,7 +13884,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-mask-of-many-faces",
@@ -13078,7 +13927,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-misty-visions",
@@ -13118,7 +13970,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-otherworldly-leap",
@@ -13158,7 +14013,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-pact-of-the-blade",
@@ -13198,7 +14056,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-pact-of-the-chain",
@@ -13238,7 +14099,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-pact-of-the-tome",
@@ -13278,7 +14142,10 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "A ficha registra a passiva, mas o efeito precisa de definição específica ou arbitragem.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [
+        "M14-adjudicacao-estruturada"
+      ],
+      "avaliado_na_versao": "0.8.7"
     },
     {
       "id": "invocacao-warlock-repelling-blast",
@@ -13318,7 +14185,8 @@
         "limite_alcance_18m"
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
-      "avaliado_na_versao": "0.8.6"
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.7"
     }
   ]
 }

@@ -1,4 +1,4 @@
-import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.6';
+import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.7';
 
 const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x])),lojas=new Map((catalogo.lojas??[]).map(x=>[x.id,x]));
 const clone=x=>structuredClone(x);
@@ -90,7 +90,8 @@ export function compactarFicha(ficha){
   if(!ficha)return ficha;
   const out=clone(ficha),meta=ficha._catalogoV2,anteriores=new Map((meta?.concessoes??[]).map(c=>[c.tipo+':'+c.id,c]));
   out.versaoFormato=2;out.versaoCatalogo=catalogo.versaoCatalogo;
-  out.concessoes=[...(ficha.opcoes??[]).map(h=>concessaoDe(h,'habilidade',anteriores.get('habilidade:'+h.id))),...(ficha.passivas??[]).map(h=>concessaoDe(h,'passiva',anteriores.get('passiva:'+h.id)))];
+  out.concessoes=[...(ficha.opcoes??[]).filter(h=>!h.concedidaPorItem).map(h=>concessaoDe(h,'habilidade',anteriores.get('habilidade:'+h.id))),...(ficha.passivas??[]).filter(h=>!h.concedidaPorItem).map(h=>concessaoDe(h,'passiva',anteriores.get('passiva:'+h.id)))];
+  out.recursos=(ficha.recursos??[]).filter(r=>!r.concedidoPorItem).map(clone);
   const itensAnteriores=new Map((meta?.instancias??[]).map(i=>[i.id,i]));
   out.inventario={versaoOcupacao:6,capacidadeCargaKg:ficha.inventario?.capacidadeCargaKg,itens:(ficha.inventario?.itens??[]).map(i=>instanciaDe(i,itensAnteriores.get(i.id)))};
   delete out.opcoes;delete out.passivas;delete out.equipamentos;delete out.versaoOrigem;delete out._catalogoV2;

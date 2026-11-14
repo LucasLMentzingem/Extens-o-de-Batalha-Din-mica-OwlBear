@@ -1,6 +1,8 @@
 # Mapeamento de regras até o nível 3
 
-Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.6. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
+Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.7. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
+
+A proposta de implementação está em `PRE-ARQUITETURA-MODULOS.md`; o fechamento prático das sete fichas atuais é acompanhado em `../TESTES-SETE-FICHAS-NIVEL-3.md`.
 
 Fontes primárias: [SRD 5.2.1](https://www.dndbeyond.com/srd), [Classes — Regras Básicas 2024](https://www.dndbeyond.com/sources/dnd/free-rules/character-classes) e [Origens — Regras Básicas 2024](https://www.dndbeyond.com/sources/dnd/free-rules/character-origins). Os nomes e dados de regras derivados do SRD são usados sob a licença Creative Commons indicada na própria publicação.
 
@@ -66,14 +68,14 @@ A Forma Grande do Golias e o Voo Dracônico do Draconato começam no nível 5 e,
 
 ## Novos módulos necessários
 
-As 16 entradas classificadas como `NOVO_MODULO` apontam para quatro famílias reutilizáveis:
+As 16 entradas classificadas como `NOVO_MODULO` apontam para capacidades ausentes, mas a arquitetura também classifica as lacunas das opções `PARCIAL` e `ASSISTIDO`. Cada entrada do JSON e CSV contém agora `modulos_necessarios`.
 
 - **Entidades vinculadas, familiares e servos:** Find Familiar, Find Steed, Unseen Servant e Wild Companion.
 - **Zonas, emanações e objetos persistentes:** Alarm, Create or Destroy Water, Find Traps, Floating Disk, Moonbeam, Rope Trick, Spiritual Weapon e Web.
 - **Transformação temporária de ficha:** Alter Self.
 - **Ilusões e manifestações ambientais declarativas:** Druidcraft, Elementalism e Mirror Image.
 
-Essas famílias devem ser implementadas como módulos genéricos. Evite escrever uma exceção exclusiva para uma única magia quando outras regras puderem reutilizar o mesmo fluxo.
+Foram definidos 16 módulos genéricos, ordenados por dependência. A especificação, contratos, critérios de aceite e decisões pendentes estão em [Pré-arquitetura dos módulos](PRE-ARQUITETURA-MODULOS.md). A contagem por módulo está em [modulos-nivel-3.json](modulos-nivel-3.json).
 
 ## Módulos já reconhecidos
 
@@ -84,6 +86,8 @@ O motor atual já possui blocos reutilizáveis para ataque contra CA, dano tipad
 - [Catálogo completo em JSON](catalogo-nivel-3.json)
 - [Planilha em CSV](catalogo-nivel-3.csv)
 - [Resumo para automação](resumo.json)
+- [Módulos planejados em JSON](modulos-nivel-3.json)
+- [Pré-arquitetura para aprovação](PRE-ARQUITETURA-MODULOS.md)
 - Gerador: `node scripts/gerar-mapeamento-nivel-3.mjs`
 
 O gerador lê o catálogo-base do projeto da campanha, corrige regras que começam depois do nível 3 e produz saídas determinísticas. Mudanças de classificação devem ser acompanhadas por testes que comprovem a nova portabilidade.

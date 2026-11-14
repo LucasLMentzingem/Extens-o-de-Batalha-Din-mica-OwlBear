@@ -1,8 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.6';
-import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario} from './engine.mjs?v=0.8.6';
-import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.6';
-import {resumoItem} from './ficha-view.mjs?v=0.8.6';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.7';
+import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.7';
+import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.7';
+import {resumoItem} from './ficha-view.mjs?v=0.8.7';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let s,info,api,atorId,lojaId,aba='loja',selecionado=null,ocupado=false;
@@ -26,7 +26,7 @@ function render(){
   const resumo=ativas.find(x=>x.id===lojaId),loja=resolverLoja(lojaId),estado=s.comercio.lojas[lojaId],recompras=recomprasDaLoja(s,lojaId,a.id);
   const seletor=ativas.length>1?'<select id="seletorLoja">'+ativas.map(x=>'<option value="'+esc(x.id)+'" '+(x.id===lojaId?'selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</select>':'<h1>'+esc(resumo.nome)+'</h1>';
   const conteudo=aba==='loja'?loja.itens.map(i=>cartao(i,precoCompraPc(i,estado.descontoPct),i.catalogoRef,i.raridade)).join(''):recompras.map(r=>{const i=resolverInstanciaItem(r.instancia);return cartao(i,r.precoPc,r.id,i.raridade);}).join('');
-  root.innerHTML='<header class="cabecalho-loja"><div><small>LOJA ATIVA</small>'+seletor+'<p>'+esc(resumo.descricao??'')+' · desconto de '+estado.descontoPct+'%</p><small>Carga: '+pesoInventario(a).toLocaleString('pt-BR',{maximumFractionDigits:2})+' / '+a.ficha.inventario.capacidadeCargaKg+' kg</small></div><span class="saldo-loja">◉ '+saldoMoedasPo(a).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</span></header><nav class="abas-loja"><button data-aba="loja" aria-pressed="'+(aba==='loja')+'">Loja</button><button data-aba="recompras" aria-pressed="'+(aba==='recompras')+'">Comprar itens de volta ('+recompras.length+')</button><button data-fechar>Fechar</button></nav><section class="grade-loja">'+(conteudo||'<p class="estado-loja">Nenhum item nesta página.</p>')+'</section>';
+  root.innerHTML='<header class="cabecalho-loja"><div><small>LOJA ATIVA</small>'+seletor+'<p>'+esc(resumo.descricao??'')+' · desconto de '+estado.descontoPct+'%</p><small>Carga: '+pesoInventario(a).toLocaleString('pt-BR',{maximumFractionDigits:2})+' / '+capacidadeCargaAtual(a).toLocaleString('pt-BR',{maximumFractionDigits:2})+' kg</small></div><span class="saldo-loja">◉ '+saldoMoedasPo(a).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</span></header><nav class="abas-loja"><button data-aba="loja" aria-pressed="'+(aba==='loja')+'">Loja</button><button data-aba="recompras" aria-pressed="'+(aba==='recompras')+'">Comprar itens de volta ('+recompras.length+')</button><button data-fechar>Fechar</button></nav><section class="grade-loja">'+(conteudo||'<p class="estado-loja">Nenhum item nesta página.</p>')+'</section>';
   $('seletorLoja')?.addEventListener('change',e=>{lojaId=e.target.value;render();});
 }
 function abrirMenu(id){
