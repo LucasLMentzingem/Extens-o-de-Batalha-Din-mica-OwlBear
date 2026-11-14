@@ -21,6 +21,8 @@ export const condicoesCombate = Object.freeze({
   incapacitado:{nome:'Incapacitado',restricoes:{semAcoes:true,semBonus:true,semReacao:true}},
   inconsciente:{nome:'Inconsciente',restricoes:{semAcoes:true,semBonus:true,semReacao:true,imovel:true,caido:true,vantagemAtaquesContra:true,criticoCorpoACorpo:true,falhaSalvas:['for','des']}},
   imobilizado:{nome:'Imobilizado',restricoes:{imovel:true,desvantagemAtaques:true,vantagemAtaquesContra:true,desvantagemSalvas:['des']}},
+  // #17 Restrained no livro em PT é "Contido" (Imobilizado é Grappled). Mesmas regras de combate.
+  contido:{nome:'Contido',restricoes:{imovel:true,desvantagemAtaques:true,vantagemAtaquesContra:true,desvantagemSalvas:['des']}},
   invisivel:{nome:'Invisível',restricoes:{vantagemAtaques:true,desvantagemAtaquesContra:true}},
   paralisado:{nome:'Paralisado',restricoes:{semAcoes:true,semBonus:true,semReacao:true,imovel:true,vantagemAtaquesContra:true,criticoCorpoACorpo:true,falhaSalvas:['for','des']}},
   surdo:{nome:'Surdo',restricoes:{}}
@@ -85,7 +87,7 @@ export function atualizarMagias(f){
     if(o.categoria!=='magia'||typeof o.nome!=='string')continue;
     if(nome==='armadura arcana'){
       o.foraCombate=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Armadura Arcana',tipo:'buff',descricao:'A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.',removeEm:'descanso_longo',caMinima:13,requisitos:{semArmadura:true},modificadores:{}}};
-      if(f.id==='nikki'&&f.caBase===15)f.caBase=13;if(f.id==='nikki'&&f.armaduraEquipada===undefined)f.armaduraEquipada=false;
+      if(f.id==='nikki'&&[13,15].includes(f.caBase))f.caBase=12; // #9 sem armadura: 10 + DESif(f.id==='nikki'&&f.armaduraEquipada===undefined)f.armaduraEquipada=false;
     }
     if(o.automacao)continue;
     const circulo=o.circuloBase??1;
@@ -155,9 +157,30 @@ export function atualizarMagias(f){
   corrigirCdAtaqueDesarmado(f);
   corrigirArtesMarciais(f);
   corrigirDuracoes(f);
+  corrigirMagiasRevisao(f);
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
+}
+// Correções de magias e ações da revisão de regras (#14, #15, #17, #27).
+// Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
+const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso historico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
+function corrigirMagiasRevisao(f){
+  for(const o of f.opcoes??[]){
+    const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
+    if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
+    if(o.categoria!=='magia')continue;
+    if(/concentra[cç][aã]o/.test(completo))o.concentracao=true;          // #15 nome diz concentração → motor controla
+    if(nome==='enfeiticar pessoa')delete o.concentracao;                  // #14 Enfeitiçar Pessoa não é concentração (2024)
+    if(nome==='emaranhar'&&o.automacao?.efeitoFalha?.condicao==='imobilizado'){o.automacao.efeitoFalha.condicao='contido';o.automacao.efeitoFalha.nome='Contido por Emaranhar';}
+    if(nome==='encontrar familiar'&&o.custo?.some(c=>c.tipo==='bonus')){o.custo=[];o.requisitosUso={...(o.requisitosUso??{}),somenteForaCombate:true};} // ritual de 1 hora
+    if(nome==='sussurros dissonantes'&&o.custo?.some(c=>c.tipo==='reacao'))o.custo=o.custo.map(c=>c.tipo==='reacao'?{tipo:'acao',quantidade:c.quantidade}:c); // #14 é Ação
+    const regra=POR_CIRCULO[nome],espaco=o.custo?.find(c=>/^espaco-\d$/.test(c.id??'')),circulo=espaco?Number(espaco.id.slice(-1)):0,acima=circulo-(o.circuloBase??circulo);
+    if(!regra||acima<=0||o.escalaAplicada===circulo||!o.automacao)continue;
+    if(regra.dano&&o.automacao.dano)o.automacao.dano=o.automacao.dano.replace(/^(\d+)d(\d+)/,(_,n,l)=>Number(l)===regra.dano?(Number(n)+acima)+'d'+l:n+'d'+l);
+    if(regra.alvos)o.selecao={tipo:'alvos',min:1,max:1+regra.alvos*acima,repetirAlvo:false,alcanceM:o.automacao.alcanceM};
+    o.escalaAplicada=circulo;
+  }
 }
 // #16 Zombaria Perversa: Desvantagem na próxima jogada de ataque antes do fim do próximo turno do alvo.
 // #33 Ataque Ameaçador: Amedrontado até o fim do PRÓXIMO turno de quem usou a manobra.
@@ -761,6 +784,13 @@ export function planoCustoOpcao(a,o,modo='automatico'){
   if(modo==='gratuito')return gratis?{custos:gratis,gratuito:true,modo:'gratuito'}:null;
   return gratis&&usoGratuitoDisponivel(a,o)?{custos:gratis,gratuito:true,modo:'gratuito'}:normal;
 }
+// #6 "Em um turno, você pode usar apenas um espaço de magia para conjurar uma magia." Reações no turno de outra criatura contam para aquele turno.
+function registrarEspacoNoTurno(s,a,custos){
+  if(s.fase!=='turnos'||!custos?.some(c=>c.tipo==='recurso'&&/^espaco-\d$/.test(c.id??'')))return;
+  const turno=s.rodada+'-'+s.vez;
+  exigir(a.espacoNoTurno!==turno,'Você já usou um espaço de magia neste turno (só um por turno).');
+  a.espacoNoTurno=turno;
+}
 function custosDisponiveis(a,o,modo='automatico'){
   const plano=planoCustoOpcao(a,o,modo);return Boolean(plano&&plano.custos.every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade));
 }
@@ -1084,7 +1114,7 @@ export async function aplicar(s,c,u,rolar) {
         if(c.opcao){
           const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='ser_atingido');
           const plano=planoCustoOpcao(a,o,'automatico');
-          exigir(o?.automacao?.tipo==='reduzir_dano'&&custosDisponiveis(a,o),'Reação preventiva indisponível.');
+          exigir(o?.automacao?.tipo==='reduzir_dano'&&custosDisponiveis(a,o),'Reação preventiva indisponível.');registrarEspacoNoTurno(s,a,plano.custos);
           for(const custo of plano.custos){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
           reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;nomeReacao=o.nome;
         }
@@ -1101,7 +1131,7 @@ export async function aplicar(s,c,u,rolar) {
         const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho===p.gatilho),rule=o?.automacao;
         const plano=planoCustoOpcao(a,o,'automatico');
         exigir(o&&rule&&a.reacao>0&&custosDisponiveis(a,o),'Reação indisponível.');
-        exigir(distancia(a,alvo)<=Math.min(LIMITE_ALCANCE_M,rule.alcanceM)+1e-8,'O alvo saiu do alcance da reação.');
+        exigir(distancia(a,alvo)<=Math.min(LIMITE_ALCANCE_M,rule.alcanceM)+1e-8,'O alvo saiu do alcance da reação.');registrarEspacoNoTurno(s,a,plano.custos);
         for(const custo of plano.custos){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
         if(rule.tipo==='ataque'){
           const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Reação · '+o.nome,alvo:alvo.nome,cd:defesa,penalidade:restricoesAtivas(alvo).penalidadeAtaquesContra}),face=rr.natural;
@@ -1165,7 +1195,7 @@ export async function aplicar(s,c,u,rolar) {
       const o=opcoesDisponiveis(a).find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
       exigir(s.fase==='turnos'&&a.pv>0&&o,'Reação indisponível.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
-      exigir(plano&&custosDisponiveis(a,o,c.modoCusto??'automatico'),'Saldo insuficiente para reagir.');
+      exigir(plano&&custosDisponiveis(a,o,c.modoCusto??'automatico'),'Saldo insuficiente para reagir.');registrarEspacoNoTurno(s,a,plano.custos);
       for(const v of plano.custos){
         const bag=v.tipo==='recurso'?a.rec:a,key=v.tipo==='recurso'?v.id:v.tipo;
         exigir(bag[key]>=v.quantidade,'Saldo insuficiente para reagir.');bag[key]-=v.quantidade;
@@ -1222,6 +1252,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(rule || (gm && c.assistido),'Opção assistida. O mestre precisa confirmar a resolução.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
+      registrarEspacoNoTurno(s,a,plano.custos);
       for(const custo of plano.custos){
         if(foraCombate&&custo.tipo!=='recurso')continue;
         const bag=custo.tipo==='recurso'?a.rec:a;const key=custo.tipo==='recurso'?custo.id:custo.tipo;

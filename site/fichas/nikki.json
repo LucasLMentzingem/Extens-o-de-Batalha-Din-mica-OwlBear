@@ -31,7 +31,7 @@
     "car": 5
   },
   "pvMaximos": 20,
-  "caBase": 13,
+  "caBase": 12,
   "deslocamentosM": {
     "andar": 9
   },
@@ -634,7 +634,8 @@
         }
       ],
       "circuloBase": 2,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true
     },
     {
       "id": "e1239dce-62e4-53ba-8bfd-970cb4faacb3",
@@ -664,7 +665,8 @@
           "nome": "Emoções acalmadas",
           "turnos": 10
         }
-      }
+      },
+      "concentracao": true
     },
     {
       "id": "58cc56ae-8d2b-5b21-b9e3-89661a708e38",
@@ -683,7 +685,8 @@
         }
       ],
       "circuloBase": 2,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true
     },
     {
       "id": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
@@ -871,7 +874,8 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true
     },
     {
       "id": "1cb80c0f-ca47-5d69-a977-ca7f4b116555",
@@ -1224,7 +1228,7 @@
     },
     {
       "nome": "Combate | 9 m por turno",
-      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA base 13. Armadura Arcana concede +2 nesta ficha, chegando a CA 15, e termina no descanso longo.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
+      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA 12 sem armadura (10 + DES). Armadura Arcana concede +3 nesta ficha, chegando a CA 15, e termina no descanso longo.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
     },
     {
       "nome": "Conjuração | ataque +5 · CD 13",

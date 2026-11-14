@@ -345,15 +345,15 @@ test('salvamento inválido é atômico e não corrompe a ficha carregada',async(
  await assert.rejects(m.go('atualizarFicha',{ator:m.a.id,ficha:ruim,pv:20,rec:m.a.rec},player),/atributos/);assert.deepEqual(m.s,antes);
 });
 
-test('Armadura Arcana usa CA base 13, aplica +2 fora de combate e termina no descanso longo',async()=>{
+test('Armadura Arcana: CA 12 sem armadura (#9), aplica +2 fora de combate e termina no descanso longo',async()=>{
  const m=mesa(),o=m.a.ficha.opcoes.find(o=>o.nome.includes('Armadura Arcana'));
- assert.equal(m.a.ficha.caBase,13);assert.equal(o.automacao.tipo,'efeito');assert.equal(caAtual(m.a),13);
+ assert.equal(m.a.ficha.caBase,12);assert.equal(o.automacao.tipo,'efeito');assert.equal(caAtual(m.a),12);
  await m.go('vincular',{ator:m.a.id,dono:'p'});const espacos=m.a.rec['espaco-1'];
  await m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.a.id},player);
  assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec['espaco-1'],espacos-1);assert.equal(caAtual(m.s.atores[0]),15);
- assert.equal(m.s.atores[0].efeitosAtivos[0].modificadores.ca,2);assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
+ assert.equal(m.s.atores[0].efeitosAtivos[0].modificadores.ca,3);assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
  await m.go('descanso',{periodo:'curto'});assert.equal(caAtual(m.s.atores[0]),15);
- await m.go('descanso',{periodo:'longo'});assert.equal(caAtual(m.s.atores[0]),13);assert.equal(m.s.atores[0].efeitosAtivos.length,0);
+ await m.go('descanso',{periodo:'longo'});assert.equal(caAtual(m.s.atores[0]),12);assert.equal(m.s.atores[0].efeitosAtivos.length,0);
 });
 
 test('Armadura Arcana rejeita alvo com armadura sem gastar o espaço',async()=>{
@@ -661,8 +661,8 @@ test('equipar troca o slot e aplica modificadores dinâmicos de CA, PV e desloca
   {id:'capa-teste',nome:'Capa de teste',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:'capa',equipado:false,modificadores:{ca:1,pvMaximos:3,deslocamentoM:1.5}},
   {id:'capa-antiga',nome:'Capa antiga',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:2,slotEquipamento:'capa',equipado:true,equipadoSlot:'capa',modificadores:{ca:2}}
  );
- assert.equal(caAtual(m.a),15);await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'capa-teste'},player);
- const a=m.s.atores[0];assert.equal(caAtual(a),14);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),pesoAntes+3);
+ assert.equal(caAtual(m.a),14);await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'capa-teste'},player);
+ const a=m.s.atores[0];assert.equal(caAtual(a),13);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),pesoAntes+3);
 });
 test('trocar equipamento ou usar consumível em combate exige o turno e gasta uma ação',async()=>{
  const m=mesa();m.a.ficha.inventario.itens.push({id:'pocao-teste',nome:'Poção',descricao:'',tipo:'consumivel',quantidade:2,pesoKg:.5});
@@ -907,4 +907,34 @@ test('#16 #23 #33 durações: Zombaria vale no ataque do alvo, Caído dura até 
   assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.condicao==='caido'));assert.equal(s.atores[1].metros,metros-metros/2-0.5);
   // Ataque Ameaçador dura 2 fins de turno do Draven
   assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'ataque ameacador').aprimoramento.salva.efeitoFalha),{turnos:2,expira:'fim_origem'});
+});
+
+test('#14 #15 #17 #27 magias: concentração pelo nome, Enfeitiçar sem concentração, Emaranhar contém, Sussurros e Familiar da Skimi',async()=>{
+  const nikki=await fichaRev('nikki'),zurich=await fichaRev('zurich'),skimi=await fichaRev('skimi');
+  const op=(f,trecho)=>f.opcoes.find(o=>o.nome.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(trecho));
+  assert.equal(op(nikki,'sopro de dragao').concentracao,true,'#15 nome diz concentração');
+  assert.equal(op(skimi,'enfeiticar pessoa').concentracao,undefined,'#14 Enfeitiçar Pessoa não é concentração');
+  assert.equal(op(skimi,'enfeiticar pessoa').selecao.max,2,'espaço de 2º do Pacto: +1 alvo');
+  const sussurros=op(skimi,'sussurros dissonantes');assert.ok(sussurros.custo.some(c=>c.tipo==='acao'));assert.equal(sussurros.automacao.dano,'4d6');
+  const familiar=op(skimi,'encontrar familiar');assert.deepEqual(familiar.custo,[]);assert.equal(familiar.requisitosUso.somenteForaCombate,true);
+  const emaranhar=op(zurich,'emaranhar');assert.equal(emaranhar.automacao.efeitoFalha.condicao,'contido');assert.equal(emaranhar.concentracao,true);
+  for(const id of idsJogadores)assert.ok((await fichaRev(id)).opcoes.filter(o=>/^Preparar\b/.test(o.nome)).every(o=>o.custo.some(c=>c.tipo==='acao')),'#27 Preparar usa a Ação');
+  // validar de novo não escala duas vezes
+  assert.equal(op(validar(structuredClone(skimi)),'sussurros dissonantes').automacao.dano,'4d6');
+  // Contido: imóvel, Desvantagem nos ataques e salvas de DES, Vantagem contra
+  let {s,a,b}=await duelo('zurich');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'emaranhar').id,alvo:b.id,x:b.x,y:b.y},player,roladorSala({salva:2}).rolar).catch(()=>s);
+  b.efeitosAtivos=[{id:'c',nome:'Contido por Emaranhar',tipo:'condicao',condicao:'contido',origemAtorId:a.id}];
+  const r=restricoesAtivas(b);assert.equal(r.imovel,true);assert.equal(r.desvantagemAtaques,true);assert.equal(r.vantagemAtaquesContra,true);assert.ok(temCondicao(b,'contido'));
+});
+
+test('#6 só um espaço de magia por turno; truques e o turno seguinte continuam liberados',async()=>{
+  let {s,a,b}=await duelo('nikki');
+  const m1=opcoesDisponiveis(a).find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe),m2=opRev(a,'misseis magicos (2');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,alvos:[b.id,b.id,b.id]},player,roladorSala().rolar);
+  s.atores[0].acao=1;
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar),/um espaço de magia neste turno/);
+  s.rodada=2;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar);
+  assert.equal(s.atores[0].espacoNoTurno,'2-0');
 });

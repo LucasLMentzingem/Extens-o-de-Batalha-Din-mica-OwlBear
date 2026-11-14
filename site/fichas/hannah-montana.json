@@ -311,11 +311,10 @@
       "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
       "custo": [
         {
-          "tipo": "reacao",
+          "tipo": "acao",
           "quantidade": 1
         }
-      ],
-      "concentracao": true
+      ]
     },
     {
       "id": "procurar-acao-10",
@@ -567,7 +566,8 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 1
+      "circuloBase": 1,
+      "concentracao": true
     },
     {
       "id": "1-enfeiticar-pessoa-glamour-sempre-27",
@@ -649,7 +649,8 @@
             "vantagemAtaquesContra": true
           }
         }
-      }
+      },
+      "concentracao": true
     },
     {
       "id": "1-palavra-curativa-30",
