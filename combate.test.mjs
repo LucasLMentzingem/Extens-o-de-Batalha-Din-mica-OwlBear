@@ -1049,3 +1049,14 @@ test('#30 Fonte de Magia: pontos viram espaço (Ação Bônus) e espaço vira po
   // converter não conta como conjurar: ainda pode conjurar com espaço no mesmo turno
   assert.equal(s.atores[0].espacoNoTurno,undefined);
 });
+
+test('#29 Skimi (Humana) tem Inspiração Heroica como recurso e rerrolagem de d20; a Hannah não',async()=>{
+  const skimi=await fichaRev('skimi'),hannah=await fichaRev('hannah-montana');
+  assert.ok(skimi.recursos.some(r=>r.id==='inspiracao-heroica'&&r.maximo===1));
+  assert.equal(skimi.opcoes.find(o=>o.id==='inspiracao-heroica-rerrolagem').gatilho,'apos_rolagem_d20');
+  assert.ok(!hannah.recursos.some(r=>r.id==='inspiracao-heroica'));
+  // Mente Desperta (sem automação) pode ser declarada pelo jogador (#10)
+  let {s,a}=await duelo('skimi');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',assistido:true},player,roladorSala().rolar);
+  assert.equal(s.atores[0].bonus,0);
+});

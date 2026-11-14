@@ -107,6 +107,18 @@
           "modo": "completar"
         }
       ]
+    },
+    {
+      "id": "inspiracao-heroica",
+      "nome": "Inspiração Heroica",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
     }
   ],
   "opcoes": [
@@ -985,6 +997,24 @@
       "automacao": {
         "tipo": "economia",
         "cura": "1d8+2"
+      }
+    },
+    {
+      "id": "inspiracao-heroica-rerrolagem",
+      "nome": "Inspiração Heroica",
+      "categoria": "acao",
+      "descricao": "Depois de ver um d20, gaste a Inspiração Heroica para rerrolá-lo e use o novo resultado.",
+      "gatilho": "apos_rolagem_d20",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "inspiracao-heroica",
+          "quantidade": 1
+        }
+      ],
+      "rerrolagem": {
+        "tipo": "d20",
+        "modo": "todos"
       }
     }
   ],

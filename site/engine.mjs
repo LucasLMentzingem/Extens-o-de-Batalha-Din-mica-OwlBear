@@ -166,6 +166,11 @@ export function atualizarMagias(f){
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
+  // #29 Inspiração Heroica (Humano · Engenhoso): 1 por descanso longo; rerrola um d20 logo depois de ver o resultado.
+  if((f.passivas??[]).some(p=>{const t=textoNormal(JSON.stringify(p));return t.includes('inspiracao heroica')&&/humano|engenhoso/.test(t);})){
+    if(!f.recursos.some(r=>r.id==='inspiracao-heroica'))f.recursos.push({id:'inspiracao-heroica',nome:'Inspiração Heroica',maximo:1,saldoInicial:1,recuperacao:[{evento:'descanso_longo',modo:'completar'}]});
+    if(!f.opcoes.some(o=>o.id==='inspiracao-heroica-rerrolagem'))f.opcoes.push({id:'inspiracao-heroica-rerrolagem',nome:'Inspiração Heroica',categoria:'acao',descricao:'Depois de ver um d20, gaste a Inspiração Heroica para rerrolá-lo e use o novo resultado.',gatilho:'apos_rolagem_d20',custo:[{tipo:'recurso',id:'inspiracao-heroica',quantidade:1}],rerrolagem:{tipo:'d20',modo:'todos'}});
+  }
   // #30 Fonte de Magia (Feiticeiro 2): pontos ⇄ espaços. Criar espaço custa Ação Bônus; converter espaço em pontos não usa ação.
   const feiticeiro=(f.classes??[]).some(c=>/feiticeir/.test(textoNormal(c.id??c.nome??'')))&&f.recursos?.some(r=>r.id==='feiticaria');
   if(feiticeiro)for(const [n,pontos] of [[1,2],[2,3]]){
