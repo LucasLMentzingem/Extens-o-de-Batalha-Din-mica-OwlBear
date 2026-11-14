@@ -85,7 +85,8 @@ test('auditoria de nível 3 preserva progressão, perícias e recursos sem custo
  const draven=porId('draven-thorne');assert.ok(draven.opcoes.filter(o=>o.id!=='surto-de-acao-acao').every(o=>!o.custo?.some(c=>c.id==='surto-de-acao')));
  const hannah=porId('hannah-montana');assert.ok(hannah.opcoes.every(o=>!o.custo?.some(c=>c.id==='magia-fascinante')));
  assert.ok(porId('skimi').opcoes.filter(o=>o.id!=='astucia-magica-acao').every(o=>!o.custo?.some(c=>c.id==='astucia-magica')));
- for(const f of fichasJogadores)assert.ok(f.opcoes.every(o=>!o.custo?.some(c=>c.id==='dados-de-vida')),f.nome+' ainda gasta Dado de Vida em uma ação comum');
+ // "Gastar Dado de Vida" (#25) é a única opção legítima que consome o recurso.
+ for(const f of fichasJogadores)assert.ok(f.opcoes.every(o=>o.id==='gastar-dado-de-vida'||!o.custo?.some(c=>c.id==='dados-de-vida')),f.nome+' ainda gasta Dado de Vida em uma ação comum');
  const dragoberto=porId('dragoberto'),sopros=dragoberto.opcoes.filter(o=>o.id.startsWith('ataque-de-sopro-'));assert.deepEqual(sopros.map(o=>o.automacao.area.forma).sort(),['cone','linha']);assert.ok(sopros.every(o=>o.automacao.dano==='1d10'&&o.automacao.metade&&o.automacao.cd===11));
  assert.deepEqual(dragoberto.opcoes.filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.id),['habilitado-destruidor-de-hordas-18']);
  assert.deepEqual(porId('zurich').opcoes.filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.id),['assassino-de-colossos-18']);
@@ -147,11 +148,11 @@ test('autorização de vínculo, comando do jogador e ação excepcional do mest
 });
 test('Nikki ataca, o soldado responde e o próximo soldado permanece independente',async()=>{
  const m=mesa();await m.iniciar();
- const fogo=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ const fogo=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);m.s.atores[0].x=-3; // à distância, sem inimigo colado (#8)
  await m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,[15,7]);
  assert.equal(m.s.atores[1].pv,17);assert.equal(m.s.atores[2].pv,24);
  await assert.rejects(m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player),/Saldo/);
- await m.go('passar',{ator:m.a.id},player);
+ await m.go('passar',{ator:m.a.id},player);m.s.atores[0].x=0;
  await m.go('usar',{ator:m.b.id,opcao:soldado.opcoes.find(o=>o.automacao?.tipo==='ataque').id,alvo:m.a.id},gm,[12,5]);
  assert.equal(m.s.atores[0].pv,15);
 });
@@ -160,7 +161,7 @@ test('salva por alvo e um dano compartilhado, círculo gasto, resistência e cr�
  await m.go('usar',{ator:m.a.id,opcao:sh.id,ponto:{x:1,y:0}},player,[12,19,1,18]);
  assert.deepEqual(m.s.atores.map(a=>a.pv),[14,12,18]);assert.equal(m.s.atores[0].rec['espaco-2'],1);
  const second=mesa();await second.iniciar();let formulas=[];
- const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ const hit=nikki.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);second.s.atores[0].x=-3;
  await aplicar(second.s,{tipo:'usar',rev:second.s.rev,ator:second.a.id,opcao:hit.id,alvo:second.b.id},player,async f=>{formulas.push(f);return formulas.length===1?20:7;});assert.deepEqual(formulas,['1d20+5','2d10']);
 });
 test('salva de alvo acontece antes do dano, aplica efeito na falha e consome a penalidade futura',async()=>{
@@ -188,9 +189,9 @@ test('mover 3,4 custa cinco metros e não se pode exceder o saldo',async()=>{
  const m=mesa();await m.iniciar();m.s.atores[1].x=20;m.s.atores[2].x=22;await m.go('mover',{ator:m.a.id,x:3,y:4},player);assert.equal(m.s.atores[0].metros,4);
  await assert.rejects(m.go('mover',{ator:m.a.id,x:7,y:8},player),/insuficiente/);
 });
-test('Agarrar, Derrubar e Empurrar são habilidades distintas; Empurrar desloca só na falha',async()=>{
- const nomes=mesa().a.ficha.opcoes.map(o=>o.nome);assert.ok(nomes.includes('Agarrar | ação'));assert.ok(nomes.includes('Derrubar | ação'));assert.ok(nomes.includes('Empurrar | ação'));assert.ok(!nomes.some(n=>n.includes('Agarrar ou empurrar')));
- const antiga=structuredClone(nikki),base='be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe';antiga.opcoes=antiga.opcoes.filter(o=>!o.id.startsWith(base));antiga.opcoes.push({id:base,nome:'Agarrar ou empurrar | ação',categoria:'acao',descricao:'Opção antiga combinada.',custo:[{tipo:'acao',quantidade:1}]});const migrada=validar(antiga);assert.deepEqual(migrada.opcoes.filter(o=>o.id.startsWith(base)).map(o=>o.nome),['Agarrar | ação','Derrubar | ação','Empurrar | ação']);
+test('Imobilizar (antigo Agarrar), Derrubar e Empurrar são habilidades distintas; Empurrar desloca só na falha',async()=>{
+ const nomes=mesa().a.ficha.opcoes.map(o=>o.nome);assert.ok(nomes.includes('Imobilizar | ação'));assert.ok(nomes.includes('Derrubar | ação'));assert.ok(nomes.includes('Empurrar | ação'));assert.ok(!nomes.some(n=>n.includes('Agarrar ou empurrar')));
+ const antiga=structuredClone(nikki),base='be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe';antiga.opcoes=antiga.opcoes.filter(o=>!o.id.startsWith(base));antiga.opcoes.push({id:base,nome:'Agarrar ou empurrar | ação',categoria:'acao',descricao:'Opção antiga combinada.',custo:[{tipo:'acao',quantidade:1}]});const migrada=validar(antiga);assert.deepEqual(migrada.opcoes.filter(o=>o.id.startsWith(base)).map(o=>o.nome),['Imobilizar | ação','Derrubar | ação','Empurrar | ação']);
  const falha=mesa();await falha.iniciar();const empurrar=falha.a.ficha.opcoes.find(o=>o.nome==='Empurrar | ação');
  await falha.go('usar',{ator:falha.a.id,opcao:empurrar.id,alvo:falha.b.id},player,[5]);assert.equal(falha.s.atores[1].x,2.5);assert.equal(falha.s.atores[1].y,0);assert.match(falha.s.historico[0],/empurrado 1.5 m/);
  const sucesso=mesa();await sucesso.iniciar();const outra=sucesso.a.ficha.opcoes.find(o=>o.nome==='Empurrar | ação');await sucesso.go('usar',{ator:sucesso.a.id,opcao:outra.id,alvo:sucesso.b.id},player,[10]);assert.equal(sucesso.s.atores[1].x,1);
@@ -274,7 +275,7 @@ test('Bênção permite menos alvos, recusa repetição e aplica dado nas salvas
 test('rajada com testes de ataque resolve cada projétil e suporta alvos repetidos',async()=>{
  const m=mesa();
  m.a.ficha.opcoes.push({id:'rajada',nome:'Rajada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],selecao:{tipo:'alvos',min:3,max:3,repetirAlvo:true},automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'fogo',alcanceM:18}});
- await m.iniciar();
+ await m.iniciar();m.s.atores[0].x=-3;
  await m.go('usar',{ator:m.a.id,opcao:'rajada',alvos:[m.b.id,m.c.id,m.b.id]},player,[12,1,18,3,4]);
  assert.deepEqual(m.s.atores.map(a=>a.pv),[20,17,24]);
 });
@@ -286,7 +287,7 @@ test('círculo superior requer quatro dardos e gasta o recurso correto',async()=
  assert.equal(m.s.atores[0].rec['espaco-1'],4);assert.equal(m.s.atores[0].rec['espaco-2'],1);
 });
 test('ataque aceita dado extra e modificador antes da rolagem',async()=>{
- const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);m.s.atores[0].x=-3;
  await m.go('usar',{ator:m.a.id,opcao:fogo.id,alvo:m.b.id,dadosAjuste:['1d4'],ajuste:0},player,[10,2,7]);
  assert.equal(m.s.atores[1].pv,17);assert.match(m.s.historico[0],/total 17/);
 });
@@ -344,15 +345,15 @@ test('salvamento inválido é atômico e não corrompe a ficha carregada',async(
  await assert.rejects(m.go('atualizarFicha',{ator:m.a.id,ficha:ruim,pv:20,rec:m.a.rec},player),/atributos/);assert.deepEqual(m.s,antes);
 });
 
-test('Armadura Arcana usa CA base 13, aplica +2 fora de combate e termina no descanso longo',async()=>{
+test('Armadura Arcana: CA 12 sem armadura (#9), aplica +2 fora de combate e termina no descanso longo',async()=>{
  const m=mesa(),o=m.a.ficha.opcoes.find(o=>o.nome.includes('Armadura Arcana'));
- assert.equal(m.a.ficha.caBase,13);assert.equal(o.automacao.tipo,'efeito');assert.equal(caAtual(m.a),13);
+ assert.equal(m.a.ficha.caBase,12);assert.equal(o.automacao.tipo,'efeito');assert.equal(caAtual(m.a),12);
  await m.go('vincular',{ator:m.a.id,dono:'p'});const espacos=m.a.rec['espaco-1'];
  await m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.a.id},player);
  assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec['espaco-1'],espacos-1);assert.equal(caAtual(m.s.atores[0]),15);
- assert.equal(m.s.atores[0].efeitosAtivos[0].modificadores.ca,2);assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
+ assert.equal(m.s.atores[0].efeitosAtivos[0].modificadores.ca,3);assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
  await m.go('descanso',{periodo:'curto'});assert.equal(caAtual(m.s.atores[0]),15);
- await m.go('descanso',{periodo:'longo'});assert.equal(caAtual(m.s.atores[0]),13);assert.equal(m.s.atores[0].efeitosAtivos.length,0);
+ await m.go('descanso',{periodo:'longo'});assert.equal(caAtual(m.s.atores[0]),12);assert.equal(m.s.atores[0].efeitosAtivos.length,0);
 });
 
 test('Armadura Arcana rejeita alvo com armadura sem gastar o espaço',async()=>{
@@ -396,7 +397,7 @@ test('efeitos genéricos somam PV máximo e deslocamento e condições restringe
 });
 
 test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crítico',async()=>{
- const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];m.s.atores[0].x=-3;
  const rolar=async(formula,meta)=>{chamadas.push({formula,meta});return chamadas.length===1?{total:27,natural:20,formula,resumo:'20+7=27'}:{total:14,natural:null,formula,resumo:'14'};};
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id,modo:'vantagem',ajuste:2,dadosAjuste:['1d4']},player,rolar);
  assert.equal(chamadas.length,2);assert.equal(chamadas[0].formula,'2d20kh1+7+1d4');assert.equal(chamadas[0].meta.cd,16);
@@ -404,7 +405,7 @@ test('rolagem composta envia um comando ao Dice+ e pré-configura o dano crític
 });
 
 test('ataque que falha também confirma o custo da ação',async()=>{
- const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];
+ const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao),chamadas=[];m.s.atores[0].x=-3;
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:fogo.id,alvo:m.b.id},player,async(formula,meta)=>{chamadas.push({formula,meta});return {total:9,natural:4,formula,resumo:'4+5=9'};});
  assert.equal(chamadas.length,1);assert.equal(s.atores[0].acao,0);assert.equal(s.atores[1].pv,24);assert.match(s.historico[0],/errou/);
 });
@@ -543,7 +544,7 @@ test('sequência resolve armas diferentes contra dois alvos pagando uma única a
 test('segundo alvo condicionado precisa ser diferente e próximo do primeiro',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'horda',nome:'Destruidor de Hordas',categoria:'acao',requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'horda',alvoDiferenteDoAnterior:true,distanciaDoAlvoAnteriorM:1.5},automacao:{tipo:'ataque',bonus:4,dano:'1d6',elemento:'perfurante',alcanceM:18}});
  await m.iniciar();const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
- await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=2.4;
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=1;m.s.atores[2].y=1; // mesma arma (adaga, corpo a corpo): o segundo alvo precisa estar ao alcance (#32)
  await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,4]);assert.equal(m.s.atores[2].pv,20);
 });
 test('reação genérica ao sofrer dano pausa a mesa, usa o controlador correto e retoma depois',async()=>{
@@ -660,8 +661,8 @@ test('equipar troca o slot e aplica modificadores dinâmicos de CA, PV e desloca
   {id:'capa-teste',nome:'Capa de teste',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:'capa',equipado:false,modificadores:{ca:1,pvMaximos:3,deslocamentoM:1.5}},
   {id:'capa-antiga',nome:'Capa antiga',descricao:'',tipo:'equipamento',quantidade:1,pesoKg:2,slotEquipamento:'capa',equipado:true,equipadoSlot:'capa',modificadores:{ca:2}}
  );
- assert.equal(caAtual(m.a),15);await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'capa-teste'},player);
- const a=m.s.atores[0];assert.equal(caAtual(a),14);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),pesoAntes+3);
+ assert.equal(caAtual(m.a),14);await m.go('inventario',{ator:m.a.id,operacao:'equipar',itemId:'capa-teste'},player);
+ const a=m.s.atores[0];assert.equal(caAtual(a),13);assert.equal(pvMaximosAtuais(a),23);assert.equal(deslocamentoMaximo(a),10.5);assert.equal(a.ficha.inventario.itens.find(i=>i.id==='capa-antiga').equipado,false);assert.equal(pesoInventario(a),pesoAntes+3);
 });
 test('trocar equipamento ou usar consumível em combate exige o turno e gasta uma ação',async()=>{
  const m=mesa();m.a.ficha.inventario.itens.push({id:'pocao-teste',nome:'Poção',descricao:'',tipo:'consumivel',quantidade:2,pesoKg:.5});
@@ -780,4 +781,385 @@ test('imunidade, limiar e excesso produzem relatório aplicável idêntico ao PV
 test('defesas podem vir da ficha, passiva, item equipado e buff',()=>{
  const ator={id:'a',ficha:{id:'f',resistencias:['fogo'],passivas:[{id:'p',ativa:true,defesasDano:[{id:'psi',nome:'Mente',operacao:'resistencia',filtro:{tipos:['psiquico']}}]}],inventario:{itens:[{id:'capa',equipado:true,defesasDano:[{id:'frio',nome:'Capa',operacao:'resistencia',filtro:{tipos:['frio']}}]}]}},efeitosAtivos:[{id:'buff',defesasDano:[{id:'raio',nome:'Proteção',operacao:'imunidade',filtro:{tipos:['raio']}}]}]};
  assert.deepEqual(new Set(defesasDanoDoAtor(ator).map(x=>x.id)),new Set(['resistencia-fogo-0','psi','frio','raio']));
+});
+
+// ===== Revisão de regras (PR correcoes-revisao-regras) =====
+// Rolador que imita a sala: calcula relatoriosDano como o bridge e anexa em cada resultado.
+const {relatoriosDaRolagem}=await import('./site/damage.mjs');
+const fichaRev=async n=>JSON.parse(await readFile(new URL('./site/fichas/'+n+'.json',import.meta.url),'utf8'));
+function roladorSala({d20=15,dano=6,salva=null}={}){
+  const formulas=[];
+  const rolar=async(formula,meta={})=>{
+    const um=f=>{formulas.push({f,meta});if(/d20/.test(f)){const nat=meta.tipo==='salvaguarda'&&salva!==null?salva:d20;return {total:nat+4,natural:nat,formula:f};}return {total:dano,natural:null,formula:f};};
+    const r=Array.isArray(formula)?{resultados:formula.map(um)}:um(formula);
+    const rel=relatoriosDaRolagem(r,{...meta,adicionais:(meta.adicionais??[]).filter(x=>x.automatico)});
+    if(rel.length){r.relatoriosDano=rel;if(r.resultados)r.resultados=r.resultados.map((x,i)=>({...x,relatorioDano:rel[i]}));}
+    r.recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id);
+    return r;
+  };
+  return {rolar,formulas};
+}
+async function duelo(fichaA,fichaB='soldado',{distancia=1.5}={}){
+  let s=novo();const a=adicionar(s,await fichaRev(fichaA)),b=adicionar(s,await fichaRev(fichaB));
+  a.dono='p';a.x=0;a.y=0;b.x=distancia;b.y=0;s.fase='turnos';s.rodada=1;s.vez=0;s.ordem=[a.id,b.id];
+  for(const x of s.atores){x.init=10;x.acao=1;x.bonus=1;x.reacao=1;x.metros=9;}
+  return {s,a,b};
+}
+const opRev=(a,trecho)=>opcoesDisponiveis(a).find(o=>o.nome.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(trecho));
+
+test('#35 vários acertos no mesmo alvo somam o dano (Mísseis Mágicos e Torrente de Golpes)',async()=>{
+  for(const [ficha,trecho,n] of [['nikki','misseis magicos',3],['loteria','torrente',2]]){
+    let {s,a,b}=await duelo(ficha);const pv=b.pv;
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,trecho).id,alvos:Array(n).fill(b.id)},player,roladorSala({d20:16,dano:6}).rolar);
+    assert.equal(s.atores[1].pv,pv-6*n,trecho);
+  }
+});
+
+test('#25 descanso longo recupera o que é de descanso curto; Dados de Vida e Recuperar Fôlego seguem 2024',async()=>{
+  let s=novo();const sk=adicionar(s,await fichaRev('skimi')),dr=adicionar(s,await fichaRev('draven-thorne')),lo=adicionar(s,await fichaRev('loteria'));
+  sk.rec['espaco-2']=0;dr.rec['dados-de-superioridade']=0;dr.rec['surto-de-acao']=0;dr.rec['recuperar-folego']=0;lo.rec['pontos-de-foco']=0;
+  for(const a of [sk,dr,lo])a.rec['dados-de-vida']=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'descanso',periodo:'curto'},gm,()=>0);
+  let [a,b,c]=s.atores;
+  assert.equal(a.rec['espaco-2'],2);assert.equal(b.rec['recuperar-folego'],1,'curto devolve 1 uso');assert.equal(a.rec['dados-de-vida'],0,'Dados de Vida não voltam no curto');
+  s=await aplicar(s,{rev:s.rev,tipo:'descanso',periodo:'longo'},gm,()=>0);[a,b,c]=s.atores;
+  assert.equal(a.rec['espaco-2'],2);assert.equal(b.rec['dados-de-superioridade'],4);assert.equal(b.rec['surto-de-acao'],1);assert.equal(b.rec['recuperar-folego'],2);assert.equal(c.rec['pontos-de-foco'],3);
+  assert.equal(a.rec['dados-de-vida'],3,'Dados de Vida voltam no longo');
+});
+test('#25 gastar Dado de Vida fora de combate cura dado + CON',async()=>{
+  let s=novo();const a=adicionar(s,await fichaRev('draven-thorne'));a.dono='p';a.pv=10;
+  const o=opRev(a,'gastar dado de vida');assert.equal(o.automacao.cura,'1d10+2');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id},player,async()=>7);
+  assert.equal(s.atores[0].pv,17);assert.equal(s.atores[0].rec['dados-de-vida'],2);
+});
+
+test('#26 teste de perícia recebe Orientação e Ponto de Sorte do personagem',async()=>{
+  let s=novo();const z=adicionar(s,await fichaRev('zurich')),k=adicionar(s,await fichaRev('skimi'));
+  z.dono='p';k.dono='p';z.x=0;k.x=1.5;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:z.id,opcao:opRev(z,'orientacao').id,alvo:k.id},player,async()=>10);
+  let meta=null;
+  await aplicar(s,{rev:s.rev,tipo:'teste',ator:k.id,grupo:'pericias',chave:'Enganação'},player,async(f,m={})=>{meta=m;return {total:12,natural:8,formula:f};});
+  assert.ok(meta.adicionais.some(x=>x.nome==='Orientação'),'Orientação aparece no teste de perícia');
+  assert.ok(meta.rerrolagens.some(x=>/Sorte/.test(x.nome)),'Ponto de Sorte aparece no teste de perícia');
+});
+
+test('#3 crítico dobra todos os dados de dano (Espada Grande 2d6+3 vira 4d6+3)',async()=>{
+  let {s,a,b}=await duelo('draven-thorne');const r=roladorSala({d20:20,dano:8});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,r.rolar);
+  assert.ok(r.formulas.some(x=>x.meta.tipo==='dano'&&/^4d6\+3/.test(x.f)),'fórmula do crítico: '+r.formulas.map(x=>x.f).join(' | '));
+});
+
+test('#22 Ataque de Sopro não atinge o próprio Dragoberto e o arco soma Arquearia',async()=>{
+  for(const forma of ['cone','linha']){
+    let {s,a,b}=await duelo('dragoberto');const pv=a.pv;
+    const o=opcoesDisponiveis(a).find(x=>x.automacao?.area?.forma===forma);
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id,ponto:{x:2.5,y:0}},player,roladorSala({salva:2,dano:8}).rolar);
+    assert.equal(s.atores[0].pv,pv,forma+' não fere quem sopra');assert.ok(s.atores[1].pv<b.pv,forma+' fere o alvo');
+  }
+  const {a}=await duelo('dragoberto');assert.equal(opRev(a,'arco longo').automacao.bonus,7);
+});
+
+test('#7 CD de Agarrar/Derrubar/Empurrar vem da ficha (Monge pode usar DES)',async()=>{
+  const esperado={skimi:9,'hannah-montana':9,nikki:10,dragoberto:10,zurich:11,'draven-thorne':13,loteria:13};
+  for(const [n,cd] of Object.entries(esperado)){const {a}=await duelo(n);for(const t of ['imobilizar','derrubar','empurrar'])assert.equal(opRev(a,t).automacao.cd,cd,n+' '+t);}
+});
+
+test('#19/#20 ataque extra Leve exige ataque antes; com Ágil não gasta Ação Bônus',async()=>{
+  // Hannah: adaga da mão fraca só depois de atacar com arma Leve
+  let {s,a,b}=await duelo('hannah-montana');
+  const extra=opcoesDisponiveis(a).find(o=>o.requisitosUso?.aposAtaque&&!o.automacao.arremesso);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:extra.id,alvo:b.id},player,roladorSala().rolar),/depois de realizar um ataque/);
+  // Zurich: Cimitarra (Ágil) + Espada Curta + Marca do Predador no mesmo turno
+  ({s,a,b}=await duelo('zurich'));
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'marca do predador').id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
+  const curta=opRev(s.atores[0],'espada curta');assert.deepEqual(curta.custo,[]);assert.match(curta.nome,/Ágil/);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:curta.id,alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[0].bonus,0,'só a Marca gastou a Ação Bônus');assert.equal(s.atores[0].acao,0);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:curta.id,alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno/);
+});
+test('#34 Loteria tem Golpe Desarmado com a Ação e o soco bônus exige ataque antes',async()=>{
+  let {s,a,b}=await duelo('loteria');
+  const bonus=opcoesDisponiveis(a).find(o=>/^Soco \+/.test(o.nome)),acao=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+  assert.ok(acao,'existe o soco com a Ação');
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar),/depois de realizar um ataque/);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:acao.id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,0);
+});
+
+test('#16 #23 #33 durações: Zombaria vale no ataque do alvo, Caído dura até levantar, Ameaçador até o próximo turno',async()=>{
+  // Zombaria: Hannah → soldado; no turno do soldado o ataque sai com Desvantagem e o efeito é consumido
+  let {s,a,b}=await duelo('hannah-montana');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'zombaria').id,alvo:b.id},player,roladorSala({salva:2}).rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.ok(s.atores[1].efeitosAtivos.some(e=>e.nome==='Zombado'),'Zombado ainda vale no turno do soldado');
+  const r=roladorSala({d20:15});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:opcoesDisponiveis(s.atores[1]).find(o=>o.automacao?.tipo==='ataque').id,alvo:a.id},gm,r.rolar);
+  assert.match(r.formulas.find(x=>x.meta.tipo==='ataque').f,/^2d20kl1/);assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.nome==='Zombado'),'consumido no ataque');
+  // Caído: continua no turno do alvo; levantar custa metade do deslocamento
+  ({s,a,b}=await duelo('draven-thorne'));
+  b.efeitosAtivos=[{id:'x',nome:'Caído',tipo:'condicao',condicao:'caido',origemAtorId:a.id,duracao:{restante:1,expira:'fim_origem'}}];
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.ok(s.atores[1].efeitosAtivos.some(e=>e.condicao==='caido'),'Caído continua no turno do alvo');
+  const metros=s.atores[1].metros;
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:b.id,x:1,y:0},gm,()=>0); // fica no alcance do Draven (sem oportunidade)
+  assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.condicao==='caido'));assert.equal(s.atores[1].metros,metros-metros/2-0.5);
+  // Ataque Ameaçador dura 2 fins de turno do Draven
+  assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'ataque ameacador').aprimoramento.salva.efeitoFalha),{turnos:2,expira:'fim_origem'});
+});
+
+test('#14 #15 #17 #27 magias: concentração pelo nome, Enfeitiçar sem concentração, Emaranhar contém, Sussurros e Familiar da Skimi',async()=>{
+  const nikki=await fichaRev('nikki'),zurich=await fichaRev('zurich'),skimi=await fichaRev('skimi');
+  const op=(f,trecho)=>f.opcoes.find(o=>o.nome.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(trecho));
+  assert.equal(op(nikki,'sopro de dragao').concentracao,true,'#15 nome diz concentração');
+  assert.equal(op(skimi,'enfeiticar pessoa').concentracao,undefined,'#14 Enfeitiçar Pessoa não é concentração');
+  assert.equal(op(skimi,'enfeiticar pessoa').selecao.max,2,'espaço de 2º do Pacto: +1 alvo');
+  const sussurros=op(skimi,'sussurros dissonantes');assert.ok(sussurros.custo.some(c=>c.tipo==='acao'));assert.equal(sussurros.automacao.dano,'4d6');
+  const familiar=op(skimi,'encontrar familiar');assert.deepEqual(familiar.custo,[]);assert.equal(familiar.requisitosUso.somenteForaCombate,true);
+  const emaranhar=op(zurich,'emaranhar');assert.equal(emaranhar.automacao.efeitoFalha.condicao,'contido');assert.equal(emaranhar.concentracao,true);
+  for(const id of idsJogadores)assert.ok((await fichaRev(id)).opcoes.filter(o=>/^Preparar\b/.test(o.nome)).every(o=>o.custo.some(c=>c.tipo==='acao')),'#27 Preparar usa a Ação');
+  // validar de novo não escala duas vezes
+  assert.equal(op(validar(structuredClone(skimi)),'sussurros dissonantes').automacao.dano,'4d6');
+  // Contido: imóvel, Desvantagem nos ataques e salvas de DES, Vantagem contra
+  let {s,a,b}=await duelo('zurich');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'emaranhar').id,alvo:b.id,x:b.x,y:b.y},player,roladorSala({salva:2}).rolar).catch(()=>s);
+  b.efeitosAtivos=[{id:'c',nome:'Contido por Emaranhar',tipo:'condicao',condicao:'contido',origemAtorId:a.id}];
+  const r=restricoesAtivas(b);assert.equal(r.imovel,true);assert.equal(r.desvantagemAtaques,true);assert.equal(r.vantagemAtaquesContra,true);assert.ok(temCondicao(b,'contido'));
+});
+
+test('#6 só um espaço de magia por turno; truques e o turno seguinte continuam liberados',async()=>{
+  let {s,a,b}=await duelo('nikki');
+  const m1=opcoesDisponiveis(a).find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe),m2=opRev(a,'misseis magicos (2');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,alvos:[b.id,b.id,b.id]},player,roladorSala().rolar);
+  s.atores[0].acao=1;
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar),/um espaço de magia neste turno/);
+  s.rodada=2;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar);
+  assert.equal(s.atores[0].espacoNoTurno,'2-0');
+});
+
+test('#8 ataque à distância com inimigo a 1,5 m tem Desvantagem; corpo a corpo e inimigo incapacitado não',async()=>{
+  let {s,a,b}=await duelo('zurich');const r=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,r.rolar);
+  assert.match(r.formulas.find(x=>x.meta.tipo==='ataque').f,/^2d20kl1/);
+  ({s,a,b}=await duelo('zurich',undefined,{distancia:6}));const r2=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,r2.rolar);
+  assert.match(r2.formulas.find(x=>x.meta.tipo==='ataque').f,/^1d20/);
+  ({s,a,b}=await duelo('zurich'));b.efeitosAtivos=[{id:'x',nome:'Atordoado',tipo:'condicao',condicao:'atordoado'}];const r3=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,r3.rolar);
+  assert.doesNotMatch(r3.formulas.find(x=>x.meta.tipo==='ataque').f,/kl1/);
+  ({s,a,b}=await duelo('zurich'));const r4=roladorSala();
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,r4.rolar);
+  assert.match(r4.formulas.find(x=>x.meta.tipo==='ataque').f,/^1d20/);
+});
+
+test('#10 jogador declara opção sem automação; #11 monstro a 0 PV é pulado na iniciativa',async()=>{
+  let {s,a,b}=await duelo('skimi');
+  const assistida=a.ficha.opcoes.find(o=>!o.automacao&&o.custo?.length===1&&o.custo[0].tipo==='bonus');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:assistida.id,assistido:true},player,roladorSala().rolar);
+  assert.equal(s.atores[0].bonus,0);assert.match(s.historico.at(-1)??s.historico[0],/declarado/);
+  ({s,a,b}=await duelo('draven-thorne'));
+  const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=6;c.init=5;s.ordem=[a.id,b.id,c.id];b.pv=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.equal(atual(s).id,c.id,'pulou o soldado a 0 PV');
+});
+
+test('#14 #15 #16 #17 Toque Chocante, Fogo das Fadas, Invisibilidade, Orientação e Golpe Certeiro',async()=>{
+  // Toque Chocante: o alvo atingido fica sem reação
+  let {s,a,b}=await duelo('nikki');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'toque chocante').id,alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[1].reacao,0);assert.ok(s.atores[1].efeitosAtivos.some(e=>/Toque Chocante/.test(e.nome)));
+  // Fogo das Fadas: Invisível não dá vantagem nem desvantagem contra
+  b=s.atores[1];b.efeitosAtivos=[{id:'i',nome:'Invisível',condicao:'invisivel'},{id:'f',nome:'Iluminado',restricoes:{vantagemAtaquesContra:true,anulaInvisivel:true}}];
+  const r=restricoesAtivas(b);assert.ok(!r.vantagemAtaques&&!r.desvantagemAtaquesContra&&r.vantagemAtaquesContra);
+  assert.equal(opRev((await duelo('hannah-montana')).a,'fogo das fadas').automacao.efeitoFalha.restricoes.anulaInvisivel,true);
+  // Invisibilidade termina ao atacar
+  ({s,a,b}=await duelo('skimi',undefined,{distancia:6}));
+  a.efeitosAtivos=[{id:'inv',nome:'Invisível',condicao:'invisivel',encerraAoAgir:true}];
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'rajada mistica').id,alvo:b.id},player,roladorSala().rolar).catch(async()=>aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'rajada mistica').id,alvos:[b.id]},player,roladorSala().rolar));
+  assert.ok(!s.atores[0].efeitosAtivos.some(e=>e.condicao==='invisivel'));
+  assert.equal(opRev((await duelo('skimi')).a,'invisibilidade').automacao.efeito.encerraAoAgir,true);
+  // Orientação dura (não some no primeiro teste) e Golpe Certeiro sem Arquearia
+  assert.equal(opRev((await duelo('zurich')).a,'orientacao').automacao.modificador.removeAoUsar,false);
+  const golpe=opRev((await duelo('dragoberto')).a,'golpe certeiro');assert.equal(golpe.automacao.bonus,4);
+  assert.equal(validar(structuredClone(await fichaRev('dragoberto'))).opcoes.find(o=>o.id===golpe.id).automacao.bonus,4,'não desconta duas vezes');
+});
+
+test('#28 Lentidão, Garantido e Ancestralidade Feérica',async()=>{
+  // Lentidão: arco longo do Zurich tira 3 m do alvo no turno dele
+  let {s,a,b}=await duelo('zurich',undefined,{distancia:6});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,roladorSala().rolar);
+  const desl=deslocamentoMaximo(s.atores[1]);assert.ok(s.atores[1].efeitosAtivos.some(e=>e.nome==='Lentidão'));
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.equal(s.atores[1].metros,desl);assert.equal(desl,deslocamentoMaximo({ficha:s.atores[1].ficha,efeitosAtivos:[]})-3);
+  // Garantido: Espada Grande do Draven erra e ainda causa o modificador de FOR
+  ({s,a,b}=await duelo('draven-thorne'));const pv=b.pv,espada=opRev(a,'espada grande');assert.ok(espada.automacao.danoAoErrar>0);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:espada.id,alvo:b.id},player,roladorSala({d20:2}).rolar);
+  assert.equal(s.atores[1].pv,pv-espada.automacao.danoAoErrar);
+  // Ancestralidade Feérica: Hannah tem Vantagem contra Enfeitiçar Pessoa
+  ({s,a,b}=await duelo('skimi','hannah-montana'));
+  assert.deepEqual(b.ficha.vantagemSalvasContra,['enfeiticado']);
+  const r=roladorSala({salva:18});
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'enfeiticar pessoa').id,alvos:[b.id]},player,r.rolar).catch(e=>aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'enfeiticar pessoa').id,alvo:b.id},player,r.rolar));
+  assert.match(r.formulas.find(x=>x.meta.tipo==='salvaguarda').f,/^2d20kh1/);
+});
+
+test('#31 Inspiração de Bardo só em outra criatura; #21 Torrente de Golpes é desarmada e contundente',async()=>{
+  let {s,a,b}=await duelo('hannah-montana');
+  const insp=opRev(a,'inspiracao de bardo');
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:insp.id,alvo:a.id},player,roladorSala().rolar),/não pode ser você/);
+  const tor=opRev((await duelo('loteria')).a,'torrente');
+  assert.ok(tor.automacao.ataques.every(r=>r.tags.includes('desarmado')&&r.elemento==='contundente'));
+});
+
+test('#27 #34 sobras escondidas, Defletir só C/C/P, Vigor Implacável e Metabolismo na iniciativa',async()=>{
+  for(const id of idsJogadores){const {a}=await duelo(id);assert.ok(!opcoesDisponiveis(a).some(o=>/^(Perícia \||Nota de importação$|Concentração e turno$)/.test(o.nome)),id);}
+  let {s,a,b}=await duelo('loteria');
+  assert.deepEqual(opRev(a,'defletir').automacao.elementos,['contundente','cortante','perfurante']);
+  // Vigor Implacável: cai a 1 PV uma vez
+  a.pv=3;a.rec['vigor-implacavel']=1;s.vez=1;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:opcoesDisponiveis(b).find(o=>o.automacao?.tipo==='ataque').id,alvo:a.id},gm,roladorSala({dano:10}).rolar);
+  if(s.reacaoPendente)s=await aplicar(s,{rev:s.rev,tipo:'resolverReacao',ator:a.id},player,roladorSala({dano:10}).rolar).catch(()=>s);
+  assert.equal(s.atores[0].pv,1);assert.equal(s.atores[0].rec['vigor-implacavel'],0);
+  // Metabolismo: só antes do primeiro turno terminar
+  ({s,a,b}=await duelo('loteria'));a.jaAgiuNoCombate=true;
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'metabolismo').id},player,roladorSala().rolar),/Iniciativa/);
+});
+
+test('#18 Imobilizar Pessoa e Riso Histérico repetem a salvaguarda no fim do turno do alvo',async()=>{
+  let {s,a,b}=await duelo('skimi');
+  const imob=opRev(a,'imobilizar pessoa'),riso=opRev(a,'riso histerico');
+  assert.equal(imob.automacao.efeitoFalha.salvaRepetida.atributo,'sab');assert.ok(riso.automacao.efeitoFalha.salvaRepetida);
+  assert.ok(riso.selecao?.max>=2,'Riso no 2º círculo: 2 alvos');
+  b.efeitosAtivos=[{id:'x',nome:'Rindo no chão',tipo:'condicao',restricoes:{caido:true},duracao:{restante:10,expira:'inicio_alvo'},salvaRepetida:{atributo:'sab',cd:13}}];
+  s.vez=1;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala({d20:5}).rolar);
+  assert.ok(s.atores[1].efeitosAtivos.some(e=>e.id==='x'),'falhou: continua');
+  s.vez=1;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala({d20:15}).rolar);
+  assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.id==='x'),'passou: termina');
+});
+
+test('#30 Fonte de Magia: pontos viram espaço (Ação Bônus) e espaço vira pontos (sem ação)',async()=>{
+  let {s,a}=await duelo('nikki');
+  a.rec['espaco-1']=0;const pontos=a.rec.feiticaria;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'fonte-criar-espaco-1'},player,roladorSala().rolar);
+  assert.equal(s.atores[0].rec['espaco-1'],1);assert.equal(s.atores[0].rec.feiticaria,pontos-2);assert.equal(s.atores[0].bonus,0);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'fonte-espaco-em-pontos-1'},player,roladorSala().rolar);
+  assert.equal(s.atores[0].rec['espaco-1'],0);assert.equal(s.atores[0].rec.feiticaria,pontos-1);
+  // converter não conta como conjurar: ainda pode conjurar com espaço no mesmo turno
+  assert.equal(s.atores[0].espacoNoTurno,undefined);
+});
+
+test('#29 Skimi (Humana) tem Inspiração Heroica como recurso e rerrolagem de d20; a Hannah não',async()=>{
+  const skimi=await fichaRev('skimi'),hannah=await fichaRev('hannah-montana');
+  assert.ok(skimi.recursos.some(r=>r.id==='inspiracao-heroica'&&r.maximo===1));
+  assert.equal(skimi.opcoes.find(o=>o.id==='inspiracao-heroica-rerrolagem').gatilho,'apos_rolagem_d20');
+  assert.ok(!hannah.recursos.some(r=>r.id==='inspiracao-heroica'));
+  // Mente Desperta (sem automação) pode ser declarada pelo jogador (#10)
+  let {s,a}=await duelo('skimi');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',assistido:true},player,roladorSala().rolar);
+  assert.equal(s.atores[0].bonus,0);
+});
+
+test('#13 nomes do livro de 2024 e Talho Mental dura até o fim do próximo turno do conjurador',async()=>{
+  const {a}=await duelo('nikki'),nomes=opcoesDisponiveis(a).map(o=>o.nome);
+  for(const n of ['Correr | ação','Analisar | ação','Usar Objeto | ação','Esconder | ação','Imobilizar | ação'])assert.ok(nomes.includes(n),n);
+  assert.ok(!nomes.some(n=>/^(Disparada|Estudar|Utilizar|Esconder-se|Agarrar) \|/.test(n)));
+  assert.ok(a.ficha.pericias['Lidar com Animais']!==undefined&&a.ficha.pericias['Adestrar Animais']===undefined);
+  assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'talho mental').automacao.efeitoFalha),{turnos:2,expira:'fim_origem'});
+});
+
+test('#15 Explosão Elemental tem um botão por tipo de dano; #14 Riso repete a salvaguarda ao sofrer dano com Vantagem',async()=>{
+  const nikki=await fichaRev('nikki'),tipos=nikki.opcoes.filter(o=>/Explosão Elemental/.test(o.nome)).map(o=>o.automacao.elemento).sort();
+  assert.deepEqual(tipos,['acido','fogo','frio','psiquico','raio','trovejante','veneno']);
+  assert.equal(validar(structuredClone(nikki)).opcoes.filter(o=>/Explosão Elemental/.test(o.nome)).length,7,'não duplica');
+  let {s,a,b}=await duelo('draven-thorne');
+  assert.equal(opRev((await duelo('skimi')).a,'riso histerico').automacao.efeitoFalha.salvaRepetida.aoSofrerDano,true);
+  b.efeitosAtivos=[{id:'x',nome:'Rindo no chão',tipo:'condicao',restricoes:{caido:true},salvaRepetida:{atributo:'sab',cd:13,aoSofrerDano:true}}];
+  const r=roladorSala({d20:15,salva:15});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,r.rolar);
+  assert.match(r.formulas.find(x=>x.meta.tipo==='salvaguarda').f,/^2d20kh1/);assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.id==='x'));
+});
+
+test('#32 Saraivada de Espinhos, Golpe Constritor e Destruidor de Hordas',async()=>{
+  // Saraivada: só depois de acertar com arma à distância; salvaguarda de DES em área de 1,5 m
+  let {s,a,b}=await duelo('zurich',undefined,{distancia:6});const sar=opRev(a,'saraivada');
+  assert.equal(sar.automacao.atributo,'des');assert.equal(sar.automacao.raioM,1.5);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:sar.id,ponto:{x:b.x,y:b.y}},player,roladorSala().rolar),/depois de acertar/);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,roladorSala().rolar);
+  const pv=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:sar.id,ponto:{x:b.x,y:b.y}},player,roladorSala({salva:2}).rolar);
+  assert.equal(s.atores[1].pv,pv-6);
+  // Golpe Constritor: Contido e 1d6 no início do turno do alvo
+  ({s,a,b}=await duelo('dragoberto'));const gc=opRev(a,'golpe constritor');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:gc.id,alvo:b.id},player,roladorSala({salva:2}).rolar);
+  assert.ok(temCondicao(s.atores[1],'contido'));const pv2=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala({dano:4}).rolar);
+  assert.equal(s.atores[1].pv,pv2-4);
+  // Destruidor de Hordas: usa a cimitarra (+5, 1d6+3) depois de atacar com a cimitarra
+  ({s,a,b}=await duelo('dragoberto'));const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=1;c.y=1;s.ordem.push(c.id);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
+  const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'destruidor').id,alvo:c.id},player,r.rolar);
+  assert.equal(r.formulas.find(x=>x.meta.tipo==='ataque').f,'1d20'+opRev(a,'cimitarra').automacao.bonus.toLocaleString('en',{signDisplay:'always'}));
+});
+
+test('#21 #34 Mão de Dolo e Mão de Cura na Torrente, Defletir redireciona e Valentão empurra',async()=>{
+  let {s,a,b}=await duelo('loteria');
+  // Torrente + Mão de Dolo no alvo atingido + Mão de Cura sem Foco
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'torrente').id,alvos:[b.id,b.id]},player,roladorSala().rolar);
+  const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-dolo-torrente',alvo:b.id},player,roladorSala({dano:5}).rolar);
+  assert.equal(s.atores[1].pv,pv-5);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1);
+  s.atores[0].pv=5;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-cura-torrente',alvo:a.id},player,roladorSala({dano:4}).rolar);
+  assert.equal(s.atores[0].pv,9);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1,'sem gastar Foco');
+  // Valentão de Taverna: empurrão opcional depois do golpe desarmado
+  ({s,a,b}=await duelo('loteria'));
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'valentao-empurrar',alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[1].x,3);
+  // Defletir: dados de redirecionamento lidos da ficha
+  assert.deepEqual(opRev(a,'defletir').automacao.redirecionar,{recurso:'pontos-de-foco',cd:11,dano:'2d6+3'});
+});
+
+test('#30 Magia Potencializada aparece na rolagem de dano de magia (não na de arma) e cobra 1 ponto',async()=>{
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});
+  const pot=a.ficha.opcoes.find(o=>/^Magia Potencializada/.test(o.nome));assert.equal(pot.gatilho,'apos_rolagem_dano');
+  const pontos=a.rec.feiticaria,formulas=[];
+  const rolar=async(f,meta={})=>{formulas.push(meta);if(/d20/.test(f))return {total:5,natural:3,formula:f};return {total:8,natural:null,formula:f,rerrolagensUsadas:meta.rerrolagens?.some(x=>x.id===pot.id)?[pot.id]:[]};};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'despedacar').id,ponto:{x:b.x,y:b.y}},player,rolar);
+  assert.ok(formulas.find(m=>m.tipo==='dano').rerrolagens.some(x=>x.id===pot.id));assert.equal(s.atores[0].rec.feiticaria,pontos-1);
+  ({s,a,b}=await duelo('nikki'));const r=roladorSala();const meta=[];
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'adaga').id,alvo:b.id},player,async(f,m)=>{meta.push(m);return r.rolar(f,m);});
+  assert.ok(!(meta.find(m=>m.tipo==='dano')?.rerrolagens??[]).some(x=>x.id===pot.id),'não vale para arma');
+});
+
+test('#12 reforço entra no meio do combate, PJ caído pode começar, descanso individual e mestre reordena empates',async()=>{
+  let {s,a,b}=await duelo('draven-thorne');
+  s=await aplicar(s,{rev:s.rev,tipo:'adicionar',ficha:await fichaRev('soldado'),nome:'Reforço'},gm,roladorSala({d20:15}).rolar);
+  const reforco=s.atores.find(x=>x.nome==='Reforço');assert.ok(s.ordem.includes(reforco.id));assert.equal(atual(s).id,a.id,'a vez não muda');
+  s=await aplicar(s,{rev:s.rev,tipo:'ordenarIniciativa',ordem:[...s.ordem].reverse()},gm,()=>0);
+  assert.equal(atual(s).id,a.id);assert.equal(s.ordem.at(-1),a.id===s.ordem.at(-1)?a.id:s.ordem.at(-1));
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'ordenarIniciativa',ordem:[a.id]},gm,()=>0),/todos os participantes/);
+  // PJ a 0 PV pode estar no início do combate
+  let t=novo();const pj=adicionar(t,await fichaRev('nikki')),npc=adicionar(t,await fichaRev('soldado'));pj.pv=0;pj.estadoVida='inconsciente';
+  t=await aplicar(t,{rev:t.rev,tipo:'iniciar'},gm,()=>0);assert.equal(t.fase,'iniciativa');
+  // Descanso só para quem o mestre escolher
+  let d=novo();const x=adicionar(d,await fichaRev('nikki')),y=adicionar(d,await fichaRev('skimi'));x.rec['espaco-1']=0;y.rec['espaco-2']=0;
+  d=await aplicar(d,{rev:d.rev,tipo:'descanso',periodo:'longo',atores:[x.id]},gm,()=>0);
+  assert.ok(d.atores[0].rec['espaco-1']>0);assert.equal(d.atores[1].rec['espaco-2'],0);
+});
+
+test('#5 concentração: magia pelo nome concentra e o dano pede CON com CD entre 10 e 30',async()=>{
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'acalmar emocoes').id,ponto:{x:b.x,y:b.y}},player,roladorSala({salva:2}).rolar);
+  assert.ok(s.atores[0].concentracaoAtiva,'Acalmar Emoções concentra');
+  for(const [dano,cd] of [[9,10],[40,20],[90,30]]){
+    const t=structuredClone(s);t.vez=1;t.atores[1].x=1.5;t.atores[0].pv=200;t.atores[0].ficha.pvMaximos=200;const r=roladorSala({d20:15,dano});
+    let u=await aplicar(t,{rev:t.rev,tipo:'usar',ator:b.id,opcao:opcoesDisponiveis(t.atores[1]).find(o=>o.automacao?.tipo==='ataque').id,alvo:a.id},gm,r.rolar);
+    if(u.reacaoPendente)u=await aplicar(u,{rev:u.rev,tipo:'resolverReacao',ator:a.id},player,r.rolar).catch(()=>u);
+    const salva=r.formulas.find(x=>x.meta.tipo==='salvaguarda'&&x.meta.atributo==='con');assert.ok(salva,'pediu CON com dano '+dano);assert.equal(salva.meta.cd,cd);
+  }
 });

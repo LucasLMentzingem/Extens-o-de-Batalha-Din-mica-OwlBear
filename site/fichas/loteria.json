@@ -112,10 +112,6 @@
       "saldoInicial": 3,
       "recuperacao": [
         {
-          "evento": "descanso_curto",
-          "modo": "completar"
-        },
-        {
           "evento": "descanso_longo",
           "modo": "completar"
         }
@@ -161,6 +157,9 @@
         "dano": "1d6+3",
         "elemento": "contundente",
         "alcanceM": 1.5
+      },
+      "requisitosUso": {
+        "aposAtaque": true
       }
     },
     {
@@ -189,14 +188,26 @@
             "tipo": "ataque",
             "bonus": 5,
             "dano": "1d6+3",
-            "alcanceM": 1.5
+            "alcanceM": 1.5,
+            "elemento": "contundente",
+            "tags": [
+              "desarmado"
+            ]
           },
           {
             "tipo": "ataque",
             "bonus": 5,
             "dano": "1d6+3",
-            "alcanceM": 1.5
+            "alcanceM": 1.5,
+            "elemento": "contundente",
+            "tags": [
+              "desarmado"
+            ]
           }
+        ],
+        "elemento": "contundente",
+        "tags": [
+          "desarmado"
         ]
       },
       "selecao": {
@@ -250,7 +261,7 @@
     },
     {
       "id": "agarrar-ou-empurrar-acao-5",
-      "nome": "Agarrar | ação",
+      "nome": "Imobilizar | ação",
       "categoria": "acao",
       "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
@@ -265,7 +276,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 13,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Agarrado",
@@ -276,7 +287,7 @@
     },
     {
       "id": "disparada-acao-6",
-      "nome": "Disparada | ação",
+      "nome": "Correr | ação",
       "categoria": "acao",
       "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 12 m, pode percorrer até 24 m neste turno.",
       "custo": [
@@ -334,7 +345,7 @@
     },
     {
       "id": "esconder-se-acao-10",
-      "nome": "Esconder-se | ação",
+      "nome": "Esconder | ação",
       "categoria": "acao",
       "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
       "custo": [
@@ -351,11 +362,10 @@
       "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
       "custo": [
         {
-          "tipo": "reacao",
+          "tipo": "acao",
           "quantidade": 1
         }
-      ],
-      "concentracao": true
+      ]
     },
     {
       "id": "procurar-acao-12",
@@ -371,7 +381,7 @@
     },
     {
       "id": "estudar-acao-13",
-      "nome": "Estudar | ação",
+      "nome": "Analisar | ação",
       "categoria": "acao",
       "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
       "custo": [
@@ -395,7 +405,7 @@
     },
     {
       "id": "utilizar-acao-15",
-      "nome": "Utilizar | ação",
+      "nome": "Usar Objeto | ação",
       "categoria": "acao",
       "descricao": "Manipule um objeto que exija uma ação.",
       "custo": [
@@ -476,7 +486,17 @@
       "gatilho": "ser_atingido",
       "automacao": {
         "tipo": "reduzir_dano",
-        "formula": "1d10+6"
+        "formula": "1d10+6",
+        "elementos": [
+          "contundente",
+          "cortante",
+          "perfurante"
+        ],
+        "redirecionar": {
+          "recurso": "pontos-de-foco",
+          "cd": 11,
+          "dano": "2d6+3"
+        }
       }
     },
     {
@@ -535,7 +555,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-0-24",
@@ -547,7 +568,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-atuacao-1-25",
@@ -559,7 +581,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-1-26",
@@ -571,7 +594,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-1-27",
@@ -583,7 +607,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "nota-de-importacao-28",
@@ -595,7 +620,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "defesa-paciente-foco",
@@ -659,6 +685,9 @@
         "recuperarRecursos": [
           "pontos-de-foco"
         ]
+      },
+      "requisitosUso": {
+        "somenteAoRolarIniciativa": true
       }
     },
     {
@@ -699,7 +728,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 13,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Caído",
@@ -713,7 +742,7 @@
       "id": "agarrar-ou-empurrar-acao-5-empurrar",
       "nome": "Empurrar | ação",
       "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 13. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
       "custo": [
         {
           "tipo": "acao",
@@ -726,7 +755,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 13,
         "alcanceM": 1.5,
         "deslocamentoForcado": {
           "distanciaM": 1.5,
@@ -781,6 +810,111 @@
       "varianteArremessoDe": "lanca-em-uma-mao-5-acao-4",
       "requerItemEquipado": "75d8709d-c305-52a3-9471-53a759415215",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d8 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d8+1"
+      }
+    },
+    {
+      "id": "soco-5-acao-ou-acao-bonus-1-acao",
+      "nome": "Soco (Golpe Desarmado) +5 | ação",
+      "categoria": "acao",
+      "descricao": "Golpe Desarmado com a ação Atacar, usando as Artes Marciais (dado de Artes Marciais e DES).",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "contundente",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "valentao-empurrar",
+      "nome": "Valentão de Taverna · empurrar 1,5 m",
+      "categoria": "acao",
+      "descricao": "Uma vez por turno, depois de acertar um golpe desarmado com a ação Atacar, empurre o alvo 1,5 m.",
+      "custo": [],
+      "requisitosUso": {
+        "aposAcerto": true,
+        "tagsAtaqueAnterior": [
+          "desarmado"
+        ],
+        "alvoIgualAoAnterior": true,
+        "umaVezPorTurno": "valentao-de-taverna"
+      },
+      "automacao": {
+        "tipo": "dano_direto",
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5
+        }
+      }
+    },
+    {
+      "id": "mao-de-dolo-torrente",
+      "nome": "Mão de Dolo · golpe da Torrente",
+      "categoria": "acao",
+      "descricao": "Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: 1d6+1 necrótico no alvo atingido. 1x por turno.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "pontos-de-foco",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "aposAcerto": true,
+        "tagsAtaqueAnterior": [
+          "desarmado"
+        ],
+        "alvoIgualAoAnterior": true,
+        "umaVezPorTurno": "mao-de-dolo-21"
+      },
+      "automacao": {
+        "tipo": "dano_direto",
+        "dano": "1d6+1",
+        "elemento": "necrotico",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "mao-de-cura-torrente",
+      "nome": "Mão de Cura · no lugar de um golpe da Torrente",
+      "categoria": "acao",
+      "descricao": "Depois de usar a Torrente de Golpes neste turno, troque um dos golpes por Mão de Cura sem gastar Foco.",
+      "custo": [],
+      "requisitosUso": {
+        "aposOpcao": "torrente-de-golpes-5-acao-bonus-1-foco-2",
+        "umaVezPorTurno": "mao-de-cura-torrente"
+      },
+      "automacao": {
+        "tipo": "cura",
+        "formula": "1d6+1",
+        "alcanceM": 1.5
+      }
     }
   ],
   "equipamentos": [

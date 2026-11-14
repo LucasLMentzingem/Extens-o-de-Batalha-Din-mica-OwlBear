@@ -103,9 +103,17 @@
       "saldoInicial": 3,
       "recuperacao": [
         {
-          "evento": "descanso_curto",
+          "evento": "descanso_longo",
           "modo": "completar"
-        },
+        }
+      ]
+    },
+    {
+      "id": "inspiracao-heroica",
+      "nome": "Inspiração Heroica",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
         {
           "evento": "descanso_longo",
           "modo": "completar"
@@ -235,7 +243,7 @@
     },
     {
       "id": "agarrar-ou-empurrar-acao-4",
-      "nome": "Agarrar | ação",
+      "nome": "Imobilizar | ação",
       "categoria": "acao",
       "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
@@ -250,7 +258,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Agarrado",
@@ -261,7 +269,7 @@
     },
     {
       "id": "disparada-acao-5",
-      "nome": "Disparada | ação",
+      "nome": "Correr | ação",
       "categoria": "acao",
       "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 9 m, pode percorrer até 18 m neste turno.",
       "custo": [
@@ -319,7 +327,7 @@
     },
     {
       "id": "esconder-se-acao-9",
-      "nome": "Esconder-se | ação",
+      "nome": "Esconder | ação",
       "categoria": "acao",
       "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
       "custo": [
@@ -336,11 +344,10 @@
       "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
       "custo": [
         {
-          "tipo": "reacao",
+          "tipo": "acao",
           "quantidade": 1
         }
-      ],
-      "concentracao": true
+      ]
     },
     {
       "id": "procurar-acao-11",
@@ -356,7 +363,7 @@
     },
     {
       "id": "estudar-acao-12",
-      "nome": "Estudar | ação",
+      "nome": "Analisar | ação",
       "categoria": "acao",
       "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
       "custo": [
@@ -380,7 +387,7 @@
     },
     {
       "id": "utilizar-acao-14",
-      "nome": "Utilizar | ação",
+      "nome": "Usar Objeto | ação",
       "categoria": "acao",
       "descricao": "Manipule um objeto que exija uma ação.",
       "custo": [
@@ -425,7 +432,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-5-18",
@@ -437,7 +445,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-5-19",
@@ -449,7 +458,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-prestidigitacao-4-20",
@@ -461,7 +471,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-0-21",
@@ -473,7 +484,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "2-forca-fantasmagorica-22",
@@ -539,7 +551,11 @@
         "efeitoFalha": {
           "nome": "Paralisado",
           "condicao": "paralisado",
-          "turnos": 10
+          "turnos": 10,
+          "salvaRepetida": {
+            "atributo": "sab",
+            "quando": "fim_turno"
+          }
         }
       }
     },
@@ -572,7 +588,8 @@
           "duracao": {
             "turnos": 100,
             "expira": "inicio_origem"
-          }
+          },
+          "encerraAoAgir": true
         }
       }
     },
@@ -613,7 +630,7 @@
       "descricao": "Ação · 18 m · espaço de Pacto de 2º círculo. O alvo rola SAB CD 13. Falha: [4d6] psíquico e usa a reação disponível para se afastar pela rota mais segura. Sucesso: metade do dano.",
       "custo": [
         {
-          "tipo": "reacao",
+          "tipo": "acao",
           "quantidade": 1
         },
         {
@@ -627,7 +644,7 @@
         "tipo": "salva",
         "atributo": "sab",
         "cd": 13,
-        "dano": "3d6",
+        "dano": "4d6",
         "alcanceM": 18,
         "metade": true,
         "elemento": "psiquico",
@@ -636,7 +653,8 @@
           "turnos": 1,
           "consomeReacao": true
         }
-      }
+      },
+      "escalaAplicada": 2
     },
     {
       "id": "1-compreender-idiomas-28",
@@ -669,13 +687,11 @@
       "nome": "1º | Encontrar Familiar",
       "categoria": "magia",
       "descricao": "Ritual · 1 h + 10 min · 3 m. Consome componentes de 10 PO, mas não gasta Espaço de Magia de Pacto. Invoca familiar. Ação bônus para usar os sentidos dele.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1
+      "custo": [],
+      "circuloBase": 1,
+      "requisitosUso": {
+        "somenteForaCombate": true
+      }
     },
     {
       "id": "1-enfeiticar-pessoa-31",
@@ -694,7 +710,6 @@
         }
       ],
       "circuloBase": 1,
-      "concentracao": true,
       "automacao": {
         "tipo": "salva",
         "atributo": "sab",
@@ -705,7 +720,15 @@
           "condicao": "enfeiticado",
           "turnos": 100
         }
-      }
+      },
+      "selecao": {
+        "tipo": "alvos",
+        "min": 1,
+        "max": 2,
+        "repetirAlvo": false,
+        "alcanceM": 9
+      },
+      "escalaAplicada": 2
     },
     {
       "id": "1-riso-histerico-de-tasha-32",
@@ -737,9 +760,22 @@
             "semAcoes": true,
             "semBonus": true,
             "caido": true
+          },
+          "salvaRepetida": {
+            "atributo": "sab",
+            "quando": "fim_turno",
+            "aoSofrerDano": true
           }
         }
-      }
+      },
+      "selecao": {
+        "tipo": "alvos",
+        "min": 1,
+        "max": 2,
+        "repetirAlvo": false,
+        "alcanceM": 9
+      },
+      "escalaAplicada": 2
     },
     {
       "id": "truque-rajada-mistica-33",
@@ -860,7 +896,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Caído",
@@ -874,7 +910,7 @@
       "id": "agarrar-ou-empurrar-acao-4-empurrar",
       "nome": "Empurrar | ação",
       "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 9. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
       "custo": [
         {
           "tipo": "acao",
@@ -887,7 +923,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "deslocamentoForcado": {
           "distanciaM": 1.5,
@@ -942,6 +978,45 @@
       "varianteArremessoDe": "segunda-adaga-4-acao-bonus-1",
       "requerItemEquipado": "82ce2b66-29ce-4ca9-a248-7101d18d4b94-2",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d8 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d8+2"
+      }
+    },
+    {
+      "id": "inspiracao-heroica-rerrolagem",
+      "nome": "Inspiração Heroica",
+      "categoria": "acao",
+      "descricao": "Depois de ver um d20, gaste a Inspiração Heroica para rerrolá-lo e use o novo resultado.",
+      "gatilho": "apos_rolagem_d20",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "inspiracao-heroica",
+          "quantidade": 1
+        }
+      ],
+      "rerrolagem": {
+        "tipo": "d20",
+        "modo": "todos"
+      }
     }
   ],
   "equipamentos": [

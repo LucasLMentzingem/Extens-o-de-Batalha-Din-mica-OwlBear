@@ -1,15 +1,15 @@
 {
   "name": "La Arte · Mesa de combate",
-  "version": "0.7.32",
+  "version": "0.8.0",
   "manifest_version": 1,
   "author": "Aventura DnD",
   "description": "Encontros, fichas JSON e controle de tokens para a campanha.",
   "icon": "./icone.svg",
-  "background_url": "./background.html?v=0.7.32",
+  "background_url": "./background.html?v=0.8.0",
   "action": {
     "title": "Mesa de combate",
     "icon": "./icone.svg",
-    "popover": "./index.html?v=0.7.32",
+    "popover": "./index.html?v=0.8.0",
     "width": 890,
     "height": 700
   }

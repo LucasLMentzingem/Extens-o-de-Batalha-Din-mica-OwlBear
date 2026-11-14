@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.7.32';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.7.32';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.7.32';
-import {pronto} from './bridge.mjs?v=0.7.32';
-import {canalHud} from './hud-controller.mjs?v=0.7.32';
+import {detalhes} from './ficha-view.mjs?v=0.8.0';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.0';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.0';
+import {pronto} from './bridge.mjs?v=0.8.0';
+import {canalHud} from './hud-controller.mjs?v=0.8.0';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -25,7 +25,7 @@ function resultadoDano(relatorios){
   if(!relatorios?.length)return '';
   return '<div class="relatorios-dano">'+relatorios.map(r=>'<article><header><strong>'+esc(r.alvoNome||'Alvo')+'</strong><b>'+esc(r.pvPerdido)+' PV perdidos</b></header>'+r.parcelas.map(p=>{const t=infoTipoDano(p.tipo),passos=p.passos?.map(x=>x.defesa?.nome+' '+x.antes+'→'+x.depois).join(' · ');return '<div class="parcela-dano" style="--tipo-dano:'+t.cor+'"><span>'+esc(t.simbolo)+' '+esc(t.nome)+'</span><output>'+esc(p.rolado)+' → '+esc(p.final)+'</output>'+(passos?'<small>'+esc(passos)+'</small>':'')+'</div>';}).join('')+'<footer><span>Dano recebido <b>'+esc(r.danoRecebido)+'</b></span>'+(r.absorvidoPorPvTemporario?'<span>PV temporários <b>−'+esc(r.absorvidoPorPvTemporario)+'</b></span>':'')+'<span>PV '+esc(r.pvAntes)+' → '+esc(r.pvDepois)+'</span>'+(r.excesso?'<span>Excesso <b>'+esc(r.excesso)+'</b></span>':'')+'</footer></article>').join('')+'</div>';
 }
-const comuns=['golpe desarmado','agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
+const comuns=['golpe desarmado','agarrar','imobilizar','correr','analisar','usar objeto','esconder','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
 const nomeClasse=f=>{const id=f.classes?.[0]?.nome??f.classes?.[0]?.id??'Classe';return ({guardiao:'Guardião',guerreiro:'Guerreiro',bardo:'Bardo',monge:'Monge',feiticeiro:'Feiticeiro',bruxo:'Bruxo'})[normalizar(id)]??id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase());};
 function categoriaHud(o){
   if(o.filtroHud)return o.filtroHud;
@@ -123,7 +123,7 @@ function render(){
         const painelAdicionais=adicionais.length?'<div class="recursos-rolagem adicionais"><small>'+esc(m.rotuloAdicionais??'Habilidades disponíveis após o acerto')+'</small><div>'+adicionais.map(x=>btn('alternarAdicional',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+adicionaisAtivos.has(x.id)+'" '+(x.automatico||!editavel?'disabled ':'')+'data-info="'+esc((x.automatico?'Aplicação automática.\n':'')+(x.descricao||x.nome))+'"')).join('')+'</div>'+(selecionados.length?'<div class="dados-bloqueados">'+selecionados.map(x=>'<span><b>'+esc(x.formula)+'</b> · '+esc(x.nome)+'</span>').join('')+'</div>':'')+'</div>':'';
         const painelModificador=m.modificadorDano?'<div class="modificador-dano-automatico"><small>Modificador automático desta rolagem</small><strong>'+esc(m.modificadorDano.nome)+'</strong><span>'+esc(m.modificadorDano.descricao||'Os dados de dano da arma serão rolados duas vezes; o maior resultado será aplicado.')+'</span></div>':'';
         const painelDefesa=painelDefesas(m,selecionados);
-        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+observador+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false" '+(editavel?'':'readonly')+'></label>'+painelModificador+painelAdicionais+painelDefesa+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':editavel?'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>':'')+'</section>';
+        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dados de dano já dobrados'].filter(Boolean).join(' · '))+'</small>'+observador+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false" '+(editavel?'':'readonly')+'></label>'+painelModificador+painelAdicionais+painelDefesa+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':editavel?'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>':'')+'</section>';
       }
     }
   }else if(parte==='anuncio-dado'&&v.anuncioDado){
@@ -163,8 +163,7 @@ function render(){
         const requisitoIndisponivel=!livre&&((req.aposAtaque&&!ataques.length)||(req.aposAcerto&&!acertos.length)||(req.umaVezPorTurno&&a.usosTurno?.[req.umaVezPorTurno]));
         const bloqueio=(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           custoIndisponivel?'Recurso insuficiente':
-          requisitoIndisponivel?'Requisito de turno ainda não cumprido':
-          !o.automacao&&!gm&&grupo(o)!=='Reações'?'Resolução pelo mestre':'';
+          requisitoIndisponivel?'Requisito de turno ainda não cumprido':'';
         const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
         const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratuitos?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
         return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');

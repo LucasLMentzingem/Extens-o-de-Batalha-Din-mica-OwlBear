@@ -56,7 +56,6 @@
     "Investigação": 4,
     "Natureza": 1,
     "Religião": 1,
-    "Adestrar Animais": 2,
     "Intuição": 2,
     "Medicina": 2,
     "Percepção": 3,
@@ -64,7 +63,8 @@
     "Enganação": 4,
     "Intimidação": 4,
     "Atuação": 5,
-    "Persuasão": 7
+    "Persuasão": 7,
+    "Lidar com Animais": 2
   },
   "resistencias": [],
   "imunidades": [],
@@ -136,10 +136,6 @@
       "maximo": 3,
       "saldoInicial": 3,
       "recuperacao": [
-        {
-          "evento": "descanso_curto",
-          "modo": "completar"
-        },
         {
           "evento": "descanso_longo",
           "modo": "completar"
@@ -214,7 +210,7 @@
     },
     {
       "id": "agarrar-ou-empurrar-acao-3",
-      "nome": "Agarrar | ação",
+      "nome": "Imobilizar | ação",
       "categoria": "acao",
       "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
@@ -229,7 +225,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Agarrado",
@@ -240,7 +236,7 @@
     },
     {
       "id": "disparada-acao-4",
-      "nome": "Disparada | ação",
+      "nome": "Correr | ação",
       "categoria": "acao",
       "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
       "custo": [
@@ -298,7 +294,7 @@
     },
     {
       "id": "esconder-se-acao-8",
-      "nome": "Esconder-se | ação",
+      "nome": "Esconder | ação",
       "categoria": "acao",
       "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
       "custo": [
@@ -315,11 +311,10 @@
       "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
       "custo": [
         {
-          "tipo": "reacao",
+          "tipo": "acao",
           "quantidade": 1
         }
-      ],
-      "concentracao": true
+      ]
     },
     {
       "id": "procurar-acao-10",
@@ -335,7 +330,7 @@
     },
     {
       "id": "estudar-acao-11",
-      "nome": "Estudar | ação",
+      "nome": "Analisar | ação",
       "categoria": "acao",
       "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
       "custo": [
@@ -359,7 +354,7 @@
     },
     {
       "id": "utilizar-acao-13",
-      "nome": "Utilizar | ação",
+      "nome": "Usar Objeto | ação",
       "categoria": "acao",
       "descricao": "Manipule um objeto que exija uma ação.",
       "custo": [
@@ -433,7 +428,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-4-18",
@@ -445,7 +441,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-4-19",
@@ -457,7 +454,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-4-20",
@@ -469,7 +467,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-prestidigitacao-3-21",
@@ -481,7 +480,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "nota-de-importacao-22",
@@ -493,7 +493,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "2-arrombar-23",
@@ -571,7 +572,8 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 1
+      "circuloBase": 1,
+      "concentracao": true
     },
     {
       "id": "1-enfeiticar-pessoa-glamour-sempre-27",
@@ -650,10 +652,12 @@
           "nome": "Iluminado por Fogo das Fadas",
           "turnos": 10,
           "restricoes": {
-            "vantagemAtaquesContra": true
+            "vantagemAtaquesContra": true,
+            "anulaInvisivel": true
           }
         }
-      }
+      },
+      "concentracao": true
     },
     {
       "id": "1-palavra-curativa-30",
@@ -737,8 +741,10 @@
           "nome": "Zombado",
           "turnos": 1,
           "restricoes": {
-            "desvantagemAtaques": true
-          }
+            "desvantagemAtaques": true,
+            "consumirAoAtacar": true
+          },
+          "expira": "fim_alvo"
         }
       }
     },
@@ -798,6 +804,9 @@
           "removeAoUsar": true,
           "removeEm": "descanso_longo"
         }
+      },
+      "requisitosUso": {
+        "alvoDiferenteDoConjurador": true
       }
     },
     {
@@ -817,7 +826,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Caído",
@@ -831,7 +840,7 @@
       "id": "agarrar-ou-empurrar-acao-3-empurrar",
       "nome": "Empurrar | ação",
       "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 9. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
       "custo": [
         {
           "tipo": "acao",
@@ -844,7 +853,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "deslocamentoForcado": {
           "distanciaM": 1.5,
@@ -899,6 +908,27 @@
       "varianteArremessoDe": "segunda-adaga-4-acao-bonus-1",
       "requerItemEquipado": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8-2",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d8 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d8+2"
+      }
     }
   ],
   "equipamentos": [
@@ -1150,5 +1180,8 @@
         "modificadores": {}
       }
     ]
-  }
+  },
+  "vantagemSalvasContra": [
+    "enfeiticado"
+  ]
 }

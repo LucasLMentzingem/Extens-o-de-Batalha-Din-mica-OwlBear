@@ -37,7 +37,7 @@ CA, PV máximo e deslocamento conservam um valor-base editável. O campo curto i
 
 O efeito estruturado aceita modificadores de `ca`, `pvMaximos` e `deslocamentoM`, requisitos como `semArmadura`, remoção em descanso e restrições de condições. Isso permite representar atordoado, congelado, envenenado e efeitos semelhantes sem reescrever os valores-base. Efeitos de PV podem aumentar também o PV atual quando `aumentaPVAtual` estiver habilitado.
 
-Na ficha de exemplo, Nikki possui **CA base 13**. **Armadura Arcana** pode ser usada dentro ou fora do combate, seleciona uma criatura sem armadura a até 1,5 m e concede o bônus necessário para chegar a `13 + DES`; em Nikki, isso aparece como `13 + 2 = CA 15`. O efeito termina no descanso longo.
+Na ficha de exemplo, Nikki possui **CA 12 sem armadura** (10 + DES). **Armadura Arcana** pode ser usada dentro ou fora do combate, seleciona uma criatura sem armadura a até 1,5 m e concede o bônus necessário para chegar a `13 + DES`; em Nikki, isso aparece como `13 + 2 = CA 15`. O efeito termina no descanso longo.
 
 O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel usa células de um metro e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
 
@@ -57,7 +57,7 @@ Enquanto o combate estiver parado, todas as ações e magias ficam liberadas. A 
 
 ### Deslocamento forçado
 
-Agarrar, Derrubar e Empurrar são opções separadas. **Empurrar** seleciona uma criatura a até 1,5 m, usa a melhor salvaguarda dela entre FOR e DES contra CD 10 e, em uma falha, move o alvo 1,5 m diretamente para longe do personagem. Antes da execução, uma seta branca nasce no alvo e termina exatamente no destino previsto. O movimento não consome o deslocamento do alvo.
+Agarrar, Derrubar e Empurrar são opções separadas. **Empurrar** seleciona uma criatura a até 1,5 m, usa a melhor salvaguarda dela entre FOR e DES contra CD 8 + FOR + proficiência de quem empurra (o Monge pode usar DES) e, em uma falha, move o alvo 1,5 m diretamente para longe do personagem. Antes da execução, uma seta branca nasce no alvo e termina exatamente no destino previsto. O movimento não consome o deslocamento do alvo.
 
 O campo JSON `deslocamentoForcado` pode acompanhar ataques e salvaguardas. Em habilidades de alvo, o vetor parte do conjurador em direção ao alvo. Em habilidades de área, cada vetor parte do centro escolhido para a respectiva criatura. Depois de uma falha na salvaguarda ou de um ataque bem-sucedido, a posição da ficha e do token no Owlbear é atualizada automaticamente. Nesta versão o vetor é geométrico; colisões com paredes e bordas ainda ficam sob arbitragem do mestre.
 

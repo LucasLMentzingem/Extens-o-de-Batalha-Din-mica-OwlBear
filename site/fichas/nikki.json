@@ -31,7 +31,7 @@
     "car": 5
   },
   "pvMaximos": 20,
-  "caBase": 13,
+  "caBase": 12,
   "deslocamentosM": {
     "andar": 9
   },
@@ -58,7 +58,6 @@
     "Intuição": 3,
     "Percepção": 3,
     "Acrobacia": 2,
-    "Adestrar Animais": 1,
     "Medicina": 1,
     "Sobrevivência": 1,
     "Atletismo": 0,
@@ -66,7 +65,8 @@
     "História": -1,
     "Investigação": -1,
     "Natureza": -1,
-    "Religião": -1
+    "Religião": -1,
+    "Lidar com Animais": 1
   },
   "equipamentos": [
     {
@@ -319,7 +319,7 @@
     },
     {
       "id": "be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe",
-      "nome": "Agarrar | ação",
+      "nome": "Imobilizar | ação",
       "categoria": "acao",
       "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
@@ -397,7 +397,7 @@
     },
     {
       "id": "fc342918-dbf9-59d2-87d9-2a7a153d1aff",
-      "nome": "Disparada | ação",
+      "nome": "Correr | ação",
       "categoria": "acao",
       "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 9 m, pode percorrer até 18 m neste turno.",
       "custo": [
@@ -455,7 +455,7 @@
     },
     {
       "id": "b0fd4ecc-f5c3-580b-998c-e1da88d849d0",
-      "nome": "Esconder-se | ação",
+      "nome": "Esconder | ação",
       "categoria": "acao",
       "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
       "custo": [
@@ -491,7 +491,7 @@
     },
     {
       "id": "f534510d-692f-51e8-b717-96fb81736185",
-      "nome": "Estudar | ação",
+      "nome": "Analisar | ação",
       "categoria": "acao",
       "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
       "custo": [
@@ -515,7 +515,7 @@
     },
     {
       "id": "94f4d9da-561f-5550-92eb-4391a00512c0",
-      "nome": "Utilizar | ação",
+      "nome": "Usar Objeto | ação",
       "categoria": "acao",
       "descricao": "Manipule um objeto que exija uma ação.",
       "custo": [
@@ -574,7 +574,13 @@
           "quantidade": 1,
           "id": "feiticaria"
         }
-      ]
+      ],
+      "gatilho": "apos_rolagem_dano",
+      "rerrolagem": {
+        "tipo": "dano",
+        "modo": "todos",
+        "somenteMagia": true
+      }
     },
     {
       "id": "eddac04f-02a6-5c62-b418-689b784068db",
@@ -634,7 +640,8 @@
         }
       ],
       "circuloBase": 2,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true
     },
     {
       "id": "e1239dce-62e4-53ba-8bfd-970cb4faacb3",
@@ -664,7 +671,8 @@
           "nome": "Emoções acalmadas",
           "turnos": 10
         }
-      }
+      },
+      "concentracao": true
     },
     {
       "id": "58cc56ae-8d2b-5b21-b9e3-89661a708e38",
@@ -683,7 +691,8 @@
         }
       ],
       "circuloBase": 2,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true
     },
     {
       "id": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
@@ -871,7 +880,8 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true
     },
     {
       "id": "1cb80c0f-ca47-5d69-a977-ca7f4b116555",
@@ -915,7 +925,7 @@
     },
     {
       "id": "80382f78-315c-5279-be65-98a7df74fb0c",
-      "nome": "Truque | Explosão Elemental · ataque +5 · classe",
+      "nome": "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
       "categoria": "magia",
       "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
       "custo": [
@@ -930,7 +940,7 @@
         "tipo": "ataque",
         "bonus": 5,
         "dano": "1d8",
-        "elemento": "elemental",
+        "elemento": "fogo",
         "alcanceM": 18
       }
     },
@@ -952,7 +962,18 @@
         "bonus": 5,
         "dano": "1d8",
         "elemento": "raio",
-        "alcanceM": 1.5
+        "alcanceM": 1.5,
+        "efeitoAcerto": {
+          "nome": "Sem reações (Toque Chocante)",
+          "tipo": "debuff",
+          "zerarReacao": true,
+          "descricao": "Não pode fazer reações até o início do próprio turno.",
+          "duracao": {
+            "turnos": 1,
+            "restante": 1,
+            "expira": "inicio_alvo"
+          }
+        }
       }
     },
     {
@@ -978,7 +999,8 @@
         "efeitoFalha": {
           "nome": "Mente Talhada",
           "turnos": 2,
-          "penalidadeProximaSalva": "1d4"
+          "penalidadeProximaSalva": "1d4",
+          "expira": "fim_origem"
         }
       }
     },
@@ -1178,6 +1200,247 @@
       "varianteArremessoDe": "eb1e3e85-d216-544d-8954-deb312f465a1",
       "requerItemEquipado": "f5841857-a1f4-5d62-ae62-6845f65994bd",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d6 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dv",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d6+2"
+      }
+    },
+    {
+      "id": "fonte-criar-espaco-1",
+      "nome": "Fonte de Magia · criar espaço de 1º (2 pontos) | ação bônus",
+      "categoria": "acao",
+      "descricao": "Gaste 2 Pontos de Feitiçaria para recuperar um espaço de magia de 1º círculo.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "feiticaria",
+          "quantidade": 2
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "espaco-1": 1
+        }
+      }
+    },
+    {
+      "id": "fonte-espaco-em-pontos-1",
+      "nome": "Fonte de Magia · espaço de 1º vira 1 ponto",
+      "categoria": "acao",
+      "descricao": "Gaste um espaço de magia de 1º círculo para ganhar 1 Ponto de Feitiçaria (sem ação).",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "feiticaria": 1
+        }
+      }
+    },
+    {
+      "id": "fonte-criar-espaco-2",
+      "nome": "Fonte de Magia · criar espaço de 2º (3 pontos) | ação bônus",
+      "categoria": "acao",
+      "descricao": "Gaste 3 Pontos de Feitiçaria para recuperar um espaço de magia de 2º círculo.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "feiticaria",
+          "quantidade": 3
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "espaco-2": 1
+        }
+      }
+    },
+    {
+      "id": "fonte-espaco-em-pontos-2",
+      "nome": "Fonte de Magia · espaço de 2º vira 2 pontos",
+      "categoria": "acao",
+      "descricao": "Gaste um espaço de magia de 2º círculo para ganhar 2 Pontos de Feitiçaria (sem ação).",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "feiticaria": 2
+        }
+      }
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-acido",
+      "nome": "Truque | Explosão Elemental (ácido) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "acido",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-frio",
+      "nome": "Truque | Explosão Elemental (frio) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "frio",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-raio",
+      "nome": "Truque | Explosão Elemental (raio) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "raio",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-veneno",
+      "nome": "Truque | Explosão Elemental (veneno) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "veneno",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-psiquico",
+      "nome": "Truque | Explosão Elemental (psíquico) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "psiquico",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-trovejante",
+      "nome": "Truque | Explosão Elemental (trovejante) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "trovejante",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
     }
   ],
   "notas": [
@@ -1203,7 +1466,7 @@
     },
     {
       "nome": "Combate | 9 m por turno",
-      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA base 13. Armadura Arcana concede +2 nesta ficha, chegando a CA 15, e termina no descanso longo.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
+      "descricao": "Iniciativa +2 · Normal [1d20+2]\nCA 12 sem armadura (10 + DES). Armadura Arcana concede +3 nesta ficha, chegando a CA 15, e termina no descanso longo.\nPercepção passiva 13 · Resistência a fogo · Visão no escuro 18 m."
     },
     {
       "nome": "Conjuração | ataque +5 · CD 13",
