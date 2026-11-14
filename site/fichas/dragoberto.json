@@ -842,6 +842,12 @@
       "descricao": "Armas simples e marciais; armaduras leves e médias; escudos; ferramentas de cartógrafo. Resistências proficientes: FOR e DES. Explorador Hábil concede uma especialização e dois idiomas adicionais. O texto marca duas especializações: mantidas para revisão do mestre.",
       "id": "passiva-3",
       "ativa": true
+    },
+    {
+      "nome": "Passiva | Arquearia",
+      "descricao": "Estilo de Luta: +2 nas jogadas de ataque com armas à distância.",
+      "id": "passiva-arquearia",
+      "ativa": true
     }
   ],
   "notas": [

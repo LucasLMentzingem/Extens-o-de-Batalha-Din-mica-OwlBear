@@ -1209,7 +1209,7 @@ export async function aplicar(s,c,u,rolar) {
       const alvo=escolhidos?.[0]??s.atores.find(x=>x.id===c.alvo);
       const temArea=Boolean(rule.raioM||rule.area),centro=temArea?(rule.origemArea==='conjurador'?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
-      const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&(!rule.excluirConjurador||x!==a));
+      const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&!((rule.excluirConjurador||['cone','linha'].includes(rule.area?.forma))&&x===a)); // #22 cone e linha partem de quem usa e não o atingem
       validarRequisitosUso(s,a,o,afetados[0]);
       const deslocarForcado=p=>{
         const regra=rule.deslocamentoForcado;if(!regra)return false;

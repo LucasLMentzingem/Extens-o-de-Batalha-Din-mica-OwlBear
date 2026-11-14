@@ -848,3 +848,13 @@ test('#3 crítico dobra todos os dados de dano (Espada Grande 2d6+3 vira 4d6+3)'
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,r.rolar);
   assert.ok(r.formulas.some(x=>x.meta.tipo==='dano'&&/^4d6\+3/.test(x.f)),'fórmula do crítico: '+r.formulas.map(x=>x.f).join(' | '));
 });
+
+test('#22 Ataque de Sopro não atinge o próprio Dragoberto e o arco soma Arquearia',async()=>{
+  for(const forma of ['cone','linha']){
+    let {s,a,b}=await duelo('dragoberto');const pv=a.pv;
+    const o=opcoesDisponiveis(a).find(x=>x.automacao?.area?.forma===forma);
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id,ponto:{x:2.5,y:0}},player,roladorSala({salva:2,dano:8}).rolar);
+    assert.equal(s.atores[0].pv,pv,forma+' não fere quem sopra');assert.ok(s.atores[1].pv<b.pv,forma+' fere o alvo');
+  }
+  const {a}=await duelo('dragoberto');assert.equal(opRev(a,'arco longo').automacao.bonus,7);
+});
