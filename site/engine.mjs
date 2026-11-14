@@ -166,6 +166,13 @@ export function atualizarMagias(f){
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
+  // #30 Fonte de Magia (Feiticeiro 2): pontos ⇄ espaços. Criar espaço custa Ação Bônus; converter espaço em pontos não usa ação.
+  const feiticeiro=(f.classes??[]).some(c=>/feiticeir/.test(textoNormal(c.id??c.nome??'')))&&f.recursos?.some(r=>r.id==='feiticaria');
+  if(feiticeiro)for(const [n,pontos] of [[1,2],[2,3]]){
+    if(!f.recursos.some(r=>r.id==='espaco-'+n))continue;
+    if(!f.opcoes.some(o=>o.id==='fonte-criar-espaco-'+n))f.opcoes.push({id:'fonte-criar-espaco-'+n,nome:'Fonte de Magia · criar espaço de '+n+'º ('+pontos+' pontos) | ação bônus',categoria:'acao',descricao:'Gaste '+pontos+' Pontos de Feitiçaria para recuperar um espaço de magia de '+n+'º círculo.',custo:[{tipo:'bonus',quantidade:1},{tipo:'recurso',id:'feiticaria',quantidade:pontos}],naoConjura:true,automacao:{tipo:'economia',recuperarQuantidades:{['espaco-'+n]:1}}});
+    if(!f.opcoes.some(o=>o.id==='fonte-espaco-em-pontos-'+n))f.opcoes.push({id:'fonte-espaco-em-pontos-'+n,nome:'Fonte de Magia · espaço de '+n+'º vira '+n+' ponto'+(n>1?'s':''),categoria:'acao',descricao:'Gaste um espaço de magia de '+n+'º círculo para ganhar '+n+' Ponto'+(n>1?'s':'')+' de Feitiçaria (sem ação).',custo:[{tipo:'recurso',id:'espaco-'+n,quantidade:1}],naoConjura:true,automacao:{tipo:'economia',recuperarQuantidades:{feiticaria:n}}});
+  }
   // #28 Ancestralidade Feérica (Elfo): Vantagem nas salvaguardas contra ficar Enfeitiçado.
   if(JSON.stringify([f.passivas,f.opcoes]).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes('ancestralidade feerica'))f.vantagemSalvasContra=[...new Set([...(f.vantagemSalvasContra??[]),'enfeiticado'])];
   for(const o of f.opcoes??[]){
@@ -1285,7 +1292,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(rule || c.assistido,'Opção assistida. Confirme para declarar e deixar o efeito com o mestre.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
-      registrarEspacoNoTurno(s,a,plano.custos);
+      if(!o.naoConjura)registrarEspacoNoTurno(s,a,plano.custos); // converter espaço em pontos (Fonte de Magia) não é conjurar
       for(const custo of plano.custos){
         if(foraCombate&&custo.tipo!=='recurso')continue;
         const bag=custo.tipo==='recurso'?a.rec:a;const key=custo.tipo==='recurso'?custo.id:custo.tipo;

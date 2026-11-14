@@ -1038,3 +1038,14 @@ test('#18 Imobilizar Pessoa e Riso Histérico repetem a salvaguarda no fim do tu
   s.vez=1;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala({d20:15}).rolar);
   assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.id==='x'),'passou: termina');
 });
+
+test('#30 Fonte de Magia: pontos viram espaço (Ação Bônus) e espaço vira pontos (sem ação)',async()=>{
+  let {s,a}=await duelo('nikki');
+  a.rec['espaco-1']=0;const pontos=a.rec.feiticaria;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'fonte-criar-espaco-1'},player,roladorSala().rolar);
+  assert.equal(s.atores[0].rec['espaco-1'],1);assert.equal(s.atores[0].rec.feiticaria,pontos-2);assert.equal(s.atores[0].bonus,0);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'fonte-espaco-em-pontos-1'},player,roladorSala().rolar);
+  assert.equal(s.atores[0].rec['espaco-1'],0);assert.equal(s.atores[0].rec.feiticaria,pontos-1);
+  // converter não conta como conjurar: ainda pode conjurar com espaço no mesmo turno
+  assert.equal(s.atores[0].espacoNoTurno,undefined);
+});

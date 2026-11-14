@@ -1214,6 +1214,94 @@
         "tipo": "economia",
         "cura": "1d6+2"
       }
+    },
+    {
+      "id": "fonte-criar-espaco-1",
+      "nome": "Fonte de Magia · criar espaço de 1º (2 pontos) | ação bônus",
+      "categoria": "acao",
+      "descricao": "Gaste 2 Pontos de Feitiçaria para recuperar um espaço de magia de 1º círculo.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "feiticaria",
+          "quantidade": 2
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "espaco-1": 1
+        }
+      }
+    },
+    {
+      "id": "fonte-espaco-em-pontos-1",
+      "nome": "Fonte de Magia · espaço de 1º vira 1 ponto",
+      "categoria": "acao",
+      "descricao": "Gaste um espaço de magia de 1º círculo para ganhar 1 Ponto de Feitiçaria (sem ação).",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "feiticaria": 1
+        }
+      }
+    },
+    {
+      "id": "fonte-criar-espaco-2",
+      "nome": "Fonte de Magia · criar espaço de 2º (3 pontos) | ação bônus",
+      "categoria": "acao",
+      "descricao": "Gaste 3 Pontos de Feitiçaria para recuperar um espaço de magia de 2º círculo.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "feiticaria",
+          "quantidade": 3
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "espaco-2": 1
+        }
+      }
+    },
+    {
+      "id": "fonte-espaco-em-pontos-2",
+      "nome": "Fonte de Magia · espaço de 2º vira 2 pontos",
+      "categoria": "acao",
+      "descricao": "Gaste um espaço de magia de 2º círculo para ganhar 2 Pontos de Feitiçaria (sem ação).",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "espaco-2",
+          "quantidade": 1
+        }
+      ],
+      "naoConjura": true,
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "feiticaria": 2
+        }
+      }
     }
   ],
   "notas": [
