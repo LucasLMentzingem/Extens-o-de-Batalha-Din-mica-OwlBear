@@ -804,6 +804,15 @@ test('loja bloqueia combate, saldo insuficiente, item equipado e excesso de carg
  s=antes;a=s.atores[0];const moeda=a.ficha.inventario.itens.find(i=>i.tipo==='moeda');moeda.quantidade=.01;await assert.rejects(aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.ferraria-victor',itemRef:'item.adaga',rev:s.rev},player,dadoLocal),/PO insuficientes/);
  const b=adicionar(s,soldado,'Soldado');s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,dadoLocal);await assert.rejects(aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.ferraria-victor',itemRef:'item.adaga',rev:s.rev},player,dadoLocal),/loja está fechada/);assert.ok(b);
 });
+test('mestre adiciona item do catálogo e PO diretamente à ficha',async()=>{
+ let s=novo(),a=adicionar(s,nikki),saldoAntes=saldoMoedasPc(a),adagasAntes=a.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.adaga').reduce((n,i)=>n+i.quantidade,0);
+ s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:3,rev:s.rev},gm,dadoLocal);a=s.atores[0];
+ assert.equal(a.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.adaga').reduce((n,i)=>n+i.quantidade,0),adagasAntes+3);
+ assert.ok(a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!i.equipado&&i.quantidade===3));
+ s=await aplicar(s,{tipo:'gmAdicionarPo',ator:a.id,quantidade:125,rev:s.rev},gm,dadoLocal);assert.equal(saldoMoedasPc(s.atores[0]),saldoAntes+12500);
+ await assert.rejects(aplicar(s,{tipo:'gmAdicionarPo',ator:a.id,quantidade:1,rev:s.rev},player,dadoLocal),/Somente o mestre/);
+ await assert.rejects(aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.moedas-de-ouro',quantidade:1,rev:s.rev},gm,dadoLocal),/use Adicionar PO/);
+});
 test('ataques de arma são derivados somente dos itens equipados e desarmados continuam livres',()=>{
  const f=fichasJogadores.find(x=>x.id==='draven-thorne'),s=novo(),d=adicionar(s,f),nomes=opcoesDisponiveis(d).map(o=>o.nome);
  const armas=ataquesEquipados(d);assert.deepEqual(armas.map(o=>o.dadosEquipamento.tipoArma),['espada_grande']);
@@ -1189,6 +1198,27 @@ test('#32 Saraivada de Espinhos, Golpe Constritor e Destruidor de Hordas',async(
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
   const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'destruidor').id,alvo:c.id},player,r.rolar);
   assert.equal(r.formulas.find(x=>x.meta.tipo==='ataque').f,'1d20'+opRev(a,'cimitarra').automacao.bonus.toLocaleString('en',{signDisplay:'always'}));
+});
+
+test('#32 Saraivada combina área, resistências e resultados diferentes por alvo',async()=>{
+  let {s,a,b}=await duelo('zurich',undefined,{distancia:6});
+  const c=adicionar(s,await fichaRev('soldado'),'Soldado adjacente');c.x=6;c.y=1;
+  const d=adicionar(s,await fichaRev('soldado'),'Soldado protegido');d.x=6;d.y=-1;
+  b.ficha.resistencias=['perfurante'];
+  const sar=opRev(a,'saraivada'),pv=[b.pv,c.pv,d.pv],bonus=a.bonus,espaco=a.rec['espaco-1'];let salva=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,async(formula,meta)=>{
+    if(meta.tipo==='ataque')return {total:18,natural:13,formula,resumo:'18'};
+    if(meta.tipo==='dano')return {total:14,natural:null,formula,resumo:'6 + 8',resultados:[{total:6,resumo:'1d8+3 = 6'},{total:8,resumo:'1d10 = 8'}],recursosAtivos:[sar.id],rerrolagensUsadas:[]};
+    if(meta.tipo==='salvaguarda'){
+      const totais=[5,6,15],total=totais[salva++];return {total,natural:total,formula,resumo:String(total)};
+    }
+    throw Error('rolagem inesperada '+meta.tipo);
+  });
+  assert.equal(salva,3,'cada criatura na área precisa da própria salvaguarda');
+  assert.equal(s.atores.find(x=>x.id===b.id).pv,pv[0]-7,'resistência a perfurante reduz a arma de 6 para 3 e a Saraivada de 8 para 4');
+  assert.equal(s.atores.find(x=>x.id===c.id).pv,pv[1]-8,'falha sem resistência recebe todo o dano em área');
+  assert.equal(s.atores.find(x=>x.id===d.id).pv,pv[2]-4,'sucesso recebe metade do dano em área');
+  assert.equal(s.atores.find(x=>x.id===a.id).bonus,bonus-1);assert.equal(s.atores.find(x=>x.id===a.id).rec['espaco-1'],espaco-1);
 });
 
 test('#21 #34 Mão de Dolo e Mão de Cura na Torrente, Defletir redireciona e Valentão empurra',async()=>{

@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.4';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.4';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.5';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.5';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -1081,7 +1081,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1285,6 +1285,19 @@ export async function aplicar(s,c,u,rolar) {
       definirSaldoMoedasPc(a,saldo-entrada.precoPc);const item=resolverInstanciaItem(entrada.instancia);adicionarItemInventario(a,item);
       exigir(pesoInventario(a)<=a.ficha.inventario.capacidadeCargaKg+1e-8,'A recompra ultrapassa a capacidade de carga.');
       lista.splice(indice,1);msg=a.nome+' recomprou '+item.nome+' por '+(entrada.precoPc/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO na '+loja.nome+'.';break;
+    }
+    case 'gmAdicionarItem': {
+      exigir(a&&inteiro(c.quantidade,1,9999),'Quantidade de item inválida.');
+      const item=resolverInstanciaItem({id:crypto.randomUUID(),ref:c.itemRef,quantidade:c.quantidade});
+      exigir(item&&item.tipo!=='moeda','Escolha um item do catálogo. Para moedas, use Adicionar PO.');
+      item.equipado=false;delete item.equipadoSlot;
+      adicionarItemInventario(a,item);
+      msg='Mestre adicionou '+c.quantidade+'× '+item.nome+' ao inventário de '+a.nome+'.';break;
+    }
+    case 'gmAdicionarPo': {
+      exigir(a&&inteiro(c.quantidade,1,9999999),'Quantidade de PO inválida.');
+      definirSaldoMoedasPc(a,saldoMoedasPc(a)+c.quantidade*100);
+      msg='Mestre adicionou '+c.quantidade.toLocaleString('pt-BR')+' PO ao inventário de '+a.nome+'.';break;
     }
     case 'inventario': {
       exigir(a&&['equipar','desequipar','usar'].includes(c.operacao),'Operação de inventário inválida.');

@@ -1,4 +1,4 @@
-import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.4';
+import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.5';
 
 const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x])),lojas=new Map((catalogo.lojas??[]).map(x=>[x.id,x]));
 const clone=x=>structuredClone(x);
@@ -18,6 +18,7 @@ const refsItem=new Map(catalogo.itens.map(x=>[assinatura(x.definicao),x.id]));
 
 export const versaoCatalogo=catalogo.versaoCatalogo;
 export const catalogoCentral=()=>clone(catalogo);
+export const itensCatalogo=()=>clone(catalogo.itens);
 export const definicaoHabilidade=id=>clone(habilidades.get(id)?.definicao);
 export const definicaoItem=id=>clone(itens.get(id)?.definicao);
 export const lojasCatalogo=()=>clone([...lojas.values()]);

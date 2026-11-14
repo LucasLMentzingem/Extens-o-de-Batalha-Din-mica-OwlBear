@@ -1,8 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.4';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.4';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc} from './engine.mjs?v=0.8.4';
-import {lojasCatalogo} from './catalog.mjs?v=0.8.4';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.5';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.5';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc} from './engine.mjs?v=0.8.5';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.5';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -92,7 +92,7 @@ function render(){
   h+='</section><section>';
   if(a){
     const f=a.ficha;
-    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[]);
+    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[],gm);
     if(!mestre){
     if(f.pvMaximos)h+='<div class="numeros">'+[['PV',a.pv+' / '+pvMaximosAtuais(a)],['CA',caAtual(a)],['Movimento',Number(a.metros.toFixed(2))+' m'],['Ação',a.acao],['Bônus',a.bonus],['Reação',a.reacao]].map(([k,v])=>'<span><small>'+k+'</small><b>'+esc(v)+'</b></span>').join('')+'</div><div class="barra"><i style="width:'+100*a.pv/pvMaximosAtuais(a)+'%"></i></div>';
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
@@ -213,6 +213,23 @@ async function salvarFicha(){
   if(!pode)throw Error('Somente o mestre ou o dono da ficha pode alterá-la.');
   const dados=lerFicha(a);await enviar('atualizarFicha',{...dados,confirmado:gm&&a.ficha.tipo==='pj'});aviso('Alterações salvas.');
 }
+async function abrirAdicionarItemMestre(){
+  if(info.role!=='GM'||testar)throw Error('Somente o mestre pode adicionar itens.');
+  const itens=itensCatalogo().filter(x=>x.definicao?.tipo!=='moeda').sort((a,b)=>a.definicao.nome.localeCompare(b.definicao.nome,'pt-BR'));
+  $('gmItemRef').innerHTML=itens.map(x=>opt(x.id,x.definicao.nome)).join('');$('gmItemQuantidade').value=1;
+  const dlg=$('gmAdicionarItem');dlg.returnValue='nao';
+  const aceitou=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
+  if(!aceitou)return;
+  const itemRef=$('gmItemRef').value,quantidade=Number($('gmItemQuantidade').value);
+  await enviar('gmAdicionarItem',{itemRef,quantidade});aviso('Item adicionado ao inventário.');
+}
+async function abrirAdicionarPoMestre(){
+  if(info.role!=='GM'||testar)throw Error('Somente o mestre pode adicionar PO.');
+  $('gmPoQuantidade').value=1;const dlg=$('gmAdicionarPo');dlg.returnValue='nao';
+  const aceitou=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
+  if(!aceitou)return;
+  await enviar('gmAdicionarPo',{quantidade:Number($('gmPoQuantidade').value)});aviso('PO adicionadas ao inventário.');
+}
 async function alterarItem(operacao,slot){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
   const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
@@ -228,7 +245,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.4',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.5',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 async function alterarHabilidade(operacao){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!habilidadeContexto)return;
@@ -299,6 +316,8 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
  if(b.dataset.livroAba){paginaLivro=b.dataset.livroAba;return render();}
  if(b.hasAttribute('data-abrir-lojas'))return tarefa(()=>abrirLojas(escolhido));
+ if(b.hasAttribute('data-gm-adicionar-item'))return tarefa(abrirAdicionarItemMestre);
+ if(b.hasAttribute('data-gm-adicionar-po'))return tarefa(abrirAdicionarPoMestre);
  if(b.hasAttribute('data-fechar-loja-local')){lojaLocalAtor=null;return render();}
  if(b.dataset.lojaSalvar)return tarefa(()=>enviar('configurarLoja',{lojaId:b.dataset.lojaSalvar,ativa:document.querySelector('[data-loja-ativa="'+CSS.escape(b.dataset.lojaSalvar)+'"]')?.checked??false,descontoPct:Number(document.querySelector('[data-loja-desconto="'+CSS.escape(b.dataset.lojaSalvar)+'"]')?.value)}));
  if(b.dataset.configurarVinculo){escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}

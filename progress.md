@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-14 — controles de inventário do GM 0.8.5
+
+- Depois da barra de carga, o GM recebe os botões **Adicionar item** e **Adicionar PO**; eles não são renderizados para jogadores.
+- Adicionar item abre a lista ordenada do catálogo central e cria a quantidade escolhida como instância portátil, preservando peso, preço, propriedades e automações.
+- Moedas ficam separadas do seletor de itens; Adicionar PO aumenta diretamente o saldo da ficha manipulada.
+- O motor rejeita as duas operações quando enviadas por um jogador e registra cada intervenção no histórico.
+- Validação: 139 testes automatizados e fluxo visual completo com inclusão de duas adagas, 10 PO e ocultação dos controles na visão de jogador, sem erros no console.
+- A bateria de habilidades foi retomada com Saraivada de Espinhos contra três alvos: resistência a perfurante reduziu separadamente flecha e espinhos, falha recebeu dano integral e sucesso recebeu metade; todos os custos foram cobrados uma única vez.
+- Próxima etapa: ampliar os testes de interação entre habilidades e registrar qualquer falha nova nas issues do GitHub.
+
 ## 2026-11-14 — lojas, comércio e Saraivada de Espinhos 0.8.4
 
 - Todos os itens centrais passaram a ter preço e a moeda das fichas aponta para uma definição compartilhada.
