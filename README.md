@@ -1,5 +1,11 @@
 # La Arte · Mesa de combate
 
+## Lojas e comércio
+
+Fora de combate, o mestre pode ativar a **Ferraria de Victor** e a **La Arte** e aplicar de 1% a 30% de desconto em cada uma. O dono da ficha abre as lojas pelo ícone ao lado do saldo de PO no inventário. A janela lateral possui estoque infinito, comparação com o equipamento atual e uma página pessoal de recompra.
+
+Comprar valida dinheiro e capacidade de carga. Itens não equipados podem ser vendidos por 70% do preço-base e recomprados pelo mesmo valor recebido. Durante o combate, todas as lojas permanecem fechadas. Victor oferece equipamentos comuns; a La Arte oferece 22 itens incomuns e 20 raros.
+
 ## Jogar o encontro no navegador
 
 Abra **Iniciar simulador.cmd** no Windows ou execute `node servir.mjs` nesta pasta com Node 22 ou superior. Acesse [o simulador local](http://127.0.0.1:4178/). O servidor atende somente neste computador. O ensaio usa dados locais e guarda o encontro no navegador.

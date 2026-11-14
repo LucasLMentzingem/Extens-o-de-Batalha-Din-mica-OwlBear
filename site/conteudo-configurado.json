@@ -6,7 +6,7 @@
     "racas": 6,
     "habilidades": 250,
     "comuns": 14,
-    "itens": 49
+    "itens": 92
   },
   "sistemaEquipamentos": {
     "status": "Configurado",
@@ -1068,8 +1068,24 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Adaga +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Adaga da Brasa +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Aljava com 20 Flechas",
       "status": "Item, peso e carga configurados"
+    },
+    {
+      "nome": "Anel da Mão Firme",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Anel da Segunda Chance",
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Anel simples de oficina",
@@ -1077,6 +1093,14 @@
     },
     {
       "nome": "Arco longo",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Arco longo +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Arco Longo da Tempestade +2",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
@@ -1096,11 +1120,35 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Armadura de placas +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Armadura de placas +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Azagaia",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Azagaia +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Azagaia do Para-raios +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Botas de marcha (par)",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Botas do Passo Livre +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Botas Escapistas +2",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
@@ -1112,11 +1160,43 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Camisão de malha +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Camisão de malha +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Capa de viagem",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Capa do Mensageiro",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Cimitarra",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Cimitarra +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Cimitarra da Fornalha +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Colar do Fôlego das Docas",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Colar do Socorrista",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Colar do Vigia",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
@@ -1132,7 +1212,23 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Cota de malha +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Cota de malha +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Couro batido",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Couro da Sombra Curta",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Couro do Passo Macio",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
@@ -1140,11 +1236,35 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Escudo +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Escudo +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Espada Curta",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Espada curta +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Espada Curta da Escarcha +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Espada Grande",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Espada grande +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Espada Grande da Falha +2",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
@@ -1176,6 +1296,14 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Foice +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Foice da Geada +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Kit de Artista",
       "status": "Item, peso e carga configurados"
     },
@@ -1196,6 +1324,14 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Lança +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Lança do Abalo +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Livro das Sombras",
       "status": "Item, peso e carga configurados"
     },
@@ -1204,12 +1340,32 @@
       "status": "Item, peso e carga configurados"
     },
     {
+      "nome": "Luvas da Guarda +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Luvas de treino (par)",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Luvas do Dragão Ascendente +2",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Mangual",
       "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Mangual +1",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Mangual de Basalto +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Moedas",
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Moedas — 11 PO",
@@ -1246,6 +1402,22 @@
     {
       "nome": "Pé de cabra",
       "status": "Item, peso e carga configurados"
+    },
+    {
+      "nome": "Veste da Trama Serena",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Veste do Passo Nebuloso",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Veste do Último Fôlego",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Veste dos Bolsos de Oficina",
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Veste simples",

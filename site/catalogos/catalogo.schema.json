@@ -6,7 +6,8 @@
   "properties": {
     "versaoCatalogo": {"type": "integer", "minimum": 1},
     "habilidades": {"type": "array", "items": {"$ref": "#/$defs/entrada"}},
-    "itens": {"type": "array", "items": {"$ref": "#/$defs/entrada"}}
+    "itens": {"type": "array", "items": {"$ref": "#/$defs/entrada"}},
+    "lojas": {"type": "array", "items": {"type": "object", "required": ["id", "nome", "itens"]}}
   },
   "$defs": {
     "entrada": {

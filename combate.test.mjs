@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
@@ -766,6 +766,44 @@ test('catálogo do Victor registra todas as armas, proteções, acessórios e su
  const armas=catalogoVictor.itens.filter(i=>i.categoria==='arma'),placas=catalogoVictor.itens.find(i=>i.id==='victor-armadura-placas'),escudo=catalogoVictor.itens.find(i=>i.id==='victor-escudo'),veste=catalogoVictor.itens.find(i=>i.id==='victor-veste-simples');
  assert.equal(armas.length,9);assert.ok(armas.every(i=>i.modelosAcoes?.length));assert.equal(placas.preco.valor,1500);assert.equal(placas.classeArmadura.valor,18);assert.equal(escudo.slotEquipamento,'mao_fraca');assert.equal(escudo.classeArmadura.valor,2);assert.equal(veste.categoriaArmadura,'veste');
 });
+test('todos os itens possuem preço e a Ferraria de Victor respeita desconto de 1% a 30%',async()=>{
+ const catalogo=catalogoCentral();assert.ok(catalogo.itens.every(i=>i.definicao.preco?.valor>0&&['pc','pp','pe','po','pl'].includes(i.definicao.preco.moeda)));
+ const adaga=catalogoVictor.itens.find(i=>i.catalogoRef==='item.adaga');assert.equal(precoCompraPc(adaga,10),180);assert.equal(precoCompraPc(adaga,30),140);assert.equal(precoVendaPc(adaga),140);
+ let s=novo(),a=adicionar(s,nikki);a.dono='p';
+ s=await aplicar(s,{tipo:'configurarLoja',lojaId:'loja.ferraria-victor',ativa:true,descontoPct:10,rev:s.rev},gm,dadoLocal);assert.equal(lojasAtivas(s).length,1);
+ await assert.rejects(aplicar(s,{tipo:'configurarLoja',lojaId:'loja.ferraria-victor',ativa:true,descontoPct:31,rev:s.rev},gm,dadoLocal),/entre 1% e 30%/);
+});
+test('Victor é a primeira loja e a La Arte oferece os 22 incomuns e 20 raros por referência central',()=>{
+ const c=catalogoCentral(),[victor,laArte]=c.lojas;assert.equal(victor.id,'loja.ferraria-victor');assert.equal(laArte.id,'loja.la-arte');
+ const loja=resolverCatalogoLoja(laArte);assert.equal(loja.itens.length,42);assert.equal(loja.itens.filter(i=>i.raridade==='incomum').length,22);assert.equal(loja.itens.filter(i=>i.raridade==='raro').length,20);
+ assert.ok(loja.itens.every(i=>i.catalogoRef&&i.preco?.valor>0));assert.equal(loja.itens.find(i=>i.nome==='Luvas do Dragão Ascendente +2').preco.valor,1400);
+});
+test('item mágico comprado na La Arte conserva referência, preço e efeitos após compactar e reabrir',async()=>{
+ let s=novo(),a=adicionar(s,nikki);a.dono='p';a.ficha.inventario.itens.find(i=>i.tipo==='moeda').quantidade=2000;
+ s=await aplicar(s,{tipo:'configurarLoja',lojaId:'loja.la-arte',ativa:true,descontoPct:10,rev:s.rev},gm,dadoLocal);
+ const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte')),adaga=loja.itens.find(i=>i.nome==='Adaga da Brasa +2');
+ s=await aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.la-arte',itemRef:adaga.catalogoRef,quantidade:1,rev:s.rev},player,dadoLocal);
+ const comprada=s.atores[0].ficha.inventario.itens.find(i=>i.nome==='Adaga da Brasa +2');assert.equal(comprada.bonusMagico,2);assert.deepEqual(comprada.danoExtraAoAcertar,{formula:'1d4',elemento:'fogo',critico:false});
+ const salva=compactarEstado(s),instancia=salva.atores[0].ficha.inventario.itens.find(i=>i.id===comprada.id);assert.equal(instancia.ref,adaga.catalogoRef);assert.equal(instancia.definicaoLocal,undefined);
+ const reaberta=validar(salva.atores[0].ficha),item=reaberta.inventario.itens.find(i=>i.id===comprada.id);assert.equal(item.preco.valor,1170);assert.equal(item.danoExtraAoAcertar.elemento,'fogo');
+});
+test('compra, venda e recompra de Victor preservam dinheiro, peso e lista pessoal',async()=>{
+ let s=novo(),a=adicionar(s,nikki);a.dono='p';const saldoInicial=saldoMoedasPc(a),idsAntes=new Set(a.ficha.inventario.itens.map(i=>i.id));
+ s=await aplicar(s,{tipo:'configurarLoja',lojaId:'loja.ferraria-victor',ativa:true,descontoPct:10,rev:s.rev},gm,dadoLocal);a=s.atores[0];
+ s=await aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.ferraria-victor',itemRef:'item.adaga',quantidade:1,rev:s.rev},player,dadoLocal);a=s.atores[0];
+ const comprada=a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!idsAntes.has(i.id));assert.ok(comprada);assert.equal(saldoMoedasPc(a),saldoInicial-180);
+ s=await aplicar(s,{tipo:'vender',ator:a.id,lojaId:'loja.ferraria-victor',itemId:comprada.id,quantidade:1,rev:s.rev},player,dadoLocal);a=s.atores[0];
+ const recompra=recomprasDaLoja(s,'loja.ferraria-victor',a.id)[0];assert.equal(recompra.precoPc,140);assert.equal(saldoMoedasPc(a),saldoInicial-40);assert.equal(a.ficha.inventario.itens.some(i=>i.id===comprada.id),false);
+ s=await aplicar(s,{tipo:'recomprar',ator:a.id,lojaId:'loja.ferraria-victor',recompraId:recompra.id,rev:s.rev},player,dadoLocal);a=s.atores[0];
+ assert.equal(saldoMoedasPc(a),saldoInicial-180);assert.equal(recomprasDaLoja(s,'loja.ferraria-victor',a.id).length,0);assert.ok(a.ficha.inventario.itens.some(i=>i.catalogoRef==='item.adaga'));
+});
+test('loja bloqueia combate, saldo insuficiente, item equipado e excesso de carga sem alterar o estado',async()=>{
+ let s=novo(),a=adicionar(s,nikki);a.dono='p';s=await aplicar(s,{tipo:'configurarLoja',lojaId:'loja.ferraria-victor',ativa:true,descontoPct:1,rev:s.rev},gm,dadoLocal);a=s.atores[0];
+ const equipada=a.ficha.inventario.itens.find(i=>i.equipado&&i.tipo!=='moeda');await assert.rejects(aplicar(s,{tipo:'vender',ator:a.id,lojaId:'loja.ferraria-victor',itemId:equipada.id,rev:s.rev},player,dadoLocal),/não pode ser vendido/);
+ const antes=structuredClone(s);a.ficha.inventario.capacidadeCargaKg=pesoInventario(a);await assert.rejects(aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.ferraria-victor',itemRef:'item.adaga',rev:s.rev},player,dadoLocal),/capacidade de carga/);assert.equal(s.rev,antes.rev);
+ s=antes;a=s.atores[0];const moeda=a.ficha.inventario.itens.find(i=>i.tipo==='moeda');moeda.quantidade=.01;await assert.rejects(aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.ferraria-victor',itemRef:'item.adaga',rev:s.rev},player,dadoLocal),/PO insuficientes/);
+ const b=adicionar(s,soldado,'Soldado');s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,dadoLocal);await assert.rejects(aplicar(s,{tipo:'comprar',ator:a.id,lojaId:'loja.ferraria-victor',itemRef:'item.adaga',rev:s.rev},player,dadoLocal),/loja está fechada/);assert.ok(b);
+});
 test('ataques de arma são derivados somente dos itens equipados e desarmados continuam livres',()=>{
  const f=fichasJogadores.find(x=>x.id==='draven-thorne'),s=novo(),d=adicionar(s,f),nomes=opcoesDisponiveis(d).map(o=>o.nome);
  const armas=ataquesEquipados(d);assert.deepEqual(armas.map(o=>o.dadosEquipamento.tipoArma),['espada_grande']);
@@ -1128,14 +1166,17 @@ test('#15 Explosão Elemental tem um botão por tipo de dano; #14 Riso repete a 
 });
 
 test('#32 Saraivada de Espinhos, Golpe Constritor e Destruidor de Hordas',async()=>{
-  // Saraivada: só depois de acertar com arma à distância; salvaguarda de DES em área de 1,5 m
+  // Saraivada: aparece no ajuste de dano após arma à distância e resolve a salva em área.
   let {s,a,b}=await duelo('zurich',undefined,{distancia:6});const sar=opRev(a,'saraivada');
-  assert.equal(sar.automacao.atributo,'des');assert.equal(sar.automacao.raioM,1.5);
-  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:sar.id,ponto:{x:b.x,y:b.y}},player,roladorSala().rolar),/depois de acertar/);
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,roladorSala().rolar);
-  const pv=s.atores[1].pv;
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:sar.id,ponto:{x:b.x,y:b.y}},player,roladorSala({salva:2}).rolar);
-  assert.equal(s.atores[1].pv,pv-6);
+  assert.equal(sar.gatilho,'apos_acerto');assert.equal(sar.aprimoramento.salvaArea.raioM,1.5);
+  const pv=b.pv,bonus=a.bonus,espaco=a.rec['espaco-1'];let etapa=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,async(formula,meta)=>{
+    etapa++;if(meta.tipo==='ataque')return {total:18,natural:13,formula,resumo:'18'};
+    if(meta.tipo==='dano'){const extra=meta.adicionais.find(x=>x.id===sar.id);assert.ok(extra);return {total:11,natural:null,formula,resumo:'6 + 5',resultados:[{total:6,resumo:'1d8+3 = 6'},{total:5,resumo:'1d10 = 5'}],recursosAtivos:[sar.id],rerrolagensUsadas:[]};}
+    if(meta.tipo==='salvaguarda')return {total:2,natural:2,formula,resumo:'2'};
+    throw Error('rolagem inesperada '+meta.tipo);
+  });
+  assert.equal(s.atores[1].pv,pv-11);assert.equal(s.atores[0].bonus,bonus-1);assert.equal(s.atores[0].rec['espaco-1'],espaco-1);
   // Golpe Constritor: Contido e 1d6 no início do turno do alvo
   ({s,a,b}=await duelo('dragoberto'));const gc=opRev(a,'golpe constritor');
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,roladorSala().rolar);

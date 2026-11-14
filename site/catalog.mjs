@@ -1,6 +1,6 @@
-import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.3';
+import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.4';
 
-const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x]));
+const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x])),lojas=new Map((catalogo.lojas??[]).map(x=>[x.id,x]));
 const clone=x=>structuredClone(x);
 const objeto=x=>x&&typeof x==='object'&&!Array.isArray(x);
 function mesclar(base,ajustes){
@@ -20,6 +20,8 @@ export const versaoCatalogo=catalogo.versaoCatalogo;
 export const catalogoCentral=()=>clone(catalogo);
 export const definicaoHabilidade=id=>clone(habilidades.get(id)?.definicao);
 export const definicaoItem=id=>clone(itens.get(id)?.definicao);
+export const lojasCatalogo=()=>clone([...lojas.values()]);
+export const definicaoLoja=id=>clone(lojas.get(id));
 export function resolverCatalogoLoja(loja){
   const out=clone(loja);out.itens=(loja.itens??[]).map(registro=>{
     const base=registro.ref?itens.get(registro.ref)?.definicao:registro.definicaoLocal;
@@ -27,6 +29,7 @@ export function resolverCatalogoLoja(loja){
     return {...mesclar(base,registro.ajustes),...clone(registro),id:registro.id,catalogoRef:registro.ref};
   });return out;
 }
+export const resolverLoja=id=>{const loja=lojas.get(id);return loja?resolverCatalogoLoja(loja):undefined;};
 
 function resolverConcessao(c){
   const entrada=c.ref?habilidades.get(c.ref):null,base=entrada?.definicao??c.definicaoLocal;
@@ -46,6 +49,7 @@ function resolverInstancia(i){
   if(i.preferido)out.preferido=true;
   return out;
 }
+export const resolverInstanciaItem=resolverInstancia;
 
 export function resolverFicha(ficha){
   if(ficha?.versaoFormato!==2)return clone(ficha);
@@ -79,6 +83,7 @@ function instanciaDe(i,anterior){
   if(i.preferido)inst.preferido=true;else delete inst.preferido;
   return inst;
 }
+export const compactarInstanciaItem=(i,anterior)=>instanciaDe(i,anterior);
 
 export function compactarFicha(ficha){
   if(!ficha)return ficha;

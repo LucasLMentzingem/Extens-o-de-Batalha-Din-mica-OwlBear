@@ -886,7 +886,7 @@
     },
     {
       "id": "habilidade.1-saraivada-de-espinhos",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Saraivada de Espinhos",
         "categoria": "magia",
@@ -903,22 +903,20 @@
           }
         ],
         "circuloBase": 1,
-        "automacao": {
-          "tipo": "salva",
-          "atributo": "des",
-          "cd": 12,
+        "gatilho": "apos_acerto",
+        "aprimoramento": {
           "dano": "1d10",
           "elemento": "perfurante",
-          "metade": true,
-          "alcanceM": 18,
-          "raioM": 1.5
-        },
-        "requisitosUso": {
-          "aposAcerto": true,
-          "tagsAtaqueAnterior": [
-            "arma",
-            "distancia"
-          ]
+          "critico": false,
+          "requisitos": {
+            "tagsAtaque": ["arma", "distancia"]
+          },
+          "salvaArea": {
+            "atributo": "des",
+            "cd": 12,
+            "raioM": 1.5,
+            "metade": true
+          }
         }
       }
     },

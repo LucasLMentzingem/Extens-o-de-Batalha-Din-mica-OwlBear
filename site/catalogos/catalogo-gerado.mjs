@@ -887,7 +887,7 @@ export default {
     },
     {
       "id": "habilidade.1-saraivada-de-espinhos",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Saraivada de Espinhos",
         "categoria": "magia",
@@ -904,22 +904,23 @@ export default {
           }
         ],
         "circuloBase": 1,
-        "automacao": {
-          "tipo": "salva",
-          "atributo": "des",
-          "cd": 12,
+        "gatilho": "apos_acerto",
+        "aprimoramento": {
           "dano": "1d10",
           "elemento": "perfurante",
-          "metade": true,
-          "alcanceM": 18,
-          "raioM": 1.5
-        },
-        "requisitosUso": {
-          "aposAcerto": true,
-          "tagsAtaqueAnterior": [
-            "arma",
-            "distancia"
-          ]
+          "critico": false,
+          "requisitos": {
+            "tagsAtaque": [
+              "arma",
+              "distancia"
+            ]
+          },
+          "salvaArea": {
+            "atributo": "des",
+            "cd": 12,
+            "raioM": 1.5,
+            "metade": true
+          }
         }
       }
     },
@@ -5705,7 +5706,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -5745,7 +5751,8 @@ export default {
             "dano": "1d4",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -5788,7 +5795,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -5831,7 +5843,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -5874,7 +5891,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -5914,7 +5936,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -5957,7 +5984,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6000,7 +6032,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6015,7 +6052,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6031,7 +6073,8 @@ export default {
         },
         "pesoKg": 0.02,
         "slotEquipamento": "acessorio",
-        "descricao": "Adorno de metal sem efeito mecânico."
+        "descricao": "Adorno de metal sem efeito mecânico.",
+        "negociavel": true
       }
     },
     {
@@ -6067,7 +6110,8 @@ export default {
             "tipoDano": "perfurante",
             "municao": "victor-flechas-20"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -6103,7 +6147,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6139,7 +6188,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6160,7 +6214,12 @@ export default {
           "tipo": "base",
           "valor": 13,
           "classe": "leve"
-        }
+        },
+        "preco": {
+          "valor": 45,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6182,7 +6241,12 @@ export default {
           "valor": 11,
           "classe": "leve",
           "atributo": "des"
-        }
+        },
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6204,7 +6268,12 @@ export default {
           "valor": 12,
           "classe": "leve",
           "atributo": "des"
-        }
+        },
+        "preco": {
+          "valor": 45,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6232,7 +6301,8 @@ export default {
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade."
+        "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade.",
+        "negociavel": true
       }
     },
     {
@@ -6270,7 +6340,8 @@ export default {
             "dano": "1d6",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -6311,7 +6382,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 5,
+          "moeda": "pp"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6349,7 +6425,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 5,
+          "moeda": "pp"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6365,7 +6446,8 @@ export default {
         },
         "pesoKg": 1,
         "slotEquipamento": "botas",
-        "descricao": "Calçado de viagem."
+        "descricao": "Calçado de viagem.",
+        "negociavel": true
       }
     },
     {
@@ -6388,7 +6470,12 @@ export default {
           "classe": "media",
           "atributo": "des",
           "limiteAtributo": 2
-        }
+        },
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6412,7 +6499,8 @@ export default {
           "atributo": "des",
           "limiteAtributo": 2
         },
-        "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES.",
+        "negociavel": true
       }
     },
     {
@@ -6428,7 +6516,8 @@ export default {
         },
         "pesoKg": 1,
         "slotEquipamento": "capa",
-        "descricao": "Protege a roupa da poeira e do tempo."
+        "descricao": "Protege a roupa da poeira e do tempo.",
+        "negociavel": true
       }
     },
     {
@@ -6460,7 +6549,8 @@ export default {
             "dano": "1d6",
             "tipoDano": "cortante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -6494,7 +6584,12 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6528,7 +6623,12 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6544,7 +6644,8 @@ export default {
         },
         "pesoKg": 0.1,
         "slotEquipamento": "colar",
-        "descricao": "Adorno de metal sem efeito mecânico."
+        "descricao": "Adorno de metal sem efeito mecânico.",
+        "negociavel": true
       }
     },
     {
@@ -6560,7 +6661,8 @@ export default {
         },
         "pesoKg": 5,
         "empilhavel": true,
-        "descricao": "Corrente metálica reutilizável para prender ou amarrar."
+        "descricao": "Corrente metálica reutilizável para prender ou amarrar.",
+        "negociavel": true
       }
     },
     {
@@ -6588,7 +6690,8 @@ export default {
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade."
+        "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade.",
+        "negociavel": true
       }
     },
     {
@@ -6609,7 +6712,12 @@ export default {
           "tipo": "base",
           "valor": 16,
           "classe": "pesada"
-        }
+        },
+        "preco": {
+          "valor": 75,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6632,7 +6740,8 @@ export default {
           "classe": "leve",
           "atributo": "des"
         },
-        "descricao": "Armadura leve. CA 12 + DES."
+        "descricao": "Armadura leve. CA 12 + DES.",
+        "negociavel": true
       }
     },
     {
@@ -6654,7 +6763,8 @@ export default {
           "valor": 2,
           "classe": "escudo"
         },
-        "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana.",
+        "negociavel": true
       }
     },
     {
@@ -6676,7 +6786,12 @@ export default {
           "tipo": "bonus",
           "valor": 2,
           "classe": "escudo"
-        }
+        },
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6708,7 +6823,8 @@ export default {
             "dano": "1d6",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -6742,7 +6858,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6777,7 +6898,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6810,7 +6936,8 @@ export default {
             "dano": "2d6",
             "tipoDano": "cortante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -6844,7 +6971,12 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6859,7 +6991,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 20,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6874,7 +7011,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6890,7 +7032,8 @@ export default {
         },
         "pesoKg": 4,
         "empilhavel": false,
-        "descricao": "Kit para moldar, fabricar e reparar peças de metal."
+        "descricao": "Kit para moldar, fabricar e reparar peças de metal.",
+        "negociavel": true
       }
     },
     {
@@ -6906,7 +7049,8 @@ export default {
         },
         "pesoKg": 0.5,
         "empilhavel": true,
-        "descricao": "Munição para 20 disparos com arco."
+        "descricao": "Munição para 20 disparos com arco.",
+        "negociavel": true
       }
     },
     {
@@ -6921,7 +7065,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6936,7 +7085,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -6967,7 +7121,8 @@ export default {
             "dano": "1d4",
             "tipoDano": "cortante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -7000,7 +7155,12 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7015,7 +7175,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 40,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7030,7 +7195,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7045,7 +7215,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7060,7 +7235,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 12,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7075,7 +7255,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 15,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7115,7 +7300,8 @@ export default {
             "dano": "1d6",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -7159,7 +7345,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7203,7 +7394,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7246,7 +7442,12 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7261,7 +7462,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7276,7 +7482,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 65,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7292,7 +7503,8 @@ export default {
         },
         "pesoKg": 0.25,
         "slotEquipamento": "acessorio",
-        "descricao": "Protegem as mãos durante o treino."
+        "descricao": "Protegem as mãos durante o treino.",
+        "negociavel": true
       }
     },
     {
@@ -7322,7 +7534,8 @@ export default {
             "dano": "1d8",
             "tipoDano": "contundente"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -7354,7 +7567,12 @@ export default {
             "tipoDano": "contundente"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7369,7 +7587,14 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -7384,7 +7609,14 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -7399,7 +7631,14 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -7414,7 +7653,14 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -7429,7 +7675,14 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -7440,6 +7693,35 @@ export default {
         "descricao": "Saldo do kit inicial do Guardião (opção A).",
         "tipo": "moeda",
         "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
+      }
+    },
+    {
+      "id": "item.moedas-de-ouro",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas",
+        "descricao": "Saldo monetário expresso em peças de ouro; frações representam prata e cobre.",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": false,
         "pesoKg": 0.01,
         "slotEquipamento": null,
         "duasMaos": false,
@@ -7459,7 +7741,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 20,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7474,7 +7761,12 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 12,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -7495,7 +7787,8 @@ export default {
           "modo": "vantagem",
           "condicao": "quando a alavanca puder ajudar"
         },
-        "descricao": "Concede vantagem em testes de FOR quando puder ser usado como alavanca."
+        "descricao": "Concede vantagem em testes de FOR quando puder ser usado como alavanca.",
+        "negociavel": true
       }
     },
     {
@@ -7518,7 +7811,8 @@ export default {
           "classe": "veste",
           "atributo": "des"
         },
-        "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana."
+        "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana.",
+        "negociavel": true
       }
     },
     {
@@ -7533,8 +7827,1615 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 30,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
+    },
+    {
+      "id": "item.la-arte.azagaia-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Azagaia +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 415,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.foice-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Foice +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "foice",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "leve"
+        ],
+        "preco": {
+          "valor": 420,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "cortante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.lanca-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Lança +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 450,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.adaga-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 440,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.espada-curta-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada curta +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "espada_curta",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "preco": {
+          "valor": 465,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.mangual-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mangual +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "mangual",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo"
+        ],
+        "preco": {
+          "valor": 455,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "tipoDano": "contundente"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.cimitarra-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cimitarra +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "preco": {
+          "valor": 490,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.arco-longo-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco longo +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "preco": {
+          "valor": 540,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "duasMaos": true,
+        "leve": false,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante",
+            "municao": "victor-flechas-20"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.espada-grande-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada grande +1",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "espada_grande",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "duas_maos",
+          "pesada"
+        ],
+        "preco": {
+          "valor": 535,
+          "moeda": "po"
+        },
+        "pesoKg": 3,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": true,
+        "leve": false,
+        "descricao": "+1 ao acerto e ao dano.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "2d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "bonusMagico": 1,
+        "bonusDano": 1
+      }
+    },
+    {
+      "id": "item.la-arte.veste-bolsos-oficina",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Veste dos Bolsos de Oficina",
+        "tipo": "equipamento",
+        "categoria": "veste",
+        "preco": {
+          "valor": 430,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "veste",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 10,
+          "classe": "veste",
+          "atributo": "des"
+        },
+        "descricao": "Guarda até 15 kg em um bolso extradimensional; o conteúdo pesa 1 kg para o portador.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.veste-ultimo-folego",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Veste do Último Fôlego",
+        "tipo": "equipamento",
+        "categoria": "veste",
+        "preco": {
+          "valor": 440,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "veste",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 10,
+          "classe": "veste",
+          "atributo": "des"
+        },
+        "descricao": "Reação ao sofrer dano, 1 uso por descanso longo: reduza o dano em 1d6.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.couro-passo-macio",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Couro do Passo Macio",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 485,
+          "moeda": "po"
+        },
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 12,
+          "classe": "leve",
+          "atributo": "des"
+        },
+        "descricao": "Armadura leve, CA 12 + DES e +1 em testes de Furtividade.",
+        "negociavel": true,
+        "raridade": "incomum",
+        "modificadores": {
+          "furtividade": 1
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.camisao-malha-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Camisão de malha +1",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 530,
+          "moeda": "po"
+        },
+        "pesoKg": 10,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "media",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 14,
+          "classe": "media",
+          "atributo": "des",
+          "limiteAtributo": 2
+        },
+        "descricao": "Armadura média, CA 14 + DES (máximo +2).",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.cota-malha-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cota de malha +1",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 560,
+          "moeda": "po"
+        },
+        "pesoKg": 27.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 17,
+          "classe": "pesada"
+        },
+        "requisitos": {
+          "forca": 13
+        },
+        "penalidades": {
+          "furtividade": "desvantagem"
+        },
+        "descricao": "Armadura pesada, CA 17; FOR 13; desvantagem em Furtividade.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.placas-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura de placas +1",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 2000,
+          "moeda": "po"
+        },
+        "pesoKg": 32.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 19,
+          "classe": "pesada"
+        },
+        "requisitos": {
+          "forca": 15
+        },
+        "penalidades": {
+          "furtividade": "desvantagem"
+        },
+        "descricao": "Armadura pesada, CA 19; FOR 15; desvantagem em Furtividade.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.escudo-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo +1",
+        "tipo": "equipamento",
+        "categoria": "escudo",
+        "preco": {
+          "valor": 510,
+          "moeda": "po"
+        },
+        "pesoKg": 3,
+        "slotEquipamento": "mao_fraca",
+        "categoriaArmadura": "escudo",
+        "classeArmadura": {
+          "tipo": "bonus",
+          "valor": 3,
+          "classe": "escudo"
+        },
+        "descricao": "Empunhado na mão fraca. Concede +3 à CA.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.anel-mao-firme",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Anel da Mão Firme",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 425,
+          "moeda": "po"
+        },
+        "pesoKg": 0.02,
+        "slotEquipamento": "acessorio",
+        "descricao": "+1 em testes para abrir fechaduras com ferramentas de ladrão.",
+        "negociavel": true,
+        "raridade": "incomum",
+        "modificadores": {
+          "abrirFechaduras": 1
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.colar-folego-docas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Colar do Fôlego das Docas",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 430,
+          "moeda": "po"
+        },
+        "pesoKg": 0.1,
+        "slotEquipamento": "colar",
+        "descricao": "Ação bônus, 1 uso por descanso longo: respire debaixo d’água por 10 minutos.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.colar-vigia",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Colar do Vigia",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 470,
+          "moeda": "po"
+        },
+        "pesoKg": 0.1,
+        "slotEquipamento": "colar",
+        "descricao": "Concede +1 à iniciativa.",
+        "negociavel": true,
+        "raridade": "incomum",
+        "modificadores": {
+          "iniciativa": 1
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.capa-mensageiro",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Capa do Mensageiro",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 420,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "capa",
+        "descricao": "Ao usar Disparada, 1 uso por descanso curto ou longo: percorra mais 3 m no turno.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.luvas-guarda-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Luvas da Guarda +1",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 500,
+          "moeda": "po"
+        },
+        "pesoKg": 0.25,
+        "slotEquipamento": "acessorio",
+        "descricao": "Sem armadura, concede +1 à CA.",
+        "negociavel": true,
+        "raridade": "incomum",
+        "modificadoresCondicionais": {
+          "semArmadura": {
+            "ca": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.botas-passo-livre-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Botas do Passo Livre +1",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 445,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "botas",
+        "descricao": "Ignore o custo extra de terreno difícil não mágico.",
+        "negociavel": true,
+        "raridade": "incomum"
+      }
+    },
+    {
+      "id": "item.la-arte.azagaia-para-raios-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Azagaia do Para-raios +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 1120,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "+2 ao acerto e 1d4 de dano raio por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "raio",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.foice-geada-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Foice da Geada +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "foice",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "leve"
+        ],
+        "preco": {
+          "valor": 1110,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+2 ao acerto e 1d4 de dano frio por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "cortante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "frio",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.lanca-abalo-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Lança do Abalo +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 1190,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "+2 ao acerto e 1d4 de dano contundente por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "contundente",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.adaga-brasa-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga da Brasa +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 1170,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+2 ao acerto e 1d4 de dano fogo por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "fogo",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.espada-curta-escarcha-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada Curta da Escarcha +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "espada_curta",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "preco": {
+          "valor": 1230,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+2 ao acerto e 1d4 de dano frio por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "frio",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.mangual-basalto-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mangual de Basalto +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "mangual",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo"
+        ],
+        "preco": {
+          "valor": 1200,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "+2 ao acerto e 1d4 de dano contundente por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "tipoDano": "contundente"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "contundente",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.cimitarra-fornalha-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cimitarra da Fornalha +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "preco": {
+          "valor": 1300,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "+2 ao acerto e 1d4 de dano fogo por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "fogo",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.arco-longo-tempestade-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco Longo da Tempestade +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "preco": {
+          "valor": 1410,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "duasMaos": true,
+        "leve": false,
+        "descricao": "+2 ao acerto e 1d4 de dano raio por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante",
+            "municao": "victor-flechas-20"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "raio",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.espada-grande-falha-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada Grande da Falha +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "espada_grande",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "duas_maos",
+          "pesada"
+        ],
+        "preco": {
+          "valor": 1390,
+          "moeda": "po"
+        },
+        "pesoKg": 3,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": true,
+        "leve": false,
+        "descricao": "+2 ao acerto e 1d4 de dano contundente por acerto.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "2d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "bonusMagico": 2,
+        "bonusDano": 0,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "contundente",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.veste-passo-nebuloso",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Veste do Passo Nebuloso",
+        "tipo": "equipamento",
+        "categoria": "veste",
+        "preco": {
+          "valor": 1250,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "veste",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 10,
+          "classe": "veste",
+          "atributo": "des"
+        },
+        "descricao": "Ação bônus, 1 uso por descanso longo: teleporte-se até 9 m para um espaço visível desocupado.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.veste-trama-serena",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Veste da Trama Serena",
+        "tipo": "equipamento",
+        "categoria": "veste",
+        "preco": {
+          "valor": 1270,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "veste",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 10,
+          "classe": "veste",
+          "atributo": "des"
+        },
+        "descricao": "Ao falhar numa salvaguarda de CON para concentração, 1 uso por descanso longo: rerrole e use o novo resultado.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.couro-sombra-curta",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Couro da Sombra Curta",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 1350,
+          "moeda": "po"
+        },
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 12,
+          "classe": "leve",
+          "atributo": "des"
+        },
+        "descricao": "Armadura leve, CA 12 + DES. Ação bônus, 1 uso por descanso longo: invisível até o início do próximo turno.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.camisao-malha-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Camisão de malha +2",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 1390,
+          "moeda": "po"
+        },
+        "pesoKg": 10,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "media",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 15,
+          "classe": "media",
+          "atributo": "des",
+          "limiteAtributo": 2
+        },
+        "descricao": "Armadura média, CA 15 + DES (máximo +2).",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.cota-malha-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cota de malha +2",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 1460,
+          "moeda": "po"
+        },
+        "pesoKg": 27.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 18,
+          "classe": "pesada"
+        },
+        "requisitos": {
+          "forca": 13
+        },
+        "penalidades": {
+          "furtividade": "desvantagem"
+        },
+        "descricao": "Armadura pesada, CA 18; FOR 13; desvantagem em Furtividade.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.placas-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura de placas +2",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 5050,
+          "moeda": "po"
+        },
+        "pesoKg": 32.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 20,
+          "classe": "pesada"
+        },
+        "requisitos": {
+          "forca": 15
+        },
+        "penalidades": {
+          "furtividade": "desvantagem"
+        },
+        "descricao": "Armadura pesada, CA 20; FOR 15; desvantagem em Furtividade.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.escudo-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo +2",
+        "tipo": "equipamento",
+        "categoria": "escudo",
+        "preco": {
+          "valor": 1325,
+          "moeda": "po"
+        },
+        "pesoKg": 3,
+        "slotEquipamento": "mao_fraca",
+        "categoriaArmadura": "escudo",
+        "classeArmadura": {
+          "tipo": "bonus",
+          "valor": 4,
+          "classe": "escudo"
+        },
+        "descricao": "Empunhado na mão fraca. Concede +4 à CA.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.anel-segunda-chance",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Anel da Segunda Chance",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 1300,
+          "moeda": "po"
+        },
+        "pesoKg": 0.02,
+        "slotEquipamento": "acessorio",
+        "descricao": "Ao falhar numa salvaguarda, 1 uso por descanso longo: rerrole e use o novo resultado.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.colar-socorrista",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Colar do Socorrista",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 1275,
+          "moeda": "po"
+        },
+        "pesoKg": 0.1,
+        "slotEquipamento": "colar",
+        "descricao": "Ação e toque numa criatura viva com 0 PV, 1 uso por descanso longo: ela recupera 2d8+2 PV.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    },
+    {
+      "id": "item.la-arte.luvas-dragao-ascendente-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Luvas do Dragão Ascendente +2",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 1400,
+          "moeda": "po"
+        },
+        "pesoKg": 0.25,
+        "slotEquipamento": "acessorio",
+        "descricao": "Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura, concede também +1 à CA.",
+        "negociavel": true,
+        "raridade": "raro",
+        "danoExtraDesarmado": {
+          "formula": "1d4",
+          "elemento": "fogo",
+          "critico": false
+        },
+        "modificadoresCondicionais": {
+          "semArmadura": {
+            "ca": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "item.la-arte.botas-escapistas-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Botas Escapistas +2",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 1250,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "botas",
+        "descricao": "Ação bônus, 1 uso por descanso longo: use Desengajar e Disparada juntos e não provoque ataques de oportunidade nesse turno.",
+        "negociavel": true,
+        "raridade": "raro"
+      }
+    }
+  ],
+  "lojas": [
+    {
+      "$schema": "./catalogo-victor.schema.json",
+      "versaoFormato": 2,
+      "id": "loja.ferraria-victor",
+      "nome": "Ferraria de Victor",
+      "descricao": "Armas, armaduras, ferramentas e suprimentos comuns produzidos ou revendidos por Victor.",
+      "descontoMinimoPct": 1,
+      "descontoMaximoPct": 30,
+      "itens": [
+        {
+          "id": "victor-azagaia",
+          "ref": "item.azagaia"
+        },
+        {
+          "id": "victor-foice",
+          "ref": "item.foice"
+        },
+        {
+          "id": "victor-lanca",
+          "ref": "item.lanca"
+        },
+        {
+          "id": "victor-adaga",
+          "ref": "item.adaga"
+        },
+        {
+          "id": "victor-espada-curta",
+          "ref": "item.espada-curta"
+        },
+        {
+          "id": "victor-mangual",
+          "ref": "item.mangual"
+        },
+        {
+          "id": "victor-cimitarra",
+          "ref": "item.cimitarra"
+        },
+        {
+          "id": "victor-arco-longo",
+          "ref": "item.arco-longo"
+        },
+        {
+          "id": "victor-espada-grande",
+          "ref": "item.espada-grande"
+        },
+        {
+          "id": "victor-veste-simples",
+          "ref": "item.veste-simples"
+        },
+        {
+          "id": "victor-couro-batido",
+          "ref": "item.couro-batido"
+        },
+        {
+          "id": "victor-camisao-malha",
+          "ref": "item.camisao-de-malha"
+        },
+        {
+          "id": "victor-cota-malha",
+          "ref": "item.cota-de-malha"
+        },
+        {
+          "id": "victor-armadura-placas",
+          "ref": "item.armadura-de-placas"
+        },
+        {
+          "id": "victor-escudo",
+          "ref": "item.escudo"
+        },
+        {
+          "id": "victor-anel-simples",
+          "ref": "item.anel-simples-de-oficina"
+        },
+        {
+          "id": "victor-colar-simples",
+          "ref": "item.colar-simples-de-oficina"
+        },
+        {
+          "id": "victor-capa-viagem",
+          "ref": "item.capa-de-viagem"
+        },
+        {
+          "id": "victor-luvas-treino",
+          "ref": "item.luvas-de-treino-par"
+        },
+        {
+          "id": "victor-botas-marcha",
+          "ref": "item.botas-de-marcha-par"
+        },
+        {
+          "id": "victor-flechas-20",
+          "ref": "item.flechas-20"
+        },
+        {
+          "id": "victor-pe-cabra",
+          "ref": "item.pe-de-cabra"
+        },
+        {
+          "id": "victor-corrente-3m",
+          "ref": "item.corrente-3-m"
+        },
+        {
+          "id": "victor-ferramentas-ferreiro",
+          "ref": "item.ferramentas-de-ferreiro"
+        }
+      ]
+    },
+    {
+      "versaoFormato": 2,
+      "id": "loja.la-arte",
+      "nome": "La Arte",
+      "descricao": "Itens mágicos incomuns e raros criados por Laerte.",
+      "descontoMinimoPct": 1,
+      "descontoMaximoPct": 30,
+      "itens": [
+        {
+          "id": "la-arte-azagaia-mais-1",
+          "ref": "item.la-arte.azagaia-mais-1"
+        },
+        {
+          "id": "la-arte-foice-mais-1",
+          "ref": "item.la-arte.foice-mais-1"
+        },
+        {
+          "id": "la-arte-lanca-mais-1",
+          "ref": "item.la-arte.lanca-mais-1"
+        },
+        {
+          "id": "la-arte-adaga-mais-1",
+          "ref": "item.la-arte.adaga-mais-1"
+        },
+        {
+          "id": "la-arte-espada-curta-mais-1",
+          "ref": "item.la-arte.espada-curta-mais-1"
+        },
+        {
+          "id": "la-arte-mangual-mais-1",
+          "ref": "item.la-arte.mangual-mais-1"
+        },
+        {
+          "id": "la-arte-cimitarra-mais-1",
+          "ref": "item.la-arte.cimitarra-mais-1"
+        },
+        {
+          "id": "la-arte-arco-longo-mais-1",
+          "ref": "item.la-arte.arco-longo-mais-1"
+        },
+        {
+          "id": "la-arte-espada-grande-mais-1",
+          "ref": "item.la-arte.espada-grande-mais-1"
+        },
+        {
+          "id": "la-arte-veste-bolsos-oficina",
+          "ref": "item.la-arte.veste-bolsos-oficina"
+        },
+        {
+          "id": "la-arte-veste-ultimo-folego",
+          "ref": "item.la-arte.veste-ultimo-folego"
+        },
+        {
+          "id": "la-arte-couro-passo-macio",
+          "ref": "item.la-arte.couro-passo-macio"
+        },
+        {
+          "id": "la-arte-camisao-malha-mais-1",
+          "ref": "item.la-arte.camisao-malha-mais-1"
+        },
+        {
+          "id": "la-arte-cota-malha-mais-1",
+          "ref": "item.la-arte.cota-malha-mais-1"
+        },
+        {
+          "id": "la-arte-placas-mais-1",
+          "ref": "item.la-arte.placas-mais-1"
+        },
+        {
+          "id": "la-arte-escudo-mais-1",
+          "ref": "item.la-arte.escudo-mais-1"
+        },
+        {
+          "id": "la-arte-anel-mao-firme",
+          "ref": "item.la-arte.anel-mao-firme"
+        },
+        {
+          "id": "la-arte-colar-folego-docas",
+          "ref": "item.la-arte.colar-folego-docas"
+        },
+        {
+          "id": "la-arte-colar-vigia",
+          "ref": "item.la-arte.colar-vigia"
+        },
+        {
+          "id": "la-arte-capa-mensageiro",
+          "ref": "item.la-arte.capa-mensageiro"
+        },
+        {
+          "id": "la-arte-luvas-guarda-mais-1",
+          "ref": "item.la-arte.luvas-guarda-mais-1"
+        },
+        {
+          "id": "la-arte-botas-passo-livre-mais-1",
+          "ref": "item.la-arte.botas-passo-livre-mais-1"
+        },
+        {
+          "id": "la-arte-azagaia-para-raios-mais-2",
+          "ref": "item.la-arte.azagaia-para-raios-mais-2"
+        },
+        {
+          "id": "la-arte-foice-geada-mais-2",
+          "ref": "item.la-arte.foice-geada-mais-2"
+        },
+        {
+          "id": "la-arte-lanca-abalo-mais-2",
+          "ref": "item.la-arte.lanca-abalo-mais-2"
+        },
+        {
+          "id": "la-arte-adaga-brasa-mais-2",
+          "ref": "item.la-arte.adaga-brasa-mais-2"
+        },
+        {
+          "id": "la-arte-espada-curta-escarcha-mais-2",
+          "ref": "item.la-arte.espada-curta-escarcha-mais-2"
+        },
+        {
+          "id": "la-arte-mangual-basalto-mais-2",
+          "ref": "item.la-arte.mangual-basalto-mais-2"
+        },
+        {
+          "id": "la-arte-cimitarra-fornalha-mais-2",
+          "ref": "item.la-arte.cimitarra-fornalha-mais-2"
+        },
+        {
+          "id": "la-arte-arco-longo-tempestade-mais-2",
+          "ref": "item.la-arte.arco-longo-tempestade-mais-2"
+        },
+        {
+          "id": "la-arte-espada-grande-falha-mais-2",
+          "ref": "item.la-arte.espada-grande-falha-mais-2"
+        },
+        {
+          "id": "la-arte-veste-passo-nebuloso",
+          "ref": "item.la-arte.veste-passo-nebuloso"
+        },
+        {
+          "id": "la-arte-veste-trama-serena",
+          "ref": "item.la-arte.veste-trama-serena"
+        },
+        {
+          "id": "la-arte-couro-sombra-curta",
+          "ref": "item.la-arte.couro-sombra-curta"
+        },
+        {
+          "id": "la-arte-camisao-malha-mais-2",
+          "ref": "item.la-arte.camisao-malha-mais-2"
+        },
+        {
+          "id": "la-arte-cota-malha-mais-2",
+          "ref": "item.la-arte.cota-malha-mais-2"
+        },
+        {
+          "id": "la-arte-placas-mais-2",
+          "ref": "item.la-arte.placas-mais-2"
+        },
+        {
+          "id": "la-arte-escudo-mais-2",
+          "ref": "item.la-arte.escudo-mais-2"
+        },
+        {
+          "id": "la-arte-anel-segunda-chance",
+          "ref": "item.la-arte.anel-segunda-chance"
+        },
+        {
+          "id": "la-arte-colar-socorrista",
+          "ref": "item.la-arte.colar-socorrista"
+        },
+        {
+          "id": "la-arte-luvas-dragao-ascendente-mais-2",
+          "ref": "item.la-arte.luvas-dragao-ascendente-mais-2"
+        },
+        {
+          "id": "la-arte-botas-escapistas-mais-2",
+          "ref": "item.la-arte.botas-escapistas-mais-2"
+        }
+      ]
     }
   ]
 };

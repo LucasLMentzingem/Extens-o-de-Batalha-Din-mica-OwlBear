@@ -1,7 +1,11 @@
 {
   "$schema": "./catalogo-victor.schema.json",
   "versaoFormato": 2,
-  "loja": "Ferraria de Victor",
+  "id": "loja.ferraria-victor",
+  "nome": "Ferraria de Victor",
+  "descricao": "Armas, armaduras, ferramentas e suprimentos comuns produzidos ou revendidos por Victor.",
+  "descontoMinimoPct": 1,
+  "descontoMaximoPct": 30,
   "itens": [
     {
       "id": "victor-azagaia",

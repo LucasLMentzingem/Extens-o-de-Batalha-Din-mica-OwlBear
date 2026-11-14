@@ -1,5 +1,16 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-14 — lojas, comércio e Saraivada de Espinhos 0.8.4
+
+- Todos os itens centrais passaram a ter preço e a moeda das fichas aponta para uma definição compartilhada.
+- O catálogo gerado inclui a Ferraria de Victor como primeira loja e a La Arte como segunda loja, ambas com desconto configurável de 1% a 30%.
+- A La Arte possui catálogo próprio com 22 itens incomuns e 20 raros, incluindo armas mágicas, armaduras, escudos e acessórios.
+- O motor já resolve compra, venda por 70% e recompra pessoal pelo valor recebido, validando proprietário, saldo, carga, item equipado e combate parado.
+- O Controle do mestre ativa cada loja e define o desconto; o inventário abre a janela lateral com páginas de estoque e recompra pessoal.
+- Saraivada de Espinhos agora aparece no ajuste do dano após um acerto à distância; escolhê-la gasta os recursos e resolve a salvaguarda em área.
+- Validação: 137 testes automatizados; fluxo visual com as duas lojas ativas, compra em Victor e troca para o estoque completo da La Arte, sem erros de console.
+- Próxima bateria registrada: confirmar as correções do PR 36 nas respectivas issues e, depois, testar interações entre habilidades.
+
 ## 2026-11-14 — catálogo central e fichas por referência 0.8.3
 
 - Habilidades e itens reutilizáveis passaram para os catálogos centrais em `site/catalogos`; as oito fichas distribuídas foram migradas para o formato 2 e guardam apenas concessões e instâncias.

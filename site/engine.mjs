@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.3';
-import {resolverFicha} from './catalog.mjs?v=0.8.3';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.4';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.4';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -218,7 +218,7 @@ function corrigirMagiasRevisao(f){
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
     if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno',...(/riso/.test(nome)?{aoSofrerDano:true}:{})}; // #18
     if(nome==='talho mental'&&o.automacao?.efeitoFalha&&!o.automacao.efeitoFalha.expira){o.automacao.efeitoFalha.turnos=2;o.automacao.efeitoFalha.expira='fim_origem';} // #13 até o fim do próximo turno do conjurador
-    if(nome==='saraivada de espinhos'&&!o.automacao){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
+    if(nome==='saraivada de espinhos'&&!o.automacao&&!o.aprimoramento){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
     if(nome==='golpe constritor'&&!o.automacao){o.automacao={tipo:'salva',atributo:'for',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,alcanceM:18,efeitoFalha:{nome:'Contido (Golpe Constritor)',condicao:'contido',turnos:10,danoInicioTurno:{formula:'1d6',elemento:'perfurante'}}};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma'],alvoIgualAoAnterior:true};}
     if(/destruidor de hordas/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.usarArmaAnterior)o.automacao.usarArmaAnterior=true;
     if(/^torrente de golpes/.test(completo)&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente')){
@@ -325,6 +325,9 @@ function normalizarItemEquipamento(item){
     Object.assign(item,structuredClone(base),explicitos,{categoria:'arma',tipo:'equipamento',tipoArma:chave,slotEquipamento:explicitos.slotEquipamento??base.slotEquipamento,grupoProficiencia:item.grupoProficiencia??base.grupoProficiencia,propriedades:[...new Set([...(base.propriedades??[]),...(item.propriedades??[])])],modelosAcoes:structuredClone(modelos)});
   }
   Object.assign(item,dadosArmadura(item.nome,item.descricao,item));
+  item.preco??={valor:1,moeda:'po'};
+  if(item.tipo==='moeda'){item.moeda??='po';item.valorMoedaPc??=100;item.negociavel=false;}
+  else if(item.negociavel===undefined)item.negociavel=true;
   return item;
 }
 const armaLeve=i=>i?.leve===true||/adaga|foice|espada curta|cimitarra|clava leve|machadinha/.test(textoNormal(i?.nome));
@@ -397,7 +400,7 @@ function equiparInicial(itens,ficha){
 }
 export function inventarioNormalizado(f){
   if(f.inventario?.itens){
-    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===5)return inv;
+    const inv=structuredClone(f.inventario);if(inv.versaoOcupacao===5){inv.itens=inv.itens.map(normalizarItemEquipamento);return inv;}
     const preservaEquipados=Number(inv.versaoOcupacao)>=3;
     inv.itens=separarCopias(inv.itens.map(i=>normalizarItemEquipamento({...i,pesoKg:Number(i.pesoKg)>0?Number(i.pesoKg):pesoItemPadrao(i.nome,i.descricao)})));
     if(!preservaEquipados)equiparInicial(inv.itens,f);inv.versaoOcupacao=5;return inv;
@@ -529,7 +532,9 @@ export function validar(f) {
   lista(out.inventario.itens,'Inventário');
   for(const item of out.inventario.itens){
     exigir(nomeOK(item.nome)&&['equipamento','consumivel','etc','moeda'].includes(item.tipo),'Item inválido em '+item.id);
-    exigir(inteiro(item.quantidade,1,999999)&&Number.isFinite(item.pesoKg)&&item.pesoKg>=0,'Quantidade ou peso inválido em '+item.id);
+    const quantidadeValida=item.tipo==='moeda'?Number.isFinite(item.quantidade)&&item.quantidade>0&&item.quantidade<=999999&&Number.isInteger(item.quantidade*100):inteiro(item.quantidade,1,999999);
+    exigir(quantidadeValida&&Number.isFinite(item.pesoKg)&&item.pesoKg>=0,'Quantidade ou peso inválido em '+item.id);
+    exigir(precoEmPc(item)>0,'Preço inválido em '+item.id);
     if(item.tipo==='equipamento')exigir(slotsEquipamento.includes(item.slotEquipamento)||item.slotEquipamento==='acessorio','Slot de equipamento inválido em '+item.id);
     if(item.equipado)exigir(slotsEquipamento.includes(item.equipadoSlot),'Slot equipado inválido em '+item.id);
     if(item.duasMaos!==undefined)exigir(typeof item.duasMaos==='boolean','Propriedade de duas mãos inválida em '+item.id);
@@ -574,7 +579,7 @@ export function validar(f) {
   }
   return out;
 }
-export const novo = () => ({rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[],filaReacoes:[]});
+export const novo = () => {const s={rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[],filaReacoes:[]};normalizarComercio(s);return s;};
 export function adicionar(s,f,nome=f.nome) {
   const ficha=validar(f);
   const a={id:crypto.randomUUID(),nome,ficha,token:null,dono:null,emCombate:true,pv:f.pvMaximos,pvTemporarios:0,estadoVida:'consciente',salvaguardasMorte:{sucessos:0,falhas:0},rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),usosTurno:{},eventosTurno:{ataques:[],acertos:[]},x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
@@ -714,7 +719,7 @@ export const opcaoPorId=(a,id)=>{
   const secundaria=/segunda|m[aã]o fraca|a[cç][aã]o b[oô]nus/i.test(antiga.nome);
   return candidatas.find(o=>Boolean(o.automacao.arremesso)===Boolean(arremesso)&&Boolean(o.custo?.some(c=>c.tipo==='bonus'))===Boolean(secundaria))??candidatas.find(o=>Boolean(o.automacao.arremesso)===Boolean(arremesso));
 };
-export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Number(i.modificadores?.[campo])||0),0);
+export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Number(i.modificadores?.[campo])||0)+(!usaArmadura(a)?Number(i.modificadoresCondicionais?.semArmadura?.[campo])||0:0),0);
 export const bonusPassiva=(a,campo)=>(a?.ficha?.passivas??[]).filter(p=>p.ativa!==false).reduce((n,p)=>n+(Number(p.modificadores?.[campo])||0),0);
 export const caAtual=a=>{
   const mongeSemArmadura=(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')&&!usaArmadura(a);
@@ -729,7 +734,45 @@ export const deslocamentoMaximo=a=>{
   return Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusPassiva(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM')-penalidade-perdeBonusMonge);
 };
 export const bonusIniciativa=a=>mod(a?.ficha?.atributos?.des??10)+bonusEquipamento(a,'iniciativa')+bonusPassiva(a,'iniciativa')+bonusEfeito(a,'iniciativa');
-export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(1,Number(i.quantidade)||1),0);
+export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(0,Number(i.quantidade)||0),0);
+const VALOR_MOEDA_PC=Object.freeze({pc:1,pp:10,pe:50,po:100,pl:1000});
+export function precoEmPc(item){
+  const p=item?.preco,unidade=VALOR_MOEDA_PC[p?.moeda];
+  return Number.isFinite(p?.valor)&&p.valor>0&&unidade?Math.round(p.valor*unidade):0;
+}
+export const saldoMoedasPc=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.tipo==='moeda').reduce((n,i)=>n+Math.round((Number(i.quantidade)||0)*(Number(i.valorMoedaPc)||VALOR_MOEDA_PC[i.moeda]||100)),0);
+export const saldoMoedasPo=a=>saldoMoedasPc(a)/100;
+export const precoCompraPc=(item,descontoPct)=>Math.max(1,Math.ceil(precoEmPc(item)*(100-descontoPct)/100));
+export const precoVendaPc=item=>Math.max(1,Math.floor(precoEmPc(item)*.7));
+export function normalizarComercio(s){
+  s.comercio??={lojas:{}};s.comercio.lojas??={};
+  for(const loja of lojasCatalogo()){
+    const estado=s.comercio.lojas[loja.id]??={ativa:false,descontoPct:loja.descontoMinimoPct??1,recomprasPorAtor:{}};
+    estado.ativa=Boolean(estado.ativa);estado.descontoPct=inteiro(estado.descontoPct,loja.descontoMinimoPct??1,loja.descontoMaximoPct??30)?estado.descontoPct:loja.descontoMinimoPct??1;estado.recomprasPorAtor??={};
+  }
+  return s.comercio;
+}
+export const lojasAtivas=s=>{normalizarComercio(s);return lojasCatalogo().filter(loja=>s.comercio.lojas[loja.id]?.ativa);};
+export function recomprasDaLoja(s,lojaId,atorId){normalizarComercio(s);return s.comercio.lojas[lojaId]?.recomprasPorAtor?.[atorId]??[];}
+function definirSaldoMoedasPc(a,totalPc){
+  exigir(inteiro(totalPc,0,999999999),'Saldo monetário inválido.');
+  const itens=a.ficha.inventario.itens,moedas=itens.filter(i=>i.tipo==='moeda');
+  a.ficha.inventario.itens=itens.filter(i=>i.tipo!=='moeda');
+  if(totalPc===0)return;
+  const moeda=moedas[0]??resolverInstanciaItem({id:crypto.randomUUID(),ref:'item.moedas-de-ouro',quantidade:1});
+  moeda.quantidade=totalPc/100;moeda.equipado=false;delete moeda.equipadoSlot;
+  a.ficha.inventario.itens.push(moeda);
+}
+function adicionarItemInventario(a,item){
+  const itens=a.ficha.inventario.itens,igual=item.empilhavel&&itens.find(i=>!i.equipado&&i.catalogoRef===item.catalogoRef&&i.tipo===item.tipo);
+  if(igual){igual.quantidade+=item.quantidade;return igual;}
+  itens.push(item);return item;
+}
+function retirarQuantidadeItem(a,item,quantidade){
+  exigir(inteiro(quantidade,1,Math.floor(item.quantidade)),'Quantidade inválida.');
+  if(quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);
+  else item.quantidade-=quantidade;
+}
 export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 export function curarAtor(a,valor){
   const antes=a.pv,quantidade=Math.max(0,Math.floor(Number(valor)||0));
@@ -774,7 +817,12 @@ function opcoesDepoisDoAcerto(a,o,alvo){
     const r=g.aprimoramento.requisitos??{};return (!r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t)))&&(!r.alvoFerido||alvo.pv<pvMaximosAtuais(alvo));
   });
   const persistentes=(alvo.efeitosAtivos??[]).filter(e=>e.danoAoSerAtingido?.origemAtorId===a.id).filter(e=>!e.danoAoSerAtingido.tagsAtaque?.length||e.danoAoSerAtingido.tagsAtaque.every(t=>tags.includes(t))).map(e=>({id:e.id,nome:e.nome,descricao:e.descricao,custo:[],automatico:true,aprimoramento:{dano:e.danoAoSerAtingido.formula,elemento:e.danoAoSerAtingido.elemento,critico:e.danoAoSerAtingido.critico!==false}}));
-  return [...manuais,...persistentes];
+  const equipamento=itensEquipados(a).flatMap(i=>{
+    if(i.danoExtraAoAcertar&&o.origemItem===i.id)return [{id:'extra-'+i.id,nome:i.nome,descricao:i.descricao,custo:[],automatico:true,aprimoramento:{dano:i.danoExtraAoAcertar.formula,elemento:i.danoExtraAoAcertar.elemento,critico:i.danoExtraAoAcertar.critico!==false}}];
+    if(i.danoExtraDesarmado&&tags.includes('desarmado'))return [{id:'extra-desarmado-'+i.id,nome:i.nome,descricao:i.descricao,custo:[],automatico:true,aprimoramento:{dano:i.danoExtraDesarmado.formula,elemento:i.danoExtraDesarmado.elemento,critico:i.danoExtraDesarmado.critico!==false}}];
+    return [];
+  });
+  return [...manuais,...persistentes,...equipamento];
 }
 function opcoesRerrolagemDano(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 // #30 Magia Potencializada só vale para dano de magia.
@@ -966,7 +1014,7 @@ function iniciarTurnos(s){
 export async function aplicar(s,c,u,rolar) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
-  s.filaReacoes??=[];
+  s.filaReacoes??=[];normalizarComercio(s);
   for(const p of s.atores){
     atualizarMagias(p.ficha);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
   }
@@ -1033,7 +1081,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso','ordenarIniciativa'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1194,6 +1242,49 @@ export async function aplicar(s,c,u,rolar) {
         msg=a.nome+' '+(habilidade.ativa?'ativou ':'desativou ')+habilidade.nome+'.';
       }
       break;
+    }
+    case 'configurarLoja': {
+      const loja=resolverLoja(c.lojaId);
+      exigir(s.fase==='preparo'&&loja,'Configure lojas somente fora de combate.');
+      const minimo=loja.descontoMinimoPct??1,maximo=loja.descontoMaximoPct??30;
+      exigir(inteiro(c.descontoPct,minimo,maximo),'O desconto deve ficar entre '+minimo+'% e '+maximo+'%.');
+      const estado=s.comercio.lojas[loja.id];estado.ativa=Boolean(c.ativa);estado.descontoPct=c.descontoPct;
+      msg=loja.nome+' foi '+(estado.ativa?'aberta com '+estado.descontoPct+'% de desconto':'fechada')+'.';break;
+    }
+    case 'comprar': {
+      const loja=resolverLoja(c.lojaId),estado=s.comercio.lojas[c.lojaId];
+      exigir(s.fase==='preparo'&&loja&&estado?.ativa,'Esta loja está fechada.');
+      const itemLoja=loja.itens.find(i=>i.catalogoRef===c.itemRef),quantidade=c.quantidade??1;
+      exigir(itemLoja&&inteiro(quantidade,1,99),'Item ou quantidade de compra inválida.');
+      const unitario=precoCompraPc(itemLoja,estado.descontoPct),total=unitario*quantidade,saldo=saldoMoedasPc(a);
+      exigir(saldo>=total,'PO insuficientes para esta compra.');
+      definirSaldoMoedasPc(a,saldo-total);
+      const item=structuredClone(itemLoja);item.id=crypto.randomUUID();item.quantidade=quantidade;item.equipado=false;delete item.equipadoSlot;delete item.ref;delete item.ajustes;
+      adicionarItemInventario(a,item);
+      exigir(pesoInventario(a)<=a.ficha.inventario.capacidadeCargaKg+1e-8,'A compra ultrapassa a capacidade de carga.');
+      msg=a.nome+' comprou '+quantidade+'× '+item.nome+' por '+(total/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO na '+loja.nome+'.';break;
+    }
+    case 'vender': {
+      const loja=resolverLoja(c.lojaId),estado=s.comercio.lojas[c.lojaId],item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId),quantidade=c.quantidade??1;
+      exigir(s.fase==='preparo'&&loja&&estado?.ativa,'Esta loja está fechada.');
+      exigir(item&&item.tipo!=='moeda'&&item.negociavel!==false&&!item.equipado,'O item não pode ser vendido agora.');
+      exigir(inteiro(quantidade,1,Math.floor(item.quantidade)),'Quantidade de venda inválida.');
+      const unitario=precoVendaPc(item),total=unitario*quantidade,saldo=saldoMoedasPc(a),vendido=structuredClone(item);
+      vendido.quantidade=quantidade;vendido.equipado=false;delete vendido.equipadoSlot;
+      if(quantidade!==item.quantidade)vendido.id=crypto.randomUUID();
+      retirarQuantidadeItem(a,item,quantidade);definirSaldoMoedasPc(a,saldo+total);
+      exigir(pesoInventario(a)<=a.ficha.inventario.capacidadeCargaKg+1e-8,'As moedas recebidas ultrapassam a capacidade de carga.');
+      const lista=estado.recomprasPorAtor[a.id]??=[];lista.push({id:crypto.randomUUID(),instancia:compactarInstanciaItem(vendido),precoPc:total,vendidoEm:Date.now()});
+      msg=a.nome+' vendeu '+quantidade+'× '+vendido.nome+' por '+(total/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO na '+loja.nome+'.';break;
+    }
+    case 'recomprar': {
+      const loja=resolverLoja(c.lojaId),estado=s.comercio.lojas[c.lojaId],lista=estado?.recomprasPorAtor?.[a.id]??[],indice=lista.findIndex(x=>x.id===c.recompraId),entrada=lista[indice];
+      exigir(s.fase==='preparo'&&loja&&estado?.ativa,'Esta loja está fechada.');
+      exigir(entrada&&inteiro(entrada.precoPc,1,999999999),'Item de recompra inválido.');
+      const saldo=saldoMoedasPc(a);exigir(saldo>=entrada.precoPc,'PO insuficientes para recomprar este item.');
+      definirSaldoMoedasPc(a,saldo-entrada.precoPc);const item=resolverInstanciaItem(entrada.instancia);adicionarItemInventario(a,item);
+      exigir(pesoInventario(a)<=a.ficha.inventario.capacidadeCargaKg+1e-8,'A recompra ultrapassa a capacidade de carga.');
+      lista.splice(indice,1);msg=a.nome+' recomprou '+item.nome+' por '+(entrada.precoPc/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO na '+loja.nome+'.';break;
     }
     case 'inventario': {
       exigir(a&&['equipar','desequipar','usar'].includes(c.operacao),'Operação de inventário inválida.');
@@ -1600,10 +1691,15 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       for(const g of escolhidos)if(g.umaVezPorTurno)a.usosTurno[g.id]=true;
       if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
-      const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],relatorio=rolagem.relatoriosDano?.[0],valores=relatorio?.parcelas?.map(x=>x.final)??[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)];
-      await aplicarDanoNoAtor(p,valores.reduce((n,x)=>n+x,0),null,{critico,origem:a,relatorio,parcelas:[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.map((g,i)=>({valor:(parcelas[i+1]??{total:0}).total,tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}))]});msg+=' • '+p.nome+' perdeu '+(relatorio?.pvPerdido??valores.reduce((n,x)=>n+x,0))+' PV';
+      const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
+      const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});msg+=' • '+p.nome+' perdeu '+danoDireto+' PV';
       for(let i=0;i<escolhidos.length;i++){
-        const g=escolhidos[i];msg+=' + '+valores[i+1]+' de '+g.nome;
+        const g=escolhidos[i];msg+=' + '+valoresBrutos[i+1]+' de '+g.nome;
+        if(g.aprimoramento.salvaArea){
+          const area=g.aprimoramento.salvaArea,atingidos=s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8);
+          for(const alvoArea of atingidos){const bonus=alvoArea.ficha.salvaguardas?.[area.atributo]??mod(alvoArea.ficha.atributos[area.atributo]),rr=await rolarD20(bonus,alvoArea,{tipo:'salvaguarda',atributo:area.atributo,titulo:'Salvaguarda · '+g.nome,alvo:alvoArea.nome,cd:area.cd,destinoId:alvoArea.ficha.tipo==='pj'&&alvoArea.dono?alvoArea.dono:'GM',roladorNome:alvoArea.nome}),bruto=rr.total>=area.cd&&area.metade?Math.floor(valoresBrutos[i+1]/2):rr.total>=area.cd?0:valoresBrutos[i+1],recebido=bruto?await aplicarDanoNoAtor(alvoArea,bruto,g.aprimoramento.elemento,{origem:a,parcelas:[{valor:bruto,tipo:g.aprimoramento.elemento,tags:['magia','area']}]}):0;msg+=' • '+alvoArea.nome+' '+(rr.total>=area.cd?'passou':'falhou')+' e perdeu '+recebido+' PV';}
+          continue;
+        }
         const salva=g.aprimoramento.salva;
         if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});
           if(rr.total<salva.cd&&salva.efeitoFalha){const e={id:g.id,nome:salva.efeitoFalha.nome,tipo:'condicao',condicao:salva.efeitoFalha.condicao,duracao:{restante:salva.efeitoFalha.turnos??1,expira:salva.efeitoFalha.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;

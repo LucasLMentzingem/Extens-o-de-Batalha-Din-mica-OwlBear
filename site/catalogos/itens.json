@@ -13,7 +13,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -53,7 +58,8 @@
             "dano": "1d4",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -96,7 +102,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -139,7 +150,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -182,7 +198,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -222,7 +243,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -265,7 +291,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -308,7 +339,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -323,7 +359,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -339,7 +380,8 @@
         },
         "pesoKg": 0.02,
         "slotEquipamento": "acessorio",
-        "descricao": "Adorno de metal sem efeito mecânico."
+        "descricao": "Adorno de metal sem efeito mecânico.",
+        "negociavel": true
       }
     },
     {
@@ -375,7 +417,8 @@
             "tipoDano": "perfurante",
             "municao": "victor-flechas-20"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -411,7 +454,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -447,7 +495,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -468,7 +521,12 @@
           "tipo": "base",
           "valor": 13,
           "classe": "leve"
-        }
+        },
+        "preco": {
+          "valor": 45,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -490,7 +548,12 @@
           "valor": 11,
           "classe": "leve",
           "atributo": "des"
-        }
+        },
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -512,7 +575,12 @@
           "valor": 12,
           "classe": "leve",
           "atributo": "des"
-        }
+        },
+        "preco": {
+          "valor": 45,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -540,7 +608,8 @@
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade."
+        "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade.",
+        "negociavel": true
       }
     },
     {
@@ -578,7 +647,8 @@
             "dano": "1d6",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -619,7 +689,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 5,
+          "moeda": "pp"
+        },
+        "negociavel": true
       }
     },
     {
@@ -657,7 +732,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 5,
+          "moeda": "pp"
+        },
+        "negociavel": true
       }
     },
     {
@@ -673,7 +753,8 @@
         },
         "pesoKg": 1,
         "slotEquipamento": "botas",
-        "descricao": "Calçado de viagem."
+        "descricao": "Calçado de viagem.",
+        "negociavel": true
       }
     },
     {
@@ -696,7 +777,12 @@
           "classe": "media",
           "atributo": "des",
           "limiteAtributo": 2
-        }
+        },
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -720,7 +806,8 @@
           "atributo": "des",
           "limiteAtributo": 2
         },
-        "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES.",
+        "negociavel": true
       }
     },
     {
@@ -736,7 +823,8 @@
         },
         "pesoKg": 1,
         "slotEquipamento": "capa",
-        "descricao": "Protege a roupa da poeira e do tempo."
+        "descricao": "Protege a roupa da poeira e do tempo.",
+        "negociavel": true
       }
     },
     {
@@ -768,7 +856,8 @@
             "dano": "1d6",
             "tipoDano": "cortante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -802,7 +891,12 @@
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -836,7 +930,12 @@
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -852,7 +951,8 @@
         },
         "pesoKg": 0.1,
         "slotEquipamento": "colar",
-        "descricao": "Adorno de metal sem efeito mecânico."
+        "descricao": "Adorno de metal sem efeito mecânico.",
+        "negociavel": true
       }
     },
     {
@@ -868,7 +968,8 @@
         },
         "pesoKg": 5,
         "empilhavel": true,
-        "descricao": "Corrente metálica reutilizável para prender ou amarrar."
+        "descricao": "Corrente metálica reutilizável para prender ou amarrar.",
+        "negociavel": true
       }
     },
     {
@@ -896,7 +997,8 @@
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade."
+        "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade.",
+        "negociavel": true
       }
     },
     {
@@ -917,7 +1019,12 @@
           "tipo": "base",
           "valor": 16,
           "classe": "pesada"
-        }
+        },
+        "preco": {
+          "valor": 75,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -940,7 +1047,8 @@
           "classe": "leve",
           "atributo": "des"
         },
-        "descricao": "Armadura leve. CA 12 + DES."
+        "descricao": "Armadura leve. CA 12 + DES.",
+        "negociavel": true
       }
     },
     {
@@ -962,7 +1070,8 @@
           "valor": 2,
           "classe": "escudo"
         },
-        "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana.",
+        "negociavel": true
       }
     },
     {
@@ -984,7 +1093,12 @@
           "tipo": "bonus",
           "valor": 2,
           "classe": "escudo"
-        }
+        },
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1016,7 +1130,8 @@
             "dano": "1d6",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -1050,7 +1165,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1085,7 +1205,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1118,7 +1243,8 @@
             "dano": "2d6",
             "tipoDano": "cortante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -1152,7 +1278,12 @@
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1167,7 +1298,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 20,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1182,7 +1318,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1198,7 +1339,8 @@
         },
         "pesoKg": 4,
         "empilhavel": false,
-        "descricao": "Kit para moldar, fabricar e reparar peças de metal."
+        "descricao": "Kit para moldar, fabricar e reparar peças de metal.",
+        "negociavel": true
       }
     },
     {
@@ -1214,7 +1356,8 @@
         },
         "pesoKg": 0.5,
         "empilhavel": true,
-        "descricao": "Munição para 20 disparos com arco."
+        "descricao": "Munição para 20 disparos com arco.",
+        "negociavel": true
       }
     },
     {
@@ -1229,7 +1372,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1244,7 +1392,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1275,7 +1428,8 @@
             "dano": "1d4",
             "tipoDano": "cortante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -1308,7 +1462,12 @@
             "tipoDano": "cortante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1323,7 +1482,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 40,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1338,7 +1502,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1353,7 +1522,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1368,7 +1542,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 12,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1383,7 +1562,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 15,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1423,7 +1607,8 @@
             "dano": "1d6",
             "tipoDano": "perfurante"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -1467,7 +1652,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1511,7 +1701,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1554,7 +1749,12 @@
             "tipoDano": "perfurante"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1569,7 +1769,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1584,7 +1789,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 65,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1600,7 +1810,8 @@
         },
         "pesoKg": 0.25,
         "slotEquipamento": "acessorio",
-        "descricao": "Protegem as mãos durante o treino."
+        "descricao": "Protegem as mãos durante o treino.",
+        "negociavel": true
       }
     },
     {
@@ -1630,7 +1841,8 @@
             "dano": "1d8",
             "tipoDano": "contundente"
           }
-        ]
+        ],
+        "negociavel": true
       }
     },
     {
@@ -1662,7 +1874,12 @@
             "tipoDano": "contundente"
           }
         ],
-        "categoria": "arma"
+        "categoria": "arma",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1677,7 +1894,14 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -1692,7 +1916,14 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -1707,7 +1938,14 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -1722,7 +1960,14 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -1737,7 +1982,14 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
       }
     },
     {
@@ -1748,6 +2000,35 @@
         "descricao": "Saldo do kit inicial do Guardião (opção A).",
         "tipo": "moeda",
         "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "negociavel": false
+      }
+    },
+    {
+      "id": "item.moedas-de-ouro",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas",
+        "descricao": "Saldo monetário expresso em peças de ouro; frações representam prata e cobre.",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "moeda": "po",
+        "valorMoedaPc": 100,
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": false,
         "pesoKg": 0.01,
         "slotEquipamento": null,
         "duasMaos": false,
@@ -1767,7 +2048,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 20,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1782,7 +2068,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 12,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     },
     {
@@ -1803,7 +2094,8 @@
           "modo": "vantagem",
           "condicao": "quando a alavanca puder ajudar"
         },
-        "descricao": "Concede vantagem em testes de FOR quando puder ser usado como alavanca."
+        "descricao": "Concede vantagem em testes de FOR quando puder ser usado como alavanca.",
+        "negociavel": true
       }
     },
     {
@@ -1826,7 +2118,8 @@
           "classe": "veste",
           "atributo": "des"
         },
-        "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana."
+        "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana.",
+        "negociavel": true
       }
     },
     {
@@ -1841,7 +2134,12 @@
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "preco": {
+          "valor": 30,
+          "moeda": "po"
+        },
+        "negociavel": true
       }
     }
   ]

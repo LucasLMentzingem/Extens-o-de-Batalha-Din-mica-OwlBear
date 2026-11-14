@@ -1,7 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.3';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.3';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.8.3';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.4';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.4';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc} from './engine.mjs?v=0.8.4';
+import {lojasCatalogo} from './catalog.mjs?v=0.8.4';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -12,7 +13,7 @@ function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
-let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null;
+let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null;
 const dicaLivro=document.createElement('div');dicaLivro.className='dica-livro';dicaLivro.hidden=true;dicaLivro.setAttribute('role','tooltip');document.body.append(dicaLivro);
 let testePendente;
 function view(estado,i){
@@ -46,6 +47,13 @@ function renderControleFichasMestre(){
   const importar=s.fase==='preparo'?'<div class="importar-fichas"><div class="campos">'+(s.atores.length?'':btn('grupoTeste','Carregar os 7 jogadores')+btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>':'<div class="importar-fichas"><div class="campos"><label>Adicionar reforço (ficha JSON)<input id="arquivo" type="file" accept=".json,application/json"></label></div><p class="muted">O reforço rola iniciativa e entra na ordem. Para retirar fichas, pare o combate.</p></div>';
   return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
 }
+function renderControleLojas(){
+  const lojas=lojasCatalogo();
+  return '<section class="controle-lojas"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Lojas</h2><p>Ative lojas fora de combate e defina um desconto entre 1% e 30%.</p></div></div><div class="lista-lojas">'+lojas.map(loja=>{
+    const estado=s.comercio?.lojas?.[loja.id]??{ativa:false,descontoPct:loja.descontoMinimoPct??1},fechada=s.fase!=='preparo';
+    return '<article class="linha-loja '+(estado.ativa?'ativa':'')+'"><div><strong>'+esc(loja.nome)+'</strong><small>'+loja.itens.length+' itens · '+esc(loja.descricao??'')+'</small></div><label>Desconto<input type="number" min="'+(loja.descontoMinimoPct??1)+'" max="'+(loja.descontoMaximoPct??30)+'" value="'+estado.descontoPct+'" data-loja-desconto="'+esc(loja.id)+'" '+(fechada?'disabled':'')+'></label><label class="interruptor"><input type="checkbox" data-loja-ativa="'+esc(loja.id)+'" '+(estado.ativa?'checked':'')+' '+(fechada?'disabled':'')+'><span>'+(estado.ativa?'Ativa':'Fechada')+'</span></label><button type="button" class="primario" data-loja-salvar="'+esc(loja.id)+'" '+(fechada?'disabled':'')+'>Salvar</button></article>';
+  }).join('')+'</div>'+(s.fase==='preparo'?'':'<p class="muted">As lojas ficam fechadas durante o combate.</p>')+'</section>';
+}
 function render(){
   if(!s)return;
   const gm=info.role==='GM'&&!testar,ativo=atual(s);
@@ -72,7 +80,7 @@ function render(){
     }
     h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-configurar-vinculo="'+esc(p.id)+'">Configurar</button><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
     if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
-    h+='</section>'+renderControleFichasMestre()+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+    h+='</section>'+renderControleFichasMestre()+renderControleLojas()+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
     $('app').innerHTML=h;return;
   }
   h+='<div class="colunas '+(mestre?'gestao':'folha')+'"><section><h2>'+(mestre?'Participantes':'Personagens')+'</h2>';
@@ -84,7 +92,7 @@ function render(){
   h+='</section><section>';
   if(a){
     const f=a.ficha;
-    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro);
+    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[]);
     if(!mestre){
     if(f.pvMaximos)h+='<div class="numeros">'+[['PV',a.pv+' / '+pvMaximosAtuais(a)],['CA',caAtual(a)],['Movimento',Number(a.metros.toFixed(2))+' m'],['Ação',a.acao],['Bônus',a.bonus],['Reação',a.reacao]].map(([k,v])=>'<span><small>'+k+'</small><b>'+esc(v)+'</b></span>').join('')+'</div><div class="barra"><i style="width:'+100*a.pv/pvMaximosAtuais(a)+'%"></i></div>';
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
@@ -117,7 +125,7 @@ function render(){
     }
 
   }
-  h+='</section></div>';if(mestre)h+='<section><h2>Histórico</h2><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+  h+='</section></div>'+(lojaLocalAtor&&info.modo==='ensaio'?'<aside class="loja-local"><iframe title="Lojas ativas" src="loja.html?local=1&ator='+encodeURIComponent(lojaLocalAtor)+'"></iframe><button type="button" data-fechar-loja-local>Fechar loja</button></aside>':'');if(mestre)h+='<section><h2>Histórico</h2><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
   if(mestre)h+='<footer>'+(s.fase==='preparo'?btn('curto','Descanso curto')+btn('longo','Descanso longo'):btn('encerrar','Encerrar combate'))+'</footer>';
   $('app').innerHTML=h;
   if($('tabuleiro')){
@@ -208,8 +216,19 @@ async function salvarFicha(){
 async function alterarItem(operacao,slot){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
   const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
-  await enviar('inventario',{operacao,itemId:itemContexto,slot,confirmado});
+  if(operacao==='vender'){
+    const loja=lojasAtivas(s)[0];if(!loja)throw Error('Nenhuma loja está ativa.');
+    await enviar('vender',{lojaId:loja.id,itemId:itemContexto,quantidade:Number(slot)||1,confirmado});
+  }else await enviar('inventario',{operacao,itemId:itemContexto,slot,confirmado});
   itemContexto=null;itemContextoSlot=null;$('itemMenu').close();aviso(operacao==='usar'?'Consumível usado.':'Equipamento atualizado.');
+}
+async function abrirLojas(atorId){
+  if(s.fase!=='preparo'||!lojasAtivas(s).length)throw Error('Nenhuma loja está aberta.');
+  if(info.modo==='ensaio'){lojaLocalAtor=atorId;return render();}
+  localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
+  const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
+  await OBR.popover.close(id).catch(()=>{});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.4',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 async function alterarHabilidade(operacao){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!habilidadeContexto)return;
@@ -279,6 +298,9 @@ async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn(
 $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
  if(b.dataset.livroAba){paginaLivro=b.dataset.livroAba;return render();}
+ if(b.hasAttribute('data-abrir-lojas'))return tarefa(()=>abrirLojas(escolhido));
+ if(b.hasAttribute('data-fechar-loja-local')){lojaLocalAtor=null;return render();}
+ if(b.dataset.lojaSalvar)return tarefa(()=>enviar('configurarLoja',{lojaId:b.dataset.lojaSalvar,ativa:document.querySelector('[data-loja-ativa="'+CSS.escape(b.dataset.lojaSalvar)+'"]')?.checked??false,descontoPct:Number(document.querySelector('[data-loja-desconto="'+CSS.escape(b.dataset.lojaSalvar)+'"]')?.value)}));
  if(b.dataset.configurarVinculo){escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}
  if(b.dataset.usarSelecaoVinculo)return tarefa(()=>usarSelecaoNoVinculo(b.dataset.usarSelecaoVinculo));
  if(b.dataset.salvarVinculo)return tarefa(()=>salvarVinculoAtor(b.dataset.salvarVinculo));
@@ -318,6 +340,8 @@ $('app').oncontextmenu=e=>{
    else if(i.tipo==='equipamento')acoes+='<button type="button" data-item-acao="equipar" class="primario">Equipar</button>';
    else if(i.tipo==='consumivel')acoes+='<button type="button" data-item-acao="usar" class="primario">Usar</button>';
    else acoes+='<small>Este item não possui uma ação contextual.</small>';
+   const loja=lojasAtivas(s)[0];
+   if(s.fase==='preparo'&&loja&&i.tipo!=='moeda'&&i.negociavel!==false&&!i.equipado){const unitario=precoVendaPc(i),q=Math.floor(i.quantidade??1);acoes+='<button type="button" data-item-acao="vender" data-item-slot="1">Vender 1 por '+(unitario/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</button>';if(q>1)acoes+='<button type="button" data-item-acao="vender" data-item-slot="'+q+'">Vender '+q+' por '+(unitario*q/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</button>';}
    $('itemMenuAcoes').innerHTML=acoes;$('itemMenuCusto').textContent=s.fase==='turnos'?'Durante o combate esta operação gasta 1 ação.':'Fora de combate não há custo de ação.';$('itemMenu').showModal();return;
  }
  const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
@@ -325,6 +349,7 @@ $('app').onpointerover=e=>{const alvo=e.target.closest('[data-info]');if(!alvo)r
 $('app').onpointerout=e=>{const alvo=e.target.closest('[data-info]');if(alvo&&!alvo.contains(e.relatedTarget))dicaLivro.hidden=true;};
 $('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
 $('habilidadeMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-habilidade-fechar'))return $('habilidadeMenu').close();if(b.dataset.habilidadeAcao)tarefa(()=>alterarHabilidade(b.dataset.habilidadeAcao));};
+window.addEventListener('message',e=>{if(e.data?.fecharLoja){lojaLocalAtor=null;render();}});
 try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
