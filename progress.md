@@ -627,7 +627,7 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Bloquear itens equipados, dinheiro insuficiente e excesso de carga; cancelar negociações quando o combate começar.
 - [x] Criar milestones e issues correspondentes no GitHub.
 - [x] Executar a validação visual final da troca completa, sem erros no console.
-- [ ] Publicar a versão 0.8.6.
+- [x] Publicar a versão 0.8.6 no GitHub Pages.
 
 - Testes do motor: 150 aprovados.
 - Fluxo visual da troca: `work/playwright-v086-troca-fluxo/` (convite, ofertas, duas confirmações e conclusão).
