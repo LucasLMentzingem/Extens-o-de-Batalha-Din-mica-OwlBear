@@ -39,7 +39,13 @@ O efeito estruturado aceita modificadores de `ca`, `pvMaximos` e `deslocamentoM`
 
 Na ficha de exemplo, Nikki possui **CA 12 sem armadura** (10 + DES). **Armadura Arcana** pode ser usada dentro ou fora do combate, seleciona uma criatura sem armadura a até 1,5 m e concede o bônus necessário para chegar a `13 + DES`; em Nikki, isso aparece como `13 + 2 = CA 15`. O efeito termina no descanso longo.
 
-O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel usa células de um metro e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
+O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel desenha células de um metro apenas como referência visual e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
+
+### Decisão de arquitetura: distâncias contínuas
+
+O sistema não usa as casas da grade para calcular alcance ou deslocamento. As posições são contínuas, medidas em metros com números de ponto flutuante, e a distância entre dois pontos é sempre euclidiana: `√(Δx² + Δy²)`.
+
+Por isso, não existem passos diagonais, arredondamento por células nem uma regra especial para uma casa diagonal adjacente. Um ataque corpo a corpo alcança o alvo somente quando a distância real entre as peças é menor ou igual ao alcance declarado. Da mesma forma, um deslocamento consome o comprimento euclidiano real da trajetória. Esse comportamento é intencional e está registrado nas issues [#1](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/1) e [#2](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/2) como decisão do sistema, não como defeito da grade.
 
 ## Jogar com a ficha fechada
 
