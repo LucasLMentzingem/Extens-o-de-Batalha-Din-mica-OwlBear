@@ -858,3 +858,8 @@ test('#22 Ataque de Sopro não atinge o próprio Dragoberto e o arco soma Arquea
   }
   const {a}=await duelo('dragoberto');assert.equal(opRev(a,'arco longo').automacao.bonus,7);
 });
+
+test('#7 CD de Agarrar/Derrubar/Empurrar vem da ficha (Monge pode usar DES)',async()=>{
+  const esperado={skimi:9,'hannah-montana':9,nikki:10,dragoberto:10,zurich:11,'draven-thorne':13,loteria:13};
+  for(const [n,cd] of Object.entries(esperado)){const {a}=await duelo(n);for(const t of ['agarrar','derrubar','empurrar'])assert.equal(opRev(a,t).automacao.cd,cd,n+' '+t);}
+});

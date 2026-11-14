@@ -57,7 +57,7 @@ Enquanto o combate estiver parado, todas as ações e magias ficam liberadas. A 
 
 ### Deslocamento forçado
 
-Agarrar, Derrubar e Empurrar são opções separadas. **Empurrar** seleciona uma criatura a até 1,5 m, usa a melhor salvaguarda dela entre FOR e DES contra CD 10 e, em uma falha, move o alvo 1,5 m diretamente para longe do personagem. Antes da execução, uma seta branca nasce no alvo e termina exatamente no destino previsto. O movimento não consome o deslocamento do alvo.
+Agarrar, Derrubar e Empurrar são opções separadas. **Empurrar** seleciona uma criatura a até 1,5 m, usa a melhor salvaguarda dela entre FOR e DES contra CD 8 + FOR + proficiência de quem empurra (o Monge pode usar DES) e, em uma falha, move o alvo 1,5 m diretamente para longe do personagem. Antes da execução, uma seta branca nasce no alvo e termina exatamente no destino previsto. O movimento não consome o deslocamento do alvo.
 
 O campo JSON `deslocamentoForcado` pode acompanhar ataques e salvaguardas. Em habilidades de alvo, o vetor parte do conjurador em direção ao alvo. Em habilidades de área, cada vetor parte do centro escolhido para a respectiva criatura. Depois de uma falha na salvaguarda ou de um ataque bem-sucedido, a posição da ficha e do token no Owlbear é atualizada automaticamente. Nesta versão o vetor é geométrico; colisões com paredes e bordas ainda ficam sob arbitragem do mestre.
 

@@ -246,7 +246,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Agarrado",
@@ -856,7 +856,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "efeitoFalha": {
           "nome": "Caído",
@@ -870,7 +870,7 @@
       "id": "agarrar-ou-empurrar-acao-4-empurrar",
       "nome": "Empurrar | ação",
       "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 9. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
       "custo": [
         {
           "tipo": "acao",
@@ -883,7 +883,7 @@
           "for",
           "des"
         ],
-        "cd": 10,
+        "cd": 9,
         "alcanceM": 1.5,
         "deslocamentoForcado": {
           "distanciaM": 1.5,

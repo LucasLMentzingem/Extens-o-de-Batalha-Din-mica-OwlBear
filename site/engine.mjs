@@ -152,9 +152,23 @@ export function atualizarMagias(f){
     }
   }
   corrigirRecuperacoes(f);
+  corrigirCdAtaqueDesarmado(f);
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
+}
+// #7 Ataque Desarmado (Agarrar/Derrubar/Empurrar): CD = 8 + FOR + proficiência.
+// As Artes Marciais do Monge permitem usar DES no lugar de FOR.
+function corrigirCdAtaqueDesarmado(f){
+  const nivel=(f.classes??[]).reduce((n,c)=>n+(c.nivel||0),0)||1,prof=f.proficiencia??(2+Math.floor((nivel-1)/4));
+  const m=k=>Math.floor(((f.atributos?.[k]??10)-10)/2),monge=(f.classes??[]).some(c=>c.id==='monge');
+  const cd=8+prof+(monge?Math.max(m('for'),m('des')):m('for'));
+  for(const o of f.opcoes??[]){
+    const nome=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+    if(o.automacao?.tipo!=='salva'||!/^(agarrar|derrubar|empurrar)\b/.test(nome))continue;
+    o.automacao.cd=cd;
+    if(typeof o.descricao==='string')o.descricao=o.descricao.replace(/CD \d+/,'CD '+cd);
+  }
 }
 // #25 Livro 2024: Dados de Vida são gastos no descanso curto e voltam todos no longo;
 // Recuperar Fôlego volta 1 uso no curto e todos no longo. Também cria a opção de
