@@ -1,9 +1,10 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.7.31';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.7.31';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.7.32';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.7.32';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.7.32';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.7.31',import.meta.url);
+const url=new URL('./hud.html?v=0.7.32',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
 const medida=n=>Number(n.toFixed(2)).toLocaleString('pt-BR')+' m';
@@ -28,8 +29,8 @@ function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
-  const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados'];
-  let estado,eu,api,atorId,pendente,anterior,pedidoDado,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
+  const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado'];
+  let estado,eu,api,atorId,pendente,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
@@ -40,7 +41,7 @@ export async function iniciarHud(){
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
   function transmitir(){
     if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,
-      imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,
+      imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:pendente&&{titulo:pendente.titulo,detalhe:pendente.detalhe,pronto:pendente.pronto,
         opcao:pendente.cmd.opcao,lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,max:pendente.regraLista?.max,
         alvos:pendente.cmd.alvos??[],rolagem:pendente.rolagem,substitui:pendente.substitui,rev:pendente.rev}}});
@@ -98,6 +99,10 @@ export async function iniciarHud(){
         const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?115:0;
         const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82+extraResultado:160+n*116+extraAjuste);
         caixas.dados=[Math.round((w-Math.min(470,w-12))/2),Math.round(Math.max(62,(h-ch)/2)),Math.min(470,w-12),ch];
+      }
+      if(anuncioDado){
+        const n=anuncioDado.resultado?.resultados?.length??1,aw=Math.min(340,w-18),ah=Math.min(100+Math.ceil(n/2)*30,h-18);
+        caixas['anuncio-dado']=[9,Math.round(Math.max(9,(h-ah)/2)),aw,ah];
       }
     }
     const resultados=await Promise.allSettled(partesHud.map(k=>janela(k,caixas[k])));
@@ -277,6 +282,8 @@ export async function iniciarHud(){
     if(d.tipo==='dicaEfeito'){
       dicaEfeito=typeof d.info==='string'&&d.info.trim()?d.info:null;await layout();transmitir();return;
     }
+    const comandosDado=['alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'];
+    if(comandosDado.includes(d.tipo)&&pedidoDado?.podeEditar===false)return;
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
       const dados=pedidoDado.meta?.adicionais??[],validos=new Set(dados.map(x=>x.id));if(!validos.has(d.id)||dados.find(x=>x.id===d.id)?.automatico)return;
       const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};transmitir();
@@ -380,12 +387,20 @@ export async function iniciarHud(){
   }
   api=await sala((s,i)=>serial(()=>atualizar(s,i)));
   responderDado=await interfaceRolagens(async d=>{
-    if(d.tipo==='erro')pedidoDado={...pedidoDado,tipo:'ajuste',erro:d.mensagem};
-    else pedidoDado=d;
+    const vista=visibilidadeRolagem(d,eu);
+    if(vista.tipo==='fechar'){
+      if(pedidoDado?.pedido===vista.pedido)pedidoDado=null;
+      if(anuncioDado?.pedido===vista.pedido)anuncioDado=null;
+    }else if(vista.tipo==='pedido'){
+      pedidoDado=vista.pedido.tipo==='erro'?{...pedidoDado,...vista.pedido,tipo:'ajuste',erro:vista.pedido.mensagem}:vista.pedido;
+    }else if(vista.tipo==='anuncio'){
+      anuncioDado=vista.anuncio;clearTimeout(timerAnuncio);
+      timerAnuncio=setTimeout(()=>serial(async()=>{if(anuncioDado?.pedido===vista.anuncio.pedido){anuncioDado=null;await layout();transmitir();}}),6500);
+    }
     await layout();transmitir();
   });
   OBR.scene.onReadyChange(r=>serial(async()=>{
-    pronta=r;estado=null;tokens=[];pendente=null;pedidoDado=null;anterior=null;marcas=[];
+    pronta=r;estado=null;tokens=[];pendente=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;

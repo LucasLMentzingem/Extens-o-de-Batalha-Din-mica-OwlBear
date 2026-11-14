@@ -1,4 +1,4 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.7.31';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.7.32';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -779,6 +779,7 @@ export async function aplicar(s,c,u,rolar) {
     atualizarMagias(p.ficha);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};
   }
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
+  const controladorDe=p=>p?.ficha.tipo==='pj'&&p.dono?p.dono:'GM';
   const soma=(n)=>n>0?'+'+n:n<0?String(n):'';
   const formulaD20=(bonus=0,p=null,penalidade=null,modoForcado=c.modo)=>{
     const xs=c.dadosAjuste??[];exigir(dadosExtrasValidos(xs),'Dados extras inválidos.');
@@ -794,6 +795,7 @@ export async function aplicar(s,c,u,rolar) {
     return lista.map((x,i)=>typeof x==='number'?{total:x,natural:null,formula:formulas[i],resumo:String(x)}:x);
   };
   const rolarD20=async(bonus,p,meta)=>{
+    if(meta.tipo==='salvaguarda'&&p)meta={...meta,destinoId:meta.destinoId??controladorDe(p),roladorNome:meta.roladorNome??p.nome};
     const efeito=meta.tipo==='salvaguarda'?p?.efeitosAtivos?.find(e=>e.penalidadeProximaSalva):null;
     const restricoes=meta.tipo==='salvaguarda'?restricoesAtivas(p):{},atributo=meta.atributo;
     const vantagem=c.modo==='vantagem'||(atributo&&restricoes.vantagemSalvas?.includes(atributo)),desvantagem=c.modo==='desvantagem'||(atributo&&restricoes.desvantagemSalvas?.includes(atributo));

@@ -545,3 +545,19 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Aba, contador, bloqueio por saldo e prioridade automática validados visualmente em `work/usos-gratuitos-disponivel-v0731.png` e `work/usos-gratuitos-esgotado-v0731.png`.
 - Smoke test final do painel validado com o cliente Playwright em `work/playwright-v0731-final/shot-0.png`, sem novos erros de console.
 
+### Versão 0.7.32: rolagens públicas e salvaguardas do jogador
+
+- [x] Transmitir ajustes, estado de rolagem e resultados de ataques, danos, curas, testes e demais dados para toda a mesa.
+- [x] Permitir edição e confirmação somente ao mestre e ao dono da rolagem.
+- [x] Manter observadores em modo somente leitura, sem acesso a vantagem, fórmula, recursos, rerrolagem, cancelamento ou continuação.
+- [x] Fechar a janela pública de todos quando um controlador autorizado conclui ou cancela a rolagem.
+- [x] Proteger o canal de resposta: jogadores só podem responder às rolagens destinadas à própria conta; o mestre continua podendo intervir em todas.
+- [x] Ocultar de observadores os ajustes de iniciativa e salvaguarda.
+- [x] Mostrar os resultados dessas exceções em um balão compacto no centro-esquerda, incluindo lotes de iniciativa.
+- [x] Encaminhar automaticamente toda salvaguarda de PJ ao dono da ficha, inclusive concentração e salvaguardas internas de habilidades.
+- [x] Manter salvaguardas de NPC sob o controle do mestre e permitir que ele assuma uma salvaguarda de jogador quando necessário.
+
+- Testes do motor e visibilidade: 99 aprovados.
+- Modo observador, resultado público e anúncios compactos validados em `work/rolagem-observador-v0732.png`, `work/resultado-publico-v0732.png`, `work/anuncio-salvaguarda-v0732.png` e `work/anuncio-iniciativa-v0732.png`.
+- Smoke test final validado com o cliente Playwright em `work/playwright-v0732-final/shot-0.png`, sem novos erros de console e com `render_game_to_text` sincronizado.
+

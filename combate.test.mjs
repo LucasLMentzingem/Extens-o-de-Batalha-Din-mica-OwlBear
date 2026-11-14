@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
+import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
@@ -114,6 +115,28 @@ test('usos gratuitos pertencem à habilidade, são exclusivos na aba e precedem 
  a=s.atores[0];assert.equal(a.rec['espaco-1'],3);
  await assert.rejects(aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,alvo:a.id,confirmado:true,modoCusto:'gratuito'},gm,async()=>1),/Saldo insuficiente/);
  assert.equal(s.atores[0].rec['espaco-1'],3,'a aba gratuita não pode cair silenciosamente no custo normal');
+});
+test('rolagens públicas preservam edição do dono e GM e resumem iniciativa e salvaguardas para observadores',()=>{
+ const ajuste={tipo:'ajuste',pedido:'r1',destino:'p',formula:'1d20+4',meta:{tipo:'ataque',titulo:'Ataque'}},resultado={...ajuste,tipo:'resultado',resultado:{total:17},status:'Acerto'};
+ assert.equal(visibilidadeRolagem(ajuste,{id:'m',role:'GM'}).pedido.podeEditar,true);
+ assert.equal(visibilidadeRolagem(ajuste,{id:'p',role:'PLAYER'}).pedido.podeEditar,true);
+ assert.equal(visibilidadeRolagem(ajuste,{id:'q',role:'PLAYER'}).pedido.podeEditar,false);
+ const salva={...ajuste,meta:{tipo:'salvaguarda',titulo:'Salvaguarda de DES'}};
+ assert.equal(visibilidadeRolagem(salva,{id:'q',role:'PLAYER'}).tipo,'ignorar');
+ assert.equal(visibilidadeRolagem({...salva,tipo:'resultado',resultado:{total:15},status:'Sucesso'},{id:'q',role:'PLAYER'}).tipo,'anuncio');
+ assert.equal(visibilidadeRolagem({...resultado,meta:{tipo:'iniciativa'}},{id:'q',role:'PLAYER'}).tipo,'anuncio');
+ assert.equal(visibilidadeRolagem({tipo:'fechar',pedido:'r1'},{id:'q',role:'PLAYER'}).tipo,'fechar');
+});
+test('salvaguardas automáticas são encaminhadas ao dono da ficha e continuam disponíveis ao GM',async()=>{
+ let s=novo();const atacante=adicionar(s,soldado,'Soldado'),alvo=adicionar(s,nikki);alvo.dono='p';alvo.concentracaoAtiva={id:'concentracao',nome:'Concentração'};
+ const ataque=atacante.ficha.opcoes.find(o=>o.automacao?.tipo==='ataque'),metas=[];
+ await aplicar(s,{tipo:'usar',rev:s.rev,ator:atacante.id,opcao:ataque.id,alvo:alvo.id},gm,async(formula,meta)=>{
+   metas.push(meta);
+   if(meta.tipo==='ataque')return {total:18,natural:16,formula,resumo:'16 + 2 = 18'};
+   if(meta.tipo==='dano')return {total:4,natural:null,formula,resumo:'4'};
+   return {total:12,natural:10,formula,resumo:'10 + 2 = 12'};
+ });
+ const salva=metas.find(x=>x.tipo==='salvaguarda');assert.equal(salva.destinoId,'p');assert.equal(salva.roladorNome,'Nikki Lauda');assert.match(salva.titulo,/Concentração/);
 });
 test('autorização de vínculo, comando do jogador e ação excepcional do mestre',async()=>{
  const m=mesa();await m.iniciar();

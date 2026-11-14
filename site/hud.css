@@ -89,6 +89,7 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .rolagem .estado.critico{color:#ffd36f;text-shadow:0 0 12px #d59437}
 .rolagem .erro{color:#ff928a}
 .rolagem p{text-align:center;color:#e8c986}
+.observador-rolagem{display:block;padding:6px 8px;border:1px solid #61716b;border-radius:5px;background:#172321;color:#bcd3ca;text-align:center;white-space:normal!important}
 .rolagem>div{justify-content:flex-end}
 .rolagem .modos-d20{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
 .rolagem .modos-d20 button{text-align:center;padding:6px 3px}
@@ -169,4 +170,7 @@ body.efeitos,body.efeitos #hud{width:100%;height:100vh;overflow:visible;backgrou
 .efeitos-only{position:relative;width:100%;height:100vh;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible}
 .efeitos-only .efeitos-hud{left:0;top:50%;width:112px;padding:0;background:transparent!important}
 .dica-efeito-card{height:100vh;overflow:auto;padding:12px 14px;white-space:pre-line;border:1px solid #ad90bf;border-radius:7px;color:#f4edf7;background:linear-gradient(145deg,#2b2334fa,#171d1cfa);box-shadow:0 8px 24px #0009;font-size:13px;line-height:1.45}
+.anuncio-dado{height:100vh;display:grid;grid-template-columns:1fr auto;grid-template-areas:'tipo tipo' 'titulo valor' 'estado valor';align-content:center;gap:3px 10px;padding:12px 14px;border:1px solid #c69d58;border-left:5px solid #dfbe86;border-radius:8px;background:linear-gradient(145deg,#302b25f5,#152321f5);box-shadow:0 8px 24px #0009}
+.anuncio-dado>small{grid-area:tipo;color:#d6b777;font-size:10px;font-weight:800;letter-spacing:.12em}.anuncio-dado>strong{grid-area:titulo;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;color:#ffdfa4;font:700 16px Georgia,serif}.anuncio-dado output{grid-area:valor;align-self:center;min-width:58px;text-align:center;color:#fff2c9;font:800 27px Consolas,monospace}.anuncio-dado>.estado{grid-area:estado}.anuncio-dado .acerto{color:#8ee0ae}.anuncio-dado .falha{color:#ff8d86}
+.anuncio-dado.lote{grid-template-columns:1fr;grid-template-areas:'tipo' 'titulo' 'lista' 'estado';align-content:start}.anuncio-lote{grid-area:lista;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin-top:3px}.anuncio-lote span{display:flex;align-items:center;gap:5px;min-width:0;padding:4px 6px;border:1px solid #5d685e;border-radius:4px;background:#17201f}.anuncio-lote small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d4ded7;font-size:10px}.anuncio-lote b{margin-left:auto;color:#ffe2a6;font:800 15px Consolas,monospace}
 @media(max-width:620px){.topo-hud{align-items:flex-start;flex-wrap:wrap;height:auto}.ferramentas-hud{width:100%;margin-left:0}.filtros-hud button{padding-inline:4px;font-size:10px}.recurso-hud{flex-basis:38px;width:38px;height:38px}.movimento-hud{flex-basis:56px;grid-template-columns:46px 5px}}
