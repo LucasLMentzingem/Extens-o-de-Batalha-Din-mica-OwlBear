@@ -985,3 +985,22 @@ test('#14 #15 #16 #17 Toque Chocante, Fogo das Fadas, Invisibilidade, Orientaç�
   const golpe=opRev((await duelo('dragoberto')).a,'golpe certeiro');assert.equal(golpe.automacao.bonus,4);
   assert.equal(validar(structuredClone(await fichaRev('dragoberto'))).opcoes.find(o=>o.id===golpe.id).automacao.bonus,4,'não desconta duas vezes');
 });
+
+test('#28 Lentidão, Garantido e Ancestralidade Feérica',async()=>{
+  // Lentidão: arco longo do Zurich tira 3 m do alvo no turno dele
+  let {s,a,b}=await duelo('zurich',undefined,{distancia:6});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,roladorSala().rolar);
+  const desl=deslocamentoMaximo(s.atores[1]);assert.ok(s.atores[1].efeitosAtivos.some(e=>e.nome==='Lentidão'));
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.equal(s.atores[1].metros,desl);assert.equal(desl,deslocamentoMaximo({ficha:s.atores[1].ficha,efeitosAtivos:[]})-3);
+  // Garantido: Espada Grande do Draven erra e ainda causa o modificador de FOR
+  ({s,a,b}=await duelo('draven-thorne'));const pv=b.pv,espada=opRev(a,'espada grande');assert.ok(espada.automacao.danoAoErrar>0);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:espada.id,alvo:b.id},player,roladorSala({d20:2}).rolar);
+  assert.equal(s.atores[1].pv,pv-espada.automacao.danoAoErrar);
+  // Ancestralidade Feérica: Hannah tem Vantagem contra Enfeitiçar Pessoa
+  ({s,a,b}=await duelo('skimi','hannah-montana'));
+  assert.deepEqual(b.ficha.vantagemSalvasContra,['enfeiticado']);
+  const r=roladorSala({salva:18});
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'enfeiticar pessoa').id,alvos:[b.id]},player,r.rolar).catch(e=>aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'enfeiticar pessoa').id,alvo:b.id},player,r.rolar));
+  assert.match(r.formulas.find(x=>x.meta.tipo==='salvaguarda').f,/^2d20kh1/);
+});

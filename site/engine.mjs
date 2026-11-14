@@ -166,6 +166,8 @@ export function atualizarMagias(f){
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso historico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
+  // #28 Ancestralidade Feérica (Elfo): Vantagem nas salvaguardas contra ficar Enfeitiçado.
+  if(JSON.stringify([f.passivas,f.opcoes]).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes('ancestralidade feerica'))f.vantagemSalvasContra=[...new Set([...(f.vantagemSalvasContra??[]),'enfeiticado'])];
   for(const o of f.opcoes??[]){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
@@ -580,9 +582,12 @@ function ataqueGeradoArma(a,item,modelo,indice){
   const principal=itensEquipados(a).find(i=>i!==item&&i.equipadoSlot==='mao_forte'&&chaveArma(i)),agil=secundaria&&maestriaAtiva(f,principal,'agil');
   const custoArma=secundaria?(agil?[]:[{tipo:'bonus',quantidade:1}]):[{tipo:'acao',quantidade:1}];
   const requisitos=secundaria?{aposAtaque:true,tagsAtaqueAnterior:['arma','leve'],...(agil?{umaVezPorTurno:'maestria-agil'}:{})}:undefined;
+  // #28 Maestrias Lentidão (−3 m até o início do próximo turno do atacante) e Garantido (erra: dano = mod. do atributo).
+  const extrasMaestria={...(maestriaAtiva(f,item,'lentidao')?{efeitoAcerto:{nome:'Lentidão',tipo:'debuff',descricao:'Deslocamento −3 m (maestria Lentidão).',modificadores:{deslocamentoM:-3},duracao:{turnos:1,restante:1,expira:'inicio_origem'}}}:{}),
+    ...(maestriaAtiva(f,item,'garantido')&&mod(f.atributos[atributo])>0?{danoAoErrar:mod(f.atributos[atributo])}:{})};
   return {id:'item-'+slug(item.id)+'-'+(modelo.modo??indice),nome:item.nome+modoNome+' '+(bonus>=0?'+':'')+bonus+' | '+(agil?'na ação Atacar · Ágil':custoTipo==='bonus'?'ação bônus':'ação'),categoria:'acao',origem:'equipamento',origemItem:item.id,geradaPorItem:true,...(requisitos?{requisitosUso:requisitos}:{}),
     descricao:[modelo.modo==='distancia'?'Ataque à distância':modelo.modo==='arremesso'?'Arremesso':'Ataque corpo a corpo','Atributo '+atributo.toUpperCase(),proficiente?'proficiente':'sem proficiência',maestria?'maestria'+(nomeM?' '+nomeM:''):'sem maestria','dano '+dano+' '+modelo.tipoDano].join(' · ')+'.',
-    custo:custoArma,automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[])]},
+    custo:custoArma,automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...extrasMaestria,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[])]},
     dadosEquipamento:{itemId:item.id,tipoArma:d.tipoArma,grupoProficiencia:d.grupoProficiencia,propriedades:[...(d.propriedades??[])],atributo,proficiente,maestria,tipoDano:modelo.tipoDano}};
 }
 export function ataquesEquipados(a){
@@ -902,7 +907,7 @@ export async function aplicar(s,c,u,rolar) {
     if(meta.tipo==='salvaguarda'&&p)meta={...meta,destinoId:meta.destinoId??controladorDe(p),roladorNome:meta.roladorNome??p.nome};
     const efeito=meta.tipo==='salvaguarda'?p?.efeitosAtivos?.find(e=>e.penalidadeProximaSalva):null;
     const restricoes=meta.tipo==='salvaguarda'?restricoesAtivas(p):{},atributo=meta.atributo;
-    const vantagem=c.modo==='vantagem'||(atributo&&restricoes.vantagemSalvas?.includes(atributo)),desvantagem=c.modo==='desvantagem'||(atributo&&restricoes.desvantagemSalvas?.includes(atributo));
+    const vantagem=c.modo==='vantagem'||(atributo&&restricoes.vantagemSalvas?.includes(atributo))||(meta.contraCondicao&&p?.ficha?.vantagemSalvasContra?.includes(meta.contraCondicao)),desvantagem=c.modo==='desvantagem'||(atributo&&restricoes.desvantagemSalvas?.includes(atributo));
     const modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
     const modificadores=(p?.efeitosAtivos??[]).filter(e=>e.modificadorRolagem?.tipos?.includes(meta.tipo)),metaAdicionais=modificadores.map(e=>({id:e.id,nome:e.nome,formula:e.modificadorRolagem.formula,descricao:e.descricao??e.nome}));
     const rerrolagens=opcoesRerrolagemD20(p),metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:'todos',custo:g.custo??[],descricao:g.descricao??''}));
@@ -1393,7 +1398,7 @@ export async function aplicar(s,c,u,rolar) {
         await Promise.all([...grupos.entries()].map(async([controlador,itens])=>{for(const {p,i} of itens){
           const escolhas=rule.atributos??[rule.atributo],atributo=escolhas.reduce((melhor,k)=>{const bonus=p.ficha.salvaguardas?.[k]??mod(p.ficha.atributos[k]);return !melhor||bonus>melhor.bonus?{k,bonus}:melhor;},null);
           const falhaAutomatica=restricoesAtivas(p).falhaSalvas?.includes(atributo.k);
-          const rr=falhaAutomatica?{total:0,natural:null}:await rolarD20(atributo.bonus,p,{tipo:'salvaguarda',atributo:atributo.k,titulo:'Salvaguarda de '+escolhas.map(k=>k.toUpperCase()).join(' ou ')+' · '+p.nome,alvo:p.nome,cd,destinoId:controlador,roladorNome:p.nome});
+          const rr=falhaAutomatica?{total:0,natural:null}:await rolarD20(atributo.bonus,p,{tipo:'salvaguarda',atributo:atributo.k,titulo:'Salvaguarda de '+escolhas.map(k=>k.toUpperCase()).join(' ou ')+' · '+p.nome,alvo:p.nome,cd,destinoId:controlador,roladorNome:p.nome,contraCondicao:rule.efeitoFalha?.condicao});
           resultadosSalva[i]={p,total:rr.total,sucesso:!falhaAutomatica&&rr.total>=cd,falhaAutomatica};
         }}));
         for(const r of resultadosSalva)msg+=' • '+r.p.nome+' '+(r.sucesso?'passou':'falhou')+' na salvaguarda ('+r.total+')';
@@ -1421,7 +1426,7 @@ export async function aplicar(s,c,u,rolar) {
         const defesa=caAtual(p),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',titulo:'Ataque · '+o.nome,alvo:p.nome,cd:defesa,penalidade:restricoesAtivas(p).penalidadeAtaquesContra});const face=rr.natural,total=rr.total;
         msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
         const acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,rule),acertou};a.eventosTurno.ataques.push(evento);
-        if(!acertou){msg+=' • errou '+p.nome;continue;}
+        if(!acertou){msg+=' • errou '+p.nome;if(rule.danoAoErrar&&face!==1){await aplicarDanoNoAtor(p,rule.danoAoErrar,rule.elemento,{origem:a});msg+=' • Garantido: '+p.nome+' sofreu '+rule.danoAoErrar;}continue;}
         a.eventosTurno.acertos.push(evento);
         if(rule.efeitoAcerto)p.efeitosAtivos=[...(p.efeitosAtivos??[]).filter(e=>e.id!==o.id+'-acerto'),{...structuredClone(rule.efeitoAcerto),id:o.id+'-acerto',origemAtorId:a.id}]; // #15 Toque Chocante
         if(rule.efeitoAcerto?.zerarReacao)p.reacao=0;

@@ -1171,5 +1171,8 @@
         "modificadores": {}
       }
     ]
-  }
+  },
+  "vantagemSalvasContra": [
+    "enfeiticado"
+  ]
 }
