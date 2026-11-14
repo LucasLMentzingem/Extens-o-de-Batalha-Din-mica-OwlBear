@@ -574,7 +574,13 @@
           "quantidade": 1,
           "id": "feiticaria"
         }
-      ]
+      ],
+      "gatilho": "apos_rolagem_dano",
+      "rerrolagem": {
+        "tipo": "dano",
+        "modo": "todos",
+        "somenteMagia": true
+      }
     },
     {
       "id": "eddac04f-02a6-5c62-b418-689b784068db",

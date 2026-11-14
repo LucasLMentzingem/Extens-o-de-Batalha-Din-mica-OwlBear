@@ -168,6 +168,11 @@ export function atualizarMagias(f){
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
+  // #30 Metamagia: Potencializada vira rerrolagem do dano de magia; Duplicada dá +1 alvo nas magias que escalam por alvo.
+  for(const o of f.opcoes??[]){
+    const n=textoNormal(o.nome);
+    if(n.startsWith('magia potencializada')&&!o.rerrolagem){o.gatilho='apos_rolagem_dano';o.rerrolagem={tipo:'dano',modo:'todos',somenteMagia:true};}
+  }
   // #34 Valentão de Taverna: 1x por turno, ao acertar um golpe desarmado com a ação Atacar, pode empurrar o alvo 1,5 m.
   if((f.passivas??[]).some(p=>/valentao de taverna/.test(textoNormal(p.nome))&&p.ativa!==false)&&!f.opcoes.some(o=>o.id==='valentao-empurrar'))
     f.opcoes.push({id:'valentao-empurrar',nome:'Valentão de Taverna · empurrar 1,5 m',categoria:'acao',descricao:'Uma vez por turno, depois de acertar um golpe desarmado com a ação Atacar, empurre o alvo 1,5 m.',custo:[],requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:'valentao-de-taverna'},automacao:{tipo:'dano_direto',alcanceM:1.5,deslocamentoForcado:{distanciaM:1.5}}});
@@ -748,6 +753,13 @@ function opcoesDepoisDoAcerto(a,o,alvo){
   return [...manuais,...persistentes];
 }
 function opcoesRerrolagemDano(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
+// #30 Magia Potencializada só vale para dano de magia.
+function rerrolagensDano(a,o){return opcoesRerrolagemDano(a).filter(g=>!g.rerrolagem.somenteMagia||o?.categoria==='magia');}
+const metaRerrolagem=g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''});
+function cobrarRerrolagens(a,lista,rolagem){
+  const ids=Array.isArray(rolagem?.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];exigir(ids.every(id=>lista.some(g=>g.id===id)),'Rerrolagem de dano inválida.');
+  for(const g of ids.map(id=>lista.find(x=>x.id===id)))for(const c of g.custo??[]){const bag=c.tipo==='recurso'?a.rec:a,key=c.tipo==='recurso'?c.id:c.tipo;exigir(bag[key]>=c.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=c.quantidade;}
+}
 function opcoesRerrolagemD20(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_d20'&&o.rerrolagem?.tipo==='d20'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 function modificadorDanoAntesDaRolagem(a,o){
   const tags=tagsAtaque(o,o.automacao),fontes=[...opcoesDisponiveis(a),...(a.ficha.passivas??[]).filter(p=>p.ativa!==false)],usos=a.usosTurno??{};
@@ -1476,7 +1488,9 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const p=afetados[i],controlador=p.ficha.tipo==='pj'&&p.dono?p.dono:'GM';
           if(!grupos.has(controlador))grupos.set(controlador,[]);grupos.get(controlador).push({p,i});
         }
-        let danoBase=temArea&&rule.dano?(await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:['magia','area']}],ocultarDefesas:true})).total:null;
+        const rerrolagensMagia=rerrolagensDano(a,o),metaRerrolagensMagia=rerrolagensMagia.map(metaRerrolagem);
+        let danoBase=null;
+        if(temArea&&rule.dano){const rl=await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:['magia','area']}],ocultarDefesas:true,rerrolagens:metaRerrolagensMagia});cobrarRerrolagens(a,rerrolagensMagia,rl);danoBase=rl.total;}
         await Promise.all([...grupos.entries()].map(async([controlador,itens])=>{for(const {p,i} of itens){
           const escolhas=rule.atributos??[rule.atributo],atributo=escolhas.reduce((melhor,k)=>{const bonus=p.ficha.salvaguardas?.[k]??mod(p.ficha.atributos[k]);return !melhor||bonus>melhor.bonus?{k,bonus}:melhor;},null);
           const falhaAutomatica=restricoesAtivas(p).falhaSalvas?.includes(atributo.k);
@@ -1486,8 +1500,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         for(const r of resultadosSalva)msg+=' • '+r.p.nome+' '+(r.sucesso?'passou':'falhou')+' na salvaguarda ('+r.total+')';
         let relatoriosDiretos=[];
         if(!temArea&&rule.dano&&(rule.metade||resultadosSalva.some(r=>!r.sucesso))){
-          const alvosComDano=resultadosSalva.filter(r=>!r.sucesso||rule.metade),ajustesDanoPorAlvo=alvosComDano.map(r=>r.sucesso&&rule.metade?[{id:'salva-metade',nome:'Salvaguarda bem-sucedida',operacao:'multiplicador',fator:.5}]:[]),rolagem=await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:['magia']}],alvosDano:alvosComDano.map(r=>resumoAlvoDano(r.p)),ajustesDanoPorAlvo});
-          danoBase=rolagem.total;relatoriosDiretos=rolagem.relatoriosDano??[];
+          const alvosComDano=resultadosSalva.filter(r=>!r.sucesso||rule.metade),ajustesDanoPorAlvo=alvosComDano.map(r=>r.sucesso&&rule.metade?[{id:'salva-metade',nome:'Salvaguarda bem-sucedida',operacao:'multiplicador',fator:.5}]:[]),rolagem=await resultado(rule.dano,{tipo:'dano',rerrolagens:metaRerrolagensMagia,titulo:'Dano · '+o.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:['magia']}],alvosDano:alvosComDano.map(r=>resumoAlvoDano(r.p)),ajustesDanoPorAlvo});
+          cobrarRerrolagens(a,rerrolagensMagia,rolagem);danoBase=rolagem.total;relatoriosDiretos=rolagem.relatoriosDano??[];
         }
         for(const r of resultadosSalva){
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,indice=resultadosSalva.filter(x=>!x.sucesso||rule.metade).indexOf(r),valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a,relatorio:temArea?null:relatoriosDiretos[indice]});msg+=' • '+r.p.nome+' perdeu '+valor+' PV';}
@@ -1516,7 +1530,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];
       if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome})){msg+=' • aguardando reação de '+p.nome;continue;}
-      const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=opcoesRerrolagemDano(a),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
+      const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=rerrolagensDano(a,o),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
       const metaAdicionais=adicionais.map(g=>({id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??''}));
       const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
       const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;

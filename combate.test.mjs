@@ -1123,3 +1123,15 @@ test('#21 #34 Mão de Dolo e Mão de Cura na Torrente, Defletir redireciona e Va
   // Defletir: dados de redirecionamento lidos da ficha
   assert.deepEqual(opRev(a,'defletir').automacao.redirecionar,{recurso:'pontos-de-foco',cd:11,dano:'2d6+3'});
 });
+
+test('#30 Magia Potencializada aparece na rolagem de dano de magia (não na de arma) e cobra 1 ponto',async()=>{
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});
+  const pot=a.ficha.opcoes.find(o=>/^Magia Potencializada/.test(o.nome));assert.equal(pot.gatilho,'apos_rolagem_dano');
+  const pontos=a.rec.feiticaria,formulas=[];
+  const rolar=async(f,meta={})=>{formulas.push(meta);if(/d20/.test(f))return {total:5,natural:3,formula:f};return {total:8,natural:null,formula:f,rerrolagensUsadas:meta.rerrolagens?.some(x=>x.id===pot.id)?[pot.id]:[]};};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'despedacar').id,ponto:{x:b.x,y:b.y}},player,rolar);
+  assert.ok(formulas.find(m=>m.tipo==='dano').rerrolagens.some(x=>x.id===pot.id));assert.equal(s.atores[0].rec.feiticaria,pontos-1);
+  ({s,a,b}=await duelo('nikki'));const r=roladorSala();const meta=[];
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'adaga').id,alvo:b.id},player,async(f,m)=>{meta.push(m);return r.rolar(f,m);});
+  assert.ok(!(meta.find(m=>m.tipo==='dano')?.rerrolagens??[]).some(x=>x.id===pot.id),'não vale para arma');
+});
