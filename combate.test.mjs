@@ -1151,3 +1151,15 @@ test('#12 reforço entra no meio do combate, PJ caído pode começar, descanso i
   d=await aplicar(d,{rev:d.rev,tipo:'descanso',periodo:'longo',atores:[x.id]},gm,()=>0);
   assert.ok(d.atores[0].rec['espaco-1']>0);assert.equal(d.atores[1].rec['espaco-2'],0);
 });
+
+test('#5 concentração: magia pelo nome concentra e o dano pede CON com CD entre 10 e 30',async()=>{
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'acalmar emocoes').id,ponto:{x:b.x,y:b.y}},player,roladorSala({salva:2}).rolar);
+  assert.ok(s.atores[0].concentracaoAtiva,'Acalmar Emoções concentra');
+  for(const [dano,cd] of [[9,10],[40,20],[90,30]]){
+    const t=structuredClone(s);t.vez=1;t.atores[1].x=1.5;t.atores[0].pv=200;t.atores[0].ficha.pvMaximos=200;const r=roladorSala({d20:15,dano});
+    let u=await aplicar(t,{rev:t.rev,tipo:'usar',ator:b.id,opcao:opcoesDisponiveis(t.atores[1]).find(o=>o.automacao?.tipo==='ataque').id,alvo:a.id},gm,r.rolar);
+    if(u.reacaoPendente)u=await aplicar(u,{rev:u.rev,tipo:'resolverReacao',ator:a.id},player,r.rolar).catch(()=>u);
+    const salva=r.formulas.find(x=>x.meta.tipo==='salvaguarda'&&x.meta.atributo==='con');assert.ok(salva,'pediu CON com dano '+dano);assert.equal(salva.meta.cd,cd);
+  }
+});

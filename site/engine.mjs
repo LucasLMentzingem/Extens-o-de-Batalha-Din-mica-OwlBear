@@ -998,7 +998,7 @@ export async function aplicar(s,c,u,rolar) {
       if(rr.total>=e.salvaRepetida.cd){p.efeitosAtivos=p.efeitosAtivos.filter(x=>x!==e);msg+=' • '+p.nome+' se livrou de '+e.nome;}
     }
     if(p.concentracaoAtiva&&resolvido.danoRecebido>0){
-      const cdCon=Math.max(10,Math.floor(resolvido.danoRecebido/2)),bonus=p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con);
+      const cdCon=Math.min(30,Math.max(10,Math.floor(resolvido.danoRecebido/2))) /* #5 máximo 30 */,bonus=p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con);
       const falhaAutomatica=p.pv===0||restricoesAtivas(p).falhaSalvas?.includes('con');
       const total=falhaAutomatica?0:(await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:'con',titulo:'Concentração · '+p.nome,cd:cdCon})).total;
       if(total<cdCon)encerrarConcentracao(s,p,p.pv===0?'reduzido a 0 PV':'falhou na salvaguarda CD '+cdCon);
