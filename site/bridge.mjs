@@ -50,9 +50,13 @@ function extrairResultado(result){
   const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo};}):null;
   return {total:result.totalValue,natural:Number.isFinite(natural)?natural:null,formula:result.diceNotation,resumo:result.rollSummary,grupos:result.groups??[],resultados};
 }
-function dadoSala(usuario,ch,pedidos,mestreId){
+// #24 Jogador ausente não trava a mesa: quem não está na sala tem a rolagem enviada direto ao mestre,
+// e uma janela sem resposta por 40 s passa para o mestre em vez de cancelar a jogada.
+const PASSAR_AO_MESTRE_MS=40000;
+function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
   return (formula,meta={})=>new Promise((resolve,reject)=>{
-    const pedido=crypto.randomUUID(),destino=meta.destinoId==='GM'?mestreId:(meta.destinoId??usuario.id);
+    const pedido=crypto.randomUUID();let destino=meta.destinoId==='GM'?mestreId:(meta.destinoId??usuario.id);
+    if(destino!==mestreId&&presentes&&!presentes.has(destino))destino=mestreId;
     const {destinoId:_destinoOculto,roladorNome,...metaPublica}=meta;
     if(meta.tipo==='ataque')delete metaPublica.cd;
     const enviar=async d=>{
@@ -61,8 +65,14 @@ function dadoSala(usuario,ch,pedidos,mestreId){
       await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
     };
     let fase='ajuste',resultado,recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id),rerrolagensUsadas=[];
-    const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),120000);
-    function finalizar(erro,valor){clearTimeout(timer);pedidos.delete(pedido);Promise.resolve(enviar({tipo:'fechar',pedido})).catch(console.error);erro?reject(erro):resolve(valor);}
+    const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),180000);
+    const passar=destino!==mestreId?setTimeout(()=>{
+      if(fase!=='ajuste')return;
+      Promise.resolve(enviar({tipo:'fechar',pedido})).catch(console.error);
+      destino=mestreId;const p=pedidos.get(pedido);if(p)p.destino=mestreId;
+      Promise.resolve(enviar({tipo:'ajuste',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,titulo:(metaPublica.titulo??'Rolagem')+' · sem resposta, rolando pelo jogador'}})).catch(console.error);
+    },PASSAR_AO_MESTRE_MS):null;
+    function finalizar(erro,valor){clearTimeout(timer);clearTimeout(passar);pedidos.delete(pedido);Promise.resolve(enviar({tipo:'fechar',pedido})).catch(console.error);erro?reject(erro):resolve(valor);}
     const responder=async resposta=>{
       if(resposta.cancelar)return finalizar(Error('Rolagem cancelada.'));
       if(fase==='resultado'&&resposta.continuar)return finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});
@@ -212,7 +222,8 @@ export async function host(){
         if(alvo&&!tokens.some(t=>t.id===alvo.token&&(u.role==='GM'||t.visible)))throw Error('Alvo indisponível.');
       }
       const faseAntes=s.fase;
-      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id));
+      const presentes=new Set([eu.id,...(await OBR.party.getPlayers()).map(p=>p.id)]);
+      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes));
       if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
         const ids=next.atores.filter(a=>a.token&&(c.tipo==='encerrar'||a.emCombate!==false)).map(a=>a.token);
@@ -289,7 +300,11 @@ export async function interfaceRolagens(onEvent){
   if(eu.role==='GM')ch.addEventListener('message',e=>{const d=e.data?.rolagemPublica;if(d?.pedido)onEvent(d);});
   else OBR.broadcast.onMessage(canais.roll,async e=>{
     const mestre=(await OBR.party.getPlayers()).some(p=>p.role==='GM'&&p.connectionId===e.connectionId);
-    if(mestre&&e.data?.pedido)onEvent(e.data);
+    if(mestre&&e.data?.pedido){
+      // #24 Aviso para o jogador quando uma salvaguarda chega para ele.
+      if(e.data.tipo==='ajuste'&&e.data.destino===eu.id&&e.data.meta?.tipo==='salvaguarda')Promise.resolve(OBR.notification.show('Salvaguarda para você: '+(e.data.meta.titulo??''),'WARNING')).catch(()=>{});
+      onEvent(e.data);
+    }
   });
   return resposta=>eu.role==='GM'?ch.postMessage({rollReply:resposta}):OBR.broadcast.sendMessage(canais.rollReply,resposta,{destination:'REMOTE'});
 }
