@@ -1,11 +1,13 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.1';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.1';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.1';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.2';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.2';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.2';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.2';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.1',import.meta.url);
+const url=new URL('./hud.html?v=0.8.2',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
+const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
 const medida=n=>Number(n.toFixed(2)).toLocaleString('pt-BR')+' m';
 
@@ -33,21 +35,29 @@ export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
   const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado'];
-  let estado,eu,api,atorId,pendente,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
+  let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
-  let dpi=1,marcas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
+  let dpi=1,marcas=[],marcasPublicas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
   const atores=()=>estado?.atores??[];
   const ator=()=>atores().find(a=>a.id===atorId);
   const controla=a=>a&&(eu.role==='GM'||(a.ficha.tipo==='pj'&&a.dono===eu.id));
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
+  const acaoVisivel=()=>pendente??acaoPublica;
+  function resumoPendente(p,somenteLeitura=false){
+    if(!p)return null;
+    const a=atores().find(x=>x.id===(p.cmd?.ator??p.atorId)),o=p.opcaoPublica??opcoesDisponiveis(a??{}).find(x=>x.id===(p.cmd?.opcao??p.opcao));
+    return {id:p.publicId??p.id,atorId:a?.id??p.atorId,titulo:p.titulo,detalhe:p.detalhe,pronto:p.pronto,
+      opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?structuredClone(o):null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
+      lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
+      alvos:p.cmd?.alvos??p.alvos??[],rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
+  }
   function transmitir(){
+    const p=acaoVisivel();
     if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,
       imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
-      pendente:pendente&&{titulo:pendente.titulo,detalhe:pendente.detalhe,pronto:pendente.pronto,
-        opcao:pendente.cmd.opcao,lista:pendente.escolha==='lista',quantidade:pendente.cmd.alvos?.length,min:pendente.regraLista?.min,max:pendente.regraLista?.max,
-        alvos:pendente.cmd.alvos??[],rolagem:pendente.rolagem,substitui:pendente.substitui,rev:pendente.rev}}});
+      pendente:resumoPendente(p,p===acaoPublica)}});
   }
   async function janela(parte,box){
     const id=ns+'/hud/'+parte;
@@ -70,15 +80,19 @@ export async function iniciarHud(){
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
       const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
-      const faixaEfeitos=temEfeitos?118:0;
+      const faixaEfeitos=temEfeitos?118:0,margemEsquerda=72,gap=10,acaoAtual=acaoVisivel();
       espacoEfeitos=0;
       // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
       // histórico e a barra de rolagem sem comprimir os ícones da grade.
-      const largura=Math.max(300,Math.min(1120,w-18-faixaEfeitos)),altura=Math.min(176+linhas*54,Math.floor(h*.65));
+      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(176+3*54,h-96),larguraAcao=Math.min(410,Math.max(300,w*.36));
+      const acaoLadoALado=Boolean(acaoAtual)&&w>=820;
+      const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
+      const limiteBarra=acaoLadoALado?leftAcao-gap:w-10;
+      const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
       if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
       if(ator()){
         const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
-        const left=Math.round((w-total)/2)+faixaEfeitos,top=h-alturaBarra-48;
+        const left=leftBarra,top=h-alturaBarra-48;
         caixas.barra=[left,top,larguraCorpo,alturaBarra];
         if(temEfeitos)caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-Math.min(164,alturaBarra))/2),112,Math.min(164,alturaBarra)];
         if(temEfeitos&&dicaEfeito){
@@ -90,9 +104,10 @@ export async function iniciarHud(){
         const pendentes=atores().filter(a=>a.emCombate!==false&&a.init===null&&(eu.role==='GM'||controla(a))),iw=Math.min(eu.role==='GM'?440:340,w-12),ih=Math.min(h-24,eu.role==='GM'?Math.max(148,108+Math.ceil(pendentes.length/2)*43):118);
         caixas.iniciativa=[Math.round((w-iw)/2),Math.round(Math.max(12,(h-ih)*.40)),iw,ih];
       }
-      if(pendente){
-        const cw=Math.min(410,w-12),ch=Math.min(480,h-72),left=Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
-        caixas.acao=[Math.round(left),Math.round(Math.max(62,(h-ch)/2)),cw,ch];
+      if(acaoAtual){
+        const cw=Math.min(larguraAcao,w-12),ch=alturaAcao,left=acaoLadoALado?leftAcao:Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
+        const top=acaoLadoALado?h-ch-48:h-ch-(ator()?(compacto?102:altura)+58:48);
+        caixas.acao=[Math.round(left),Math.round(Math.max(62,top)),cw,ch];
       }
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
@@ -101,7 +116,9 @@ export async function iniciarHud(){
         const extraResultado=pedidoDado.tipo==='resultado'&&pedidoDado.meta?.rerrolagens?.length?105:0;
         const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?115:0;
         const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82+extraResultado:160+n*116+extraAjuste);
-        caixas.dados=[Math.round((w-Math.min(470,w-12))/2),Math.round(Math.max(62,(h-ch)/2)),Math.min(470,w-12),ch];
+        const dw=Math.min(470,w-12),centroX=caixas.acao?caixas.acao[0]+caixas.acao[2]/2:w*.75;
+        const left=Math.max(6,Math.min(w-dw-6,centroX-dw/2)),top=caixas.acao?Math.max(6,caixas.acao[1]-ch-10):Math.max(62,(h-ch)/2);
+        caixas.dados=[Math.round(left),Math.round(top),dw,ch];
       }
       if(anuncioDado){
         const n=anuncioDado.resultado?.resultados?.length??1,aw=Math.min(340,w-18),ah=Math.min(100+Math.ceil(n/2)*30,h-18);
@@ -116,8 +133,28 @@ export async function iniciarHud(){
     const ids=marcas;marcas=[];
     if(ids.length&&pronta)await OBR.scene.local.deleteItems(ids);
   }
+  async function limparMarcasPublicas(){
+    const ids=marcasPublicas;marcasPublicas=[];
+    if(ids.length&&pronta)await OBR.scene.local.deleteItems(ids);
+  }
+  async function publicarPrevia(items=marcas){
+    if(!pendente)return;
+    const evento={tipo:'atualizar',id:pendente.publicId,atorId:pendente.cmd.ator,pendente:resumoPendente(pendente,true),marcas:compactarMarcas(items)};
+    await OBR.broadcast.sendMessage(canalPrevia,evento,{destination:'REMOTE'}).catch(e=>console.warn('Falha ao publicar a prévia da ação.',e));
+  }
+  async function fecharPreviaPublica(id,atorIdPublico){
+    if(!id)return;
+    await OBR.broadcast.sendMessage(canalPrevia,{tipo:'fechar',id,atorId:atorIdPublico},{destination:'REMOTE'}).catch(e=>console.warn('Falha ao fechar a prévia pública.',e));
+  }
   async function desenhar(items){
     await limparMarcas();if(items.length){await OBR.scene.local.addItems(items);marcas=items.map(x=>x.id);}
+    await publicarPrevia(items);
+  }
+  function reconstruirMarcas(lista){
+    return lista.map(m=>m.tipo==='linha'
+      ?buildLine().startPosition(m.inicio).endPosition(m.fim).strokeColor(m.cor).strokeWidth(m.largura).layer('CONTROL').locked(true).disableHit(true).build()
+      :buildCurve().position(m.posicao).points(m.pontos).closed(m.fechada).fillColor(m.preenchimento).fillOpacity(m.opacidade)
+        .strokeColor(m.cor).strokeWidth(m.largura).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function seta(origem,fim){
     const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(dpi*.32,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
@@ -141,7 +178,7 @@ export async function iniciarHud(){
     return alvos.flatMap(alvo=>{const inicio=pos(alvo),fim=destinoDeslocamento(origem,inicio,regra.distanciaM*dpi);return fim?[...setaDeslocamento(inicio,fim),circulo(fim,dpi*.2,'#ffffff')]:[];});
   }
   async function cancelar(){
-    pendente=null;await limparMarcas();
+    const publicId=pendente?.publicId,atorIdPublico=pendente?.cmd?.ator;pendente=null;await limparMarcas();await fecharPreviaPublica(publicId,atorIdPublico);
     if(anterior&&anterior!==tool&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(anterior);
     anterior=null;
   }
@@ -160,7 +197,7 @@ export async function iniciarHud(){
     if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
-    pendente={cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
+    pendente={publicId:crypto.randomUUID(),cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
@@ -172,7 +209,7 @@ export async function iniciarHud(){
       anterior=await OBR.tool.getActiveTool();
       await OBR.tool.activateTool(tool);await OBR.tool.activateMode(tool,mode);
       await desenhar([circulo(origem,raio*dpi,'#e5c079')]);
-    }
+    }else await publicarPrevia([]);
   }
   async function atualizarLista(p){
     const ids=p.cmd.alvos;
@@ -267,6 +304,7 @@ export async function iniciarHud(){
     // sala com a mesma revisao nao pode fechar a selecao recem-aberta.
     if(pendente&&pendente.rev!==s.rev)await cancelar();
     estado=s;eu=i;
+    if(acaoPublica&&!atores().some(a=>a.id===acaoPublica.atorId)){acaoPublica=null;await limparMarcasPublicas();}
     const ativo=atual(s);
     if(!controla(ator())||novoTurno)atorId=(controla(ativo)?ativo:atores().find(controla))?.id;
     if(novoTurno||s.fase==='preparo'){
@@ -327,8 +365,8 @@ export async function iniciarHud(){
     else if(d.tipo==='confirmar'){
       if(!pendente?.pronto||pendente.rev!==estado.rev||d.rev!==estado.rev)return;
       const cmd={...pendente.cmd,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]};
-      await cancelar();ocupado=true;await layout();transmitir();
-      try{await api.enviar(cmd);}finally{ocupado=false;}
+      pendente.rolagem=true;ocupado=true;await publicarPrevia();await layout();transmitir();
+      try{await api.enviar(cmd);}finally{ocupado=false;if(pendente)await cancelar();}
     }else if(d.tipo==='resolverReacao'){
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(!rp||!controla(reator))return;
@@ -369,6 +407,23 @@ export async function iniciarHud(){
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };
+  OBR.broadcast.onMessage(canalPrevia,e=>serial(async()=>{
+    const d=e.data??{};
+    if(d.tipo==='solicitar'){if(pendente)await publicarPrevia();return;}
+    const participantes=await OBR.party.getPlayers(),remetente=participantes.find(p=>p.connectionId===e.connectionId),a=atores().find(x=>x.id===d.atorId);
+    if(!remetente||!a)return;
+    if(!remetentePodePublicarPrevia(remetente,a))return;
+    if(d.tipo==='fechar'){
+      if(acaoPublica?.id!==d.id||acaoPublica.remetenteId!==remetente.id)return;
+      acaoPublica=null;await limparMarcasPublicas();await layout();transmitir();return;
+    }
+    if(d.tipo!=='atualizar'||!d.id||!d.pendente||!marcasPublicasValidas(d.marcas))return;
+    await limparMarcasPublicas();
+    const items=reconstruirMarcas(d.marcas);
+    if(items.length){await OBR.scene.local.addItems(items);marcasPublicas=items.map(x=>x.id);}
+    acaoPublica={...d.pendente,id:d.id,atorId:a.id,remetenteId:remetente.id,somenteLeitura:true};
+    await layout();transmitir();
+  }));
   // O Owlbear preserva ferramentas registradas enquanto a sala continua
   // aberta. Ao atualizar a extensão, tentar criar o mesmo ID novamente lança
   // erro e interrompe o controlador antes de ele abrir rodapé e carrossel.
@@ -404,7 +459,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   });
   OBR.scene.onReadyChange(r=>serial(async()=>{
-    pronta=r;estado=null;tokens=[];pendente=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];
+    pronta=r;estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;
@@ -419,6 +474,7 @@ export async function iniciarHud(){
   // background antes da primeira sincronização com o encontro.
   await Promise.all(partesHud.map(parte=>OBR.popover.close(ns+'/hud/'+parte).catch(()=>{})));
   await api.notify();
+  await OBR.broadcast.sendMessage(canalPrevia,{tipo:'solicitar'},{destination:'REMOTE'}).catch(()=>{});
   let verificando=false;
   setInterval(()=>{if(verificando)return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}finally{verificando=false;}});},1200);
 }

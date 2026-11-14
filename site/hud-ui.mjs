@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.1';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.1';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.1';
-import {pronto} from './bridge.mjs?v=0.8.1';
-import {canalHud} from './hud-controller.mjs?v=0.8.1';
+import {detalhes} from './ficha-view.mjs?v=0.8.2';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.2';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.2';
+import {pronto} from './bridge.mjs?v=0.8.2';
+import {canalHud} from './hud-controller.mjs?v=0.8.2';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -90,11 +90,13 @@ function render(){
       const propria=iniciativasPendentes.find(x=>x.ficha.tipo==='pj'&&x.dono===eu.id);
       html='<section class="prompt iniciativa-jogador"><strong>Iniciativa</strong>'+(propria?'<small>'+esc(propria.nome)+'</small>'+btn('iniciativa','Rolar iniciativa','data-id="'+esc(propria.id)+'" class="ouro"'):'<small>Aguardando a iniciativa da sua ficha vinculada.</small>')+'</section>';
     }
-  }else if(parte==='acao'&&p&&a){
-    const o=opcaoPorId(a,p.opcao);
+  }else if(parte==='acao'&&p){
+    const atorAcao=s.atores.find(x=>x.id===p.atorId)??a,o=p.opcaoPublica??(atorAcao&&opcaoPorId(atorAcao,p.opcao)),ficha=p.fichaPublica??atorAcao?.ficha??{recursos:[]};
     const executar=p.lista?btn('confirmar','Executar seleção','class="ouro" '+(p.pronto?'':'disabled')):(p.pronto?btn('confirmar',p.substitui?'Executar pelo jogador':'Executar','class="ouro"'):'');
     const desfazer=p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled'):'';
-    html='<section class="painel-acao">'+cartaoAcao(o,a.ficha)+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+desfazer+executar+btn('cancelar','Cancelar')+'</div></div></section>';
+    const cartao=cartaoAcao(o,ficha)||'<section class="carta-acao"><header><h2>'+esc(p.titulo??'Ação')+'</h2><small>'+esc(p.donoAcao??atorAcao?.nome??'Participante')+'</small></header></section>';
+    const controles=p.rolagem?'<small class="observador-acao">Rolagem em andamento · esta ação permanece visível para a mesa.</small>':p.somenteLeitura?'<small class="observador-acao">Acompanhando a ação de '+esc(p.donoAcao??atorAcao?.nome??'outro participante')+'.</small>':desfazer+executar+btn('cancelar','Cancelar');
+    html='<section class="painel-acao">'+cartao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+controles+'</div></div></section>';
   }else if(parte==='reacao'&&s.reacaoPendente){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));

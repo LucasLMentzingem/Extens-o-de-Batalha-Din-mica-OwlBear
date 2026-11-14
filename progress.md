@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-14 — prévias públicas e novo empilhamento da HUD 0.8.2
+
+- Trajetórias de movimento e ataque, áreas de efeito, alcance e deslocamento forçado agora são transmitidos de forma compacta e redesenhados localmente por todos os participantes.
+- A transmissão aceita somente linhas e curvas validadas e somente o mestre ou o dono da ficha pode publicar a prévia daquele personagem.
+- A instância da habilidade é pública dentro e fora de combate; observadores recebem o cartão completo em modo somente leitura.
+- O cartão permanece aberto durante ajustes e resultados de rolagem e fecha somente ao concluir ou cancelar toda a ação.
+- O rodapé foi ancorado no canto inferior esquerdo, após os controles do Owlbear; quando há uma ação aberta, o cartão ocupa a faixa direita com altura equivalente a três linhas da grade.
+- Ajustes e resultados são empilhados acima do cartão, no centro-direita.
+- Validação: 129 testes unitários, duas telas simuladas com prévia compartilhada e inspeção visual do cartão público e do novo layout.
+
 ## 2026-11-14 — integração do PR 36 e cones ancorados 0.8.1
 
 - O PR 36 foi revisado, validado com 127 testes, mesclado em `main` e publicado como base 0.8.0.

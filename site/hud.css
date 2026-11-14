@@ -142,6 +142,7 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .selecao-acao>strong{color:#f6d99d}
 .selecao-acao>div{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
 .selecao-acao .ouro{margin-left:auto}
+.observador-acao{display:block;width:100%;padding:7px 9px;border:1px solid #61716b;border-radius:5px;background:#172321;color:#bcd3ca;text-align:center;white-space:normal}
 
 /* Rodapé tático inspirado na organização de recursos do BG3 */
 .dock-corpo>article{display:flex;min-height:0;flex-direction:column;gap:4px}

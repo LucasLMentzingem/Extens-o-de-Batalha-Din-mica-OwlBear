@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
@@ -11,6 +12,17 @@ const conteudoConfigurado=JSON.parse(await readFile(new URL('./site/conteudo-con
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
+
+test('prévia pública aceita mestre ou dono e limita as marcas a linhas e áreas seguras',()=>{
+  const ator={id:'a',dono:'p',ficha:{tipo:'pj'}},linha={type:'LINE',startPosition:{x:0,y:0},endPosition:{x:100,y:50},style:{strokeColor:'#e5c079',strokeWidth:4}};
+  const curva={type:'CURVE',position:{x:10,y:20},points:[{x:0,y:0},{x:30,y:0},{x:0,y:30}],style:{strokeColor:'#79cfb1',strokeWidth:3,fillColor:'#79cfb1',fillOpacity:.1,closed:true}};
+  const marcas=compactarMarcas([linha,curva,{type:'IMAGE'}]);
+  assert.equal(marcas.length,2);assert.equal(marcasPublicasValidas(marcas),true);
+  assert.equal(remetentePodePublicarPrevia({id:'m',role:'GM'},ator),true);
+  assert.equal(remetentePodePublicarPrevia({id:'p',role:'PLAYER'},ator),true);
+  assert.equal(remetentePodePublicarPrevia({id:'intruso',role:'PLAYER'},ator),false);
+  assert.equal(marcasPublicasValidas([{...marcas[0],largura:99}]),false);
+});
 function mesa(){
   let s=novo();
   const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I'),c=adicionar(s,soldado,'Soldado II');
