@@ -1225,7 +1225,11 @@ export async function aplicar(s,c,u,rolar) {
       const foraCombate=c.tipo==='usar'&&s.fase==='preparo';
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
-        processarDuracoes(s,a,'fim_turno');s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;const iniciado=atual(s);iniciarTurno(s,iniciado);msg=a.nome+' encerrou o turno.';break;
+        processarDuracoes(s,a,'fim_turno');
+        // #11 Monstro a 0 PV morre (Cap. 1): a vez dele é pulada. PJ a 0 PV continua para as salvaguardas contra a morte.
+        const pulados=[];
+        for(let i=0;i<s.ordem.length;i++){s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);}
+        const iniciado=atual(s);iniciarTurno(s,iniciado);msg=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join(', ')+'.':'');break;
       }
       exigir(a.pv>0,'Personagem a 0 PV.');
       if(c.tipo==='mover'){
@@ -1249,7 +1253,8 @@ export async function aplicar(s,c,u,rolar) {
       const o=opcaoDeclarada;exigir(o,'Opção desconhecida.');exigir(opcaoDisponivel(a,o),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
       exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
       const rule=o.automacao;
-      exigir(rule || (gm && c.assistido),'Opção assistida. O mestre precisa confirmar a resolução.');
+      // #10 O jogador pode declarar uma opção assistida: gasta o custo, registra no histórico e o mestre arbitra o efeito.
+      exigir(rule || c.assistido,'Opção assistida. Confirme para declarar e deixar o efeito com o mestre.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
       registrarEspacoNoTurno(s,a,plano.custos);
@@ -1260,7 +1265,7 @@ export async function aplicar(s,c,u,rolar) {
       }
       msg=a.nome+' • '+o.nome+(plano.gratuito?' • uso gratuito':'');
       const concentracaoId=o.concentracao?iniciarConcentracao(s,a,o):null;
-      if(!rule){msg+=' (resolução pelo mestre)';break;}
+      if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}
       if(rule.tipo==='efeito_conjuracao'){
         a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>e.id!==o.id);
         a.efeitosAtivos.push({id:o.id,nome:o.nome,turnos:rule.turnos,duracao:{restante:rule.turnos,expira:'inicio_alvo'},origem:rule.origem,origemAtorId:a.id,concentracaoId:concentracaoId??undefined,bonusCD:rule.bonusCD,vantagemAtaque:rule.vantagemAtaque===true});

@@ -953,3 +953,14 @@ test('#8 ataque à distância com inimigo a 1,5 m tem Desvantagem; corpo a corpo
   await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,r4.rolar);
   assert.match(r4.formulas.find(x=>x.meta.tipo==='ataque').f,/^1d20/);
 });
+
+test('#10 jogador declara opção sem automação; #11 monstro a 0 PV é pulado na iniciativa',async()=>{
+  let {s,a,b}=await duelo('skimi');
+  const assistida=a.ficha.opcoes.find(o=>!o.automacao&&o.custo?.length===1&&o.custo[0].tipo==='bonus');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:assistida.id,assistido:true},player,roladorSala().rolar);
+  assert.equal(s.atores[0].bonus,0);assert.match(s.historico.at(-1)??s.historico[0],/declarado/);
+  ({s,a,b}=await duelo('draven-thorne'));
+  const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=6;c.init=5;s.ordem=[a.id,b.id,c.id];b.pv=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.equal(atual(s).id,c.id,'pulou o soldado a 0 PV');
+});
