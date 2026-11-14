@@ -629,7 +629,9 @@ function modificadorDanoAntesDaRolagem(a,o){
   const tags=tagsAtaque(o,o.automacao),fontes=[...opcoesDisponiveis(a),...(a.ficha.passivas??[]).filter(p=>p.ativa!==false)],usos=a.usosTurno??{};
   return fontes.find(g=>g.gatilho==='ao_rolar_dano'&&g.modificadorDano?.tipo==='rolar_duas_escolher_maior'&&(!g.umaVezPorTurno||!usos[g.id])&&(()=>{const r=g.modificadorDano.requisitos??{};return !r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t));})());
 }
-const formulaCritica=f=>f.replace(/^(\d+)d/,(_,n)=>(Number(n)+1)+'d');
+// #3 Livro 2024: no Acerto Crítico os dados de dano do ataque são jogados duas vezes
+// (2d6+3 vira 4d6+3); modificadores fixos não dobram.
+const formulaCritica=f=>String(f).replace(/(\d*)d(\d+)/g,(_,n,l)=>(2*Number(n||1))+'d'+l);
 function validarRequisitosUso(s,a,o,alvo){
   const r=o.requisitosUso;if(!r)return;
   const ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[],anterior=[...(r.aposAcerto?acertos:ataques)].at(-1);

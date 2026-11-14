@@ -842,3 +842,9 @@ test('#26 teste de perícia recebe Orientação e Ponto de Sorte do personagem',
   assert.ok(meta.adicionais.some(x=>x.nome==='Orientação'),'Orientação aparece no teste de perícia');
   assert.ok(meta.rerrolagens.some(x=>/Sorte/.test(x.nome)),'Ponto de Sorte aparece no teste de perícia');
 });
+
+test('#3 crítico dobra todos os dados de dano (Espada Grande 2d6+3 vira 4d6+3)',async()=>{
+  let {s,a,b}=await duelo('draven-thorne');const r=roladorSala({d20:20,dano:8});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,r.rolar);
+  assert.ok(r.formulas.some(x=>x.meta.tipo==='dano'&&/^4d6\+3/.test(x.f)),'fórmula do crítico: '+r.formulas.map(x=>x.f).join(' | '));
+});
