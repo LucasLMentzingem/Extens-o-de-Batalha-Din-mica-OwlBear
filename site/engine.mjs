@@ -170,6 +170,13 @@ const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1
 function corrigirMagiasRevisao(f){
   // #13 Nomes das ações como no Livro do Jogador 2024 em português.
   const RENOMEAR=[[/^Disparada\b/,'Correr'],[/^Estudar\b/,'Analisar'],[/^Utilizar\b/,'Usar Objeto'],[/^Esconder-se\b/,'Esconder'],[/^Agarrar(?= \|)/,'Imobilizar']];
+  // #15 Explosão Elemental: o conjurador escolhe o tipo (ácido, frio, fogo, raio, veneno, psíquico ou trovejante).
+  const explosao=f.opcoes?.find(o=>!o.varianteDe&&o.automacao?.elemento==='elemental'&&/explosao elemental/.test(textoNormal(o.nome)));
+  if(explosao){
+    const tipos=[['acido','ácido'],['frio','frio'],['fogo','fogo'],['raio','raio'],['veneno','veneno'],['psiquico','psíquico'],['trovejante','trovejante']];
+    explosao.automacao.elemento='fogo';explosao.nome=explosao.nome.replace(/Explosão Elemental/,'Explosão Elemental (fogo)');
+    for(const [id,nomeTipo] of tipos.filter(([id])=>id!=='fogo'))if(!f.opcoes.some(o=>o.id===explosao.id+'-'+id)){const v=structuredClone(explosao);v.id=explosao.id+'-'+id;v.varianteDe=explosao.id;v.automacao.elemento=id;v.nome=explosao.nome.replace('(fogo)','('+nomeTipo+')');f.opcoes.push(v);}
+  }
   for(const o of f.opcoes??[])for(const [de,para] of RENOMEAR)if(typeof o.nome==='string'&&de.test(o.nome))o.nome=o.nome.replace(de,para);
   // #29 Inspiração Heroica (Humano · Engenhoso): 1 por descanso longo; rerrola um d20 logo depois de ver o resultado.
   if((f.passivas??[]).some(p=>{const t=textoNormal(JSON.stringify(p));return t.includes('inspiracao heroica')&&/humano|engenhoso/.test(t);})){
@@ -188,7 +195,7 @@ function corrigirMagiasRevisao(f){
   for(const o of f.opcoes??[]){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
-    if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno'}; // #18
+    if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno',...(/riso/.test(nome)?{aoSofrerDano:true}:{})}; // #18
     if(nome==='talho mental'&&o.automacao?.efeitoFalha&&!o.automacao.efeitoFalha.expira){o.automacao.efeitoFalha.turnos=2;o.automacao.efeitoFalha.expira='fim_origem';} // #13 até o fim do próximo turno do conjurador
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano')o.automacao.elementos=['contundente','cortante','perfurante'];
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
@@ -958,6 +965,12 @@ export async function aplicar(s,c,u,rolar) {
     aplicarRelatorioDano(p,resolvido,{critico,pvMaximos:pvMaximosAtuais(p)});
     // #34 Vigor Implacável (Orc): caiu a 0 PV sem morrer → fica com 1 PV, 1x por descanso longo.
     if(pvAntes>0&&p.pv===0&&p.estadoVida==='inconsciente'&&(p.rec?.['vigor-implacavel']??0)>0){p.rec['vigor-implacavel']--;p.pv=1;p.estadoVida=estadoAntes;delete p.salvaguardasMorte;msg+=' • Vigor Implacável: '+p.nome+' fica com 1 PV';}
+    // #14 Riso Histérico: ao sofrer dano, nova salvaguarda com Vantagem.
+    for(const e of (resolvido.danoRecebido>0&&p.pv>0?(p.efeitosAtivos??[]).filter(e=>e.salvaRepetida?.aoSofrerDano):[])){
+      const k=e.salvaRepetida.atributo,bonus=p.ficha.salvaguardas?.[k]??mod(p.ficha.atributos[k]),modo=c.modo;c.modo='vantagem';
+      const rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:k,titulo:'Salvaguarda (sofreu dano) · '+e.nome+' · '+p.nome,alvo:p.nome,cd:e.salvaRepetida.cd});c.modo=modo;
+      if(rr.total>=e.salvaRepetida.cd){p.efeitosAtivos=p.efeitosAtivos.filter(x=>x!==e);msg+=' • '+p.nome+' se livrou de '+e.nome;}
+    }
     if(p.concentracaoAtiva&&resolvido.danoRecebido>0){
       const cdCon=Math.max(10,Math.floor(resolvido.danoRecebido/2)),bonus=p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con);
       const falhaAutomatica=p.pv===0||restricoesAtivas(p).falhaSalvas?.includes('con');

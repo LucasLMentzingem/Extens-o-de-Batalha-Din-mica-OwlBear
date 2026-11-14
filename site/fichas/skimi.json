@@ -763,7 +763,8 @@
           },
           "salvaRepetida": {
             "atributo": "sab",
-            "quando": "fim_turno"
+            "quando": "fim_turno",
+            "aoSofrerDano": true
           }
         }
       },

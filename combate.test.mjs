@@ -1068,3 +1068,15 @@ test('#13 nomes do livro de 2024 e Talho Mental dura até o fim do próximo turn
   assert.ok(a.ficha.pericias['Lidar com Animais']!==undefined&&a.ficha.pericias['Adestrar Animais']===undefined);
   assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'talho mental').automacao.efeitoFalha),{turnos:2,expira:'fim_origem'});
 });
+
+test('#15 Explosão Elemental tem um botão por tipo de dano; #14 Riso repete a salvaguarda ao sofrer dano com Vantagem',async()=>{
+  const nikki=await fichaRev('nikki'),tipos=nikki.opcoes.filter(o=>/Explosão Elemental/.test(o.nome)).map(o=>o.automacao.elemento).sort();
+  assert.deepEqual(tipos,['acido','fogo','frio','psiquico','raio','trovejante','veneno']);
+  assert.equal(validar(structuredClone(nikki)).opcoes.filter(o=>/Explosão Elemental/.test(o.nome)).length,7,'não duplica');
+  let {s,a,b}=await duelo('draven-thorne');
+  assert.equal(opRev((await duelo('skimi')).a,'riso histerico').automacao.efeitoFalha.salvaRepetida.aoSofrerDano,true);
+  b.efeitosAtivos=[{id:'x',nome:'Rindo no chão',tipo:'condicao',restricoes:{caido:true},salvaRepetida:{atributo:'sab',cd:13,aoSofrerDano:true}}];
+  const r=roladorSala({d20:15,salva:15});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,r.rolar);
+  assert.match(r.formulas.find(x=>x.meta.tipo==='salvaguarda').f,/^2d20kh1/);assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.id==='x'));
+});

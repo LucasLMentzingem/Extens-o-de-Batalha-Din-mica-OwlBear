@@ -919,7 +919,7 @@
     },
     {
       "id": "80382f78-315c-5279-be65-98a7df74fb0c",
-      "nome": "Truque | Explosão Elemental · ataque +5 · classe",
+      "nome": "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
       "categoria": "magia",
       "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
       "custo": [
@@ -934,7 +934,7 @@
         "tipo": "ataque",
         "bonus": 5,
         "dano": "1d8",
-        "elemento": "elemental",
+        "elemento": "fogo",
         "alcanceM": 18
       }
     },
@@ -1303,6 +1303,138 @@
           "feiticaria": 2
         }
       }
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-acido",
+      "nome": "Truque | Explosão Elemental (ácido) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "acido",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-frio",
+      "nome": "Truque | Explosão Elemental (frio) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "frio",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-raio",
+      "nome": "Truque | Explosão Elemental (raio) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "raio",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-veneno",
+      "nome": "Truque | Explosão Elemental (veneno) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "veneno",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-psiquico",
+      "nome": "Truque | Explosão Elemental (psíquico) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "psiquico",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
+    },
+    {
+      "id": "80382f78-315c-5279-be65-98a7df74fb0c-trovejante",
+      "nome": "Truque | Explosão Elemental (trovejante) · ataque +5 · classe",
+      "categoria": "magia",
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "trovejante",
+        "alcanceM": 18
+      },
+      "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
     }
   ],
   "notas": [
