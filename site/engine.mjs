@@ -1009,7 +1009,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso','ordenarIniciativa'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1031,9 +1031,21 @@ export async function aplicar(s,c,u,rolar) {
       for(const ficha of c.fichas){const p=adicionar(s,ficha,ficha.nome);if(c.ensaio){p.token='sim-'+p.id;p.dono='teste';}}
       msg='As sete fichas de jogadores entraram no encontro.';break;
     }
-    case 'adicionar':
-      exigir(s.fase==='preparo','Encerre o encontro para mudar os participantes.');
-      adicionar(s,c.ficha,c.nome||c.ficha.nome); msg='Ficha adicionada.'; break;
+    case 'adicionar': {
+      // #12 Reforços no meio do combate: entram com iniciativa rolada e na posição certa da ordem.
+      const novo=adicionar(s,c.ficha,c.nome||c.ficha.nome);msg='Ficha adicionada.';
+      if(s.fase==='turnos'){
+        const atualId=atual(s)?.id;novo.init=(await resultado('1d20'+soma(bonusIniciativa(novo)),{tipo:'iniciativa',titulo:'Iniciativa · '+novo.nome})).total;s.ordem.push(novo.id);
+        s.ordem.sort((x,y)=>{const p=s.atores.find(a=>a.id===x),q=s.atores.find(a=>a.id===y);return q.init-p.init||q.ficha.atributos.des-p.ficha.atributos.des;});
+        s.vez=Math.max(0,s.ordem.indexOf(atualId));restaurarEconomia(novo);msg=novo.nome+' entrou no combate com iniciativa '+novo.init+'.';
+      }else if(s.fase==='iniciativa')novo.init=null;
+      break;
+    }
+    case 'ordenarIniciativa': {
+      // #12 Empate na iniciativa: o mestre decide a ordem (Cap. 1, Empates).
+      exigir(s.fase==='turnos'&&Array.isArray(c.ordem)&&c.ordem.length===s.ordem.length&&new Set(c.ordem).size===c.ordem.length&&c.ordem.every(id=>s.ordem.includes(id)),'Informe a nova ordem com todos os participantes.');
+      const atualId=atual(s)?.id;s.ordem=[...c.ordem];s.vez=s.ordem.indexOf(atualId);msg='O mestre reorganizou a ordem de iniciativa.';break;
+    }
     case 'remover':
       exigir(s.fase==='preparo' && a,'Remova participantes na preparação.');
       s.atores=s.atores.filter(x=>x!==a);msg=a.nome+' saiu da lista.';break;
@@ -1089,7 +1101,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(!c.dono || a.ficha.tipo==='pj','NPC é controlado pelo mestre.');
       a.token=c.token||null;a.dono=c.dono||null;msg='Vínculo atualizado para '+a.nome+'.';break;
     case 'iniciar':
-      exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).every(x=>x.pv>0),'Inclua pelo menos dois participantes conscientes no combate.');
+      exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
       s.fase='iniciativa';s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;});msg='Rolem iniciativa.';break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
@@ -1294,7 +1306,8 @@ export async function aplicar(s,c,u,rolar) {
       s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(restaurarEconomia);msg='Combate encerrado.';break;
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
-      for(const p of s.atores.filter(x=>x.ficha.tipo==='pj')){
+      exigir(c.atores===undefined||Array.isArray(c.atores)&&c.atores.every(id=>s.atores.some(x=>x.id===id)),'Personagens do descanso inválidos.');
+      for(const p of s.atores.filter(x=>x.ficha.tipo==='pj'&&(!c.atores||c.atores.includes(x.id)))){ // #12 descanso só de quem foi escolhido
         // #25 O descanso longo também aplica tudo que um descanso curto recuperaria.
         const eventosDescanso=c.periodo==='longo'?['descanso_curto','descanso_longo']:['descanso_curto'];
         for(const r of p.ficha.recursos){

@@ -1135,3 +1135,19 @@ test('#30 Magia Potencializada aparece na rolagem de dano de magia (não na de a
   await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'adaga').id,alvo:b.id},player,async(f,m)=>{meta.push(m);return r.rolar(f,m);});
   assert.ok(!(meta.find(m=>m.tipo==='dano')?.rerrolagens??[]).some(x=>x.id===pot.id),'não vale para arma');
 });
+
+test('#12 reforço entra no meio do combate, PJ caído pode começar, descanso individual e mestre reordena empates',async()=>{
+  let {s,a,b}=await duelo('draven-thorne');
+  s=await aplicar(s,{rev:s.rev,tipo:'adicionar',ficha:await fichaRev('soldado'),nome:'Reforço'},gm,roladorSala({d20:15}).rolar);
+  const reforco=s.atores.find(x=>x.nome==='Reforço');assert.ok(s.ordem.includes(reforco.id));assert.equal(atual(s).id,a.id,'a vez não muda');
+  s=await aplicar(s,{rev:s.rev,tipo:'ordenarIniciativa',ordem:[...s.ordem].reverse()},gm,()=>0);
+  assert.equal(atual(s).id,a.id);assert.equal(s.ordem.at(-1),a.id===s.ordem.at(-1)?a.id:s.ordem.at(-1));
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'ordenarIniciativa',ordem:[a.id]},gm,()=>0),/todos os participantes/);
+  // PJ a 0 PV pode estar no início do combate
+  let t=novo();const pj=adicionar(t,await fichaRev('nikki')),npc=adicionar(t,await fichaRev('soldado'));pj.pv=0;pj.estadoVida='inconsciente';
+  t=await aplicar(t,{rev:t.rev,tipo:'iniciar'},gm,()=>0);assert.equal(t.fase,'iniciativa');
+  // Descanso só para quem o mestre escolher
+  let d=novo();const x=adicionar(d,await fichaRev('nikki')),y=adicionar(d,await fichaRev('skimi'));x.rec['espaco-1']=0;y.rec['espaco-2']=0;
+  d=await aplicar(d,{rev:d.rev,tipo:'descanso',periodo:'longo',atores:[x.id]},gm,()=>0);
+  assert.ok(d.atores[0].rec['espaco-1']>0);assert.equal(d.atores[1].rec['espaco-2'],0);
+});
