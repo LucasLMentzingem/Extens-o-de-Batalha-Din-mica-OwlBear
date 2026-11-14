@@ -1012,3 +1012,17 @@ test('#31 Inspiração de Bardo só em outra criatura; #21 Torrente de Golpes é
   const tor=opRev((await duelo('loteria')).a,'torrente');
   assert.ok(tor.automacao.ataques.every(r=>r.tags.includes('desarmado')&&r.elemento==='contundente'));
 });
+
+test('#27 #34 sobras escondidas, Defletir só C/C/P, Vigor Implacável e Metabolismo na iniciativa',async()=>{
+  for(const id of idsJogadores){const {a}=await duelo(id);assert.ok(!opcoesDisponiveis(a).some(o=>/^(Perícia \||Nota de importação$|Concentração e turno$)/.test(o.nome)),id);}
+  let {s,a,b}=await duelo('loteria');
+  assert.deepEqual(opRev(a,'defletir').automacao.elementos,['contundente','cortante','perfurante']);
+  // Vigor Implacável: cai a 1 PV uma vez
+  a.pv=3;a.rec['vigor-implacavel']=1;s.vez=1;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:opcoesDisponiveis(b).find(o=>o.automacao?.tipo==='ataque').id,alvo:a.id},gm,roladorSala({dano:10}).rolar);
+  if(s.reacaoPendente)s=await aplicar(s,{rev:s.rev,tipo:'resolverReacao',ator:a.id},player,roladorSala({dano:10}).rolar).catch(()=>s);
+  assert.equal(s.atores[0].pv,1);assert.equal(s.atores[0].rec['vigor-implacavel'],0);
+  // Metabolismo: só antes do primeiro turno terminar
+  ({s,a,b}=await duelo('loteria'));a.jaAgiuNoCombate=true;
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'metabolismo').id},player,roladorSala().rolar),/Iniciativa/);
+});

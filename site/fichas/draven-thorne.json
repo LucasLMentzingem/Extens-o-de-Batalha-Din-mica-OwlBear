@@ -415,7 +415,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-prestidigitacao-1-19",
@@ -427,7 +428,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-0-20",
@@ -439,7 +441,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-atuacao-1-21",
@@ -451,7 +454,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-1-22",
@@ -463,7 +467,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "manobra-prostrar",

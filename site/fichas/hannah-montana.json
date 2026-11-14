@@ -428,7 +428,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-4-18",
@@ -440,7 +441,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-4-19",
@@ -452,7 +454,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-4-20",
@@ -464,7 +467,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-prestidigitacao-3-21",
@@ -476,7 +480,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "nota-de-importacao-22",
@@ -488,7 +493,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "2-arrombar-23",

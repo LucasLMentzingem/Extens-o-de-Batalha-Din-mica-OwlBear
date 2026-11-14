@@ -171,6 +171,9 @@ function corrigirMagiasRevisao(f){
   for(const o of f.opcoes??[]){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
+    if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano')o.automacao.elementos=['contundente','cortante','perfurante'];
+    if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
+    if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
     if(nome==='inspiracao de bardo'&&o.automacao?.tipo==='conceder_dado')o.requisitosUso={...(o.requisitosUso??{}),alvoDiferenteDoConjurador:true}; // #31 é para outra criatura
     if(/^torrente de golpes/.test(completo)&&o.automacao?.tipo==='ataque'){for(const r of [o.automacao,...(o.automacao.ataques??[])]){r.elemento??='contundente';r.tags=[...new Set([...(r.tags??[]),'desarmado'])];}} // #21
     if(o.categoria!=='magia')continue;
@@ -387,7 +390,7 @@ export function validar(f) {
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
-      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','somenteForaCombate'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','somenteForaCombate','somenteAoRolarIniciativa'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
       exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
@@ -627,7 +630,7 @@ export function opcaoDisponivel(a,o){
   return true;
 }
 export const opcoesCalculadas=a=>[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem),...ataquesEquipados(a)];
-export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>opcaoDisponivel(a,o));
+export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
   return opcoes.map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
@@ -722,6 +725,7 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.aposAcerto)exigir(acertos.length>0,'Use esta habilidade somente depois de acertar um ataque neste turno.');
   if(r.tagsAtaqueAnterior?.length)exigir(anterior&&r.tagsAtaqueAnterior.every(t=>anterior.tags?.includes(t)),'O ataque anterior não cumpre os requisitos desta habilidade.');
   if(r.umaVezPorTurno)exigir(!a.usosTurno?.[r.umaVezPorTurno],'Esta habilidade já foi usada neste turno.');
+  if(r.somenteAoRolarIniciativa)exigir(s.fase!=='turnos'||(s.rodada===1&&!a.jaAgiuNoCombate),'Só ao rolar Iniciativa (antes do seu primeiro turno terminar).'); // #34
   if(r.alvoDiferenteDoConjurador)exigir(!alvo||alvo.id!==a.id,'Escolha outra criatura (não pode ser você).'); // #31
   if(r.alvoDiferenteDoAnterior)exigir(anterior&&alvo&&anterior.alvo!==alvo.id,'Escolha uma criatura diferente do alvo anterior.');
   if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distancia(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
@@ -830,7 +834,7 @@ function enfileirarReacaoAoSofrerDano(s,reator,origem,valor,elemento){
 }
 function abrirReacaoPreventiva(s,reator,origem,resolucao){
   if(s.fase!=='turnos'||s.reacaoPendente||!reator||!origem||reator===origem||reator.pv<=0||reator.reacao<=0)return false;
-  const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o));
+  const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o)&&(!o.automacao?.elementos||o.automacao.elementos.includes(resolucao?.elemento))); // #34 Defletir: só C/C/P
   if(!opcoes.length)return false;
   s.resolucaoPendente={...resolucao,tipo:'dano_ataque',origem:origem.id,alvo:reator.id};
   s.reacaoPendente={id:crypto.randomUUID(),gatilho:'ser_atingido',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
@@ -931,7 +935,10 @@ export async function aplicar(s,c,u,rolar) {
     const resolvido=relatorio
       ?resolverDano({parcelas:(relatorio.parcelas??[]).map(x=>({...x,valor:x.final??x.valor})),defesas:[],alvo:resumoAlvoDano(p)})
       :resolverDano({parcelas:parcelas??[{valor:dano,tipo:elemento,tags:[]}],defesas:defesasDanoDoAtor(p),alvo:resumoAlvoDano(p),ajustes});
+    const pvAntes=p.pv,estadoAntes=p.estadoVida;
     aplicarRelatorioDano(p,resolvido,{critico,pvMaximos:pvMaximosAtuais(p)});
+    // #34 Vigor Implacável (Orc): caiu a 0 PV sem morrer → fica com 1 PV, 1x por descanso longo.
+    if(pvAntes>0&&p.pv===0&&p.estadoVida==='inconsciente'&&(p.rec?.['vigor-implacavel']??0)>0){p.rec['vigor-implacavel']--;p.pv=1;p.estadoVida=estadoAntes;delete p.salvaguardasMorte;msg+=' • Vigor Implacável: '+p.nome+' fica com 1 PV';}
     if(p.concentracaoAtiva&&resolvido.danoRecebido>0){
       const cdCon=Math.max(10,Math.floor(resolvido.danoRecebido/2)),bonus=p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con);
       const falhaAutomatica=p.pv===0||restricoesAtivas(p).falhaSalvas?.includes('con');
@@ -1025,7 +1032,7 @@ export async function aplicar(s,c,u,rolar) {
       a.token=c.token||null;a.dono=c.dono||null;msg='Vínculo atualizado para '+a.nome+'.';break;
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).every(x=>x.pv>0),'Inclua pelo menos dois participantes conscientes no combate.');
-      s.fase='iniciativa';s.atores.forEach(x=>x.init=null);msg='Rolem iniciativa.';break;
+      s.fase='iniciativa';s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;});msg='Rolem iniciativa.';break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await resultado('1d20'+soma(bonusIniciativa(a)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
@@ -1239,7 +1246,7 @@ export async function aplicar(s,c,u,rolar) {
       const foraCombate=c.tipo==='usar'&&s.fase==='preparo';
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
-        processarDuracoes(s,a,'fim_turno');
+        processarDuracoes(s,a,'fim_turno');a.jaAgiuNoCombate=true;
         // #11 Monstro a 0 PV morre (Cap. 1): a vez dele é pulada. PJ a 0 PV continua para as salvaguardas contra a morte.
         const pulados=[];
         for(let i=0;i<s.ordem.length;i++){s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);}
@@ -1289,7 +1296,7 @@ export async function aplicar(s,c,u,rolar) {
       const efeitos=(a.efeitosAtivos??[]).filter(e=>e.origem===o.origem);
       if(rule.tipo==='disparada'){a.metros+=deslocamentoMaximo(a);break;}
       if(rule.tipo==='desengajar'){a.desengajado=true;break;}
-      if(rule.tipo==='economia'){
+      if(rule.tipo==='economia'){validarRequisitosUso(s,a,o,null);
         for(const k of ['acao','bonus','reacao'])if(rule.adicionar?.[k])a[k]+=rule.adicionar[k];
         for(const id of rule.recuperarRecursos??[]){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=r.maximo;}
         for(const [id,q] of Object.entries(rule.recuperarQuantidades??{})){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=Math.min(r.maximo,(a.rec[id]??0)+q);}

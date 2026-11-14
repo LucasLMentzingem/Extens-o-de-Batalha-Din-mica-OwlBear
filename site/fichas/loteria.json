@@ -486,7 +486,12 @@
       "gatilho": "ser_atingido",
       "automacao": {
         "tipo": "reduzir_dano",
-        "formula": "1d10+6"
+        "formula": "1d10+6",
+        "elementos": [
+          "contundente",
+          "cortante",
+          "perfurante"
+        ]
       }
     },
     {
@@ -545,7 +550,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-0-24",
@@ -557,7 +563,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-atuacao-1-25",
@@ -569,7 +576,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-1-26",
@@ -581,7 +589,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-1-27",
@@ -593,7 +602,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "nota-de-importacao-28",
@@ -605,7 +615,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "defesa-paciente-foco",
@@ -669,6 +680,9 @@
         "recuperarRecursos": [
           "pontos-de-foco"
         ]
+      },
+      "requisitosUso": {
+        "somenteAoRolarIniciativa": true
       }
     },
     {

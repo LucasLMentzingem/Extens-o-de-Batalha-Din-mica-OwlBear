@@ -468,7 +468,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-atuacao-0-21",
@@ -480,7 +481,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-0-22",
@@ -492,7 +494,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-0-23",
@@ -504,7 +507,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-investigacao-1-24",
@@ -516,7 +520,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "nota-de-importacao-25",
@@ -528,7 +533,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "1-saraivada-de-espinhos-26",

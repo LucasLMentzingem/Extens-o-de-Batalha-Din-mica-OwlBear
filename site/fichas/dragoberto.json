@@ -487,7 +487,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-prestidigitacao-3-20",
@@ -499,7 +500,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-atuacao-1-21",
@@ -511,7 +513,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-enganacao-1-22",
@@ -523,7 +526,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "pericia-intimidacao-1-23",
@@ -535,7 +539,8 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "informativa": true
     },
     {
       "id": "concentracao-e-turno-24",
@@ -548,7 +553,8 @@
           "quantidade": 1
         }
       ],
-      "concentracao": true
+      "concentracao": true,
+      "informativa": true
     },
     {
       "id": "1-marca-do-predador-25",
