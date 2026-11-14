@@ -491,7 +491,12 @@
           "contundente",
           "cortante",
           "perfurante"
-        ]
+        ],
+        "redirecionar": {
+          "recurso": "pontos-de-foco",
+          "cd": 11,
+          "dano": "2d6+3"
+        }
       }
     },
     {
@@ -843,6 +848,71 @@
         "bonus": 5,
         "dano": "1d6+3",
         "elemento": "contundente",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "valentao-empurrar",
+      "nome": "Valentão de Taverna · empurrar 1,5 m",
+      "categoria": "acao",
+      "descricao": "Uma vez por turno, depois de acertar um golpe desarmado com a ação Atacar, empurre o alvo 1,5 m.",
+      "custo": [],
+      "requisitosUso": {
+        "aposAcerto": true,
+        "tagsAtaqueAnterior": [
+          "desarmado"
+        ],
+        "alvoIgualAoAnterior": true,
+        "umaVezPorTurno": "valentao-de-taverna"
+      },
+      "automacao": {
+        "tipo": "dano_direto",
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5
+        }
+      }
+    },
+    {
+      "id": "mao-de-dolo-torrente",
+      "nome": "Mão de Dolo · golpe da Torrente",
+      "categoria": "acao",
+      "descricao": "Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: 1d6+1 necrótico no alvo atingido. 1x por turno.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "pontos-de-foco",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "aposAcerto": true,
+        "tagsAtaqueAnterior": [
+          "desarmado"
+        ],
+        "alvoIgualAoAnterior": true,
+        "umaVezPorTurno": "mao-de-dolo-21"
+      },
+      "automacao": {
+        "tipo": "dano_direto",
+        "dano": "1d6+1",
+        "elemento": "necrotico",
+        "alcanceM": 1.5
+      }
+    },
+    {
+      "id": "mao-de-cura-torrente",
+      "nome": "Mão de Cura · no lugar de um golpe da Torrente",
+      "categoria": "acao",
+      "descricao": "Depois de usar a Torrente de Golpes neste turno, troque um dos golpes por Mão de Cura sem gastar Foco.",
+      "custo": [],
+      "requisitosUso": {
+        "aposOpcao": "torrente-de-golpes-5-acao-bonus-1-foco-2",
+        "umaVezPorTurno": "mao-de-cura-torrente"
+      },
+      "automacao": {
+        "tipo": "cura",
+        "formula": "1d6+1",
         "alcanceM": 1.5
       }
     }

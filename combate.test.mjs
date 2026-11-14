@@ -1103,3 +1103,23 @@ test('#32 Saraivada de Espinhos, Golpe Constritor e Destruidor de Hordas',async(
   const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'destruidor').id,alvo:c.id},player,r.rolar);
   assert.equal(r.formulas.find(x=>x.meta.tipo==='ataque').f,'1d20'+opRev(a,'cimitarra').automacao.bonus.toLocaleString('en',{signDisplay:'always'}));
 });
+
+test('#21 #34 Mão de Dolo e Mão de Cura na Torrente, Defletir redireciona e Valentão empurra',async()=>{
+  let {s,a,b}=await duelo('loteria');
+  // Torrente + Mão de Dolo no alvo atingido + Mão de Cura sem Foco
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'torrente').id,alvos:[b.id,b.id]},player,roladorSala().rolar);
+  const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-dolo-torrente',alvo:b.id},player,roladorSala({dano:5}).rolar);
+  assert.equal(s.atores[1].pv,pv-5);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1);
+  s.atores[0].pv=5;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-cura-torrente',alvo:a.id},player,roladorSala({dano:4}).rolar);
+  assert.equal(s.atores[0].pv,9);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1,'sem gastar Foco');
+  // Valentão de Taverna: empurrão opcional depois do golpe desarmado
+  ({s,a,b}=await duelo('loteria'));
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'valentao-empurrar',alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[1].x,3);
+  // Defletir: dados de redirecionamento lidos da ficha
+  assert.deepEqual(opRev(a,'defletir').automacao.redirecionar,{recurso:'pontos-de-foco',cd:11,dano:'2d6+3'});
+});

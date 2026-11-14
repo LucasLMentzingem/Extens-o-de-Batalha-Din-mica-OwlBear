@@ -84,7 +84,7 @@ export function atualizarMagias(f){
     if(!o.automacao&&/^(agarrar|imobilizar \|)/.test(nomeCompleto))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Agarrado',condicao:'agarrado',turnos:10}};
     if(!o.automacao&&nomeCompleto.startsWith('derrubar'))o.automacao={tipo:'salva',atributos:['for','des'],cd:10,alcanceM:1.5,efeitoFalha:{nome:'Caído',condicao:'caido',turnos:1,expira:'fim_origem'}};
     if(!o.automacao&&nomeCompleto.startsWith('segunda adaga')&&hit&&dano){o.requisitosUso={aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:o.id};o.automacao={tipo:'ataque',bonus:Number(hit[1]||0),dano:dano[1]??dano[2],elemento:'perfurante',alcanceM:1.5,tags:['arma']};}
-    if(nomeCompleto.includes('mao de dolo')){o.gatilho='apos_acerto';o.umaVezPorTurno=true;o.aprimoramento={dano:'1d6+1',elemento:'necrotico',requisitos:{tagsAtaque:['desarmado']}};delete o.automacao;}
+    if(nomeCompleto.includes('mao de dolo')&&o.id!=='mao-de-dolo-torrente'){o.gatilho='apos_acerto';o.umaVezPorTurno=true;o.aprimoramento={dano:'1d6+1',elemento:'necrotico',requisitos:{tagsAtaque:['desarmado']}};delete o.automacao;}
     if(nomeCompleto.includes('mao de cura'))o.automacao={tipo:'cura',formula:'1d6+1',alcanceM:1.5};
     if(o.categoria!=='magia'||typeof o.nome!=='string')continue;
     if(nome==='armadura arcana'){
@@ -168,6 +168,9 @@ export function atualizarMagias(f){
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
+  // #34 Valentão de Taverna: 1x por turno, ao acertar um golpe desarmado com a ação Atacar, pode empurrar o alvo 1,5 m.
+  if((f.passivas??[]).some(p=>/valentao de taverna/.test(textoNormal(p.nome))&&p.ativa!==false)&&!f.opcoes.some(o=>o.id==='valentao-empurrar'))
+    f.opcoes.push({id:'valentao-empurrar',nome:'Valentão de Taverna · empurrar 1,5 m',categoria:'acao',descricao:'Uma vez por turno, depois de acertar um golpe desarmado com a ação Atacar, empurre o alvo 1,5 m.',custo:[],requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:'valentao-de-taverna'},automacao:{tipo:'dano_direto',alcanceM:1.5,deslocamentoForcado:{distanciaM:1.5}}});
   // #13 Nomes das ações como no Livro do Jogador 2024 em português.
   const RENOMEAR=[[/^Disparada\b/,'Correr'],[/^Estudar\b/,'Analisar'],[/^Utilizar\b/,'Usar Objeto'],[/^Esconder-se\b/,'Esconder'],[/^Agarrar(?= \|)/,'Imobilizar']];
   // #15 Explosão Elemental: o conjurador escolhe o tipo (ácido, frio, fogo, raio, veneno, psíquico ou trovejante).
@@ -200,7 +203,12 @@ function corrigirMagiasRevisao(f){
     if(nome==='saraivada de espinhos'&&!o.automacao){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
     if(nome==='golpe constritor'&&!o.automacao){o.automacao={tipo:'salva',atributo:'for',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,alcanceM:18,efeitoFalha:{nome:'Contido (Golpe Constritor)',condicao:'contido',turnos:10,danoInicioTurno:{formula:'1d6',elemento:'perfurante'}}};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma'],alvoIgualAoAnterior:true};}
     if(/destruidor de hordas/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.usarArmaAnterior)o.automacao.usarArmaAnterior=true;
-    if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano')o.automacao.elementos=['contundente','cortante','perfurante'];
+    if(/^torrente de golpes/.test(completo)&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente')){
+      const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento),cura=f.opcoes.find(x=>textoNormal(x.nome)==='mao de cura'&&x.automacao?.tipo==='cura');
+      if(dolo)f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
+      if(cura)f.opcoes.push({id:'mao-de-cura-torrente',nome:'Mão de Cura · no lugar de um golpe da Torrente',categoria:'acao',descricao:'Depois de usar a Torrente de Golpes neste turno, troque um dos golpes por Mão de Cura sem gastar Foco.',custo:[],requisitosUso:{aposOpcao:o.id,umaVezPorTurno:'mao-de-cura-torrente'},automacao:structuredClone(cura.automacao)});
+    }
+    if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano'){o.automacao.elementos=['contundente','cortante','perfurante'];const m=/CD (\d+)[^\[]*\[([^\]]+)\]/.exec(o.descricao??'');o.automacao.redirecionar??={recurso:'pontos-de-foco',cd:Number(m?.[1])||11,dano:m?.[2]??'2d6+3'};}
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
     if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
     if(nome==='inspiracao de bardo'&&o.automacao?.tipo==='conceder_dado')o.requisitosUso={...(o.requisitosUso??{}),alvoDiferenteDoConjurador:true}; // #31 é para outra criatura
@@ -420,6 +428,7 @@ export function validar(f) {
     if(o.requisitosUso){
       const r=o.requisitosUso;
       exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','alvoIgualAoAnterior','somenteForaCombate','somenteAoRolarIniciativa'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(r.aposOpcao===undefined||typeof r.aposOpcao==='string','Requisito aposOpcao inválido em '+o.id);
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
       exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
@@ -431,7 +440,7 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto'].includes(a.tipo), 'Automação desconhecida em '+o.id);
     if(a.tipo==='economia'){
       exigir(['acao','bonus','reacao'].every(k=>a.adicionar?.[k]===undefined||inteiro(a.adicionar[k],0,5)),'Economia adicional inválida em '+o.id);
       exigir(['disparada','desengajar','esquivar'].every(k=>a[k]===undefined||typeof a[k]==='boolean'),'Estado de economia inválido em '+o.id);
@@ -755,6 +764,7 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.tagsAtaqueAnterior?.length)exigir(anterior&&r.tagsAtaqueAnterior.every(t=>anterior.tags?.includes(t)),'O ataque anterior não cumpre os requisitos desta habilidade.');
   if(r.umaVezPorTurno)exigir(!a.usosTurno?.[r.umaVezPorTurno],'Esta habilidade já foi usada neste turno.');
   if(r.somenteAoRolarIniciativa)exigir(s.fase!=='turnos'||(s.rodada===1&&!a.jaAgiuNoCombate),'Só ao rolar Iniciativa (antes do seu primeiro turno terminar).'); // #34
+  if(r.aposOpcao)exigir(ataques.some(e=>String(e.opcao).startsWith(r.aposOpcao)),'Use depois da habilidade indicada neste turno.');
   if(r.alvoIgualAoAnterior)exigir(anterior&&alvo&&anterior.alvo===alvo.id,'O alvo precisa ser a criatura que você acabou de acertar.');
   if(r.alvoDiferenteDoConjurador)exigir(!alvo||alvo.id!==a.id,'Escolha outra criatura (não pode ser você).'); // #31
   if(r.alvoDiferenteDoAnterior)exigir(anterior&&alvo&&anterior.alvo!==alvo.id,'Escolha uma criatura diferente do alvo anterior.');
@@ -1167,18 +1177,26 @@ export async function aplicar(s,c,u,rolar) {
       if(p.gatilho==='ser_atingido'){
         const pend=s.resolucaoPendente,origem=s.atores.find(x=>x.id===pend?.origem),alvo=s.atores.find(x=>x.id===pend?.alvo);
         exigir(pend?.tipo==='dano_ataque'&&origem&&alvo&&alvo===a,'O ataque pendente não está mais disponível.');
-        let reducao=0,nomeReacao='nenhuma reação';
+        let reducao=0,nomeReacao='nenhuma reação',redirecionar=null;
         if(c.opcao){
           const o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='ser_atingido');
           const plano=planoCustoOpcao(a,o,'automatico');
           exigir(o?.automacao?.tipo==='reduzir_dano'&&custosDisponiveis(a,o),'Reação preventiva indisponível.');registrarEspacoNoTurno(s,a,plano.custos);
           for(const custo of plano.custos){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
-          reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;nomeReacao=o.nome;
+          reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;nomeReacao=o.nome;redirecionar=o.automacao.redirecionar??null;
         }
         const controlador=origem.ficha.tipo==='pj'&&origem.dono?origem.dono:'GM';
         const rolagem=await resultado(pend.formula,{tipo:'dano',titulo:'Dano · '+pend.nome,critico:pend.critico,alvo:alvo.nome,destinoId:controlador,roladorNome:origem.nome,tipoDano:pend.elemento,parcelasDano:[{tipo:pend.elemento,tags:pend.tags??[]}],alvoDano:resumoAlvoDano(alvo),ajustesDano:reducao?[{id:'reacao-reducao',nome:nomeReacao,operacao:'reducao_fixa',valor:reducao,aplicacoes:'uma'}]:[]});
         const bruto=rolagem.total,relatorio=rolagem.relatoriosDano?.[0],restante=Math.max(0,bruto-reducao),dano=await aplicarDanoNoAtor(alvo,restante,pend.elemento,{critico:pend.critico,origem,relatorio});
         msg=alvo.nome+' respondeu com '+nomeReacao+' • dano '+bruto+' − redução '+reducao+' = '+dano;
+        // #34 Defletir Ataques: dano reduzido a 0 → pode gastar 1 Foco e redirecionar contra quem atacou (salvaguarda de DES).
+        const alcanceRedirecao=(pend.tags??[]).includes('distancia')?18:1.5;
+        if(redirecionar&&restante===0&&c.redirecionar!==false&&(a.rec?.[redirecionar.recurso]??0)>=1&&origem.pv>0&&distancia(a,origem)<=alcanceRedirecao+1e-8){
+          a.rec[redirecionar.recurso]--;
+          const bonus=origem.ficha.salvaguardas?.des??mod(origem.ficha.atributos.des),rr=restricoesAtivas(origem).falhaSalvas?.includes('des')?{total:0}:await rolarD20(bonus,origem,{tipo:'salvaguarda',atributo:'des',titulo:'Salvaguarda de DES · Defletir de '+a.nome,alvo:origem.nome,cd:redirecionar.cd});
+          if(rr.total>=redirecionar.cd)msg+=' • redirecionou, mas '+origem.nome+' passou na salvaguarda';
+          else{const r=await resultado(redirecionar.dano,{tipo:'dano',titulo:'Dano redirecionado · '+nomeReacao,alvo:origem.nome,tipoDano:pend.elemento,parcelasDano:[{tipo:pend.elemento,tags:pend.tags??[]}],alvoDano:resumoAlvoDano(origem)});msg+=' • redirecionou: '+origem.nome+' sofreu '+await aplicarDanoNoAtor(origem,r.total,pend.elemento,{origem:a,relatorio:r.relatoriosDano?.[0]});}
+        }
         delete s.resolucaoPendente;delete s.reacaoPendente;abrirProximaReacaoEvento(s);break;
       }
       if(p.gatilho!=='sair_alcance'){
@@ -1432,6 +1450,10 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const tags=['magia','projétil'],danos=await resultadoLote(formulas,{tipo:'dano-lote',titulo:'Danos · '+nome,instancias:instancias.map(x=>({...x,tipoDano:rule.elemento})),parcelasDano:afetados.map(()=>({tipo:rule.elemento,tags})),alvosDano:afetados.map(resumoAlvoDano)});
         for(let i=0;i<afetados.length;i++){msg+=' • '+afetados[i].nome+' sofreu '+await aplicarDanoNoAtor(afetados[i],danos[i].total,rule.elemento,{origem:a,relatorio:danos[i].relatorioDano});deslocarForcado(afetados[i]);}
         c.modo=modoOriginal;break;
+      }
+      if(rule.tipo==='dano_direto'){ // #21 dano sem jogada (Mão de Dolo depois de um golpe da Torrente)
+        for(const p of afetados){if(!rule.dano){deslocarForcado(p);continue;}const r=await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:rule.tags??[]}],alvoDano:resumoAlvoDano(p)});msg+=' • '+p.nome+' sofreu '+await aplicarDanoNoAtor(p,r.total,rule.elemento,{origem:a,relatorio:r.relatoriosDano?.[0]});deslocarForcado(p);}
+        break;
       }
       if(rule.tipo==='ataque'&&afetados.length>1){
         const acertos=[],nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*classe.*$/i,'');
