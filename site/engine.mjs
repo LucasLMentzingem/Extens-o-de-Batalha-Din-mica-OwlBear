@@ -164,13 +164,14 @@ export function atualizarMagias(f){
 }
 // Correções de magias e ações da revisão de regras (#14, #15, #17, #27).
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
-const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso historico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
+const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
 function corrigirMagiasRevisao(f){
   // #28 Ancestralidade Feérica (Elfo): Vantagem nas salvaguardas contra ficar Enfeitiçado.
   if(JSON.stringify([f.passivas,f.opcoes]).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes('ancestralidade feerica'))f.vantagemSalvasContra=[...new Set([...(f.vantagemSalvasContra??[]),'enfeiticado'])];
   for(const o of f.opcoes??[]){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
+    if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno'}; // #18
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano')o.automacao.elementos=['contundente','cortante','perfurante'];
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
     if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
@@ -1247,10 +1248,16 @@ export async function aplicar(s,c,u,rolar) {
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
         processarDuracoes(s,a,'fim_turno');a.jaAgiuNoCombate=true;
+        // #18 Salvaguarda repetida no fim de cada turno do afetado (Imobilizar Pessoa, Riso Histérico): no sucesso o efeito termina.
+        for(const e of (a.efeitosAtivos??[]).filter(e=>e.salvaRepetida&&a.pv>0)){
+          const k=e.salvaRepetida.atributo,bonus=a.ficha.salvaguardas?.[k]??mod(a.ficha.atributos[k]);
+          const rr=restricoesAtivas(a).falhaSalvas?.includes(k)?{total:0}:await rolarD20(bonus,a,{tipo:'salvaguarda',atributo:k,titulo:'Salvaguarda repetida · '+e.nome+' · '+a.nome,alvo:a.nome,cd:e.salvaRepetida.cd});
+          if(rr.total>=e.salvaRepetida.cd){a.efeitosAtivos=a.efeitosAtivos.filter(x=>x!==e);msg+=a.nome+' passou na salvaguarda e se livrou de '+e.nome+'. ';}
+        }
         // #11 Monstro a 0 PV morre (Cap. 1): a vez dele é pulada. PJ a 0 PV continua para as salvaguardas contra a morte.
         const pulados=[];
         for(let i=0;i<s.ordem.length;i++){s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);}
-        const iniciado=atual(s);iniciarTurno(s,iniciado);msg=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join(', ')+'.':'');break;
+        const iniciado=atual(s);iniciarTurno(s,iniciado);msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join(', ')+'.':'');break;
       }
       exigir(a.pv>0,'Personagem a 0 PV.');
       if(c.tipo==='mover'){
@@ -1421,7 +1428,7 @@ export async function aplicar(s,c,u,rolar) {
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,indice=resultadosSalva.filter(x=>!x.sucesso||rule.metade).indexOf(r),valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a,relatorio:temArea?null:relatoriosDiretos[indice]});msg+=' • '+r.p.nome+' perdeu '+valor+' PV';}
           if(!r.sucesso)deslocarForcado(r.p);
           if(!r.sucesso&&rule.efeitoFalha){
-            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva};
+            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
             r.p.efeitosAtivos=(r.p.efeitosAtivos??[]).filter(e=>e.id!==o.id);r.p.efeitosAtivos.push(efeito);
             if(rule.efeitoFalha.consomeReacao)r.p.reacao=0;msg+=' • efeito: '+efeito.nome;
             if(restricoesAtivas(r.p).semAcoes)encerrarConcentracao(s,r.p,'incapacitado');

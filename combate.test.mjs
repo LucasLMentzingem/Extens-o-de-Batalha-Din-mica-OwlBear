@@ -1026,3 +1026,15 @@ test('#27 #34 sobras escondidas, Defletir só C/C/P, Vigor Implacável e Metabol
   ({s,a,b}=await duelo('loteria'));a.jaAgiuNoCombate=true;
   await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'metabolismo').id},player,roladorSala().rolar),/Iniciativa/);
 });
+
+test('#18 Imobilizar Pessoa e Riso Histérico repetem a salvaguarda no fim do turno do alvo',async()=>{
+  let {s,a,b}=await duelo('skimi');
+  const imob=opRev(a,'imobilizar pessoa'),riso=opRev(a,'riso histerico');
+  assert.equal(imob.automacao.efeitoFalha.salvaRepetida.atributo,'sab');assert.ok(riso.automacao.efeitoFalha.salvaRepetida);
+  assert.ok(riso.selecao?.max>=2,'Riso no 2º círculo: 2 alvos');
+  b.efeitosAtivos=[{id:'x',nome:'Rindo no chão',tipo:'condicao',restricoes:{caido:true},duracao:{restante:10,expira:'inicio_alvo'},salvaRepetida:{atributo:'sab',cd:13}}];
+  s.vez=1;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala({d20:5}).rolar);
+  assert.ok(s.atores[1].efeitosAtivos.some(e=>e.id==='x'),'falhou: continua');
+  s.vez=1;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala({d20:15}).rolar);
+  assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.id==='x'),'passou: termina');
+});

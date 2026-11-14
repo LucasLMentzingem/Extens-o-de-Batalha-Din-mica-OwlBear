@@ -539,7 +539,11 @@
         "efeitoFalha": {
           "nome": "Paralisado",
           "condicao": "paralisado",
-          "turnos": 10
+          "turnos": 10,
+          "salvaRepetida": {
+            "atributo": "sab",
+            "quando": "fim_turno"
+          }
         }
       }
     },
@@ -744,9 +748,21 @@
             "semAcoes": true,
             "semBonus": true,
             "caido": true
+          },
+          "salvaRepetida": {
+            "atributo": "sab",
+            "quando": "fim_turno"
           }
         }
-      }
+      },
+      "selecao": {
+        "tipo": "alvos",
+        "min": 1,
+        "max": 2,
+        "repetirAlvo": false,
+        "alcanceM": 9
+      },
+      "escalaAplicada": 2
     },
     {
       "id": "truque-rajada-mistica-33",
