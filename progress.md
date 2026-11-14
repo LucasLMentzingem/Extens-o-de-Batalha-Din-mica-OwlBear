@@ -500,3 +500,33 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Testes do motor: 92 aprovados.
 - Resultado colorido validado visualmente em `work/dano-resultado-colorido-v0729.png`.
 
+### Próximas interações registradas
+
+- [ ] Adicionar o filtro Truques antes de Magias no rodapé.
+- [ ] Implementar cones ancorados no conjurador, orientados e travados pelo mouse.
+- [ ] Migrar cones e áreas originadas no personagem nas sete fichas.
+- [ ] Detectar ataques de oportunidade ao cruzar e sair de alcances ao longo de toda a trajetória.
+- [ ] Suportar várias reações de oportunidade, uma por inimigo elegível, no mesmo deslocamento.
+
+Especificação detalhada: `PROXIMAS-INTERACOES.md`.
+
+### Versão 0.7.30: gatilhos de dano e auditoria das fichas
+
+- [x] Tornar Queimadura de Fogo um aprimoramento opcional exibido após um acerto.
+- [x] Somar 1d10 ígneo e gastar o uso somente quando o jogador confirmar o dano extra.
+- [x] Implementar Atacante Selvagem no primeiro acerto com arma do turno, com duas rolagens simultâneas e escolha automática da maior.
+- [x] Preservar dados extras fora da duplicação do dano base do Atacante Selvagem.
+- [x] Mostrar as duas alternativas e o resultado escolhido na interface de dano.
+- [x] Auditar as sete fichas Forge originais contra a progressão de nível 3 das regras 2024.
+- [x] Corrigir perícias omitidas, PV/dado de Loteria, custos falsos de conversão e escolhas exclusivas do Caçador.
+- [x] Recuperar as duas formas do Sopro Dracônico de Dragoberto.
+- [x] Automatizar Astúcia Mágica recuperando exatamente um espaço fora de combate.
+- [x] Corrigir Máscara de Muitas Faces e rituais do Tomo para não gastarem Espaço de Magia de Pacto.
+- [x] Registrar Mente Desperta, Pacto do Tomo e o talento Músico.
+
+Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
+
+- Testes do motor: 96 aprovados.
+- Ajuste e resultado de Atacante Selvagem/Queimadura validados visualmente em `work/atacante-ajuste-v0730.png` e `work/atacante-resultado-v0730.png`.
+- Smoke test final do painel validado com o cliente Playwright em `work/playwright-v0730-final/shot-0.png`, sem novos erros de console.
+

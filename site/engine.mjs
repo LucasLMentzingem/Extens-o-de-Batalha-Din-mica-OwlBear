@@ -1,4 +1,4 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.7.29';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.7.30';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -299,7 +299,7 @@ export function validar(f) {
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
-      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','somenteForaCombate'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
       exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
@@ -313,6 +313,7 @@ export function validar(f) {
       exigir(a.pvTemporarios===undefined||inteiro(a.pvTemporarios,1,9999),'PV temporário de economia inválido em '+o.id);
       exigir(a.cura===undefined||formulaDanoValida(a.cura),'Cura de economia inválida em '+o.id);
       exigir(a.recuperarRecursos===undefined||Array.isArray(a.recuperarRecursos)&&a.recuperarRecursos.every(id=>f.recursos.some(r=>r.id===id)),'Recuperação de recurso inválida em '+o.id);
+      exigir(a.recuperarQuantidades===undefined||a.recuperarQuantidades&&typeof a.recuperarQuantidades==='object'&&Object.entries(a.recuperarQuantidades).every(([id,q])=>f.recursos.some(r=>r.id===id)&&inteiro(q,1,9999)),'Recuperação parcial de recurso inválida em '+o.id);
     }
     if(a.tipo==='reduzir_dano')exigir(formulaDanoValida(a.formula),'Redução de dano inválida em '+o.id);
     if(a.tipo==='conceder_dado')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>=0&&formulaDanoValida(a.modificador?.formula)&&Array.isArray(a.modificador.tipos)&&a.modificador.tipos.length&&a.modificador.tipos.every(x=>['ataque','salvaguarda','teste'].includes(x)),'Dado concedido inválido em '+o.id);
@@ -444,7 +445,7 @@ export function proficienteComArma(f,item){
 function mongeUsaArma(f,item){
   const monge=(f?.classes??[]).some(c=>textoNormal(c.id)==='monge');
   const d=definicoesArmas[chaveArma(item)];
-  return monge&&d&&(d.grupoProficiencia==='simples'||d.grupoProficiencia==='marcial'&&d.propriedades.includes('leve'))&&!d.propriedades.includes('pesada');
+  return monge&&!usaArmadura({ficha:f})&&d&&(d.grupoProficiencia==='simples'||d.grupoProficiencia==='marcial'&&d.propriedades.includes('leve'))&&!d.propriedades.includes('pesada');
 }
 function atributoAtaqueArma(f,item,modelo){
   const d=definicoesArmas[chaveArma(item)]??item,props=d.propriedades??[];
@@ -541,15 +542,18 @@ export const opcaoPorId=(a,id)=>{
 export const bonusEquipamento=(a,campo)=>itensEquipados(a).reduce((n,i)=>n+(Number(i.modificadores?.[campo])||0),0);
 export const bonusPassiva=(a,campo)=>(a?.ficha?.passivas??[]).filter(p=>p.ativa!==false).reduce((n,p)=>n+(Number(p.modificadores?.[campo])||0),0);
 export const caAtual=a=>{
-  let base=a?.ficha?.caBase??0,bonus=0;
+  const mongeSemArmadura=(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')&&!usaArmadura(a);
+  let base=mongeSemArmadura?10+mod(a.ficha.atributos.des)+mod(a.ficha.atributos.sab):(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')?10:a?.ficha?.caBase??0,bonus=0;
   for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base'){let valor=Number(ca.valor)||0;if(ca.atributo){let modificador=mod(a?.ficha?.atributos?.[ca.atributo]??10);if(Number.isFinite(ca.limiteAtributo))modificador=Math.min(modificador,ca.limiteAtributo);valor+=modificador;}base=Math.max(base,valor);}if(ca?.tipo==='bonus')bonus+=Number(ca.valor)||0;}
   return base+bonus+bonusEquipamento(a,'ca')+bonusPassiva(a,'ca')+bonusEfeito(a,'ca');
 };
 export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusPassiva(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
 export const deslocamentoMaximo=a=>{
   const penalidade=itensEquipados(a).some(i=>i.categoriaArmadura==='pesada'&&Number(i.requisitos?.forca)>(a?.ficha?.atributos?.for??0))?3:0;
-  return Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusPassiva(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM')-penalidade);
+  const nivelMonge=(a?.ficha?.classes??[]).find(c=>textoNormal(c.id)==='monge')?.nivel??0,bonusMonge=nivelMonge>=10?6:nivelMonge>=6?4.5:nivelMonge>=2?3:0,perdeBonusMonge=bonusMonge&&usaArmadura(a)?bonusMonge:0;
+  return Math.max(0,(a?.ficha?.deslocamentosM?.andar??0)+bonusEquipamento(a,'deslocamentoM')+bonusPassiva(a,'deslocamentoM')+bonusEfeito(a,'deslocamentoM')-penalidade-perdeBonusMonge);
 };
+export const bonusIniciativa=a=>mod(a?.ficha?.atributos?.des??10)+bonusEquipamento(a,'iniciativa')+bonusPassiva(a,'iniciativa')+bonusEfeito(a,'iniciativa');
 export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(1,Number(i.quantidade)||1),0);
 export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
 export function curarAtor(a,valor){
@@ -598,6 +602,10 @@ function opcoesDepoisDoAcerto(a,o,alvo){
 }
 function opcoesRerrolagemDano(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 function opcoesRerrolagemD20(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_d20'&&o.rerrolagem?.tipo==='d20'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
+function modificadorDanoAntesDaRolagem(a,o){
+  const tags=tagsAtaque(o,o.automacao),fontes=[...opcoesDisponiveis(a),...(a.ficha.passivas??[]).filter(p=>p.ativa!==false)],usos=a.usosTurno??{};
+  return fontes.find(g=>g.gatilho==='ao_rolar_dano'&&g.modificadorDano?.tipo==='rolar_duas_escolher_maior'&&(!g.umaVezPorTurno||!usos[g.id])&&(()=>{const r=g.modificadorDano.requisitos??{};return !r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t));})());
+}
 const formulaCritica=f=>f.replace(/^(\d+)d/,(_,n)=>(Number(n)+1)+'d');
 function validarRequisitosUso(s,a,o,alvo){
   const r=o.requisitosUso;if(!r)return;
@@ -831,7 +839,7 @@ export async function aplicar(s,c,u,rolar) {
       if(entrando){
         a.emCombate=true;
         if(s.fase==='turnos'){
-          const atualId=atual(s)?.id;a.init=(await resultado('1d20'+soma(mod(a.ficha.atributos.des)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;s.ordem.push(a.id);
+          const atualId=atual(s)?.id;a.init=(await resultado('1d20'+soma(bonusIniciativa(a)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;s.ordem.push(a.id);
           s.ordem.sort((x,y)=>{const p=s.atores.find(a=>a.id===x),q=s.atores.find(a=>a.id===y);return q.init-p.init||q.ficha.atributos.des-p.ficha.atributos.des;});
           s.vez=Math.max(0,s.ordem.indexOf(atualId));restaurarEconomia(a);
         }else a.init=null;
@@ -881,7 +889,7 @@ export async function aplicar(s,c,u,rolar) {
       s.fase='iniciativa';s.atores.forEach(x=>x.init=null);msg='Rolem iniciativa.';break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
-      a.init=(await resultado('1d20'+soma(mod(a.ficha.atributos.des)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
+      a.init=(await resultado('1d20'+soma(bonusIniciativa(a)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
       iniciarTurnos(s);
       break;
     case 'iniciativas': {
@@ -890,7 +898,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(ids.length===c.atores.length,'Uma ficha foi selecionada mais de uma vez.');
       const participantes=ids.map(id=>s.atores.find(x=>x.id===id));
       exigir(participantes.every(x=>x&&x.emCombate!==false&&x.init===null),'Uma das iniciativas já foi resolvida ou está fora do combate.');
-      const formulas=participantes.map(x=>'1d20'+soma(mod(x.ficha.atributos.des)));
+      const formulas=participantes.map(x=>'1d20'+soma(bonusIniciativa(x)));
       const resultados=await resultadoLote(formulas,{tipo:'iniciativa_lote',titulo:'Iniciativas',rotuloInstancia:'Iniciativa',unidadeResultado:'de iniciativa',descricaoLote:'Revise cada iniciativa. O Dice+ lançará todos os dados juntos.',instancias:participantes.map(x=>({titulo:x.nome,alvo:x.ficha.tipo==='pj'?'Jogador':'NPC'}))});
       participantes.forEach((x,i)=>{x.init=resultados[i].total;});
       msg='Iniciativas • '+participantes.map((x,i)=>x.nome+' '+resultados[i].total).join(' · ');
@@ -942,6 +950,7 @@ export async function aplicar(s,c,u,rolar) {
         msg=a.nome+' '+(c.operacao==='preparar'?'preparou ':'despreparou ')+o.nome+'.';
       }else{
         const habilidade=o??passiva;habilidade.ativa=c.operacao==='ativar';
+        if(habilidade.ativa&&habilidade.grupoExclusivo)for(const outra of [...a.ficha.opcoes,...(a.ficha.passivas??[])])if(outra.id!==habilidade.id&&outra.grupoExclusivo===habilidade.grupoExclusivo)outra.ativa=false;
         msg=a.nome+' '+(habilidade.ativa?'ativou ':'desativou ')+habilidade.nome+'.';
       }
       break;
@@ -1095,6 +1104,7 @@ export async function aplicar(s,c,u,rolar) {
       }
       exigir(c.tipo==='usar','Comando desconhecido.');
       const o=opcaoDeclarada;exigir(o,'Opção desconhecida.');exigir(opcaoDisponivel(a,o),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
+      exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
       const rule=o.automacao;
       exigir(rule || (gm && c.assistido),'Opção assistida. O mestre precisa confirmar a resolução.');
       for(const custo of o.custo??[]){
@@ -1116,6 +1126,7 @@ export async function aplicar(s,c,u,rolar) {
       if(rule.tipo==='economia'){
         for(const k of ['acao','bonus','reacao'])if(rule.adicionar?.[k])a[k]+=rule.adicionar[k];
         for(const id of rule.recuperarRecursos??[]){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=r.maximo;}
+        for(const [id,q] of Object.entries(rule.recuperarQuantidades??{})){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=Math.min(r.maximo,(a.rec[id]??0)+q);}
         if(rule.disparada)a.metros+=deslocamentoMaximo(a);
         if(rule.desengajar)a.desengajado=true;
         if(rule.esquivar){
@@ -1255,10 +1266,11 @@ export async function aplicar(s,c,u,rolar) {
       }
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];
       if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome})){msg+=' • aguardando reação de '+p.nome;continue;}
-      const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=opcoesRerrolagemDano(a);
+      const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=opcoesRerrolagemDano(a),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
       const metaAdicionais=adicionais.map(g=>({id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??''}));
       const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
-      const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens});
+      const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
+      const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
       const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
       exigir(new Set(idsAdicionais).size===idsAdicionais.length&&idsAdicionais.every(id=>adicionais.some(g=>g.id===id)),'Aprimoramento de dano inválido.');
       exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');
@@ -1268,6 +1280,7 @@ export async function aplicar(s,c,u,rolar) {
         const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;
       }
       for(const g of escolhidos)if(g.umaVezPorTurno)a.usosTurno[g.id]=true;
+      if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
       const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],relatorio=rolagem.relatoriosDano?.[0],valores=relatorio?.parcelas?.map(x=>x.final)??[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)];
       await aplicarDanoNoAtor(p,valores.reduce((n,x)=>n+x,0),null,{critico,origem:a,relatorio,parcelas:[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.map((g,i)=>({valor:(parcelas[i+1]??{total:0}).total,tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}))]});msg+=' • '+p.nome+' perdeu '+(relatorio?.pvPerdido??valores.reduce((n,x)=>n+x,0))+' PV';
       for(let i=0;i<escolhidos.length;i++){
@@ -1304,8 +1317,12 @@ export function avaliarFormula(formula,sortear=l=>1+Math.floor(Math.random()*l))
   }
   return {total,natural,formula,resumo:formula+' = '+total,grupos};
 }
-export function dadoLocal(f) {
+export function dadoLocal(f,meta={}) {
   if(Array.isArray(f))return {resultados:f.map(x=>avaliarFormula(x))};
+  if(meta.modificadorDano?.tipo==='rolar_duas_escolher_maior'){
+    const alternativas=[avaliarFormula(f),avaliarFormula(f)],melhor=alternativas[0].total>=alternativas[1].total?alternativas[0]:alternativas[1];
+    return {...melhor,alternativasDano:alternativas,modificadorDano:meta.modificadorDano};
+  }
   return avaliarFormula(f).total;
 }
 

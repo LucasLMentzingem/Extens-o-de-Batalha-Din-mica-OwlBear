@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "monge",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Combatente da Misericórdia"
     }
   ],
   "especie": "Orc",
@@ -28,7 +29,7 @@
     "sab": 1,
     "car": -1
   },
-  "pvMaximos": 24,
+  "pvMaximos": 21,
   "caBase": 14,
   "deslocamentosM": {
     "andar": 12
@@ -49,7 +50,8 @@
     "Furtividade": 5,
     "Atletismo": 4,
     "Percepção": 3,
-    "Intuição": 3
+    "Intuição": 3,
+    "Medicina": 3
   },
   "resistencias": [],
   "imunidades": [],
@@ -338,11 +340,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
           "quantidade": 1
         }
       ]
@@ -648,7 +645,7 @@
       "id": "metabolismo-incomum-acao",
       "nome": "Metabolismo Incomum",
       "categoria": "acao",
-      "descricao": "Ao rolar iniciativa, recupere todo o Foco e 1d8+3 PV.",
+      "descricao": "Ao rolar iniciativa, recupere todo o Foco e 1d6+3 PV.",
       "custo": [
         {
           "tipo": "recurso",
@@ -658,7 +655,7 @@
       ],
       "automacao": {
         "tipo": "economia",
-        "cura": "1d8+3",
+        "cura": "1d6+3",
         "recuperarRecursos": [
           "pontos-de-foco"
         ]

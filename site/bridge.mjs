@@ -1,6 +1,6 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal} from './engine.mjs?v=0.7.29';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.7.29';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal} from './engine.mjs?v=0.7.30';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.7.30';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -72,15 +72,24 @@ function dadoSala(usuario,ch,pedidos,mestreId){
       recursosAtivos=Array.isArray(resposta.recursosAtivos)?resposta.recursosAtivos:[];
       const extras=(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id));
       if(new Set(recursosAtivos).size!==recursosAtivos.length||recursosAtivos.some(id=>!extras.some(x=>x.id===id)))return;
-      const expressoes=bases.length===1&&extras.length?(meta.combinarAdicionais?[bases[0]+extras.map(x=>'+'+x.formula).join('')]:[bases[0],...extras.map(x=>x.formula)]):bases;
+      const expressoesSelecionadas=bases.length===1&&extras.length?(meta.combinarAdicionais?[bases[0]+extras.map(x=>'+'+x.formula).join('')]:[bases[0],...extras.map(x=>x.formula)]):bases;
+      const rolarDuas=meta.modificadorDano?.tipo==='rolar_duas_escolher_maior'&&expressoesSelecionadas.length>0&&!Array.isArray(formula);
+      const expressoes=rolarDuas?[expressoesSelecionadas[0],expressoesSelecionadas[0],...expressoesSelecionadas.slice(1)]:expressoesSelecionadas;
       if(fase!=='ajuste'||!expressoes.length)return;
       fase='rolando';
       try{
         for(const expressao of expressoes){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,destino,mensagem:validacao.error||'Expressão inválida.'});return;}}
-        const parcelasSelecionadas=meta.tipo==='dano-lote'?(meta.parcelasDano??[]):[(meta.parcelasDano?.[0]??{tipo:meta.tipoDano}),...extras.map(x=>({tipo:x.elemento,tags:x.tags}))];
+        const parcelasBase=meta.tipo==='dano-lote'?(meta.parcelasDano??[]):[(meta.parcelasDano?.[0]??{tipo:meta.tipoDano}),...extras.map(x=>({tipo:x.elemento,tags:x.tags}))];
+        const parcelasSelecionadas=rolarDuas?[parcelasBase[0],parcelasBase[0],...parcelasBase.slice(1)]:parcelasBase;
         const expressoesDice=['dano','dano-lote'].includes(meta.tipo)?expressoes.map((f,i)=>{const modelo=infoTipoDano(parcelasSelecionadas[i]?.tipo).modelo;return f.replace(/(\d+d(?:4|6|8|10|12|20))(?!\{)/gi,'$1{'+modelo+'}');}):expressoes;
-        const notacao=expressoesDice.length>1?expressoesDice.map((f,i)=>f+'#'+(meta.instancias?.[i]?.titulo??(i===0?'Dano base':extras[i-1]?.nome??'Instância '+(i+1)))).join(', '):expressoesDice[0];
+        const tituloInstancia=i=>rolarDuas?(i<2?(meta.modificadorDano?.nome??'Dano da arma')+' · rolagem '+(i+1):extras[i-2]?.nome??'Instância '+(i+1)):(meta.instancias?.[i]?.titulo??(i===0?'Dano base':extras[i-1]?.nome??'Instância '+(i+1)));
+        const notacao=expressoesDice.length>1?expressoesDice.map((f,i)=>f+'#'+tituloInstancia(i)).join(', '):expressoesDice[0];
         resultado=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
+        if(rolarDuas){
+          const alternativas=(resultado.resultados??[]).slice(0,2),melhor=alternativas[0]?.total>=alternativas[1]?.total?alternativas[0]:alternativas[1],restantes=(resultado.resultados??[]).slice(2);
+          if(!melhor)throw Error('O Dice+ não devolveu as duas rolagens de '+meta.modificadorDano.nome+'.');
+          resultado={...resultado,...melhor,total:melhor.total+restantes.reduce((n,x)=>n+x.total,0),resultados:[melhor,...restantes],alternativasDano:alternativas,modificadorDano:meta.modificadorDano,resumo:melhor.resumo};
+        }
         if(Array.isArray(formula)&&expressoes.length===1&&!resultado.resultados)resultado={...resultado,resultados:[{total:resultado.total,natural:resultado.natural,formula:resultado.formula,resumo:resultado.resumo,grupos:resultado.grupos}]};
         const metaResolucao={...meta,adicionais:extras};
         const relatoriosDano=relatoriosDaRolagem(resultado,metaResolucao);
@@ -234,7 +243,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.7.29',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.7.30',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
 }
 export async function sala(onView){

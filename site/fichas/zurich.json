@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "guardiao",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Caçador"
     }
   ],
   "especie": "Elfo — linhagem Elfo Silvestre",
@@ -54,8 +55,10 @@
   "pericias": {
     "Furtividade": 5,
     "Intuição": 4,
-    "Lidar com Animais": 4,
-    "Sobrevivência": 4
+    "Adestrar Animais": 4,
+    "Sobrevivência": 4,
+    "Percepção": 6,
+    "Atletismo": 3
   },
   "resistencias": [],
   "imunidades": [],
@@ -325,11 +328,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
         }
       ]
     },
@@ -423,6 +421,8 @@
       "id": "assassino-de-colossos-18",
       "nome": "Assassino de Colossos",
       "categoria": "acao",
+      "ativa": true,
+      "grupoExclusivo": "presa-do-cacador",
       "descricao": "Uma vez por turno, ao acertar com arma uma criatura que já está abaixo dos PV máximos: +[1d8] de dano. Pode trocar por Destruidor de Hordas ao fim de um descanso curto ou longo.",
       "custo": [],
       "gatilho": "apos_acerto",
@@ -442,6 +442,8 @@
       "id": "destruidor-de-hordas-19",
       "nome": "Destruidor de Hordas",
       "categoria": "acao",
+      "ativa": false,
+      "grupoExclusivo": "presa-do-cacador",
       "descricao": "Uma vez por turno, ao atacar com arma, faz outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original. Ativar no lugar do Assassino de Colossos após um descanso.",
       "custo": [],
       "requisitosUso": {

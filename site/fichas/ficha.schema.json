@@ -554,6 +554,7 @@
             "tagsAtaqueAnterior": {"type": "array", "items": {"type": "string"}},
             "umaVezPorTurno": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
             "alvoDiferenteDoAnterior": {"type": "boolean"},
+            "somenteForaCombate": {"type": "boolean"},
             "distanciaDoAlvoAnteriorM": {"type": "number", "minimum": 0}
           }
         },
@@ -710,6 +711,10 @@
             "pvTemporarios": {"type": "integer", "minimum": 1},
             "cura": {"type": "string"},
             "recuperarRecursos": {"type": "array", "items": {"type": "string"}},
+            "recuperarQuantidades": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 1}
+            },
             "elemento": {
               "type": "string"
             },

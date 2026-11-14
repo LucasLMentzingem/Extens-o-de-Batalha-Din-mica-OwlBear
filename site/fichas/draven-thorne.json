@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "guerreiro",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Mestre da Batalha"
     }
   ],
   "especie": "Golias — ancestralidade Gigante de Fogo",
@@ -57,7 +58,8 @@
     "Atletismo": 5,
     "Acrobacia": 3,
     "Intuição": 3,
-    "Percepção": 3
+    "Percepção": 3,
+    "Intimidação": 1
   },
   "resistencias": [],
   "imunidades": [],
@@ -138,11 +140,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ],
       "automacao": {
@@ -163,11 +160,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ],
@@ -190,11 +182,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ],
       "automacao": {
@@ -215,11 +202,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ],
@@ -242,11 +224,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ],
@@ -274,11 +251,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ],
       "automacao": {
@@ -294,11 +266,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ],
       "automacao": {
@@ -313,11 +280,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ],
@@ -335,11 +297,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -352,16 +309,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
         }
       ]
     },
@@ -373,11 +320,6 @@
       "custo": [
         {
           "tipo": "reacao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ],
@@ -392,11 +334,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -408,11 +345,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ]
@@ -426,11 +358,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -443,11 +370,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -459,11 +381,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ]
@@ -497,11 +414,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -513,11 +425,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ]
@@ -531,11 +438,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -548,11 +450,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ]
     },
@@ -564,11 +461,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ]
@@ -669,6 +561,25 @@
       }
     },
     {
+      "id": "queimadura-de-fogo-apos-acerto",
+      "nome": "Queimadura de Fogo",
+      "categoria": "acao",
+      "filtroHud": "Classe",
+      "descricao": "Herança do Gigante de Fogo. Depois de acertar uma jogada de ataque e causar dano, gaste 1 uso para somar 1d10 de dano de fogo ao mesmo alvo. Usos iguais ao bônus de proficiência; recupera no descanso longo.",
+      "gatilho": "apos_acerto",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "queimadura-de-fogo",
+          "quantidade": 1
+        }
+      ],
+      "aprimoramento": {
+        "dano": "1d10",
+        "elemento": "fogo"
+      }
+    },
+    {
       "id": "recuperar-folego-acao",
       "nome": "Recuperar Fôlego",
       "categoria": "bonus",
@@ -717,11 +628,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ],
       "automacao": {
@@ -749,11 +655,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
         }
       ],
       "automacao": {
@@ -778,11 +679,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
           "quantidade": 1
         }
       ],
@@ -849,6 +745,35 @@
       "nome": "Passiva | Perícias e idiomas",
       "descricao": "Atletismo +5, Acrobacia +3, Intuição +3, Percepção +3, Intimidação +1. Ferramentas: kit de jogo (dados), Ferramentas de Ferreiro. Idiomas: Comum, Gigante, Anão.",
       "id": "passiva-2",
+      "ativa": true
+    },
+    {
+      "id": "atacante-selvagem",
+      "nome": "Atacante Selvagem",
+      "descricao": "Talento de origem. No primeiro acerto com arma de cada turno, os dados de dano da arma são rolados duas vezes e o maior resultado é aplicado. Modificadores fixos e dados adicionais são somados uma única vez.",
+      "ativa": true,
+      "gatilho": "ao_rolar_dano",
+      "umaVezPorTurno": true,
+      "modificadorDano": {
+        "tipo": "rolar_duas_escolher_maior",
+        "automatico": true,
+        "requisitos": {
+          "tagsAtaque": [
+            "arma"
+          ]
+        }
+      }
+    },
+    {
+      "id": "combate-com-armas-grandes",
+      "nome": "Combate com Armas Grandes",
+      "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. A regra está registrada para a próxima etapa de automação de resultados individuais.",
+      "ativa": true
+    },
+    {
+      "id": "mente-tatica",
+      "nome": "Mente Tática",
+      "descricao": "Ao falhar em um teste de atributo, pode gastar um uso de Recuperar Fôlego para somar 1d10. Se o teste continuar falhando, o uso não é gasto. Por enquanto, esta decisão é assistida pelo mestre.",
       "ativa": true
     }
   ],

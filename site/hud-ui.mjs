@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.7.29';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId} from './engine.mjs?v=0.7.29';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.7.29';
-import {pronto} from './bridge.mjs?v=0.7.29';
-import {canalHud} from './hud-controller.mjs?v=0.7.29';
+import {detalhes} from './ficha-view.mjs?v=0.7.30';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId} from './engine.mjs?v=0.7.30';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.7.30';
+import {pronto} from './bridge.mjs?v=0.7.30';
+import {canalHud} from './hud-controller.mjs?v=0.7.30';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -109,8 +109,9 @@ function render(){
       const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??'de dano')+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
       const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id));
       const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva?btn('rerrolarDado','Rerrolar','class="ouro"'):'')+'</div>':'';
+      const alternativas=r.alternativasDano?.length?'<div class="alternativas-dano"><small>'+esc(r.modificadorDano?.nome??'Duas rolagens')+'</small>'+r.alternativasDano.map((x,i)=>'<span class="'+(x.total===Math.max(...r.alternativasDano.map(y=>y.total))?'escolhida':'')+'">Rolagem '+(i+1)+': <b>'+esc(x.resumo||x.total)+'</b></span>').join('')+'<strong>Maior resultado aplicado</strong></div>':'';
       const relatorio=resultadoDano(r.relatoriosDano);
-      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+relatorio+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
+      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+alternativas+relatorio+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
     }else{
       const formulas=d.formulas?.map((x,i)=>document.querySelector('[data-formula-lote="'+i+'"]')?.value||x);
       if(formulas){
@@ -120,8 +121,9 @@ function render(){
         const valor=document.querySelector('#formulaDado')?.value||d.formula||'',temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor),modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
         const adicionais=m.adicionais??[],selecionados=adicionais.filter(x=>adicionaisAtivos.has(x.id));
         const painelAdicionais=adicionais.length?'<div class="recursos-rolagem adicionais"><small>'+esc(m.rotuloAdicionais??'Habilidades disponíveis após o acerto')+'</small><div>'+adicionais.map(x=>btn('alternarAdicional',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+adicionaisAtivos.has(x.id)+'" '+(x.automatico?'disabled ':'')+'data-info="'+esc((x.automatico?'Aplicação automática.\n':'')+(x.descricao||x.nome))+'"')).join('')+'</div>'+(selecionados.length?'<div class="dados-bloqueados">'+selecionados.map(x=>'<span><b>'+esc(x.formula)+'</b> · '+esc(x.nome)+'</span>').join('')+'</div>':'')+'</div>':'';
+        const painelModificador=m.modificadorDano?'<div class="modificador-dano-automatico"><small>Modificador automático desta rolagem</small><strong>'+esc(m.modificadorDano.nome)+'</strong><span>'+esc(m.modificadorDano.descricao||'Os dados de dano da arma serão rolados duas vezes; o maior resultado será aplicado.')+'</span></div>':'';
         const painelDefesa=painelDefesas(m,selecionados);
-        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+painelAdicionais+painelDefesa+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+painelModificador+painelAdicionais+painelDefesa+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }
     }
   }else if(parte==='dica-efeito'&&v.dicaEfeito){

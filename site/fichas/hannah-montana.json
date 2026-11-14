@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "bardo",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Colégio do Glamour"
     }
   ],
   "especie": "Elfo — linhagem Elfo Silvestre",
@@ -46,9 +47,24 @@
   "sentidos": "Visão no Escuro 18 m. Percepção passiva 13.",
   "idiomas": "Comum mais 2 idiomas pendentes de escolha.",
   "pericias": {
-    "Atuação": 5,
+    "Atletismo": 0,
     "Acrobacia": 4,
-    "Percepção": 3
+    "Prestidigitação": 3,
+    "Furtividade": 3,
+    "Arcanismo": 2,
+    "História": 1,
+    "Investigação": 4,
+    "Natureza": 1,
+    "Religião": 1,
+    "Adestrar Animais": 2,
+    "Intuição": 2,
+    "Medicina": 2,
+    "Percepção": 3,
+    "Sobrevivência": 2,
+    "Enganação": 4,
+    "Intimidação": 4,
+    "Atuação": 5,
+    "Persuasão": 7
   },
   "resistencias": [],
   "imunidades": [],
@@ -289,11 +305,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
         }
       ]
     },
@@ -514,11 +525,6 @@
         },
         {
           "tipo": "recurso",
-          "id": "magia-fascinante",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
           "id": "espaco-2",
           "quantidade": 1
         }
@@ -575,11 +581,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "magia-fascinante",
           "quantidade": 1
         },
         {
@@ -938,7 +939,10 @@
       "nome": "Passiva | Pau pra Toda Obra",
       "descricao": "Some +1 aos testes de atributo que usam uma perícia em que você não é proficiente e que ainda não incluem proficiência.",
       "id": "passiva-2",
-      "ativa": true
+      "ativa": true,
+      "modificadores": {
+        "iniciativa": 1
+      }
     },
     {
       "nome": "Passiva | Elfo Silvestre",
@@ -950,6 +954,12 @@
       "nome": "Passiva | Proficiências",
       "descricao": "Armas simples; armadura leve. Instrumentos: Flauta de Pan, Gaita de Foles, Trombeta, Lira, Oboé, Violino e Xilofone. Perícias: Acrobacia, Atuação (Artista); Percepção (Elfo); Investigação, Arcanismo, Persuasão (Bardo). Salvaguardas: DES e CAR.",
       "id": "passiva-4",
+      "ativa": true
+    },
+    {
+      "nome": "Passiva | Músico",
+      "descricao": "Durante um descanso curto ou longo, você pode tocar um instrumento para conceder Inspiração Heroica a aliados, até um número igual ao seu bônus de proficiência. Resolução assistida pelo mestre.",
+      "id": "passiva-5",
       "ativa": true
     }
   ],

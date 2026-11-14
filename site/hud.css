@@ -110,6 +110,9 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .recursos-rolagem>small{color:#e5c38c;font-weight:700}.recursos-rolagem>div{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-start}
 .recursos-rolagem button[aria-pressed=true]{border-color:#f0ad58;background:#704731;color:#fff1ca;box-shadow:0 0 10px #e7953c88}
 .dados-bloqueados span{padding:5px 7px;border:1px solid #d08745;border-radius:5px;background:#3c291f;color:#ffd9a3}.dados-bloqueados b{font:700 14px Consolas,monospace;color:#ffb963}
+.modificador-dano-automatico,.alternativas-dano{display:grid!important;gap:5px!important;padding:8px;border:1px solid #c58b43;border-radius:6px;background:#2b231b;color:#f3e5c9}
+.modificador-dano-automatico small,.alternativas-dano small{color:#dcb77e}.modificador-dano-automatico strong{color:#ffd37d}.modificador-dano-automatico span{line-height:1.35}
+.alternativas-dano span{padding:5px 7px;border:1px solid #5c5142;border-radius:5px;background:#171b1a}.alternativas-dano span.escolhida{border-color:#62d89e;background:#17352a;color:#d8ffe9}.alternativas-dano>strong{color:#84efb7}
 .resultados-lote article.dano-extra{border-color:#d08745;background:#2b211b}.resultados-lote article.dano-extra output{color:#ffc178}
 .defesas-dano{display:grid!important;gap:6px!important;padding:8px;border:1px solid #506b79;border-radius:6px;background:#142126}
 .defesas-dano>small{color:#9ed5e8;font-weight:700}.defesas-dano>div{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-start!important}

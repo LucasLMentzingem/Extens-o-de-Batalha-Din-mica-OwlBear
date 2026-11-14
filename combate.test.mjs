@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
@@ -75,6 +75,25 @@ test('as sete fichas salvas já estão normalizadas pelas regras atuais',()=>{
    const ocupados=new Map();
    for(const item of f.inventario.itens.filter(i=>i.equipado))for(const slot of slotsOcupadosItem(item)){assert.ok(!ocupados.has(slot),f.nome+' possui conflito em '+slot);ocupados.set(slot,item.id);}
  }
+});
+test('auditoria de nível 3 preserva progressão, perícias e recursos sem custos falsos da conversão',()=>{
+ const porId=id=>fichasJogadores.find(f=>f.id===id);
+ for(const f of fichasJogadores){assert.equal(f.classes.reduce((n,c)=>n+c.nivel,0),3,f.nome);assert.equal(f.proficiencia,2,f.nome);assert.ok(f.classes[0].subclasse,f.nome+' sem subclasse');}
+ assert.equal(porId('loteria').pvMaximos,21);assert.equal(porId('loteria').pericias.Medicina,3);assert.equal(porId('loteria').opcoes.find(o=>o.id==='metabolismo-incomum-acao').automacao.cura,'1d6+3');
+ assert.equal(porId('hannah-montana').pericias.Persuasão,7);assert.equal(porId('hannah-montana').pericias.Investigação,4);assert.equal(porId('zurich').pericias.Percepção,6);assert.equal(porId('dragoberto').pericias.Sobrevivência,4);assert.equal(porId('draven-thorne').pericias.Intimidação,1);assert.equal(porId('skimi').pericias.Prestidigitação,4);
+ const draven=porId('draven-thorne');assert.ok(draven.opcoes.filter(o=>o.id!=='surto-de-acao-acao').every(o=>!o.custo?.some(c=>c.id==='surto-de-acao')));
+ const hannah=porId('hannah-montana');assert.ok(hannah.opcoes.every(o=>!o.custo?.some(c=>c.id==='magia-fascinante')));
+ assert.ok(porId('skimi').opcoes.filter(o=>o.id!=='astucia-magica-acao').every(o=>!o.custo?.some(c=>c.id==='astucia-magica')));
+ for(const f of fichasJogadores)assert.ok(f.opcoes.every(o=>!o.custo?.some(c=>c.id==='dados-de-vida')),f.nome+' ainda gasta Dado de Vida em uma ação comum');
+ const dragoberto=porId('dragoberto'),sopros=dragoberto.opcoes.filter(o=>o.id.startsWith('ataque-de-sopro-'));assert.deepEqual(sopros.map(o=>o.automacao.area.forma).sort(),['cone','linha']);assert.ok(sopros.every(o=>o.automacao.dano==='1d10'&&o.automacao.metade&&o.automacao.cd===11));
+ assert.deepEqual(dragoberto.opcoes.filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.id),['habilitado-destruidor-de-hordas-18']);
+ assert.deepEqual(porId('zurich').opcoes.filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.id),['assassino-de-colossos-18']);
+});
+test('Pau pra Toda Obra melhora iniciativa e as defesas do Monge dependem de estar sem armadura',()=>{
+ const s=novo(),h=adicionar(s,fichasJogadores.find(f=>f.id==='hannah-montana')),l=adicionar(s,fichasJogadores.find(f=>f.id==='loteria'));
+ assert.equal(bonusIniciativa(h),3);assert.equal(caAtual(l),14);assert.equal(deslocamentoMaximo(l),12);
+ l.ficha.inventario.itens.push({id:'couro-teste',nome:'Armadura de Couro',tipo:'equipamento',quantidade:1,pesoKg:5,slotEquipamento:'vestes',equipado:true,equipadoSlot:'vestes',categoriaArmadura:'leve',classeArmadura:{tipo:'base',valor:11,classe:'leve',atributo:'des'}});
+ assert.equal(caAtual(l),14);assert.equal(deslocamentoMaximo(l),9);
 });
 test('autorização de vínculo, comando do jogador e ação excepcional do mestre',async()=>{
  const m=mesa();await m.iniciar();
@@ -551,6 +570,33 @@ test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recurso
  assert.equal(s.atores[0].pv,s.atores[0].ficha.pvMaximos-2);assert.equal(s.atores[0].bonus,0);assert.equal(s.atores[0].rec['recuperar-folego'],1);
  const monge=fichasJogadores.find(f=>f.id==='loteria'),metabolismo=monge.opcoes.find(o=>o.id==='metabolismo-incomum-acao');
  assert.deepEqual(metabolismo.automacao.recuperarRecursos,['pontos-de-foco']);assert.equal(monge.opcoes.find(o=>o.id==='pico-adrenalina').automacao.disparada,true);
+});
+test('Astúcia Mágica recupera somente um espaço e apenas fora de combate',async()=>{
+ let s=novo(),b=adicionar(s,fichasJogadores.find(f=>f.id==='skimi'));b.rec['espaco-2']=0;
+ s=await aplicar(s,{tipo:'usar',rev:s.rev,ator:b.id,opcao:'astucia-magica-acao',confirmado:true},gm,async()=>1);
+ assert.equal(s.atores[0].rec['espaco-2'],1);assert.equal(s.atores[0].rec['astucia-magica'],0);
+ s=novo();b=adicionar(s,fichasJogadores.find(f=>f.id==='skimi'));s.fase='turnos';s.ordem=[b.id];s.vez=0;
+ await assert.rejects(aplicar(s,{tipo:'usar',rev:s.rev,ator:b.id,opcao:'astucia-magica-acao',confirmado:true},gm,async()=>1),/fora de combate/);
+});
+test('Queimadura de Fogo entra após o acerto e Atacante Selvagem modifica somente o primeiro dano do turno',async()=>{
+ let s=novo(),d=adicionar(s,fichasJogadores.find(f=>f.id==='draven-thorne')),g=adicionar(s,soldado,'Alvo'),gmLocal={id:'m',role:'GM'},jogador={id:'p',role:'PLAYER'};
+ const comando=async(tipo,extra={},u=gmLocal,rolar=async()=>1)=>s=await aplicar(s,{tipo,rev:s.rev,...extra},u,rolar);
+ await comando('vincular',{ator:d.id,dono:'p'});await comando('iniciar');
+ await comando('iniciativa',{ator:d.id},jogador,async f=>({total:20,natural:17,formula:f,resumo:'20'}));
+ await comando('iniciativa',{ator:g.id},gmLocal,async f=>({total:5,natural:4,formula:f,resumo:'5'}));
+ const ataque=ataquesEquipados(s.atores[0])[0];let etapa=0;
+ await comando('usar',{ator:d.id,opcao:ataque.id,alvo:g.id},jogador,async(formula,meta)=>{
+   etapa++;if(etapa===1)return {total:20,natural:15,formula,resumo:'15 + 5 = 20'};
+   assert.equal(meta.modificadorDano.id,'atacante-selvagem');assert.equal(meta.modificadorDano.tipo,'rolar_duas_escolher_maior');
+   assert.ok(meta.adicionais.some(x=>x.id==='queimadura-de-fogo-apos-acerto'));
+   return {total:15,natural:null,formula,resumo:'10 + 5',recursosAtivos:['queimadura-de-fogo-apos-acerto'],resultados:[{total:10,resumo:'10'},{total:5,resumo:'5'}]};
+ });
+ assert.equal(s.atores[1].pv,9);assert.equal(s.atores[0].rec['queimadura-de-fogo'],1);assert.equal(s.atores[0].usosTurno['atacante-selvagem'],true);
+ s.atores[0].acao=1;etapa=0;
+ await comando('usar',{ator:d.id,opcao:ataque.id,alvo:g.id},jogador,async(formula,meta)=>{etapa++;if(etapa===1)return {total:20,natural:15,formula,resumo:'20'};assert.equal(meta.modificadorDano,null);return {total:3,formula,resumo:'3',recursosAtivos:[]};});
+ assert.equal(s.atores[1].pv,6);
+ const local=dadoLocal('2d6+3',{modificadorDano:{id:'atacante-selvagem',nome:'Atacante Selvagem',tipo:'rolar_duas_escolher_maior'}});
+ assert.equal(local.alternativasDano.length,2);assert.equal(local.total,Math.max(...local.alternativasDano.map(x=>x.total)));
 });
 
 test('inventário legado separa armas, prioriza o melhor acerto e ocupa uma mão por adaga',()=>{

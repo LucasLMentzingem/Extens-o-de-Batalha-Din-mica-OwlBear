@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "guardiao",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Caçador"
     }
   ],
   "especie": "Draconato de Bronze",
@@ -55,7 +56,8 @@
     "Atletismo": 4,
     "Percepção": 6,
     "Investigação": 3,
-    "Furtividade": 5
+    "Furtividade": 5,
+    "Sobrevivência": 4
   },
   "resistencias": [
     "raio"
@@ -274,11 +276,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
         }
       ]
     },
@@ -369,6 +366,70 @@
       "gatilho": "sair_alcance"
     },
     {
+      "id": "ataque-de-sopro-cone",
+      "nome": "Ataque de Sopro · cone",
+      "categoria": "acao",
+      "filtroHud": "Classe",
+      "descricao": "Substitui o ataque da ação Atacar. Cone de 4,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "ataque-de-sopro",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "des",
+        "cd": 11,
+        "dano": "1d10",
+        "metade": true,
+        "elemento": "raio",
+        "alcanceM": 4.5,
+        "area": {
+          "forma": "cone",
+          "comprimentoM": 4.5,
+          "larguraM": 4.5
+        }
+      }
+    },
+    {
+      "id": "ataque-de-sopro-linha",
+      "nome": "Ataque de Sopro · linha",
+      "categoria": "acao",
+      "filtroHud": "Classe",
+      "descricao": "Substitui o ataque da ação Atacar. Linha de 9 m por 1,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "ataque-de-sopro",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "des",
+        "cd": 11,
+        "dano": "1d10",
+        "metade": true,
+        "elemento": "raio",
+        "alcanceM": 9,
+        "area": {
+          "forma": "linha",
+          "comprimentoM": 9,
+          "larguraM": 1.5
+        }
+      }
+    },
+    {
       "id": "presa-do-cacador-16",
       "nome": "Presa do Caçador",
       "categoria": "acao",
@@ -379,6 +440,8 @@
       "id": "assassino-de-colossos-17",
       "nome": "Assassino de Colossos",
       "categoria": "acao",
+      "ativa": false,
+      "grupoExclusivo": "presa-do-cacador",
       "descricao": "Uma vez por turno, quando atingir com arma criatura que esteja abaixo dos PV máximos, pode causar +[1d8] do dano adicional da característica. Não concede ataque extra.",
       "custo": [],
       "gatilho": "apos_acerto",
@@ -398,6 +461,8 @@
       "id": "habilitado-destruidor-de-hordas-18",
       "nome": "(Habilitado) Destruidor de Hordas",
       "categoria": "acao",
+      "ativa": true,
+      "grupoExclusivo": "presa-do-cacador",
       "descricao": "Uma vez em cada um dos seus turnos, ao realizar ataque com arma, pode realizar outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original, dentro do alcance da arma e que ainda não atacou neste turno.",
       "custo": [],
       "requisitosUso": {
@@ -485,11 +550,6 @@
       "custo": [
         {
           "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "marca-do-predador",
           "quantidade": 1
         }
       ],

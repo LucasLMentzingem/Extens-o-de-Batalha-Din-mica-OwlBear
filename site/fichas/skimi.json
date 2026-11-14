@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "bruxo",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Patrono Grande Antigo"
     }
   ],
   "especie": "Humano",
@@ -52,7 +53,8 @@
     "Intimidação": 5,
     "Intuição": 3,
     "Percepção": 3,
-    "Persuasão": 5
+    "Persuasão": 5,
+    "Prestidigitação": 4
   },
   "resistencias": [],
   "imunidades": [],
@@ -112,6 +114,40 @@
     }
   ],
   "opcoes": [
+    {
+      "id": "astucia-magica-acao",
+      "nome": "Astúcia Mágica",
+      "categoria": "acao",
+      "descricao": "Fora de combate · 1 minuto. Recupere 1 Espaço de Magia de Pacto. Uso único por descanso longo.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "astucia-magica",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "recuperarQuantidades": {
+          "espaco-2": 1
+        }
+      }
+    },
+    {
+      "id": "mente-desperta-acao",
+      "nome": "Mente Desperta",
+      "categoria": "bonus",
+      "descricao": "Ação bônus · 9 m. Escolha uma criatura que você vê. Vocês podem conversar por telepatia por 3 minutos, mesmo sem compartilhar idioma; a comunicação persiste a até cerca de 5 km. Resolução assistida pelo mestre.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ]
+    },
     {
       "id": "adaga-4-acao-0",
       "nome": "Adaga +4 | ação",
@@ -289,11 +325,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
           "quantidade": 1
         }
       ]
@@ -611,15 +642,10 @@
       "id": "1-compreender-idiomas-28",
       "nome": "1º | Compreender Idiomas",
       "categoria": "magia",
-      "descricao": "Ação ou ritual (+10 min) · pessoal · 1 h. Compreenda o sentido literal de idiomas falados e, por toque, escritos.",
+      "descricao": "Ritual · 10 minutos adicionais · pessoal · 1 h. Compreenda o sentido literal de idiomas falados e, por toque, escritos. Não gasta Espaço de Magia de Pacto.",
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-2",
           "quantidade": 1
         }
       ],
@@ -634,11 +660,6 @@
         {
           "tipo": "acao",
           "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-2",
-          "quantidade": 1
         }
       ],
       "circuloBase": 1
@@ -647,15 +668,10 @@
       "id": "1-encontrar-familiar-30",
       "nome": "1º | Encontrar Familiar",
       "categoria": "magia",
-      "descricao": "1 h, ou 1 h + 10 min como ritual · 3 m. Consome componentes de 10 PO. Invoca familiar. Ação bônus para usar os sentidos dele.",
+      "descricao": "Ritual · 1 h + 10 min · 3 m. Consome componentes de 10 PO, mas não gasta Espaço de Magia de Pacto. Invoca familiar. Ação bônus para usar os sentidos dele.",
       "custo": [
         {
           "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-2",
           "quantidade": 1
         }
       ],
@@ -778,11 +794,6 @@
       "custo": [
         {
           "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "astucia-magica",
           "quantidade": 1
         }
       ],
@@ -1018,6 +1029,24 @@
       "nome": "Passiva | Proficiências",
       "descricao": "Armaduras Leves. Armas Simples. Kit de Falsificação. Perícias: Arcanismo, Atuação, Enganação, Intimidação, Intuição, Percepção, Persuasão e Prestidigitação. Salvaguardas: Sabedoria e Carisma.",
       "id": "passiva-5",
+      "ativa": true
+    },
+    {
+      "nome": "Passiva | Mente Desperta",
+      "descricao": "A ação bônus Mente Desperta inicia uma conversa telepática com uma criatura visível. A criatura não precisa compartilhar idioma.",
+      "id": "passiva-6",
+      "ativa": true
+    },
+    {
+      "nome": "Passiva | Máscara de Muitas Faces",
+      "descricao": "Disfarçar-se pode ser conjurada à vontade e sem gastar Espaço de Magia de Pacto.",
+      "id": "passiva-7",
+      "ativa": true
+    },
+    {
+      "nome": "Passiva | Pacto do Tomo",
+      "descricao": "O Livro das Sombras concede Amizade, Taumaturgia e Mensagem, além dos rituais Encontrar Familiar e Compreender Idiomas, e serve como foco de conjuração.",
+      "id": "passiva-8",
       "ativa": true
     }
   ],

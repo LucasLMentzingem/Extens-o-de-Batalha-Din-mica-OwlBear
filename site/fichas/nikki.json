@@ -8,7 +8,8 @@
   "classes": [
     {
       "id": "feiticeiro",
-      "nivel": 3
+      "nivel": 3,
+      "subclasse": "Feitiçaria Aberrante"
     }
   ],
   "especie": "Tiferino — legado Infernal",
