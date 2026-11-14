@@ -956,7 +956,18 @@
         "bonus": 5,
         "dano": "1d8",
         "elemento": "raio",
-        "alcanceM": 1.5
+        "alcanceM": 1.5,
+        "efeitoAcerto": {
+          "nome": "Sem reações (Toque Chocante)",
+          "tipo": "debuff",
+          "zerarReacao": true,
+          "descricao": "Não pode fazer reações até o início do próprio turno.",
+          "duracao": {
+            "turnos": 1,
+            "restante": 1,
+            "expira": "inicio_alvo"
+          }
+        }
       }
     },
     {

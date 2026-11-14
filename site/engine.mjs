@@ -172,6 +172,11 @@ function corrigirMagiasRevisao(f){
     if(o.categoria!=='magia')continue;
     if(/concentra[cç][aã]o/.test(completo))o.concentracao=true;          // #15 nome diz concentração → motor controla
     if(nome==='enfeiticar pessoa')delete o.concentracao;                  // #14 Enfeitiçar Pessoa não é concentração (2024)
+    if(nome==='toque chocante'&&o.automacao?.tipo==='ataque')o.automacao.efeitoAcerto={nome:'Sem reações (Toque Chocante)',tipo:'debuff',zerarReacao:true,descricao:'Não pode fazer reações até o início do próprio turno.',duracao:{turnos:1,restante:1,expira:'inicio_alvo'}};
+    if(nome==='fogo das fadas'&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.restricoes={...(o.automacao.efeitoFalha.restricoes??{}),anulaInvisivel:true};
+    if(nome==='invisibilidade'&&o.automacao?.efeito?.condicao==='invisivel')o.automacao.efeito.encerraAoAgir=true;
+    if(nome==='orientacao'&&o.automacao?.modificador)o.automacao.modificador.removeAoUsar=false; // #17 2024: vale em todos os testes enquanto durar
+    if(nome==='golpe certeiro'&&o.automacao?.tipo==='ataque'&&f.passivas?.some(p=>/arquearia/i.test(p.nome??''))&&!o.semArquearia){o.automacao.bonus-=2;o.semArquearia=true;} // #17 Arquearia só vale à distância
     if(nome==='emaranhar'&&o.automacao?.efeitoFalha?.condicao==='imobilizado'){o.automacao.efeitoFalha.condicao='contido';o.automacao.efeitoFalha.nome='Contido por Emaranhar';}
     if(nome==='encontrar familiar'&&o.custo?.some(c=>c.tipo==='bonus')){o.custo=[];o.requisitosUso={...(o.requisitosUso??{}),somenteForaCombate:true};} // ritual de 1 hora
     if(nome==='sussurros dissonantes'&&o.custo?.some(c=>c.tipo==='reacao'))o.custo=o.custo.map(c=>c.tipo==='reacao'?{tipo:'acao',quantidade:c.quantidade}:c); // #14 é Ação
@@ -676,7 +681,8 @@ const unirRestricoes=(base,extra)=>{
 };
 export function restricoesAtivas(a){
   const estado=['inconsciente','estavel'].includes(a?.estadoVida)?condicoesCombate.inconsciente.restricoes:{};
-  return (a?.efeitosAtivos??[]).reduce((out,e)=>unirRestricoes(out,unirRestricoes(e.condicao?condicoesCombate[e.condicao]?.restricoes:null,e.restricoes)),estado);
+  const efeitos=a?.efeitosAtivos??[],semInvisivel=efeitos.some(e=>e.restricoes?.anulaInvisivel); // #16 Fogo das Fadas: não se beneficia de Invisível
+  return efeitos.filter(e=>!(semInvisivel&&e.condicao==='invisivel')).reduce((out,e)=>unirRestricoes(out,unirRestricoes(e.condicao?condicoesCombate[e.condicao]?.restricoes:null,e.restricoes)),estado);
 }
 export const temCondicao=(a,id)=>(a?.efeitosAtivos??[]).some(e=>e.condicao===id);
 const tagsAtaque=(o,rule)=>{
@@ -1264,6 +1270,7 @@ export async function aplicar(s,c,u,rolar) {
         exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+o.nome);bag[key]-=custo.quantidade;
       }
       msg=a.nome+' • '+o.nome+(plano.gratuito?' • uso gratuito':'');
+      if((o.categoria==='magia'||rule?.tipo==='ataque'||rule?.dano)&&(a.efeitosAtivos??[]).some(e=>e.encerraAoAgir)){a.efeitosAtivos=a.efeitosAtivos.filter(e=>!e.encerraAoAgir);msg+=' • deixou de estar Invisível';} // #14
       const concentracaoId=o.concentracao?iniciarConcentracao(s,a,o):null;
       if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}
       if(rule.tipo==='efeito_conjuracao'){
@@ -1416,6 +1423,8 @@ export async function aplicar(s,c,u,rolar) {
         const acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,rule),acertou};a.eventosTurno.ataques.push(evento);
         if(!acertou){msg+=' • errou '+p.nome;continue;}
         a.eventosTurno.acertos.push(evento);
+        if(rule.efeitoAcerto)p.efeitosAtivos=[...(p.efeitosAtivos??[]).filter(e=>e.id!==o.id+'-acerto'),{...structuredClone(rule.efeitoAcerto),id:o.id+'-acerto',origemAtorId:a.id}]; // #15 Toque Chocante
+        if(rule.efeitoAcerto?.zerarReacao)p.reacao=0;
         if(face===20||(restricoesAtivas(p).criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8)){critico=true;formula=formulaCritica(formula);msg+=' • crítico';}
       }
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];

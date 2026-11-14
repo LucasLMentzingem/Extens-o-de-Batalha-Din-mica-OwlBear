@@ -567,7 +567,8 @@
           "duracao": {
             "turnos": 100,
             "expira": "inicio_origem"
-          }
+          },
+          "encerraAoAgir": true
         }
       }
     },

@@ -964,3 +964,24 @@ test('#10 jogador declara opção sem automação; #11 monstro a 0 PV é pulado 
   s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
   assert.equal(atual(s).id,c.id,'pulou o soldado a 0 PV');
 });
+
+test('#14 #15 #16 #17 Toque Chocante, Fogo das Fadas, Invisibilidade, Orientação e Golpe Certeiro',async()=>{
+  // Toque Chocante: o alvo atingido fica sem reação
+  let {s,a,b}=await duelo('nikki');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'toque chocante').id,alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[1].reacao,0);assert.ok(s.atores[1].efeitosAtivos.some(e=>/Toque Chocante/.test(e.nome)));
+  // Fogo das Fadas: Invisível não dá vantagem nem desvantagem contra
+  b=s.atores[1];b.efeitosAtivos=[{id:'i',nome:'Invisível',condicao:'invisivel'},{id:'f',nome:'Iluminado',restricoes:{vantagemAtaquesContra:true,anulaInvisivel:true}}];
+  const r=restricoesAtivas(b);assert.ok(!r.vantagemAtaques&&!r.desvantagemAtaquesContra&&r.vantagemAtaquesContra);
+  assert.equal(opRev((await duelo('hannah-montana')).a,'fogo das fadas').automacao.efeitoFalha.restricoes.anulaInvisivel,true);
+  // Invisibilidade termina ao atacar
+  ({s,a,b}=await duelo('skimi',undefined,{distancia:6}));
+  a.efeitosAtivos=[{id:'inv',nome:'Invisível',condicao:'invisivel',encerraAoAgir:true}];
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'rajada mistica').id,alvo:b.id},player,roladorSala().rolar).catch(async()=>aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'rajada mistica').id,alvos:[b.id]},player,roladorSala().rolar));
+  assert.ok(!s.atores[0].efeitosAtivos.some(e=>e.condicao==='invisivel'));
+  assert.equal(opRev((await duelo('skimi')).a,'invisibilidade').automacao.efeito.encerraAoAgir,true);
+  // Orientação dura (não some no primeiro teste) e Golpe Certeiro sem Arquearia
+  assert.equal(opRev((await duelo('zurich')).a,'orientacao').automacao.modificador.removeAoUsar,false);
+  const golpe=opRev((await duelo('dragoberto')).a,'golpe certeiro');assert.equal(golpe.automacao.bonus,4);
+  assert.equal(validar(structuredClone(await fichaRev('dragoberto'))).opcoes.find(o=>o.id===golpe.id).automacao.bonus,4,'não desconta duas vezes');
+});

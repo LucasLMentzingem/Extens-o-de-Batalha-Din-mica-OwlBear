@@ -680,12 +680,13 @@
       ],
       "automacao": {
         "tipo": "ataque",
-        "bonus": 6,
+        "bonus": 4,
         "dano": "1d8+2",
         "elemento": "radiante",
         "alcanceM": 1.5
       },
-      "circuloBase": 0
+      "circuloBase": 0,
+      "semArquearia": true
     },
     {
       "id": "truque-protecao-contra-laminas-30",

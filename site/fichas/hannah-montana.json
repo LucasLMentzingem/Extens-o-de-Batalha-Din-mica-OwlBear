@@ -646,7 +646,8 @@
           "nome": "Iluminado por Fogo das Fadas",
           "turnos": 10,
           "restricoes": {
-            "vantagemAtaquesContra": true
+            "vantagemAtaquesContra": true,
+            "anulaInvisivel": true
           }
         }
       },

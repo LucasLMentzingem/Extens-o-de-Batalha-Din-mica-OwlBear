@@ -779,7 +779,7 @@
           "tipos": [
             "teste"
           ],
-          "removeAoUsar": true
+          "removeAoUsar": false
         }
       }
     },
