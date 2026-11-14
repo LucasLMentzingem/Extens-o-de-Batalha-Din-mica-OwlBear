@@ -1,8 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.5';
-import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario} from './engine.mjs?v=0.8.5';
-import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.5';
-import {resumoItem} from './ficha-view.mjs?v=0.8.5';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.6';
+import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario} from './engine.mjs?v=0.8.6';
+import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.6';
+import {resumoItem} from './ficha-view.mjs?v=0.8.6';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let s,info,api,atorId,lojaId,aba='loja',selecionado=null,ocupado=false;

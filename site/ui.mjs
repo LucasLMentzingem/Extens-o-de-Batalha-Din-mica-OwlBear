@@ -1,8 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.5';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.5';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc} from './engine.mjs?v=0.8.5';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.5';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.6';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.6';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor} from './engine.mjs?v=0.8.6';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.6';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -13,17 +13,23 @@ function confirma(t,d){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
-let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null;
+let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null,trocaLocalId=null,trocaLocalAtor=null,trocaSolicitadaPor=null,abrindoTroca=false;
 const dicaLivro=document.createElement('div');dicaLivro.className='dica-livro';dicaLivro.hidden=true;dicaLivro.setAttribute('role','tooltip');document.body.append(dicaLivro);
 let testePendente;
 function view(estado,i){
   if(s?.rev!==estado.rev)alvos=[];
   recebido=estado;s=testar?publico(estado):estado;info=i;
 
+  if(estado.fase!=='preparo'){
+    lojaLocalAtor=null;trocaLocalId=null;trocaLocalAtor=null;
+    if(emSala){OBR.popover.close(ns+'/loja').catch(()=>{});OBR.popover.close(ns+'/troca').catch(()=>{});}
+  }
+
   const id=solicitacaoFicha??s.atores.find(a=>tokenSelecionado&&a.token===tokenSelecionado)?.id;
   if(id){const p=s.atores.find(a=>a.id===id&&(i.role==='GM'||a.dono===i.id));if(p)escolhido=p.id;}
   solicitacaoFicha=null;
   render();
+  queueMicrotask(()=>sincronizarTrocaVisual().catch(e=>aviso(e.message)));
 }
 const jogadoresOnline=()=>info.players.filter(p=>p.role!=='GM');
 function opcoesDono(a,id='dono-vinculo-'+a.id){
@@ -92,7 +98,7 @@ function render(){
   h+='</section><section>';
   if(a){
     const f=a.ficha;
-    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[],gm);
+    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[],gm,s.fase==='preparo',Boolean(trocaDoAtor(s,a.id)));
     if(!mestre){
     if(f.pvMaximos)h+='<div class="numeros">'+[['PV',a.pv+' / '+pvMaximosAtuais(a)],['CA',caAtual(a)],['Movimento',Number(a.metros.toFixed(2))+' m'],['Ação',a.acao],['Bônus',a.bonus],['Reação',a.reacao]].map(([k,v])=>'<span><small>'+k+'</small><b>'+esc(v)+'</b></span>').join('')+'</div><div class="barra"><i style="width:'+100*a.pv/pvMaximosAtuais(a)+'%"></i></div>';
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
@@ -111,7 +117,7 @@ function render(){
     }
     if(meu){
       const saves=Object.keys(f.atributos).map(k=>[k,f.salvaguardas?.[k]??mod(f.atributos[k])]);
-      h+='<section class="testes-ficha"><h3>Perícias</h3><div class="grade-testes">'+Object.keys(periciasPadrao).map(k=>{const v=bonusPericia(f,k);return '<button type="button" data-teste="pericias" data-chave="'+esc(k)+'"><span>'+esc(k)+'</span><b>'+(v>=0?'+':'')+v+'</b></button>';}).join('')+'</div><h3>Salvaguardas</h3><p class="muted">Clique aqui ou use o botão direito sobre um atributo.</p><div class="grade-testes salva">'+saves.map(([k,v])=>'<button type="button" data-teste="salvaguardas" data-chave="'+esc(k)+'"><span>'+esc(k.toUpperCase())+'</span><b>'+(v>=0?'+':'')+v+'</b></button>').join('')+'</div></section>';
+      h+='<section class="testes-ficha"><h3>Perícias</h3><div class="grade-testes">'+Object.keys(periciasPadrao).map(k=>{const v=bonusPericia(a,k);return '<button type="button" data-teste="pericias" data-chave="'+esc(k)+'"><span>'+esc(k)+'</span><b>'+(v>=0?'+':'')+v+'</b></button>';}).join('')+'</div><h3>Salvaguardas</h3><p class="muted">Clique aqui ou use o botão direito sobre um atributo.</p><div class="grade-testes salva">'+saves.map(([k,v])=>'<button type="button" data-teste="salvaguardas" data-chave="'+esc(k)+'"><span>'+esc(k.toUpperCase())+'</span><b>'+(v>=0?'+':'')+v+'</b></button>').join('')+'</div></section>';
     }
     h+=biblioteca(a);
     }
@@ -125,7 +131,7 @@ function render(){
     }
 
   }
-  h+='</section></div>'+(lojaLocalAtor&&info.modo==='ensaio'?'<aside class="loja-local"><iframe title="Lojas ativas" src="loja.html?local=1&ator='+encodeURIComponent(lojaLocalAtor)+'"></iframe><button type="button" data-fechar-loja-local>Fechar loja</button></aside>':'');if(mestre)h+='<section><h2>Histórico</h2><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+  h+='</section></div>'+(lojaLocalAtor&&info.modo==='ensaio'?'<aside class="loja-local"><iframe title="Lojas ativas" src="loja.html?local=1&ator='+encodeURIComponent(lojaLocalAtor)+'"></iframe><button type="button" data-fechar-loja-local>Fechar loja</button></aside>':'')+(trocaLocalId&&info.modo==='ensaio'?'<aside class="troca-local"><iframe title="Troca entre personagens" src="troca.html?local=1&troca='+encodeURIComponent(trocaLocalId)+'&ator='+encodeURIComponent(trocaLocalAtor??'')+'"></iframe></aside>':'');if(mestre)h+='<section><h2>Histórico</h2><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
   if(mestre)h+='<footer>'+(s.fase==='preparo'?btn('curto','Descanso curto')+btn('longo','Descanso longo'):btn('encerrar','Encerrar combate'))+'</footer>';
   $('app').innerHTML=h;
   if($('tabuleiro')){
@@ -232,6 +238,9 @@ async function abrirAdicionarPoMestre(){
 }
 async function alterarItem(operacao,slot){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
+  const item=a.ficha.inventario?.itens.find(x=>x.id===itemContexto);if(!item)return;
+  if(operacao==='oferecer-troca')return oferecerItemNaTroca(item,false);
+  if(operacao==='oferecer-po-troca')return oferecerItemNaTroca(item,true);
   const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
   if(operacao==='vender'){
     const loja=lojasAtivas(s)[0];if(!loja)throw Error('Nenhuma loja está ativa.');
@@ -245,7 +254,57 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.5',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.6',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+}
+function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
+async function abrirTroca(trocaId,atorId){
+  if(!trocaId||!atorId||s.fase!=='preparo')return;
+  trocaLocalId=trocaId;trocaLocalAtor=atorId;
+  if(info.modo==='ensaio'){render();return;}
+  if(abrindoTroca)return;abrindoTroca=true;
+  try{
+    const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
+    await OBR.popover.close(id).catch(()=>{});
+    const url=new URL('./troca.html?v=0.8.6',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  }finally{abrindoTroca=false;}
+}
+async function sincronizarTrocaVisual(){
+  if(!s||s.fase!=='preparo')return;
+  let t=s.comercio?.trocas?.find(x=>x.id===trocaLocalId),atorId=trocaLocalAtor;
+  if(t&&!t.solicitante&&!t.destinatario)t=null;
+  if(!t){
+    const role=testar?'PLAYER':info.role,id=testar?'teste':info.id,online=new Set((info.players??[]).map(p=>p.id));
+    for(const candidata of s.comercio?.trocas??[]){
+      const participantes=[candidata.solicitante,candidata.destinatario].map(x=>s.atores.find(a=>a.id===x)).filter(Boolean);
+      let controlado=role==='PLAYER'?participantes.find(a=>a.dono===id):participantes.find(a=>a.id===trocaSolicitadaPor)??(candidata.status==='solicitada'?participantes.find(a=>a.id===candidata.destinatario&&(!a.dono||!online.has(a.dono))):null);
+      if(controlado){t=candidata;atorId=controlado.id;break;}
+    }
+  }
+  if(!t){
+    if(trocaLocalId&&emSala)await OBR.popover.close(ns+'/troca').catch(()=>{});
+    trocaLocalId=null;trocaLocalAtor=null;trocaSolicitadaPor=null;return;
+  }
+  if(t.id!==trocaLocalId||atorId!==trocaLocalAtor)await abrirTroca(t.id,atorId);
+}
+async function iniciarOuAbrirTroca(){
+  const a=s.atores.find(x=>x.id===escolhido);if(!a||!controlaTroca(a))throw Error('Você não controla esta ficha.');
+  if(s.fase!=='preparo')throw Error('Trocas ficam bloqueadas durante o combate.');
+  const ativa=trocaDoAtor(s,a.id);if(ativa)return abrirTroca(ativa.id,a.id);
+  const alvos=s.atores.filter(x=>x!==a&&x.ficha.tipo==='pj'&&!trocaDoAtor(s,x.id));if(!alvos.length)throw Error('Não há outro personagem disponível para trocar.');
+  $('trocaDestino').innerHTML=alvos.map(x=>opt(x.id,x.nome)).join('');const dlg=$('solicitarTroca');dlg.returnValue='nao';
+  const aceitou=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});if(!aceitou)return;
+  trocaSolicitadaPor=a.id;await enviar('solicitarTroca',{destino:$('trocaDestino').value,confirmado:info.role==='GM'&&!testar&&a.ficha.tipo==='pj'});
+  const criada=trocaDoAtor(s,a.id);if(criada)await abrirTroca(criada.id,a.id);
+}
+async function oferecerItemNaTroca(item,moeda=false){
+  const a=s.atores.find(x=>x.id===escolhido),t=trocaDoAtor(s,a?.id);if(!a||!t||t.status!=='ofertas')throw Error('Aceite a solicitação antes de montar a oferta.');
+  if(item.equipado)throw Error('Desequipe o item antes de oferecê-lo.');
+  const maximo=moeda?saldoMoedasPo(a):Math.floor(item.quantidade??1),dlg=$('quantidadeTroca');$('quantidadeTrocaTitulo').textContent=moeda?'Oferecer PO':'Oferecer '+item.nome;$('quantidadeTrocaDetalhe').textContent='Disponível: '+maximo+(moeda?' PO':' unidade(s)')+'. Alterar a oferta reinicia as confirmações.';$('trocaQuantidade').min=moeda?'0':'1';$('trocaQuantidade').max=String(maximo);$('trocaQuantidade').step=moeda?'0.01':'1';$('trocaQuantidade').value=moeda?'0':String(Math.min(1,maximo));dlg.returnValue='nao';
+  const aceitou=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});if(!aceitou)return;
+  const quantidade=Number($('trocaQuantidade').value),confirmado=info.role==='GM'&&!testar&&a.ficha.tipo==='pj';
+  if(moeda)await enviar('definirPoTroca',{trocaId:t.id,quantidadePc:Math.round(quantidade*100),confirmado});else await enviar('oferecerTroca',{trocaId:t.id,itemId:item.id,quantidade,confirmado});
+  itemContexto=null;itemContextoSlot=null;$('itemMenu').close();aviso('Oferta de troca atualizada.');
 }
 async function alterarHabilidade(operacao){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!habilidadeContexto)return;
@@ -255,7 +314,7 @@ async function alterarHabilidade(operacao){
 }
 async function rolarTeste(grupo,chave){
   const a=s.atores.find(x=>x.id===escolhido);if(!a)return;
-  const bonus=grupo==='pericias'?bonusPericia(a.ficha,chave):(a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]));
+  const bonus=grupo==='pericias'?bonusPericia(a,chave):(a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]));
   const dlg=$('rolarTeste');$('tituloTeste').textContent=(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave;
   $('bonusTeste').textContent='Bônus da ficha: '+(bonus>=0?'+':'')+bonus;$('modoTeste').value='normal';$('dadosTeste').value='';$('ajusteTeste').value=0;dlg.returnValue='nao';
   const rev=s.rev;const aceitou=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
@@ -316,6 +375,7 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
  if(b.dataset.livroAba){paginaLivro=b.dataset.livroAba;return render();}
  if(b.hasAttribute('data-abrir-lojas'))return tarefa(()=>abrirLojas(escolhido));
+ if(b.hasAttribute('data-iniciar-troca'))return tarefa(iniciarOuAbrirTroca);
  if(b.hasAttribute('data-gm-adicionar-item'))return tarefa(abrirAdicionarItemMestre);
  if(b.hasAttribute('data-gm-adicionar-po'))return tarefa(abrirAdicionarPoMestre);
  if(b.hasAttribute('data-fechar-loja-local')){lojaLocalAtor=null;return render();}
@@ -361,6 +421,11 @@ $('app').oncontextmenu=e=>{
    else acoes+='<small>Este item não possui uma ação contextual.</small>';
    const loja=lojasAtivas(s)[0];
    if(s.fase==='preparo'&&loja&&i.tipo!=='moeda'&&i.negociavel!==false&&!i.equipado){const unitario=precoVendaPc(i),q=Math.floor(i.quantidade??1);acoes+='<button type="button" data-item-acao="vender" data-item-slot="1">Vender 1 por '+(unitario/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</button>';if(q>1)acoes+='<button type="button" data-item-acao="vender" data-item-slot="'+q+'">Vender '+q+' por '+(unitario*q/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</button>';}
+   const troca=trocaDoAtor(s,a.id);
+   if(s.fase==='preparo'&&troca?.status==='ofertas'&&!i.equipado){
+     if(i.tipo==='moeda')acoes+='<button type="button" data-item-acao="oferecer-po-troca">Oferecer PO na troca</button>';
+     else acoes+='<button type="button" data-item-acao="oferecer-troca">Oferecer na troca</button>';
+   }
    $('itemMenuAcoes').innerHTML=acoes;$('itemMenuCusto').textContent=s.fase==='turnos'?'Durante o combate esta operação gasta 1 ação.':'Fora de combate não há custo de ação.';$('itemMenu').showModal();return;
  }
  const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
@@ -368,7 +433,7 @@ $('app').onpointerover=e=>{const alvo=e.target.closest('[data-info]');if(!alvo)r
 $('app').onpointerout=e=>{const alvo=e.target.closest('[data-info]');if(alvo&&!alvo.contains(e.relatedTarget))dicaLivro.hidden=true;};
 $('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
 $('habilidadeMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-habilidade-fechar'))return $('habilidadeMenu').close();if(b.dataset.habilidadeAcao)tarefa(()=>alterarHabilidade(b.dataset.habilidadeAcao));};
-window.addEventListener('message',e=>{if(e.data?.fecharLoja){lojaLocalAtor=null;render();}});
+window.addEventListener('message',e=>{if(e.data?.fecharLoja){lojaLocalAtor=null;render();}if(e.data?.fecharTroca){trocaLocalId=null;trocaLocalAtor=null;render();}});
 try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;

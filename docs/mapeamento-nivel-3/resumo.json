@@ -1,0 +1,20 @@
+{
+  "total": 320,
+  "porCategoria": {
+    "ação_básica": 16,
+    "habilidade_classe": 69,
+    "habilidade_subclasse": 23,
+    "invocação": 14,
+    "maestria_arma": 8,
+    "magia": 141,
+    "metamagia": 10,
+    "talento": 8,
+    "traço_espécie": 31
+  },
+  "porPortabilidade": {
+    "ASSISTIDO": 85,
+    "NOVO_MODULO": 16,
+    "PARCIAL": 92,
+    "PORTAVEL": 127
+  }
+}

@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.5';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.5';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.5';
-import {pronto} from './bridge.mjs?v=0.8.5';
-import {canalHud} from './hud-controller.mjs?v=0.8.5';
+import {detalhes} from './ficha-view.mjs?v=0.8.6';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.6';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.6';
+import {pronto} from './bridge.mjs?v=0.8.6';
+import {canalHud} from './hud-controller.mjs?v=0.8.6';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -171,7 +171,7 @@ function render(){
         return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       };
     const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',esc(i.nome+' ×'+i.quantidade),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
-    const conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a.ficha,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
+    const conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus atual: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
       salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',esc(chave.toUpperCase()+' '+(bonus>=0?'+':'')+bonus),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
       passivas?(a.ficha.passivas??[]).map(x=>btn('passiva',esc(curto(x)),'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"')).join(''):itensGrade+disp.map(renderOpcao).join('');
     const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');

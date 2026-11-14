@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,bonusIniciativa,bonusPericia,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
@@ -778,6 +778,74 @@ test('Victor é a primeira loja e a La Arte oferece os 22 incomuns e 20 raros po
  const loja=resolverCatalogoLoja(laArte);assert.equal(loja.itens.length,42);assert.equal(loja.itens.filter(i=>i.raridade==='incomum').length,22);assert.equal(loja.itens.filter(i=>i.raridade==='raro').length,20);
  assert.ok(loja.itens.every(i=>i.catalogoRef&&i.preco?.valor>0));assert.equal(loja.itens.find(i=>i.nome==='Luvas do Dragão Ascendente +2').preco.valor,1400);
 });
+test('auditoria integral das lojas cobre 66 referências portáveis com preço, peso e quantidade válidos',async()=>{
+ const lojas=catalogoCentral().lojas.map(resolverCatalogoLoja),itens=lojas.flatMap(loja=>loja.itens);
+ assert.deepEqual(lojas.map(loja=>[loja.id,loja.itens.length]),[['loja.ferraria-victor',24],['loja.la-arte',42]]);assert.equal(itens.length,66);
+ assert.equal(new Set(itens.map(i=>i.catalogoRef)).size,66);
+ for(const item of itens){assert.ok(item.catalogoRef,item.nome);assert.ok(item.preco?.valor>0,item.nome+' sem preço');assert.ok(Number.isFinite(item.pesoKg)&&item.pesoKg>=0,item.nome+' sem peso');assert.ok(item.tipo,item.nome+' sem tipo');}
+ let s=novo(),a=adicionar(s,nikki);a.ficha.inventario.capacidadeCargaKg=9999;
+ for(const item of itens)s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:item.catalogoRef,quantidade:1,rev:s.rev},gm,dadoLocal);
+ const refs=new Set(s.atores[0].ficha.inventario.itens.map(i=>i.catalogoRef));for(const item of itens)assert.ok(refs.has(item.catalogoRef),'não foi portado: '+item.nome);
+ const reaberta=validar(compactarEstado(s).atores[0].ficha),refsReabertas=new Set(reaberta.inventario.itens.map(i=>i.catalogoRef));for(const item of itens)assert.ok(refsReabertas.has(item.catalogoRef),'não persistiu: '+item.nome);
+});
+test('todas as dezoito armas mágicas recalculam ataques e as raras oferecem seu dano elemental',()=>{
+ const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte')),armas=loja.itens.filter(i=>i.categoria==='arma');assert.equal(armas.length,18);
+ for(const item of armas){
+  const s=novo(),a=adicionar(s,fichasJogadores.find(f=>f.id==='draven-thorne'));for(const i of a.ficha.inventario.itens)i.equipado=false;
+  const copia=structuredClone(item);copia.id='auditoria-'+item.id;copia.quantidade=1;copia.equipado=true;copia.equipadoSlot=copia.slotEquipamento;a.ficha.inventario.itens.push(copia);
+  const ataques=ataquesEquipados(a).filter(o=>o.origemItem===copia.id);assert.equal(ataques.length,copia.modelosAcoes.length,item.nome);
+  assert.ok(ataques.every(o=>o.automacao.bonus>=Number(copia.bonusMagico)),item.nome+' não aplicou bônus mágico');
+  if(copia.bonusMagico===1)assert.ok(ataques.every(o=>/[+-]\d+$/.test(o.automacao.dano)&&Number(o.automacao.dano.match(/[+-](\d+)$/)?.[1])>=1),item.nome+' não somou dano');
+  if(copia.bonusMagico===2){assert.equal(copia.bonusDano,0,item.nome);assert.deepEqual(copia.danoExtraAoAcertar&&Object.keys(copia.danoExtraAoAcertar).sort(),['critico','elemento','formula']);assert.equal(copia.danoExtraAoAcertar.formula,'1d4');}
+  assert.ok(ataques.every(o=>o.automacao.alcanceM<=18),item.nome+' excedeu o teto');
+ }
+});
+test('armaduras e escudos das duas lojas entregam exatamente a CA declarada',()=>{
+ const itens=catalogoCentral().lojas.map(resolverCatalogoLoja).flatMap(l=>l.itens).filter(i=>i.classeArmadura);
+ assert.equal(itens.length,20);
+ for(const item of itens){
+  const s=novo(),a=adicionar(s,nikki);for(const i of a.ficha.inventario.itens)i.equipado=false;
+  const copia=structuredClone(item);copia.id='ca-'+item.id;copia.quantidade=1;copia.equipado=true;copia.equipadoSlot=copia.slotEquipamento;a.ficha.inventario.itens.push(copia);
+  const ca=copia.classeArmadura,modDes=2,esperada=ca.tipo==='bonus'?a.ficha.caBase+ca.valor:ca.valor+(ca.atributo==='des'?Math.min(modDes,ca.limiteAtributo??99):0);
+  assert.equal(caAtual(a),esperada,item.nome);
+ }
+});
+test('acessórios estruturados da La Arte alteram iniciativa, Furtividade, CA e dano desarmado',()=>{
+ const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte'));
+ const equipar=(a,nome,slot)=>{const item=structuredClone(loja.itens.find(i=>i.nome===nome));item.id='efeito-'+item.id;item.quantidade=1;item.equipado=true;item.equipadoSlot=slot??item.slotEquipamento;a.ficha.inventario.itens.push(item);return item;};
+ let s=novo(),a=adicionar(s,nikki),base=bonusIniciativa(a);equipar(a,'Colar do Vigia','colar');assert.equal(bonusIniciativa(a),base+1);
+ s=novo();a=adicionar(s,nikki);base=bonusPericia(a,'Furtividade');equipar(a,'Couro do Passo Macio','vestes');assert.equal(bonusPericia(a,'Furtividade'),base+1);
+ s=novo();a=adicionar(s,fichasJogadores.find(f=>f.id==='loteria'));base=caAtual(a);const luvas=equipar(a,'Luvas do Dragão Ascendente +2','acessorio_1');assert.equal(caAtual(a),base+1);assert.deepEqual(luvas.danoExtraDesarmado,{formula:'1d4',elemento:'fogo',critico:false});
+ const armadura=structuredClone(catalogoVictor.itens.find(i=>i.nome==='Couro batido'));armadura.id='armadura-auditoria';armadura.equipado=true;armadura.equipadoSlot='vestes';armadura.quantidade=1;a.ficha.inventario.itens.push(armadura);const caComLuvas=caAtual(a);luvas.equipado=false;assert.equal(caComLuvas,caAtual(a),'a CA condicional das luvas desaparece com armadura');
+});
+test('cada arma rara aplica automaticamente sua parcela 1d4 com tipo de dano próprio',async()=>{
+ const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte')),armas=loja.itens.filter(i=>i.categoria==='arma'&&i.raridade==='raro');assert.equal(armas.length,9);
+ for(const itemLoja of armas){
+  let {s,a,b}=await duelo('draven-thorne',undefined,{distancia:itemLoja.tipoArma==='arco_longo'?6:1.5});for(const i of a.ficha.inventario.itens)i.equipado=false;
+  const item=structuredClone(itemLoja);item.id='rara-'+item.id;item.quantidade=1;item.equipado=true;item.equipadoSlot=item.slotEquipamento;a.ficha.inventario.itens.push(item);
+  const ataque=ataquesEquipados(a).find(o=>o.origemItem===item.id&&!o.automacao.arremesso),pv=b.pv;let confirmou=false;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,alvo:b.id},player,async(formula,meta)=>{
+   if(meta.tipo==='ataque')return {total:18,natural:14,formula,resumo:'18'};
+   if(meta.tipo==='dano'){const extra=meta.adicionais.find(x=>x.id==='extra-'+item.id);assert.ok(extra,item.nome);assert.equal(extra.formula,'1d4');assert.equal(extra.elemento,item.danoExtraAoAcertar.elemento);confirmou=true;return {total:8,formula,resumo:'5 + 3',resultados:[{total:5,resumo:'base 5'},{total:3,resumo:'extra 3'}],recursosAtivos:[extra.id],rerrolagensUsadas:[]};}
+   throw Error('rolagem inesperada '+meta.tipo);
+  });
+  assert.equal(confirmou,true,item.nome);assert.equal(s.atores.find(x=>x.id===b.id).pv,pv-8,item.nome);
+ }
+});
+test('Luvas do Dragão somam fogo a cada golpe desarmado e respeitam resistência separada',async()=>{
+ let {s,a,b}=await duelo('loteria');const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte')),luvas=structuredClone(loja.itens.find(i=>i.nome==='Luvas do Dragão Ascendente +2'));
+ luvas.id='luvas-dragao-teste';luvas.quantidade=1;luvas.equipado=true;luvas.equipadoSlot='acessorio_1';a.ficha.inventario.itens.push(luvas);b.ficha.resistencias=['fogo'];const pv=b.pv,ataque=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,alvo:b.id},player,async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:18,natural:13,formula,resumo:'18'};
+  const extra=meta.adicionais.find(x=>x.id==='extra-desarmado-'+luvas.id);assert.ok(extra);return {total:10,formula,resumo:'6 + 4',resultados:[{total:6,resumo:'contundente 6'},{total:4,resumo:'fogo 4'}],recursosAtivos:[extra.id],rerrolagensUsadas:[]};
+ });
+ assert.equal(s.atores.find(x=>x.id===b.id).pv,pv-8,'6 contundente + 2 fogo após resistência');
+});
+test('itens narrativos da La Arte permanecem classificados como assistidos até seus módulos existirem',()=>{
+ const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte'));
+ const assistidos=['Veste dos Bolsos de Oficina','Veste do Último Fôlego','Anel da Mão Firme','Colar do Fôlego das Docas','Capa do Mensageiro','Botas do Passo Livre +1','Veste do Passo Nebuloso','Veste da Trama Serena','Couro da Sombra Curta','Anel da Segunda Chance','Colar do Socorrista','Botas Escapistas +2'];
+ for(const nome of assistidos){const item=loja.itens.find(i=>i.nome===nome);assert.ok(item,nome);assert.equal(Boolean(item.acoes?.length||item.opcoesConcedidas?.length||item.consumivel),false,nome+' mudou de classificação; atualize a auditoria');}
+});
 test('item mágico comprado na La Arte conserva referência, preço e efeitos após compactar e reabrir',async()=>{
  let s=novo(),a=adicionar(s,nikki);a.dono='p';a.ficha.inventario.itens.find(i=>i.tipo==='moeda').quantidade=2000;
  s=await aplicar(s,{tipo:'configurarLoja',lojaId:'loja.la-arte',ativa:true,descontoPct:10,rev:s.rev},gm,dadoLocal);
@@ -812,6 +880,46 @@ test('mestre adiciona item do catálogo e PO diretamente à ficha',async()=>{
  s=await aplicar(s,{tipo:'gmAdicionarPo',ator:a.id,quantidade:125,rev:s.rev},gm,dadoLocal);assert.equal(saldoMoedasPc(s.atores[0]),saldoAntes+12500);
  await assert.rejects(aplicar(s,{tipo:'gmAdicionarPo',ator:a.id,quantidade:1,rev:s.rev},player,dadoLocal),/Somente o mestre/);
  await assert.rejects(aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.moedas-de-ouro',quantidade:1,rev:s.rev},gm,dadoLocal),/use Adicionar PO/);
+});
+test('troca entre jogadores exige aceite, duas confirmações e transfere itens e PO atomicamente',async()=>{
+ let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';a.ficha.inventario.capacidadeCargaKg=999;b.ficha.inventario.capacidadeCargaKg=999;
+ s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:3,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];
+ s=await aplicar(s,{tipo:'gmAdicionarItem',ator:b.id,itemRef:'item.escudo',quantidade:1,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];
+ const adaga=a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!i.equipado&&i.quantidade===3),escudo=b.ficha.inventario.itens.find(i=>i.catalogoRef==='item.escudo'&&!i.equipado),saldoA=saldoMoedasPc(a),saldoB=saldoMoedasPc(b),p1={id:'p1',role:'PLAYER'},p2={id:'p2',role:'PLAYER'};
+ s=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal);let t=trocaDoAtor(s,a.id);assert.equal(t.status,'solicitada');
+ s=await aplicar(s,{tipo:'responderTroca',ator:b.id,trocaId:t.id,aceitar:true,rev:s.rev},p2,dadoLocal);t=trocaDoAtor(s,a.id);assert.equal(t.status,'ofertas');
+ s=await aplicar(s,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:adaga.id,quantidade:2,rev:s.rev},p1,dadoLocal);
+ s=await aplicar(s,{tipo:'definirPoTroca',ator:a.id,trocaId:t.id,quantidadePc:100,rev:s.rev},p1,dadoLocal);
+ s=await aplicar(s,{tipo:'oferecerTroca',ator:b.id,trocaId:t.id,itemId:escudo.id,quantidade:1,rev:s.rev},p2,dadoLocal);
+ s=await aplicar(s,{tipo:'definirPoTroca',ator:b.id,trocaId:t.id,quantidadePc:50,rev:s.rev},p2,dadoLocal);
+ s=await aplicar(s,{tipo:'confirmarItensTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);assert.equal(trocaDoAtor(s,a.id).status,'ofertas');
+ s=await aplicar(s,{tipo:'confirmarItensTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal);assert.equal(trocaDoAtor(s,a.id).status,'final');
+ s=await aplicar(s,{tipo:'confirmarTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);assert.ok(trocaDoAtor(s,a.id));
+ s=await aplicar(s,{tipo:'confirmarTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal);a=s.atores[0];b=s.atores[1];assert.equal(trocaDoAtor(s,a.id),undefined);
+ assert.equal(a.ficha.inventario.itens.find(i=>i.id===adaga.id).quantidade,1);assert.ok(a.ficha.inventario.itens.some(i=>i.catalogoRef==='item.escudo'&&!i.equipado));
+ assert.equal(b.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.adaga').reduce((n,i)=>n+i.quantidade,0)>=2,true);assert.equal(b.ficha.inventario.itens.some(i=>i.id===escudo.id),false);
+ assert.equal(saldoMoedasPc(a),saldoA-50);assert.equal(saldoMoedasPc(b),saldoB+50);
+});
+test('alterar uma oferta reinicia confirmações e itens equipados não podem ser negociados',async()=>{
+ let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';const p1={id:'p1',role:'PLAYER'},p2={id:'p2',role:'PLAYER'};
+ s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:2,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];const item=a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!i.equipado&&i.quantidade===2),equipado=a.ficha.inventario.itens.find(i=>i.equipado&&i.tipo!=='moeda');
+ s=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal);let t=trocaDoAtor(s,a.id);s=await aplicar(s,{tipo:'responderTroca',ator:b.id,trocaId:t.id,aceitar:true,rev:s.rev},p2,dadoLocal);t=trocaDoAtor(s,a.id);
+ await assert.rejects(aplicar(s,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:equipado.id,quantidade:1,rev:s.rev},p1,dadoLocal),/indisponível/);
+ s=await aplicar(s,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:item.id,quantidade:1,rev:s.rev},p1,dadoLocal);s=await aplicar(s,{tipo:'definirPoTroca',ator:b.id,trocaId:t.id,quantidadePc:100,rev:s.rev},p2,dadoLocal);
+ s=await aplicar(s,{tipo:'confirmarItensTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);assert.equal(trocaDoAtor(s,a.id).confirmacaoItens[a.id],true);
+ s=await aplicar(s,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:item.id,quantidade:2,rev:s.rev},p1,dadoLocal);t=trocaDoAtor(s,a.id);assert.equal(t.confirmacaoItens[a.id],false);assert.equal(t.confirmacaoItens[b.id],false);
+});
+test('iniciar combate cancela trocas pendentes e bloqueia novas negociações',async()=>{
+ let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';const p1={id:'p1',role:'PLAYER'};
+ s=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal);assert.ok(trocaDoAtor(s,a.id));s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,dadoLocal);assert.equal(s.comercio.trocas.length,0);assert.match(s.historico[0],/troca.*cancelada/i);
+ await assert.rejects(aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal),/Escolha outro personagem|troca/);
+});
+test('troca acima da carga falha sem transferir itens ou dinheiro',async()=>{
+ let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';a.ficha.inventario.capacidadeCargaKg=999;b.ficha.inventario.capacidadeCargaKg=pesoInventario(b);const p1={id:'p1',role:'PLAYER'},p2={id:'p2',role:'PLAYER'};
+ s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.armadura-de-placas',quantidade:1,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];const pesada=a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.armadura-de-placas'),saldoAntes=saldoMoedasPc(b);
+ s=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal);let t=trocaDoAtor(s,a.id);s=await aplicar(s,{tipo:'responderTroca',ator:b.id,trocaId:t.id,aceitar:true,rev:s.rev},p2,dadoLocal);t=trocaDoAtor(s,a.id);
+ s=await aplicar(s,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:pesada.id,quantidade:1,rev:s.rev},p1,dadoLocal);s=await aplicar(s,{tipo:'definirPoTroca',ator:b.id,trocaId:t.id,quantidadePc:100,rev:s.rev},p2,dadoLocal);s=await aplicar(s,{tipo:'confirmarItensTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);s=await aplicar(s,{tipo:'confirmarItensTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal);s=await aplicar(s,{tipo:'confirmarTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);
+ await assert.rejects(aplicar(s,{tipo:'confirmarTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal),/capacidade de carga/);assert.ok(s.atores[0].ficha.inventario.itens.some(i=>i.id===pesada.id));assert.equal(saldoMoedasPc(s.atores[1]),saldoAntes);assert.ok(trocaDoAtor(s,a.id));
 });
 test('ataques de arma são derivados somente dos itens equipados e desarmados continuam livres',()=>{
  const f=fichasJogadores.find(x=>x.id==='draven-thorne'),s=novo(),d=adicionar(s,f),nomes=opcoesDisponiveis(d).map(o=>o.nome);

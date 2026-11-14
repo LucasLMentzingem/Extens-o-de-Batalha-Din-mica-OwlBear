@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.5';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.5';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.6';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.6';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -745,7 +745,7 @@ export const saldoMoedasPo=a=>saldoMoedasPc(a)/100;
 export const precoCompraPc=(item,descontoPct)=>Math.max(1,Math.ceil(precoEmPc(item)*(100-descontoPct)/100));
 export const precoVendaPc=item=>Math.max(1,Math.floor(precoEmPc(item)*.7));
 export function normalizarComercio(s){
-  s.comercio??={lojas:{}};s.comercio.lojas??={};
+  s.comercio??={lojas:{}};s.comercio.lojas??={};s.comercio.trocas??=[];
   for(const loja of lojasCatalogo()){
     const estado=s.comercio.lojas[loja.id]??={ativa:false,descontoPct:loja.descontoMinimoPct??1,recomprasPorAtor:{}};
     estado.ativa=Boolean(estado.ativa);estado.descontoPct=inteiro(estado.descontoPct,loja.descontoMinimoPct??1,loja.descontoMaximoPct??30)?estado.descontoPct:loja.descontoMinimoPct??1;estado.recomprasPorAtor??={};
@@ -754,6 +754,15 @@ export function normalizarComercio(s){
 }
 export const lojasAtivas=s=>{normalizarComercio(s);return lojasCatalogo().filter(loja=>s.comercio.lojas[loja.id]?.ativa);};
 export function recomprasDaLoja(s,lojaId,atorId){normalizarComercio(s);return s.comercio.lojas[lojaId]?.recomprasPorAtor?.[atorId]??[];}
+export const trocasAtivas=s=>{normalizarComercio(s);return s.comercio.trocas;};
+export const trocaDoAtor=(s,atorId)=>trocasAtivas(s).find(t=>t.solicitante===atorId||t.destinatario===atorId);
+const participantesTroca=t=>[t.solicitante,t.destinatario];
+function resetarConfirmacoesTroca(t){
+  t.status='ofertas';t.confirmacaoItens=Object.fromEntries(participantesTroca(t).map(id=>[id,false]));t.confirmacaoFinal=Object.fromEntries(participantesTroca(t).map(id=>[id,false]));
+}
+function ofertaTroca(t,atorId){
+  t.ofertas??={};return t.ofertas[atorId]??={itens:[],poPc:0};
+}
 function definirSaldoMoedasPc(a,totalPc){
   exigir(inteiro(totalPc,0,999999999),'Saldo monetário inválido.');
   const itens=a.ficha.inventario.itens,moedas=itens.filter(i=>i.tipo==='moeda');
@@ -773,7 +782,13 @@ function retirarQuantidadeItem(a,item,quantidade){
   if(quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);
   else item.quantidade-=quantidade;
 }
-export const bonusPericia=(f,nome)=>Number.isInteger(f.pericias?.[nome])?f.pericias[nome]:mod(f.atributos[periciasPadrao[nome]]);
+export const bonusPericia=(atorOuFicha,nome)=>{
+  const ator=atorOuFicha?.ficha?atorOuFicha:null,f=ator?.ficha??atorOuFicha;
+  const base=Number.isInteger(f?.pericias?.[nome])?f.pericias[nome]:mod(f?.atributos?.[periciasPadrao[nome]]??10);
+  if(!ator)return base;
+  const chave=textoNormal(nome).replace(/\s+/g,'');
+  return base+bonusEquipamento(ator,chave)+bonusPassiva(ator,chave)+bonusEfeito(ator,chave);
+};
 export function curarAtor(a,valor){
   const antes=a.pv,quantidade=Math.max(0,Math.floor(Number(valor)||0));
   if(!quantidade||a.estadoVida==='morto')return 0;
@@ -1120,7 +1135,7 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'remover':
       exigir(s.fase==='preparo' && a,'Remova participantes na preparação.');
-      s.atores=s.atores.filter(x=>x!==a);msg=a.nome+' saiu da lista.';break;
+      s.atores=s.atores.filter(x=>x!==a);s.comercio.trocas=s.comercio.trocas.filter(t=>!participantesTroca(t).includes(a.id));msg=a.nome+' saiu da lista.';break;
     case 'alternarCombate': {
       exigir(a,'Ficha não encontrada.');
       const entrando=a.emCombate===false;
@@ -1174,7 +1189,7 @@ export async function aplicar(s,c,u,rolar) {
       a.token=c.token||null;a.dono=c.dono||null;msg='Vínculo atualizado para '+a.nome+'.';break;
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
-      s.fase='iniciativa';s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;});msg='Rolem iniciativa.';break;
+      {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;});msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await resultado('1d20'+soma(bonusIniciativa(a)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
@@ -1213,7 +1228,7 @@ export async function aplicar(s,c,u,rolar) {
       break;
     }
     case 'teste': {
-      const bonus=c.grupo==='pericias'?bonusPericia(a.ficha,c.chave):(a.ficha.salvaguardas?.[c.chave]??mod(a.ficha.atributos[c.chave]));
+      const bonus=c.grupo==='pericias'?bonusPericia(a,c.chave):(a.ficha.salvaguardas?.[c.chave]??mod(a.ficha.atributos[c.chave]));
       exigir(Number.isInteger(bonus)&&inteiro(c.ajuste??0,-20,20),'Teste inválido.');
       const falhaAutomatica=c.grupo==='salvaguardas'&&restricoesAtivas(a).falhaSalvas?.includes(c.chave);
       const r=falhaAutomatica?{total:0,natural:null}:await rolarD20(bonus,a,{tipo:c.grupo==='salvaguardas'?'salvaguarda':'teste',atributo:c.chave,titulo:(c.grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+c.chave});
@@ -1242,6 +1257,63 @@ export async function aplicar(s,c,u,rolar) {
         msg=a.nome+' '+(habilidade.ativa?'ativou ':'desativou ')+habilidade.nome+'.';
       }
       break;
+    }
+    case 'solicitarTroca': {
+      const destino=s.atores.find(x=>x.id===c.destino);
+      exigir(s.fase==='preparo'&&a?.ficha.tipo==='pj'&&destino?.ficha.tipo==='pj'&&destino!==a,'Escolha outro personagem para a troca.');
+      exigir(!trocaDoAtor(s,a.id)&&!trocaDoAtor(s,destino.id),'Um dos personagens já participa de outra troca.');
+      const t={id:crypto.randomUUID(),solicitante:a.id,destinatario:destino.id,status:'solicitada',ofertas:{[a.id]:{itens:[],poPc:0},[destino.id]:{itens:[],poPc:0}},confirmacaoItens:{[a.id]:false,[destino.id]:false},confirmacaoFinal:{[a.id]:false,[destino.id]:false},criadaEm:Date.now()};
+      s.comercio.trocas.push(t);msg=a.nome+' solicitou uma troca com '+destino.nome+'.';break;
+    }
+    case 'responderTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId);
+      exigir(s.fase==='preparo'&&t?.status==='solicitada'&&t.destinatario===a?.id,'Esta solicitação de troca não está disponível.');
+      if(!c.aceitar){s.comercio.trocas=s.comercio.trocas.filter(x=>x!==t);msg=a.nome+' recusou a troca.';break;}
+      resetarConfirmacoesTroca(t);msg=a.nome+' aceitou negociar a troca.';break;
+    }
+    case 'oferecerTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId);
+      exigir(s.fase==='preparo'&&t?.status==='ofertas'&&participantesTroca(t).includes(a?.id),'Esta troca não permite novas ofertas.');
+      const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);
+      exigir(item&&item.tipo!=='moeda'&&!item.equipado&&inteiro(c.quantidade,1,Math.floor(item.quantidade)),'Item ou quantidade indisponível para a troca.');
+      const oferta=ofertaTroca(t,a.id),existente=oferta.itens.find(i=>i.itemId===item.id);
+      if(existente)existente.quantidade=c.quantidade;else oferta.itens.push({itemId:item.id,quantidade:c.quantidade});
+      resetarConfirmacoesTroca(t);msg=a.nome+' ofereceu '+c.quantidade+'× '+item.nome+'.';break;
+    }
+    case 'removerOfertaTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId);
+      exigir(s.fase==='preparo'&&t?.status==='ofertas'&&participantesTroca(t).includes(a?.id),'Esta oferta não pode ser alterada.');
+      const oferta=ofertaTroca(t,a.id),antes=oferta.itens.length;oferta.itens=oferta.itens.filter(i=>i.itemId!==c.itemId);exigir(oferta.itens.length<antes,'Item não encontrado na oferta.');
+      resetarConfirmacoesTroca(t);msg=a.nome+' retirou um item da oferta.';break;
+    }
+    case 'definirPoTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId);
+      exigir(s.fase==='preparo'&&t?.status==='ofertas'&&participantesTroca(t).includes(a?.id)&&inteiro(c.quantidadePc,0,999999999),'Valor de PO inválido para a troca.');
+      exigir(saldoMoedasPc(a)>=c.quantidadePc,'PO insuficientes para esta oferta.');ofertaTroca(t,a.id).poPc=c.quantidadePc;resetarConfirmacoesTroca(t);
+      msg=a.nome+' ajustou a oferta de PO para '+(c.quantidadePc/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'.';break;
+    }
+    case 'confirmarItensTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId);
+      exigir(s.fase==='preparo'&&t?.status==='ofertas'&&participantesTroca(t).includes(a?.id),'A seleção de itens não pode ser confirmada.');
+      const oferta=ofertaTroca(t,a.id);exigir(oferta.itens.length>0||oferta.poPc>0,'Inclua ao menos um item ou PO na sua oferta.');
+      for(const entrada of oferta.itens){const item=a.ficha.inventario?.itens.find(i=>i.id===entrada.itemId);exigir(item&&!item.equipado&&item.tipo!=='moeda'&&entrada.quantidade<=item.quantidade,'Um item da oferta não está mais disponível.');}
+      exigir(saldoMoedasPc(a)>=oferta.poPc,'PO insuficientes para a oferta.');t.confirmacaoItens[a.id]=true;
+      if(participantesTroca(t).every(id=>t.confirmacaoItens[id]))t.status='final';msg=a.nome+' confirmou os itens oferecidos.';break;
+    }
+    case 'confirmarTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId),ids=t?participantesTroca(t):[],outroId=ids.find(id=>id!==a?.id),outro=s.atores.find(x=>x.id===outroId);
+      exigir(s.fase==='preparo'&&t?.status==='final'&&ids.includes(a?.id)&&outro,'Esta troca não está pronta para conclusão.');
+      t.confirmacaoFinal[a.id]=true;
+      if(!ids.every(id=>t.confirmacaoFinal[id])){msg=a.nome+' confirmou a troca final.';break;}
+      const atores=Object.fromEntries(ids.map(id=>[id,s.atores.find(x=>x.id===id)])),saldos=Object.fromEntries(ids.map(id=>[id,saldoMoedasPc(atores[id])]));
+      for(const id of ids){const origem=atores[id],oferta=ofertaTroca(t,id);exigir(saldos[id]>=oferta.poPc,'PO insuficientes para concluir a troca de '+origem.nome+'.');for(const entrada of oferta.itens){const item=origem.ficha.inventario?.itens.find(i=>i.id===entrada.itemId);exigir(item&&!item.equipado&&item.tipo!=='moeda'&&inteiro(entrada.quantidade,1,Math.floor(item.quantidade)),'Um item de '+origem.nome+' não está mais disponível.');}}
+      for(const id of ids){const origem=atores[id],destino=atores[ids.find(x=>x!==id)],oferta=ofertaTroca(t,id);for(const entrada of oferta.itens){const item=origem.ficha.inventario.itens.find(i=>i.id===entrada.itemId),movido=structuredClone(item);movido.quantidade=entrada.quantidade;movido.equipado=false;delete movido.equipadoSlot;if(entrada.quantidade!==item.quantidade)movido.id=crypto.randomUUID();retirarQuantidadeItem(origem,item,entrada.quantidade);adicionarItemInventario(destino,movido);}}
+      for(const id of ids){const recebido=ofertaTroca(t,ids.find(x=>x!==id)).poPc,entregue=ofertaTroca(t,id).poPc;definirSaldoMoedasPc(atores[id],saldos[id]-entregue+recebido);}
+      for(const id of ids)exigir(pesoInventario(atores[id])<=atores[id].ficha.inventario.capacidadeCargaKg+1e-8,'A troca ultrapassa a capacidade de carga de '+atores[id].nome+'.');
+      s.comercio.trocas=s.comercio.trocas.filter(x=>x!==t);msg=atores[ids[0]].nome+' e '+atores[ids[1]].nome+' concluíram a troca.';break;
+    }
+    case 'cancelarTroca': {
+      const t=s.comercio.trocas.find(x=>x.id===c.trocaId);exigir(t&&participantesTroca(t).includes(a?.id),'Troca não encontrada.');s.comercio.trocas=s.comercio.trocas.filter(x=>x!==t);msg=a.nome+' cancelou a troca.';break;
     }
     case 'configurarLoja': {
       const loja=resolverLoja(c.lojaId);

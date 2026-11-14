@@ -33,6 +33,8 @@ No menu de contexto de um token de Personagem, o segmento **La Arte · vincular 
 
 O **Inventário** possui dez slots de equipamento, grade mínima 5×5 que cresce em novas linhas, pilhas, contador de PO e barra de carga. Passe o mouse para comparar um item com o equivalente equipado e use o botão direito para equipar, desequipar ou consumir. Em combate essas operações só podem ocorrer no turno do personagem e gastam uma ação. CA, PV máximo e deslocamento são recalculados; ataques de arma aparecem apenas enquanto o equipamento correspondente estiver ativo. Consumíveis também aparecem na aba **Itens** da HUD. Depois da barra de carga, somente o GM vê **Adicionar item** e **Adicionar PO**: o primeiro cria uma instância de qualquer item do catálogo central com a quantidade escolhida; o segundo acrescenta diretamente peças de ouro à ficha aberta.
 
+**Trocar item** inicia uma negociação com outro personagem fora de combate. O destinatário aceita ou recusa o convite; depois, cada lado oferece itens pelo menu de contexto do próprio inventário e pode informar uma quantidade de PO. Pilhas pedem a quantidade antes de entrar na oferta. Primeiro os dois participantes confirmam os itens, depois ambos confirmam a troca final. Alterar uma oferta reinicia as confirmações. A transferência é atômica e falha sem mover nada quando faltar item, PO ou capacidade de carga. Itens equipados não podem ser oferecidos. O mestre pode representar uma ficha sem dono conectado. Iniciar combate cancela trocas em andamento e fecha lojas e negociações abertas.
+
 O **Livro de Habilidades** possui as páginas Classe, Comum e Reações. Ele separa ações de classe, truques, magias sempre preparadas, magias preparadas, círculos do maior para o menor, ações de arma, ações comuns e passivas. O botão direito prepara ou desprepara uma magia respeitando as vagas da ficha e ativa ou desativa passivas e reações. Essas configurações ficam travadas durante o combate; a HUD oferece somente habilidades atualmente preparadas, ativas e compatíveis com os equipamentos.
 
 **Controle do mestre** é exclusivo do GM e separa duas áreas. **Controle do combate** mostra a lista inteira, tipo, iniciativa, PV e estado de cada participante, permite configurar seu vínculo, abrir a ficha, retirar ou recolocar um ator e iniciar ou parar o combate. **Controle de fichas** reúne importação JSON, token selecionado, vínculo entre fichas e tokens, vínculo dos PJs com jogadores online e a exclusão confirmada de uma ficha durante a preparação. Excluir retira a instância do encontro; não apaga o arquivo JSON original. Descansos e histórico permanecem junto ao controle do encontro.
@@ -114,6 +116,8 @@ O estado da sala guarda PV, recursos consumidos, efeitos, vínculos, preparaçã
 ## Versões e contribuições
 
 A extensão permanece na linha `0.8.x`: somente o último número será alterado, até `0.8.99`, salvo pedido explícito do responsável pelo projeto. Consulte [VERSIONING.md](VERSIONING.md) e [CONTRIBUTING.md](CONTRIBUTING.md) antes de editar catálogos ou fichas.
+
+A prioridade de implementação está no [roadmap de cobertura das regras](ROADMAP-COBERTURA-REGRAS.md). A etapa ativa cobre todas as classes e espécies até o nível 3 e possui um [catálogo verificável de 320 opções](docs/mapeamento-nivel-3/README.md). Colaboradores e agentes devem atacar primeiro as lacunas dessa etapa, especialmente módulos que atendam várias habilidades.
 
 | Dados na ficha | Como funcionam nesta versão |
 |---|---|

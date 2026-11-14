@@ -612,3 +612,25 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Modo observador, resultado público e anúncios compactos validados em `work/rolagem-observador-v0732.png`, `work/resultado-publico-v0732.png`, `work/anuncio-salvaguarda-v0732.png` e `work/anuncio-iniciativa-v0732.png`.
 - Smoke test final validado com o cliente Playwright em `work/playwright-v0732-final/shot-0.png`, sem novos erros de console e com `render_game_to_text` sincronizado.
 
+### Versão 0.8.6: auditoria das lojas e meta de cobertura do nível 3
+
+- [x] Auditar as 66 referências de estoque das lojas: 24 de Victor e 42 de La Arte.
+- [x] Validar preço, peso, tipo, inclusão pelo mestre e persistência compactada de todos os itens vendidos.
+- [x] Exercitar as 18 armas mágicas e os valores exatos de CA das 20 armaduras e escudos configurados.
+- [x] Confirmar em combate o dano elemental tipado das nove armas raras, incluindo resistência aplicada somente à parcela correta.
+- [x] Confirmar os ataques desarmados do Monge com Luvas do Dragão Ascendente e a resistência a fogo do alvo.
+- [x] Registrar separadamente os 12 itens de La Arte que ainda dependem de arbitragem ou automação específica.
+- [x] Corrigir bônus de perícia vindos de equipamentos, que eram persistidos mas não participavam da rolagem nem da interface.
+- [x] Gerar um catálogo de 320 regras disponíveis até o nível 3 e classificá-las como portáveis, parciais, assistidas ou dependentes de novo módulo.
+- [x] Documentar o roadmap em quatro etapas: níveis 3, 5, 7 e 10, com prioridade explícita para a etapa atual.
+- [x] Implementar trocas entre personagens com convite, ofertas de itens/PO, duas etapas de confirmação e transferência atômica.
+- [x] Bloquear itens equipados, dinheiro insuficiente e excesso de carga; cancelar negociações quando o combate começar.
+- [x] Criar milestones e issues correspondentes no GitHub.
+- [x] Executar a validação visual final da troca completa, sem erros no console.
+- [ ] Publicar a versão 0.8.6.
+
+- Testes do motor: 150 aprovados.
+- Fluxo visual da troca: `work/playwright-v086-troca-fluxo/` (convite, ofertas, duas confirmações e conclusão).
+- Mapeamento: `docs/mapeamento-nivel-3/README.md`.
+- Roadmap: `ROADMAP-COBERTURA-REGRAS.md`.
+
