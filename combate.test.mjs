@@ -887,3 +887,24 @@ test('#34 Loteria tem Golpe Desarmado com a Ação e o soco bônus exige ataque 
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar);
   assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,0);
 });
+
+test('#16 #23 #33 durações: Zombaria vale no ataque do alvo, Caído dura até levantar, Ameaçador até o próximo turno',async()=>{
+  // Zombaria: Hannah → soldado; no turno do soldado o ataque sai com Desvantagem e o efeito é consumido
+  let {s,a,b}=await duelo('hannah-montana');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'zombaria').id,alvo:b.id},player,roladorSala({salva:2}).rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.ok(s.atores[1].efeitosAtivos.some(e=>e.nome==='Zombado'),'Zombado ainda vale no turno do soldado');
+  const r=roladorSala({d20:15});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:opcoesDisponiveis(s.atores[1]).find(o=>o.automacao?.tipo==='ataque').id,alvo:a.id},gm,r.rolar);
+  assert.match(r.formulas.find(x=>x.meta.tipo==='ataque').f,/^2d20kl1/);assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.nome==='Zombado'),'consumido no ataque');
+  // Caído: continua no turno do alvo; levantar custa metade do deslocamento
+  ({s,a,b}=await duelo('draven-thorne'));
+  b.efeitosAtivos=[{id:'x',nome:'Caído',tipo:'condicao',condicao:'caido',origemAtorId:a.id,duracao:{restante:1,expira:'fim_origem'}}];
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
+  assert.ok(s.atores[1].efeitosAtivos.some(e=>e.condicao==='caido'),'Caído continua no turno do alvo');
+  const metros=s.atores[1].metros;
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:b.id,x:1,y:0},gm,()=>0); // fica no alcance do Draven (sem oportunidade)
+  assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.condicao==='caido'));assert.equal(s.atores[1].metros,metros-metros/2-0.5);
+  // Ataque Ameaçador dura 2 fins de turno do Draven
+  assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'ataque ameacador').aprimoramento.salva.efeitoFalha),{turnos:2,expira:'fim_origem'});
+});

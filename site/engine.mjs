@@ -154,9 +154,21 @@ export function atualizarMagias(f){
   corrigirRecuperacoes(f);
   corrigirCdAtaqueDesarmado(f);
   corrigirArtesMarciais(f);
+  corrigirDuracoes(f);
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
+}
+// #16 Zombaria Perversa: Desvantagem na próxima jogada de ataque antes do fim do próximo turno do alvo.
+// #33 Ataque Ameaçador: Amedrontado até o fim do PRÓXIMO turno de quem usou a manobra.
+function corrigirDuracoes(f){
+  for(const o of f.opcoes??[]){
+    const nome=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+    const falha=o.automacao?.efeitoFalha;
+    if(nome.includes('zombaria perversa')&&falha){falha.turnos=1;falha.expira='fim_alvo';falha.restricoes={...(falha.restricoes??{}),desvantagemAtaques:true,consumirAoAtacar:true};}
+    const manobra=o.aprimoramento?.salva?.efeitoFalha;
+    if(nome.includes('ataque ameacador')&&manobra){manobra.turnos=2;manobra.expira='fim_origem';}
+  }
 }
 // #7 Ataque Desarmado (Agarrar/Derrubar/Empurrar): CD = 8 + FOR + proficiência.
 // As Artes Marciais do Monge permitem usar DES no lugar de FOR.
@@ -801,7 +813,8 @@ function processarDuracoes(s,ator,evento){
     for(const efeito of alvo.efeitosAtivos??[]){
       const legado=efeito.duracao===undefined&&Number.isInteger(efeito.turnos);
       const duracao=efeito.duracao??(legado?{restante:efeito.turnos,expira:'inicio_alvo'}:null);
-      if(!duracao){mantidos.push(efeito);continue;}
+      // #23 Caído não expira com o tempo: dura até a criatura gastar movimento para se levantar.
+      if(!duracao||efeito.condicao==='caido'){mantidos.push(efeito);continue;}
       const expira=duracao.expira??'inicio_alvo',momento=expira.startsWith('inicio')?'inicio_turno':'fim_turno';
       const referencia=expira.endsWith('origem')?efeito.origemAtorId:alvo.id;
       if(momento!==evento||referencia!==ator.id){mantidos.push(efeito);continue;}
@@ -860,6 +873,8 @@ export async function aplicar(s,c,u,rolar) {
     const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva??meta.penalidade,modo),{...meta,adicionais:metaAdicionais,rotuloAdicionais:'Dados disponíveis para esta rolagem',combinarAdicionais:true,rerrolagens:metaRerrolagens});
     const ativos=Array.isArray(r.recursosAtivos)?r.recursosAtivos:[];exigir(ativos.every(id=>modificadores.some(e=>e.id===id)),'Modificador de d20 inválido.');
     if(ativos.length)p.efeitosAtivos=p.efeitosAtivos.filter(e=>!ativos.includes(e.id)||e.modificadorRolagem?.removeAoUsar===false);
+    // #16 Efeitos como Zombaria Perversa valem só para a próxima jogada de ataque da criatura.
+    if(meta.tipo==='ataque'&&p)p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>!e.restricoes?.consumirAoAtacar);
     const usados=Array.isArray(r.rerrolagensUsadas)?r.rerrolagensUsadas:[];exigir(usados.every(id=>rerrolagens.some(g=>g.id===id)),'Rerrolagem de d20 inválida.');
     for(const id of usados){const g=rerrolagens.find(x=>x.id===id);for(const custo of g.custo??[]){const bag=custo.tipo==='recurso'?p.rec:p,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;}}
     if(efeito)p.efeitosAtivos=p.efeitosAtivos.filter(e=>e!==efeito);
@@ -1185,12 +1200,19 @@ export async function aplicar(s,c,u,rolar) {
       exigir(a.pv>0,'Personagem a 0 PV.');
       if(c.tipo==='mover'){
         exigir(Number.isFinite(c.x)&&Number.isFinite(c.y),'Destino inválido.');
+        // #23 Levantar-se do Caído custa metade do deslocamento (livro 2024).
+        let levantou='';
+        if((a.efeitosAtivos??[]).some(e=>e.condicao==='caido')){
+          const custo=deslocamentoMaximo(a)/2;exigir(a.metros+1e-8>=custo,'Sem deslocamento para se levantar (custa metade do deslocamento).');
+          a.metros-=custo;a.efeitosAtivos=a.efeitosAtivos.filter(e=>e.condicao!=='caido');levantou=a.nome+' se levantou ('+custo+' m). ';
+        }
         const d=distancia(a,c);exigir(d<=a.metros+1e-8,'Deslocamento insuficiente.');
         const ameacas=a.desengajado?[]:oportunidades(s,a,c);
         if(ameacas.length){
           s.movimentoPendente={ator:a.id,origem:{x:a.x,y:a.y},destino:{x:c.x,y:c.y},ameacas};
           const reator=abrirProximaReacao(s);msg=a.nome+' iniciou um deslocamento de '+d.toFixed(2)+' m e provocou '+reator.nome+'.';
         }else{a.x=c.x;a.y=c.y;a.metros=Math.max(0,a.metros-d);msg=a.nome+' moveu '+d.toFixed(2)+' m.';}
+        msg=levantou+msg;
         break;
       }
       exigir(c.tipo==='usar','Comando desconhecido.');

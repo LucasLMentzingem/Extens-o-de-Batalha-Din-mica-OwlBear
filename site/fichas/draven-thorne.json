@@ -524,7 +524,7 @@
           "efeitoFalha": {
             "nome": "Ataque Ameaçador",
             "condicao": "amedrontado",
-            "turnos": 1,
+            "turnos": 2,
             "expira": "fim_origem"
           }
         }

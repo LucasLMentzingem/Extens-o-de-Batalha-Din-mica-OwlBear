@@ -733,8 +733,10 @@
           "nome": "Zombado",
           "turnos": 1,
           "restricoes": {
-            "desvantagemAtaques": true
-          }
+            "desvantagemAtaques": true,
+            "consumirAoAtacar": true
+          },
+          "expira": "fim_alvo"
         }
       }
     },
