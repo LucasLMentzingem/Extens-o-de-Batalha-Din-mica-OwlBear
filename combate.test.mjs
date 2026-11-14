@@ -36,6 +36,45 @@ test('importa números das fichas originais e separa as instâncias dos soldados
  const m=mesa();assert.equal(m.a.pv,20);assert.equal(m.a.rec.feiticaria,3);assert.equal(m.b.pv,24);assert.equal(m.b.ficha.caBase,10);assert.equal(caAtual(m.b),16);assert.notEqual(m.b.id,m.c.id);assert.equal(nikki.preparacao.preparadas.length,6);
  assert.equal(publico(m.s).atores[1].ficha.caBase,undefined);
 });
+test('mestre rola iniciativas selecionadas em um único lote',async()=>{
+ let s=novo();const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I'),c=adicionar(s,soldado,'Soldado II');
+ s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,()=>{throw Error('não deveria rolar ao iniciar');});
+ let chamadas=0,metaRecebida;
+ s=await aplicar(s,{tipo:'iniciativas',rev:s.rev,atores:[a.id,b.id,c.id]},gm,async(formulas,meta)=>{
+   chamadas++;metaRecebida=meta;assert.deepEqual(formulas,['1d20+2','1d20+1','1d20+1']);
+   return {resultados:[{total:12,natural:10,formula:formulas[0],resumo:'10 + 2 = 12'},{total:18,natural:17,formula:formulas[1],resumo:'17 + 1 = 18'},{total:7,natural:6,formula:formulas[2],resumo:'6 + 1 = 7'}]};
+ });
+ assert.equal(chamadas,1);assert.equal(metaRecebida.tipo,'iniciativa_lote');assert.deepEqual(metaRecebida.instancias.map(x=>x.titulo),['Nikki Lauda','Soldado I','Soldado II']);
+ assert.deepEqual(s.atores.map(x=>x.init),[12,18,7]);assert.equal(s.fase,'turnos');assert.deepEqual(s.ordem,[b.id,a.id,c.id]);assert.match(s.historico[0],/Nikki Lauda 12.*Soldado I 18.*Soldado II 7/);
+});
+test('lote parcial mantém a iniciativa aberta e só resolve as fichas escolhidas',async()=>{
+ let s=novo();const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I'),c=adicionar(s,soldado,'Soldado II');
+ s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,()=>0);
+ s=await aplicar(s,{tipo:'iniciativas',rev:s.rev,atores:[a.id,c.id]},gm,async formulas=>({resultados:formulas.map((formula,i)=>({total:[15,9][i],natural:[13,8][i],formula,resumo:String([15,9][i])}))}));
+ assert.equal(s.fase,'iniciativa');assert.equal(s.atores.find(x=>x.id===a.id).init,15);assert.equal(s.atores.find(x=>x.id===b.id).init,null);assert.equal(s.atores.find(x=>x.id===c.id).init,9);
+ s=await aplicar(s,{tipo:'iniciativas',rev:s.rev,atores:[b.id]},gm,async formulas=>({resultados:[{total:11,natural:10,formula:formulas[0],resumo:'11'}]}));
+ assert.equal(s.fase,'turnos');assert.deepEqual(s.ordem,[a.id,b.id,c.id]);
+});
+test('jogador não pode executar o lote de iniciativa do mestre',async()=>{
+ let s=novo();const a=adicionar(s,nikki),b=adicionar(s,soldado);s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,()=>0);
+ await assert.rejects(aplicar(s,{tipo:'iniciativas',rev:s.rev,atores:[a.id,b.id]},player,()=>0),/Somente o mestre/);
+});
+test('controle do mestre exclui ficha somente durante a preparação',async()=>{
+ let s=novo();const a=adicionar(s,nikki),b=adicionar(s,soldado,'Soldado I');
+ await assert.rejects(aplicar(s,{tipo:'remover',rev:s.rev,ator:a.id},player,()=>0),/Somente o mestre/);
+ s=await aplicar(s,{tipo:'remover',rev:s.rev,ator:b.id},gm,()=>0);assert.deepEqual(s.atores.map(x=>x.id),[a.id]);
+ const c=adicionar(s,soldado,'Soldado II');s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,()=>0);
+ await assert.rejects(aplicar(s,{tipo:'remover',rev:s.rev,ator:c.id},gm,()=>0),/preparação/i);
+});
+test('as sete fichas salvas já estão normalizadas pelas regras atuais',()=>{
+ for(const f of fichasJogadores){
+   assert.deepEqual(validar(f),f,f.nome+' ainda dependia de migração em memória');
+   assert.ok(f.opcoes.every(o=>(o.automacao?.alcanceM??0)<=LIMITE_ALCANCE_M),f.nome+' excede o alcance do sistema');
+   assert.ok(f.inventario.itens.every(i=>Number.isFinite(i.pesoKg)&&i.pesoKg>=0),f.nome+' possui item sem peso');
+   const ocupados=new Map();
+   for(const item of f.inventario.itens.filter(i=>i.equipado))for(const slot of slotsOcupadosItem(item)){assert.ok(!ocupados.has(slot),f.nome+' possui conflito em '+slot);ocupados.set(slot,item.id);}
+ }
+});
 test('autorização de vínculo, comando do jogador e ação excepcional do mestre',async()=>{
  const m=mesa();await m.iniciar();
  await assert.rejects(m.go('vincular',{ator:m.b.id,dono:'p'},player));

@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.7.26';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.7.26';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.26';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.7.27';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.7.27';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.27';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -40,7 +40,7 @@ function renderControleFichasMestre(){
   const linhas=s.atores.map(a=>{
     const tokens=tokensDisponiveis(a),tokenAusente=a.token&&!info.tokens.some(t=>t.id===a.token);
     const seletor='<label>Token<select id="token-vinculo-'+esc(a.id)+'">'+opt('','Sem token',!a.token)+(tokenAusente?opt(a.token,'Token indisponível',true):'')+tokens.map(t=>opt(t.id,t.name||t.id,t.id===a.token)).join('')+'</select></label>';
-    return '<article class="linha-vinculo '+(a.id===escolhido?'selecionada':'')+'"><div><strong>'+esc(a.nome)+'</strong><small>'+(a.ficha.tipo==='pj'?'PERSONAGEM':'NPC')+' · '+(a.token?'token vinculado':'sem token')+'</small></div>'+seletor+opcoesDono(a)+'<div class="acoes-vinculo"><button type="button" data-usar-selecao-vinculo="'+esc(a.id)+'">Usar seleção</button><button type="button" class="primario" data-salvar-vinculo="'+esc(a.id)+'">Salvar vínculo</button><button type="button" data-ver-ficha="'+esc(a.id)+'">Abrir ficha</button></div></article>';
+    return '<article class="linha-vinculo '+(a.id===escolhido?'selecionada':'')+'"><div><strong>'+esc(a.nome)+'</strong><small>'+(a.ficha.tipo==='pj'?'PERSONAGEM':'NPC')+' · '+(a.token?'token vinculado':'sem token')+'</small></div>'+seletor+opcoesDono(a)+'<div class="acoes-vinculo"><button type="button" data-usar-selecao-vinculo="'+esc(a.id)+'">Usar seleção</button><button type="button" class="primario" data-salvar-vinculo="'+esc(a.id)+'">Salvar vínculo</button><button type="button" data-ver-ficha="'+esc(a.id)+'">Abrir ficha</button><button type="button" class="perigo" data-excluir-ficha="'+esc(a.id)+'" '+(s.fase==='preparo'?'':'disabled title="Pare o combate para excluir a ficha"')+'>Excluir ficha</button></div></article>';
   }).join('');
   const importar=s.fase==='preparo'?'<div class="importar-fichas"><div class="campos">'+(s.atores.length?'':btn('grupoTeste','Carregar os 7 jogadores')+btn('exemplo','Carregar Nikki + 2 soldados'))+'<label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div></div>':'<p class="muted">Pare o combate para importar ou retirar fichas. Os vínculos de jogadores continuam editáveis.</p>';
   return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
@@ -62,7 +62,13 @@ function render(){
   if(mestre){
     const emCombate=s.atores.filter(x=>x.emCombate!==false);
     h+='<section class="controle-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle do combate</h2><p>'+(s.fase==='preparo'?'Combate parado':s.fase==='iniciativa'?'Aguardando iniciativas':'Rodada '+s.rodada+' · turno de '+esc(ativo?.nome??'—'))+'</p></div><div>'+(s.fase==='preparo'?btn('iniciar','Iniciar combate','primario'):btn('encerrar','Parar combate','perigo'))+'</div></div>';
-    if(s.fase!=='preparo')h+='<div class="ordem">'+(s.ordem.length?s.ordem:emCombate.map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>'+(s.fase==='iniciativa'?btn('npcs','Rolar iniciativas dos NPCs'):'');
+    if(s.fase!=='preparo'){
+      h+='<div class="ordem">'+(s.ordem.length?s.ordem:emCombate.map(x=>x.id)).map(id=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>';
+      if(s.fase==='iniciativa'){
+        const pendentes=emCombate.filter(x=>x.init===null);
+        h+='<div class="iniciativas-mestre"><strong>Rolagem conjunta</strong><p>Marque jogadores e NPCs para lançar um d20 por ficha simultaneamente.</p><div>'+pendentes.map(p=>'<label><input type="checkbox" data-iniciativa-id="'+esc(p.id)+'" checked><span>'+esc(p.nome)+'</span><small>'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</small></label>').join('')+'</div>'+btn('iniciativas','Rolar iniciativas selecionadas','primario')+'</div>';
+      }
+    }
     h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-configurar-vinculo="'+esc(p.id)+'">Configurar</button><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
     if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
     h+='</section>'+renderControleFichasMestre()+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
@@ -234,7 +240,11 @@ async function executar(k){
   if(k==='grupoTeste')return enviar('grupoTeste',{fichas:await grupoJogadores(),ensaio:info.modo==='ensaio'});
   if(k==='selecao'){const id=await api.selecionado();if(!info.tokens.some(t=>t.id===id))throw Error('Selecione um token da camada Personagem.');$('token').value=id;return;}
   if(k==='vincular')return enviar(k,{token:$('token')?.value??('sim-'+a.id),dono:$('dono')?.value});
-  if(k==='npcs'){for(const p of s.atores.filter(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null))await enviar('iniciativa',{ator:p.id});return;}
+  if(k==='iniciativas'||k==='npcs'){
+    const atores=k==='npcs'?s.atores.filter(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null).map(x=>x.id):[...document.querySelectorAll('[data-iniciativa-id]:checked')].map(x=>x.dataset.iniciativaId);
+    if(!atores.length)throw Error('Selecione ao menos uma ficha.');
+    await enviar('iniciativas',{atores});return;
+  }
   if(['curto','longo'].includes(k)){if(await confirma('Executar descanso '+k+'?','Aplica a recuperação aos jogadores do encontro.'))await enviar('descanso',{periodo:k});return;}
   if(['encerrar','remover'].includes(k)){if(await confirma(k==='encerrar'?'Encerrar combate?':'Retirar participante?',a?.nome??''))await enviar(k);return;}
   if(['iniciar','criarPeca'].includes(k))return enviar(k);
@@ -271,6 +281,7 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.configurarVinculo){escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}
  if(b.dataset.usarSelecaoVinculo)return tarefa(()=>usarSelecaoNoVinculo(b.dataset.usarSelecaoVinculo));
  if(b.dataset.salvarVinculo)return tarefa(()=>salvarVinculoAtor(b.dataset.salvarVinculo));
+ if(b.dataset.excluirFicha)return tarefa(async()=>{const id=b.dataset.excluirFicha,p=s.atores.find(x=>x.id===id);if(!p)return;if(!await confirma('Excluir '+p.nome+' do encontro?','A ficha será retirada do encontro, mas o arquivo JSON original continuará disponível.'))return;escolhido=id;await enviar('remover');if(escolhido===id)escolhido=null;aviso(p.nome+' foi excluído do encontro.');});
  if(b.hasAttribute('data-vincular-selecionado'))return tarefa(async()=>{const id=$('ficha-token-selecionado')?.value,token=info.tokens.find(t=>t.id===tokenSelecionado);if(!id||!token)throw Error('Selecione um token e uma ficha.');await salvarVinculoAtor(id,{token:token.id,dono:$('dono-token-selecionado')?.value});});
  if(b.dataset.verFicha){escolhido=b.dataset.verFicha;secao='ficha';npcsAbertos=true;acao=null;alvos=[];return render();}
  if(b.dataset.combate){escolhido=b.dataset.combate;return tarefa(async()=>{const p=s.atores.find(x=>x.id===escolhido);if(await confirma((p.emCombate===false?'Adicionar ':'Retirar ')+p.nome+'?',p.emCombate===false?'A ficha entrará na lista de combate.':'A ficha e o token continuarão vinculados.'))await enviar('alternarCombate');});}

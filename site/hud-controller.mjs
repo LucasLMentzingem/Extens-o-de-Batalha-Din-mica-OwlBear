@@ -1,9 +1,9 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.7.26';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.7.26';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.7.27';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.7.27';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.7.26',import.meta.url);
+const url=new URL('./hud.html?v=0.7.27',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
 const medida=n=>Number(n.toFixed(2)).toLocaleString('pt-BR')+' m';
@@ -82,7 +82,10 @@ export async function iniciarHud(){
           caixas['dica-efeito']=[Math.max(8,Math.min(w-dw-8,left)),Math.max(8,top-dh-8),dw,dh];
         }
       }
-      if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null))caixas.iniciativa=[Math.round((w-Math.min(320,w-12))/2),Math.round(h*.40),Math.min(320,w-12),108];
+      if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null)){
+        const pendentes=atores().filter(a=>a.emCombate!==false&&a.init===null&&(eu.role==='GM'||controla(a))),iw=Math.min(eu.role==='GM'?440:340,w-12),ih=Math.min(h-24,eu.role==='GM'?Math.max(148,108+Math.ceil(pendentes.length/2)*43):118);
+        caixas.iniciativa=[Math.round((w-iw)/2),Math.round(Math.max(12,(h-ih)*.40)),iw,ih];
+      }
       if(pendente){
         const cw=Math.min(410,w-12),ch=Math.min(480,h-72),left=Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
         caixas.acao=[Math.round(left),Math.round(Math.max(62,(h-ch)/2)),cw,ch];
@@ -337,11 +340,12 @@ export async function iniciarHud(){
     }else if(d.tipo==='usarItem'){
       const a=ator(),item=a?.ficha.inventario?.itens.find(i=>i.id===d.itemId&&i.tipo==='consumivel'&&i.quantidade>0);if(!controla(a)||!item)return;
       ocupado=true;transmitir();try{await api.enviar({tipo:'inventario',ator:a.id,operacao:'usar',itemId:item.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
-    }else if(d.tipo==='npcs'){
+    }else if(d.tipo==='iniciativas'||d.tipo==='npcs'){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
-      // Each acknowledgment follows its snapshot; let the view queue settle between NPCs.
+      const ids=d.tipo==='npcs'?atores().filter(a=>a.emCombate!==false&&a.ficha.tipo==='npc'&&a.init===null).map(a=>a.id):[...new Set(d.atores??[])];
+      if(!ids.length||!ids.every(id=>atores().some(a=>a.id===id&&a.emCombate!==false&&a.init===null)))return;
       ocupado=true;transmitir();
-      try{let rev=estado.rev;for(const a of atores().filter(a=>a.emCombate!==false&&a.ficha.tipo==='npc'&&a.init===null)){await api.enviar({tipo:'iniciativa',ator:a.id,rev});rev++;}}finally{ocupado=false;}
+      try{await api.enviar({tipo:'iniciativas',atores:ids,rev:estado.rev});}finally{ocupado=false;}
     }else if(['usar','mover','passar','iniciativa'].includes(d.tipo)){
       if(d.ator){if(!atores().some(a=>a.id===d.ator&&controla(a)))return;atorId=d.ator;}
       await preparar(d);

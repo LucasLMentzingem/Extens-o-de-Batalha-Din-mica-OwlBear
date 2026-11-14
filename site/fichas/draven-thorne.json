@@ -34,7 +34,23 @@
     "andar": 10.5
   },
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["leve","media","pesada","escudo"],"maestrias":["espada_grande","mangual","azagaia"]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [
+      "leve",
+      "media",
+      "pesada",
+      "escudo"
+    ],
+    "maestrias": [
+      "espada_grande",
+      "mangual",
+      "azagaia"
+    ]
+  },
   "sentidos": "Percepção passiva 13.",
   "idiomas": "Comum; Gigante; Anão.",
   "pericias": {
@@ -135,7 +151,9 @@
         "dano": "2d6+3",
         "elemento": "cortante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "8958d021-6528-5fca-aabc-9176a270bdd7",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "mangual-5-acao-1",
@@ -159,7 +177,9 @@
         "dano": "1d8+3",
         "elemento": "contundente",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "232bf97f-7f19-5171-a794-9349df4d62c9",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "azagaia-5-acao-2",
@@ -183,7 +203,9 @@
         "dano": "1d6+3",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "golpe-desarmado-5-acao-3",
@@ -200,13 +222,23 @@
           "id": "surto-de-acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "4",
+        "elemento": "contundente",
+        "alcanceM": 1.5,
+        "tags": [
+          "desarmado"
+        ]
+      }
     },
     {
       "id": "agarrar-ou-empurrar-acao-4",
-      "nome": "Agarrar ou empurrar | ação",
+      "nome": "Agarrar | ação",
       "categoria": "acao",
-      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 13.",
+      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
         {
           "tipo": "acao",
@@ -217,7 +249,21 @@
           "id": "surto-de-acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Agarrado",
+          "condicao": "agarrado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "disparada-acao-5",
@@ -274,7 +320,11 @@
           "id": "surto-de-acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "esquivar": true
+      }
     },
     {
       "id": "ajudar-acao-8",
@@ -657,6 +707,97 @@
           "acao": 1
         }
       }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4-derrubar",
+      "nome": "Derrubar | ação",
+      "categoria": "acao",
+      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Caído",
+          "condicao": "caido",
+          "turnos": 1,
+          "expira": "fim_origem"
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4-empurrar",
+      "nome": "Empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5,
+          "direcao": "afastar"
+        }
+      }
+    },
+    {
+      "id": "azagaia-5-acao-2-arremesso",
+      "nome": "Azagaia +5 · arremesso | ação",
+      "categoria": "acao",
+      "descricao": "Arremesso 9/18 m. Além de 9 m, o ataque tem desvantagem.\nCorpo a corpo ou arremesso 9/18 m · perfurante. Lentidão: reduz 3 m até o início de seu próximo turno.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "surto-de-acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "perfurante",
+        "alcanceM": 18,
+        "alcanceNormalM": 9,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "azagaia-5-acao-2",
+      "requerItemEquipado": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
+      "ataqueLegadoDeItem": true
     }
   ],
   "equipamentos": [
@@ -700,11 +841,15 @@
   "passivas": [
     {
       "nome": "Passiva | Defesas e sentidos",
-      "descricao": "Testes de resistência: FOR +5, DES +1, CON +4, INT +0, SAB +1, CAR -1. Ponto fraco: testes de SAB (medo, encantamento). Percepção passiva 13; Intuição passiva 13. Sem resistências ou imunidades a dano. Vantagem para se soltar de Imobilizado (Porte Poderoso)."
+      "descricao": "Testes de resistência: FOR +5, DES +1, CON +4, INT +0, SAB +1, CAR -1. Ponto fraco: testes de SAB (medo, encantamento). Percepção passiva 13; Intuição passiva 13. Sem resistências ou imunidades a dano. Vantagem para se soltar de Imobilizado (Porte Poderoso).",
+      "id": "passiva-1",
+      "ativa": true
     },
     {
       "nome": "Passiva | Perícias e idiomas",
-      "descricao": "Atletismo +5, Acrobacia +3, Intuição +3, Percepção +3, Intimidação +1. Ferramentas: kit de jogo (dados), Ferramentas de Ferreiro. Idiomas: Comum, Gigante, Anão."
+      "descricao": "Atletismo +5, Acrobacia +3, Intuição +3, Percepção +3, Intimidação +1. Ferramentas: kit de jogo (dados), Ferramentas de Ferreiro. Idiomas: Comum, Gigante, Anão.",
+      "id": "passiva-2",
+      "ativa": true
     }
   ],
   "notas": [
@@ -712,5 +857,442 @@
       "titulo": "Fonte",
       "descricao": "Convertida da ficha Forge Draven-Thorne-Nv3.json."
     }
-  ]
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "versaoOcupacao": 5,
+    "capacidadeCargaKg": 127.5,
+    "itens": [
+      {
+        "id": "147999d7-bd72-57f1-9771-9dff7bcac8e9",
+        "nome": "Cota de Malha",
+        "descricao": "CA 16. Exige FOR 13. Desvantagem em Furtividade.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 27.5,
+        "slotEquipamento": "vestes",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 16,
+          "classe": "pesada"
+        },
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "8958d021-6528-5fca-aabc-9176a270bdd7",
+        "nome": "Espada Grande",
+        "descricao": "Ataque +5; dano 2d6+3 cortante. Maestria Garantido.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 3,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "espada-grande-5-acao-0"
+        ],
+        "tipoArma": "espada_grande",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "duas_maos",
+          "pesada"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "2d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "232bf97f-7f19-5171-a794-9349df4d62c9",
+        "nome": "Mangual",
+        "descricao": "Ataque +5; dano 1d8+3 contundente. Maestria Drenar.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "mangual-5-acao-1"
+        ],
+        "tipoArma": "mangual",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "tipoDano": "contundente"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "azagaia-5-acao-2",
+          "azagaia-5-acao-2-arremesso"
+        ],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-2",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-3",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-4",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-5",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-6",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-7",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-8",
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "0f60fbd6-9cf4-50d4-995c-b8daf42fc4bf",
+        "nome": "Pacote de Explorador de Masmorras",
+        "descricao": "Kit inicial do Guerreiro.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 27.5,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "b387dc40-8da5-5fd1-b9d6-ca9b966ac2f0",
+        "nome": "Moedas — 4 PO",
+        "descricao": "Saldo inicial do kit do Guerreiro.",
+        "tipo": "moeda",
+        "quantidade": 4,
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    ]
+  }
 }

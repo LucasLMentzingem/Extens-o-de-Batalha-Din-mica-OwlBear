@@ -34,7 +34,14 @@
     "andar": 12
   },
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples","marciais_leves"],"armaduras":[],"maestrias":[]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marciais_leves"
+    ],
+    "armaduras": [],
+    "maestrias": []
+  },
   "sentidos": "Visão no Escuro 36 m. Percepção passiva 13.",
   "idiomas": "Comum; mais 2 idiomas pendentes de escolha (sugestão: Orc e Anão).",
   "pericias": {
@@ -131,7 +138,9 @@
         "dano": "1d8+3",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "75d8709d-c305-52a3-9471-53a759415215",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "soco-5-acao-ou-acao-bonus-1",
@@ -212,7 +221,9 @@
         "dano": "1d6+3",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "e73ee90c-3d18-55a0-913e-a081959d2509",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "lanca-em-uma-mao-5-acao-4",
@@ -231,19 +242,35 @@
         "dano": "1d6+3",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "75d8709d-c305-52a3-9471-53a759415215",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "agarrar-ou-empurrar-acao-5",
-      "nome": "Agarrar ou empurrar | ação",
+      "nome": "Agarrar | ação",
       "categoria": "acao",
-      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 13.",
+      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
         {
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Agarrado",
+          "condicao": "agarrado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "disparada-acao-6",
@@ -285,7 +312,11 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "esquivar": true
+      }
     },
     {
       "id": "ajudar-acao-9",
@@ -462,7 +493,18 @@
           "id": "pontos-de-foco",
           "quantidade": 1
         }
-      ]
+      ],
+      "gatilho": "apos_acerto",
+      "umaVezPorTurno": true,
+      "aprimoramento": {
+        "dano": "1d6+1",
+        "elemento": "necrotico",
+        "requisitos": {
+          "tagsAtaque": [
+            "desarmado"
+          ]
+        }
+      }
     },
     {
       "id": "mao-de-cura-22",
@@ -479,7 +521,12 @@
           "id": "pontos-de-foco",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "cura",
+        "formula": "1d6+1",
+        "alcanceM": 1.5
+      }
     },
     {
       "id": "pericia-prestidigitacao-3-23",
@@ -637,6 +684,106 @@
         "disparada": true,
         "pvTemporarios": 2
       }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-5-derrubar",
+      "nome": "Derrubar | ação",
+      "categoria": "acao",
+      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Caído",
+          "condicao": "caido",
+          "turnos": 1,
+          "expira": "fim_origem"
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-5-empurrar",
+      "nome": "Empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5,
+          "direcao": "afastar"
+        }
+      }
+    },
+    {
+      "id": "adaga-5-acao-3-arremesso",
+      "nome": "Adaga +5 · arremesso | ação",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nCorpo a corpo ou arremesso 6/18 m · perfurante. 5 adagas.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "perfurante",
+        "alcanceM": 18,
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "adaga-5-acao-3",
+      "requerItemEquipado": "e73ee90c-3d18-55a0-913e-a081959d2509",
+      "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "lanca-em-uma-mao-5-acao-4-arremesso",
+      "nome": "Lança em uma mão +5 · arremesso | ação",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nCorpo a corpo ou arremesso 6/18 m · perfurante.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "perfurante",
+        "alcanceM": 18,
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "lanca-em-uma-mao-5-acao-4",
+      "requerItemEquipado": "75d8709d-c305-52a3-9471-53a759415215",
+      "ataqueLegadoDeItem": true
     }
   ],
   "equipamentos": [
@@ -674,31 +821,45 @@
   "passivas": [
     {
       "nome": "Passiva | Artes Marciais",
-      "descricao": "Desarmado ou só com armas de Monge, sem armadura nem escudo: soco extra como Ação Bônus; dado d6 nos socos e armas de Monge; pode usar DES em vez de FOR no acerto, no dano e na CD de Empurrar/Imobilizar."
+      "descricao": "Desarmado ou só com armas de Monge, sem armadura nem escudo: soco extra como Ação Bônus; dado d6 nos socos e armas de Monge; pode usar DES em vez de FOR no acerto, no dano e na CD de Empurrar/Imobilizar.",
+      "id": "passiva-1",
+      "ativa": true
     },
     {
       "nome": "Passiva | Defesa sem Armadura",
-      "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB = 14."
+      "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB = 14.",
+      "id": "passiva-2",
+      "ativa": true
     },
     {
       "nome": "Passiva | Implementos de Misericórdia",
-      "descricao": "Proficiência em Intuição, Medicina e Kit de Herbalismo."
+      "descricao": "Proficiência em Intuição, Medicina e Kit de Herbalismo.",
+      "id": "passiva-3",
+      "ativa": true
     },
     {
       "nome": "Passiva | Movimento sem Armadura",
-      "descricao": "+3 m de deslocamento sem armadura e sem escudo (total 12 m)."
+      "descricao": "+3 m de deslocamento sem armadura e sem escudo (total 12 m).",
+      "id": "passiva-4",
+      "ativa": true
     },
     {
       "nome": "Passiva | Visão no Escuro",
-      "descricao": "36 m."
+      "descricao": "36 m.",
+      "id": "passiva-5",
+      "ativa": true
     },
     {
       "nome": "Passiva | Valentão de Taverna",
-      "descricao": "Rerrola resultados 1 nos dados de dano do Ataque Desarmado. Proficiência com armas improvisadas. Uma vez por turno, ao acertar um soco com a ação Atacar, empurra o alvo 1,5 m. O dano base do talento (1d4 + FOR) é pior que o das Artes Marciais e não é usado."
+      "descricao": "Rerrola resultados 1 nos dados de dano do Ataque Desarmado. Proficiência com armas improvisadas. Uma vez por turno, ao acertar um soco com a ação Atacar, empurra o alvo 1,5 m. O dano base do talento (1d4 + FOR) é pior que o das Artes Marciais e não é usado.",
+      "id": "passiva-6",
+      "ativa": true
     },
     {
       "nome": "Passiva | Proficiências",
-      "descricao": "Armas simples e armas marciais com a propriedade Leve; sem armadura. Ferramentas de Entalhador, Ferramentas de Navegador, Kit de Herbalismo. Perícias: Acrobacia, Percepção (Marinheiro); Atletismo, Furtividade (Monge); Intuição, Medicina (Misericórdia). Salvaguardas: FOR e DES."
+      "descricao": "Armas simples e armas marciais com a propriedade Leve; sem armadura. Ferramentas de Entalhador, Ferramentas de Navegador, Kit de Herbalismo. Perícias: Acrobacia, Percepção (Marinheiro); Atletismo, Furtividade (Monge); Intuição, Medicina (Misericórdia). Salvaguardas: FOR e DES.",
+      "id": "passiva-7",
+      "ativa": true
     }
   ],
   "notas": [
@@ -706,5 +867,309 @@
       "titulo": "Fonte",
       "descricao": "Convertida da ficha Forge Loteria-Nv3.json."
     }
-  ]
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "versaoOcupacao": 5,
+    "capacidadeCargaKg": 112.5,
+    "itens": [
+      {
+        "id": "75d8709d-c305-52a3-9471-53a759415215",
+        "nome": "Lança",
+        "descricao": "Ataque +5; 1d8+3 perfurante com duas mãos, 1d6+3 com uma; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "lanca-em-duas-maos-5-acao-0",
+          "lanca-em-uma-mao-5-acao-4",
+          "lanca-em-uma-mao-5-acao-4-arremesso"
+        ],
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "e73ee90c-3d18-55a0-913e-a081959d2509",
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "adaga-5-acao-3",
+          "adaga-5-acao-3-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "e73ee90c-3d18-55a0-913e-a081959d2509-2",
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "e73ee90c-3d18-55a0-913e-a081959d2509-3",
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "e73ee90c-3d18-55a0-913e-a081959d2509-4",
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "e73ee90c-3d18-55a0-913e-a081959d2509-5",
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "4a3aa6c2-f651-5b65-a0dc-ee28b3a1d593",
+        "nome": "Ferramentas de Entalhador",
+        "descricao": "Proficiência do Monge.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 2.5,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "8a515690-5cc9-5a1f-9501-01a9ba86d004",
+        "nome": "Kit de Aventureiro",
+        "descricao": "Mochila, caixa para fogo, cantil, corda, 2 potes de óleo, 10 dias de rações, saco de dormir, 10 tochas.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 20,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "1cd2af37-2ce3-5b82-ba29-66559ec6139b",
+        "nome": "Moedas — 11 PO",
+        "descricao": "Saldo do kit inicial do Monge (opção A).",
+        "tipo": "moeda",
+        "quantidade": 11,
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    ]
+  }
 }

@@ -42,6 +42,19 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .prompt div{flex-wrap:wrap}
 .prompt input{width:56px}
 .prompt .ouro{margin-left:auto}
+.iniciativa-lote{align-content:start}
+.iniciativa-lote>header{display:flex;justify-content:space-between;align-items:center;padding-bottom:5px;border-bottom:1px solid #59645a}
+.iniciativa-lote>header>div{display:grid;gap:1px}
+.iniciativa-lote>header>span{padding:3px 7px;border:1px solid #7e806c;border-radius:10px;color:#ffe0a2;font-weight:700}
+.lista-iniciativas{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px!important;align-content:start;overflow:auto;scrollbar-width:thin}
+.lista-iniciativas button{display:grid;grid-template-columns:24px 1fr;align-items:center;gap:6px;min-width:0;text-align:left;padding:5px}
+.lista-iniciativas button>b{display:grid;place-items:center;width:22px;height:22px;border:1px solid #778176;border-radius:4px;color:#17221f;background:#182320}
+.lista-iniciativas button[aria-pressed=true]>b{border-color:#d9bd7e;background:#dfbe86;color:#211e18}
+.lista-iniciativas button>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lista-iniciativas button small{display:block;font-size:9px;color:#aebcaf}
+.iniciativa-lote>footer{display:flex;gap:5px;align-items:center;padding-top:3px}
+.iniciativa-jogador{align-content:center;text-align:center}
+.iniciativa-jogador>.ouro{margin:4px 0 0}
 .efeitos-hud{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:108px;max-height:158px;display:grid;grid-template-columns:repeat(2,50px);grid-auto-rows:50px;gap:4px 6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#9d865d transparent;pointer-events:auto;padding-right:2px}
 .efeito-hud{pointer-events:auto;width:50px;height:50px;display:grid;place-items:center;align-content:center;border:1px solid #b79869;border-radius:6px;background:#2c2538;opacity:1;overflow:hidden;cursor:help;transition:filter .15s,transform .15s}
 .efeito-hud:hover,.efeito-hud:focus{filter:brightness(1.22);transform:translateY(-3px);outline:1px solid #f1ca88}

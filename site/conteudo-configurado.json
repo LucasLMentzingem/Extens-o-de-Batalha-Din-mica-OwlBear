@@ -12,8 +12,24 @@
     "calculoArmas": "Atributo da propriedade e do modo + bônus de proficiência do portador quando proficiente + bônus do item e estilo aplicável.",
     "danoArmas": "Dado, tipo de dano e propriedades pertencem ao item; o modificador pertence ao portador e é recalculado em cada troca.",
     "ataquesVisiveis": "Somente armas equipadas geram ataques. Golpes desarmados permanecem livres.",
-    "classesArmadura": ["sem_armadura (veste)", "leve", "media", "pesada", "escudo"],
-    "propriedadesArmas": ["corpo_a_corpo", "distancia", "acuidade", "leve", "pesada", "versatil", "duas_maos", "arremessavel", "municao"],
+    "classesArmadura": [
+      "sem_armadura (veste)",
+      "leve",
+      "media",
+      "pesada",
+      "escudo"
+    ],
+    "propriedadesArmas": [
+      "corpo_a_corpo",
+      "distancia",
+      "acuidade",
+      "leve",
+      "pesada",
+      "versatil",
+      "duas_maos",
+      "arremessavel",
+      "municao"
+    ],
     "portabilidade": "O item guarda suas próprias classificações, peso, dados, dano, alcance e efeitos; proficiência, atributo, maestria, ataque e dano final são derivados da ficha que o equipa."
   },
   "classes": [
@@ -831,27 +847,27 @@
   "itens": [
     {
       "nome": "2 Adagas",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "20 flechas e aljava",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "5 Adagas",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "8 Azagaias",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Adaga",
-      "status": "Ataque e equipamento configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Aljava com 20 Flechas",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Anel simples de oficina",
@@ -859,19 +875,19 @@
     },
     {
       "nome": "Arco Longo",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Armadura Couro Batido",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Armadura de Couro",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Armadura de Couro Batido",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Armadura de placas",
@@ -879,19 +895,19 @@
     },
     {
       "nome": "Azagaia",
-      "status": "Ataque e equipamento configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Botas de marcha (par)",
       "status": "Item, preço e slot configurados"
     },
     {
-      "nome": "Camisão de malha",
-      "status": "CA, classe e slot configurados"
+      "nome": "Camisa de malha",
+      "status": "Registro legado vinculado ao inventário"
     },
     {
-      "nome": "Camisa de malha",
-      "status": "CA, classe média, peso e slot configurados"
+      "nome": "Camisão de malha",
+      "status": "CA, classe e slot configurados"
     },
     {
       "nome": "Capa de viagem",
@@ -899,7 +915,7 @@
     },
     {
       "nome": "Cimitarra",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Colar simples de oficina",
@@ -911,7 +927,7 @@
     },
     {
       "nome": "Cota de Malha",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Couro batido",
@@ -919,23 +935,23 @@
     },
     {
       "nome": "Escudo",
-      "status": "CA, classe e slot configurados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
-      "nome": "Espada Curta",
-      "status": "Dados registrados"
+      "nome": "Espada curta",
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Espada Grande",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Fantasia e roupas finas",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Ferramentas de Entalhador",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Ferramentas de ferreiro",
@@ -947,43 +963,43 @@
     },
     {
       "nome": "Foco Arcano (cristal)",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Foco Druídico (ramo de visco)",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Foice",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Kit de Artista",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Kit de Aventureiro",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Kit de Explorador de Masmorras",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Kit de Falsificação",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Lança",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Livro das Sombras",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Livro de ocultismo e Kit de Estudioso",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Luvas de treino (par)",
@@ -991,39 +1007,39 @@
     },
     {
       "nome": "Mangual",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Moedas — 11 PO",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Moedas — 19 PO",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Moedas — 28 PO",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Moedas — 30 PO",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Moedas — 4 PO",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Moedas — 7 PO",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Orbe (foco arcano)",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Pacote de Explorador de Masmorras",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     },
     {
       "nome": "Pé de cabra",
@@ -1035,7 +1051,7 @@
     },
     {
       "nome": "Violino",
-      "status": "Dados registrados"
+      "status": "Registro legado vinculado ao inventário"
     }
   ],
   "modulos": [

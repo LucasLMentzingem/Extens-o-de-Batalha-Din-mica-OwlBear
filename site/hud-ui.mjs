@@ -1,7 +1,7 @@
-import {detalhes} from './ficha-view.mjs?v=0.7.26';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.26';
-import {pronto} from './bridge.mjs?v=0.7.26';
-import {canalHud} from './hud-controller.mjs?v=0.7.26';
+import {detalhes} from './ficha-view.mjs?v=0.7.27';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.27';
+import {pronto} from './bridge.mjs?v=0.7.27';
+import {canalHud} from './hud-controller.mjs?v=0.7.27';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -18,7 +18,7 @@ function categoriaHud(o){
   if(comuns.some(n=>texto.startsWith(n))||o.categoria!=='magia'&&o.automacao?.tipo==='ataque')return 'Comum';
   return 'Classe';
 }
-let v,filtro='Comum',recursoAtivo=null,bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null;
+let v,filtro='Comum',recursoAtivo=null,bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null,iniciativaAberta=false,iniciativasSelecionadas=new Set();
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 const modoFormula=valor=>/^2d\d+kh1/i.test(valor)?'vantagem':/^2d\d+kl1/i.test(valor)?'desvantagem':'normal';
 function ajustarModo(valor,modo){
@@ -52,6 +52,11 @@ function render(){
   adicionaisAtivos=new Set(v.pedidoDado?.recursosAtivos??[]);
   const ativo=s.ordem[s.vez],a=s.atores.find(a=>a.id===v.atorId),gm=eu.role==='GM';
   const meus=s.atores.filter(x=>gm||x.dono===eu.id);
+  const iniciativasPendentes=s.atores.filter(x=>x.emCombate!==false&&x.init===null);
+  if(s.fase==='iniciativa'&&!iniciativaAberta){iniciativaAberta=true;if(gm)iniciativasSelecionadas=new Set(iniciativasPendentes.map(x=>x.id));}
+  if(s.fase!=='iniciativa'){iniciativaAberta=false;iniciativasSelecionadas.clear();}
+  const idsPendentes=new Set(iniciativasPendentes.map(x=>x.id));
+  iniciativasSelecionadas=new Set([...iniciativasSelecionadas].filter(id=>idsPendentes.has(id)));
   let html='';
   if(parte==='ordem'){
     const ordem=s.fase==='iniciativa'?s.atores.filter(x=>x.emCombate!==false).map(x=>x.id):s.vez<0?s.ordem:[...s.ordem.slice(s.vez),...s.ordem.slice(0,s.vez)];
@@ -61,8 +66,13 @@ function render(){
         'data-id="'+esc(id)+'" class="ord '+(id===ativo?'atual ':'')+(meus.includes(x)?'':'observador')+'"');
     }).join('')+'</nav>';
   }else if(parte==='iniciativa'){
-    html='<section class="prompt"><strong>Iniciativa</strong><div>'+meus.filter(x=>x.emCombate!==false&&x.init===null&&x.ficha.tipo==='pj').map(x=>btn('iniciativa','Rolar · '+esc(x.nome),'data-id="'+esc(x.id)+'"')).join('')+
-      (gm&&s.atores.some(x=>x.emCombate!==false&&x.ficha.tipo==='npc'&&x.init===null)?btn('npcs','Rolar NPCs pendentes'):'')+'</div></section>';
+    if(gm){
+      const marcadas=iniciativasPendentes.filter(x=>iniciativasSelecionadas.has(x.id));
+      html='<section class="prompt iniciativa-lote"><header><div><strong>Iniciativas</strong><small>Escolha jogadores e NPCs</small></div><span>'+marcadas.length+'/'+iniciativasPendentes.length+'</span></header><div class="lista-iniciativas">'+iniciativasPendentes.map(x=>btn('selecionarIniciativa','<b>'+(iniciativasSelecionadas.has(x.id)?'✓':'')+'</b><span>'+esc(x.nome)+'<small>'+(x.ficha.tipo==='pj'?'JOGADOR':'NPC')+'</small></span>','data-id="'+esc(x.id)+'" aria-pressed="'+iniciativasSelecionadas.has(x.id)+'"')).join('')+'</div><footer>'+btn('selecionarTodasIniciativas','Selecionar todas')+btn('limparIniciativas','Limpar')+btn('iniciativas','Rolar selecionados · '+marcadas.length,'class="ouro" '+(marcadas.length?'':'disabled'))+'</footer></section>';
+    }else{
+      const propria=iniciativasPendentes.find(x=>x.ficha.tipo==='pj'&&x.dono===eu.id);
+      html='<section class="prompt iniciativa-jogador"><strong>Iniciativa</strong>'+(propria?'<small>'+esc(propria.nome)+'</small>'+btn('iniciativa','Rolar iniciativa','data-id="'+esc(propria.id)+'" class="ouro"'):'<small>Aguardando a iniciativa da sua ficha vinculada.</small>')+'</section>';
+    }
   }else if(parte==='acao'&&p&&a){
     const o=opcaoPorId(a,p.opcao);
     const executar=p.lista?btn('confirmar','Executar seleção','class="ouro" '+(p.pronto?'':'disabled')):(p.pronto?btn('confirmar',p.substitui?'Executar pelo jogador':'Executar','class="ouro"'):'');
@@ -79,15 +89,15 @@ function render(){
     if(d.tipo==='resultado'){
       const r=d.resultado,classe=/crític/i.test(d.status)?'critico':/falha/i.test(d.status)?'falha':'acerto';
       const lote=r.resultados?.length?r.resultados:null,extras=(m.adicionaisAtivos??[]).map(id=>m.adicionais?.find(x=>x.id===id)).filter(Boolean);
-      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{});return '<article class="'+(i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' de dano'+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
+      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??'de dano')+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
       const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id));
       const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva?btn('rerrolarDado','Rerrolar','class="ouro"'):'')+'</div>':'';
       html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
     }else{
       const formulas=d.formulas?.map((x,i)=>document.querySelector('[data-formula-lote="'+i+'"]')?.value||x);
       if(formulas){
-        const campos=formulas.map((valor,i)=>{const info=m.instancias?.[i]??{},modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDadoLote',label,'data-index="'+i+'" data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');return '<article class="ajuste-seta"><header><strong>'+esc(info.titulo||'Seta '+(i+1))+'</strong><small>'+esc(info.alvo||'')+(info.critico?' · crítico':'')+'</small></header><div class="modos-d20" role="group" aria-label="Modo da seta '+(i+1)+'">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div><label>Comando do Dice+<input data-formula-lote="'+i+'" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label></article>';}).join('');
-        html='<section class="prompt rolagem rolagem-lote"><strong>'+esc(m.titulo||'Ajustar rolagens')+'</strong><small>Revise cada seta. O Dice+ lançará todas juntas.</small><div class="ajustes-lote">'+campos+'</div>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div class="acoes-rolagem">'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+        const campos=formulas.map((valor,i)=>{const info=m.instancias?.[i]??{},modo=modoFormula(valor),rotulo=m.rotuloInstancia??'Seta',botaoModo=(id,label)=>btn('modoDadoLote',label,'data-index="'+i+'" data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');return '<article class="ajuste-seta"><header><strong>'+esc(info.titulo||rotulo+' '+(i+1))+'</strong><small>'+esc(info.alvo||'')+(info.critico?' · crítico':'')+'</small></header><div class="modos-d20" role="group" aria-label="Modo de '+esc(rotulo.toLowerCase())+' '+(i+1)+'">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div><label>Comando do Dice+<input data-formula-lote="'+i+'" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label></article>';}).join('');
+        html='<section class="prompt rolagem rolagem-lote"><strong>'+esc(m.titulo||'Ajustar rolagens')+'</strong><small>'+esc(m.descricaoLote??'Revise cada seta. O Dice+ lançará todas juntas.')+'</small><div class="ajustes-lote">'+campos+'</div>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div class="acoes-rolagem">'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }else{
         const valor=document.querySelector('#formulaDado')?.value||d.formula||'',temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor),modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
         const adicionais=m.adicionais??[],selecionados=adicionais.filter(x=>adicionaisAtivos.has(x.id));
@@ -183,8 +193,11 @@ root.onclick=e=>{
   if(tipo==='rerrolarDado'){if(!rerrolagemAtiva)return;bus.postMessage({tipo,rerrolagem:rerrolagemAtiva});rerrolagemAtiva=null;return;}
   if(tipo==='filtro'){filtro=id;recursoAtivo=null;render();return;}
   if(tipo==='recurso'){recursoAtivo=recursoAtivo===id?null:id;if(recursoAtivo)filtro='Comum';render();return;}
+  if(tipo==='selecionarIniciativa'){iniciativasSelecionadas.has(id)?iniciativasSelecionadas.delete(id):iniciativasSelecionadas.add(id);render();return;}
+  if(tipo==='selecionarTodasIniciativas'){iniciativasSelecionadas=new Set(v.estado.atores.filter(x=>x.emCombate!==false&&x.init===null).map(x=>x.id));render();return;}
+  if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
+  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});

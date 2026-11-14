@@ -34,7 +34,15 @@
     "andar": 9
   },
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples"],"armaduras":["leve"],"maestrias":[]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples"
+    ],
+    "armaduras": [
+      "leve"
+    ],
+    "maestrias": []
+  },
   "sentidos": "Percepção passiva 13.",
   "idiomas": "Comum; Élfico; Goblin. Telepatia pela Mente Desperta.",
   "pericias": {
@@ -121,7 +129,9 @@
         "dano": "1d4+2",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "82ce2b66-29ce-4ca9-a248-7101d18d4b94",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "segunda-adaga-4-acao-bonus-1",
@@ -140,7 +150,9 @@
         "dano": "1d4",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "82ce2b66-29ce-4ca9-a248-7101d18d4b94-2",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "foice-1-acao-2",
@@ -159,7 +171,9 @@
         "dano": "1d4-1",
         "elemento": "cortante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "c0e8edc0-911b-4be2-a945-bf9006f54b3f",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "golpe-desarmado-1-acao-3",
@@ -171,19 +185,43 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 1,
+        "dano": "0",
+        "elemento": "contundente",
+        "alcanceM": 1.5,
+        "tags": [
+          "desarmado"
+        ]
+      }
     },
     {
       "id": "agarrar-ou-empurrar-acao-4",
-      "nome": "Agarrar ou empurrar | ação",
+      "nome": "Agarrar | ação",
       "categoria": "acao",
-      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 9.",
+      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
         {
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Agarrado",
+          "condicao": "agarrado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "disparada-acao-5",
@@ -225,7 +263,11 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "esquivar": true
+      }
     },
     {
       "id": "ajudar-acao-8",
@@ -487,7 +529,21 @@
         }
       ],
       "circuloBase": 2,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 1.5,
+        "efeito": {
+          "nome": "Invisível",
+          "tipo": "condicao",
+          "condicao": "invisivel",
+          "descricao": "Invisível até atacar, causar dano ou conjurar.",
+          "duracao": {
+            "turnos": 100,
+            "expira": "inicio_origem"
+          }
+        }
+      }
     },
     {
       "id": "2-sugestao-26",
@@ -506,7 +562,18 @@
         }
       ],
       "circuloBase": 2,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "alcanceM": 9,
+        "efeitoFalha": {
+          "nome": "Sob Sugestão",
+          "condicao": "enfeiticado",
+          "turnos": 100
+        }
+      }
     },
     {
       "id": "1-sussurros-dissonantes-27",
@@ -524,7 +591,21 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 1
+      "circuloBase": 1,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "dano": "3d6",
+        "alcanceM": 18,
+        "metade": true,
+        "elemento": "psiquico",
+        "efeitoFalha": {
+          "nome": "Fuga Dissonante",
+          "turnos": 1,
+          "consomeReacao": true
+        }
+      }
     },
     {
       "id": "1-compreender-idiomas-28",
@@ -597,7 +678,18 @@
         }
       ],
       "circuloBase": 1,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "alcanceM": 9,
+        "efeitoFalha": {
+          "nome": "Enfeitiçado",
+          "condicao": "enfeiticado",
+          "turnos": 100
+        }
+      }
     },
     {
       "id": "1-riso-histerico-de-tasha-32",
@@ -665,7 +757,18 @@
         }
       ],
       "circuloBase": 0,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "alcanceM": 3,
+        "efeitoFalha": {
+          "nome": "Enfeitiçado",
+          "condicao": "enfeiticado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "truque-maos-magicas-35",
@@ -728,6 +831,106 @@
         "tipo": "d20",
         "modo": "todos"
       }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4-derrubar",
+      "nome": "Derrubar | ação",
+      "categoria": "acao",
+      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Caído",
+          "condicao": "caido",
+          "turnos": 1,
+          "expira": "fim_origem"
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4-empurrar",
+      "nome": "Empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5,
+          "direcao": "afastar"
+        }
+      }
+    },
+    {
+      "id": "adaga-4-acao-0-arremesso",
+      "nome": "Adaga +4 · arremesso | ação",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nCorpo a corpo ou arremesso 6/18 m · perfurante.\nNormal [1d20+4]\nDano [1d4+2] · Crítico [2d4+2]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4+2",
+        "elemento": "perfurante",
+        "alcanceM": 18,
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "adaga-4-acao-0",
+      "requerItemEquipado": "82ce2b66-29ce-4ca9-a248-7101d18d4b94",
+      "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "segunda-adaga-4-acao-bonus-1-arremesso",
+      "nome": "Segunda adaga +4 · arremesso | ação bônus",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nApós atacar com outra arma Leve na ação Atacar neste turno. Perfurante.\nNormal [1d20+4]\nDano [1d4] · Crítico [2d4]",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4",
+        "elemento": "perfurante",
+        "alcanceM": 18,
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "segunda-adaga-4-acao-bonus-1",
+      "requerItemEquipado": "82ce2b66-29ce-4ca9-a248-7101d18d4b94-2",
+      "ataqueLegadoDeItem": true
     }
   ],
   "equipamentos": [
@@ -789,23 +992,33 @@
   "passivas": [
     {
       "nome": "Passiva | Magias Psíquicas",
-      "descricao": "Magias de Encantamento e Ilusão de Bruxo saem sem palavras nem gestos (silenciosas): ninguém percebe que você está conjurando. Pode trocar o tipo de dano das magias de Bruxo para psíquico."
+      "descricao": "Magias de Encantamento e Ilusão de Bruxo saem sem palavras nem gestos (silenciosas): ninguém percebe que você está conjurando. Pode trocar o tipo de dano das magias de Bruxo para psíquico.",
+      "id": "passiva-1",
+      "ativa": true
     },
     {
       "nome": "Passiva | Rajada Agonizante",
-      "descricao": "Soma o modificador de Carisma (+3) ao dano da Rajada Mística."
+      "descricao": "Soma o modificador de Carisma (+3) ao dano da Rajada Mística.",
+      "id": "passiva-2",
+      "ativa": true
     },
     {
       "nome": "Passiva | Humano",
-      "descricao": "Engenhoso: ganha Inspiração Heroica a cada Descanso Longo (rerrola 1 dado). Habilidoso: proficiência em Percepção. Versátil: talento de origem Sortudo. Tamanho Médio; deslocamento 9 m."
+      "descricao": "Engenhoso: ganha Inspiração Heroica a cada Descanso Longo (rerrola 1 dado). Habilidoso: proficiência em Percepção. Versátil: talento de origem Sortudo. Tamanho Médio; deslocamento 9 m.",
+      "id": "passiva-3",
+      "ativa": true
     },
     {
       "nome": "Passiva | Habilidoso",
-      "descricao": "Proficiência em Persuasão, Atuação e Intuição."
+      "descricao": "Proficiência em Persuasão, Atuação e Intuição.",
+      "id": "passiva-4",
+      "ativa": true
     },
     {
       "nome": "Passiva | Proficiências",
-      "descricao": "Armaduras Leves. Armas Simples. Kit de Falsificação. Perícias: Arcanismo, Atuação, Enganação, Intimidação, Intuição, Percepção, Persuasão e Prestidigitação. Salvaguardas: Sabedoria e Carisma."
+      "descricao": "Armaduras Leves. Armas Simples. Kit de Falsificação. Perícias: Arcanismo, Atuação, Enganação, Intimidação, Intuição, Percepção, Persuasão e Prestidigitação. Salvaguardas: Sabedoria e Carisma.",
+      "id": "passiva-5",
+      "ativa": true
     }
   ],
   "notas": [
@@ -813,5 +1026,262 @@
       "titulo": "Fonte",
       "descricao": "Convertida da ficha Forge Skimi-Nv3.json."
     }
-  ]
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": [
+      "2-forca-fantasmagorica-22",
+      "2-detectar-pensamentos-23",
+      "2-imobilizar-pessoa-24",
+      "2-invisibilidade-25",
+      "2-sugestao-26",
+      "1-sussurros-dissonantes-27",
+      "1-compreender-idiomas-28",
+      "1-disfarcar-se-29",
+      "1-encontrar-familiar-30",
+      "1-enfeiticar-pessoa-31",
+      "1-riso-histerico-de-tasha-32"
+    ]
+  },
+  "inventario": {
+    "versaoOcupacao": 5,
+    "capacidadeCargaKg": 60,
+    "itens": [
+      {
+        "id": "7243759c-88ca-43f0-8d79-ea0da54a2e49",
+        "nome": "Armadura de Couro",
+        "descricao": "CA 11 + DES = 13.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 5,
+        "slotEquipamento": "vestes",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 11,
+          "classe": "leve",
+          "atributo": "des"
+        },
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "82ce2b66-29ce-4ca9-a248-7101d18d4b94",
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "adaga-4-acao-0",
+          "adaga-4-acao-0-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "82ce2b66-29ce-4ca9-a248-7101d18d4b94-2",
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "segunda-adaga-4-acao-bonus-1",
+          "segunda-adaga-4-acao-bonus-1-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_fraca"
+      },
+      {
+        "id": "c0e8edc0-911b-4be2-a945-bf9006f54b3f",
+        "nome": "Foice",
+        "descricao": "Ataque +1; dano 1d4-1 cortante.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "foice-1-acao-2"
+        ],
+        "tipoArma": "foice",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "816d1d1a-2c5c-424f-9b04-e334d88b7cc2",
+        "nome": "Orbe (foco arcano)",
+        "descricao": "Foco de conjuração.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "58561082-8080-4aec-ac1e-32e081f3f341",
+        "nome": "Livro das Sombras",
+        "descricao": "Pacto do Tomo: truques e rituais extras; também serve de foco.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "538ab031-4b9a-406d-885b-8823ce8ee1b3",
+        "nome": "Kit de Falsificação",
+        "descricao": "Cria documentos, selos e assinaturas falsos.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 2.5,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "38184cf9-1c17-4560-8d69-a71eeeea8f84",
+        "nome": "Livro de ocultismo e Kit de Estudioso",
+        "descricao": "Pacote inicial do Bruxo.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 7,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "260b8104-423f-41d5-b120-a5ad3ac1a2f2",
+        "nome": "Fantasia e roupas finas",
+        "descricao": "Do antecedente Charlatão. Úteis para golpes e disfarces.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 3,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "e3790670-aaa3-4c74-8d3d-c9b8ec5fb71f",
+        "nome": "Moedas — 30 PO",
+        "descricao": "Conforme a ficha.",
+        "tipo": "moeda",
+        "quantidade": 30,
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    ]
+  }
 }

@@ -38,7 +38,13 @@
     "fogo"
   ],
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples"],"armaduras":[],"maestrias":[]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples"
+    ],
+    "armaduras": [],
+    "maestrias": []
+  },
   "sentidos": "Visão no Escuro 18 m. Percepção passiva 13.",
   "idiomas": "Comum; mais 2 idiomas pendentes de escolha (sugestão: Dracônico e Élfico).",
   "pericias": {
@@ -96,19 +102,27 @@
   "passivas": [
     {
       "nome": "Passivas | sentidos e defesas",
-      "descricao": "Visão no escuro 18 m · Percepção passiva 13 · Resistência a dano ígneo."
+      "descricao": "Visão no escuro 18 m · Percepção passiva 13 · Resistência a dano ígneo.",
+      "id": "passiva-1",
+      "ativa": true
     },
     {
       "nome": "Passivas | treinamentos",
-      "descricao": "Armas simples; sem armaduras. Kit de Falsificação. Habilidoso (Charlatão): Percepção, Intuição e Furtividade. Classe: Persuasão e Intimidação. Antecedente: Enganação e Prestidigitação. Salvaguardas proficientes: CON e CAR."
+      "descricao": "Armas simples; sem armaduras. Kit de Falsificação. Habilidoso (Charlatão): Percepção, Intuição e Furtividade. Classe: Persuasão e Intimidação. Antecedente: Enganação e Prestidigitação. Salvaguardas proficientes: CON e CAR.",
+      "id": "passiva-2",
+      "ativa": true
     },
     {
       "nome": "Passivas | preparação e origem",
-      "descricao": "Ao ganhar nível de Feiticeiro, pode trocar uma magia da sua seleção por outra elegível. Magias de origem aberrante e Repreensão Diabólica ficam sempre preparadas. Raio de Fogo e Taumaturgia vêm do legado Infernal."
+      "descricao": "Ao ganhar nível de Feiticeiro, pode trocar uma magia da sua seleção por outra elegível. Magias de origem aberrante e Repreensão Diabólica ficam sempre preparadas. Raio de Fogo e Taumaturgia vêm do legado Infernal.",
+      "id": "passiva-3",
+      "ativa": true
     },
     {
       "nome": "Passivas | concentração e Feitiçaria Inata",
-      "descricao": "Mantenha uma só concentração por vez. Ao sofrer dano, use a salvaguarda de CON em Actions. Feitiçaria Inata melhora as magias de Feiticeiro. As recebidas somente pelo legado Infernal usam seus valores normais."
+      "descricao": "Mantenha uma só concentração por vez. Ao sofrer dano, use a salvaguarda de CON em Actions. Feitiçaria Inata melhora as magias de Feiticeiro. As recebidas somente pelo legado Infernal usam seus valores normais.",
+      "id": "passiva-4",
+      "ativa": true
     }
   ],
   "recursos": [
@@ -203,7 +217,9 @@
         "dano": "1d4+2",
         "alcanceM": 1.5,
         "elemento": "perfurante"
-      }
+      },
+      "requerItemEquipado": "71b23b93-2133-553f-824a-d9667fa2929d",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "0efe3fc9-7f19-5259-ae74-97e87627d6c4",
@@ -215,7 +231,26 @@
           "tipo": "bonus",
           "quantidade": 1
         }
-      ]
+      ],
+      "requisitosUso": {
+        "aposAtaque": true,
+        "tagsAtaqueAnterior": [
+          "arma"
+        ],
+        "umaVezPorTurno": "0efe3fc9-7f19-5259-ae74-97e87627d6c4"
+      },
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4",
+        "elemento": "perfurante",
+        "alcanceM": 1.5,
+        "tags": [
+          "arma"
+        ]
+      },
+      "requerItemEquipado": "71b23b93-2133-553f-824a-d9667fa2929d-2",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "631ebb73-ecdc-5df0-8524-ee8810e1dec6",
@@ -234,7 +269,9 @@
         "dano": "1d8",
         "alcanceM": 1.5,
         "elemento": "perfurante"
-      }
+      },
+      "requerItemEquipado": "f5841857-a1f4-5d62-ae62-6845f65994bd",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "eb1e3e85-d216-544d-8954-deb312f465a1",
@@ -253,7 +290,9 @@
         "dano": "1d6",
         "alcanceM": 1.5,
         "elemento": "perfurante"
-      }
+      },
+      "requerItemEquipado": "f5841857-a1f4-5d62-ae62-6845f65994bd",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "e77f6f72-2afe-5263-9fe5-78f297b89e18",
@@ -265,7 +304,17 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 2,
+        "dano": "1",
+        "elemento": "contundente",
+        "alcanceM": 1.5,
+        "tags": [
+          "desarmado"
+        ]
+      }
     },
     {
       "id": "be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe",
@@ -277,7 +326,21 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Agarrado",
+          "condicao": "agarrado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe-derrubar",
@@ -289,7 +352,22 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Caído",
+          "condicao": "caido",
+          "turnos": 1,
+          "expira": "fim_origem"
+        }
+      }
     },
     {
       "id": "be7ecce8-1c0b-5ee4-a39b-09dc4c33f0fe-empurrar",
@@ -356,7 +434,11 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "esquivar": true
+      }
     },
     {
       "id": "866a7e13-2281-5051-9a5a-c35e6718fede",
@@ -464,7 +546,8 @@
           "tipo": "reacao",
           "quantidade": 1
         }
-      ]
+      ],
+      "gatilho": "sair_alcance"
     },
     {
       "id": "dfbea7cf-87b9-56c6-9947-23d1fecf7a81",
@@ -569,7 +652,18 @@
         }
       ],
       "circuloBase": 2,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "car",
+        "cd": 13,
+        "alcanceM": 18,
+        "raioM": 6,
+        "efeitoFalha": {
+          "nome": "Emoções acalmadas",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "58cc56ae-8d2b-5b21-b9e3-89661a708e38",
@@ -607,7 +701,17 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "infernal"
+      "origem": "infernal",
+      "gatilho": "sofrer_dano",
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "des",
+        "cd": 13,
+        "dano": "2d10",
+        "metade": true,
+        "elemento": "fogo",
+        "alcanceM": 18
+      }
     },
     {
       "id": "504bc18e-d20e-5bc0-ae01-5109c41f7f29",
@@ -629,7 +733,7 @@
       "origem": "feiticeiro",
       "automacao": {
         "tipo": "projeteis",
-        "alcanceM": 36,
+        "alcanceM": 18,
         "dano": "1d4+1",
         "elemento": "energetico"
       },
@@ -657,7 +761,21 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "sab",
+        "cd": 13,
+        "dano": "3d6",
+        "alcanceM": 18,
+        "metade": true,
+        "elemento": "psiquico",
+        "efeitoFalha": {
+          "nome": "Fuga Dissonante",
+          "turnos": 1,
+          "consomeReacao": true
+        }
+      }
     },
     {
       "id": "37b24322-2215-5331-965a-807990ae5d7b",
@@ -676,7 +794,24 @@
         }
       ],
       "circuloBase": 1,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "for",
+        "cd": 13,
+        "dano": "2d6",
+        "alcanceM": 0,
+        "raioM": 3,
+        "origemArea": "conjurador",
+        "excluirConjurador": true,
+        "metade": true,
+        "elemento": "necrotico",
+        "efeitoFalha": {
+          "nome": "Sem reações",
+          "turnos": 1,
+          "consomeReacao": true
+        }
+      }
     },
     {
       "id": "2f90954a-d50d-59e5-9ce3-5db937277ef6",
@@ -767,7 +902,7 @@
         "tipo": "ataque",
         "bonus": 5,
         "dano": "1d10",
-        "alcanceM": 36,
+        "alcanceM": 18,
         "elemento": "fogo"
       },
       "origem": "infernal"
@@ -784,7 +919,14 @@
         }
       ],
       "circuloBase": 0,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "elemental",
+        "alcanceM": 18
+      }
     },
     {
       "id": "8a630979-0219-5dff-a276-6ed2ccfddfbf",
@@ -798,7 +940,14 @@
         }
       ],
       "circuloBase": 0,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d8",
+        "elemento": "raio",
+        "alcanceM": 1.5
+      }
     },
     {
       "id": "e93019ad-ecdd-5f11-946e-d279651f006d",
@@ -812,7 +961,20 @@
         }
       ],
       "circuloBase": 0,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "int",
+        "cd": 13,
+        "dano": "1d6",
+        "alcanceM": 18,
+        "elemento": "psiquico",
+        "efeitoFalha": {
+          "nome": "Mente Talhada",
+          "turnos": 2,
+          "penalidadeProximaSalva": "1d4"
+        }
+      }
     },
     {
       "id": "5fbeafc9-0922-5880-b672-b5ef59286e54",
@@ -840,7 +1002,24 @@
         }
       ],
       "circuloBase": 0,
-      "origem": "feiticeiro"
+      "origem": "feiticeiro",
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 0,
+        "efeito": {
+          "nome": "Proteção contra Lâminas",
+          "tipo": "buff",
+          "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
+          "restricoes": {
+            "penalidadeAtaquesContra": "1d4"
+          },
+          "duracao": {
+            "turnos": 10,
+            "expira": "inicio_origem"
+          }
+        }
+      }
     },
     {
       "id": "f8546290-ecf3-5274-8eb7-2be3d047fb1a",
@@ -900,7 +1079,7 @@
       "origem": "feiticeiro",
       "automacao": {
         "tipo": "projeteis",
-        "alcanceM": 36,
+        "alcanceM": 18,
         "dano": "1d4+1",
         "elemento": "energetico"
       },
@@ -911,6 +1090,88 @@
         "repetirAlvo": true
       },
       "varianteDe": "504bc18e-d20e-5bc0-ae01-5109c41f7f29"
+    },
+    {
+      "id": "59b60ef8-41ac-54b4-876d-398ba3b80279-arremesso",
+      "nome": "Adaga +4 · arremesso | ação",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nCorpo a corpo 1,5 m ou arremesso 6/18 m · Perfurante.\nNormal [1d20+4]\nDano [1d4+2] · Crítico [2d4+2]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4+2",
+        "alcanceM": 18,
+        "elemento": "perfurante",
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "59b60ef8-41ac-54b4-876d-398ba3b80279",
+      "requerItemEquipado": "71b23b93-2133-553f-824a-d9667fa2929d",
+      "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "0efe3fc9-7f19-5259-ae74-97e87627d6c4-arremesso",
+      "nome": "Segunda adaga +4 · arremesso | ação bônus",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nApós atacar com uma adaga Leve na ação Atacar, use a outra no mesmo turno. Uma vez por turno. Perfurante.\nNormal [1d20+4]\nDano [1d4] · Crítico [2d4]",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "aposAtaque": true,
+        "tagsAtaqueAnterior": [
+          "arma"
+        ],
+        "umaVezPorTurno": "0efe3fc9-7f19-5259-ae74-97e87627d6c4"
+      },
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 4,
+        "dano": "1d4",
+        "elemento": "perfurante",
+        "alcanceM": 18,
+        "tags": [
+          "arma"
+        ],
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "0efe3fc9-7f19-5259-ae74-97e87627d6c4",
+      "requerItemEquipado": "71b23b93-2133-553f-824a-d9667fa2929d-2",
+      "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "eb1e3e85-d216-544d-8954-deb312f465a1-arremesso",
+      "nome": "Lança +2 · arremesso | ação · uma mão",
+      "categoria": "acao",
+      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nCorpo a corpo 1,5 m ou arremesso 6/18 m · Perfurante.\nNormal [1d20+2]\nDano [1d6] · Crítico [2d6]",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 2,
+        "dano": "1d6",
+        "alcanceM": 18,
+        "elemento": "perfurante",
+        "alcanceNormalM": 6,
+        "arremesso": true
+      },
+      "varianteArremessoDe": "eb1e3e85-d216-544d-8954-deb312f465a1",
+      "requerItemEquipado": "f5841857-a1f4-5d62-ae62-6845f65994bd",
+      "ataqueLegadoDeItem": true
     }
   ],
   "notas": [
@@ -1012,6 +1273,189 @@
       "a2901594-6ddc-5d12-8dc3-3b6c39321fff",
       "37b24322-2215-5331-965a-807990ae5d7b",
       "e93019ad-ecdd-5f11-946e-d279651f006d"
+    ]
+  },
+  "inventario": {
+    "versaoOcupacao": 5,
+    "capacidadeCargaKg": 75,
+    "itens": [
+      {
+        "id": "f10f7df4-fa81-58a4-b440-d2ec6d4f7e9d",
+        "nome": "Foco Arcano (cristal)",
+        "descricao": "Foco de conjuração.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.1,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "f5841857-a1f4-5d62-ae62-6845f65994bd",
+        "nome": "Lança",
+        "descricao": "Ataque +2; dano 1d6 perfurante (1d8 com duas mãos).",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "631ebb73-ecdc-5df0-8524-ee8810e1dec6",
+          "eb1e3e85-d216-544d-8954-deb312f465a1",
+          "eb1e3e85-d216-544d-8954-deb312f465a1-arremesso"
+        ],
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      },
+      {
+        "id": "71b23b93-2133-553f-824a-d9667fa2929d",
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "59b60ef8-41ac-54b4-876d-398ba3b80279",
+          "59b60ef8-41ac-54b4-876d-398ba3b80279-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "71b23b93-2133-553f-824a-d9667fa2929d-2",
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "0efe3fc9-7f19-5259-ae74-97e87627d6c4",
+          "0efe3fc9-7f19-5259-ae74-97e87627d6c4-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_fraca"
+      },
+      {
+        "id": "e7279c88-c1f2-5dd0-b7b6-88eb9ee3d73d",
+        "nome": "Kit de Explorador de Masmorras",
+        "descricao": "Mochila, caixa para fogo, cantil, corda, estrepes, 2 potes de óleo, pé de cabra, 10 dias de rações, 10 tochas.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 27.5,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "9a6372cc-ba03-5bff-9af1-046be5850f9a",
+        "nome": "Moedas — 28 PO",
+        "descricao": "Saldo do kit inicial do Feiticeiro (opção A).",
+        "tipo": "moeda",
+        "quantidade": 28,
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
     ]
   }
 }

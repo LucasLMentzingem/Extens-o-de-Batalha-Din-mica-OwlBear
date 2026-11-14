@@ -449,3 +449,18 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Capturas conferidas: `work/playwright-v0726/shot-0.png`, `work/playwright-v0726-carregado/shot-0.png`, `work/playwright-v0726-catalogo/shot-0.png`, `work/inventario-v0716.png` e `work/livro-habilidades-v0716.png`.
 - Próxima expansão sugerida: operações de transferir, saquear e furtar reutilizando o item portátil já implementado.
 
+### Versão 0.7.27: iniciativa conjunta e fichas materializadas
+
+- [x] Mostrar ao jogador somente a iniciativa da ficha de PJ vinculada ao seu ID.
+- [x] Mostrar ao mestre todos os jogadores e NPCs com iniciativa pendente.
+- [x] Permitir selecionar qualquer subconjunto, selecionar todos ou limpar a seleção.
+- [x] Enviar um único lote ao Dice+, com um d20 e ajuste independente para cada personagem.
+- [x] Resolver lote parcial sem iniciar os turnos antes das iniciativas restantes.
+- [x] Suportar corretamente também um lote com apenas uma ficha.
+- [x] Adicionar exclusão confirmada de fichas ao Controle de fichas do mestre, limitada à preparação.
+- [x] Materializar nos sete JSONs de jogadores todas as migrações atuais de inventário, mãos, ataques derivados, magias preparadas, pesos e limite de 18 m.
+
+- Testes do motor: 86 aprovados.
+- Integração simulada aprovada para visão isolada do jogador, seleção de jogadores e NPCs pelo GM, lote com duas fichas, lote restante unitário e transição para a rodada.
+- Capturas conferidas: `work/iniciativa-lote-v0727.png` e `work/playwright-v0727/shot-0.png`.
+

@@ -34,7 +34,21 @@
     "andar": 10.5
   },
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["leve","media","escudo"],"maestrias":["arco_longo","cimitarra"]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [
+      "leve",
+      "media",
+      "escudo"
+    ],
+    "maestrias": [
+      "arco_longo",
+      "cimitarra"
+    ]
+  },
   "sentidos": "Visão no Escuro 18 m. Percepção passiva 16.",
   "idiomas": "Élfico; Silvestre (idioma raro, depende do mestre; alternativa: Anão); Comum mais 2 idiomas pendentes de escolha.",
   "pericias": {
@@ -130,7 +144,9 @@
         "dano": "1d8+3",
         "elemento": "perfurante",
         "alcanceM": 18
-      }
+      },
+      "requerItemEquipado": "cc8e6520-186a-5ade-ab7d-4051d5022a3d",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "cimitarra-5-acao-1",
@@ -149,7 +165,9 @@
         "dano": "1d6+3",
         "elemento": "cortante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "6e35b573-f770-57cd-8c00-632ec9b47442",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "espada-curta-5-acao-ataque-principal-2",
@@ -168,7 +186,9 @@
         "dano": "1d6+3",
         "elemento": "perfurante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "746a489e-3118-5b0d-8d97-885ca01c7ff2",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "espada-curta-extra-5-na-acao-atacar-agil-3",
@@ -186,7 +206,9 @@
         "bonus": 5,
         "dano": "1d6",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "746a489e-3118-5b0d-8d97-885ca01c7ff2",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "golpe-desarmado-3-acao-4",
@@ -198,19 +220,43 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 3,
+        "dano": "2",
+        "elemento": "contundente",
+        "alcanceM": 1.5,
+        "tags": [
+          "desarmado"
+        ]
+      }
     },
     {
       "id": "agarrar-ou-empurrar-acao-5",
-      "nome": "Agarrar ou empurrar | ação",
+      "nome": "Agarrar | ação",
       "categoria": "acao",
-      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 11.",
+      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
         {
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Agarrado",
+          "condicao": "agarrado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "disparada-acao-6",
@@ -252,7 +298,11 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "esquivar": true
+      }
     },
     {
       "id": "ajudar-acao-9",
@@ -649,7 +699,20 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 1
+      "circuloBase": 1,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 1.5,
+        "efeito": {
+          "nome": "Passos Largos",
+          "tipo": "buff",
+          "descricao": "+3 m de deslocamento.",
+          "modificadores": {
+            "deslocamentoM": 3
+          },
+          "removeEm": "descanso_longo"
+        }
+      }
     },
     {
       "id": "truque-acudir-os-moribundos-iniciado-33",
@@ -662,7 +725,11 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 0
+      "circuloBase": 0,
+      "automacao": {
+        "tipo": "estabilizar",
+        "alcanceM": 4.5
+      }
     },
     {
       "id": "truque-arte-druidica-elfo-34",
@@ -688,7 +755,72 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 0
+      "circuloBase": 0,
+      "concentracao": true,
+      "automacao": {
+        "tipo": "conceder_dado",
+        "alcanceM": 1.5,
+        "modificador": {
+          "nome": "Orientação",
+          "formula": "1d4",
+          "tipos": [
+            "teste"
+          ],
+          "removeAoUsar": true
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-5-derrubar",
+      "nome": "Derrubar | ação",
+      "categoria": "acao",
+      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Caído",
+          "condicao": "caido",
+          "turnos": 1,
+          "expira": "fim_origem"
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-5-empurrar",
+      "nome": "Empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5,
+          "direcao": "afastar"
+        }
+      }
     }
   ],
   "equipamentos": [
@@ -744,27 +876,39 @@
   "passivas": [
     {
       "nome": "Passiva | Arquearia",
-      "descricao": "+2 nas jogadas de ataque com armas à distância (já incluído no Arco Longo)."
+      "descricao": "+2 nas jogadas de ataque com armas à distância (já incluído no Arco Longo).",
+      "id": "passiva-1",
+      "ativa": true
     },
     {
       "nome": "Passiva | Maestria em Arma",
-      "descricao": "Ativas: Arco Longo (Lentidão) e Cimitarra (Ágil). Pode trocar os tipos a cada descanso longo."
+      "descricao": "Ativas: Arco Longo (Lentidão) e Cimitarra (Ágil). Pode trocar os tipos a cada descanso longo.",
+      "id": "passiva-2",
+      "ativa": true
     },
     {
       "nome": "Passiva | Explorador Hábil",
-      "descricao": "Especialização em Percepção (+6). Dois idiomas extras: Élfico e Silvestre (Silvestre depende do mestre; alternativa Anão)."
+      "descricao": "Especialização em Percepção (+6). Dois idiomas extras: Élfico e Silvestre (Silvestre depende do mestre; alternativa Anão).",
+      "id": "passiva-3",
+      "ativa": true
     },
     {
       "nome": "Passiva | Iniciado em Magia (Druida)",
-      "descricao": "Usa Sabedoria. Truques: Orientação e Acudir os Moribundos. Palavra Curativa: 1x grátis por descanso longo (controle 1/1) e também com espaços de magia."
+      "descricao": "Usa Sabedoria. Truques: Orientação e Acudir os Moribundos. Palavra Curativa: 1x grátis por descanso longo (controle 1/1) e também com espaços de magia.",
+      "id": "passiva-4",
+      "ativa": true
     },
     {
       "nome": "Passiva | Elfo Silvestre",
-      "descricao": "Visão no Escuro 18 m. Ancestralidade Feérica: Vantagem em salvaguardas contra ficar Enfeitiçado. Transe: descanso longo em 4 h, sem dormir; magia não o faz dormir. Sentidos Aguçados: Percepção. Truque Arte Druídica.  Passos Largos usa o saldo no topo."
+      "descricao": "Visão no Escuro 18 m. Ancestralidade Feérica: Vantagem em salvaguardas contra ficar Enfeitiçado. Transe: descanso longo em 4 h, sem dormir; magia não o faz dormir. Sentidos Aguçados: Percepção. Truque Arte Druídica.  Passos Largos usa o saldo no topo.",
+      "id": "passiva-5",
+      "ativa": true
     },
     {
       "nome": "Passiva | Proficiências",
-      "descricao": "Armas simples e marciais; armaduras leves, médias e escudos. Ferramentas de Cartógrafo. Perícias: Furtividade, Sobrevivência (Guia); Percepção (Elfo); Intuição, Lidar com Animais, Atletismo (Guardião). Salvaguardas: FOR e DES."
+      "descricao": "Armas simples e marciais; armaduras leves, médias e escudos. Ferramentas de Cartógrafo. Perícias: Furtividade, Sobrevivência (Guia); Percepção (Elfo); Intuição, Lidar com Animais, Atletismo (Guardião). Salvaguardas: FOR e DES.",
+      "id": "passiva-6",
+      "ativa": true
     }
   ],
   "notas": [
@@ -772,5 +916,215 @@
       "titulo": "Fonte",
       "descricao": "Convertida da ficha Forge Zurich-Nv3.json."
     }
-  ]
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": [
+      "1-saraivada-de-espinhos-26",
+      "1-marca-do-predador-sempre-concentracao-27",
+      "1-curar-ferimentos-28",
+      "1-emaranhar-concentracao-29",
+      "1-falar-com-animais-ritual-30",
+      "1-palavra-curativa-iniciado-31",
+      "1-passos-largos-elfo-32"
+    ]
+  },
+  "inventario": {
+    "versaoOcupacao": 5,
+    "capacidadeCargaKg": 90,
+    "itens": [
+      {
+        "id": "cec923eb-4c1d-5878-a3bc-733544cbb4d0",
+        "nome": "Armadura de Couro Batido",
+        "descricao": "CA 12 + DES = 15. Sem penalidade em Furtividade.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 12,
+          "classe": "leve",
+          "atributo": "des"
+        },
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "cc8e6520-186a-5ade-ab7d-4051d5022a3d",
+        "nome": "Arco Longo",
+        "descricao": "Ataque +7; dano 1d8+3 perfurante; 45/180 m. Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "arco-longo-7-acao-0"
+        ],
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "arma_distancia"
+      },
+      {
+        "id": "3b63a32a-a1e2-50e0-9d83-830373b4868d",
+        "nome": "Aljava com 20 Flechas",
+        "descricao": "Após a luta, 1 minuto recupera metade das flechas usadas. Controle a munição manualmente.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.025,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "6e35b573-f770-57cd-8c00-632ec9b47442",
+        "nome": "Cimitarra",
+        "descricao": "Ataque +5; dano 1d6+3 cortante. Ágil.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "cimitarra-5-acao-1"
+        ],
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "746a489e-3118-5b0d-8d97-885ca01c7ff2",
+        "nome": "Espada Curta",
+        "descricao": "Ataque extra +5; dano 1d6 perfurante.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "espada-curta-5-acao-ataque-principal-2",
+          "espada-curta-extra-5-na-acao-atacar-agil-3"
+        ],
+        "tipoArma": "espada_curta",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_fraca"
+      },
+      {
+        "id": "922046ca-16ce-54b2-b8c9-58f270b27046",
+        "nome": "Foco Druídico (ramo de visco)",
+        "descricao": "Foco de conjuração.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 0.1,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "24d40c0b-b311-5964-b3e2-45ff098c92e4",
+        "nome": "Kit de Aventureiro",
+        "descricao": "Mochila, caixa para fogo, cantil, corda, 2 potes de óleo, 10 dias de rações, saco de dormir, 10 tochas.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 20,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "67860861-316e-5f77-9988-32e489d4508d",
+        "nome": "Moedas — 7 PO",
+        "descricao": "Saldo do kit inicial do Guardião (opção A).",
+        "tipo": "moeda",
+        "quantidade": 7,
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    ]
+  }
 }

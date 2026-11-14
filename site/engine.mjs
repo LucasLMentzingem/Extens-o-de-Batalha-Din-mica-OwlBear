@@ -792,7 +792,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','encerrar','descanso','remover','alternarCombate','definirRecurso'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -879,6 +879,19 @@ export async function aplicar(s,c,u,rolar) {
       a.init=(await resultado('1d20'+soma(mod(a.ficha.atributos.des)),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
       iniciarTurnos(s);
       break;
+    case 'iniciativas': {
+      exigir(s.fase==='iniciativa'&&Array.isArray(c.atores)&&c.atores.length>0,'Selecione ao menos uma ficha com iniciativa pendente.');
+      const ids=[...new Set(c.atores)];
+      exigir(ids.length===c.atores.length,'Uma ficha foi selecionada mais de uma vez.');
+      const participantes=ids.map(id=>s.atores.find(x=>x.id===id));
+      exigir(participantes.every(x=>x&&x.emCombate!==false&&x.init===null),'Uma das iniciativas já foi resolvida ou está fora do combate.');
+      const formulas=participantes.map(x=>'1d20'+soma(mod(x.ficha.atributos.des)));
+      const resultados=await resultadoLote(formulas,{tipo:'iniciativa_lote',titulo:'Iniciativas',rotuloInstancia:'Iniciativa',unidadeResultado:'de iniciativa',descricaoLote:'Revise cada iniciativa. O Dice+ lançará todos os dados juntos.',instancias:participantes.map(x=>({titulo:x.nome,alvo:x.ficha.tipo==='pj'?'Jogador':'NPC'}))});
+      participantes.forEach((x,i)=>{x.init=resultados[i].total;});
+      msg='Iniciativas • '+participantes.map((x,i)=>x.nome+' '+resultados[i].total).join(' · ');
+      iniciarTurnos(s);
+      break;
+    }
     case 'ajustar': {
       exigir(gm && a && inteiro(c.valor,-9999,9999),'Ajuste reservado ao mestre.');
       if(c.campo==='pv'){if(c.valor>=0)curarAtor(a,c.valor);else receberDanoBruto(a,-c.valor);}

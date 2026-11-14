@@ -34,7 +34,21 @@
     "andar": 9
   },
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["leve","media","escudo"],"maestrias":["arco_longo","cimitarra"]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [
+      "leve",
+      "media",
+      "escudo"
+    ],
+    "maestrias": [
+      "arco_longo",
+      "cimitarra"
+    ]
+  },
   "sentidos": "Visão no escuro 18 m; Percepção passiva 16",
   "idiomas": "Comum; Dracônico; Abissal.",
   "pericias": {
@@ -120,7 +134,9 @@
         "dano": "1d8+3",
         "elemento": "perfurante",
         "alcanceM": 18
-      }
+      },
+      "requerItemEquipado": "769325a2-24ec-498b-9e17-4f841f982ba4",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "cimitarra-5-acao-1",
@@ -139,7 +155,9 @@
         "dano": "1d6+3",
         "elemento": "cortante",
         "alcanceM": 1.5
-      }
+      },
+      "requerItemEquipado": "36992e04-d209-4de3-a57e-1d44a1dafa0e",
+      "ataqueLegadoDeItem": true
     },
     {
       "id": "golpe-desarmado-2-acao-2",
@@ -151,19 +169,43 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 2,
+        "dano": "1",
+        "elemento": "contundente",
+        "alcanceM": 1.5,
+        "tags": [
+          "desarmado"
+        ]
+      }
     },
     {
       "id": "agarrar-ou-empurrar-acao-3",
-      "nome": "Agarrar ou empurrar | ação",
+      "nome": "Agarrar | ação",
       "categoria": "acao",
-      "descricao": "Em lugar de causar dano com um golpe desarmado, escolha agarrar (mão livre), derrubar ou empurrar 1,5 m. Alvo no máximo um tamanho maior. Ele faz salvaguarda de FOR ou DES, à escolha dele, CD 10.",
+      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
       "custo": [
         {
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Agarrado",
+          "condicao": "agarrado",
+          "turnos": 10
+        }
+      }
     },
     {
       "id": "disparada-acao-4",
@@ -205,7 +247,11 @@
           "tipo": "acao",
           "quantidade": 1
         }
-      ]
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "esquivar": true
+      }
     },
     {
       "id": "ajudar-acao-7",
@@ -543,7 +589,23 @@
         }
       ],
       "circuloBase": 1,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 18,
+        "efeito": {
+          "nome": "Escudo da Fé",
+          "tipo": "buff",
+          "descricao": "+2 na Classe de Armadura.",
+          "modificadores": {
+            "ca": 2
+          },
+          "duracao": {
+            "turnos": 100,
+            "expira": "inicio_origem"
+          }
+        }
+      }
     },
     {
       "id": "truque-golpe-certeiro-29",
@@ -577,7 +639,75 @@
         }
       ],
       "circuloBase": 0,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 0,
+        "efeito": {
+          "nome": "Proteção contra Lâminas",
+          "tipo": "buff",
+          "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
+          "restricoes": {
+            "penalidadeAtaquesContra": "1d4"
+          },
+          "duracao": {
+            "turnos": 10,
+            "expira": "inicio_origem"
+          }
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3-derrubar",
+      "nome": "Derrubar | ação",
+      "categoria": "acao",
+      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "efeitoFalha": {
+          "nome": "Caído",
+          "condicao": "caido",
+          "turnos": 1,
+          "expira": "fim_origem"
+        }
+      }
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3-empurrar",
+      "nome": "Empurrar | ação",
+      "categoria": "acao",
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "salva",
+        "atributos": [
+          "for",
+          "des"
+        ],
+        "cd": 10,
+        "alcanceM": 1.5,
+        "deslocamentoForcado": {
+          "distanciaM": 1.5,
+          "direcao": "afastar"
+        }
+      }
     }
   ],
   "equipamentos": [
@@ -615,15 +745,21 @@
   "passivas": [
     {
       "nome": "Passiva | Herança dracônica",
-      "descricao": "Resistência a dano elétrico e visão no escuro 18 m. Voo Dracônico só é adquirido no nível 5; não disponível nesta ficha de nível 3."
+      "descricao": "Resistência a dano elétrico e visão no escuro 18 m. Voo Dracônico só é adquirido no nível 5; não disponível nesta ficha de nível 3.",
+      "id": "passiva-1",
+      "ativa": true
     },
     {
       "nome": "Passiva | Conhecimento do Caçador",
-      "descricao": "Enquanto uma criatura está sob sua Marca do Predador, você conhece suas imunidades, resistências e vulnerabilidades, se houver."
+      "descricao": "Enquanto uma criatura está sob sua Marca do Predador, você conhece suas imunidades, resistências e vulnerabilidades, se houver.",
+      "id": "passiva-2",
+      "ativa": true
     },
     {
       "nome": "Passiva | Proficiências e Explorador Hábil",
-      "descricao": "Armas simples e marciais; armaduras leves e médias; escudos; ferramentas de cartógrafo. Resistências proficientes: FOR e DES. Explorador Hábil concede uma especialização e dois idiomas adicionais. O texto marca duas especializações: mantidas para revisão do mestre."
+      "descricao": "Armas simples e marciais; armaduras leves e médias; escudos; ferramentas de cartógrafo. Resistências proficientes: FOR e DES. Explorador Hábil concede uma especialização e dois idiomas adicionais. O texto marca duas especializações: mantidas para revisão do mestre.",
+      "id": "passiva-3",
+      "ativa": true
     }
   ],
   "notas": [
@@ -631,5 +767,145 @@
       "titulo": "Fonte",
       "descricao": "Convertida da ficha Forge Dragoberto-Nv3.json."
     }
-  ]
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": [
+      "1-marca-do-predador-25",
+      "1-golpe-constritor-26",
+      "1-curar-ferimentos-27",
+      "1-escudo-da-fe-28"
+    ]
+  },
+  "inventario": {
+    "versaoOcupacao": 5,
+    "capacidadeCargaKg": 75,
+    "itens": [
+      {
+        "id": "36992e04-d209-4de3-a57e-1d44a1dafa0e",
+        "nome": "Cimitarra",
+        "descricao": "Acuidade, Leve; maestria Ágil; ataque +5, dano 1d6+3 cortante.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "cimitarra-5-acao-1"
+        ],
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "769325a2-24ec-498b-9e17-4f841f982ba4",
+        "nome": "Arco longo",
+        "descricao": "Arquearia; ataque +7, dano 1d8+3 perfurante; maestria Lentidão.",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "equipado": true,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "arco-longo-7-acao-0"
+        ],
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma",
+        "equipadoSlot": "arma_distancia"
+      },
+      {
+        "id": "6f5f4ac2-f7de-4cfd-908b-741993020c33",
+        "nome": "20 flechas e aljava",
+        "descricao": "20 flechas na importação; controlar munição manualmente.",
+        "tipo": "etc",
+        "quantidade": 20,
+        "empilhavel": true,
+        "pesoKg": 0.025,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "3872cacd-1601-4638-bc91-1a08b7342d63",
+        "nome": "Kit de Aventureiro",
+        "descricao": "Mantido com a denominação do texto; conteúdo e saldo de ouro não especificados.",
+        "tipo": "etc",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 20,
+        "slotEquipamento": null,
+        "equipado": false,
+        "preferido": true,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      },
+      {
+        "id": "371ced41-8dd8-4544-a15d-73cf6dcdf7a4",
+        "nome": "Armadura Couro Batido",
+        "descricao": "CA 13",
+        "tipo": "equipamento",
+        "quantidade": 1,
+        "empilhavel": false,
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "equipado": true,
+        "preferido": false,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 13,
+          "classe": "leve"
+        },
+        "equipadoSlot": "vestes"
+      }
+    ]
+  }
 }
