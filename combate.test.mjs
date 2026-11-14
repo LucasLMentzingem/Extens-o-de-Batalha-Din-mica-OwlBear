@@ -1004,3 +1004,11 @@ test('#28 Lentidão, Garantido e Ancestralidade Feérica',async()=>{
   await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'enfeiticar pessoa').id,alvos:[b.id]},player,r.rolar).catch(e=>aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'enfeiticar pessoa').id,alvo:b.id},player,r.rolar));
   assert.match(r.formulas.find(x=>x.meta.tipo==='salvaguarda').f,/^2d20kh1/);
 });
+
+test('#31 Inspiração de Bardo só em outra criatura; #21 Torrente de Golpes é desarmada e contundente',async()=>{
+  let {s,a,b}=await duelo('hannah-montana');
+  const insp=opRev(a,'inspiracao de bardo');
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:insp.id,alvo:a.id},player,roladorSala().rolar),/não pode ser você/);
+  const tor=opRev((await duelo('loteria')).a,'torrente');
+  assert.ok(tor.automacao.ataques.every(r=>r.tags.includes('desarmado')&&r.elemento==='contundente'));
+});

@@ -798,6 +798,9 @@
           "removeAoUsar": true,
           "removeEm": "descanso_longo"
         }
+      },
+      "requisitosUso": {
+        "alvoDiferenteDoConjurador": true
       }
     },
     {

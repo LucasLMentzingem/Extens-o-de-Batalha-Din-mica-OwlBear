@@ -171,6 +171,8 @@ function corrigirMagiasRevisao(f){
   for(const o of f.opcoes??[]){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
+    if(nome==='inspiracao de bardo'&&o.automacao?.tipo==='conceder_dado')o.requisitosUso={...(o.requisitosUso??{}),alvoDiferenteDoConjurador:true}; // #31 é para outra criatura
+    if(/^torrente de golpes/.test(completo)&&o.automacao?.tipo==='ataque'){for(const r of [o.automacao,...(o.automacao.ataques??[])]){r.elemento??='contundente';r.tags=[...new Set([...(r.tags??[]),'desarmado'])];}} // #21
     if(o.categoria!=='magia')continue;
     if(/concentra[cç][aã]o/.test(completo))o.concentracao=true;          // #15 nome diz concentração → motor controla
     if(nome==='enfeiticar pessoa')delete o.concentracao;                  // #14 Enfeitiçar Pessoa não é concentração (2024)
@@ -385,7 +387,7 @@ export function validar(f) {
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
-      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','somenteForaCombate'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','somenteForaCombate'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
       exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
@@ -720,6 +722,7 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.aposAcerto)exigir(acertos.length>0,'Use esta habilidade somente depois de acertar um ataque neste turno.');
   if(r.tagsAtaqueAnterior?.length)exigir(anterior&&r.tagsAtaqueAnterior.every(t=>anterior.tags?.includes(t)),'O ataque anterior não cumpre os requisitos desta habilidade.');
   if(r.umaVezPorTurno)exigir(!a.usosTurno?.[r.umaVezPorTurno],'Esta habilidade já foi usada neste turno.');
+  if(r.alvoDiferenteDoConjurador)exigir(!alvo||alvo.id!==a.id,'Escolha outra criatura (não pode ser você).'); // #31
   if(r.alvoDiferenteDoAnterior)exigir(anterior&&alvo&&anterior.alvo!==alvo.id,'Escolha uma criatura diferente do alvo anterior.');
   if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distancia(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
   if(r.umaVezPorTurno)a.usosTurno[r.umaVezPorTurno]=true;

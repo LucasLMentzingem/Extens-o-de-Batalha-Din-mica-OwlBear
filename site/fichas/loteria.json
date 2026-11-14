@@ -188,14 +188,26 @@
             "tipo": "ataque",
             "bonus": 5,
             "dano": "1d6+3",
-            "alcanceM": 1.5
+            "alcanceM": 1.5,
+            "elemento": "contundente",
+            "tags": [
+              "desarmado"
+            ]
           },
           {
             "tipo": "ataque",
             "bonus": 5,
             "dano": "1d6+3",
-            "alcanceM": 1.5
+            "alcanceM": 1.5,
+            "elemento": "contundente",
+            "tags": [
+              "desarmado"
+            ]
           }
+        ],
+        "elemento": "contundente",
+        "tags": [
+          "desarmado"
         ]
       },
       "selecao": {
