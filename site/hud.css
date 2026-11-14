@@ -111,6 +111,16 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .recursos-rolagem button[aria-pressed=true]{border-color:#f0ad58;background:#704731;color:#fff1ca;box-shadow:0 0 10px #e7953c88}
 .dados-bloqueados span{padding:5px 7px;border:1px solid #d08745;border-radius:5px;background:#3c291f;color:#ffd9a3}.dados-bloqueados b{font:700 14px Consolas,monospace;color:#ffb963}
 .resultados-lote article.dano-extra{border-color:#d08745;background:#2b211b}.resultados-lote article.dano-extra output{color:#ffc178}
+.defesas-dano{display:grid!important;gap:6px!important;padding:8px;border:1px solid #506b79;border-radius:6px;background:#142126}
+.defesas-dano>small{color:#9ed5e8;font-weight:700}.defesas-dano>div{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-start!important}
+.defesas-dano span{display:flex;gap:7px;align-items:center;padding:5px 7px;border:1px solid #668899;border-radius:5px;background:#20313a;color:#dcecf3}.defesas-dano i{font-style:normal;color:#9ed5e8}
+.defesas-instancia{display:flex;gap:4px;flex-wrap:wrap}.defesas-instancia span{padding:3px 5px;border:1px solid #668899;border-radius:4px;background:#20313a;color:#bfe6f4;font-size:10px}
+.relatorios-dano{display:grid!important;gap:8px!important;overflow:auto;align-content:start}
+.relatorios-dano>article{display:grid;gap:6px;padding:8px;border:1px solid #756148;border-radius:7px;background:#151d1c}
+.relatorios-dano header,.relatorios-dano footer{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.relatorios-dano header b{margin-left:auto;color:#ffcf8a}
+.parcela-dano{display:grid;grid-template-columns:1fr auto;gap:3px 8px;padding:6px 8px;border:1px solid color-mix(in srgb,var(--tipo-dano) 55%,#26302f);border-left:5px solid var(--tipo-dano);border-radius:5px;background:color-mix(in srgb,var(--tipo-dano) 16%,#17201f)}
+.parcela-dano span{color:var(--tipo-dano);font-weight:800}.parcela-dano output{padding:0!important;background:none!important;border:0!important;font-size:15px!important}.parcela-dano small{grid-column:1/-1;color:#c8c6c3}
+.relatorios-dano footer{padding-top:4px;border-top:1px solid #4b5048;color:#cfd8d3}.relatorios-dano footer b{color:#fff0bd}
 .grade button.pos-acerto{border-color:#f2a64e!important;box-shadow:0 0 13px #ff9f32,inset 0 0 7px #ffb34966;animation:pulso-pos-acerto 1s ease-in-out infinite alternate}
 .grade button.pos-acerto.selecionado{background:linear-gradient(145deg,#7a4b27,#35281f);box-shadow:0 0 15px #ffb13f,inset 0 0 0 2px #ffd082}
 @keyframes pulso-pos-acerto{to{filter:brightness(1.3);transform:translateY(-1px)}}

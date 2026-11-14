@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
@@ -668,4 +669,26 @@ test('Conteúdo configurado cobre os itens das sete fichas, soldados e Forja do 
  for(const f of [...fichasJogadores,soldado])for(const item of f.equipamentos??f.inventario?.itens??[])assert.ok(nomes.has(normal(item.nome??item.name)),'faltou '+(item.nome??item.name));
  for(const item of catalogoVictor.itens)assert.ok(nomes.has(normal(item.nome)),'faltou '+item.nome);
  assert.equal(conteudoConfigurado.sistemaEquipamentos.alcanceMaximoM,18);assert.equal(conteudoConfigurado.sistemaEquipamentos.status,'Configurado');
+});
+
+test('catálogo de dano cobre os treze tipos oficiais com cor e aliases',()=>{
+ assert.equal(Object.keys(TIPOS_DANO).length,13);assert.equal(normalizarTipoDano('Fire'),'fogo');assert.equal(normalizarTipoDano('Força'),'forca');assert.equal(normalizarTipoDano('Lightning'),'raio');
+ for(const id of Object.keys(TIPOS_DANO)){const info=infoTipoDano(id);assert.match(info.cor,/^#[0-9A-F]{6}$/i);assert.ok(info.nome&&info.simbolo&&info.modelo);}
+});
+test('resolvedor aplica redução, resistência e vulnerabilidade na ordem oficial',()=>{
+ const rel=resolverDano({parcelas:[{valor:28,tipo:'fogo'}],defesas:[{id:'r',nome:'Resistência',operacao:'resistencia',filtro:{tipos:['fogo']}},{id:'v',nome:'Vulnerabilidade',operacao:'vulnerabilidade',filtro:{tipos:['fogo']}}],ajustes:[{id:'red',nome:'Aura',operacao:'reducao_fixa',valor:5}],alvo:{id:'a',nome:'Alvo',pv:50,pvTemporarios:0}});
+ assert.equal(rel.parcelas[0].final,22);assert.equal(rel.danoRecebido,22);assert.deepEqual(rel.parcelas[0].passos.map(x=>x.operacao),['reducao_fixa','resistencia','vulnerabilidade']);
+});
+test('resistências não acumulam e dano misto preserva tipos e tags',()=>{
+ const rel=resolverDano({parcelas:[{valor:9,tipo:'cortante',tags:['lamina','arma']},{valor:6,tipo:'fogo',tags:['elemental']}],defesas:[{id:'l1',nome:'Lâminas',operacao:'resistencia',filtro:{tagsAlguma:['lamina']}},{id:'l2',nome:'Cortante',operacao:'resistencia',filtro:{tipos:['cortante']}},{id:'f',nome:'Fogo',operacao:'resistencia',filtro:{tipos:['fogo']}}],alvo:{id:'a',nome:'Alvo',pv:20,pvTemporarios:2}});
+ assert.deepEqual(rel.parcelas.map(x=>x.final),[4,3]);assert.equal(rel.danoRecebido,7);assert.equal(rel.absorvidoPorPvTemporario,2);assert.equal(rel.pvPerdido,5);assert.equal(rel.pvDepois,15);
+});
+test('imunidade, limiar e excesso produzem relatório aplicável idêntico ao PV',()=>{
+ const imune=resolverDano({parcelas:[{valor:20,tipo:'veneno'}],defesas:[{id:'i',nome:'Imune',operacao:'imunidade',filtro:{tipos:['veneno']}}],alvo:{id:'a',nome:'Alvo',pv:3,pvTemporarios:0}});assert.equal(imune.pvPerdido,0);
+ const baixo=resolverDano({parcelas:[{valor:9,tipo:'contundente'}],defesas:[{id:'l',nome:'Limiar 10',operacao:'limiar',valor:10}],alvo:{id:'a',nome:'Alvo',pv:3,pvTemporarios:0}});assert.equal(baixo.danoRecebido,0);
+ const alto=resolverDano({parcelas:[{valor:12,tipo:'contundente'}],defesas:[{id:'l',nome:'Limiar 10',operacao:'limiar',valor:10}],alvo:{id:'a',nome:'Alvo',pv:3,pvTemporarios:0}}),ator={pv:3,pvTemporarios:0,estadoVida:'consciente',salvaguardasMorte:{sucessos:0,falhas:0},ficha:{pvMaximos:10}};aplicarRelatorioDano(ator,alto,{pvMaximos:10});assert.equal(alto.excesso,9);assert.equal(ator.pv,0);assert.equal(ator.estadoVida,'inconsciente');
+});
+test('defesas podem vir da ficha, passiva, item equipado e buff',()=>{
+ const ator={id:'a',ficha:{id:'f',resistencias:['fogo'],passivas:[{id:'p',ativa:true,defesasDano:[{id:'psi',nome:'Mente',operacao:'resistencia',filtro:{tipos:['psiquico']}}]}],inventario:{itens:[{id:'capa',equipado:true,defesasDano:[{id:'frio',nome:'Capa',operacao:'resistencia',filtro:{tipos:['frio']}}]}]}},efeitosAtivos:[{id:'buff',defesasDano:[{id:'raio',nome:'Proteção',operacao:'imunidade',filtro:{tipos:['raio']}}]}]};
+ assert.deepEqual(new Set(defesasDanoDoAtor(ator).map(x=>x.id)),new Set(['resistencia-fogo-0','psi','frio','raio']));
 });

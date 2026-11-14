@@ -1,7 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.7.28';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId} from './engine.mjs?v=0.7.28';
-import {pronto} from './bridge.mjs?v=0.7.28';
-import {canalHud} from './hud-controller.mjs?v=0.7.28';
+import {detalhes} from './ficha-view.mjs?v=0.7.29';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId} from './engine.mjs?v=0.7.29';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.7.29';
+import {pronto} from './bridge.mjs?v=0.7.29';
+import {canalHud} from './hud-controller.mjs?v=0.7.29';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -9,6 +10,21 @@ const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attr
 const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe||o.automacao?.arremesso?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
 const grupo=o=>o.origemItem||o.categoria==='item'?'Itens':o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
 const normalizar=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const rotuloOperacao=o=>({resistencia:'× 1/2',imunidade:'0',vulnerabilidade:'× 2',reducao_fixa:'− dano',reducao_dado:'− dado',multiplicador:'ajuste',limiar:'limiar'}[o]??o);
+function etiquetasDefesas(alvo,parcelas){
+  const defesas=(alvo?.defesas??[]).map(normalizarDefesaDano).filter(d=>parcelas.some(p=>defesaAplica(d,p)));
+  return defesas.length?'<div class="defesas-instancia">'+defesas.map(d=>'<span>'+esc(d.nome)+' · '+esc(rotuloOperacao(d.operacao))+'</span>').join('')+'</div>':'';
+}
+function painelDefesas(m,extras=[]){
+  const alvos=m.alvosDano??(m.alvoDano?[m.alvoDano]:[]);if(m.ocultarDefesas||!alvos.some(a=>a.defesas?.length))return '';
+  const parcelas=[...(m.parcelasDano??[{tipo:m.tipoDano,tags:[]}]),...extras.map(x=>({tipo:x.elemento,tags:x.tags??[]}))];
+  const linhas=alvos.flatMap(alvo=>alvo.defesas.map(normalizarDefesaDano).filter(d=>parcelas.some(p=>defesaAplica(d,p))).map(d=>({alvo:alvo.nome,d})));
+  return linhas.length?'<div class="defesas-dano"><small>Defesas relevantes '+(alvos.length>1?'por alvo':'do alvo')+'</small><div>'+linhas.map(({alvo,d})=>'<span><b>'+(alvos.length>1?esc(alvo)+' · ':'')+esc(d.nome)+'</b><i>'+esc(rotuloOperacao(d.operacao))+'</i></span>').join('')+'</div></div>':'';
+}
+function resultadoDano(relatorios){
+  if(!relatorios?.length)return '';
+  return '<div class="relatorios-dano">'+relatorios.map(r=>'<article><header><strong>'+esc(r.alvoNome||'Alvo')+'</strong><b>'+esc(r.pvPerdido)+' PV perdidos</b></header>'+r.parcelas.map(p=>{const t=infoTipoDano(p.tipo),passos=p.passos?.map(x=>x.defesa?.nome+' '+x.antes+'→'+x.depois).join(' · ');return '<div class="parcela-dano" style="--tipo-dano:'+t.cor+'"><span>'+esc(t.simbolo)+' '+esc(t.nome)+'</span><output>'+esc(p.rolado)+' → '+esc(p.final)+'</output>'+(passos?'<small>'+esc(passos)+'</small>':'')+'</div>';}).join('')+'<footer><span>Dano recebido <b>'+esc(r.danoRecebido)+'</b></span>'+(r.absorvidoPorPvTemporario?'<span>PV temporários <b>−'+esc(r.absorvidoPorPvTemporario)+'</b></span>':'')+'<span>PV '+esc(r.pvAntes)+' → '+esc(r.pvDepois)+'</span>'+(r.excesso?'<span>Excesso <b>'+esc(r.excesso)+'</b></span>':'')+'</footer></article>').join('')+'</div>';
+}
 const comuns=['golpe desarmado','agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
 const nomeClasse=f=>{const id=f.classes?.[0]?.nome??f.classes?.[0]?.id??'Classe';return ({guardiao:'Guardião',guerreiro:'Guerreiro',bardo:'Bardo',monge:'Monge',feiticeiro:'Feiticeiro',bruxo:'Bruxo'})[normalizar(id)]??id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase());};
 function categoriaHud(o){
@@ -93,17 +109,19 @@ function render(){
       const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??'de dano')+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
       const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id));
       const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva?btn('rerrolarDado','Rerrolar','class="ouro"'):'')+'</div>':'';
-      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
+      const relatorio=resultadoDano(r.relatoriosDano);
+      html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+conteudo+relatorio+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div></section>';
     }else{
       const formulas=d.formulas?.map((x,i)=>document.querySelector('[data-formula-lote="'+i+'"]')?.value||x);
       if(formulas){
-        const campos=formulas.map((valor,i)=>{const info=m.instancias?.[i]??{},modo=modoFormula(valor),rotulo=m.rotuloInstancia??'Seta',botaoModo=(id,label)=>btn('modoDadoLote',label,'data-index="'+i+'" data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');return '<article class="ajuste-seta"><header><strong>'+esc(info.titulo||rotulo+' '+(i+1))+'</strong><small>'+esc(info.alvo||'')+(info.critico?' · crítico':'')+'</small></header><div class="modos-d20" role="group" aria-label="Modo de '+esc(rotulo.toLowerCase())+' '+(i+1)+'">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div><label>Comando do Dice+<input data-formula-lote="'+i+'" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label></article>';}).join('');
+        const campos=formulas.map((valor,i)=>{const info=m.instancias?.[i]??{},modo=modoFormula(valor),rotulo=m.rotuloInstancia??'Seta',botaoModo=(id,label)=>btn('modoDadoLote',label,'data-index="'+i+'" data-modo="'+id+'" aria-pressed="'+(modo===id)+'"'),defesas=m.ocultarDefesas?'':etiquetasDefesas(m.alvosDano?.[i],[m.parcelasDano?.[i]??{tipo:info.tipoDano,tags:[]}]);return '<article class="ajuste-seta"><header><strong>'+esc(info.titulo||rotulo+' '+(i+1))+'</strong><small>'+esc(info.alvo||'')+(info.critico?' · crítico':'')+'</small></header><div class="modos-d20" role="group" aria-label="Modo de '+esc(rotulo.toLowerCase())+' '+(i+1)+'">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div><label>Comando do Dice+<input data-formula-lote="'+i+'" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+defesas+'</article>';}).join('');
         html='<section class="prompt rolagem rolagem-lote"><strong>'+esc(m.titulo||'Ajustar rolagens')+'</strong><small>'+esc(m.descricaoLote??'Revise cada seta. O Dice+ lançará todas juntas.')+'</small><div class="ajustes-lote">'+campos+'</div>'+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div class="acoes-rolagem">'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }else{
         const valor=document.querySelector('#formulaDado')?.value||d.formula||'',temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor),modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'"');
         const adicionais=m.adicionais??[],selecionados=adicionais.filter(x=>adicionaisAtivos.has(x.id));
         const painelAdicionais=adicionais.length?'<div class="recursos-rolagem adicionais"><small>'+esc(m.rotuloAdicionais??'Habilidades disponíveis após o acerto')+'</small><div>'+adicionais.map(x=>btn('alternarAdicional',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+adicionaisAtivos.has(x.id)+'" '+(x.automatico?'disabled ':'')+'data-info="'+esc((x.automatico?'Aplicação automática.\n':'')+(x.descricao||x.nome))+'"')).join('')+'</div>'+(selecionados.length?'<div class="dados-bloqueados">'+selecionados.map(x=>'<span><b>'+esc(x.formula)+'</b> · '+esc(x.nome)+'</span>').join('')+'</div>':'')+'</div>':'';
-        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+painelAdicionais+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
+        const painelDefesa=painelDefesas(m,selecionados);
+        html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dado adicional já aplicado'].filter(Boolean).join(' · '))+'</small>'+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false"></label>'+painelAdicionais+painelDefesa+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>')+'</section>';
       }
     }
   }else if(parte==='dica-efeito'&&v.dicaEfeito){

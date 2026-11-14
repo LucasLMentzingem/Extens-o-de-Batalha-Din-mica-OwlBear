@@ -476,3 +476,27 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Integração visual aprovada com as duas adagas de Nikki em `work/rodape-ordem-armas-v0728.png`.
 - Próxima etapa planejada em `PLANO-DANO-RESISTENCIAS.md`: parcelas tipadas, resistências por tipo/tag, relatório de dano efetivo, múltiplos alvos e exceção visual para áreas.
 
+### Arquitetura revisada: dano e resistências
+
+- [x] Conferir os 13 tipos oficiais e a ordem de ajustes, resistência e vulnerabilidade no SRD 5.2.1.
+- [x] Separar tipo oficial de dano das tags de origem, como lâmina, arma, mágico e não mágico.
+- [x] Projetar pacotes com parcelas tipadas, efeitos defensivos filtráveis e relatório imutável por alvo.
+- [x] Separar dano recebido, PV temporários absorvidos, PV perdido e excesso de dano.
+- [x] Definir cores, símbolos e nomes opcionais de modelos Dice+ para cada tipo.
+- [x] Confirmar que o Dice+ aceita modelos nomeados pela notação `{Modelo}`, mas não oferece na API documentada criação ou alteração direta de cores pela extensão.
+- [x] Preservar a exceção de área: defesas ocultas no ajuste e aplicadas individualmente no resultado.
+
+- Documento atualizado: `PLANO-DANO-RESISTENCIAS.md`.
+- [x] Implementar catálogo, aliases, cores e símbolos dos 13 tipos.
+- [x] Implementar resolvedor puro com parcelas, tags, defesas compostas, PV temporários, limiar e excesso.
+- [x] Coletar defesas de ficha, passivas, equipamentos e efeitos ativos.
+- [x] Aplicar o mesmo relatório ao estado para manter o PV idêntico ao resultado exibido.
+- [x] Integrar ataques diretos, reações, salvaguardas, rajadas, múltiplos alvos e áreas.
+- [x] Exibir defesas relevantes no ajuste direto e ocultá-las em áreas.
+- [x] Exibir cada tipo com cor própria e detalhamento das defesas no resultado.
+- [x] Solicitar opcionalmente modelos nomeados do Dice+, com fallback automático para os dados ativos.
+
+- Versão preparada: 0.7.29.
+- Testes do motor: 92 aprovados.
+- Resultado colorido validado visualmente em `work/dano-resultado-colorido-v0729.png`.
+
