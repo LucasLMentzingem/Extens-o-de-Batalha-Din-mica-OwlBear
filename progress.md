@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-14 — integração do PR 36 e cones ancorados 0.8.1
+
+- O PR 36 foi revisado, validado com 127 testes, mesclado em `main` e publicado como base 0.8.0.
+- A revisão do PR confirmou que ele excluía quem soprava, mas não resolvia cones com `origemArea: conjurador`: o motor ainda substituía o ponto direcional pelo próprio ator e zerava o vetor.
+- Cones e linhas ancorados agora mantêm o personagem como origem geométrica e usam o ponto marcado apenas como direção.
+- O Sopro de Dragão da Nikki deixou de ser assistido: aplica um buff de concentração que concede cinco ações de cone de 4,5 m (ácido, elétrico, gélido, ígneo e venenoso).
+- As ações concedidas por efeitos entram dinamicamente no rodapé, desaparecem com o efeito e preservam a CD da origem, incluindo Feitiçaria Inata.
+- O conjurador é excluído tanto da prévia visual quanto da resolução do motor.
+- Verificação integrada: 128 testes unitários e fluxo visual Playwright com cinco variantes, cartão, direção travada e confirmação.
+
 ## 2026-11-13 — hotfix de abertura da HUD 0.7.18
 
 - O controlador agora fecha pop-ups órfãos pelo ID antes de abrir rodapé, carrossel e demais janelas.

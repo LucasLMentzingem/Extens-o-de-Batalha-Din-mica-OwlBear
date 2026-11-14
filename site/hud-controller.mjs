@@ -1,10 +1,10 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.0';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.0';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.0';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.1';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.1';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.1';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.0',import.meta.url);
+const url=new URL('./hud.html?v=0.8.1',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
 const medida=n=>Number(n.toFixed(2)).toLocaleString('pt-BR')+' m';
@@ -24,7 +24,10 @@ function marcaArea(rule,origem,ponto,dpi){
 }
 function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
   const origemM={x:origem.x/dpi,y:origem.y/dpi},pontoM={x:ponto.x/dpi,y:ponto.y/dpi};
-  return atores.filter(a=>{const p=pos(a);return dentroDaArea(origemM,pontoM,{x:p.x/dpi,y:p.y/dpi},rule);});
+  return atores.filter(a=>{
+    const p=pos(a),mesmoPonto=Math.hypot(p.x-origem.x,p.y-origem.y)<=1e-8;
+    return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,{x:p.x/dpi,y:p.y/dpi},rule);
+  });
 }
 export async function iniciarHud(){
   await pronto();
@@ -163,7 +166,8 @@ export async function iniciarHud(){
       dpi=await OBR.scene.grid.getDpi();
       const origem=pos(a),raio=escolha==='destino'?a.metros:rule.alcanceM;
       pendente.origem=origem;pendente.raio=raio;
-      pendente.detalhe={destino:'Marque o destino no mapa',area:'Marque o centro da área',alvo:'Clique no token do alvo'}[escolha]+' · '+medida(raio);
+      const direcional=['cone','linha'].includes(rule?.area?.forma);
+      pendente.detalhe=(direcional?'Aponte e clique para travar '+(rule.area.forma==='cone'?'o cone':'a linha'):{destino:'Marque o destino no mapa',area:'Marque o centro da área',alvo:'Clique no token do alvo'}[escolha])+' · '+medida(raio);
       if(escolha==='lista')pendente.detalhe='Selecione no mapa · 0/'+o.selecao.max;
       anterior=await OBR.tool.getActiveTool();
       await OBR.tool.activateTool(tool);await OBR.tool.activateMode(tool,mode);
@@ -235,7 +239,7 @@ export async function iniciarHud(){
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
     if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('CONTROL').disableHit(true).build());
     await desenhar(items);
-    const forma=p.rule?.area?.forma??(p.rule?.raioM?'círculo':'');p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(temArea?' · '+forma+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'');
+    const forma=p.rule?.area?.forma??(p.rule?.raioM?'círculo':'');p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(temArea?' · '+forma+(['cone','linha'].includes(forma)?' travado':'')+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'');
     if(p.escolha==='destino'&&!ator().desengajado){
       const ameacas=atores().flatMap(outro=>{
         const lado=a=>a.ficha.lado??a.ficha.tipo;

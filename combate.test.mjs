@@ -592,6 +592,22 @@ test('áreas de quadrado, cone e linha usam a geometria declarada',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'quadrado-teste',nome:'Área quadrada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,dano:'2d6',metade:true,elemento:'fogo',alcanceM:18,area:{forma:'quadrado',tamanhoM:2}}});
  await m.iniciar();await m.go('usar',{ator:m.a.id,opcao:'quadrado-teste',ponto:{x:1.5,y:0}},player,[6,10,15]);assert.deepEqual(m.s.atores.map(x=>x.pv),[20,18,21]);
 });
+test('Sopro de Dragão concede cones ancorados, exclui o usuário e conserva a CD da origem',async()=>{
+ const m=mesa(),inata=m.a.ficha.opcoes.find(o=>o.automacao?.tipo==='efeito_conjuracao'),sopro=m.a.ficha.opcoes.find(o=>/Sopro de Dragão/.test(o.nome));
+ assert.equal(sopro.automacao.tipo,'efeito');assert.equal(sopro.concentracao,true);
+ await m.go('usar',{ator:m.a.id,opcao:inata.id,confirmado:true},gm);
+ await m.go('usar',{ator:m.a.id,opcao:sopro.id,alvo:m.b.id,confirmado:true},gm);
+ const beneficiario=m.s.atores[1],cones=opcoesDisponiveis(beneficiario).filter(o=>o.concedidaPorEfeito);
+ assert.equal(cones.length,5);assert.deepEqual(new Set(cones.map(o=>o.automacao.elemento)),new Set(['acido','raio','frio','fogo','veneno']));
+ assert.ok(cones.every(o=>o.automacao.area.forma==='cone'&&o.automacao.origemArea==='conjurador'&&o.automacao.excluirConjurador&&o.automacao.cd===14));
+ m.s.atores[0].x=-3;m.s.atores[1].x=0;m.s.atores[2].x=3;m.s.atores.forEach(a=>a.y=0);
+ const fogo=cones.find(o=>o.automacao.elemento==='fogo'),pvBeneficiario=beneficiario.pv,pvAlvo=m.s.atores[2].pv;
+ await m.go('usar',{ator:beneficiario.id,opcao:fogo.id,ponto:{x:4.5,y:0}},gm,[12,5]);
+ assert.equal(m.s.atores[1].pv,pvBeneficiario,'o personagem na origem do cone não pode atingir a si mesmo');
+ assert.equal(m.s.atores[2].pv,pvAlvo-12);assert.match(m.s.historico[0],/Sopro de Dragão/);
+ await m.go('encerrarConcentracao',{ator:m.a.id,confirmado:true},gm);
+ assert.equal(opcoesDisponiveis(m.s.atores[1]).some(o=>o.concedidaPorEfeito),false);
+});
 test('as sete fichas de jogadores carregam juntas com recursos e automações próprias',async()=>{
  for(const f of fichasJogadores)validar(f);
  let s=novo();s=await aplicar(s,{tipo:'grupoTeste',rev:s.rev,fichas:fichasJogadores,ensaio:true},gm,async()=>1);

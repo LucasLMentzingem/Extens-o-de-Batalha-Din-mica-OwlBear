@@ -1,4 +1,4 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.0';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.1';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -34,6 +34,14 @@ const inteiro = (n,min,max) => Number.isInteger(n) && n >= min && n <= max;
 const idOK = id => typeof id === 'string' && /^[a-z0-9][a-z0-9_-]{0,79}$/i.test(id) && !Object.hasOwn(Object.prototype,id);
 const nomeOK = nome => typeof nome === 'string' && nome.trim().length > 0;
 const slug=s=>String(s??'item').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,64)||'item';
+const soprosDeDragao=()=>[
+  ['acido','ácido'],['raio','elétrico'],['frio','gélido'],['fogo','ígneo'],['veneno','venenoso']
+].map(([elemento,rotulo])=>({
+  id:'sopro-dragao-'+elemento,nome:'Sopro de Dragão · '+rotulo,categoria:'magia',origem:'feiticeiro',filtroHud:'Classe',
+  descricao:'Ação · Cone ancorado de 4,5 m · Salvaguarda de DES. Dano 3d6 '+rotulo+', metade no sucesso.',
+  custo:[{tipo:'acao',quantidade:1}],
+  automacao:{tipo:'salva',atributo:'des',cd:13,dano:'3d6',metade:true,elemento,alcanceM:4.5,origemArea:'conjurador',excluirConjurador:true,area:{forma:'cone',comprimentoM:4.5,larguraM:4.5}}
+}));
 function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
@@ -114,6 +122,10 @@ export function atualizarMagias(f){
     if(nome.includes('toque chocante'))o.automacao={tipo:'ataque',bonus:5,dano:'1d8',elemento:'raio',alcanceM:1.5};
     if(nome.includes('explosao elemental'))o.automacao={tipo:'ataque',bonus:5,dano:'1d8',elemento:'elemental',alcanceM:18};
     if(nome.includes('protecao contra laminas')){o.concentracao=true;o.automacao={tipo:'efeito',alcanceM:0,efeito:{nome:'Proteção contra Lâminas',tipo:'buff',descricao:'Ataques contra o alvo subtraem 1d4 da jogada de ataque.',restricoes:{penalidadeAtaquesContra:'1d4'},duracao:{turnos:10,expira:'inicio_origem'}}};}
+    if(nome==='sopro de dragao'){
+      o.concentracao=true;
+      o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Sopro de Dragão',tipo:'buff',descricao:'Pode usar uma ação para soprar um cone ancorado de 4,5 m. Escolha ácido, elétrico, gélido, ígneo ou venenoso.',duracao:{turnos:10,expira:'inicio_origem'},opcoesConcedidas:soprosDeDragao()}};
+    }
     if(nome.includes('invisibilidade')){o.concentracao=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Invisível',tipo:'condicao',condicao:'invisivel',descricao:'Invisível até atacar, causar dano ou conjurar.',duracao:{turnos:100,expira:'inicio_origem'}}};}
     if(nome.includes('amizade')){o.concentracao=true;o.automacao={tipo:'salva',atributo:'sab',cd:13,alcanceM:3,efeitoFalha:{nome:'Enfeitiçado',condicao:'enfeiticado',turnos:10}};}
     if(nome.includes('sugestao')){o.concentracao=true;o.automacao={tipo:'salva',atributo:'sab',cd:13,alcanceM:9,efeitoFalha:{nome:'Sob Sugestão',condicao:'enfeiticado',turnos:100}};}
@@ -672,7 +684,16 @@ export function opcaoDisponivel(a,o){
   if(o.origemItem&&!itensEquipados(a).some(i=>i.id===o.origemItem))return false;
   return true;
 }
-export const opcoesCalculadas=a=>[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem),...ataquesEquipados(a)];
+function opcoesConcedidasPorEfeitos(a){
+  const usadas=new Set();
+  return (a?.efeitosAtivos??[]).flatMap(efeito=>(efeito.opcoesConcedidas??[]).flatMap(opcao=>{
+    const id='efeito-'+slug(efeito.id)+'-'+slug(opcao.id);
+    if(usadas.has(id))return [];
+    usadas.add(id);
+    return [{...structuredClone(opcao),id,concedidaPorEfeito:efeito.id}];
+  }));
+}
+export const opcoesCalculadas=a=>[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
@@ -1415,7 +1436,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         }
       }
       const alvo=escolhidos?.[0]??s.atores.find(x=>x.id===c.alvo);
-      const temArea=Boolean(rule.raioM||rule.area),centro=temArea?(rule.origemArea==='conjurador'?a:c.ponto):alvo;
+      const temArea=Boolean(rule.raioM||rule.area),areaDirecional=['cone','linha'].includes(rule.area?.forma);
+      // Cones e linhas continuam ancorados no personagem, mas precisam do
+      // ponto clicado para definir a direção. Usar o próprio ator como centro
+      // zerava o vetor e fazia a área nunca conter ninguém.
+      const centro=temArea?(rule.origemArea==='conjurador'&&!areaDirecional?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
       const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&!((rule.excluirConjurador||['cone','linha'].includes(rule.area?.forma))&&x===a)); // #22 cone e linha partem de quem usa e não o atingem
       validarRequisitosUso(s,a,o,afetados[0]);
@@ -1434,6 +1459,14 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         exigir(!def.requisitos?.semArmadura||!usaArmadura(p),p.nome+' está usando armadura.');
         const maxAntes=pvMaximosAtuais(p);p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.id!==o.id&&e.id!==id);
         def.id=id;def.origem=o.origem;def.origemAtorId=a.id;def.concentracaoId=concentracaoId??undefined;def.descricao=def.descricao??o.descricao;def.modificadores=def.modificadores??{};
+        if(Array.isArray(def.opcoesConcedidas)){
+          const bonusCD=efeitos.reduce((n,e)=>n+(Number(e.bonusCD)||0),0);
+          def.opcoesConcedidas=def.opcoesConcedidas.map(concedida=>{
+            const copia=structuredClone(concedida);
+            if(copia.automacao?.tipo==='salva'&&Number.isFinite(copia.automacao.cd))copia.automacao.cd+=bonusCD;
+            return copia;
+          });
+        }
         if(def.danoAoSerAtingido)def.danoAoSerAtingido={...def.danoAoSerAtingido,origemAtorId:a.id};
         if(def.duracao)def.duracao={...def.duracao,restante:def.duracao.turnos};
         if(Number.isFinite(def.caMinima))def.modificadores.ca=Math.max(0,def.caMinima+mod(p.ficha.atributos.des)-caAtual(p));

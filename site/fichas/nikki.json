@@ -640,8 +640,73 @@
         }
       ],
       "circuloBase": 2,
-      "origem": "feiticeiro",
-      "concentracao": true
+        "origem": "feiticeiro",
+        "concentracao": true,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 1.5,
+          "efeito": {
+            "nome": "Sopro de Dragão",
+            "tipo": "buff",
+            "descricao": "Pode usar uma ação para soprar um cone ancorado de 4,5 m. Escolha ácido, elétrico, gélido, ígneo ou venenoso.",
+            "duracao": {
+              "turnos": 10,
+              "expira": "inicio_origem"
+            },
+            "opcoesConcedidas": [
+              {
+                "id": "sopro-dragao-acido",
+                "nome": "Sopro de Dragão · ácido",
+                "categoria": "magia",
+                "origem": "feiticeiro",
+                "filtroHud": "Classe",
+                "descricao": "Ação · Cone ancorado de 4,5 m · Salvaguarda de DES. Dano 3d6 ácido, metade no sucesso.",
+                "custo": [{ "tipo": "acao", "quantidade": 1 }],
+                "automacao": { "tipo": "salva", "atributo": "des", "cd": 13, "dano": "3d6", "metade": true, "elemento": "acido", "alcanceM": 4.5, "origemArea": "conjurador", "excluirConjurador": true, "area": { "forma": "cone", "comprimentoM": 4.5, "larguraM": 4.5 } }
+              },
+              {
+                "id": "sopro-dragao-raio",
+                "nome": "Sopro de Dragão · elétrico",
+                "categoria": "magia",
+                "origem": "feiticeiro",
+                "filtroHud": "Classe",
+                "descricao": "Ação · Cone ancorado de 4,5 m · Salvaguarda de DES. Dano 3d6 elétrico, metade no sucesso.",
+                "custo": [{ "tipo": "acao", "quantidade": 1 }],
+                "automacao": { "tipo": "salva", "atributo": "des", "cd": 13, "dano": "3d6", "metade": true, "elemento": "raio", "alcanceM": 4.5, "origemArea": "conjurador", "excluirConjurador": true, "area": { "forma": "cone", "comprimentoM": 4.5, "larguraM": 4.5 } }
+              },
+              {
+                "id": "sopro-dragao-frio",
+                "nome": "Sopro de Dragão · gélido",
+                "categoria": "magia",
+                "origem": "feiticeiro",
+                "filtroHud": "Classe",
+                "descricao": "Ação · Cone ancorado de 4,5 m · Salvaguarda de DES. Dano 3d6 gélido, metade no sucesso.",
+                "custo": [{ "tipo": "acao", "quantidade": 1 }],
+                "automacao": { "tipo": "salva", "atributo": "des", "cd": 13, "dano": "3d6", "metade": true, "elemento": "frio", "alcanceM": 4.5, "origemArea": "conjurador", "excluirConjurador": true, "area": { "forma": "cone", "comprimentoM": 4.5, "larguraM": 4.5 } }
+              },
+              {
+                "id": "sopro-dragao-fogo",
+                "nome": "Sopro de Dragão · ígneo",
+                "categoria": "magia",
+                "origem": "feiticeiro",
+                "filtroHud": "Classe",
+                "descricao": "Ação · Cone ancorado de 4,5 m · Salvaguarda de DES. Dano 3d6 ígneo, metade no sucesso.",
+                "custo": [{ "tipo": "acao", "quantidade": 1 }],
+                "automacao": { "tipo": "salva", "atributo": "des", "cd": 13, "dano": "3d6", "metade": true, "elemento": "fogo", "alcanceM": 4.5, "origemArea": "conjurador", "excluirConjurador": true, "area": { "forma": "cone", "comprimentoM": 4.5, "larguraM": 4.5 } }
+              },
+              {
+                "id": "sopro-dragao-veneno",
+                "nome": "Sopro de Dragão · venenoso",
+                "categoria": "magia",
+                "origem": "feiticeiro",
+                "filtroHud": "Classe",
+                "descricao": "Ação · Cone ancorado de 4,5 m · Salvaguarda de DES. Dano 3d6 venenoso, metade no sucesso.",
+                "custo": [{ "tipo": "acao", "quantidade": 1 }],
+                "automacao": { "tipo": "salva", "atributo": "des", "cd": 13, "dano": "3d6", "metade": true, "elemento": "veneno", "alcanceM": 4.5, "origemArea": "conjurador", "excluirConjurador": true, "area": { "forma": "cone", "comprimentoM": 4.5, "larguraM": 4.5 } }
+              }
+            ]
+          }
+          }
     },
     {
       "id": "e1239dce-62e4-53ba-8bfd-970cb4faacb3",
