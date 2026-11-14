@@ -781,3 +781,35 @@ test('defesas podem vir da ficha, passiva, item equipado e buff',()=>{
  const ator={id:'a',ficha:{id:'f',resistencias:['fogo'],passivas:[{id:'p',ativa:true,defesasDano:[{id:'psi',nome:'Mente',operacao:'resistencia',filtro:{tipos:['psiquico']}}]}],inventario:{itens:[{id:'capa',equipado:true,defesasDano:[{id:'frio',nome:'Capa',operacao:'resistencia',filtro:{tipos:['frio']}}]}]}},efeitosAtivos:[{id:'buff',defesasDano:[{id:'raio',nome:'Proteção',operacao:'imunidade',filtro:{tipos:['raio']}}]}]};
  assert.deepEqual(new Set(defesasDanoDoAtor(ator).map(x=>x.id)),new Set(['resistencia-fogo-0','psi','frio','raio']));
 });
+
+// ===== Revisão de regras (PR correcoes-revisao-regras) =====
+// Rolador que imita a sala: calcula relatoriosDano como o bridge e anexa em cada resultado.
+const {relatoriosDaRolagem}=await import('./site/damage.mjs');
+const fichaRev=async n=>JSON.parse(await readFile(new URL('./site/fichas/'+n+'.json',import.meta.url),'utf8'));
+function roladorSala({d20=15,dano=6,salva=null}={}){
+  const formulas=[];
+  const rolar=async(formula,meta={})=>{
+    const um=f=>{formulas.push({f,meta});if(/d20/.test(f)){const nat=meta.tipo==='salvaguarda'&&salva!==null?salva:d20;return {total:nat+4,natural:nat,formula:f};}return {total:dano,natural:null,formula:f};};
+    const r=Array.isArray(formula)?{resultados:formula.map(um)}:um(formula);
+    const rel=relatoriosDaRolagem(r,{...meta,adicionais:(meta.adicionais??[]).filter(x=>x.automatico)});
+    if(rel.length){r.relatoriosDano=rel;if(r.resultados)r.resultados=r.resultados.map((x,i)=>({...x,relatorioDano:rel[i]}));}
+    r.recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id);
+    return r;
+  };
+  return {rolar,formulas};
+}
+async function duelo(fichaA,fichaB='soldado',{distancia=1.5}={}){
+  let s=novo();const a=adicionar(s,await fichaRev(fichaA)),b=adicionar(s,await fichaRev(fichaB));
+  a.dono='p';a.x=0;a.y=0;b.x=distancia;b.y=0;s.fase='turnos';s.rodada=1;s.vez=0;s.ordem=[a.id,b.id];
+  for(const x of s.atores){x.init=10;x.acao=1;x.bonus=1;x.reacao=1;x.metros=9;}
+  return {s,a,b};
+}
+const opRev=(a,trecho)=>opcoesDisponiveis(a).find(o=>o.nome.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(trecho));
+
+test('#35 vários acertos no mesmo alvo somam o dano (Mísseis Mágicos e Torrente de Golpes)',async()=>{
+  for(const [ficha,trecho,n] of [['nikki','misseis magicos',3],['loteria','torrente',2]]){
+    let {s,a,b}=await duelo(ficha);const pv=b.pv;
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,trecho).id,alvos:Array(n).fill(b.id)},player,roladorSala({d20:16,dano:6}).rolar);
+    assert.equal(s.atores[1].pv,pv-6*n,trecho);
+  }
+});

@@ -811,7 +811,12 @@ export async function aplicar(s,c,u,rolar) {
     return r;
   };
   const aplicarDanoNoAtor=async(p,dano,elemento,{critico=false,origem=null,relatorio=null,parcelas=null,ajustes=[]}={})=>{
-    const resolvido=relatorio??resolverDano({parcelas:parcelas??[{valor:dano,tipo:elemento,tags:[]}],defesas:defesasDanoDoAtor(p),alvo:resumoAlvoDano(p),ajustes});
+    // O relatório vindo da rolagem foi calculado com a foto do alvo antes do primeiro acerto.
+    // Aproveitamos só o valor final de cada parcela (defesas já aplicadas) e recalculamos
+    // PV e PV temporários sobre o estado atual, para acertos repetidos no mesmo alvo somarem.
+    const resolvido=relatorio
+      ?resolverDano({parcelas:(relatorio.parcelas??[]).map(x=>({...x,valor:x.final??x.valor})),defesas:[],alvo:resumoAlvoDano(p)})
+      :resolverDano({parcelas:parcelas??[{valor:dano,tipo:elemento,tags:[]}],defesas:defesasDanoDoAtor(p),alvo:resumoAlvoDano(p),ajustes});
     aplicarRelatorioDano(p,resolvido,{critico,pvMaximos:pvMaximosAtuais(p)});
     if(p.concentracaoAtiva&&resolvido.danoRecebido>0){
       const cdCon=Math.max(10,Math.floor(resolvido.danoRecebido/2)),bonus=p.ficha.salvaguardas?.con??mod(p.ficha.atributos.con);
