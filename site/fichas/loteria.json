@@ -157,6 +157,9 @@
         "dano": "1d6+3",
         "elemento": "contundente",
         "alcanceM": 1.5
+      },
+      "requisitosUso": {
+        "aposAtaque": true
       }
     },
     {
@@ -797,6 +800,25 @@
       "automacao": {
         "tipo": "economia",
         "cura": "1d8+1"
+      }
+    },
+    {
+      "id": "soco-5-acao-ou-acao-bonus-1-acao",
+      "nome": "Soco (Golpe Desarmado) +5 | ação",
+      "categoria": "acao",
+      "descricao": "Golpe Desarmado com a ação Atacar, usando as Artes Marciais (dado de Artes Marciais e DES).",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "ataque",
+        "bonus": 5,
+        "dano": "1d6+3",
+        "elemento": "contundente",
+        "alcanceM": 1.5
       }
     }
   ],

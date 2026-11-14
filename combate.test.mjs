@@ -863,3 +863,27 @@ test('#7 CD de Agarrar/Derrubar/Empurrar vem da ficha (Monge pode usar DES)',asy
   const esperado={skimi:9,'hannah-montana':9,nikki:10,dragoberto:10,zurich:11,'draven-thorne':13,loteria:13};
   for(const [n,cd] of Object.entries(esperado)){const {a}=await duelo(n);for(const t of ['agarrar','derrubar','empurrar'])assert.equal(opRev(a,t).automacao.cd,cd,n+' '+t);}
 });
+
+test('#19/#20 ataque extra Leve exige ataque antes; com Ágil não gasta Ação Bônus',async()=>{
+  // Hannah: adaga da mão fraca só depois de atacar com arma Leve
+  let {s,a,b}=await duelo('hannah-montana');
+  const extra=opcoesDisponiveis(a).find(o=>o.requisitosUso?.aposAtaque&&!o.automacao.arremesso);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:extra.id,alvo:b.id},player,roladorSala().rolar),/depois de realizar um ataque/);
+  // Zurich: Cimitarra (Ágil) + Espada Curta + Marca do Predador no mesmo turno
+  ({s,a,b}=await duelo('zurich'));
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'marca do predador').id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
+  const curta=opRev(s.atores[0],'espada curta');assert.deepEqual(curta.custo,[]);assert.match(curta.nome,/Ágil/);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:curta.id,alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[0].bonus,0,'só a Marca gastou a Ação Bônus');assert.equal(s.atores[0].acao,0);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:curta.id,alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno/);
+});
+test('#34 Loteria tem Golpe Desarmado com a Ação e o soco bônus exige ataque antes',async()=>{
+  let {s,a,b}=await duelo('loteria');
+  const bonus=opcoesDisponiveis(a).find(o=>/^Soco \+/.test(o.nome)),acao=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+  assert.ok(acao,'existe o soco com a Ação');
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar),/depois de realizar um ataque/);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:acao.id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar);
+  assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,0);
+});

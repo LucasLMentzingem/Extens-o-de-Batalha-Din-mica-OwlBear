@@ -153,6 +153,7 @@ export function atualizarMagias(f){
   }
   corrigirRecuperacoes(f);
   corrigirCdAtaqueDesarmado(f);
+  corrigirArtesMarciais(f);
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
@@ -169,6 +170,17 @@ function corrigirCdAtaqueDesarmado(f){
     o.automacao.cd=cd;
     if(typeof o.descricao==='string')o.descricao=o.descricao.replace(/CD \d+/,'CD '+cd);
   }
+}
+// #20/#34 Artes Marciais: o soco de Ação Bônus exige ter atacado no turno, e o Monge
+// também precisa do Golpe Desarmado com a Ação (ação Atacar), que não existia.
+function corrigirArtesMarciais(f){
+  if(!(f.classes??[]).some(c=>c.id==='monge')||!Array.isArray(f.opcoes))return;
+  const soco=f.opcoes.find(o=>/^soco\b/i.test(o.nome??'')&&o.automacao?.tipo==='ataque'&&o.custo?.some(c=>c.tipo==='bonus'));
+  if(!soco)return;
+  soco.requisitosUso={...(soco.requisitosUso??{}),aposAtaque:true};
+  if(!f.opcoes.some(o=>o.id===soco.id+'-acao'))f.opcoes.push({...structuredClone(soco),id:soco.id+'-acao',
+    nome:soco.nome.replace(/\|.*$/,'| ação').replace(/^Soco/,'Soco (Golpe Desarmado)'),custo:[{tipo:'acao',quantidade:1}],requisitosUso:undefined,
+    descricao:'Golpe Desarmado com a ação Atacar, usando as Artes Marciais (dado de Artes Marciais e DES).'});
 }
 // #25 Livro 2024: Dados de Vida são gastos no descanso curto e voltam todos no longo;
 // Recuperar Fôlego volta 1 uso no curto e todos no longo. Também cria a opção de
@@ -506,6 +518,10 @@ function maestriaDaArma(f,item){
   return new RegExp((item.nome??'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(texto)&&/maestria/i.test(texto);
 }
 function nomeMaestria(item){return item.maestria??/maestria\s+([\p{L}]+)/iu.exec(item.descricao??'')?.[1];}
+// Livro 2024 (Cap. 6): cada tipo de arma tem uma propriedade de maestria fixa.
+export const MAESTRIA_ARMA=Object.freeze({adaga:'agil',cimitarra:'agil',espada_curta:'irritar',arco_longo:'lentidao',arco_curto:'irritar',azagaia:'lentidao',
+  espada_grande:'garantido',lanca:'drenar',mangual:'drenar',maca:'drenar',machadinha:'irritar',martelo_leve:'agil',espada_longa:'drenar',rapieira:'irritar'});
+const maestriaAtiva=(f,item,tipo)=>Boolean(item)&&MAESTRIA_ARMA[chaveArma(item)]===tipo&&maestriaDaArma(f,item);
 export function bonusPrevistoArma(f,item,modelo){
   const d=definicoesArmas[chaveArma(item)]??item,m=modelo??d.modelosAcoes?.[0];if(!m||!f?.atributos)return -99;
   const atributo=atributoAtaqueArma(f,item,m),prof=proficienteComArma(f,item)?Number(f.proficiencia??(2+Math.floor(((f.classes??[]).reduce((n,c)=>n+c.nivel,0)-1)/4))):0;
@@ -519,9 +535,14 @@ function ataqueGeradoArma(a,item,modelo,indice){
   const dano=formulaComBonus(dado,modDano+(Number(item.bonusDano)||0)+(Number(item.modificadores?.dano)||0));
   const modoNome=modelo.modo==='arremesso'?' · arremesso':modelo.modo==='distancia'?' · distância':'';
   const custoTipo=secundaria?'bonus':'acao',alcance=Math.min(LIMITE_ALCANCE_M,Number(modelo.alcanceM)||1.5),maestria=maestriaDaArma(f,item),nomeM=nomeMaestria(item);
-  return {id:'item-'+slug(item.id)+'-'+(modelo.modo??indice),nome:item.nome+modoNome+' '+(bonus>=0?'+':'')+bonus+' | '+(custoTipo==='bonus'?'ação bônus':'ação'),categoria:'acao',origem:'equipamento',origemItem:item.id,geradaPorItem:true,
+  // #20 Propriedade Leve: o ataque extra só existe depois de atacar com uma arma Leve na ação Atacar.
+  // #19 Maestria Ágil na arma principal: esse ataque extra entra na ação Atacar (sem Ação Bônus), 1x por turno.
+  const principal=itensEquipados(a).find(i=>i!==item&&i.equipadoSlot==='mao_forte'&&chaveArma(i)),agil=secundaria&&maestriaAtiva(f,principal,'agil');
+  const custoArma=secundaria?(agil?[]:[{tipo:'bonus',quantidade:1}]):[{tipo:'acao',quantidade:1}];
+  const requisitos=secundaria?{aposAtaque:true,tagsAtaqueAnterior:['arma','leve'],...(agil?{umaVezPorTurno:'maestria-agil'}:{})}:undefined;
+  return {id:'item-'+slug(item.id)+'-'+(modelo.modo??indice),nome:item.nome+modoNome+' '+(bonus>=0?'+':'')+bonus+' | '+(agil?'na ação Atacar · Ágil':custoTipo==='bonus'?'ação bônus':'ação'),categoria:'acao',origem:'equipamento',origemItem:item.id,geradaPorItem:true,...(requisitos?{requisitosUso:requisitos}:{}),
     descricao:[modelo.modo==='distancia'?'Ataque à distância':modelo.modo==='arremesso'?'Arremesso':'Ataque corpo a corpo','Atributo '+atributo.toUpperCase(),proficiente?'proficiente':'sem proficiência',maestria?'maestria'+(nomeM?' '+nomeM:''):'sem maestria','dano '+dano+' '+modelo.tipoDano].join(' · ')+'.',
-    custo:[{tipo:custoTipo,quantidade:1}],automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[])]},
+    custo:custoArma,automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[])]},
     dadosEquipamento:{itemId:item.id,tipoArma:d.tipoArma,grupoProficiencia:d.grupoProficiencia,propriedades:[...(d.propriedades??[])],atributo,proficiente,maestria,tipoDano:modelo.tipoDano}};
 }
 export function ataquesEquipados(a){
