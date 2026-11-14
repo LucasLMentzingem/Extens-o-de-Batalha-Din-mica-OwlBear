@@ -47,6 +47,8 @@ Ao iniciar a iniciativa, cada jogador vê somente a ficha vinculada a ele. O mes
 
 Recursos gastos ficam esmaecidos e recursos com várias cargas mostram o saldo atual e máximo. Passe o mouse para ver nome, função e forma de recuperação; clique para exibir apenas as habilidades ligadas àquele recurso. **Perícias** e **Salva guarda** permanecem ao lado de **Linhas**. Buffs, condições e concentração flutuam numa grade transparente à esquerda do rodapé.
 
+No filtro **Comum**, ataques das armas equipadas ocupam o início da grade. A ordem é mão forte, mão fraca e arma à distância. Quando uma arma pode ser arremessada, sua opção de arremesso aparece imediatamente depois do ataque normal da mesma arma.
+
 Clique numa habilidade e depois no alvo ou centro da área. O círculo dourado marca o alcance. A marca verde indica o alvo ou o raio de efeito. Confira o d20 e o ajuste na confirmação. Para mover, clique em **Mover**, marque o destino e confira a distância. Com a ferramenta da HUD ativa, também é possível arrastar o token do turno. **Cancelar** ou Esc descarta a prévia. O aviso de oportunidade considera o caminho, o lado dos participantes e o alcance informado na ficha (1,5 m por padrão). O mestre resolve a reação. Desengajar suprime o aviso. **Finalizar turno** fica à direita do rodapé. A HUD fecha ao encerrar o combate.
 
 Enquanto o combate estiver parado, todas as ações e magias ficam liberadas. A extensão ignora ação, ação bônus e reação fora do combate, mas ainda desconta espaços de magia e outros recursos declarados. Se um token for movido pela ferramenta normal do Owlbear durante a escolha de uma habilidade, o centro do alcance acompanha a nova posição por evento da cena; não há varredura contínua do mapa.

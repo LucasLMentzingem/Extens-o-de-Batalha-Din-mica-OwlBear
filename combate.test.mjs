@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,slotsOcupadosItem,ataquesEquipados,proficienteComArma,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,LIMITE_ALCANCE_M} from './site/engine.mjs';
 const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
 const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
@@ -634,6 +634,12 @@ test('ataques de arma são derivados somente dos itens equipados e desarmados co
  const armas=ataquesEquipados(d);assert.deepEqual(armas.map(o=>o.dadosEquipamento.tipoArma),['espada_grande']);
  assert.equal(armas[0].automacao.bonus,5);assert.equal(armas[0].automacao.dano,'2d6+3');assert.equal(armas[0].automacao.elemento,'cortante');assert.equal(armas[0].dadosEquipamento.proficiente,true);assert.equal(armas[0].dadosEquipamento.maestria,true);
  assert.equal(nomes.some(n=>/Azagaia|Mangual/.test(n)),false);assert.equal(nomes.some(n=>/Golpe desarmado/i.test(n)),true);
+});
+test('rodapé começa pelas armas equipadas e mantém cada arremesso logo depois',()=>{
+ const m=mesa(),ordenadas=ordenarOpcoesRodape(m.a),armas=ordenadas.slice(0,4),itens=new Map(m.a.ficha.inventario.itens.map(i=>[i.id,i]));
+ assert.ok(armas.every(o=>o.geradaPorItem));assert.deepEqual(armas.map(o=>itens.get(o.origemItem).equipadoSlot),['mao_forte','mao_forte','mao_fraca','mao_fraca']);assert.deepEqual(armas.map(o=>Boolean(o.automacao.arremesso)),[false,true,false,true]);
+ const s=novo(),zurichAtor=adicionar(s,fichasJogadores.find(x=>x.id==='zurich')),primeiras=ordenarOpcoesRodape(zurichAtor).filter(o=>o.geradaPorItem).slice(0,3),itensZurich=new Map(zurichAtor.ficha.inventario.itens.map(i=>[i.id,i]));
+ assert.deepEqual(primeiras.map(o=>itensZurich.get(o.origemItem).equipadoSlot),['mao_forte','mao_fraca','arma_distancia']);
 });
 test('o mesmo item recalcula acerto, dano e proficiência para o novo portador',()=>{
  const s=novo(),d=adicionar(s,fichasJogadores.find(x=>x.id==='draven-thorne')),n=adicionar(s,nikki),espada=structuredClone(d.ficha.inventario.itens.find(i=>i.tipoArma==='espada_grande'));

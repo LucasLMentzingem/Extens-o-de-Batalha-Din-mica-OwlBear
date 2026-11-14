@@ -1,12 +1,12 @@
-import {detalhes} from './ficha-view.mjs?v=0.7.27';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.7.27';
-import {pronto} from './bridge.mjs?v=0.7.27';
-import {canalHud} from './hud-controller.mjs?v=0.7.27';
+import {detalhes} from './ficha-view.mjs?v=0.7.28';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId} from './engine.mjs?v=0.7.28';
+import {pronto} from './bridge.mjs?v=0.7.28';
+import {canalHud} from './hud-controller.mjs?v=0.7.28';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
-const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
+const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe||o.automacao?.arremesso?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
 const grupo=o=>o.origemItem||o.categoria==='item'?'Itens':o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
 const normalizar=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const comuns=['golpe desarmado','agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
@@ -14,6 +14,7 @@ const nomeClasse=f=>{const id=f.classes?.[0]?.nome??f.classes?.[0]?.id??'Classe'
 function categoriaHud(o){
   if(o.filtroHud)return o.filtroHud;
   const texto=normalizar(o.nome+' '+(o.origem??''));
+  if(o.geradaPorItem&&o.automacao?.tipo==='ataque')return 'Comum';
   if(o.origemItem||o.categoria==='item'||/item|equipamento|consumivel/.test(normalizar(o.origem)))return 'Itens';
   if(comuns.some(n=>texto.startsWith(n))||o.categoria!=='magia'&&o.automacao?.tipo==='ataque')return 'Comum';
   return 'Classe';
@@ -114,7 +115,7 @@ function render(){
     const reserva='style="--efeitos-reserva:0px"';
     if(v.compacto){html='<section class="dock compacta" '+reserva+'><div class="dock-corpo"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside></div></section>';root.innerHTML=html;return;}
     const turno=ativo===a.id;
-    const ops=opcoesDisponiveis(a);
+    const ops=ordenarOpcoesRodape(a);
     const foraCombate=s.fase==='preparo',pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',passivas=!recursoAtivo&&filtro==='Passivas';
     const recursosFicha=a.ficha.recursos??[],idsRecursos=new Set(['acao','bonus','reacao',...recursosFicha.map(r=>'recurso:'+r.id)]);
     if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;

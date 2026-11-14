@@ -516,6 +516,14 @@ export function opcaoDisponivel(a,o){
 }
 export const opcoesCalculadas=a=>[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem),...ataquesEquipados(a)];
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>opcaoDisponivel(a,o));
+export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
+  const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
+  return opcoes.map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
+    const ax=Boolean(x.opcao.geradaPorItem&&x.opcao.automacao?.tipo==='ataque'),ay=Boolean(y.opcao.geradaPorItem&&y.opcao.automacao?.tipo==='ataque');
+    if(ax!==ay)return ax?-1:1;if(!ax)return x.indice-y.indice;
+    return x.item.slot-y.item.slot||x.item.indice-y.item.indice||Number(Boolean(x.opcao.automacao.arremesso))-Number(Boolean(y.opcao.automacao.arremesso))||x.indice-y.indice;
+  }).map(x=>x.opcao);
+}
 export const opcaoPorId=(a,id)=>{
   const calculada=opcoesCalculadas(a).find(o=>o.id===id);if(calculada)return calculada;
   const antiga=a?.ficha?.opcoes?.find(o=>o.id===id);if(!antiga?.ataqueLegadoDeItem)return antiga;

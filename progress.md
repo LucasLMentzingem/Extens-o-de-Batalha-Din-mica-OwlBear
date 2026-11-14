@@ -464,3 +464,15 @@ Especificação detalhada: `outputs/aventura DnD/Extensao-Owlbear/Expansao-Ficha
 - Integração simulada aprovada para visão isolada do jogador, seleção de jogadores e NPCs pelo GM, lote com duas fichas, lote restante unitário e transição para a rodada.
 - Capturas conferidas: `work/iniciativa-lote-v0727.png` e `work/playwright-v0727/shot-0.png`.
 
+### Versão 0.7.28: armas primeiro no rodapé
+
+- [x] Colocar ataques das armas equipadas antes das ações comuns.
+- [x] Ordenar armas por mão forte, mão fraca e arma à distância.
+- [x] Manter o arremesso imediatamente depois do ataque normal da mesma arma.
+- [x] Exibir “arremesso” no próprio botão, além do balão detalhado.
+- [x] Preservar golpe desarmado e demais ações depois das armas.
+
+- Testes do motor: 87 aprovados.
+- Integração visual aprovada com as duas adagas de Nikki em `work/rodape-ordem-armas-v0728.png`.
+- Próxima etapa planejada em `PLANO-DANO-RESISTENCIAS.md`: parcelas tipadas, resistências por tipo/tag, relatório de dano efetivo, múltiplos alvos e exceção visual para áreas.
+
