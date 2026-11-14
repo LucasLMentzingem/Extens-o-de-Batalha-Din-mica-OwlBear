@@ -1,12 +1,15 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal} from './engine.mjs?v=0.8.2';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.2';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar} from './engine.mjs?v=0.8.3';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.3';
+import {compactarEstado} from './catalog.mjs?v=0.8.3';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
 export const emSala=OBR.isAvailable;
 export const pronto=()=>new Promise(resolve=>OBR.onReady(resolve));
 const local=()=>new BroadcastChannel(ns+'/'+OBR.room.id);
+const hidratar=s=>{for(const a of s.atores??[]){a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}return s;};
+const persistir=(key,s)=>localStorage.setItem(key,JSON.stringify(compactarEstado(s)));
 export async function exemplos(){
   return Promise.all(['nikki','soldado'].map(async k=>{
     const r=await fetch('./fichas/'+k+'.json');if(!r.ok)throw Error('Falha ao carregar '+k);return r.json();
@@ -23,20 +26,20 @@ export async function conteudoConfigurado(){
 }
 export async function demo(onView){
   const key=ns+'/ensaio';
-  let s=JSON.parse(localStorage.getItem(key)||'null')??novo(),timerReacao;
+  let s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo()),timerReacao;
   const info={id:'mestre',role:'GM',players:[{id:'teste',name:'Jogador de teste'}],tokens:[],modo:'ensaio'};
   const notify=()=>{
     clearTimeout(timerReacao);s.atores.forEach(a=>atualizarMagias(a.ficha));onView(s,info);
     if(s.reacaoPendente){const id=s.reacaoPendente.id;timerReacao=setTimeout(async()=>{
       if(s.reacaoPendente?.id!==id)return;const p=s.reacaoPendente;
       s=await aplicar(s,{tipo:'resolverReacao',ator:p.reator,opcao:null,rev:s.rev,confirmado:true},{role:'GM',id:'mestre'},dadoLocal);
-      localStorage.setItem(key,JSON.stringify(s));notify();
+      persistir(key,s);notify();
     },Math.max(0,s.reacaoPendente.terminaEm-Date.now())+80);}
   };
   return {notify,async enviar(c){
     const role=c.comoJogador?'PLAYER':'GM';
     const next=await aplicar(s,c,{role,id:role==='GM'?'mestre':'teste'},dadoLocal);
-    localStorage.setItem(key,JSON.stringify(next));s=next;notify();
+    persistir(key,next);s=next;notify();
   }};
 }
 async function identidade(){
@@ -161,7 +164,7 @@ export async function host(){
       id=id||crypto.randomUUID();await OBR.scene.setMetadata({[chaveCena]:id,[autoridade]:eu.id});
     }
     const key=ns+'/'+OBR.room.id+'/'+id;
-    const s=JSON.parse(localStorage.getItem(key)||'null')??novo();s.atores.forEach(a=>atualizarMagias(a.ficha));return {key,s};
+    const s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo());return {key,s};
   }
   async function mostrar(s){
     clearTimeout(timerReacao);
@@ -199,7 +202,7 @@ export async function host(){
           .name(a.nome).layer('CHARACTER').position({x:Math.round(pos.x/dpi+s.atores.indexOf(a))*dpi,y:Math.round(pos.y/dpi)*dpi}).build();
         await OBR.scene.items.addItems([token]);
         a.token=token.id;a.x=token.position.x/dpi;a.y=token.position.y/dpi;s.rev++;
-        localStorage.setItem(key,JSON.stringify(s));await mostrar(s);await reply({});return;
+        persistir(key,s);await mostrar(s);await reply({});return;
       }
       if(c.tipo==='iniciar' && s.atores.filter(a=>a.emCombate!==false).some(a=>!tokens.some(t=>t.id===a.token)))throw Error('Antes de iniciar, crie ou vincule um token para cada participante do combate.');
       if(c.tipo==='vincular' && s.fase!=='preparo' && s.atores.find(a=>a.id===c.ator)?.token!==c.token)throw Error('Troque a peça na preparação. O controlador pode ser alterado em combate.');
@@ -245,7 +248,7 @@ export async function host(){
       }
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*dpi,y:a.y*dpi};}});
-      localStorage.setItem(key,JSON.stringify(next));await mostrar(next);await reply({});
+      persistir(key,next);await mostrar(next);await reply({});
     }catch(e){await reply({erro:e.message});}
   }
   ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando)serial(()=>executar(e.data.comando,eu,r=>ch.postMessage({...r,resposta:e.data.req})));};
@@ -263,7 +266,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.2',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.3',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
 }
 export async function sala(onView){

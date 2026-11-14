@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: node validar-versao.mjs
+      - run: node gerar-catalogo-runtime.mjs --check
       - run: node --test combate.test.mjs
       - uses: actions/configure-pages@v5
         id: pages

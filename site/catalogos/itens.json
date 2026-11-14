@@ -1,0 +1,1848 @@
+{
+  "versaoCatalogo": 1,
+  "itens": [
+    {
+      "id": "item.20-flechas-e-aljava",
+      "revisao": 1,
+      "definicao": {
+        "nome": "20 flechas e aljava",
+        "descricao": "20 flechas na importação; controlar munição manualmente.",
+        "tipo": "etc",
+        "empilhavel": true,
+        "pesoKg": 0.025,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.adaga",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Uma mão; 1d4 perfurante; corpo a corpo ou arremesso.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.adaga-1523045d",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "0efe3fc9-7f19-5259-ae74-97e87627d6c4",
+          "0efe3fc9-7f19-5259-ae74-97e87627d6c4-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.adaga-19029790",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "59b60ef8-41ac-54b4-876d-398ba3b80279",
+          "59b60ef8-41ac-54b4-876d-398ba3b80279-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.adaga-469c7254",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "adaga-4-acao-0",
+          "adaga-4-acao-0-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.adaga-48b69582",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.adaga-62b1e6a3",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "segunda-adaga-4-acao-bonus-1",
+          "segunda-adaga-4-acao-bonus-1-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.adaga-8711f9a2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga",
+        "descricao": "Ataque +5; 1d6+3 perfurante (dado de Artes Marciais); arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "adaga-5-acao-3",
+          "adaga-5-acao-3-arremesso"
+        ],
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.aljava-com-20-flechas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Aljava com 20 Flechas",
+        "descricao": "Após a luta, 1 minuto recupera metade das flechas usadas. Controle a munição manualmente.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 0.025,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.anel-simples-de-oficina",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Anel simples de oficina",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 5,
+          "moeda": "po"
+        },
+        "pesoKg": 0.02,
+        "slotEquipamento": "acessorio",
+        "descricao": "Adorno de metal sem efeito mecânico."
+      }
+    },
+    {
+      "id": "item.arco-longo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco longo",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "duasMaos": true,
+        "leve": false,
+        "descricao": "Duas mãos; consome uma flecha; 1d8 perfurante. Alcance limitado a 18 m pela campanha.",
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante",
+            "municao": "victor-flechas-20"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.arco-longo-ac372e50",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco Longo",
+        "descricao": "Ataque +7; dano 1d8+3 perfurante; 45/180 m. Lentidão.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "arco-longo-7-acao-0"
+        ],
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.arco-longo-c8ca3a0f",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco longo",
+        "descricao": "Arquearia; ataque +7, dano 1d8+3 perfurante; maestria Lentidão.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "arma_distancia",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "arco-longo-7-acao-0"
+        ],
+        "tipoArma": "arco_longo",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "pesada",
+          "municao"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d8",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.armadura-couro-batido",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura Couro Batido",
+        "descricao": "CA 13",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 13,
+          "classe": "leve"
+        }
+      }
+    },
+    {
+      "id": "item.armadura-de-couro",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura de Couro",
+        "descricao": "CA 11 + DES = 13.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 5,
+        "slotEquipamento": "vestes",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 11,
+          "classe": "leve",
+          "atributo": "des"
+        }
+      }
+    },
+    {
+      "id": "item.armadura-de-couro-batido",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura de Couro Batido",
+        "descricao": "CA 12 + DES = 15. Sem penalidade em Furtividade.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 12,
+          "classe": "leve",
+          "atributo": "des"
+        }
+      }
+    },
+    {
+      "id": "item.armadura-de-placas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura de placas",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 1500,
+          "moeda": "po"
+        },
+        "pesoKg": 32.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 18,
+          "classe": "pesada"
+        },
+        "requisitos": {
+          "forca": 15
+        },
+        "penalidades": {
+          "furtividade": "desvantagem"
+        },
+        "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade."
+      }
+    },
+    {
+      "id": "item.azagaia",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Azagaia",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 5,
+          "moeda": "pp"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "Uma mão; 1d6 perfurante; corpo a corpo ou arremesso.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.azagaia-08b3b538",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "azagaia-5-acao-2",
+          "azagaia-5-acao-2-arremesso"
+        ],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.azagaia-fafdb711",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Azagaia",
+        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.9,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "tipoArma": "azagaia",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 9,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.botas-de-marcha-par",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Botas de marcha (par)",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "botas",
+        "descricao": "Calçado de viagem."
+      }
+    },
+    {
+      "id": "item.camisa-de-malha",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Camisa de malha",
+        "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 10,
+        "slotEquipamento": "vestes",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "media",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 13,
+          "classe": "media",
+          "atributo": "des",
+          "limiteAtributo": 2
+        }
+      }
+    },
+    {
+      "id": "item.camisao-de-malha",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Camisão de malha",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "pesoKg": 10,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "media",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 13,
+          "classe": "media",
+          "atributo": "des",
+          "limiteAtributo": 2
+        },
+        "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+      }
+    },
+    {
+      "id": "item.capa-de-viagem",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Capa de viagem",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "capa",
+        "descricao": "Protege a roupa da poeira e do tempo."
+      }
+    },
+    {
+      "id": "item.cimitarra",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cimitarra",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Uma mão; 1d6 cortante.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.cimitarra-1a29ab83",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cimitarra",
+        "descricao": "Acuidade, Leve; maestria Ágil; ataque +5, dano 1d6+3 cortante.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "cimitarra-5-acao-1"
+        ],
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.cimitarra-73899783",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cimitarra",
+        "descricao": "Ataque +5; dano 1d6+3 cortante. Ágil.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "cimitarra-5-acao-1"
+        ],
+        "tipoArma": "cimitarra",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.colar-simples-de-oficina",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Colar simples de oficina",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "pesoKg": 0.1,
+        "slotEquipamento": "colar",
+        "descricao": "Adorno de metal sem efeito mecânico."
+      }
+    },
+    {
+      "id": "item.corrente-3-m",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Corrente (3 m)",
+        "tipo": "etc",
+        "categoria": "ferramenta",
+        "preco": {
+          "valor": 5,
+          "moeda": "po"
+        },
+        "pesoKg": 5,
+        "empilhavel": true,
+        "descricao": "Corrente metálica reutilizável para prender ou amarrar."
+      }
+    },
+    {
+      "id": "item.cota-de-malha",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cota de malha",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 75,
+          "moeda": "po"
+        },
+        "pesoKg": 27.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 16,
+          "classe": "pesada"
+        },
+        "requisitos": {
+          "forca": 13
+        },
+        "penalidades": {
+          "furtividade": "desvantagem"
+        },
+        "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade."
+      }
+    },
+    {
+      "id": "item.cota-de-malha-09004bac",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Cota de Malha",
+        "descricao": "CA 16. Exige FOR 13. Desvantagem em Furtividade.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 27.5,
+        "slotEquipamento": "vestes",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "categoriaArmadura": "pesada",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 16,
+          "classe": "pesada"
+        }
+      }
+    },
+    {
+      "id": "item.couro-batido",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Couro batido",
+        "tipo": "equipamento",
+        "categoria": "armadura",
+        "preco": {
+          "valor": 45,
+          "moeda": "po"
+        },
+        "pesoKg": 6.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "leve",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 12,
+          "classe": "leve",
+          "atributo": "des"
+        },
+        "descricao": "Armadura leve. CA 12 + DES."
+      }
+    },
+    {
+      "id": "item.escudo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo",
+        "tipo": "equipamento",
+        "categoria": "escudo",
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "pesoKg": 3,
+        "slotEquipamento": "mao_fraca",
+        "categoriaArmadura": "escudo",
+        "classeArmadura": {
+          "tipo": "bonus",
+          "valor": 2,
+          "classe": "escudo"
+        },
+        "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+      }
+    },
+    {
+      "id": "item.escudo-b66123ac",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo",
+        "descricao": "Empunhado na mão fraca. +2 à CA.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 3,
+        "slotEquipamento": "mao_fraca",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [],
+        "categoriaArmadura": "escudo",
+        "classeArmadura": {
+          "tipo": "bonus",
+          "valor": 2,
+          "classe": "escudo"
+        }
+      }
+    },
+    {
+      "id": "item.espada-curta",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada curta",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "espada_curta",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Uma mão; 1d6 perfurante.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.espada-curta-56f7a9ea",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada curta",
+        "descricao": "Reserva, 1d6+2.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "321df1de-4158-5c5a-9950-df5fa62cefb8"
+        ],
+        "tipoArma": "espada_curta",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.espada-curta-60162bf7",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada Curta",
+        "descricao": "Ataque extra +5; dano 1d6 perfurante.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "espada-curta-5-acao-ataque-principal-2",
+          "espada-curta-extra-5-na-acao-atacar-agil-3"
+        ],
+        "tipoArma": "espada_curta",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.espada-grande",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada grande",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "espada_grande",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "duas_maos",
+          "pesada"
+        ],
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "pesoKg": 3,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": true,
+        "leve": false,
+        "descricao": "Duas mãos; 2d6 cortante.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "2d6",
+            "tipoDano": "cortante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.espada-grande-22d63c5a",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada Grande",
+        "descricao": "Ataque +5; dano 2d6+3 cortante. Maestria Garantido.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 3,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "espada-grande-5-acao-0"
+        ],
+        "tipoArma": "espada_grande",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "duas_maos",
+          "pesada"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "2d6",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.fantasia-e-roupas-finas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Fantasia e roupas finas",
+        "descricao": "Do antecedente Charlatão. Úteis para golpes e disfarces.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 3,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.ferramentas-de-entalhador",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ferramentas de Entalhador",
+        "descricao": "Proficiência do Monge.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 2.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.ferramentas-de-ferreiro",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ferramentas de ferreiro",
+        "tipo": "etc",
+        "categoria": "ferramenta",
+        "preco": {
+          "valor": 20,
+          "moeda": "po"
+        },
+        "pesoKg": 4,
+        "empilhavel": false,
+        "descricao": "Kit para moldar, fabricar e reparar peças de metal."
+      }
+    },
+    {
+      "id": "item.flechas-20",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Flechas (20)",
+        "tipo": "etc",
+        "categoria": "municao",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "empilhavel": true,
+        "descricao": "Munição para 20 disparos com arco."
+      }
+    },
+    {
+      "id": "item.foco-arcano-cristal",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Foco Arcano (cristal)",
+        "descricao": "Foco de conjuração.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 0.1,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.foco-druidico-ramo-de-visco",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Foco Druídico (ramo de visco)",
+        "descricao": "Foco de conjuração.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 0.1,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.foice",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Foice",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "foice",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "leve"
+        ],
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Uma mão; 1d4 cortante.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "cortante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.foice-d37bf5bc",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Foice",
+        "descricao": "Ataque +1; dano 1d4-1 cortante.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "foice-1-acao-2"
+        ],
+        "tipoArma": "foice",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "leve"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "cortante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.kit-de-artista",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Kit de Artista",
+        "descricao": "Mochila, caixa para fogo, cantil, espelho, 3 fantasias, lanterna foca-facho, 8 potes de óleo, 9 dias de rações, saco de dormir, sino.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 17,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.kit-de-aventureiro",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Kit de Aventureiro",
+        "descricao": "Mantido com a denominação do texto; conteúdo e saldo de ouro não especificados.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 20,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.kit-de-aventureiro-49ab062c",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Kit de Aventureiro",
+        "descricao": "Mochila, caixa para fogo, cantil, corda, 2 potes de óleo, 10 dias de rações, saco de dormir, 10 tochas.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 20,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.kit-de-explorador-de-masmorras",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Kit de Explorador de Masmorras",
+        "descricao": "Mochila, caixa para fogo, cantil, corda, estrepes, 2 potes de óleo, pé de cabra, 10 dias de rações, 10 tochas.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 27.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.kit-de-falsificacao",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Kit de Falsificação",
+        "descricao": "Cria documentos, selos e assinaturas falsos.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 2.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.lanca",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Lança",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "Uma ou duas mãos; 1d6 perfurante, 1d8 quando usada com duas mãos; arremessável com uma mão.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.lanca-0d22cfed",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Lança",
+        "descricao": "Ataque +2; dano 1d6 perfurante (1d8 com duas mãos).",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "631ebb73-ecdc-5df0-8524-ee8810e1dec6",
+          "eb1e3e85-d216-544d-8954-deb312f465a1",
+          "eb1e3e85-d216-544d-8954-deb312f465a1-arremesso"
+        ],
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.lanca-195daaea",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Lança",
+        "descricao": "Ataque +5; 1d8+3 perfurante com duas mãos, 1d6+3 com uma; arremesso 6/18 m.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "lanca-em-duas-maos-5-acao-0",
+          "lanca-em-uma-mao-5-acao-4",
+          "lanca-em-uma-mao-5-acao-4-arremesso"
+        ],
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.lanca-eb5c1aa0",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Lança",
+        "descricao": "Uma mão e escudo; 1d6+2.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "58bec1ed-2568-594c-8627-9f4b0e79c615",
+          "58bec1ed-2568-594c-8627-9f4b0e79c615-arremesso"
+        ],
+        "tipoArma": "lanca",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil",
+          "arremessavel"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d6",
+            "danoDuasMaos": "1d8",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.livro-das-sombras",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Livro das Sombras",
+        "descricao": "Pacto do Tomo: truques e rituais extras; também serve de foco.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.livro-de-ocultismo-e-kit-de-estudioso",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Livro de ocultismo e Kit de Estudioso",
+        "descricao": "Pacote inicial do Bruxo.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 7,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.luvas-de-treino-par",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Luvas de treino (par)",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "pesoKg": 0.25,
+        "slotEquipamento": "acessorio",
+        "descricao": "Protegem as mãos durante o treino."
+      }
+    },
+    {
+      "id": "item.mangual",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mangual",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "mangual",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo"
+        ],
+        "preco": {
+          "valor": 10,
+          "moeda": "po"
+        },
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "leve": false,
+        "descricao": "Uma mão; 1d8 contundente.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "tipoDano": "contundente"
+          }
+        ]
+      }
+    },
+    {
+      "id": "item.mangual-8d7c8a26",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mangual",
+        "descricao": "Ataque +5; dano 1d8+3 contundente. Maestria Drenar.",
+        "tipo": "equipamento",
+        "empilhavel": false,
+        "pesoKg": 1,
+        "slotEquipamento": "mao_forte",
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {},
+        "acoes": [
+          "mangual-5-acao-1"
+        ],
+        "tipoArma": "mangual",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo"
+        ],
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "tipoDano": "contundente"
+          }
+        ],
+        "categoria": "arma"
+      }
+    },
+    {
+      "id": "item.moedas-11-po",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas — 11 PO",
+        "descricao": "Saldo do kit inicial do Monge (opção A).",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.moedas-19-po",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas — 19 PO",
+        "descricao": "Saldo do kit inicial do Bardo (opção A).",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.moedas-28-po",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas — 28 PO",
+        "descricao": "Saldo do kit inicial do Feiticeiro (opção A).",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.moedas-30-po",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas — 30 PO",
+        "descricao": "Conforme a ficha.",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.moedas-4-po",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas — 4 PO",
+        "descricao": "Saldo inicial do kit do Guerreiro.",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.moedas-7-po",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Moedas — 7 PO",
+        "descricao": "Saldo do kit inicial do Guardião (opção A).",
+        "tipo": "moeda",
+        "empilhavel": true,
+        "pesoKg": 0.01,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.orbe-foco-arcano",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Orbe (foco arcano)",
+        "descricao": "Foco de conjuração.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 1.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.pacote-de-explorador-de-masmorras",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pacote de Explorador de Masmorras",
+        "descricao": "Kit inicial do Guerreiro.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 27.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    },
+    {
+      "id": "item.pe-de-cabra",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pé de cabra",
+        "tipo": "etc",
+        "categoria": "ferramenta",
+        "preco": {
+          "valor": 2,
+          "moeda": "po"
+        },
+        "pesoKg": 2.5,
+        "empilhavel": false,
+        "efeitoCondicional": {
+          "teste": "for",
+          "modo": "vantagem",
+          "condicao": "quando a alavanca puder ajudar"
+        },
+        "descricao": "Concede vantagem em testes de FOR quando puder ser usado como alavanca."
+      }
+    },
+    {
+      "id": "item.veste-simples",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Veste simples",
+        "tipo": "equipamento",
+        "categoria": "veste",
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "pesoKg": 1.5,
+        "slotEquipamento": "vestes",
+        "categoriaArmadura": "veste",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 10,
+          "classe": "veste",
+          "atributo": "des"
+        },
+        "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana."
+      }
+    },
+    {
+      "id": "item.violino",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Violino",
+        "descricao": "Instrumento escolhido do kit (assumido); foco de conjuração e instrumento do talento Músico.",
+        "tipo": "etc",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "slotEquipamento": null,
+        "duasMaos": false,
+        "leve": false,
+        "modificadores": {}
+      }
+    }
+  ]
+}

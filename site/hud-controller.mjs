@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.2';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.2';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.2';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.2';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.3';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.3';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.3';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.3';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.2',import.meta.url);
+const url=new URL('./hud.html?v=0.8.3',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -193,7 +193,7 @@ export async function iniciarHud(){
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:o?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico'};
     let escolha=null;
-    if(d.tipo==='mover')escolha='destino';
+    if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
@@ -201,7 +201,7 @@ export async function iniciarHud(){
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
-      const origem=pos(a),raio=escolha==='destino'?a.metros:rule.alcanceM;
+      const origem=pos(a),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):rule.alcanceM;
       pendente.origem=origem;pendente.raio=raio;
       const direcional=['cone','linha'].includes(rule?.area?.forma);
       pendente.detalhe=(direcional?'Aponte e clique para travar '+(rule.area.forma==='cone'?'o cone':'a linha'):{destino:'Marque o destino no mapa',area:'Marque o centro da área',alvo:'Clique no token do alvo'}[escolha])+' · '+medida(raio);

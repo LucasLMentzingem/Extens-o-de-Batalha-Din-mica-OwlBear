@@ -1,6 +1,6 @@
 {
   "$schema": "./ficha.schema.json",
-  "versaoFormato": 1,
+  "versaoFormato": 2,
   "id": "dragoberto",
   "nome": "Dragoberto",
   "tipo": "pj",
@@ -114,771 +114,6 @@
       ]
     }
   ],
-  "opcoes": [
-    {
-      "id": "arco-longo-7-acao-0",
-      "nome": "Arco longo +7 | ação",
-      "categoria": "acao",
-      "descricao": "45/180 m · perfurante · duas mãos, uma flecha. Lentidão: reduza 3 m de deslocamento do alvo atingido até o início do seu próximo turno.\nNormal [1d20+7]\nDano [1d8+3] · Crítico [2d8+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 7,
-        "dano": "1d8+3",
-        "elemento": "perfurante",
-        "alcanceM": 18
-      },
-      "requerItemEquipado": "769325a2-24ec-498b-9e17-4f841f982ba4",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "cimitarra-5-acao-1",
-      "nome": "Cimitarra +5 | ação",
-      "categoria": "acao",
-      "descricao": "1,5 m · cortante · Leve, Ágil. Apenas uma arma Leve registrada.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 5,
-        "dano": "1d6+3",
-        "elemento": "cortante",
-        "alcanceM": 1.5
-      },
-      "requerItemEquipado": "36992e04-d209-4de3-a57e-1d44a1dafa0e",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "golpe-desarmado-2-acao-2",
-      "nome": "Golpe desarmado +2 | ação",
-      "categoria": "acao",
-      "descricao": "1,5 m · Normal [1d20+2]\nDano contundente 1, também no crítico (dano fixo).",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 2,
-        "dano": "1",
-        "elemento": "contundente",
-        "alcanceM": 1.5,
-        "tags": [
-          "desarmado"
-        ]
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-3",
-      "nome": "Imobilizar | ação",
-      "categoria": "acao",
-      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 10,
-        "alcanceM": 1.5,
-        "efeitoFalha": {
-          "nome": "Agarrado",
-          "condicao": "agarrado",
-          "turnos": 10
-        }
-      }
-    },
-    {
-      "id": "disparada-acao-4",
-      "nome": "Correr | ação",
-      "categoria": "acao",
-      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 9 m, pode percorrer até 18 m neste turno.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "disparada"
-      }
-    },
-    {
-      "id": "desengajar-acao-5",
-      "nome": "Desengajar | ação",
-      "categoria": "acao",
-      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "desengajar"
-      }
-    },
-    {
-      "id": "esquivar-acao-6",
-      "nome": "Esquivar | ação",
-      "categoria": "acao",
-      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "economia",
-        "esquivar": true
-      }
-    },
-    {
-      "id": "ajudar-acao-7",
-      "nome": "Ajudar | ação",
-      "categoria": "acao",
-      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "esconder-se-acao-8",
-      "nome": "Esconder | ação",
-      "categoria": "acao",
-      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "preparar-acao-9",
-      "nome": "Preparar | ação",
-      "categoria": "acao",
-      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "procurar-acao-10",
-      "nome": "Procurar | ação",
-      "categoria": "acao",
-      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "estudar-acao-11",
-      "nome": "Analisar | ação",
-      "categoria": "acao",
-      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "influenciar-acao-12",
-      "nome": "Influenciar | ação",
-      "categoria": "acao",
-      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "utilizar-acao-13",
-      "nome": "Usar Objeto | ação",
-      "categoria": "acao",
-      "descricao": "Manipule um objeto que exija uma ação.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "usar-magia-acao-14",
-      "nome": "Usar Magia | ação",
-      "categoria": "acao",
-      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "ataque-de-oportunidade-reacao-15",
-      "nome": "Ataque de oportunidade | reação",
-      "categoria": "acao",
-      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
-      "custo": [
-        {
-          "tipo": "reacao",
-          "quantidade": 1
-        }
-      ],
-      "gatilho": "sair_alcance"
-    },
-    {
-      "id": "ataque-de-sopro-cone",
-      "nome": "Ataque de Sopro · cone",
-      "categoria": "acao",
-      "filtroHud": "Classe",
-      "descricao": "Substitui o ataque da ação Atacar. Cone de 4,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "ataque-de-sopro",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributo": "des",
-        "cd": 11,
-        "dano": "1d10",
-        "metade": true,
-        "elemento": "raio",
-        "alcanceM": 4.5,
-        "area": {
-          "forma": "cone",
-          "comprimentoM": 4.5,
-          "larguraM": 4.5
-        }
-      }
-    },
-    {
-      "id": "ataque-de-sopro-linha",
-      "nome": "Ataque de Sopro · linha",
-      "categoria": "acao",
-      "filtroHud": "Classe",
-      "descricao": "Substitui o ataque da ação Atacar. Linha de 9 m por 1,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "ataque-de-sopro",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributo": "des",
-        "cd": 11,
-        "dano": "1d10",
-        "metade": true,
-        "elemento": "raio",
-        "alcanceM": 9,
-        "area": {
-          "forma": "linha",
-          "comprimentoM": 9,
-          "larguraM": 1.5
-        }
-      }
-    },
-    {
-      "id": "presa-do-cacador-16",
-      "nome": "Presa do Caçador",
-      "categoria": "acao",
-      "descricao": "Escolha Assassino de Colossos OU Destruidor de Hordas; pode trocar após descanso curto ou longo. O texto recebido descreve ambas, mas não define a escolhida. Não usar ambas simultaneamente.",
-      "custo": []
-    },
-    {
-      "id": "assassino-de-colossos-17",
-      "nome": "Assassino de Colossos",
-      "categoria": "acao",
-      "ativa": false,
-      "grupoExclusivo": "presa-do-cacador",
-      "descricao": "Uma vez por turno, quando atingir com arma criatura que esteja abaixo dos PV máximos, pode causar +[1d8] do dano adicional da característica. Não concede ataque extra.",
-      "custo": [],
-      "gatilho": "apos_acerto",
-      "umaVezPorTurno": true,
-      "automatico": true,
-      "aprimoramento": {
-        "dano": "1d8",
-        "requisitos": {
-          "tagsAtaque": [
-            "arma"
-          ],
-          "alvoFerido": true
-        }
-      }
-    },
-    {
-      "id": "habilitado-destruidor-de-hordas-18",
-      "nome": "(Habilitado) Destruidor de Hordas",
-      "categoria": "acao",
-      "ativa": true,
-      "grupoExclusivo": "presa-do-cacador",
-      "descricao": "Uma vez em cada um dos seus turnos, ao realizar ataque com arma, pode realizar outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original, dentro do alcance da arma e que ainda não atacou neste turno.",
-      "custo": [],
-      "requisitosUso": {
-        "aposAtaque": true,
-        "tagsAtaqueAnterior": [
-          "arma"
-        ],
-        "umaVezPorTurno": "habilitado-destruidor-de-hordas-18",
-        "alvoDiferenteDoAnterior": true,
-        "distanciaDoAlvoAnteriorM": 1.5
-      },
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 7,
-        "dano": "1d8+3",
-        "elemento": "perfurante",
-        "alcanceM": 18,
-        "usarArmaAnterior": true
-      }
-    },
-    {
-      "id": "pericia-investigacao-3-19",
-      "nome": "Perícia | Investigação +3",
-      "categoria": "acao",
-      "descricao": "INT · Proficiente\nNormal [1d20+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-prestidigitacao-3-20",
-      "nome": "Perícia | Prestidigitação +3",
-      "categoria": "acao",
-      "descricao": "DES · Sem proficiência\nNormal [1d20+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-atuacao-1-21",
-      "nome": "Perícia | Atuação -1",
-      "categoria": "acao",
-      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-enganacao-1-22",
-      "nome": "Perícia | Enganação -1",
-      "categoria": "acao",
-      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-intimidacao-1-23",
-      "nome": "Perícia | Intimidação -1",
-      "categoria": "acao",
-      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "concentracao-e-turno-24",
-      "nome": "Concentração e turno",
-      "categoria": "acao",
-      "descricao": "Você mantém apenas uma magia de concentração por vez. Marca do Predador, Golpe Constritor, Escudo da Fé e Proteção contra Lâminas competem por concentração. Turno normal: movimento, uma ação e uma ação bônus quando uma habilidade permitir. Sem Ataque Extra de nível 5.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        }
-      ],
-      "concentracao": true,
-      "informativa": true
-    },
-    {
-      "id": "1-marca-do-predador-25",
-      "nome": "1º | Marca do Predador",
-      "categoria": "magia",
-      "descricao": "Ação bônus; 27 m; V; concentração até 1 hora. Ataques que acertem o alvo marcado causam +[1d6] energético (Force). Vantagem em Percepção e Sobrevivência para encontrá-lo. Após cair a 0 PV, pode transferir a marca com ação bônus em turno posterior. Sempre preparada; 2 conjurações gratuitas por descanso longo ou gasto de espaço.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "usoGratuito": {
-        "recursoId": "marca-do-predador",
-        "quantidade": 1,
-        "nome": "Conjuração gratuita de Marca do Predador"
-      },
-      "circuloBase": 1,
-      "concentracao": true,
-      "automacao": {
-        "tipo": "efeito",
-        "alcanceM": 18,
-        "efeito": {
-          "nome": "Marca do Predador",
-          "tipo": "debuff",
-          "descricao": "A origem causa 1d6 energético adicional ao acertar este alvo com arma.",
-          "danoAoSerAtingido": {
-            "formula": "1d6",
-            "elemento": "energetico",
-            "tagsAtaque": [
-              "arma"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": "1-golpe-constritor-26",
-      "nome": "1º | Golpe Constritor",
-      "categoria": "magia",
-      "descricao": "Ação bônus imediatamente após acertar com arma; V; concentração até 1 minuto. Alvo faz resistência de FOR CD 12, com vantagem se Grande ou maior. Falha: Contido; sofre [1d6] perfurante no início dos turnos. Alvo ou criatura ao alcance pode usar ação e teste de Atletismo CD 12 para encerrar. Gasta 1 espaço.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "concentracao": true,
-      "automacao": {
-        "tipo": "salva",
-        "atributo": "for",
-        "cd": 12,
-        "alcanceM": 18,
-        "efeitoFalha": {
-          "nome": "Contido (Golpe Constritor)",
-          "condicao": "contido",
-          "turnos": 10,
-          "danoInicioTurno": {
-            "formula": "1d6",
-            "elemento": "perfurante"
-          }
-        }
-      },
-      "requisitosUso": {
-        "aposAcerto": true,
-        "tagsAtaqueAnterior": [
-          "arma"
-        ],
-        "alvoIgualAoAnterior": true
-      }
-    },
-    {
-      "id": "1-curar-ferimentos-27",
-      "nome": "1º | Curar Ferimentos",
-      "categoria": "magia",
-      "descricao": "Ação; toque; V,S; instantânea. Cura [2d8+2] PV. Gasta 1 espaço de 1º círculo. Nesta conversão pertence às magias preparadas da classe, conforme o texto recebido.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "automacao": {
-        "tipo": "cura",
-        "formula": "2d8+2",
-        "alcanceM": 1.5
-      }
-    },
-    {
-      "id": "1-escudo-da-fe-28",
-      "nome": "1º | Escudo da Fé",
-      "categoria": "magia",
-      "descricao": "Magia informada como Iniciado em Magia. ação bônus; 18 m; V,S,M (pergaminho de oração); concentração até 10 minutos. Alvo recebe +2 CA. Confirmar origem e recursos antes de usar.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "concentracao": true,
-      "automacao": {
-        "tipo": "efeito",
-        "alcanceM": 18,
-        "efeito": {
-          "nome": "Escudo da Fé",
-          "tipo": "buff",
-          "descricao": "+2 na Classe de Armadura.",
-          "modificadores": {
-            "ca": 2
-          },
-          "duracao": {
-            "turnos": 100,
-            "expira": "inicio_origem"
-          }
-        }
-      }
-    },
-    {
-      "id": "truque-golpe-certeiro-29",
-      "nome": "Truque | Golpe Certeiro",
-      "categoria": "magia",
-      "descricao": "Ação Usar Magia · SAB · dano da arma ou radiante. Escolha uma arma.\nArco longo (45/180 m)\nNormal [1d20+6]\nDano [1d8+2] · Crítico [2d8+2]\nCimitarra (1,5 m)\nNormal [1d20+4]\nDano [1d6+2] · Crítico [2d6+2]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d8+2",
-        "elemento": "radiante",
-        "alcanceM": 1.5
-      },
-      "circuloBase": 0,
-      "semArquearia": true
-    },
-    {
-      "id": "truque-protecao-contra-laminas-30",
-      "nome": "Truque | Proteção contra Lâminas",
-      "categoria": "magia",
-      "descricao": "Truque informado: ação; pessoal; V,S; concentração até 1 minuto. Atacantes subtraem [1d4] das jogadas de ataque contra você. Não acumula com outra concentração sua.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 0,
-      "concentracao": true,
-      "automacao": {
-        "tipo": "efeito",
-        "alcanceM": 0,
-        "efeito": {
-          "nome": "Proteção contra Lâminas",
-          "tipo": "buff",
-          "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
-          "restricoes": {
-            "penalidadeAtaquesContra": "1d4"
-          },
-          "duracao": {
-            "turnos": 10,
-            "expira": "inicio_origem"
-          }
-        }
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-3-derrubar",
-      "nome": "Derrubar | ação",
-      "categoria": "acao",
-      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 10,
-        "alcanceM": 1.5,
-        "efeitoFalha": {
-          "nome": "Caído",
-          "condicao": "caido",
-          "turnos": 1,
-          "expira": "fim_origem"
-        }
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-3-empurrar",
-      "nome": "Empurrar | ação",
-      "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 10,
-        "alcanceM": 1.5,
-        "deslocamentoForcado": {
-          "distanciaM": 1.5,
-          "direcao": "afastar"
-        }
-      }
-    },
-    {
-      "id": "gastar-dado-de-vida",
-      "nome": "Gastar Dado de Vida",
-      "categoria": "acao",
-      "origem": "descanso",
-      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d10 e some seu modificador de Constituição para recuperar Pontos de Vida.",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
-        }
-      ],
-      "requisitosUso": {
-        "somenteForaCombate": true
-      },
-      "automacao": {
-        "tipo": "economia",
-        "cura": "1d10+1"
-      }
-    }
-  ],
-  "equipamentos": [
-    {
-      "id": "36992e04-d209-4de3-a57e-1d44a1dafa0e",
-      "name": "Cimitarra",
-      "description": "Acuidade, Leve; maestria Ágil; ataque +5, dano 1d6+3 cortante.",
-      "inUse": false
-    },
-    {
-      "id": "769325a2-24ec-498b-9e17-4f841f982ba4",
-      "name": "Arco longo",
-      "description": "Arquearia; ataque +7, dano 1d8+3 perfurante; maestria Lentidão.",
-      "inUse": true
-    },
-    {
-      "id": "6f5f4ac2-f7de-4cfd-908b-741993020c33",
-      "name": "20 flechas e aljava",
-      "description": "20 flechas na importação; controlar munição manualmente.",
-      "inUse": true
-    },
-    {
-      "id": "3872cacd-1601-4638-bc91-1a08b7342d63",
-      "name": "Kit de Aventureiro",
-      "description": "Mantido com a denominação do texto; conteúdo e saldo de ouro não especificados.",
-      "inUse": true
-    },
-    {
-      "id": "371ced41-8dd8-4544-a15d-73cf6dcdf7a4",
-      "name": "Armadura Couro Batido",
-      "description": "CA 13",
-      "inUse": false
-    }
-  ],
-  "passivas": [
-    {
-      "nome": "Passiva | Herança dracônica",
-      "descricao": "Resistência a dano elétrico e visão no escuro 18 m. Voo Dracônico só é adquirido no nível 5; não disponível nesta ficha de nível 3.",
-      "id": "passiva-1",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Conhecimento do Caçador",
-      "descricao": "Enquanto uma criatura está sob sua Marca do Predador, você conhece suas imunidades, resistências e vulnerabilidades, se houver.",
-      "id": "passiva-2",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Proficiências e Explorador Hábil",
-      "descricao": "Armas simples e marciais; armaduras leves e médias; escudos; ferramentas de cartógrafo. Resistências proficientes: FOR e DES. Explorador Hábil concede uma especialização e dois idiomas adicionais. O texto marca duas especializações: mantidas para revisão do mestre.",
-      "id": "passiva-3",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Arquearia",
-      "descricao": "Estilo de Luta: +2 nas jogadas de ataque com armas à distância.",
-      "id": "passiva-arquearia",
-      "ativa": true
-    }
-  ],
   "notas": [
     {
       "titulo": "Fonte",
@@ -896,133 +131,247 @@
     ]
   },
   "inventario": {
-    "versaoOcupacao": 5,
+    "versaoOcupacao": 6,
     "capacidadeCargaKg": 75,
     "itens": [
       {
         "id": "36992e04-d209-4de3-a57e-1d44a1dafa0e",
-        "nome": "Cimitarra",
-        "descricao": "Acuidade, Leve; maestria Ágil; ataque +5, dano 1d6+3 cortante.",
-        "tipo": "equipamento",
+        "ref": "item.cimitarra-1a29ab83",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 1.5,
-        "slotEquipamento": "mao_forte",
         "equipado": true,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "cimitarra-5-acao-1"
-        ],
-        "tipoArma": "cimitarra",
-        "grupoProficiencia": "marcial",
-        "propriedades": [
-          "corpo_a_corpo",
-          "acuidade",
-          "leve"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "cortante"
-          }
-        ],
-        "categoria": "arma",
         "equipadoSlot": "mao_forte"
       },
       {
         "id": "769325a2-24ec-498b-9e17-4f841f982ba4",
-        "nome": "Arco longo",
-        "descricao": "Arquearia; ataque +7, dano 1d8+3 perfurante; maestria Lentidão.",
-        "tipo": "equipamento",
+        "ref": "item.arco-longo-c8ca3a0f",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 1,
-        "slotEquipamento": "arma_distancia",
         "equipado": true,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "arco-longo-7-acao-0"
-        ],
-        "tipoArma": "arco_longo",
-        "grupoProficiencia": "marcial",
-        "propriedades": [
-          "distancia",
-          "duas_maos",
-          "pesada",
-          "municao"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "distancia",
-            "alcanceNormalM": 18,
-            "alcanceM": 18,
-            "dano": "1d8",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma",
-        "equipadoSlot": "arma_distancia"
+        "equipadoSlot": "arma_distancia",
+        "preferido": true
       },
       {
         "id": "6f5f4ac2-f7de-4cfd-908b-741993020c33",
-        "nome": "20 flechas e aljava",
-        "descricao": "20 flechas na importação; controlar munição manualmente.",
-        "tipo": "etc",
+        "ref": "item.20-flechas-e-aljava",
         "quantidade": 20,
-        "empilhavel": true,
-        "pesoKg": 0.025,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "preferido": true
       },
       {
         "id": "3872cacd-1601-4638-bc91-1a08b7342d63",
-        "nome": "Kit de Aventureiro",
-        "descricao": "Mantido com a denominação do texto; conteúdo e saldo de ouro não especificados.",
-        "tipo": "etc",
+        "ref": "item.kit-de-aventureiro",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 20,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "preferido": true
       },
       {
         "id": "371ced41-8dd8-4544-a15d-73cf6dcdf7a4",
-        "nome": "Armadura Couro Batido",
-        "descricao": "CA 13",
-        "tipo": "equipamento",
+        "ref": "item.armadura-couro-batido",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 6.5,
-        "slotEquipamento": "vestes",
         "equipado": true,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "categoriaArmadura": "leve",
-        "classeArmadura": {
-          "tipo": "base",
-          "valor": 13,
-          "classe": "leve"
-        },
         "equipadoSlot": "vestes"
       }
     ]
-  }
+  },
+  "versaoCatalogo": 1,
+  "concessoes": [
+    {
+      "id": "arco-longo-7-acao-0",
+      "ref": "habilidade.arco-longo-7-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "cimitarra-5-acao-1",
+      "ref": "habilidade.cimitarra-5-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "golpe-desarmado-2-acao-2",
+      "ref": "habilidade.golpe-desarmado-2-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3",
+      "ref": "habilidade.imobilizar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "disparada-acao-4",
+      "ref": "habilidade.correr-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "desengajar-acao-5",
+      "ref": "habilidade.desengajar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esquivar-acao-6",
+      "ref": "habilidade.esquivar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ajudar-acao-7",
+      "ref": "habilidade.ajudar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esconder-se-acao-8",
+      "ref": "habilidade.esconder-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "preparar-acao-9",
+      "ref": "habilidade.preparar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "procurar-acao-10",
+      "ref": "habilidade.procurar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "estudar-acao-11",
+      "ref": "habilidade.analisar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "influenciar-acao-12",
+      "ref": "habilidade.influenciar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "utilizar-acao-13",
+      "ref": "habilidade.usar-objeto-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "usar-magia-acao-14",
+      "ref": "habilidade.usar-magia-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ataque-de-oportunidade-reacao-15",
+      "ref": "habilidade.ataque-de-oportunidade-reacao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ataque-de-sopro-cone",
+      "ref": "habilidade.ataque-de-sopro-cone",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ataque-de-sopro-linha",
+      "ref": "habilidade.ataque-de-sopro-linha",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "presa-do-cacador-16",
+      "ref": "habilidade.presa-do-cacador",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "assassino-de-colossos-17",
+      "ref": "habilidade.assassino-de-colossos",
+      "tipo": "habilidade",
+      "ativa": false
+    },
+    {
+      "id": "habilitado-destruidor-de-hordas-18",
+      "ref": "habilidade.habilitado-destruidor-de-hordas",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-investigacao-3-19",
+      "ref": "habilidade.pericia-investigacao-3",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-prestidigitacao-3-20",
+      "ref": "habilidade.pericia-prestidigitacao-3",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-atuacao-1-21",
+      "ref": "habilidade.pericia-atuacao-1",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-enganacao-1-22",
+      "ref": "habilidade.pericia-enganacao-1",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-intimidacao-1-23",
+      "ref": "habilidade.pericia-intimidacao-1",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "concentracao-e-turno-24",
+      "ref": "habilidade.concentracao-e-turno",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-marca-do-predador-25",
+      "ref": "habilidade.1-marca-do-predador",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-golpe-constritor-26",
+      "ref": "habilidade.1-golpe-constritor",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-curar-ferimentos-27",
+      "ref": "habilidade.1-curar-ferimentos",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-escudo-da-fe-28",
+      "ref": "habilidade.1-escudo-da-fe",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "truque-golpe-certeiro-29",
+      "ref": "habilidade.truque-golpe-certeiro",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "truque-protecao-contra-laminas-30",
+      "ref": "habilidade.truque-protecao-contra-laminas",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3-derrubar",
+      "ref": "habilidade.derrubar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3-empurrar",
+      "ref": "habilidade.empurrar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "ref": "habilidade.gastar-dado-de-vida",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "passiva-1",
+      "ref": "habilidade.passiva-heranca-draconica",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-2",
+      "ref": "habilidade.passiva-conhecimento-do-cacador",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-3",
+      "ref": "habilidade.passiva-proficiencias-e-explorador-habil",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-arquearia",
+      "ref": "habilidade.passiva-arquearia",
+      "tipo": "passiva"
+    }
+  ]
 }

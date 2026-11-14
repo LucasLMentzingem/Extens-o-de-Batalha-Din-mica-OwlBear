@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.2';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.2';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.8.2';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.3';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.3';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId} from './engine.mjs?v=0.8.3';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -155,7 +155,7 @@ function renderCatalogo(){
   const lista=xs=>'<div class="lista-catalogo">'+xs.map(x=>'<div><span>'+esc(x.nome)+'</span><small>'+esc(x.status)+'</small></div>').join('')+'</div>';
   const grupos=(titulo,xs,rotulo='habilidades')=>'<section class="grupo-catalogo"><h2>'+esc(titulo)+'</h2>'+xs.map(x=>'<details><summary><span>'+esc(x.nome)+(x.nivelMax?' · até o nível '+x.nivelMax:'')+'</span><b>'+x[rotulo].length+'</b></summary>'+lista(x[rotulo])+'</details>').join('')+'</section>';
   const eq=catalogo.sistemaEquipamentos,linhasEq=eq?[{nome:'Alcance máximo',status:eq.alcanceMaximoM+' m'},{nome:'Ataques visíveis',status:eq.ataquesVisiveis},{nome:'Cálculo de armas',status:eq.calculoArmas},{nome:'Dano de armas',status:eq.danoArmas},{nome:'Portabilidade',status:eq.portabilidade},{nome:'Armaduras',status:eq.classesArmadura.join(', ')},{nome:'Propriedades',status:eq.propriedadesArmas.join(', ')}]:[];
-  return '<section class="cabecalho-catalogo"><small>VISÃO DO SISTEMA</small><h2>Conteúdo configurado</h2><p>Esta página é gerada das sete fichas de jogadores. As seções começam retraídas e distinguem automações de resoluções assistidas pelo mestre.</p></section>'+
+  return '<section class="cabecalho-catalogo"><small>VISÃO DO SISTEMA</small><h2>Conteúdo configurado</h2><p>Esta página é gerada do catálogo central e das concessões das fichas. As seções começam retraídas e distinguem automações de resoluções assistidas pelo mestre.</p></section>'+
     grupos('Classes',catalogo.classes)+grupos('Raças',catalogo.racas)+
     '<section class="grupo-catalogo"><h2>Bibliotecas</h2>'+(eq?'<details><summary><span>Sistema de equipamentos</span><b>'+linhasEq.length+'</b></summary>'+lista(linhasEq)+'</details>':'')+'<details><summary><span>Ações e habilidades comuns</span><b>'+catalogo.comuns.length+'</b></summary>'+lista(catalogo.comuns)+'</details><details><summary><span>Itens registrados</span><b>'+catalogo.itens.length+'</b></summary>'+lista(catalogo.itens)+'</details><details><summary><span>Módulos do motor</span><b>'+catalogo.modulos.length+'</b></summary>'+lista(catalogo.modulos)+'</details></section>';
 }

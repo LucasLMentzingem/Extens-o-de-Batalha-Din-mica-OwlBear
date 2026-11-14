@@ -1,6 +1,6 @@
 {
   "$schema": "./ficha.schema.json",
-  "versaoFormato": 1,
+  "versaoFormato": 2,
   "id": "hannah-montana",
   "nome": "Hannah Montana",
   "tipo": "pj",
@@ -143,861 +143,6 @@
       ]
     }
   ],
-  "opcoes": [
-    {
-      "id": "adaga-4-acao-0",
-      "nome": "Adaga +4 | ação",
-      "categoria": "acao",
-      "descricao": "Corpo a corpo ou arremesso 6/18 m · perfurante.\nNormal [1d20+4]\nDano [1d4+2] · Crítico [2d4+2]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d4+2",
-        "elemento": "perfurante",
-        "alcanceM": 1.5
-      },
-      "requerItemEquipado": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "segunda-adaga-4-acao-bonus-1",
-      "nome": "Segunda adaga +4 | ação bônus",
-      "categoria": "acao",
-      "descricao": "Após atacar com outra arma Leve na ação Atacar neste turno. Perfurante.\nNormal [1d20+4]\nDano [1d4] · Crítico [2d4]",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d4",
-        "elemento": "perfurante",
-        "alcanceM": 1.5
-      },
-      "requerItemEquipado": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8-2",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "golpe-desarmado-1-acao-2",
-      "nome": "Golpe desarmado +1 | ação",
-      "categoria": "acao",
-      "descricao": "1,5 m · Normal [1d20+1]\nDano contundente 0, também no crítico (dano fixo).",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 1,
-        "dano": "0",
-        "elemento": "contundente",
-        "alcanceM": 1.5,
-        "tags": [
-          "desarmado"
-        ]
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-3",
-      "nome": "Imobilizar | ação",
-      "categoria": "acao",
-      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 9,
-        "alcanceM": 1.5,
-        "efeitoFalha": {
-          "nome": "Agarrado",
-          "condicao": "agarrado",
-          "turnos": 10
-        }
-      }
-    },
-    {
-      "id": "disparada-acao-4",
-      "nome": "Correr | ação",
-      "categoria": "acao",
-      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "disparada"
-      }
-    },
-    {
-      "id": "desengajar-acao-5",
-      "nome": "Desengajar | ação",
-      "categoria": "acao",
-      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "desengajar"
-      }
-    },
-    {
-      "id": "esquivar-acao-6",
-      "nome": "Esquivar | ação",
-      "categoria": "acao",
-      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "economia",
-        "esquivar": true
-      }
-    },
-    {
-      "id": "ajudar-acao-7",
-      "nome": "Ajudar | ação",
-      "categoria": "acao",
-      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "esconder-se-acao-8",
-      "nome": "Esconder | ação",
-      "categoria": "acao",
-      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "preparar-acao-9",
-      "nome": "Preparar | ação",
-      "categoria": "acao",
-      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "procurar-acao-10",
-      "nome": "Procurar | ação",
-      "categoria": "acao",
-      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "estudar-acao-11",
-      "nome": "Analisar | ação",
-      "categoria": "acao",
-      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "influenciar-acao-12",
-      "nome": "Influenciar | ação",
-      "categoria": "acao",
-      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "utilizar-acao-13",
-      "nome": "Usar Objeto | ação",
-      "categoria": "acao",
-      "descricao": "Manipule um objeto que exija uma ação.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "usar-magia-acao-14",
-      "nome": "Usar Magia | ação",
-      "categoria": "acao",
-      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "ataque-de-oportunidade-reacao-15",
-      "nome": "Ataque de oportunidade | reação",
-      "categoria": "acao",
-      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
-      "custo": [
-        {
-          "tipo": "reacao",
-          "quantidade": 1
-        }
-      ],
-      "gatilho": "sair_alcance"
-    },
-    {
-      "id": "manto-de-inspiracao-16",
-      "nome": "Manto de Inspiração",
-      "categoria": "acao",
-      "descricao": "Ação Bônus, gasta 1 Inspiração de Bardo: role [1d6]; até 3 criaturas a 18 m (mod. de CAR) ganham PV temporários iguais ao dobro do resultado e podem usar a Reação para se mover até o Deslocamento sem provocar Ataques de Oportunidade.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "inspiracao-de-bardo",
-          "quantidade": 1
-        }
-      ],
-      "selecao": {
-        "tipo": "alvos",
-        "min": 1,
-        "max": 3,
-        "repetirAlvo": false
-      },
-      "automacao": {
-        "tipo": "pv_temporario",
-        "formula": "1d6",
-        "multiplicador": 2,
-        "alcanceM": 18
-      }
-    },
-    {
-      "id": "pericia-atuacao-5-17",
-      "nome": "Perícia | Atuação +5",
-      "categoria": "acao",
-      "descricao": "CAR · Proficiente\nNormal [1d20+5]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-enganacao-4-18",
-      "nome": "Perícia | Enganação +4",
-      "categoria": "acao",
-      "descricao": "CAR · Pau pra Toda Obra\nNormal [1d20+4]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-intimidacao-4-19",
-      "nome": "Perícia | Intimidação +4",
-      "categoria": "acao",
-      "descricao": "CAR · Pau pra Toda Obra\nNormal [1d20+4]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-investigacao-4-20",
-      "nome": "Perícia | Investigação +4",
-      "categoria": "acao",
-      "descricao": "INT · Especialização\nNormal [1d20+4]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-prestidigitacao-3-21",
-      "nome": "Perícia | Prestidigitação +3",
-      "categoria": "acao",
-      "descricao": "DES · Pau pra Toda Obra\nNormal [1d20+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "nota-de-importacao-22",
-      "nome": "Nota de importação",
-      "categoria": "acao",
-      "descricao": "Ficha montada pelas escolhas desta conversa, conferidas no Livro do Jogador 2024 em português. Magias na lista própria (Z039). O dono do token deve ser atribuído no Forge depois de importar.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "2-arrombar-23",
-      "nome": "2º | Arrombar",
-      "categoria": "magia",
-      "descricao": "Ação, 18 m: abre uma fechadura, tranca, cadeado ou corrente (ou suprime Tranca Arcana por 10 min). Faz um barulho alto ouvido a até 90 m.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-2",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 2
-    },
-    {
-      "id": "2-reflexos-glamour-sempre-24",
-      "nome": "2º | Reflexos · Glamour, sempre",
-      "categoria": "magia",
-      "descricao": "Ação, 1 min, sem Concentração: 3 cópias ilusórias suas. Quando um ataque o atingiria, ele pode atingir uma das cópias, que some. Ilusão: ativa a Magia Fascinante.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-2",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 2,
-      "concentracao": true
-    },
-    {
-      "id": "1-curar-ferimentos-25",
-      "nome": "1º | Curar Ferimentos",
-      "categoria": "magia",
-      "descricao": "Ação, toque: cura [2d8+3] PV. +2d8 por círculo acima.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "automacao": {
-        "tipo": "cura",
-        "formula": "2d8+3",
-        "alcanceM": 1.5
-      }
-    },
-    {
-      "id": "1-detectar-magia-ritual-concentracao-26",
-      "nome": "1º | Detectar Magia · Ritual, Concentração",
-      "categoria": "magia",
-      "descricao": "Ação ou ritual, 10 min: sente magia a até 9 m e vê a aura e a escola.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "concentracao": true
-    },
-    {
-      "id": "1-enfeiticar-pessoa-glamour-sempre-27",
-      "nome": "1º | Enfeitiçar Pessoa · Glamour, sempre",
-      "categoria": "magia",
-      "descricao": "Ação, 9 m, 1 h. Humanoide faz salvaguarda de SAB CD 13 (com Vantagem se você ou aliados lutam com ele) ou fica Enfeitiçado e amigável. Sabe que foi enfeitiçado quando acaba. +1 alvo por círculo acima. Encantamento: ativa a Magia Fascinante.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "automacao": {
-        "tipo": "salva",
-        "atributo": "sab",
-        "cd": 13,
-        "alcanceM": 9,
-        "efeitoFalha": {
-          "nome": "Enfeitiçado",
-          "condicao": "enfeiticado",
-          "turnos": 100
-        }
-      }
-    },
-    {
-      "id": "1-falar-com-animais-ritual-28",
-      "nome": "1º | Falar com Animais · Ritual",
-      "categoria": "magia",
-      "descricao": "Ação ou ritual, 10 min: entende e conversa com feras.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1
-    },
-    {
-      "id": "1-fogo-das-fadas-concentracao-29",
-      "nome": "1º | Fogo das Fadas · Concentração",
-      "categoria": "magia",
-      "descricao": "Ação, 18 m, cubo de 6 m, até 1 min. Salvaguarda de DES CD 13: quem falhar emite luz, não pode ficar Invisível, e jogadas de ataque contra ele têm Vantagem.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "automacao": {
-        "tipo": "salva",
-        "atributo": "des",
-        "cd": 13,
-        "alcanceM": 18,
-        "area": {
-          "forma": "quadrado",
-          "tamanhoM": 6
-        },
-        "efeitoFalha": {
-          "nome": "Iluminado por Fogo das Fadas",
-          "turnos": 10,
-          "restricoes": {
-            "vantagemAtaquesContra": true,
-            "anulaInvisivel": true
-          }
-        }
-      },
-      "concentracao": true
-    },
-    {
-      "id": "1-palavra-curativa-30",
-      "nome": "1º | Palavra Curativa",
-      "categoria": "magia",
-      "descricao": "Ação Bônus, 18 m: cura [2d4+3] PV. +2d4 por círculo acima.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 1,
-      "automacao": {
-        "tipo": "cura",
-        "formula": "2d4+3",
-        "alcanceM": 18
-      }
-    },
-    {
-      "id": "1-passos-largos-elfo-31",
-      "nome": "1º | Passos Largos · Elfo",
-      "categoria": "magia",
-      "descricao": "Ação, toque, 1 h: +3 m de Deslocamento. 1x grátis por descanso longo.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "espaco-1",
-          "quantidade": 1
-        }
-      ],
-      "usoGratuito": {
-        "recursoId": "passos-largos-da-linhagem",
-        "quantidade": 1,
-        "nome": "Conjuração gratuita da linhagem"
-      },
-      "circuloBase": 1,
-      "automacao": {
-        "tipo": "efeito",
-        "alcanceM": 1.5,
-        "efeito": {
-          "nome": "Passos Largos",
-          "tipo": "buff",
-          "descricao": "+3 m de deslocamento.",
-          "modificadores": {
-            "deslocamentoM": 3
-          },
-          "removeEm": "descanso_longo"
-        }
-      }
-    },
-    {
-      "id": "truque-zombaria-perversa-32",
-      "nome": "Truque | Zombaria Perversa",
-      "categoria": "magia",
-      "descricao": "Ação, 18 m. Salvaguarda de SAB CD 13: [1d6] psíquico e o alvo tem Desvantagem na próxima jogada de ataque antes do fim do turno dele. No sucesso, sem efeito.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 0,
-      "automacao": {
-        "tipo": "salva",
-        "atributo": "sab",
-        "cd": 13,
-        "dano": "1d6",
-        "elemento": "psiquico",
-        "alcanceM": 18,
-        "efeitoFalha": {
-          "nome": "Zombado",
-          "turnos": 1,
-          "restricoes": {
-            "desvantagemAtaques": true,
-            "consumirAoAtacar": true
-          },
-          "expira": "fim_alvo"
-        }
-      }
-    },
-    {
-      "id": "truque-arte-druidica-elfo-33",
-      "nome": "Truque | Arte Druídica · Elfo",
-      "categoria": "magia",
-      "descricao": "Pequenos efeitos da natureza: prever o tempo, fazer uma flor desabrochar, efeitos sensoriais inofensivos, acender ou apagar uma chama pequena.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 0
-    },
-    {
-      "id": "truque-ilusao-menor-34",
-      "nome": "Truque | Ilusão Menor",
-      "categoria": "magia",
-      "descricao": "Ação, 9 m, 1 min: cria um som ou uma imagem parada que cabe num cubo de 1,5 m. Teste de Investigação contra CD 13 revela a ilusão.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "circuloBase": 0
-    },
-    {
-      "id": "inspiracao-bardo-acao",
-      "nome": "Inspiração de Bardo",
-      "categoria": "acao",
-      "descricao": "Concede 1d6 a uma criatura a até 18 m.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "inspiracao-de-bardo",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "conceder_dado",
-        "alcanceM": 18,
-        "modificador": {
-          "nome": "Inspiração de Bardo",
-          "formula": "1d6",
-          "tipos": [
-            "ataque",
-            "salvaguarda",
-            "teste"
-          ],
-          "removeAoUsar": true,
-          "removeEm": "descanso_longo"
-        }
-      },
-      "requisitosUso": {
-        "alvoDiferenteDoConjurador": true
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-3-derrubar",
-      "nome": "Derrubar | ação",
-      "categoria": "acao",
-      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 9,
-        "alcanceM": 1.5,
-        "efeitoFalha": {
-          "nome": "Caído",
-          "condicao": "caido",
-          "turnos": 1,
-          "expira": "fim_origem"
-        }
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-3-empurrar",
-      "nome": "Empurrar | ação",
-      "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 9. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 9,
-        "alcanceM": 1.5,
-        "deslocamentoForcado": {
-          "distanciaM": 1.5,
-          "direcao": "afastar"
-        }
-      }
-    },
-    {
-      "id": "adaga-4-acao-0-arremesso",
-      "nome": "Adaga +4 · arremesso | ação",
-      "categoria": "acao",
-      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nCorpo a corpo ou arremesso 6/18 m · perfurante.\nNormal [1d20+4]\nDano [1d4+2] · Crítico [2d4+2]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d4+2",
-        "elemento": "perfurante",
-        "alcanceM": 18,
-        "alcanceNormalM": 6,
-        "arremesso": true
-      },
-      "varianteArremessoDe": "adaga-4-acao-0",
-      "requerItemEquipado": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "segunda-adaga-4-acao-bonus-1-arremesso",
-      "nome": "Segunda adaga +4 · arremesso | ação bônus",
-      "categoria": "acao",
-      "descricao": "Arremesso 6/18 m. Além de 6 m, o ataque tem desvantagem.\nApós atacar com outra arma Leve na ação Atacar neste turno. Perfurante.\nNormal [1d20+4]\nDano [1d4] · Crítico [2d4]",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d4",
-        "elemento": "perfurante",
-        "alcanceM": 18,
-        "alcanceNormalM": 6,
-        "arremesso": true
-      },
-      "varianteArremessoDe": "segunda-adaga-4-acao-bonus-1",
-      "requerItemEquipado": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8-2",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "gastar-dado-de-vida",
-      "nome": "Gastar Dado de Vida",
-      "categoria": "acao",
-      "origem": "descanso",
-      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d8 e some seu modificador de Constituição para recuperar Pontos de Vida.",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
-        }
-      ],
-      "requisitosUso": {
-        "somenteForaCombate": true
-      },
-      "automacao": {
-        "tipo": "economia",
-        "cura": "1d8+2"
-      }
-    }
-  ],
-  "equipamentos": [
-    {
-      "id": "4a51a5fc-887c-524f-98a6-b47add7dd1f1",
-      "name": "Armadura de Couro",
-      "description": "CA 11 + DES = 13.",
-      "inUse": true
-    },
-    {
-      "id": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8",
-      "name": "2 Adagas",
-      "description": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
-      "inUse": false
-    },
-    {
-      "id": "36d92d9e-a903-5250-a0e7-61008f4c5893",
-      "name": "Violino",
-      "description": "Instrumento escolhido do kit (assumido); foco de conjuração e instrumento do talento Músico.",
-      "inUse": true
-    },
-    {
-      "id": "e20b37cd-1edf-5e1a-8bcd-42c2eec1522b",
-      "name": "Kit de Artista",
-      "description": "Mochila, caixa para fogo, cantil, espelho, 3 fantasias, lanterna foca-facho, 8 potes de óleo, 9 dias de rações, saco de dormir, sino.",
-      "inUse": false
-    },
-    {
-      "id": "af40d2d3-c4ce-50e2-81d8-3c3417343757",
-      "name": "Moedas — 19 PO",
-      "description": "Saldo do kit inicial do Bardo (opção A).",
-      "inUse": false
-    }
-  ],
-  "passivas": [
-    {
-      "nome": "Passiva | Especialista",
-      "descricao": "Especialização em Investigação (+4) e Persuasão (+7).",
-      "id": "passiva-1",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Pau pra Toda Obra",
-      "descricao": "Some +1 aos testes de atributo que usam uma perícia em que você não é proficiente e que ainda não incluem proficiência.",
-      "id": "passiva-2",
-      "ativa": true,
-      "modificadores": {
-        "iniciativa": 1
-      }
-    },
-    {
-      "nome": "Passiva | Elfo Silvestre",
-      "descricao": "Visão no Escuro 18 m. Ancestralidade Feérica: Vantagem em salvaguardas contra ficar Enfeitiçado. Transe: descanso longo em 4 h, sem dormir; magia não o faz dormir. Sentidos Aguçados: Percepção. Truque Arte Druídica.  Passos Largos usa o saldo no topo.",
-      "id": "passiva-3",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Proficiências",
-      "descricao": "Armas simples; armadura leve. Instrumentos: Flauta de Pan, Gaita de Foles, Trombeta, Lira, Oboé, Violino e Xilofone. Perícias: Acrobacia, Atuação (Artista); Percepção (Elfo); Investigação, Arcanismo, Persuasão (Bardo). Salvaguardas: DES e CAR.",
-      "id": "passiva-4",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Músico",
-      "descricao": "Durante um descanso curto ou longo, você pode tocar um instrumento para conceder Inspiração Heroica a aliados, até um número igual ao seu bônus de proficiência. Resolução assistida pelo mestre.",
-      "id": "passiva-5",
-      "ativa": true
-    }
-  ],
   "notas": [
     {
       "titulo": "Fonte",
@@ -1020,168 +165,283 @@
     ]
   },
   "inventario": {
-    "versaoOcupacao": 5,
+    "versaoOcupacao": 6,
     "capacidadeCargaKg": 60,
     "itens": [
       {
         "id": "4a51a5fc-887c-524f-98a6-b47add7dd1f1",
-        "nome": "Armadura de Couro",
-        "descricao": "CA 11 + DES = 13.",
-        "tipo": "equipamento",
+        "ref": "item.armadura-de-couro",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 5,
-        "slotEquipamento": "vestes",
         "equipado": true,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "categoriaArmadura": "leve",
-        "classeArmadura": {
-          "tipo": "base",
-          "valor": 11,
-          "classe": "leve",
-          "atributo": "des"
-        },
-        "equipadoSlot": "vestes"
+        "equipadoSlot": "vestes",
+        "preferido": true
       },
       {
         "id": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8",
-        "nome": "Adaga",
-        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
-        "tipo": "equipamento",
+        "ref": "item.adaga-469c7254",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.5,
-        "slotEquipamento": "mao_forte",
         "equipado": true,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "adaga-4-acao-0",
-          "adaga-4-acao-0-arremesso"
-        ],
-        "tipoArma": "adaga",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "acuidade",
-          "leve",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d4",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 6,
-            "alcanceM": 18,
-            "dano": "1d4",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma",
         "equipadoSlot": "mao_forte"
       },
       {
         "id": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8-2",
-        "nome": "Adaga",
-        "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m.",
-        "tipo": "equipamento",
+        "ref": "item.adaga-62b1e6a3",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.5,
-        "slotEquipamento": "mao_forte",
         "equipado": true,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "segunda-adaga-4-acao-bonus-1",
-          "segunda-adaga-4-acao-bonus-1-arremesso"
-        ],
-        "tipoArma": "adaga",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "acuidade",
-          "leve",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d4",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 6,
-            "alcanceM": 18,
-            "dano": "1d4",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma",
         "equipadoSlot": "mao_fraca"
       },
       {
         "id": "36d92d9e-a903-5250-a0e7-61008f4c5893",
-        "nome": "Violino",
-        "descricao": "Instrumento escolhido do kit (assumido); foco de conjuração e instrumento do talento Músico.",
-        "tipo": "etc",
+        "ref": "item.violino",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.5,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "preferido": true
       },
       {
         "id": "e20b37cd-1edf-5e1a-8bcd-42c2eec1522b",
-        "nome": "Kit de Artista",
-        "descricao": "Mochila, caixa para fogo, cantil, espelho, 3 fantasias, lanterna foca-facho, 8 potes de óleo, 9 dias de rações, saco de dormir, sino.",
-        "tipo": "etc",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 17,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "ref": "item.kit-de-artista",
+        "quantidade": 1
       },
       {
         "id": "af40d2d3-c4ce-50e2-81d8-3c3417343757",
-        "nome": "Moedas — 19 PO",
-        "descricao": "Saldo do kit inicial do Bardo (opção A).",
-        "tipo": "moeda",
-        "quantidade": 19,
-        "empilhavel": true,
-        "pesoKg": 0.01,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "ref": "item.moedas-19-po",
+        "quantidade": 19
       }
     ]
   },
   "vantagemSalvasContra": [
     "enfeiticado"
+  ],
+  "versaoCatalogo": 1,
+  "concessoes": [
+    {
+      "id": "adaga-4-acao-0",
+      "ref": "habilidade.adaga-4-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "segunda-adaga-4-acao-bonus-1",
+      "ref": "habilidade.segunda-adaga-4-acao-bonus",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "golpe-desarmado-1-acao-2",
+      "ref": "habilidade.golpe-desarmado-1-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3",
+      "ref": "habilidade.imobilizar-acao-5132c5b7",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "disparada-acao-4",
+      "ref": "habilidade.correr-acao-d586be15",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "desengajar-acao-5",
+      "ref": "habilidade.desengajar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esquivar-acao-6",
+      "ref": "habilidade.esquivar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ajudar-acao-7",
+      "ref": "habilidade.ajudar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esconder-se-acao-8",
+      "ref": "habilidade.esconder-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "preparar-acao-9",
+      "ref": "habilidade.preparar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "procurar-acao-10",
+      "ref": "habilidade.procurar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "estudar-acao-11",
+      "ref": "habilidade.analisar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "influenciar-acao-12",
+      "ref": "habilidade.influenciar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "utilizar-acao-13",
+      "ref": "habilidade.usar-objeto-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "usar-magia-acao-14",
+      "ref": "habilidade.usar-magia-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ataque-de-oportunidade-reacao-15",
+      "ref": "habilidade.ataque-de-oportunidade-reacao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "manto-de-inspiracao-16",
+      "ref": "habilidade.manto-de-inspiracao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-atuacao-5-17",
+      "ref": "habilidade.pericia-atuacao-5",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-enganacao-4-18",
+      "ref": "habilidade.pericia-enganacao-4",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-intimidacao-4-19",
+      "ref": "habilidade.pericia-intimidacao-4",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-investigacao-4-20",
+      "ref": "habilidade.pericia-investigacao-4",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-prestidigitacao-3-21",
+      "ref": "habilidade.pericia-prestidigitacao-3-caaf49e7",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "nota-de-importacao-22",
+      "ref": "habilidade.nota-de-importacao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "2-arrombar-23",
+      "ref": "habilidade.2-arrombar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "2-reflexos-glamour-sempre-24",
+      "ref": "habilidade.2-reflexos-glamour-sempre",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-curar-ferimentos-25",
+      "ref": "habilidade.1-curar-ferimentos-77c1a63d",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-detectar-magia-ritual-concentracao-26",
+      "ref": "habilidade.1-detectar-magia-ritual-concentracao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-enfeiticar-pessoa-glamour-sempre-27",
+      "ref": "habilidade.1-enfeiticar-pessoa-glamour-sempre",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-falar-com-animais-ritual-28",
+      "ref": "habilidade.1-falar-com-animais-ritual",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-fogo-das-fadas-concentracao-29",
+      "ref": "habilidade.1-fogo-das-fadas-concentracao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-palavra-curativa-30",
+      "ref": "habilidade.1-palavra-curativa",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "1-passos-largos-elfo-31",
+      "ref": "habilidade.1-passos-largos-elfo",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "truque-zombaria-perversa-32",
+      "ref": "habilidade.truque-zombaria-perversa",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "truque-arte-druidica-elfo-33",
+      "ref": "habilidade.truque-arte-druidica-elfo",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "truque-ilusao-menor-34",
+      "ref": "habilidade.truque-ilusao-menor",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "inspiracao-bardo-acao",
+      "ref": "habilidade.inspiracao-de-bardo",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3-derrubar",
+      "ref": "habilidade.derrubar-acao-570eb64f",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-3-empurrar",
+      "ref": "habilidade.empurrar-acao-710fd437",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "adaga-4-acao-0-arremesso",
+      "ref": "habilidade.adaga-4-arremesso-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "segunda-adaga-4-acao-bonus-1-arremesso",
+      "ref": "habilidade.segunda-adaga-4-arremesso-acao-bonus",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "ref": "habilidade.gastar-dado-de-vida-4ebce3c7",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "passiva-1",
+      "ref": "habilidade.passiva-especialista",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-2",
+      "ref": "habilidade.passiva-pau-pra-toda-obra",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-3",
+      "ref": "habilidade.passiva-elfo-silvestre",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-4",
+      "ref": "habilidade.passiva-proficiencias",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-5",
+      "ref": "habilidade.passiva-musico",
+      "tipo": "passiva"
+    }
   ]
 }

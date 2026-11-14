@@ -5,9 +5,11 @@ import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvM
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
-const ficha=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
+import {catalogoCentral,compactarFicha,compactarEstado,resolverCatalogoLoja} from './site/catalog.mjs';
+const fichaFonte=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
+const ficha=async name=>validar(await fichaFonte(name));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
-const catalogoVictor=JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8'));
+const catalogoVictor=resolverCatalogoLoja(JSON.parse(await readFile(new URL('./site/catalogo-victor.json',import.meta.url),'utf8')));
 const conteudoConfigurado=JSON.parse(await readFile(new URL('./site/conteudo-configurado.json',import.meta.url),'utf8'));
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
@@ -22,6 +24,22 @@ test('prévia pública aceita mestre ou dono e limita as marcas a linhas e área
   assert.equal(remetentePodePublicarPrevia({id:'p',role:'PLAYER'},ator),true);
   assert.equal(remetentePodePublicarPrevia({id:'intruso',role:'PLAYER'},ator),false);
   assert.equal(marcasPublicasValidas([{...marcas[0],largura:99}]),false);
+});
+test('catálogo central resolve referências compartilhadas e as fichas não duplicam definições',async()=>{
+ const catalogo=catalogoCentral(),refs=new Set(catalogo.habilidades.map(x=>x.id)),itens=new Set(catalogo.itens.map(x=>x.id)),desengajar=[];
+ for(const id of idsJogadores){const fonte=await fichaFonte(id);assert.equal(fonte.versaoFormato,2);assert.equal(fonte.opcoes,undefined);assert.equal(fonte.passivas,undefined);for(const c of fonte.concessoes){assert.ok(c.ref?refs.has(c.ref):c.definicaoLocal,id+' possui concessão quebrada');if(c.ref==='habilidade.desengajar-acao')desengajar.push(id);}for(const i of fonte.inventario.itens)assert.ok(i.ref?itens.has(i.ref):i.definicaoLocal,id+' possui item quebrado');}
+ assert.equal(desengajar.length,7,'a ação compartilhada deve ter uma única definição para os sete jogadores');
+});
+test('persistência compacta conserva o estado mutável sem salvar definições do catálogo',()=>{
+ const s=novo(),a=adicionar(s,nikki),item=a.ficha.inventario.itens[0],passiva=a.ficha.passivas[0];item.quantidade=2;passiva.ativa=false;a.rec.feiticaria=1;
+ const salvo=compactarEstado(s),fonte=salvo.atores[0].ficha;assert.equal(fonte.versaoFormato,2);assert.equal(fonte.opcoes,undefined);assert.equal(fonte.passivas,undefined);assert.ok(fonte.concessoes.every(c=>c.ref||c.definicaoLocal));assert.ok(fonte.inventario.itens.every(i=>i.ref||i.definicaoLocal));
+ const reaberta=validar(fonte);assert.equal(reaberta.inventario.itens.find(i=>i.id===item.id).quantidade,2);assert.equal(reaberta.passivas.find(p=>p.id===passiva.id).ativa,false);assert.equal(salvo.atores[0].rec.feiticaria,1);assert.equal(compactarFicha(reaberta).versaoFormato,2);
+});
+test('Nikki possui um Passo Nebuloso gratuito por descanso longo',async()=>{
+ let s=novo(),a=adicionar(s,nikki),o=a.ficha.opcoes.find(x=>x.catalogoRef==='magia.passo-nebuloso');assert.ok(o);assert.equal(o.somenteUsoGratuito,true);assert.equal(a.rec['passo-nebuloso-gratis'],1);
+ s=await aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,x:5,y:0,confirmado:true},gm,dadoLocal);a=s.atores[0];assert.equal(a.x,5);assert.equal(a.rec['passo-nebuloso-gratis'],0);
+ await assert.rejects(aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,x:7,y:0,confirmado:true},gm,dadoLocal),/Custo da habilidade inválido|Saldo insuficiente/);
+ s=await aplicar(s,{tipo:'descanso',periodo:'longo',rev:s.rev,confirmado:true},gm,dadoLocal);assert.equal(s.atores[0].rec['passo-nebuloso-gratis'],1);
 });
 function mesa(){
   let s=novo();
@@ -80,9 +98,9 @@ test('controle do mestre exclui ficha somente durante a preparação',async()=>{
  const c=adicionar(s,soldado,'Soldado II');s=await aplicar(s,{tipo:'iniciar',rev:s.rev},gm,()=>0);
  await assert.rejects(aplicar(s,{tipo:'remover',rev:s.rev,ator:c.id},gm,()=>0),/preparação/i);
 });
-test('as sete fichas salvas já estão normalizadas pelas regras atuais',()=>{
+test('as sete fichas salvas usam referências e resolvem pelas regras atuais',async()=>{
  for(const f of fichasJogadores){
-   assert.deepEqual(validar(f),f,f.nome+' ainda dependia de migração em memória');
+   const fonte=await fichaFonte(f.id);assert.equal(fonte.versaoFormato,2);assert.ok(fonte.concessoes.length);assert.equal(fonte.opcoes,undefined);assert.equal(fonte.passivas,undefined);
    assert.ok(f.opcoes.every(o=>(o.automacao?.alcanceM??0)<=LIMITE_ALCANCE_M),f.nome+' excede o alcance do sistema');
    assert.ok(f.inventario.itens.every(i=>Number.isFinite(i.pesoKg)&&i.pesoKg>=0),f.nome+' possui item sem peso');
    const ocupados=new Map();
@@ -814,7 +832,7 @@ test('defesas podem vir da ficha, passiva, item equipado e buff',()=>{
 // ===== Revisão de regras (PR correcoes-revisao-regras) =====
 // Rolador que imita a sala: calcula relatoriosDano como o bridge e anexa em cada resultado.
 const {relatoriosDaRolagem}=await import('./site/damage.mjs');
-const fichaRev=async n=>JSON.parse(await readFile(new URL('./site/fichas/'+n+'.json',import.meta.url),'utf8'));
+const fichaRev=async n=>validar(JSON.parse(await readFile(new URL('./site/fichas/'+n+'.json',import.meta.url),'utf8')));
 function roladorSala({d20=15,dano=6,salva=null}={}){
   const formulas=[];
   const rolar=async(formula,meta={})=>{

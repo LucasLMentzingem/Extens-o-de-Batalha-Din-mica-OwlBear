@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-14 — catálogo central e fichas por referência 0.8.3
+
+- Habilidades e itens reutilizáveis passaram para os catálogos centrais em `site/catalogos`; as oito fichas distribuídas foram migradas para o formato 2 e guardam apenas concessões e instâncias.
+- O resolvedor hidrata as definições no carregamento e a persistência volta a compactá-las antes de salvar, preservando PV, recursos, efeitos, preparação, equipamento e vínculos.
+- Fichas antigas de formato 1 continuam aceitas; conteúdo conhecido vira referência e conteúdo particular permanece como `definicaoLocal`.
+- O catálogo contém 250 habilidades e 72 definições de itens, incluindo os itens da Ferraria de Victor.
+- Nikki recebeu a concessão `magia.passo-nebuloso`, com um uso gratuito exclusivo por descanso longo e teleporte de até 9 m.
+- Foram adicionados schemas, gerador de runtime, validação de referências no CI, guia de contribuição e política de versões restrita a `0.8.x` até `0.8.99`.
+- Validação: 132 testes automatizados aprovados, incluindo compartilhamento de referências, persistência compacta e recuperação do Passo Nebuloso.
+
 ## 2026-11-14 — prévias públicas e novo empilhamento da HUD 0.8.2
 
 - Trajetórias de movimento e ataque, áreas de efeito, alcance e deslocamento forçado agora são transmitidos de forma compacta e redesenhados localmente por todos os participantes.

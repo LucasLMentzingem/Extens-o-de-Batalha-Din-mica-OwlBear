@@ -99,9 +99,15 @@ A aba **Controle de fichas** mostra o personagem selecionado no mapa ou uma fich
 
 ## Contrato de importação
 
-[Esquema JSON versão 1](site/fichas/ficha.schema.json) · [Nikki Lauda](site/fichas/nikki.json) · [Soldado nível 3](site/fichas/soldado.json) · [Arquitetura](../Arquitetura.md)
+[Esquema JSON das fichas](site/fichas/ficha.schema.json) · [Catálogo de habilidades](site/catalogos/habilidades.json) · [Catálogo de itens](site/catalogos/itens.json) · [Nikki Lauda](site/fichas/nikki.json) · [Guia de contribuição](CONTRIBUTING.md)
 
-O formato aceita classes e multiclasses cuja soma seja de 1 a 10. Recursos, espaços por círculo, preparação e progressão são declarados na própria ficha. O importador conserva campos adicionais de classe, equipamento ou campanha. O esquema descreve os grupos de variáveis; o importador também verifica limites de nível e saldo, IDs repetidos, custos e referências às magias preparadas. Os JSONs originais do Forge permanecem no acervo. As duas amostras desta versão já estão no formato próprio.
+O formato 2 aceita classes e multiclasses cuja soma seja de 1 a 10. As regras reutilizáveis de habilidades e itens ficam no catálogo central; a ficha armazena concessões, instâncias, preparação, equipamentos e escolhas individuais por referência. Ao alterar uma definição central, todos os personagens que apontam para ela recebem a correção ao carregar. O formato 1 continua importável e é compactado de maneira compatível na persistência seguinte.
+
+O estado da sala guarda PV, recursos consumidos, efeitos, vínculos, preparação e equipamento sem duplicar as definições do catálogo. O caso de referência de Nikki registra `magia.passo-nebuloso` como recompensa de aventura, com um uso gratuito exclusivo por descanso longo.
+
+## Versões e contribuições
+
+A extensão permanece na linha `0.8.x`: somente o último número será alterado, até `0.8.99`, salvo pedido explícito do responsável pelo projeto. Consulte [VERSIONING.md](VERSIONING.md) e [CONTRIBUTING.md](CONTRIBUTING.md) antes de editar catálogos ou fichas.
 
 | Dados na ficha | Como funcionam nesta versão |
 |---|---|

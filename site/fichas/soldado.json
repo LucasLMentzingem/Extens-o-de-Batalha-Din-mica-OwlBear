@@ -1,6 +1,6 @@
 {
   "$schema": "./ficha.schema.json",
-  "versaoFormato": 1,
+  "versaoFormato": 2,
   "id": "soldado",
   "nome": "Soldado da guarda",
   "tipo": "npc",
@@ -35,156 +35,116 @@
   },
   "resistencias": [],
   "proficiencia": 2,
-  "proficienciasEquipamento": {"armas":["simples","marcial"],"armaduras":["media","escudo"],"maestrias":[]},
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [
+      "media",
+      "escudo"
+    ],
+    "maestrias": []
+  },
   "sentidos": "Percepção passiva 12; visão normal.",
   "idiomas": "Comum",
   "pericias": {
     "Atletismo": 4,
     "Percepção": 2
   },
-  "equipamentos": [
-    {
-      "id": "e716a84c-5580-57f4-a940-878f77922409",
-      "name": "Camisa de malha",
-      "description": "Armadura média. CA 13 + DES, máximo +2 de DES.",
-      "pesoKg": 10,
-      "slotEquipamento": "vestes",
-      "categoriaArmadura": "media",
-      "classeArmadura": {"tipo":"base","valor":13,"classe":"media","atributo":"des","limiteAtributo":2},
-      "inUse": true
-    },
-    {
-      "id": "soldado-escudo",
-      "name": "Escudo",
-      "description": "Empunhado na mão fraca. +2 à CA.",
-      "pesoKg": 3,
-      "slotEquipamento": "mao_fraca",
-      "categoriaArmadura": "escudo",
-      "classeArmadura": {"tipo":"bonus","valor":2,"classe":"escudo"},
-      "inUse": true
-    },
-    {
-      "id": "479757f0-6224-50c5-b207-c3105fa9fd81",
-      "name": "Lança",
-      "description": "Uma mão e escudo; 1d6+2.",
-      "pesoKg": 1.5,
-      "inUse": true
-    },
-    {
-      "id": "8cbccc7f-d4ea-5192-b1de-c010c6566b15",
-      "name": "Espada curta",
-      "description": "Reserva, 1d6+2.",
-      "pesoKg": 1,
-      "inUse": false
-    }
-  ],
-  "passivas": [
-    {
-      "nome": "Conter avanço — 1 vez por turno",
-      "descricao": "Ao acertar com a lança em corpo a corpo, pode reduzir o deslocamento do alvo em 3 m até o início do próximo turno do soldado. Reduções desta técnica não se acumulam. Técnica da guarda."
-    },
-    {
-      "nome": "Proteção e tática",
-      "descricao": "CA 16 = camisa de malha 13 + DES 1 + escudo 2. Sem escudo CA 14. Vigia portas, segura corredores e tenta alcançar o sino. Se escolher Esquivar, usa a ação em vez de atacar. Não possui ação bônus especial, maestrias ou Ataques Múltiplos."
-    }
-  ],
   "recursos": [],
-  "opcoes": [
-    {
-      "id": "58bec1ed-2568-594c-8627-9f4b0e79c615",
-      "nome": "Lança — AÇÃO",
-      "categoria": "acao",
-      "descricao": "Um ataque [1d20+4]; alcance 1,5 m, ou arremesso 6/18 m; acerto [1d6+2] perfurante com uma mão e escudo. Além de 6 m no arremesso, desvantagem. Lança arremessada precisa ser recuperada; use a espada de reserva enquanto isso.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d6+2",
-        "alcanceM": 1.5,
-        "elemento": "perfurante"
-      }
-    },
-    {
-      "id": "321df1de-4158-5c5a-9950-df5fa62cefb8",
-      "nome": "Espada curta — AÇÃO",
-      "categoria": "acao",
-      "descricao": "Um ataque [1d20+4], alcance 1,5 m; dano [1d6+2] perfurante. Alternativa à lança, não ataque adicional.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 4,
-        "dano": "1d6+2",
-        "alcanceM": 1.5,
-        "elemento": "perfurante"
-      }
-    },
-    {
-      "id": "9733d2ac-3544-575c-90a9-fe057e862788",
-      "nome": "Tocar o sino — AÇÃO DA MISSÃO",
-      "categoria": "acao",
-      "descricao": "A até 1,5 m de um acionamento funcional, com acesso físico e mão livre, pode gastar sua ação Utilizar para tocar. Qualquer um dos dois sinos dispara o alarme geral. Pode mover-se e tocar no mesmo turno se alcançar. Disparada usa sua ação, então não pode também tocar nesse turno. Gritos alertam quem puder ouvir, sem acionar magicamente o sino. Nenhum destes guardas carrega a chave do cofre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "cae79d30-a752-5e58-af9d-8befa34d4ea3",
-      "nome": "Ataque de oportunidade — REAÇÃO",
-      "categoria": "reacao",
-      "descricao": "Quando uma criatura visível sai do seu alcance corpo a corpo por movimento que provoque, pode gastar sua reação para UM ataque corpo a corpo. Não usa arco nem Raio de Gelo como oportunidade. Desengajar e teleporte evitam a oportunidade conforme as regras. Recupera a reação no início do próprio turno.",
-      "custo": [
-        {
-          "tipo": "reacao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "disparada",
-      "nome": "Disparada",
-      "categoria": "acao",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "disparada"
-      }
-    },
-    {
-      "id": "desengajar",
-      "nome": "Desengajar",
-      "categoria": "acao",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "desengajar"
-      }
-    }
-  ],
   "notas": [
     {
       "nome": "Resumo — NPC CASEIRO",
       "descricao": "NPC da mansão. PV 24, CA 16, deslocamento 9 m. Iniciativa [1d20+1]. Uma ação de ataque realiza um ataque. Nível de campanha, sem ND atribuído."
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "versaoOcupacao": 6,
+    "capacidadeCargaKg": 105,
+    "itens": [
+      {
+        "id": "e716a84c-5580-57f4-a940-878f77922409",
+        "ref": "item.camisa-de-malha",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "vestes",
+        "preferido": true
+      },
+      {
+        "id": "soldado-escudo",
+        "ref": "item.escudo-b66123ac",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_fraca",
+        "preferido": true
+      },
+      {
+        "id": "479757f0-6224-50c5-b207-c3105fa9fd81",
+        "ref": "item.lanca-eb5c1aa0",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_forte",
+        "preferido": true
+      },
+      {
+        "id": "8cbccc7f-d4ea-5192-b1de-c010c6566b15",
+        "ref": "item.espada-curta-56f7a9ea",
+        "quantidade": 1
+      }
+    ]
+  },
+  "versaoCatalogo": 1,
+  "concessoes": [
+    {
+      "id": "58bec1ed-2568-594c-8627-9f4b0e79c615",
+      "ref": "habilidade.lanca-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "321df1de-4158-5c5a-9950-df5fa62cefb8",
+      "ref": "habilidade.espada-curta-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "9733d2ac-3544-575c-90a9-fe057e862788",
+      "ref": "habilidade.tocar-o-sino-acao-da-missao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "cae79d30-a752-5e58-af9d-8befa34d4ea3",
+      "ref": "habilidade.ataque-de-oportunidade-reacao-9f6eea1d",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "disparada",
+      "ref": "habilidade.correr",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "desengajar",
+      "ref": "habilidade.desengajar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "58bec1ed-2568-594c-8627-9f4b0e79c615-arremesso",
+      "ref": "habilidade.lanca-arremesso-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "passiva-1",
+      "ref": "habilidade.conter-avanco-1-vez-por-turno",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-2",
+      "ref": "habilidade.protecao-e-tatica",
+      "tipo": "passiva"
     }
   ]
 }

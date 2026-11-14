@@ -4,8 +4,9 @@
   "type": "object",
   "properties": {
     "versaoFormato": {
-      "const": 1
+      "enum": [1, 2]
     },
+    "versaoCatalogo": {"type": "integer", "minimum": 1},
     "id": {
       "type": "string",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"
@@ -178,6 +179,33 @@
         "$ref": "#/$defs/opcao"
       }
     },
+    "concessoes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,119}$"},
+          "ref": {"type": "string", "pattern": "^[a-z0-9][a-z0-9.-]+$"},
+          "tipo": {"enum": ["habilidade", "passiva"]},
+          "ativa": {"type": "boolean"},
+          "ajustes": {"type": "object"},
+          "definicaoLocal": {"type": "object"},
+          "origem": {"type": "object"},
+          "somenteUsoGratuito": {"type": "boolean"},
+          "usoGratuito": {
+            "type": "object",
+            "required": ["recursoId"],
+            "properties": {
+              "recursoId": {"type": "string"},
+              "quantidade": {"type": "integer", "minimum": 1},
+              "nome": {"type": "string"}
+            }
+          }
+        },
+        "required": ["id", "tipo"],
+        "anyOf": [{"required": ["ref"]}, {"required": ["definicaoLocal"]}]
+      }
+    },
     "preparacao": {
       "type": "object",
       "properties": {
@@ -227,6 +255,9 @@
             "type": "object",
             "properties": {
               "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+              "ref": {"type": "string", "pattern": "^[a-z0-9][a-z0-9.-]+$"},
+              "ajustes": {"type": "object"},
+              "definicaoLocal": {"type": "object"},
               "nome": {"type": "string", "minLength": 1},
               "descricao": {"type": "string"},
               "tipo": {"enum": ["equipamento", "consumivel", "etc", "moeda"]},
@@ -271,7 +302,8 @@
                 "required": ["tipo", "valor"]
               }
             },
-            "required": ["id", "nome", "tipo", "quantidade", "pesoKg"]
+            "required": ["id", "quantidade"],
+            "anyOf": [{"required": ["ref"]}, {"required": ["definicaoLocal"]}, {"required": ["nome", "tipo", "pesoKg"]}]
           }
         }
       },
@@ -354,8 +386,17 @@
     "pvMaximos",
     "caBase",
     "deslocamentosM",
-    "recursos",
-    "opcoes"
+    "recursos"
+  ],
+  "allOf": [
+    {
+      "if": {"properties": {"versaoFormato": {"const": 1}}},
+      "then": {"required": ["opcoes"]}
+    },
+    {
+      "if": {"properties": {"versaoFormato": {"const": 2}}},
+      "then": {"required": ["versaoCatalogo", "concessoes", "inventario"]}
+    }
   ],
   "$defs": {
     "recurso": {

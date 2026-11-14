@@ -1,10 +1,12 @@
 {
-  "versaoFormato": 1,
+  "versaoFormato": 2,
+  "versaoCatalogo": 1,
   "resumo": {
     "classes": 6,
     "racas": 6,
-    "comuns": 19,
-    "itens": 52
+    "habilidades": 250,
+    "comuns": 14,
+    "itens": 49
   },
   "sistemaEquipamentos": {
     "status": "Configurado",
@@ -83,6 +85,26 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Analisar | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Correr | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Esconder | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Gastar Dado de Vida",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Imobilizar | ação",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Inspiração de Bardo",
           "status": "Automatizada"
         },
@@ -133,6 +155,10 @@
         {
           "nome": "Truque | Zombaria Perversa",
           "status": "Automatizada"
+        },
+        {
+          "nome": "Usar Objeto | ação",
+          "status": "Assistida pelo mestre"
         }
       ]
     },
@@ -194,8 +220,40 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Analisar | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Astúcia Mágica",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Correr | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Esconder | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
           "nome": "Foice +1 | ação",
           "status": "Automatizada"
+        },
+        {
+          "nome": "Gastar Dado de Vida",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Imobilizar | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Inspiração Heroica",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Mente Desperta",
+          "status": "Assistida pelo mestre"
         },
         {
           "nome": "Perícia | Atuação +5",
@@ -248,6 +306,10 @@
         {
           "nome": "Truque | Taumaturgia",
           "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Usar Objeto | ação",
+          "status": "Assistida pelo mestre"
         }
       ]
     },
@@ -297,8 +359,12 @@
           "status": "Assistida pelo mestre"
         },
         {
+          "nome": "2º | Passo Nebuloso · recompensa de aventura",
+          "status": "Automatizada"
+        },
+        {
           "nome": "2º | Sopro de Dragão · salva de DES · concentração · classe",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Adaga +4 · arremesso | ação",
@@ -309,11 +375,47 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Analisar | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Correr | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Esconder | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
           "nome": "Fala Telepática | ação bônus",
           "status": "Assistida pelo mestre"
         },
         {
           "nome": "Feitiçaria Inata",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Fonte de Magia · criar espaço de 1º (2 pontos) | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Fonte de Magia · criar espaço de 2º (3 pontos) | ação bônus",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Fonte de Magia · espaço de 1º vira 1 ponto",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Fonte de Magia · espaço de 2º vira 2 pontos",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Gastar Dado de Vida",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Imobilizar | ação",
           "status": "Automatizada"
         },
         {
@@ -334,7 +436,7 @@
         },
         {
           "nome": "Magia Potencializada | ao rolar dano",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Mísseis Mágicos (2º círculo)",
@@ -349,7 +451,31 @@
           "status": "Automatizada"
         },
         {
-          "nome": "Truque | Explosão Elemental · ataque +5 · classe",
+          "nome": "Truque | Explosão Elemental (ácido) · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental (frio) · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental (psíquico) · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental (raio) · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental (trovejante) · ataque +5 · classe",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Truque | Explosão Elemental (veneno) · ataque +5 · classe",
           "status": "Automatizada"
         },
         {
@@ -375,6 +501,10 @@
         {
           "nome": "Truque | Toque Chocante · ataque +5 · classe",
           "status": "Automatizada"
+        },
+        {
+          "nome": "Usar Objeto | ação",
+          "status": "Assistida pelo mestre"
         }
       ]
     },
@@ -405,7 +535,7 @@
         },
         {
           "nome": "1º | Golpe Constritor",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "1º | Marca do Predador",
@@ -425,6 +555,10 @@
         },
         {
           "nome": "1º | Saraivada de Espinhos",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Analisar | ação",
           "status": "Assistida pelo mestre"
         },
         {
@@ -436,6 +570,14 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Ataque de Sopro · cone",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Ataque de Sopro · linha",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Cimitarra +5 | ação",
           "status": "Automatizada"
         },
@@ -444,8 +586,16 @@
           "status": "Assistida pelo mestre"
         },
         {
+          "nome": "Correr | ação",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Destruidor de Hordas",
           "status": "Automatizada"
+        },
+        {
+          "nome": "Esconder | ação",
+          "status": "Assistida pelo mestre"
         },
         {
           "nome": "Espada curta +5 | ação · ataque principal",
@@ -453,6 +603,14 @@
         },
         {
           "nome": "Espada curta extra +5 | na ação Atacar · Ágil",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Gastar Dado de Vida",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Imobilizar | ação",
           "status": "Automatizada"
         },
         {
@@ -518,6 +676,10 @@
         {
           "nome": "Truque | Proteção contra Lâminas",
           "status": "Automatizada"
+        },
+        {
+          "nome": "Usar Objeto | ação",
+          "status": "Assistida pelo mestre"
         }
       ]
     },
@@ -526,6 +688,10 @@
       "nome": "Guerreiro",
       "nivelMax": 3,
       "habilidades": [
+        {
+          "nome": "Analisar | ação",
+          "status": "Assistida pelo mestre"
+        },
         {
           "nome": "Ataque Ameaçador",
           "status": "Automatizada"
@@ -547,7 +713,23 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Correr | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Esconder | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
           "nome": "Espada grande +5 | ação",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Gastar Dado de Vida",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Imobilizar | ação",
           "status": "Automatizada"
         },
         {
@@ -579,12 +761,20 @@
           "status": "Assistida pelo mestre"
         },
         {
+          "nome": "Queimadura de Fogo",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Recuperar Fôlego",
           "status": "Automatizada"
         },
         {
           "nome": "Surto de Ação",
           "status": "Automatizada"
+        },
+        {
+          "nome": "Usar Objeto | ação",
+          "status": "Assistida pelo mestre"
         }
       ]
     },
@@ -602,6 +792,14 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Analisar | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Correr | ação",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Defesa Paciente",
           "status": "Automatizada"
         },
@@ -611,6 +809,18 @@
         },
         {
           "nome": "Defletir Ataques",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Esconder | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Gastar Dado de Vida",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Imobilizar | ação",
           "status": "Automatizada"
         },
         {
@@ -630,7 +840,15 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Mão de Cura · no lugar de um golpe da Torrente",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Mão de Dolo",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Mão de Dolo · golpe da Torrente",
           "status": "Automatizada"
         },
         {
@@ -674,11 +892,23 @@
           "status": "Automatizada"
         },
         {
+          "nome": "Soco (Golpe Desarmado) +5 | ação",
+          "status": "Automatizada"
+        },
+        {
           "nome": "Soco +5 | ação ou ação bônus",
           "status": "Automatizada"
         },
         {
           "nome": "Torrente de Golpes +5 | ação bônus · 1 Foco",
+          "status": "Automatizada"
+        },
+        {
+          "nome": "Usar Objeto | ação",
+          "status": "Assistida pelo mestre"
+        },
+        {
+          "nome": "Valentão de Taverna · empurrar 1,5 m",
           "status": "Automatizada"
         }
       ]
@@ -720,6 +950,10 @@
         {
           "nome": "Passiva | Perícias e idiomas",
           "status": "Passiva registrada"
+        },
+        {
+          "nome": "Queimadura de Fogo",
+          "status": "Automatizada"
         }
       ]
     },
@@ -768,10 +1002,6 @@
   ],
   "comuns": [
     {
-      "nome": "Agarrar | ação",
-      "status": "Automatizada"
-    },
-    {
       "nome": "Ajudar | ação",
       "status": "Assistida pelo mestre"
     },
@@ -788,24 +1018,12 @@
       "status": "Automatizada"
     },
     {
-      "nome": "Disparada | ação",
-      "status": "Automatizada"
-    },
-    {
       "nome": "Empurrar | ação",
       "status": "Automatizada"
     },
     {
-      "nome": "Esconder-se | ação",
-      "status": "Assistida pelo mestre"
-    },
-    {
       "nome": "Esquivar | ação",
       "status": "Automatizada"
-    },
-    {
-      "nome": "Estudar | ação",
-      "status": "Assistida pelo mestre"
     },
     {
       "nome": "Golpe desarmado +1 | ação",
@@ -838,28 +1056,12 @@
     {
       "nome": "Usar Magia | ação",
       "status": "Assistida pelo mestre"
-    },
-    {
-      "nome": "Utilizar | ação",
-      "status": "Assistida pelo mestre"
     }
   ],
   "itens": [
     {
-      "nome": "2 Adagas",
-      "status": "Registro legado vinculado ao inventário"
-    },
-    {
       "nome": "20 flechas e aljava",
-      "status": "Registro legado vinculado ao inventário"
-    },
-    {
-      "nome": "5 Adagas",
-      "status": "Registro legado vinculado ao inventário"
-    },
-    {
-      "nome": "8 Azagaias",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Adaga",
@@ -867,31 +1069,31 @@
     },
     {
       "nome": "Aljava com 20 Flechas",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Anel simples de oficina",
-      "status": "Item, preço e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
-      "nome": "Arco Longo",
-      "status": "Registro legado vinculado ao inventário"
+      "nome": "Arco longo",
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Armadura Couro Batido",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Armadura de Couro",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Armadura de Couro Batido",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Armadura de placas",
-      "status": "CA, classe e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Azagaia",
@@ -899,159 +1101,159 @@
     },
     {
       "nome": "Botas de marcha (par)",
-      "status": "Item, preço e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Camisa de malha",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Camisão de malha",
-      "status": "CA, classe e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Capa de viagem",
-      "status": "Item, preço e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Cimitarra",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Colar simples de oficina",
-      "status": "Item, preço e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Corrente (3 m)",
-      "status": "Item, preço e slot configurados"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Cota de Malha",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Couro batido",
-      "status": "CA, classe e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Escudo",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
-      "nome": "Espada curta",
-      "status": "Registro legado vinculado ao inventário"
+      "nome": "Espada Curta",
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Espada Grande",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Fantasia e roupas finas",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Ferramentas de Entalhador",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Ferramentas de ferreiro",
-      "status": "Item, preço e slot configurados"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Flechas (20)",
-      "status": "Item, preço e slot configurados"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Foco Arcano (cristal)",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Foco Druídico (ramo de visco)",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Foice",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Kit de Artista",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Kit de Aventureiro",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Kit de Explorador de Masmorras",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Kit de Falsificação",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Lança",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Livro das Sombras",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Livro de ocultismo e Kit de Estudioso",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Luvas de treino (par)",
-      "status": "Item, preço e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Mangual",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Moedas — 11 PO",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Moedas — 19 PO",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Moedas — 28 PO",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Moedas — 30 PO",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Moedas — 4 PO",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Moedas — 7 PO",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Orbe (foco arcano)",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Pacote de Explorador de Masmorras",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Pé de cabra",
-      "status": "Item, preço e slot configurados"
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Veste simples",
-      "status": "CA, classe e slot configurados"
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Violino",
-      "status": "Registro legado vinculado ao inventário"
+      "status": "Item, peso e carga configurados"
     }
   ],
   "modulos": [

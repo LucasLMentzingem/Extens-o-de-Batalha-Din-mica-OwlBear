@@ -1,6 +1,6 @@
 {
   "$schema": "./ficha.schema.json",
-  "versaoFormato": 1,
+  "versaoFormato": 2,
   "id": "draven-thorne",
   "nome": "Draven Thorne",
   "tipo": "pj",
@@ -131,678 +131,6 @@
       ]
     }
   ],
-  "opcoes": [
-    {
-      "id": "espada-grande-5-acao-0",
-      "nome": "Espada grande +5 | ação",
-      "categoria": "acao",
-      "descricao": "Duas mãos · 1,5 m · cortante. Garantido: 3 de dano se errar. Para Combate com Armas Grandes, leia cada 1 ou 2 de dano como 3. Atacante Selvagem: 1x/turno, role os dados de dano da arma duas vezes e escolha o maior total.\nNormal [1d20+5]\nDano [2d6+3] · Crítico [3d6+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 5,
-        "dano": "2d6+3",
-        "elemento": "cortante",
-        "alcanceM": 1.5
-      },
-      "requerItemEquipado": "8958d021-6528-5fca-aabc-9176a270bdd7",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "mangual-5-acao-1",
-      "nome": "Mangual +5 | ação",
-      "categoria": "acao",
-      "descricao": "1,5 m · contundente. Drenar: desvantagem no próximo ataque do alvo antes de começar seu próximo turno.\nNormal [1d20+5]\nDano [1d8+3] · Crítico [2d8+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 5,
-        "dano": "1d8+3",
-        "elemento": "contundente",
-        "alcanceM": 1.5
-      },
-      "requerItemEquipado": "232bf97f-7f19-5171-a794-9349df4d62c9",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "azagaia-5-acao-2",
-      "nome": "Azagaia +5 | ação",
-      "categoria": "acao",
-      "descricao": "Corpo a corpo ou arremesso 9/36 m · perfurante. Lentidão: reduz 3 m até o início de seu próximo turno.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 5,
-        "dano": "1d6+3",
-        "elemento": "perfurante",
-        "alcanceM": 1.5
-      },
-      "requerItemEquipado": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "golpe-desarmado-5-acao-3",
-      "nome": "Golpe desarmado +5 | ação",
-      "categoria": "acao",
-      "descricao": "1,5 m · Normal [1d20+5]\nDano contundente 4, também no crítico (dano fixo).",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 5,
-        "dano": "4",
-        "elemento": "contundente",
-        "alcanceM": 1.5,
-        "tags": [
-          "desarmado"
-        ]
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-4",
-      "nome": "Imobilizar | ação",
-      "categoria": "acao",
-      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 13,
-        "alcanceM": 1.5,
-        "efeitoFalha": {
-          "nome": "Agarrado",
-          "condicao": "agarrado",
-          "turnos": 10
-        }
-      }
-    },
-    {
-      "id": "disparada-acao-5",
-      "nome": "Correr | ação",
-      "categoria": "acao",
-      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 10,5 m, pode percorrer até 21 m neste turno.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "disparada"
-      }
-    },
-    {
-      "id": "desengajar-acao-6",
-      "nome": "Desengajar | ação",
-      "categoria": "acao",
-      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "desengajar"
-      }
-    },
-    {
-      "id": "esquivar-acao-7",
-      "nome": "Esquivar | ação",
-      "categoria": "acao",
-      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "economia",
-        "esquivar": true
-      }
-    },
-    {
-      "id": "ajudar-acao-8",
-      "nome": "Ajudar | ação",
-      "categoria": "acao",
-      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "esconder-se-acao-9",
-      "nome": "Esconder | ação",
-      "categoria": "acao",
-      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "preparar-acao-10",
-      "nome": "Preparar | ação",
-      "categoria": "acao",
-      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "procurar-acao-11",
-      "nome": "Procurar | ação",
-      "categoria": "acao",
-      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "estudar-acao-12",
-      "nome": "Analisar | ação",
-      "categoria": "acao",
-      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "influenciar-acao-13",
-      "nome": "Influenciar | ação",
-      "categoria": "acao",
-      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "utilizar-acao-14",
-      "nome": "Usar Objeto | ação",
-      "categoria": "acao",
-      "descricao": "Manipule um objeto que exija uma ação.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "usar-magia-acao-15",
-      "nome": "Usar Magia | ação",
-      "categoria": "acao",
-      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ]
-    },
-    {
-      "id": "ataque-de-oportunidade-reacao-16",
-      "nome": "Ataque de oportunidade | reação",
-      "categoria": "acao",
-      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado.",
-      "custo": [
-        {
-          "tipo": "reacao",
-          "quantidade": 1
-        }
-      ],
-      "gatilho": "sair_alcance"
-    },
-    {
-      "id": "manobras-17",
-      "nome": "Manobras",
-      "categoria": "acao",
-      "descricao": "Prostrar: teste de FOR ou Caído (Grande ou menor). Ataque Ameaçador: teste de SAB ou Amedrontado até o fim do próximo turno do Draven. Desarme: teste de FOR ou larga um objeto à escolha do Draven. Todas usadas após acertar.",
-      "custo": []
-    },
-    {
-      "id": "pericia-intimidacao-1-18",
-      "nome": "Perícia | Intimidação +1",
-      "categoria": "acao",
-      "descricao": "CAR · Proficiente\nNormal [1d20+1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-prestidigitacao-1-19",
-      "nome": "Perícia | Prestidigitação +1",
-      "categoria": "acao",
-      "descricao": "DES · Sem proficiência\nNormal [1d20+1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-investigacao-0-20",
-      "nome": "Perícia | Investigação +0",
-      "categoria": "acao",
-      "descricao": "INT · Sem proficiência\nNormal [1d20]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-atuacao-1-21",
-      "nome": "Perícia | Atuação -1",
-      "categoria": "acao",
-      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "pericia-enganacao-1-22",
-      "nome": "Perícia | Enganação -1",
-      "categoria": "acao",
-      "descricao": "CAR · Sem proficiência\nNormal [1d20-1]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "informativa": true
-    },
-    {
-      "id": "manobra-prostrar",
-      "nome": "Ataque Prostrador",
-      "categoria": "acao",
-      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
-      "gatilho": "apos_acerto",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "dados-de-superioridade",
-          "quantidade": 1
-        }
-      ],
-      "aprimoramento": {
-        "dano": "1d8",
-        "requisitos": {
-          "tagsAtaque": [
-            "arma"
-          ]
-        },
-        "salva": {
-          "atributo": "for",
-          "cd": 13,
-          "efeitoFalha": {
-            "nome": "Ataque Prostrador",
-            "condicao": "caido",
-            "turnos": 1,
-            "expira": "fim_origem"
-          }
-        }
-      }
-    },
-    {
-      "id": "manobra-ameacador",
-      "nome": "Ataque Ameaçador",
-      "categoria": "acao",
-      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
-      "gatilho": "apos_acerto",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "dados-de-superioridade",
-          "quantidade": 1
-        }
-      ],
-      "aprimoramento": {
-        "dano": "1d8",
-        "requisitos": {
-          "tagsAtaque": [
-            "arma"
-          ]
-        },
-        "salva": {
-          "atributo": "sab",
-          "cd": 13,
-          "efeitoFalha": {
-            "nome": "Ataque Ameaçador",
-            "condicao": "amedrontado",
-            "turnos": 2,
-            "expira": "fim_origem"
-          }
-        }
-      }
-    },
-    {
-      "id": "manobra-desarmar",
-      "nome": "Ataque de Desarme",
-      "categoria": "acao",
-      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
-      "gatilho": "apos_acerto",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "dados-de-superioridade",
-          "quantidade": 1
-        }
-      ],
-      "aprimoramento": {
-        "dano": "1d8",
-        "requisitos": {
-          "tagsAtaque": [
-            "arma"
-          ]
-        },
-        "salva": {
-          "atributo": "for",
-          "cd": 13,
-          "efeitoFalha": {
-            "nome": "Desarmado",
-            "turnos": 1,
-            "expira": "fim_origem"
-          }
-        }
-      }
-    },
-    {
-      "id": "queimadura-de-fogo-apos-acerto",
-      "nome": "Queimadura de Fogo",
-      "categoria": "acao",
-      "filtroHud": "Classe",
-      "descricao": "Herança do Gigante de Fogo. Depois de acertar uma jogada de ataque e causar dano, gaste 1 uso para somar 1d10 de dano de fogo ao mesmo alvo. Usos iguais ao bônus de proficiência; recupera no descanso longo.",
-      "gatilho": "apos_acerto",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "queimadura-de-fogo",
-          "quantidade": 1
-        }
-      ],
-      "aprimoramento": {
-        "dano": "1d10",
-        "elemento": "fogo"
-      }
-    },
-    {
-      "id": "recuperar-folego-acao",
-      "nome": "Recuperar Fôlego",
-      "categoria": "bonus",
-      "descricao": "Recupere 1d10+3 PV.",
-      "custo": [
-        {
-          "tipo": "bonus",
-          "quantidade": 1
-        },
-        {
-          "tipo": "recurso",
-          "id": "recuperar-folego",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "economia",
-        "cura": "1d10+3"
-      }
-    },
-    {
-      "id": "surto-de-acao-acao",
-      "nome": "Surto de Ação",
-      "categoria": "acao",
-      "descricao": "Receba uma ação adicional neste turno.",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "surto-de-acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "economia",
-        "adicionar": {
-          "acao": 1
-        }
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-4-derrubar",
-      "nome": "Derrubar | ação",
-      "categoria": "acao",
-      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 13,
-        "alcanceM": 1.5,
-        "efeitoFalha": {
-          "nome": "Caído",
-          "condicao": "caido",
-          "turnos": 1,
-          "expira": "fim_origem"
-        }
-      }
-    },
-    {
-      "id": "agarrar-ou-empurrar-acao-4-empurrar",
-      "nome": "Empurrar | ação",
-      "categoria": "acao",
-      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 13. Em uma falha, é empurrada 1,5 m diretamente para longe de você.",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "salva",
-        "atributos": [
-          "for",
-          "des"
-        ],
-        "cd": 13,
-        "alcanceM": 1.5,
-        "deslocamentoForcado": {
-          "distanciaM": 1.5,
-          "direcao": "afastar"
-        }
-      }
-    },
-    {
-      "id": "azagaia-5-acao-2-arremesso",
-      "nome": "Azagaia +5 · arremesso | ação",
-      "categoria": "acao",
-      "descricao": "Arremesso 9/18 m. Além de 9 m, o ataque tem desvantagem.\nCorpo a corpo ou arremesso 9/18 m · perfurante. Lentidão: reduz 3 m até o início de seu próximo turno.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
-      "custo": [
-        {
-          "tipo": "acao",
-          "quantidade": 1
-        }
-      ],
-      "automacao": {
-        "tipo": "ataque",
-        "bonus": 5,
-        "dano": "1d6+3",
-        "elemento": "perfurante",
-        "alcanceM": 18,
-        "alcanceNormalM": 9,
-        "arremesso": true
-      },
-      "varianteArremessoDe": "azagaia-5-acao-2",
-      "requerItemEquipado": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
-      "ataqueLegadoDeItem": true
-    },
-    {
-      "id": "gastar-dado-de-vida",
-      "nome": "Gastar Dado de Vida",
-      "categoria": "acao",
-      "origem": "descanso",
-      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d10 e some seu modificador de Constituição para recuperar Pontos de Vida.",
-      "custo": [
-        {
-          "tipo": "recurso",
-          "id": "dados-de-vida",
-          "quantidade": 1
-        }
-      ],
-      "requisitosUso": {
-        "somenteForaCombate": true
-      },
-      "automacao": {
-        "tipo": "economia",
-        "cura": "1d10+2"
-      }
-    }
-  ],
-  "equipamentos": [
-    {
-      "id": "147999d7-bd72-57f1-9771-9dff7bcac8e9",
-      "name": "Cota de Malha",
-      "description": "CA 16. Exige FOR 13. Desvantagem em Furtividade.",
-      "inUse": true
-    },
-    {
-      "id": "8958d021-6528-5fca-aabc-9176a270bdd7",
-      "name": "Espada Grande",
-      "description": "Ataque +5; dano 2d6+3 cortante. Maestria Garantido.",
-      "inUse": true
-    },
-    {
-      "id": "232bf97f-7f19-5171-a794-9349df4d62c9",
-      "name": "Mangual",
-      "description": "Ataque +5; dano 1d8+3 contundente. Maestria Drenar.",
-      "inUse": false
-    },
-    {
-      "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
-      "name": "8 Azagaias",
-      "description": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-      "inUse": false
-    },
-    {
-      "id": "0f60fbd6-9cf4-50d4-995c-b8daf42fc4bf",
-      "name": "Pacote de Explorador de Masmorras",
-      "description": "Kit inicial do Guerreiro.",
-      "inUse": false
-    },
-    {
-      "id": "b387dc40-8da5-5fd1-b9d6-ca9b966ac2f0",
-      "name": "Moedas — 4 PO",
-      "description": "Saldo inicial do kit do Guerreiro.",
-      "inUse": false
-    }
-  ],
-  "passivas": [
-    {
-      "nome": "Passiva | Defesas e sentidos",
-      "descricao": "Testes de resistência: FOR +5, DES +1, CON +4, INT +0, SAB +1, CAR -1. Ponto fraco: testes de SAB (medo, encantamento). Percepção passiva 13; Intuição passiva 13. Sem resistências ou imunidades a dano. Vantagem para se soltar de Imobilizado (Porte Poderoso).",
-      "id": "passiva-1",
-      "ativa": true
-    },
-    {
-      "nome": "Passiva | Perícias e idiomas",
-      "descricao": "Atletismo +5, Acrobacia +3, Intuição +3, Percepção +3, Intimidação +1. Ferramentas: kit de jogo (dados), Ferramentas de Ferreiro. Idiomas: Comum, Gigante, Anão.",
-      "id": "passiva-2",
-      "ativa": true
-    },
-    {
-      "id": "atacante-selvagem",
-      "nome": "Atacante Selvagem",
-      "descricao": "Talento de origem. No primeiro acerto com arma de cada turno, os dados de dano da arma são rolados duas vezes e o maior resultado é aplicado. Modificadores fixos e dados adicionais são somados uma única vez.",
-      "ativa": true,
-      "gatilho": "ao_rolar_dano",
-      "umaVezPorTurno": true,
-      "modificadorDano": {
-        "tipo": "rolar_duas_escolher_maior",
-        "automatico": true,
-        "requisitos": {
-          "tagsAtaque": [
-            "arma"
-          ]
-        }
-      }
-    },
-    {
-      "id": "combate-com-armas-grandes",
-      "nome": "Combate com Armas Grandes",
-      "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. A regra está registrada para a próxima etapa de automação de resultados individuais.",
-      "ativa": true
-    },
-    {
-      "id": "mente-tatica",
-      "nome": "Mente Tática",
-      "descricao": "Ao falhar em um teste de atributo, pode gastar um uso de Recuperar Fôlego para somar 1d10. Se o teste continuar falhando, o uso não é gasto. Por enquanto, esta decisão é assistida pelo mestre.",
-      "ativa": true
-    }
-  ],
   "notas": [
     {
       "titulo": "Fonte",
@@ -815,435 +143,273 @@
     "semprePreparadas": []
   },
   "inventario": {
-    "versaoOcupacao": 5,
+    "versaoOcupacao": 6,
     "capacidadeCargaKg": 127.5,
     "itens": [
       {
         "id": "147999d7-bd72-57f1-9771-9dff7bcac8e9",
-        "nome": "Cota de Malha",
-        "descricao": "CA 16. Exige FOR 13. Desvantagem em Furtividade.",
-        "tipo": "equipamento",
+        "ref": "item.cota-de-malha-09004bac",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 27.5,
-        "slotEquipamento": "vestes",
         "equipado": true,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "categoriaArmadura": "pesada",
-        "classeArmadura": {
-          "tipo": "base",
-          "valor": 16,
-          "classe": "pesada"
-        },
-        "equipadoSlot": "vestes"
+        "equipadoSlot": "vestes",
+        "preferido": true
       },
       {
         "id": "8958d021-6528-5fca-aabc-9176a270bdd7",
-        "nome": "Espada Grande",
-        "descricao": "Ataque +5; dano 2d6+3 cortante. Maestria Garantido.",
-        "tipo": "equipamento",
+        "ref": "item.espada-grande-22d63c5a",
         "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 3,
-        "slotEquipamento": "mao_forte",
         "equipado": true,
-        "preferido": true,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "espada-grande-5-acao-0"
-        ],
-        "tipoArma": "espada_grande",
-        "grupoProficiencia": "marcial",
-        "propriedades": [
-          "corpo_a_corpo",
-          "duas_maos",
-          "pesada"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "2d6",
-            "tipoDano": "cortante"
-          }
-        ],
-        "categoria": "arma",
-        "equipadoSlot": "mao_forte"
+        "equipadoSlot": "mao_forte",
+        "preferido": true
       },
       {
         "id": "232bf97f-7f19-5171-a794-9349df4d62c9",
-        "nome": "Mangual",
-        "descricao": "Ataque +5; dano 1d8+3 contundente. Maestria Drenar.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 1,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "mangual-5-acao-1"
-        ],
-        "tipoArma": "mangual",
-        "grupoProficiencia": "marcial",
-        "propriedades": [
-          "corpo_a_corpo"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d8",
-            "tipoDano": "contundente"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.mangual-8d7c8a26",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [
-          "azagaia-5-acao-2",
-          "azagaia-5-acao-2-arremesso"
-        ],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-08b3b538",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-2",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-3",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-4",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-5",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-6",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-7",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164-8",
-        "nome": "Azagaia",
-        "descricao": "Ataque +5; dano 1d6+3 perfurante; arremesso 9/36 m. Maestria Lentidão.",
-        "tipo": "equipamento",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 0.9,
-        "slotEquipamento": "mao_forte",
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {},
-        "acoes": [],
-        "tipoArma": "azagaia",
-        "grupoProficiencia": "simples",
-        "propriedades": [
-          "corpo_a_corpo",
-          "arremessavel"
-        ],
-        "modelosAcoes": [
-          {
-            "modo": "corpo_a_corpo",
-            "alcanceM": 1.5,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          },
-          {
-            "modo": "arremesso",
-            "alcanceNormalM": 9,
-            "alcanceM": 18,
-            "dano": "1d6",
-            "tipoDano": "perfurante"
-          }
-        ],
-        "categoria": "arma"
+        "ref": "item.azagaia-fafdb711",
+        "quantidade": 1
       },
       {
         "id": "0f60fbd6-9cf4-50d4-995c-b8daf42fc4bf",
-        "nome": "Pacote de Explorador de Masmorras",
-        "descricao": "Kit inicial do Guerreiro.",
-        "tipo": "etc",
-        "quantidade": 1,
-        "empilhavel": false,
-        "pesoKg": 27.5,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "ref": "item.pacote-de-explorador-de-masmorras",
+        "quantidade": 1
       },
       {
         "id": "b387dc40-8da5-5fd1-b9d6-ca9b966ac2f0",
-        "nome": "Moedas — 4 PO",
-        "descricao": "Saldo inicial do kit do Guerreiro.",
-        "tipo": "moeda",
-        "quantidade": 4,
-        "empilhavel": true,
-        "pesoKg": 0.01,
-        "slotEquipamento": null,
-        "equipado": false,
-        "preferido": false,
-        "duasMaos": false,
-        "leve": false,
-        "modificadores": {}
+        "ref": "item.moedas-4-po",
+        "quantidade": 4
       }
     ]
-  }
+  },
+  "versaoCatalogo": 1,
+  "concessoes": [
+    {
+      "id": "espada-grande-5-acao-0",
+      "ref": "habilidade.espada-grande-5-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "mangual-5-acao-1",
+      "ref": "habilidade.mangual-5-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "azagaia-5-acao-2",
+      "ref": "habilidade.azagaia-5-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "golpe-desarmado-5-acao-3",
+      "ref": "habilidade.golpe-desarmado-5-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4",
+      "ref": "habilidade.imobilizar-acao-d0f3976a",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "disparada-acao-5",
+      "ref": "habilidade.correr-acao-d586be15",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "desengajar-acao-6",
+      "ref": "habilidade.desengajar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esquivar-acao-7",
+      "ref": "habilidade.esquivar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ajudar-acao-8",
+      "ref": "habilidade.ajudar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esconder-se-acao-9",
+      "ref": "habilidade.esconder-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "preparar-acao-10",
+      "ref": "habilidade.preparar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "procurar-acao-11",
+      "ref": "habilidade.procurar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "estudar-acao-12",
+      "ref": "habilidade.analisar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "influenciar-acao-13",
+      "ref": "habilidade.influenciar-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "utilizar-acao-14",
+      "ref": "habilidade.usar-objeto-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "usar-magia-acao-15",
+      "ref": "habilidade.usar-magia-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "ataque-de-oportunidade-reacao-16",
+      "ref": "habilidade.ataque-de-oportunidade-reacao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "manobras-17",
+      "ref": "habilidade.manobras",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-intimidacao-1-18",
+      "ref": "habilidade.pericia-intimidacao-1-a38216c7",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-prestidigitacao-1-19",
+      "ref": "habilidade.pericia-prestidigitacao-1",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-investigacao-0-20",
+      "ref": "habilidade.pericia-investigacao-0",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-atuacao-1-21",
+      "ref": "habilidade.pericia-atuacao-1",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pericia-enganacao-1-22",
+      "ref": "habilidade.pericia-enganacao-1",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "manobra-prostrar",
+      "ref": "habilidade.ataque-prostrador",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "manobra-ameacador",
+      "ref": "habilidade.ataque-ameacador",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "manobra-desarmar",
+      "ref": "habilidade.ataque-de-desarme",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "queimadura-de-fogo-apos-acerto",
+      "ref": "habilidade.queimadura-de-fogo",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "recuperar-folego-acao",
+      "ref": "habilidade.recuperar-folego",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "surto-de-acao-acao",
+      "ref": "habilidade.surto-de-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4-derrubar",
+      "ref": "habilidade.derrubar-acao-59771004",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "agarrar-ou-empurrar-acao-4-empurrar",
+      "ref": "habilidade.empurrar-acao-c1f6bba8",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "azagaia-5-acao-2-arremesso",
+      "ref": "habilidade.azagaia-5-arremesso-acao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "ref": "habilidade.gastar-dado-de-vida-3ef4dd2b",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "passiva-1",
+      "ref": "habilidade.passiva-defesas-e-sentidos",
+      "tipo": "passiva"
+    },
+    {
+      "id": "passiva-2",
+      "ref": "habilidade.passiva-pericias-e-idiomas",
+      "tipo": "passiva"
+    },
+    {
+      "id": "atacante-selvagem",
+      "ref": "habilidade.atacante-selvagem",
+      "tipo": "passiva"
+    },
+    {
+      "id": "combate-com-armas-grandes",
+      "ref": "habilidade.combate-com-armas-grandes",
+      "tipo": "passiva"
+    },
+    {
+      "id": "mente-tatica",
+      "ref": "habilidade.mente-tatica",
+      "tipo": "passiva"
+    }
+  ]
 }

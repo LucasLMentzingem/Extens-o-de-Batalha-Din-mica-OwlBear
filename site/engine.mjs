@@ -1,4 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.2';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.3';
+import {resolverFicha} from './catalog.mjs?v=0.8.3';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -418,6 +419,7 @@ export function incluirAlvo(lista,id,regra){
   return [...lista,id];
 }
 export function validar(f) {
+  f=resolverFicha(f);
   exigir(f?.versaoFormato===1 && idOK(f.id) && nomeOK(f.nome) && ['pj','npc'].includes(f.tipo),'Informe versaoFormato 1, id, nome e tipo pj/npc.');
   exigir(Array.isArray(f.classes) && f.classes.every(c=>idOK(c.id)&&inteiro(c.nivel,1,10)) && inteiro(f.classes.reduce((n,c)=>n+c.nivel,0),1,10),'A soma dos níveis deve estar entre 1 e 10.');
   exigir(atributos.every(k=>inteiro(f.atributos?.[k],1,30)) && inteiro(f.pvMaximos,1,9999) && inteiro(f.caBase,0,99) && Number.isFinite(f.deslocamentosM?.andar) && f.deslocamentosM.andar>=0,'Verifique atributos, PV, CA e deslocamento.');
@@ -457,7 +459,8 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','teleporte'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    if(a.tipo==='teleporte')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>0&&a.alcanceM<=LIMITE_ALCANCE_M,'Alcance de teleporte inválido em '+o.id);
     if(a.tipo==='economia'){
       exigir(['acao','bonus','reacao'].every(k=>a.adicionar?.[k]===undefined||inteiro(a.adicionar[k],0,5)),'Economia adicional inválida em '+o.id);
       exigir(['disparada','desengajar','esquivar'].every(k=>a[k]===undefined||typeof a[k]==='boolean'),'Estado de economia inválido em '+o.id);
@@ -871,9 +874,9 @@ function custosGratuitos(o){
 export const usoGratuitoDisponivel=(a,o)=>Boolean(o?.usoGratuito&&(a?.rec?.[o.usoGratuito.recursoId]??0)>=(o.usoGratuito.quantidade??1));
 export function planoCustoOpcao(a,o,modo='automatico'){
   const normal={custos:structuredClone(o?.custo??[]),gratuito:false,modo:'normal'},gratis=custosGratuitos(o);
-  if(modo==='normal')return normal;
+  if(modo==='normal')return o?.somenteUsoGratuito?null:normal;
   if(modo==='gratuito')return gratis?{custos:gratis,gratuito:true,modo:'gratuito'}:null;
-  return gratis&&usoGratuitoDisponivel(a,o)?{custos:gratis,gratuito:true,modo:'gratuito'}:normal;
+  return gratis&&usoGratuitoDisponivel(a,o)?{custos:gratis,gratuito:true,modo:'gratuito'}:o?.somenteUsoGratuito?null:normal;
 }
 // #6 "Em um turno, você pode usar apenas um espaço de magia para conjurar uma magia." Reações no turno de outra criatura contam para aquele turno.
 function registrarEspacoNoTurno(s,a,custos){
@@ -1410,6 +1413,12 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       const efeitos=(a.efeitosAtivos??[]).filter(e=>e.origem===o.origem);
       if(rule.tipo==='disparada'){a.metros+=deslocamentoMaximo(a);break;}
       if(rule.tipo==='desengajar'){a.desengajado=true;break;}
+      if(rule.tipo==='teleporte'){
+        exigir(Number.isFinite(c.x)&&Number.isFinite(c.y),'Escolha o destino do teleporte.');
+        const d=distancia(a,c);exigir(d<=rule.alcanceM+1e-8,'Destino fora do alcance.');
+        exigir(!s.atores.some(p=>p!==a&&p.pv>0&&distancia(p,c)<.25),'O destino está ocupado.');
+        a.x=c.x;a.y=c.y;msg+=' • teleportou-se '+d.toFixed(2)+' m';break;
+      }
       if(rule.tipo==='economia'){validarRequisitosUso(s,a,o,null);
         for(const k of ['acao','bonus','reacao'])if(rule.adicionar?.[k])a[k]+=rule.adicionar[k];
         for(const id of rule.recuperarRecursos??[]){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=r.maximo;}

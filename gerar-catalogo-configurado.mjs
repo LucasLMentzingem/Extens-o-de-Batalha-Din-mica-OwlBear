@@ -1,10 +1,10 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {validar} from './site/engine.mjs';
+import {catalogoCentral} from './site/catalog.mjs';
 
 const ids=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichas=await Promise.all(ids.map(async id=>validar(JSON.parse(await readFile('./site/fichas/'+id+'.json','utf8')))));
-const soldado=validar(JSON.parse(await readFile('./site/fichas/soldado.json','utf8')));
-const catalogoVictor=JSON.parse(await readFile('./site/catalogo-victor.json','utf8'));
+const central=catalogoCentral();
 const semAcento=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const nomesComuns=['agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','golpe desarmado','ataque de oportunidade'];
 const comum=o=>nomesComuns.some(n=>semAcento(o.nome).startsWith(n));
@@ -30,11 +30,7 @@ for(const f of fichas){
 
 const comuns=unicos(fichas.flatMap(f=>f.opcoes.filter(comum).map(habilidade)));
 const statusItem=i=>i.tipo==='equipamento'&&i.arma?'Ataque e equipamento configurados':i.tipo==='equipamento'?'CA, classe, slot e modificadores configurados':i.tipo==='consumivel'?'Consumível e custo configurados':'Item, peso e carga configurados';
-const itens=unicos([
-  ...catalogoVictor.itens.map(i=>({nome:i.nome,status:i.categoria==='arma'?'Ataque e equipamento configurados':i.categoria==='armadura'||i.categoria==='escudo'||i.categoria==='veste'?'CA, classe e slot configurados':'Item, preço e slot configurados'})),
-  ...[...fichas,soldado].flatMap(f=>(f.inventario?.itens??[]).map(i=>({nome:i.nome,status:statusItem(i)}))),
-  ...[...fichas,soldado].flatMap(f=>(f.equipamentos??[]).map(e=>({nome:e.nome??e.name,status:'Registro legado vinculado ao inventário'})))]
- .filter(x=>x.nome));
+const itens=unicos(central.itens.map(({definicao:i})=>({nome:i.nome,status:statusItem(i)})).filter(x=>x.nome));
 const modulos=[
   'Ataques, críticos, vantagem e desvantagem','Salvaguardas e perícias','Dano, cura e PV temporários','Ações, bônus, reações e deslocamento',
   'Áreas circulares, quadradas, cones e linhas','Concentração, duração, buffs e condições','Reações preventivas e após dano','Recursos, descansos e economia adicional',
@@ -47,6 +43,6 @@ const sistemaEquipamentos={status:'Configurado',alcanceMaximoM:18,
   classesArmadura:['sem_armadura (veste)','leve','media','pesada','escudo'],
   propriedadesArmas:['corpo_a_corpo','distancia','acuidade','leve','pesada','versatil','duas_maos','arremessavel','municao'],
   portabilidade:'O item guarda suas próprias classificações, peso, dados, dano, alcance e efeitos; proficiência, atributo, maestria, ataque e dano final são derivados da ficha que o equipa.'};
-const catalogo={versaoFormato:1,resumo:{classes:classes.size,racas:racas.size,comuns:comuns.length,itens:itens.length},sistemaEquipamentos,classes:[...classes.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),racas:[...racas.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),comuns,itens,modulos};
+const catalogo={versaoFormato:2,versaoCatalogo:central.versaoCatalogo,resumo:{classes:classes.size,racas:racas.size,habilidades:central.habilidades.length,comuns:comuns.length,itens:itens.length},sistemaEquipamentos,classes:[...classes.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),racas:[...racas.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),comuns,itens,modulos};
 await writeFile('./site/conteudo-configurado.json',JSON.stringify(catalogo,null,2)+'\n');
 console.log('Catálogo:',catalogo.resumo);

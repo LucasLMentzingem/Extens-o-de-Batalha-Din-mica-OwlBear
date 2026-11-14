@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Catálogo central da extensão",
+  "type": "object",
+  "required": ["versaoCatalogo"],
+  "properties": {
+    "versaoCatalogo": {"type": "integer", "minimum": 1},
+    "habilidades": {"type": "array", "items": {"$ref": "#/$defs/entrada"}},
+    "itens": {"type": "array", "items": {"$ref": "#/$defs/entrada"}}
+  },
+  "$defs": {
+    "entrada": {
+      "type": "object",
+      "required": ["id", "revisao", "definicao"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9.-]+$"},
+        "revisao": {"type": "integer", "minimum": 1},
+        "definicao": {"type": "object", "required": ["nome"]}
+      },
+      "additionalProperties": false
+    }
+  }
+}
