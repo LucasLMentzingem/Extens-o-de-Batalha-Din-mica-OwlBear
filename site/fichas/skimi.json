@@ -103,10 +103,6 @@
       "saldoInicial": 3,
       "recuperacao": [
         {
-          "evento": "descanso_curto",
-          "modo": "completar"
-        },
-        {
           "evento": "descanso_longo",
           "modo": "completar"
         }
@@ -942,6 +938,27 @@
       "varianteArremessoDe": "segunda-adaga-4-acao-bonus-1",
       "requerItemEquipado": "82ce2b66-29ce-4ca9-a248-7101d18d4b94-2",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d8 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d8+2"
+      }
     }
   ],
   "equipamentos": [

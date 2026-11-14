@@ -1178,6 +1178,27 @@
       "varianteArremessoDe": "eb1e3e85-d216-544d-8954-deb312f465a1",
       "requerItemEquipado": "f5841857-a1f4-5d62-ae62-6845f65994bd",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d6 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dv",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d6+2"
+      }
     }
   ],
   "notas": [

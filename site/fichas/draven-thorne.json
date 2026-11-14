@@ -85,6 +85,11 @@
       "recuperacao": [
         {
           "evento": "descanso_curto",
+          "modo": "recuperar",
+          "quantidade": 1
+        },
+        {
+          "evento": "descanso_longo",
           "modo": "completar"
         }
       ]
@@ -119,10 +124,6 @@
       "maximo": 3,
       "saldoInicial": 3,
       "recuperacao": [
-        {
-          "evento": "descanso_curto",
-          "modo": "completar"
-        },
         {
           "evento": "descanso_longo",
           "modo": "completar"
@@ -694,6 +695,27 @@
       "varianteArremessoDe": "azagaia-5-acao-2",
       "requerItemEquipado": "0860d841-e2ab-51d0-9bb0-6c4bd6faf164",
       "ataqueLegadoDeItem": true
+    },
+    {
+      "id": "gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "categoria": "acao",
+      "origem": "descanso",
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d10 e some seu modificador de Constituição para recuperar Pontos de Vida.",
+      "custo": [
+        {
+          "tipo": "recurso",
+          "id": "dados-de-vida",
+          "quantidade": 1
+        }
+      ],
+      "requisitosUso": {
+        "somenteForaCombate": true
+      },
+      "automacao": {
+        "tipo": "economia",
+        "cura": "1d10+2"
+      }
     }
   ],
   "equipamentos": [

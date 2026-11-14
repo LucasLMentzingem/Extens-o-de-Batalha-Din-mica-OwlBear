@@ -151,9 +151,27 @@ export function atualizarMagias(f){
       f.opcoes.push(v);
     }
   }
+  corrigirRecuperacoes(f);
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
+}
+// #25 Livro 2024: Dados de Vida são gastos no descanso curto e voltam todos no longo;
+// Recuperar Fôlego volta 1 uso no curto e todos no longo. Também cria a opção de
+// gastar um Dado de Vida (fora de combate) para curar dado + CON.
+const DADO_VIDA_CLASSE={barbaro:12,guerreiro:10,guardiao:10,paladino:10,bardo:8,bruxo:8,clerigo:8,druida:8,ladino:8,monge:8,feiticeiro:6,mago:6};
+function corrigirRecuperacoes(f){
+  for(const r of f.recursos??[]){
+    if(r.id==='dados-de-vida'||r.id==='dv')r.recuperacao=[{evento:'descanso_longo',modo:'completar'}];
+    if(r.id==='recuperar-folego')r.recuperacao=[{evento:'descanso_curto',modo:'recuperar',quantidade:1},{evento:'descanso_longo',modo:'completar'}];
+  }
+  const dv=(f.recursos??[]).find(r=>r.id==='dados-de-vida'||r.id==='dv');
+  if(!dv||!Array.isArray(f.opcoes)||f.opcoes.some(o=>o.id==='gastar-dado-de-vida'))return;
+  const lados=Number(/d(\d+)/i.exec(dv.nome??'')?.[1])||DADO_VIDA_CLASSE[f.classes?.[0]?.id]||8,con=Math.floor(((f.atributos?.con??10)-10)/2);
+  f.opcoes.push({id:'gastar-dado-de-vida',nome:'Gastar Dado de Vida',categoria:'acao',origem:'descanso',
+    descricao:'Durante um descanso curto, gaste um Dado de Vida: role 1d'+lados+' e some seu modificador de Constituição para recuperar Pontos de Vida.',
+    custo:[{tipo:'recurso',id:dv.id,quantidade:1}],requisitosUso:{somenteForaCombate:true},
+    automacao:{tipo:'economia',cura:'1d'+lados+(con?(con>0?'+':'')+con:'')}});
 }
 const textoNormal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const definicoesArmas=Object.freeze({
@@ -1108,7 +1126,13 @@ export async function aplicar(s,c,u,rolar) {
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       for(const p of s.atores.filter(x=>x.ficha.tipo==='pj')){
-        for(const r of p.ficha.recursos) if(r.recuperacao?.some(v=>v.evento==='descanso_'+c.periodo && v.modo==='completar'))p.rec[r.id]=r.maximo;
+        // #25 O descanso longo também aplica tudo que um descanso curto recuperaria.
+        const eventosDescanso=c.periodo==='longo'?['descanso_curto','descanso_longo']:['descanso_curto'];
+        for(const r of p.ficha.recursos){
+          const regras=(r.recuperacao??[]).filter(v=>eventosDescanso.includes(v.evento));
+          if(regras.some(v=>v.modo==='completar'))p.rec[r.id]=r.maximo;
+          else for(const v of regras.filter(v=>v.modo==='recuperar'))p.rec[r.id]=Math.min(r.maximo,(p.rec[r.id]??0)+(Number(v.quantidade)||1));
+        }
         p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>c.periodo==='curto'&&e.removeEm!=='descanso_curto');
         if(c.periodo==='longo'||!p.efeitosAtivos.some(e=>e.concentracaoId===p.concentracaoAtiva?.id))encerrarConcentracao(s,p,'descanso '+c.periodo);
         if(c.periodo==='longo'){p.pv=pvMaximosAtuais(p);p.pvTemporarios=0;p.estadoVida='consciente';p.salvaguardasMorte={sucessos:0,falhas:0};}else p.pv=Math.min(p.pv,pvMaximosAtuais(p));

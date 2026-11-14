@@ -85,7 +85,8 @@ test('auditoria de nível 3 preserva progressão, perícias e recursos sem custo
  const draven=porId('draven-thorne');assert.ok(draven.opcoes.filter(o=>o.id!=='surto-de-acao-acao').every(o=>!o.custo?.some(c=>c.id==='surto-de-acao')));
  const hannah=porId('hannah-montana');assert.ok(hannah.opcoes.every(o=>!o.custo?.some(c=>c.id==='magia-fascinante')));
  assert.ok(porId('skimi').opcoes.filter(o=>o.id!=='astucia-magica-acao').every(o=>!o.custo?.some(c=>c.id==='astucia-magica')));
- for(const f of fichasJogadores)assert.ok(f.opcoes.every(o=>!o.custo?.some(c=>c.id==='dados-de-vida')),f.nome+' ainda gasta Dado de Vida em uma ação comum');
+ // "Gastar Dado de Vida" (#25) é a única opção legítima que consome o recurso.
+ for(const f of fichasJogadores)assert.ok(f.opcoes.every(o=>o.id==='gastar-dado-de-vida'||!o.custo?.some(c=>c.id==='dados-de-vida')),f.nome+' ainda gasta Dado de Vida em uma ação comum');
  const dragoberto=porId('dragoberto'),sopros=dragoberto.opcoes.filter(o=>o.id.startsWith('ataque-de-sopro-'));assert.deepEqual(sopros.map(o=>o.automacao.area.forma).sort(),['cone','linha']);assert.ok(sopros.every(o=>o.automacao.dano==='1d10'&&o.automacao.metade&&o.automacao.cd===11));
  assert.deepEqual(dragoberto.opcoes.filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.id),['habilitado-destruidor-de-hordas-18']);
  assert.deepEqual(porId('zurich').opcoes.filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.id),['assassino-de-colossos-18']);
@@ -812,4 +813,22 @@ test('#35 vários acertos no mesmo alvo somam o dano (Mísseis Mágicos e Torren
     s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,trecho).id,alvos:Array(n).fill(b.id)},player,roladorSala({d20:16,dano:6}).rolar);
     assert.equal(s.atores[1].pv,pv-6*n,trecho);
   }
+});
+
+test('#25 descanso longo recupera o que é de descanso curto; Dados de Vida e Recuperar Fôlego seguem 2024',async()=>{
+  let s=novo();const sk=adicionar(s,await fichaRev('skimi')),dr=adicionar(s,await fichaRev('draven-thorne')),lo=adicionar(s,await fichaRev('loteria'));
+  sk.rec['espaco-2']=0;dr.rec['dados-de-superioridade']=0;dr.rec['surto-de-acao']=0;dr.rec['recuperar-folego']=0;lo.rec['pontos-de-foco']=0;
+  for(const a of [sk,dr,lo])a.rec['dados-de-vida']=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'descanso',periodo:'curto'},gm,()=>0);
+  let [a,b,c]=s.atores;
+  assert.equal(a.rec['espaco-2'],2);assert.equal(b.rec['recuperar-folego'],1,'curto devolve 1 uso');assert.equal(a.rec['dados-de-vida'],0,'Dados de Vida não voltam no curto');
+  s=await aplicar(s,{rev:s.rev,tipo:'descanso',periodo:'longo'},gm,()=>0);[a,b,c]=s.atores;
+  assert.equal(a.rec['espaco-2'],2);assert.equal(b.rec['dados-de-superioridade'],4);assert.equal(b.rec['surto-de-acao'],1);assert.equal(b.rec['recuperar-folego'],2);assert.equal(c.rec['pontos-de-foco'],3);
+  assert.equal(a.rec['dados-de-vida'],3,'Dados de Vida voltam no longo');
+});
+test('#25 gastar Dado de Vida fora de combate cura dado + CON',async()=>{
+  let s=novo();const a=adicionar(s,await fichaRev('draven-thorne'));a.dono='p';a.pv=10;
+  const o=opRev(a,'gastar dado de vida');assert.equal(o.automacao.cura,'1d10+2');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id},player,async()=>7);
+  assert.equal(s.atores[0].pv,17);assert.equal(s.atores[0].rec['dados-de-vida'],2);
 });
