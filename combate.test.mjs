@@ -832,3 +832,13 @@ test('#25 gastar Dado de Vida fora de combate cura dado + CON',async()=>{
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id},player,async()=>7);
   assert.equal(s.atores[0].pv,17);assert.equal(s.atores[0].rec['dados-de-vida'],2);
 });
+
+test('#26 teste de perícia recebe Orientação e Ponto de Sorte do personagem',async()=>{
+  let s=novo();const z=adicionar(s,await fichaRev('zurich')),k=adicionar(s,await fichaRev('skimi'));
+  z.dono='p';k.dono='p';z.x=0;k.x=1.5;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:z.id,opcao:opRev(z,'orientacao').id,alvo:k.id},player,async()=>10);
+  let meta=null;
+  await aplicar(s,{rev:s.rev,tipo:'teste',ator:k.id,grupo:'pericias',chave:'Enganação'},player,async(f,m={})=>{meta=m;return {total:12,natural:8,formula:f};});
+  assert.ok(meta.adicionais.some(x=>x.nome==='Orientação'),'Orientação aparece no teste de perícia');
+  assert.ok(meta.rerrolagens.some(x=>/Sorte/.test(x.nome)),'Ponto de Sorte aparece no teste de perícia');
+});

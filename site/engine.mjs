@@ -971,7 +971,7 @@ export async function aplicar(s,c,u,rolar) {
       const bonus=c.grupo==='pericias'?bonusPericia(a.ficha,c.chave):(a.ficha.salvaguardas?.[c.chave]??mod(a.ficha.atributos[c.chave]));
       exigir(Number.isInteger(bonus)&&inteiro(c.ajuste??0,-20,20),'Teste inválido.');
       const falhaAutomatica=c.grupo==='salvaguardas'&&restricoesAtivas(a).falhaSalvas?.includes(c.chave);
-      const r=falhaAutomatica?{total:0,natural:null}:await rolarD20(bonus,c.grupo==='salvaguardas'?a:null,{tipo:c.grupo==='salvaguardas'?'salvaguarda':'teste',atributo:c.chave,titulo:(c.grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+c.chave});
+      const r=falhaAutomatica?{total:0,natural:null}:await rolarD20(bonus,a,{tipo:c.grupo==='salvaguardas'?'salvaguarda':'teste',atributo:c.chave,titulo:(c.grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+c.chave});
       msg=a.nome+' • '+c.chave+': '+(falhaAutomatica?'falha automática':r.total);break;
     }
     case 'encerrarConcentracao':
