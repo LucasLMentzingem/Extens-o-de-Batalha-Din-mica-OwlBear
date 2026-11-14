@@ -474,7 +474,8 @@
         "bonus": 7,
         "dano": "1d8+3",
         "elemento": "perfurante",
-        "alcanceM": 18
+        "alcanceM": 18,
+        "usarArmaAnterior": true
       }
     },
     {
@@ -613,7 +614,29 @@
         }
       ],
       "circuloBase": 1,
-      "concentracao": true
+      "concentracao": true,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "for",
+        "cd": 12,
+        "alcanceM": 18,
+        "efeitoFalha": {
+          "nome": "Contido (Golpe Constritor)",
+          "condicao": "contido",
+          "turnos": 10,
+          "danoInicioTurno": {
+            "formula": "1d6",
+            "elemento": "perfurante"
+          }
+        }
+      },
+      "requisitosUso": {
+        "aposAcerto": true,
+        "tagsAtaqueAnterior": [
+          "arma"
+        ],
+        "alvoIgualAoAnterior": true
+      }
     },
     {
       "id": "1-curar-ferimentos-27",

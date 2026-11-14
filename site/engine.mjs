@@ -197,6 +197,9 @@ function corrigirMagiasRevisao(f){
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
     if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno',...(/riso/.test(nome)?{aoSofrerDano:true}:{})}; // #18
     if(nome==='talho mental'&&o.automacao?.efeitoFalha&&!o.automacao.efeitoFalha.expira){o.automacao.efeitoFalha.turnos=2;o.automacao.efeitoFalha.expira='fim_origem';} // #13 até o fim do próximo turno do conjurador
+    if(nome==='saraivada de espinhos'&&!o.automacao){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
+    if(nome==='golpe constritor'&&!o.automacao){o.automacao={tipo:'salva',atributo:'for',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,alcanceM:18,efeitoFalha:{nome:'Contido (Golpe Constritor)',condicao:'contido',turnos:10,danoInicioTurno:{formula:'1d6',elemento:'perfurante'}}};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma'],alvoIgualAoAnterior:true};}
+    if(/destruidor de hordas/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.usarArmaAnterior)o.automacao.usarArmaAnterior=true;
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano')o.automacao.elementos=['contundente','cortante','perfurante'];
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
     if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
@@ -416,7 +419,7 @@ export function validar(f) {
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
-      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','somenteForaCombate','somenteAoRolarIniciativa'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','alvoIgualAoAnterior','somenteForaCombate','somenteAoRolarIniciativa'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
       exigir(r.umaVezPorTurno===undefined||idOK(r.umaVezPorTurno),'Limite por turno inválido em '+o.id);
@@ -752,6 +755,7 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.tagsAtaqueAnterior?.length)exigir(anterior&&r.tagsAtaqueAnterior.every(t=>anterior.tags?.includes(t)),'O ataque anterior não cumpre os requisitos desta habilidade.');
   if(r.umaVezPorTurno)exigir(!a.usosTurno?.[r.umaVezPorTurno],'Esta habilidade já foi usada neste turno.');
   if(r.somenteAoRolarIniciativa)exigir(s.fase!=='turnos'||(s.rodada===1&&!a.jaAgiuNoCombate),'Só ao rolar Iniciativa (antes do seu primeiro turno terminar).'); // #34
+  if(r.alvoIgualAoAnterior)exigir(anterior&&alvo&&anterior.alvo===alvo.id,'O alvo precisa ser a criatura que você acabou de acertar.');
   if(r.alvoDiferenteDoConjurador)exigir(!alvo||alvo.id!==a.id,'Escolha outra criatura (não pode ser você).'); // #31
   if(r.alvoDiferenteDoAnterior)exigir(anterior&&alvo&&anterior.alvo!==alvo.id,'Escolha uma criatura diferente do alvo anterior.');
   if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distancia(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
@@ -1288,7 +1292,13 @@ export async function aplicar(s,c,u,rolar) {
         // #11 Monstro a 0 PV morre (Cap. 1): a vez dele é pulada. PJ a 0 PV continua para as salvaguardas contra a morte.
         const pulados=[];
         for(let i=0;i<s.ordem.length;i++){s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);}
-        const iniciado=atual(s);iniciarTurno(s,iniciado);msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join(', ')+'.':'');break;
+        const iniciado=atual(s);iniciarTurno(s,iniciado);
+        // #32 Dano no início do turno do afetado (Golpe Constritor).
+        for(const e of (iniciado?.efeitosAtivos??[]).filter(e=>e.danoInicioTurno&&iniciado.pv>0)){
+          const r=await resultado(e.danoInicioTurno.formula,{tipo:'dano',titulo:'Dano no início do turno · '+e.nome,alvo:iniciado.nome,tipoDano:e.danoInicioTurno.elemento,parcelasDano:[{tipo:e.danoInicioTurno.elemento,tags:['magia']}],alvoDano:resumoAlvoDano(iniciado)});
+          msg+=iniciado.nome+' sofreu '+await aplicarDanoNoAtor(iniciado,r.total,e.danoInicioTurno.elemento,{relatorio:r.relatoriosDano?.[0]})+' de '+e.nome+'. ';
+        }
+msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join(', ')+'.':'');break;
       }
       exigir(a.pv>0,'Personagem a 0 PV.');
       if(c.tipo==='mover'){
@@ -1311,7 +1321,9 @@ export async function aplicar(s,c,u,rolar) {
       exigir(c.tipo==='usar','Comando desconhecido.');
       const o=opcaoDeclarada;exigir(o,'Opção desconhecida.');exigir(opcaoDisponivel(a,o),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
       exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
-      const rule=o.automacao;
+      let rule=o.automacao;
+      // #32 Destruidor de Hordas: o ataque extra usa a mesma arma do ataque anterior.
+      if(rule?.usarArmaAnterior){const anterior=(a.eventosTurno?.ataques??[]).at(-1),arma=anterior&&opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);exigir(arma?.automacao?.tipo==='ataque','Faça antes um ataque com arma neste turno.');rule={...structuredClone(arma.automacao),ataques:undefined,efeitoAcerto:arma.automacao.efeitoAcerto};}
       // #10 O jogador pode declarar uma opção assistida: gasta o custo, registra no histórico e o mestre arbitra o efeito.
       exigir(rule || c.assistido,'Opção assistida. Confirme para declarar e deixar o efeito com o mestre.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
@@ -1459,7 +1471,7 @@ export async function aplicar(s,c,u,rolar) {
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,indice=resultadosSalva.filter(x=>!x.sucesso||rule.metade).indexOf(r),valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a,relatorio:temArea?null:relatoriosDiretos[indice]});msg+=' • '+r.p.nome+' perdeu '+valor+' PV';}
           if(!r.sucesso)deslocarForcado(r.p);
           if(!r.sucesso&&rule.efeitoFalha){
-            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
+            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,danoInicioTurno:rule.efeitoFalha.danoInicioTurno,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
             r.p.efeitosAtivos=(r.p.efeitosAtivos??[]).filter(e=>e.id!==o.id);r.p.efeitosAtivos.push(efeito);
             if(rule.efeitoFalha.consomeReacao)r.p.reacao=0;msg+=' • efeito: '+efeito.nome;
             if(restricoesAtivas(r.p).semAcoes)encerrarConcentracao(s,r.p,'incapacitado');

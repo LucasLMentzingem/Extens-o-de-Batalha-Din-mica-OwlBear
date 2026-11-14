@@ -455,7 +455,8 @@
         "bonus": 7,
         "dano": "1d8+3",
         "elemento": "perfurante",
-        "alcanceM": 18
+        "alcanceM": 18,
+        "usarArmaAnterior": true
       }
     },
     {
@@ -552,7 +553,24 @@
           "quantidade": 1
         }
       ],
-      "circuloBase": 1
+      "circuloBase": 1,
+      "automacao": {
+        "tipo": "salva",
+        "atributo": "des",
+        "cd": 12,
+        "dano": "1d10",
+        "elemento": "perfurante",
+        "metade": true,
+        "alcanceM": 18,
+        "raioM": 1.5
+      },
+      "requisitosUso": {
+        "aposAcerto": true,
+        "tagsAtaqueAnterior": [
+          "arma",
+          "distancia"
+        ]
+      }
     },
     {
       "id": "1-marca-do-predador-sempre-concentracao-27",

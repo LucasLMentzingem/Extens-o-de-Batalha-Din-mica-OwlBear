@@ -544,8 +544,8 @@ test('sequência resolve armas diferentes contra dois alvos pagando uma única a
 test('segundo alvo condicionado precisa ser diferente e próximo do primeiro',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'horda',nome:'Destruidor de Hordas',categoria:'acao',requisitosUso:{aposAtaque:true,tagsAtaqueAnterior:['arma'],umaVezPorTurno:'horda',alvoDiferenteDoAnterior:true,distanciaDoAlvoAnteriorM:1.5},automacao:{tipo:'ataque',bonus:4,dano:'1d6',elemento:'perfurante',alcanceM:18}});
  await m.iniciar();const principal=m.s.atores[0].ficha.opcoes.find(o=>o.nome.startsWith('Adaga +4')&&!o.varianteArremessoDe);await m.go('usar',{ator:m.a.id,opcao:principal.id,alvo:m.b.id},player,[15,5]);
- await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=2.4;
- await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,15,4]); // à distância com inimigo colado: Desvantagem (#8)assert.equal(m.s.atores[2].pv,20);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.b.id},player),/diferente/);m.s.atores[2].x=1;m.s.atores[2].y=1; // mesma arma (adaga, corpo a corpo): o segundo alvo precisa estar ao alcance (#32)
+ await m.go('usar',{ator:m.a.id,opcao:'horda',alvo:m.c.id},player,[15,4]);assert.equal(m.s.atores[2].pv,20);
 });
 test('reação genérica ao sofrer dano pausa a mesa, usa o controlador correto e retoma depois',async()=>{
  const m=mesa();m.a.ficha.opcoes.push({id:'repreensao-teste',nome:'Repreensão Diabólica',categoria:'magia',gatilho:'sofrer_dano',descricao:'Quando sofrer dano de uma criatura visível, reaja com fogo infernal.',custo:[{tipo:'reacao',quantidade:1},{tipo:'recurso',id:'espaco-1',quantidade:1}],automacao:{tipo:'salva',atributo:'des',cd:13,dano:'2d10',metade:true,elemento:'fogo',alcanceM:18}});
@@ -1079,4 +1079,27 @@ test('#15 Explosão Elemental tem um botão por tipo de dano; #14 Riso repete a 
   const r=roladorSala({d20:15,salva:15});
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,r.rolar);
   assert.match(r.formulas.find(x=>x.meta.tipo==='salvaguarda').f,/^2d20kh1/);assert.ok(!s.atores[1].efeitosAtivos.some(e=>e.id==='x'));
+});
+
+test('#32 Saraivada de Espinhos, Golpe Constritor e Destruidor de Hordas',async()=>{
+  // Saraivada: só depois de acertar com arma à distância; salvaguarda de DES em área de 1,5 m
+  let {s,a,b}=await duelo('zurich',undefined,{distancia:6});const sar=opRev(a,'saraivada');
+  assert.equal(sar.automacao.atributo,'des');assert.equal(sar.automacao.raioM,1.5);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:sar.id,ponto:{x:b.x,y:b.y}},player,roladorSala().rolar),/depois de acertar/);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,roladorSala().rolar);
+  const pv=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:sar.id,ponto:{x:b.x,y:b.y}},player,roladorSala({salva:2}).rolar);
+  assert.equal(s.atores[1].pv,pv-6);
+  // Golpe Constritor: Contido e 1d6 no início do turno do alvo
+  ({s,a,b}=await duelo('dragoberto'));const gc=opRev(a,'golpe constritor');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:gc.id,alvo:b.id},player,roladorSala({salva:2}).rolar);
+  assert.ok(temCondicao(s.atores[1],'contido'));const pv2=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala({dano:4}).rolar);
+  assert.equal(s.atores[1].pv,pv2-4);
+  // Destruidor de Hordas: usa a cimitarra (+5, 1d6+3) depois de atacar com a cimitarra
+  ({s,a,b}=await duelo('dragoberto'));const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=1;c.y=1;s.ordem.push(c.id);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,alvo:b.id},player,roladorSala().rolar);
+  const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'destruidor').id,alvo:c.id},player,r.rolar);
+  assert.equal(r.formulas.find(x=>x.meta.tipo==='ataque').f,'1d20'+opRev(a,'cimitarra').automacao.bonus.toLocaleString('en',{signDisplay:'always'}));
 });
