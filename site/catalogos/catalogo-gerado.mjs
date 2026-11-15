@@ -9614,6 +9614,30 @@ export default {
       }
     },
     {
+      "id": "item.la-arte.luva-boxeador-das-ruas-mais-1",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Luva de Boxeador das Ruas +1",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "preco": {
+          "valor": 600,
+          "moeda": "po"
+        },
+        "pesoKg": 0.25,
+        "slotEquipamento": "acessorio",
+        "descricao": "Enquanto equipada sem armadura nem escudo, concede +1 às jogadas de ataque desarmado e +1 ao dano de cada acerto desarmado.",
+        "negociavel": true,
+        "raridade": "incomum",
+        "modificadoresCondicionais": {
+          "semArmadura": {
+            "ataqueDesarmado": 1,
+            "danoDesarmado": 1
+          }
+        }
+      }
+    },
+    {
       "id": "item.la-arte.botas-passo-livre-mais-1",
       "revisao": 1,
       "definicao": {
@@ -10484,7 +10508,7 @@ export default {
         },
         "pesoKg": 0.25,
         "slotEquipamento": "acessorio",
-        "descricao": "Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura, concede também +1 à CA.",
+        "descricao": "Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura nem escudo, concede também +1 às jogadas de ataque desarmado e +1 à CA.",
         "negociavel": true,
         "raridade": "raro",
         "danoExtraDesarmado": {
@@ -10494,7 +10518,8 @@ export default {
         },
         "modificadoresCondicionais": {
           "semArmadura": {
-            "ca": 1
+            "ca": 1,
+            "ataqueDesarmado": 1
           }
         }
       }
@@ -10756,6 +10781,10 @@ export default {
         {
           "id": "la-arte-luvas-guarda-mais-1",
           "ref": "item.la-arte.luvas-guarda-mais-1"
+        },
+        {
+          "id": "la-arte-luva-boxeador-das-ruas-mais-1",
+          "ref": "item.la-arte.luva-boxeador-das-ruas-mais-1"
         },
         {
           "id": "la-arte-botas-passo-livre-mais-1",

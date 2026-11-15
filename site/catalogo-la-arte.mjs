@@ -29,6 +29,7 @@ const incomuns=[
     opcoesConcedidas:[{id:'disparada-mensageiro',nome:'Disparada do Mensageiro',categoria:'item',origem:'Capa do Mensageiro',descricao:'Use Disparada e percorra mais 3 m neste turno.',custo:[{tipo:'acao',quantidade:1},{tipo:'recurso',id:'passo-mensageiro',quantidade:1}],automacao:{tipo:'economia',disparada:true,adicionarDeslocamentoM:3}}]
   }),
   item('luvas-guarda-mais-1','item.luvas-de-treino-par','Luvas da Guarda +1','incomum',500,'Sem armadura, concede +1 à CA.',{modificadoresCondicionais:{semArmadura:{ca:1}}}),
+  item('luva-boxeador-das-ruas-mais-1','item.luvas-de-treino-par','Luva de Boxeador das Ruas +1','incomum',600,'Enquanto equipada sem armadura nem escudo, concede +1 às jogadas de ataque desarmado e +1 ao dano de cada acerto desarmado.',{modificadoresCondicionais:{semArmadura:{ataqueDesarmado:1,danoDesarmado:1}}}),
   item('botas-passo-livre-mais-1','item.botas-de-marcha-par','Botas do Passo Livre +1','incomum',445,'Ignore o custo extra de terreno difícil não mágico.',{ignoraTerrenoDificilNaoMagico:true})
 ];
 const raros=[
@@ -57,7 +58,7 @@ const raros=[
     recursosConcedidos:[recurso('socorrista','Socorrista')],
     opcoesConcedidas:[{id:'socorrista',nome:'Socorrista',categoria:'item',origem:'Colar do Socorrista',descricao:'Toque uma criatura viva com 0 PV para recuperar 2d8+2 PV.',custo:[{tipo:'acao',quantidade:1},{tipo:'recurso',id:'socorrista',quantidade:1}],selecao:alvoUnico(),requisitosUso:{alvoComZeroPv:true,alvoVivo:true},automacao:{tipo:'cura',alcanceM:1.5,formula:'2d8+2'}}]
   }),
-  item('luvas-dragao-ascendente-mais-2','item.luvas-de-treino-par','Luvas do Dragão Ascendente +2','raro',1400,'Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura, concede também +1 à CA.',{danoExtraDesarmado:{formula:'1d4',elemento:'fogo',critico:false},modificadoresCondicionais:{semArmadura:{ca:1}}}),
+  item('luvas-dragao-ascendente-mais-2','item.luvas-de-treino-par','Luvas do Dragão Ascendente +2','raro',1400,'Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura nem escudo, concede também +1 às jogadas de ataque desarmado e +1 à CA.',{danoExtraDesarmado:{formula:'1d4',elemento:'fogo',critico:false},modificadoresCondicionais:{semArmadura:{ca:1,ataqueDesarmado:1}}}),
   item('botas-escapistas-mais-2','item.botas-de-marcha-par','Botas Escapistas +2','raro',1250,'Ação bônus, 1 uso por descanso longo: use Desengajar e Disparada juntos e não provoque ataques de oportunidade nesse turno.',{
     recursosConcedidos:[recurso('passo-escapista','Passo Escapista')],
     opcoesConcedidas:[{id:'passo-escapista',nome:'Passo Escapista',categoria:'item',origem:'Botas Escapistas +2',descricao:'Use Desengajar e Disparada juntos; não provoque ataques de oportunidade neste turno.',custo:[{tipo:'bonus',quantidade:1},{tipo:'recurso',id:'passo-escapista',quantidade:1}],automacao:{tipo:'economia',disparada:true,desengajar:true}}]

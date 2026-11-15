@@ -1178,15 +1178,15 @@ test('todos os itens possuem preço e a Ferraria de Victor respeita desconto de 
  s=await aplicar(s,{tipo:'configurarLoja',lojaId:'loja.ferraria-victor',ativa:true,descontoPct:10,rev:s.rev},gm,dadoLocal);assert.equal(lojasAtivas(s).length,1);
  await assert.rejects(aplicar(s,{tipo:'configurarLoja',lojaId:'loja.ferraria-victor',ativa:true,descontoPct:31,rev:s.rev},gm,dadoLocal),/entre 1% e 30%/);
 });
-test('Victor é a primeira loja e a La Arte oferece os 22 incomuns e 20 raros por referência central',()=>{
+test('Victor é a primeira loja e a La Arte oferece os 23 incomuns e 20 raros por referência central',()=>{
  const c=catalogoCentral(),[victor,laArte]=c.lojas;assert.equal(victor.id,'loja.ferraria-victor');assert.equal(laArte.id,'loja.la-arte');
- const loja=resolverCatalogoLoja(laArte);assert.equal(loja.itens.length,42);assert.equal(loja.itens.filter(i=>i.raridade==='incomum').length,22);assert.equal(loja.itens.filter(i=>i.raridade==='raro').length,20);
+ const loja=resolverCatalogoLoja(laArte);assert.equal(loja.itens.length,43);assert.equal(loja.itens.filter(i=>i.raridade==='incomum').length,23);assert.equal(loja.itens.filter(i=>i.raridade==='raro').length,20);
  assert.ok(loja.itens.every(i=>i.catalogoRef&&i.preco?.valor>0));assert.equal(loja.itens.find(i=>i.nome==='Luvas do Dragão Ascendente +2').preco.valor,1400);
 });
-test('auditoria integral das lojas cobre 66 referências portáveis com preço, peso e quantidade válidos',async()=>{
+test('auditoria integral das lojas cobre 67 referências portáveis com preço, peso e quantidade válidos',async()=>{
  const lojas=catalogoCentral().lojas.map(resolverCatalogoLoja),itens=lojas.flatMap(loja=>loja.itens);
- assert.deepEqual(lojas.map(loja=>[loja.id,loja.itens.length]),[['loja.ferraria-victor',24],['loja.la-arte',42]]);assert.equal(itens.length,66);
- assert.equal(new Set(itens.map(i=>i.catalogoRef)).size,66);
+ assert.deepEqual(lojas.map(loja=>[loja.id,loja.itens.length]),[['loja.ferraria-victor',24],['loja.la-arte',43]]);assert.equal(itens.length,67);
+ assert.equal(new Set(itens.map(i=>i.catalogoRef)).size,67);
  for(const item of itens){assert.ok(item.catalogoRef,item.nome);assert.ok(item.preco?.valor>0,item.nome+' sem preço');assert.ok(Number.isFinite(item.pesoKg)&&item.pesoKg>=0,item.nome+' sem peso');assert.ok(item.tipo,item.nome+' sem tipo');}
  let s=novo(),a=adicionar(s,nikki);a.ficha.inventario.capacidadeCargaKg=9999;
  for(const item of itens)s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:item.catalogoRef,quantidade:1,rev:s.rev},gm,dadoLocal);
@@ -2820,4 +2820,120 @@ test('#49 M10 tipo de criatura: Imobilizar Pessoa só em humanoides',async()=>{
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'2-imobilizar-pessoa-24',alvo:b.id},player,roladorSala({salva:2}).rolar);
   assert.ok(temCondicao(s.atores[1],'paralisado'));
   assert.equal(tipoCriatura({ficha:{}}),'humanoide');
+});
+
+
+const refLuvaBoxeador='item.la-arte.luva-boxeador-das-ruas-mais-1';
+const luvaBoxeador=(extra={})=>itemDeMissao({id:'luva-boxeador',ref:refLuvaBoxeador,equipado:true,equipadoSlot:'acessorio_1',...extra});
+
+test('Luva de Boxeador das Ruas +1: catálogo incomum, preço alto e bônus condicionado à armadura',async()=>{
+  const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(l=>l.id==='loja.la-arte')),item=loja.itens.find(i=>i.catalogoRef===refLuvaBoxeador);
+  assert.equal(item.nome,'Luva de Boxeador das Ruas +1');assert.equal(item.raridade,'incomum');assert.equal(item.preco.valor,600);assert.equal(item.pesoKg,0.25);
+  for(const classe of ['nenhuma','veste','leve','media','pesada','escudo']){
+    const {a}=await duelo('loteria');
+    const antes=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/i.test(o.nome));
+    a.ficha.inventario.itens.push(luvaBoxeador());
+    if(classe!=='nenhuma')a.ficha.inventario.itens.push({id:'protecao-boxe',nome:classe==='escudo'?'Escudo':'Veste de teste',tipo:'equipamento',quantidade:1,pesoKg:1,slotEquipamento:classe==='escudo'?'mao_fraca':'vestes',equipado:true,equipadoSlot:classe==='escudo'?'mao_fraca':'vestes',categoriaArmadura:classe});
+    const depois=opcoesDisponiveis(a).find(o=>o.id===antes.id),bonus=['nenhuma','veste'].includes(classe)?1:0;
+    assert.equal(depois.automacao.bonus,antes.automacao.bonus+bonus,classe);
+    assert.equal(depois.automacao.dano,bonus?'1d6+4':'1d6+3',classe);
+  }
+});
+
+test('Luva de Boxeador: sete fichas, valores dinâmicos sem acumular e armas/magias preservadas',async()=>{
+  for(const id of idsJogadores){
+    const {a}=await duelo(id);
+    a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>!i.categoriaArmadura&&!i.classeArmadura);
+    const anteriores=opcoesDisponiveis(a),antes=anteriores.find(o=>/Golpe Desarmado/i.test(o.nome));assert.ok(antes,id);
+    const luva=luvaBoxeador();a.ficha.inventario.itens.push(luva);
+    const original=structuredClone(a.ficha.opcoes);
+    for(let n=0;n<3;n++){
+      const ops=opcoesDisponiveis(a),golpe=ops.find(o=>o.id===antes.id);
+      assert.equal(golpe.automacao.bonus,antes.automacao.bonus+1,id);
+      const f=await import('./site/engine.mjs');
+      assert.equal(f.avaliarFormula(golpe.automacao.dano,()=>3).total,f.avaliarFormula(antes.automacao.dano,()=>3).total+1,id);
+      for(const o of anteriores.filter(o=>o.geradaPorItem||o.categoria==='magia'))assert.deepEqual(ops.find(x=>x.id===o.id)?.automacao,o.automacao,id+' '+o.nome);
+    }
+    assert.deepEqual(a.ficha.opcoes,original,'a definição salva continua com seus valores base');
+    const salvo=JSON.parse(JSON.stringify(compactarEstado({atores:[a]}))).atores[0];salvo.ficha=validar(salvo.ficha);
+    assert.equal(opcoesDisponiveis(salvo).find(o=>o.id===antes.id).automacao.bonus,antes.automacao.bonus+1);
+    luva.equipado=false;assert.deepEqual(opcoesDisponiveis(a).find(o=>o.id===antes.id).automacao,antes.automacao,id);
+  }
+});
+
+test('Luva de Boxeador: soco, Torrente e Mão de Dolo recebem o bônus de golpe, cura preservada',async()=>{
+  const {avaliarFormula}=await import('./site/engine.mjs');
+  for(const critico of [false,true]){
+    let {s,a,b}=await duelo('loteria');b.pv=200;b.ficha.pvMaximos=200;
+    a.ficha.inventario.itens.push(luvaBoxeador());a.pv=10;
+    const torrente=opcoesDisponiveis(a).find(o=>/^Torrente/.test(o.nome)),metas=[];
+    assert.equal(torrente.automacao.bonus,6);assert.equal(torrente.automacao.dano,'1d6+4');assert.ok(torrente.nome.includes('+6'));
+    for(const modo of torrente.composicao.modos){
+      if(modo.tipo==='ataque'){assert.equal(modo.automacao.bonus,6);assert.equal(modo.automacao.dano,'1d6+4');}
+      else assert.equal(modo.automacao.formula,'1d6+1');
+    }
+    const rolar=async(f,m)=>{metas.push({f,m});return avaliarFormula(f,l=>l===20?(critico?20:15):3);};
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:torrente.id,composicao:[{modoId:'soco-normal',alvoId:b.id},{modoId:'mao-de-cura',alvoId:a.id}]},player,rolar);
+    assert.equal(s.atores[1].pv,200-(critico?10:7));assert.equal(s.atores[0].pv,14);
+    assert.equal(s.atores[0].rec['pontos-de-foco'],a.rec['pontos-de-foco']-1);
+    assert.equal(metas.find(x=>x.m.tipo==='ataque').f,'1d20+6');
+    assert.equal(metas.find(x=>x.m.tipo==='dano').f,critico?'2d6+4':'1d6+4');
+  }
+});
+
+test('Luva de Boxeador: ataques de oportunidade desarmados também usam os bônus',async()=>{
+  const {avaliarFormula}=await import('./site/engine.mjs');let {s,a,b}=await duelo('loteria');
+  a.ficha.inventario.itens.push(luvaBoxeador());
+  const soco=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/i.test(o.nome)),metas=[];s.vez=1;
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:b.id,x:4,y:0},gm,dadoLocal);
+  assert.equal(s.reacaoPendente?.reator,a.id);
+  const reacao=s.reacaoPendente.opcoes[0];
+  s=await aplicar(s,{rev:s.rev,tipo:'resolverReacao',ator:a.id,opcao:reacao,ataqueId:soco.id},player,async(f,m)=>{metas.push({f,m});return avaliarFormula(f,l=>l===20?15:3);});
+  assert.equal(metas.find(x=>x.m.tipo==='ataque').f,'1d20+6');assert.equal(metas.find(x=>x.m.tipo==='dano').f,'1d6+4');assert.equal(s.atores[0].reacao,0);
+});
+
+
+test('Luvas do Dragão Ascendente +2: acerto e CA sem armadura; fogo preservado mesmo com armadura',async()=>{
+  const {avaliarFormula}=await import('./site/engine.mjs');
+  for(const escudo of [false,true]){
+    let {s,a,b}=await duelo('loteria');b.pv=200;b.ficha.pvMaximos=200;
+    const socoAntes=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/i.test(o.nome)),caAntes=caAtual(a),luva=itemDeMissao({id:'dragao-teste',ref:'item.la-arte.luvas-dragao-ascendente-mais-2',equipado:true,equipadoSlot:'acessorio_1'});
+    assert.equal(luva.preco.valor,1400);a.ficha.inventario.itens.push(luva);
+    if(escudo)a.ficha.inventario.itens.push(itemDeMissao({id:'escudo-dragao',ref:'item.escudo',equipado:true,equipadoSlot:'mao_fraca'}));
+    const depois=opcoesDisponiveis(a).find(o=>o.id===socoAntes.id);
+    assert.equal(depois.automacao.bonus,socoAntes.automacao.bonus+(escudo?0:1));assert.equal(depois.automacao.dano,socoAntes.automacao.dano);
+    const caComLuva=caAtual(a);luva.equipado=false;const caSemLuva=caAtual(a);luva.equipado=true;
+    assert.equal(caComLuva-caSemLuva,escudo?0:1);if(!escudo)assert.equal(caComLuva,caAntes+1);
+    const metas=[];
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:depois.id,composicao:[{modoId:'golpe-normal',alvoId:b.id}]},player,async(f,m)=>{
+      metas.push(m);const base=avaliarFormula(f,l=>l===20?15:3),extras=(m.adicionais??[]).filter(x=>x.automatico),resultados=[base,...extras.map(e=>avaliarFormula(e.formula,()=>3))];
+      return {...base,total:resultados.reduce((n,r)=>n+r.total,0),resultados,recursosAtivos:extras.map(e=>e.id)};
+    });
+    const fogo=metas.find(m=>m.tipo==='dano').adicionais.find(e=>e.nome==='Luvas do Dragão Ascendente +2');
+    assert.equal(fogo.formula,'1d4');assert.equal(fogo.elemento,'fogo');assert.equal(fogo.automatico,true);
+    assert.equal(s.atores[1].pv,191);
+  }
+});
+
+test('revisão 0.8.35: faces mínimas entram no total exibido uma única vez e preservam os adicionais',async()=>{
+  const {ajustarFacesMinimasRolagem}=await import('./site/engine.mjs');
+  const fonte={nome:'Combate com Armas Grandes',facesMinimasDano:{minimo:3}};
+  const r={total:11,grupos:[{diceType:'d6',dice:[{value:1},{value:2}]},{diceType:'d8',dice:[{value:5}]}],mapaGrupos:[0,1],resultados:[{total:6},{total:5}]};
+  assert.equal(ajustarFacesMinimasRolagem(r,fonte),3);assert.equal(r.total,14);assert.equal(r.resultados[0].total,9);assert.equal(r.resultados[1].total,5);
+  assert.match(r.resultados[0].resumo,/= 9$/);
+  ajustarFacesMinimasRolagem(r,fonte);assert.equal(r.total,14);assert.equal(r.resultados[0].total,9);
+  const um={total:9,faces:[1,5]},dois={total:10,faces:[3,4]};
+  ajustarFacesMinimasRolagem(um,fonte);ajustarFacesMinimasRolagem(dois,fonte);
+  assert.equal(um.total,11);assert.equal(dois.total,10,'Atacante Selvagem compara os resultados já ajustados');
+});
+
+
+test('revisão 0.8.35: reação preventiva mantém Combate com Armas Grandes no resultado',async()=>{
+  let {s,a,b}=await duelo('draven-thorne','loteria');b.pv=200;b.ficha.pvMaximos=200;
+  const arma=opcoesDisponiveis(a).find(o=>/espada grande/i.test(o.nome)&&o.automacao?.tipo==='ataque');
+  const rolar=async(f,m)=>m.tipo==='ataque'?{total:25,natural:15,formula:f}:{total:6,faces:[1,2],formula:f};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:arma.id,alvo:b.id},player,rolar);
+  assert.equal(s.reacaoPendente?.gatilho,'ser_atingido');
+  s=await aplicar(s,{rev:s.rev,tipo:'resolverReacao',ator:b.id,opcao:null,confirmado:true},gm,rolar);
+  assert.equal(s.atores[1].pv,191);
 });

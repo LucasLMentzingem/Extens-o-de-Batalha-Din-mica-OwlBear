@@ -1,6 +1,10 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.35, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+Revisão de 15 de novembro de 2026, versão 0.8.36, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+
+A 0.8.36 integra a contribuição 0.8.35 do PR #73 e adiciona a Luva de Boxeador das Ruas +1 aos incomuns da La Arte por 600 PO. Sem armadura nem escudo, ela concede +1 ao ataque desarmado e +1 ao dano. As Luvas do Dragão Ascendente +2 também concedem +1 ao ataque desarmado sem armadura, preservando o fogo adicional e o bônus de CA. Os modificadores são derivados do equipamento atual, inclusive na Gaveta, Torrente, soco bônus e oportunidade, e desaparecem ao desequipar ou vestir armadura.
+
+A revisão também antecipa o ajuste de Combate com Armas Grandes para antes do resultado e do relatório de dano da HUD. Atacante Selvagem compara as alternativas já ajustadas. A aplicação no motor é idempotente e a reação preventiva preserva o estilo. Validação com 248 testes e fluxos de ataque/dano em Chromium com SDK/Dice+ simulados, sem erros de página. A checagem em sala real continua acompanhada nas issues das fichas.
 
 A 0.8.33 restaura o raio do livro nas áreas circulares e calibra a cena para 1,5 m por célula. Motor, HUD, zonas, alvos, deslocamentos e tokens usam a mesma conversão entre pixels e metros. A régua nativa é configurada em metros e distância euclidiana. Estados anteriores são migrados uma única vez, preservando a posição no desenho. Uma trajetória pendente precisa de nova seleção para recalcular oportunidades na escala corrigida.
 

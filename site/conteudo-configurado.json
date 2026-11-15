@@ -6,7 +6,7 @@
     "racas": 6,
     "habilidades": 260,
     "comuns": 16,
-    "itens": 96
+    "itens": 97
   },
   "sistemaEquipamentos": {
     "status": "Configurado",
@@ -173,7 +173,7 @@
         },
         {
           "nome": "1º | Disfarçar-se",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "1º | Encontrar Familiar",
@@ -197,7 +197,7 @@
         },
         {
           "nome": "2º | Força Fantasmagórica",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "2º | Imobilizar Pessoa",
@@ -253,7 +253,7 @@
         },
         {
           "nome": "Mente Desperta",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Perícia | Atuação +5",
@@ -1358,6 +1358,10 @@
     {
       "nome": "Livro de ocultismo e Kit de Estudioso",
       "status": "Item, peso e carga configurados"
+    },
+    {
+      "nome": "Luva de Boxeador das Ruas +1",
+      "status": "CA, classe, slot e modificadores configurados"
     },
     {
       "nome": "Luvas da Guarda +1",

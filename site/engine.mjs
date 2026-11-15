@@ -1,6 +1,6 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.35';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.35';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.35';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.36';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.36';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.36';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -821,7 +821,40 @@ function sincronizarConcessoesItens(a){
   return a;
 }
 export const acaoSaquear={...definicaoHabilidade('habilidade.saquear'),id:'saquear',catalogoRef:'habilidade.saquear'};
-export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);const lista=[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a),...(a?.invocacao?[{id:'dispensar-invocacao',nome:'Dispensar | sem ação',categoria:'acao',descricao:'Encerra a entidade invocada e remove o token.',custo:[],automacao:{tipo:'dispensar'}}]:[])];anexarDestruidorNaComposicao(a,lista);return lista;};
+export function opcoesCalculadas(a){
+  sincronizarConcessoesItens(a);
+  const lista=[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a),...(a?.invocacao?[{id:'dispensar-invocacao',nome:'Dispensar | sem ação',categoria:'acao',descricao:'Encerra a entidade invocada e remove o token.',custo:[],automacao:{tipo:'dispensar'}}]:[])];
+  anexarDestruidorNaComposicao(a,lista);
+  const acerto=bonusEquipamento(a,'ataqueDesarmado'),dano=bonusEquipamento(a,'danoDesarmado');
+  if(!acerto&&!dano)return lista;
+  return lista.map(o=>ajustarGolpesDesarmados(o,acerto,dano));
+}
+
+// Deriva as opções sem gravar o bônus na ficha. Trocar de roupa, escudo ou
+// portador recalcula os golpes, inclusive as etapas da Gaveta e da Torrente.
+function ajustarGolpesDesarmados(opcao,acerto,dano){
+  const desarmado=r=>r?.tipo==='ataque'&&tagsAtaque(opcao,r).includes('desarmado');
+  const regras=[opcao.automacao,...(opcao.automacao?.ataques??[]),...(opcao.composicao?.modos??[]).map(m=>m.automacao)];
+  if(!regras.some(desarmado))return opcao;
+  const copia=structuredClone(opcao),vistos=new Set();
+  const ajustar=r=>{
+    if(!desarmado(r)||vistos.has(r))return;
+    vistos.add(r);r.bonus+=acerto;
+    const partes=/^(\d*d\d+)([+-]\d+)?$/.exec(r.dano);
+    r.dano=partes?formulaComBonus(partes[1],Number(partes[2]??0)+dano):formulaComBonus(r.dano,dano);
+  };
+  ajustar(copia.automacao);
+  for(const r of copia.automacao?.ataques??[])ajustar(r);
+  for(const modo of copia.composicao?.modos??[])ajustar(modo.automacao);
+  if(desarmado(opcao.automacao)){
+    const antes=opcao.automacao,depois=copia.automacao;
+    copia.nome=copia.nome.replace(/([+-]\d+)(?=\s*(?:\||·|$))/,depois.bonus>=0?'+'+depois.bonus:String(depois.bonus));
+    copia.descricao=(copia.descricao??'').replaceAll('['+antes.dano+']','['+depois.dano+']')
+      .replaceAll('['+formulaCritica(antes.dano)+']','['+formulaCritica(depois.dano)+']')
+      .replaceAll('[1d20'+(antes.bonus>=0?'+':'')+antes.bonus+']','[1d20'+(depois.bonus>=0?'+':'')+depois.bonus+']');
+  }
+  return copia;
+}
 // #65 M04: Destruidor de Hordas também pode ser preparado na Gaveta de Composição do ataque com arma.
 // A etapa reaproveita a arma da instância anterior e compartilha o limite de uma vez por turno com o botão avulso.
 function anexarDestruidorNaComposicao(a,lista){
@@ -1350,6 +1383,21 @@ export function facesDanoBase(rolagem,base=rolagem){
   if(!grupos?.length&&rolagem?.grupos?.length)grupos=rolagem.grupos.filter((g,i)=>(rolagem.mapaGrupos?.[i]??0)===0);
   return (grupos??[]).filter(g=>String(g.diceType??'').toLowerCase()!=='d20'&&!g.isNegative).flatMap(g=>(g.dice??[]).filter(d=>d.kept!==false).map(d=>Number(d.value)));
 }
+
+// Compartilhado com a ponte para que o total exibido já inclua o estilo.
+// Reavaliar o resultado ajusta só a diferença e preserva os dados originais.
+export function ajustarFacesMinimasRolagem(rolagem,fonte){
+  if(!fonte?.facesMinimasDano)return 0;
+  const base=(rolagem.resultados?.length?rolagem.resultados:[rolagem])[0];
+  const faces=facesDanoBase(rolagem,base),minimo=Number(fonte.facesMinimasDano.minimo)||3;
+  const bonus=faces.reduce((n,v)=>n+Math.max(0,minimo-v),0),anterior=base.ajusteFacesMinimas?.bonus??0;
+  const bruto=base.total-anterior;
+  base.total+=bonus-anterior;
+  if(base!==rolagem)rolagem.total+=bonus-anterior;
+  base.ajusteFacesMinimas={nome:fonte.nome,bonus};
+  if(faces.length)base.resumo=faces.join(' + ')+' + '+(bruto-faces.reduce((n,v)=>n+v,0))+' + '+bonus+' ('+fonte.nome+') = '+base.total;
+  return bonus;
+}
 // M13: conta faces máximas nos grupos do Dice+ (ou no campo "faces" de testes simulados).
 export function facesMaximas(r,lados){
   const faces=Array.isArray(r?.faces)?r.faces:(r?.grupos??[]).filter(g=>!g.diceType||g.diceType==='d'+lados).flatMap(g=>(g.dice??[]).filter(d=>d.kept!==false).map(d=>d.value));
@@ -1501,9 +1549,7 @@ export async function aplicar(s,c,u,rolar) {
   // Combate com Armas Grandes: cada 1 ou 2 nos dados da arma conta como 3 (ajusta a parcela base antes de aplicar).
   const aplicarFacesMinimas=(o,rule,rolagem)=>{
     const g=fonteFacesMinimas(a,o,rule);if(!g)return '';
-    const base=(rolagem.resultados?.length?rolagem.resultados:[rolagem])[0],minimo=Number(g.facesMinimasDano.minimo)||3;
-    const delta=facesDanoBase(rolagem,base).reduce((n,v)=>n+Math.max(0,minimo-v),0);if(!delta)return '';
-    base.total=(Number(base.total)||0)+delta;if(base!==rolagem)rolagem.total=(Number(rolagem.total)||0)+delta;
+    const delta=ajustarFacesMinimasRolagem(rolagem,g);if(!delta)return '';
     return ' ('+g.nome+' +'+delta+')';
   };
   // M13 (#52): dados explosivos — cada face máxima rola mais um dado do mesmo tipo, até o limite.
@@ -1543,7 +1589,7 @@ export async function aplicar(s,c,u,rolar) {
     });
     const metaRerrolagens=rerrolagens.map(metaRerrolagem);
     const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
-    const rolagem=await resultado(formula,{tipo:'dano',titulo,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
+    const rolagem=await resultado(formula,{tipo:'dano',titulo,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),facesMinimasDano:fonteFacesMinimas(a,ataqueBase,rule),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
     const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
     exigir(new Set(idsAdicionais).size===idsAdicionais.length&&idsAdicionais.every(id=>adicionais.some(g=>g.id===id)),'Aprimoramento de dano inválido.');
     exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');
@@ -1961,7 +2007,8 @@ export async function aplicar(s,c,u,rolar) {
         }
         const controlador=controladorAtor(origem);
         const extras=pend.extrasFixos??[];
-        const rolagem=await resultado(pend.formula,{adicionais:extras,tipo:'dano',titulo:'Dano · '+pend.nome,critico:pend.critico,alvo:alvo.nome,destinoId:controlador,roladorNome:origem.nome,tipoDano:pend.elemento,parcelasDano:[{tipo:pend.elemento,tags:pend.tags??[]}],alvoDano:resumoAlvoDano(alvo),ajustesDano:reducao?[{id:'reacao-reducao',nome:nomeReacao,operacao:'reducao_fixa',valor:reducao,aplicacoes:'uma'}]:[]});
+        const rolagem=await resultado(pend.formula,{adicionais:extras,facesMinimasDano:pend.facesMinimasDano,tipo:'dano',titulo:'Dano · '+pend.nome,critico:pend.critico,alvo:alvo.nome,destinoId:controlador,roladorNome:origem.nome,tipoDano:pend.elemento,parcelasDano:[{tipo:pend.elemento,tags:pend.tags??[]}],alvoDano:resumoAlvoDano(alvo),ajustesDano:reducao?[{id:'reacao-reducao',nome:nomeReacao,operacao:'reducao_fixa',valor:reducao,aplicacoes:'uma'}]:[]});
+        ajustarFacesMinimasRolagem(rolagem,pend.facesMinimasDano);
         const partes=rolagem.resultados??[rolagem],parcelas=[{valor:partes[0].total,tipo:pend.elemento,tags:pend.tags??[]},...extras.map(e=>({valor:Number(e.formula),tipo:e.elemento,tags:e.tags??[]}))];
         const bruto=parcelas.reduce((n,p)=>n+p.valor,0),relatorio=rolagem.relatoriosDano?.[0];let saldoReducao=reducao;
         for(const parcela of parcelas){const retirada=Math.min(parcela.valor,saldoReducao);parcela.valor-=retirada;saldoReducao-=retirada;}
@@ -2351,7 +2398,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const metaAdicionais=adicionais.map(g=>{const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags,custo:g.custo??[],automatico:g.automatico===true,...((modo.preparar??[]).includes(g.id)?{preSelecionado:true}:{}),descricao:g.descricao??'',...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};});
           const metaRerrolagens=rerrolagens.map(metaRerrolagem);
           const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
-          const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano '+(i+1)+' · '+modo.nome,critico,alvo:p.nome,tipoDano:r.elemento,parcelasDano:[{tipo:r.elemento,tags}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
+          const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano '+(i+1)+' · '+modo.nome,critico,alvo:p.nome,tipoDano:r.elemento,parcelasDano:[{tipo:r.elemento,tags}],alvoDano:resumoAlvoDano(p),facesMinimasDano:fonteFacesMinimas(a,ataqueInstancia,r),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
           const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
           exigir(new Set(idsAdicionais).size===idsAdicionais.length&&idsAdicionais.every(id=>adicionais.some(g=>g.id===id)),'Aprimoramento de dano inválido.');
           exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');
@@ -2565,7 +2612,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];
       const extrasFixos=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p,s).filter(g=>g.automatico&&/^\d+$/.test(g.aprimoramento.dano)).map(g=>({id:g.id,nome:g.nome,formula:g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:tagsDano,automatico:true})):[];
-      if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome,extrasFixos})){msg+=' • aguardando reação de '+p.nome;continue;}
+      if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome,extrasFixos,facesMinimasDano:fonteFacesMinimas(a,o,rule)})){msg+=' • aguardando reação de '+p.nome;continue;}
       const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p,s):[],rerrolagens=rerrolagensDano(a,o),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
       const metaAdicionais=adicionais.map(g=>{
         const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
@@ -2575,7 +2622,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       });
       const metaRerrolagens=rerrolagens.map(metaRerrolagem);
       const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
-      const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
+      const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),facesMinimasDano:fonteFacesMinimas(a,o,rule),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
       const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
       exigir(new Set(idsAdicionais).size===idsAdicionais.length&&idsAdicionais.every(id=>adicionais.some(g=>g.id===id)),'Aprimoramento de dano inválido.');
       exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');

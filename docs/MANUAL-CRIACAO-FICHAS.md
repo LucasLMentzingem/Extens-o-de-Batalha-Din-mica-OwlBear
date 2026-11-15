@@ -166,6 +166,16 @@ O motor valida os IDs e quantidades enviados e transfere os itens entre as ficha
 
 Desde 0.8.22, duplicar no Owlbear um token CHARACTER vinculado a uma ficha `tipo: "npc"` cria um ator independente. A ficha de origem fornece equipamentos e escolhas; PV, recursos e efeitos começam em seus estados iniciais. Não é necessário criar um novo ID de definição da ficha: cada ator recebe seu próprio ID de instância. Jogadores não são clonados. Em combate, a nova instância aguarda inclusão manual na iniciativa. A extensão mantém nos metadados do token a referência de origem; não remova esse marcador ao duplicar.
 
+## Bônus de equipamento em ataques desarmados
+
+Use `modificadores.ataqueDesarmado` e `modificadores.danoDesarmado` para bônus desarmados permanentes enquanto o item estiver equipado. Para exigir ausência de armadura, use esses mesmos campos dentro de `modificadoresCondicionais.semArmadura`.
+
+A condição permite vestes comuns e bloqueia armaduras leves, médias, pesadas e escudos. Armadura Arcana é um efeito mágico e permite o benefício. Os bônus são derivados das instâncias equipadas e das opções atuais da ficha. Não grave os valores já aumentados na definição da habilidade.
+
+A Luva de Boxeador das Ruas +1 usa a referência `item.la-arte.luva-boxeador-das-ruas-mais-1`, custa 600 PO, pesa 0,25 kg e ocupa um slot de acessório, seguindo o padrão das luvas da mesa. Seus modificadores condicionais são `ataqueDesarmado: 1` e `danoDesarmado: 1`. O bônus fixo de dano permanece +1 no crítico.
+
+As Luvas do Dragão Ascendente +2 usam `item.la-arte.luvas-dragao-ascendente-mais-2`. Concedem +1 ao ataque desarmado e +1 à CA sem armadura. O adicional de 1d4 de fogo por acerto segue no campo `danoExtraDesarmado`, com sua configuração própria.
+
 ## Itens de missão e saldos por instância
 
 O catálogo inclui `item.adaga-do-ultimo-rito` e `item.colar-da-ultima-palavra`. O mestre pode concedê-los em **Adicionar item**. São recompensas de campanha disponíveis no catálogo central. As lojas mantêm sua seleção própria de estoque.

@@ -1,9 +1,9 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.35';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.35';
-import {compactarEstado} from './catalog.mjs?v=0.8.35';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.35';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.35';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.36';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.36';
+import {compactarEstado} from './catalog.mjs?v=0.8.36';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.36';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.36';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -108,7 +108,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
             const valores=(novo.grupos?.length?novo.grupos.map(g=>g.dice?.find(x=>x.kept!==false)?.value):(novo.resultados??[novo]).map(x=>x.total)).slice(0,trocas.length);
             if(valores.length!==trocas.length||valores.some(v=>!Number.isInteger(v)))throw Error('O Dice+ não devolveu todos os dados rerrolados.');
             resultado=aplicarRerrolagemParcial(resultado,trocas.map((d,i)=>({grupo:d.grupo,indice:d.indice,valor:valores[i]})),opcao.limiteDados??3);
-            const relatorios=relatoriosDaRolagem(resultado,metaResolucaoAtual);
+            ajustarFacesMinimasRolagem(resultado,meta.facesMinimasDano);const relatorios=relatoriosDaRolagem(resultado,metaResolucaoAtual);
             if(relatorios.length){resultado={...resultado,relatoriosDano:relatorios};if(resultado.resultados?.length)resultado.resultados=resultado.resultados.map((x,i)=>({...x,relatorioDano:relatorios[i]}));}
             rerrolagensUsadas.push(opcao.id);fase='resultado';
             await enviar({tipo:'resultado',pedido,resultado,status:metaResolucaoAtual?.tipo==='dano'?'Dano total':'',recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:(metaResolucaoAtual?.adicionais??[]).map(x=>x.id)}});
@@ -149,12 +149,15 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
         }
         if(!rolarDuas&&resultado.grupos?.length)resultado.mapaGrupos=indicesRolados.flatMap(i=>Array.from({length:(String(expressoesDice[i]).match(/\d*d\d+/gi)??[]).length},()=>i));
         if(rolarDuas){
-          const alternativas=(resultado.resultados??[]).slice(0,2),melhor=alternativas[0]?.total>=alternativas[1]?.total?alternativas[0]:alternativas[1],restantes=(resultado.resultados??[]).slice(2);
+          const alternativas=(resultado.resultados??[]).slice(0,2);
+          for(const alternativa of alternativas)ajustarFacesMinimasRolagem(alternativa,meta.facesMinimasDano);
+          const melhor=alternativas[0]?.total>=alternativas[1]?.total?alternativas[0]:alternativas[1],restantes=(resultado.resultados??[]).slice(2);
           if(!melhor)throw Error('O Dice+ não devolveu as duas rolagens de '+meta.modificadorDano.nome+'.');
           resultado={...resultado,...melhor,total:melhor.total+restantes.reduce((n,x)=>n+x.total,0),resultados:[melhor,...restantes],alternativasDano:alternativas,modificadorDano:meta.modificadorDano,resumo:melhor.resumo};
         }
         if(Array.isArray(formula)&&expressoes.length===1&&!resultado.resultados)resultado={...resultado,resultados:[{total:resultado.total,natural:resultado.natural,formula:resultado.formula,resumo:resultado.resumo,grupos:resultado.grupos}]};
         const metaResolucao={...meta,adicionais:extras};metaResolucaoAtual=metaResolucao;
+        ajustarFacesMinimasRolagem(resultado,meta.facesMinimasDano);
         const relatoriosDano=relatoriosDaRolagem(resultado,metaResolucao);
         if(relatoriosDano.length){
           resultado={...resultado,relatoriosDano};
@@ -370,7 +373,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.35',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.36',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }
