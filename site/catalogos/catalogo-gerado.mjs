@@ -8617,6 +8617,107 @@ export default {
       }
     },
     {
+      "id": "item.adaga-do-ultimo-rito",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga do Último Rito",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 350,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Adaga autoral. Causa o dano normal da adaga e +1 de dano necrótico em cada acerto, inclusive no arremesso. O bônus fixo não é dobrado no crítico. Acerto e dano da arma usam os atributos e a proficiência do portador.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "incomum",
+        "empilhavel": false,
+        "danoExtraAoAcertar": {
+          "formula": "1",
+          "elemento": "necrotico",
+          "critico": false
+        }
+      }
+    },
+    {
+      "id": "item.colar-da-ultima-palavra",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Colar da Última Palavra",
+        "tipo": "equipamento",
+        "categoria": "acessorio",
+        "slotEquipamento": "colar",
+        "raridade": "raro",
+        "empilhavel": false,
+        "pesoKg": 0.1,
+        "preco": {
+          "valor": 1857.15,
+          "moeda": "po"
+        },
+        "negociavel": true,
+        "descricao": "Item autoral. Enquanto equipado, permite conjurar Falar com os Mortos uma vez por dia, sem gastar espaço de magia. Recupera o uso ao amanhecer, registrado pelo mestre. A conversa é interpretada pelo mestre.",
+        "recursosConcedidos": [
+          {
+            "id": "ultima-palavra",
+            "nome": "Última Palavra",
+            "maximo": 1,
+            "saldoInicial": 1,
+            "recuperacao": [
+              {
+                "evento": "amanhecer",
+                "modo": "completar"
+              }
+            ]
+          }
+        ],
+        "opcoesConcedidas": [
+          {
+            "id": "falar-com-os-mortos",
+            "nome": "Falar com os Mortos · Última Palavra",
+            "categoria": "item",
+            "origem": "Colar da Última Palavra",
+            "descricao": "Uma ação; alcance de 3 m; duração de 10 minutos. Até cinco perguntas a um cadáver que ainda tenha boca e não fosse morto-vivo ao morrer. A magia falha se o cadáver já tiver sido alvo dela nos últimos dez dias. Respostas e elegibilidade são resolvidas pelo mestre. Gasta um uso do colar, recuperado ao amanhecer; não gasta espaço de magia.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              },
+              {
+                "tipo": "recurso",
+                "id": "ultima-palavra",
+                "quantidade": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "item.la-arte.azagaia-mais-1",
       "revisao": 1,
       "definicao": {

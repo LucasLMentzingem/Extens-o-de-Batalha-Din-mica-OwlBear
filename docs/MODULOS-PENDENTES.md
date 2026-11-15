@@ -56,10 +56,10 @@ Esta matriz lista os bloqueios mecânicos. Habilidades de interpretação são v
 
 | Ficha | Módulos apontados para o fechamento | Issue |
 |---|---|---|
-| Dragoberto | M02; smoke visual do Destruidor de Hordas. M03 (descanso), M04 e Assassino de Colossos cobertos na 0.8.26 | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
+| Dragoberto | Smoke visual do Destruidor de Hordas e da escolha pós-descanso. Os fluxos específicos do M02/M03/M04 e Assassino de Colossos estão cobertos; o barramento genérico segue em #41 para o nível 3 completo | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
 | Draven Thorne | Smoke visual. Prostrador por tamanho coberto na 0.8.28; Desarme e limite de manobras na 0.8.26 | [#57](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/57) |
 | Hannah Montana | Smoke visual da Ilusão Menor (peça coberta no motor na 0.8.28) | [#58](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/58) |
-| Loteria | Smoke visual em sala real. Pré-seleção de Mão de Dolo na Gaveta do Golpe Desarmado avulso coberta na 0.8.28. A oferta pós-acerto do Golpe Desarmado e o modo preparado da Torrente estão cobertos na 0.8.26 | [#59](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/59) |
+| Loteria | Pré-seleção de Mão de Dolo no soco bônus das Artes Marciais e smoke visual em sala real. Pré-seleção na Gaveta do Golpe Desarmado da Ação coberta na 0.8.28. A oferta pós-acerto do Golpe Desarmado e o modo preparado da Torrente estão cobertos na 0.8.26 | [#59](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/59) |
 | Nikki Lauda | Smoke visual. Taumaturgia, Mãos Mágicas, dados explosivos e registro de Queda Suave cobertos no motor na 0.8.28. Magia Potencializada e Magia Duplicada cobertas na 0.8.26. Queda Suave interpretativa. | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
 | Skimi | M01 (Disfarçar-se, Mente Desperta e duração de Força Fantasmagórica), M06 (Força Fantasmagórica com token público), M10 (tipo de criatura). Taumaturgia e Encontrar Familiar cobertos no motor na 0.8.28 | [#61](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/61) |
 | Zurich | Smoke visual de Emaranhar (M05 coberto no motor na 0.8.28). Caçador (M03/M04) e #65 cobertos na 0.8.26 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |

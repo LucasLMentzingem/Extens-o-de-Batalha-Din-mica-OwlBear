@@ -165,3 +165,15 @@ O motor valida os IDs e quantidades enviados e transfere os itens entre as ficha
 # Duplicação de NPCs vinculados
 
 Desde 0.8.22, duplicar no Owlbear um token CHARACTER vinculado a uma ficha `tipo: "npc"` cria um ator independente. A ficha de origem fornece equipamentos e escolhas; PV, recursos e efeitos começam em seus estados iniciais. Não é necessário criar um novo ID de definição da ficha: cada ator recebe seu próprio ID de instância. Jogadores não são clonados. Em combate, a nova instância aguarda inclusão manual na iniciativa. A extensão mantém nos metadados do token a referência de origem; não remova esse marcador ao duplicar.
+
+## Itens de missão e saldos por instância
+
+O catálogo inclui `item.adaga-do-ultimo-rito` e `item.colar-da-ultima-palavra`. O mestre pode concedê-los em **Adicionar item**. São recompensas de campanha disponíveis no catálogo central. As lojas mantêm sua seleção própria de estoque.
+
+A Adaga do Último Rito custa 350 PO, pesa 0,5 kg e revende por 245 PO. Seus ataques e arremessos derivam do portador. Cada acerto soma uma parcela fixa de 1 de dano necrótico, separada do perfurante, inclusive no crítico. Essa parcela considera as defesas necróticas do alvo e aparece no resultado.
+
+O Colar da Última Palavra custa 1.857,15 PO, pesa 0,1 kg e revende por 1.300 PO. Equipado no slot de colar, concede Falar com os Mortos com um uso recuperado ao amanhecer. A habilidade registra o uso e cobra uma Ação em combate e o recurso do item. A conversa é resolvida pelo mestre. O item concede a conjuração sem custo de espaço de magia.
+
+O mestre usa **Registrar amanhecer** em Controle do mestre → Ferramentas da mesa, com confirmação. A operação recupera os itens com evento `amanhecer`, incluindo itens guardados e vendidos que estão na recompra. Descansos recuperam apenas os recursos associados a seus eventos.
+
+A instância de inventário pode persistir `saldosRecursos`, um objeto que relaciona o ID local do recurso concedido pelo item ao saldo atual. Esse estado acompanha venda, recompra, saque e transferência. A definição compartilhada do catálogo contém o máximo, o custo e a recuperação. O motor atualiza os saldos por instância e a compactação os preserva. Duplicar um NPC cria uma cópia independente com os usos iniciais dos equipamentos.

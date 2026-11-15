@@ -6,7 +6,7 @@
     "racas": 6,
     "habilidades": 260,
     "comuns": 16,
-    "itens": 94
+    "itens": 96
   },
   "sistemaEquipamentos": {
     "status": "Configurado",
@@ -1080,6 +1080,10 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Adaga do Último Rito",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Aljava com 20 Flechas",
       "status": "Item, peso e carga configurados"
     },
@@ -1193,6 +1197,10 @@
     },
     {
       "nome": "Cimitarra da Fornalha +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Colar da Última Palavra",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {

@@ -1,4 +1,4 @@
-import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.33';
+import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.34';
 
 const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x])),lojas=new Map((catalogo.lojas??[]).map(x=>[x.id,x]));
 const clone=x=>structuredClone(x);
@@ -12,7 +12,7 @@ function mesclar(base,ajustes){
 const ordenar=x=>Array.isArray(x)?x.map(ordenar):objeto(x)?Object.fromEntries(Object.keys(x).sort().map(k=>[k,ordenar(x[k])])):x;
 const assinatura=x=>JSON.stringify(ordenar(x));
 function semHabilidade(x){const y=clone(x);for(const k of ['id','catalogoRef','ativa'])delete y[k];return y;}
-function semItem(x){const y=clone(x);for(const k of ['id','catalogoRef','quantidade','equipado','equipadoSlot','preferido'])delete y[k];return y;}
+function semItem(x){const y=clone(x);for(const k of ['id','catalogoRef','quantidade','equipado','equipadoSlot','preferido','saldosRecursos'])delete y[k];return y;}
 const refsHabilidade=new Map(catalogo.habilidades.map(x=>[assinatura(x.definicao),x.id]));
 const refsItem=new Map(catalogo.itens.map(x=>[assinatura(x.definicao),x.id]));
 
@@ -48,6 +48,7 @@ function resolverInstancia(i){
   const out=mesclar(base,i.ajustes);out.id=i.id;out.catalogoRef=i.ref;out.quantidade=i.quantidade??1;out.equipado=Boolean(i.equipado);
   if(i.equipado)out.equipadoSlot=i.equipadoSlot;
   if(i.preferido)out.preferido=true;
+  if(i.saldosRecursos)out.saldosRecursos=clone(i.saldosRecursos);
   return out;
 }
 export const resolverInstanciaItem=resolverInstancia;
@@ -83,6 +84,7 @@ function instanciaDe(i,anterior){
   inst.quantidade=i.quantidade??1;
   if(i.equipado){inst.equipado=true;inst.equipadoSlot=i.equipadoSlot;}else{delete inst.equipado;delete inst.equipadoSlot;}
   if(i.preferido)inst.preferido=true;else delete inst.preferido;
+  if(i.saldosRecursos)inst.saldosRecursos=clone(i.saldosRecursos);else delete inst.saldosRecursos;
   return inst;
 }
 export const compactarInstanciaItem=(i,anterior)=>instanciaDe(i,anterior);

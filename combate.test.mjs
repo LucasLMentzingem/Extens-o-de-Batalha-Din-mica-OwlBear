@@ -2602,3 +2602,123 @@ test('áreas do livro: Braços de Hadar tem 3 m ao redor e Acalmar Emoções tem
     assert.equal((s.atores[1].efeitosAtivos??[]).some(e=>/Emoções/.test(e.nome)),dentro,'Acalmar Emoções a '+dx+' m do centro');
   }
 });
+import {resolverInstanciaItem as itemDeMissao} from './site/catalog.mjs';
+
+const rolarItemMissao=({face=15,base=4,reducao=0}={})=>async(formula,meta={})=>{
+  if(meta.tipo==='ataque')return {total:face+10,natural:face,formula};
+  if(meta.tipo==='reducao')return {total:reducao,formula};
+  const extras=(meta.adicionais??[]).filter(e=>e.automatico),resultados=[{total:base,formula},...extras.map(e=>({total:Number(e.formula),formula:e.formula}))];
+  return {total:resultados.reduce((n,r)=>n+r.total,0),resultados,recursosAtivos:extras.map(e=>e.id)};
+};
+function equiparAdagaMissao(a){
+  for(const i of a.ficha.inventario.itens)if(i.tipoArma)i.equipado=false;
+  const item=itemDeMissao({id:'adaga-missao',ref:'item.adaga-do-ultimo-rito',equipado:true,equipadoSlot:'mao_forte'});
+  a.ficha.inventario.itens.push(item);return item;
+}
+
+test('itens de missão: preços em cobre e revenda a 70%',()=>{
+  const adaga=itemDeMissao({id:'a',ref:'item.adaga-do-ultimo-rito'}),colar=itemDeMissao({id:'c',ref:'item.colar-da-ultima-palavra'});
+  assert.equal(precoVendaPc(adaga),24500);assert.equal(precoVendaPc(colar),130000);
+  assert.equal(adaga.pesoKg,0.5);assert.equal(colar.pesoKg,0.1);
+});
+
+test('Adaga do Último Rito: +1 necrótico em acerto, arremesso e crítico; sem extra no erro',async()=>{
+  for(const [arremesso,face,base,esperado] of [[false,15,4,5],[true,15,4,5],[false,20,8,9],[true,20,8,9],[false,1,4,0]]){
+    const {s,a,b}=await duelo('nikki',undefined,{distancia:arremesso?6:1.5});equiparAdagaMissao(a);
+    const ataque=ataquesEquipados(a).find(o=>o.origemItem==='adaga-missao'&&Boolean(o.automacao.arremesso)===arremesso);
+    const pv=b.pv,metas=[];
+    const proximo=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,alvo:b.id},player,async(f,m)=>{metas.push(m);return rolarItemMissao({face,base})(f,m);});
+    assert.equal(pv-proximo.atores[1].pv,esperado);
+    assert.equal(proximo.atores[0].acao,0);
+    if(face!==1){const extra=metas.find(m=>m.tipo==='dano').adicionais.find(e=>e.nome==='Adaga do Último Rito');assert.equal(extra.formula,'1');assert.equal(extra.elemento,'necrotico');assert.equal(extra.automatico,true);}
+  }
+});
+
+test('Adaga do Último Rito: defesas necróticas afetam apenas a parcela necrótica',async()=>{
+  for(const [campo,esperado] of [['resistencias',4],['imunidades',4],['vulnerabilidades',6]]){
+    const {s,a,b}=await duelo('nikki');equiparAdagaMissao(a);b.ficha[campo]=['necrotico'];
+    const ataque=ataquesEquipados(a).find(o=>o.origemItem==='adaga-missao'&&!o.automacao.arremesso),pv=b.pv;
+    const proximo=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,alvo:b.id},player,rolarItemMissao());
+    assert.equal(pv-proximo.atores[1].pv,esperado,campo);
+  }
+});
+
+test('Adaga do Último Rito: reação preventiva conserva a parcela fixa e a redução',async()=>{
+  for(const reducao of [0,2]){
+    const {s,a,b}=await duelo('nikki','loteria');equiparAdagaMissao(a);
+    const ataque=ataquesEquipados(a).find(o=>o.origemItem==='adaga-missao'&&!o.automacao.arremesso),pv=b.pv;
+    let proximo=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,alvo:b.id},player,rolarItemMissao());
+    assert.equal(proximo.reacaoPendente?.gatilho,'ser_atingido');
+    const opcao=reducao?proximo.reacaoPendente.opcoes.find(id=>proximo.atores[1].ficha.opcoes.find(o=>o.id===id)?.automacao?.tipo==='reduzir_dano'):null;
+    proximo=await aplicar(proximo,{rev:proximo.rev,tipo:'resolverReacao',ator:b.id,opcao,confirmado:true},gm,rolarItemMissao({reducao}));
+    assert.equal(pv-proximo.atores[1].pv,5-reducao);
+  }
+});
+
+test('Colar da Última Palavra: equipado, sem espaço de magia; descanso não recupera e amanhecer é do GM',async()=>{
+  let s=novo();const a=adicionar(s,await fichaRev('nikki'));a.dono='p';
+  const go=async(tipo,args={},user=gm)=>{s=await aplicar(s,{rev:s.rev,tipo,ator:a.id,confirmado:true,...args},user,dadoLocal);};
+  await go('gmAdicionarItem',{itemRef:'item.colar-da-ultima-palavra',quantidade:1});
+  let ator=s.atores[0],item=ator.ficha.inventario.itens.find(i=>i.catalogoRef==='item.colar-da-ultima-palavra');
+  assert.ok(!opcoesDisponiveis(ator).some(o=>o.concedidaPorItem===item.id));
+  await go('inventario',{operacao:'equipar',itemId:item.id});
+  let opcao=opcoesDisponiveis(s.atores[0]).find(o=>o.concedidaPorItem===item.id),recurso=opcao.custo.find(c=>c.tipo==='recurso').id;
+  const magiaAntes=s.atores[0].rec['espaco-2'];
+  await go('usar',{opcao:opcao.id,assistido:true},player);
+  assert.equal(s.atores[0].rec[recurso],0);assert.equal(s.atores[0].rec['espaco-2'],magiaAntes);
+  await assert.rejects(go('usar',{opcao:opcao.id,assistido:true},player));
+  await go('descanso',{periodo:'longo'});assert.equal(s.atores[0].rec[recurso],0);
+  await go('inventario',{operacao:'desequipar',itemId:item.id});
+  await go('inventario',{operacao:'equipar',itemId:item.id});assert.equal(s.atores[0].rec[recurso],0);
+  const reaberto=JSON.parse(JSON.stringify(compactarEstado(s)));
+  for(const x of reaberto.atores)x.ficha=validar(x.ficha);s=reaberto;
+  assert.equal(opcoesDisponiveis(s.atores[0]).find(o=>o.id===opcao.id)?.nome,opcao.nome);
+  assert.equal(s.atores[0].rec[recurso],0);
+  await assert.rejects(go('amanhecer',{},player),/mestre/);
+  await go('amanhecer');assert.equal(s.atores[0].rec[recurso],1);
+  assert.ok(s.historico[0].includes('amanhecer'));
+});
+
+test('Colar da Última Palavra: transferir o item preserva o uso gasto após compactar',async()=>{
+  let s=novo();const a=adicionar(s,await fichaRev('nikki')),b=adicionar(s,await fichaRev('soldado'));
+  s=await aplicar(s,{rev:s.rev,tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.colar-da-ultima-palavra',quantidade:1},gm,dadoLocal);
+  let item=s.atores[0].ficha.inventario.itens.find(i=>i.catalogoRef==='item.colar-da-ultima-palavra');item.equipado=true;item.equipadoSlot='colar';
+  const opcao=opcoesDisponiveis(s.atores[0]).find(o=>o.concedidaPorItem===item.id);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcao.id,assistido:true,confirmado:true},gm,dadoLocal);
+  item=s.atores[0].ficha.inventario.itens.find(i=>i.id===item.id);assert.equal(item.saldosRecursos['ultima-palavra'],0);
+  s.atores[0].ficha.inventario.itens=s.atores[0].ficha.inventario.itens.filter(i=>i.id!==item.id);s.atores[1].ficha.inventario.itens.push(item);
+  s=JSON.parse(JSON.stringify(compactarEstado(s)));for(const x of s.atores)x.ficha=validar(x.ficha);
+  const novoDono=s.atores[1],op=opcoesDisponiveis(novoDono).find(o=>o.concedidaPorItem===item.id);
+  assert.equal(novoDono.rec[op.custo.find(c=>c.tipo==='recurso').id],0);
+  s=await aplicar(s,{rev:s.rev,tipo:'amanhecer'},gm,dadoLocal);assert.equal(s.atores[1].rec[op.custo.find(c=>c.tipo==='recurso').id],1);
+});
+
+
+test('Adaga do Último Rito: Ágil atribui o bônus somente à arma da etapa',async()=>{
+  const {s,a,b}=await duelo('zurich');
+  const principal=a.ficha.inventario.itens.find(i=>i.equipadoSlot==='mao_forte');
+  for(const item of a.ficha.inventario.itens)if(item.equipadoSlot==='mao_fraca')item.equipado=false;
+  a.ficha.inventario.itens.push(itemDeMissao({id:'adaga-secundaria',ref:'item.adaga-do-ultimo-rito',equipado:true,equipadoSlot:'mao_fraca'}));
+  const ataque=opcoesDisponiveis(a).find(o=>o.origemItem===principal.id&&o.composicao);
+  assert.ok(ataque);
+  const modos=ataque.composicao.modos,metas=[];
+  const proximo=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,composicao:[{modoId:modos[0].id,alvoId:b.id},{modoId:modos[1].id,alvoId:b.id}]},player,async(f,m)=>{metas.push(m);return rolarItemMissao()(f,m);});
+  const danos=metas.filter(m=>m.tipo==='dano');
+  assert.equal(danos.length,2);
+  assert.equal(danos[0].adicionais.some(e=>e.nome==='Adaga do Último Rito'),false);
+  assert.equal(danos[1].adicionais.some(e=>e.nome==='Adaga do Último Rito'),true);
+  assert.equal(b.pv-proximo.atores[1].pv,9);
+});
+
+
+test('recursos de itens: NPC duplicado recebe usos iniciais em uma instância independente',async()=>{
+  let s=novo();const a=adicionar(s,await fichaRev('soldado'));a.token='original';
+  s=await aplicar(s,{rev:s.rev,tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.colar-da-ultima-palavra',quantidade:1},gm,dadoLocal);
+  const origem=s.atores[0],item=origem.ficha.inventario.itens.find(i=>i.catalogoRef==='item.colar-da-ultima-palavra');
+  origem.rec['item-'+item.id+'-ultima-palavra']=0;opcoesDisponiveis(origem);
+  const marcador={atorId:a.id,tokenId:'original'};
+  const tokens=['original','copia'].map(id=>({id,type:'IMAGE',layer:'CHARACTER',position:{x:0,y:0},metadata:{[chaveFichaNpc]:marcador}}));
+  sincronizarCopiasNpc(s,tokens,pixelsPorMetro(100));
+  assert.equal(s.atores[0].rec['item-'+item.id+'-ultima-palavra'],0);
+  assert.equal(s.atores[1].rec['item-'+item.id+'-ultima-palavra'],1);
+});

@@ -1,10 +1,14 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.33, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+Revisão de 15 de novembro de 2026, versão 0.8.34, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
 
 A 0.8.33 restaura o raio do livro nas áreas circulares e calibra a cena para 1,5 m por célula. Motor, HUD, zonas, alvos, deslocamentos e tokens usam a mesma conversão entre pixels e metros. A régua nativa é configurada em metros e distância euclidiana. Estados anteriores são migrados uma única vez, preservando a posição no desenho. Uma trajetória pendente precisa de nova seleção para recalcular oportunidades na escala corrigida.
 
 Verificação da 0.8.33 com 228 testes automatizados e Chromium headless com SDK simulado. A HUD mostrou Despedaçar com raio de duas células, alcance de 18 m com doze células, movimento de 1,5 m com uma célula, zona antiga no mesmo ponto do mapa e reabertura idempotente, sem erros de página. A confirmação em sala real do Owlbear permanece pendente.
+
+A 0.8.34 acrescenta os dois itens de missão ao catálogo central e ao Conteúdo configurado. A adaga aplica 1 necrótico fixo por acerto e o colar concede Falar com os Mortos uma vez por amanhecer. Saldos de itens persistem nas instâncias, e o mestre possui um comando confirmado para registrar o amanhecer. Verificação com 236 testes de motor e fluxo da HUD em Chromium com SDK/Dice+ simulados, incluindo aplicação de dano, gasto da ação e recuperação pelo botão do mestre.
+
+As descrições das sete issues foram atualizadas. Continuam abertas a pré-seleção de Mão de Dolo no soco bônus, as mecânicas restantes de Skimi e a validação em sala real requerida pelos critérios de conclusão.
 
 ## Entregas recentes
 

@@ -1,5 +1,5 @@
-import {adicionar} from './engine.mjs?v=0.8.33';
-import {compactarFicha} from './catalog.mjs?v=0.8.33';
+import {adicionar} from './engine.mjs?v=0.8.34';
+import {compactarFicha} from './catalog.mjs?v=0.8.34';
 
 export const chaveFichaNpc='aventura-dnd.combate.v1/ficha-npc';
 export const chaveBloqueioNpc='aventura-dnd.combate.v1/bloqueio-anterior';
@@ -21,7 +21,9 @@ export function sincronizarCopiasNpc(estado,itens,pixelsMetro){
         const base=origem.nome.replace(/ \(\d+\)$/,'');
         let indice=2;
         while(estado.atores.some(a=>a.nome===base+' ('+indice+')'))indice++;
-        ator=adicionar(estado,compactarFicha(origem.ficha),base+' ('+indice+')');
+        const ficha=compactarFicha(origem.ficha);
+        for(const item of ficha.inventario?.itens??[])delete item.saldosRecursos;
+        ator=adicionar(estado,ficha,base+' ('+indice+')');
         ator.token=token.id;ator.dono=null;
         ator.x=token.position.x/pixelsMetro;ator.y=token.position.y/pixelsMetro;
         ator.emCombate=estado.fase==='preparo';

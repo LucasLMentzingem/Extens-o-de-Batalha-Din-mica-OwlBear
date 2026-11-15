@@ -1,9 +1,9 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.33';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.33';
-import {compactarEstado} from './catalog.mjs?v=0.8.33';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.33';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.33';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.34';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.34';
+import {compactarEstado} from './catalog.mjs?v=0.8.34';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.34';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.34';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -131,14 +131,23 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
         const grupos=extras.map(extra=>extra.grupoExclusivo).filter(Boolean);
         if(new Set(grupos).size!==grupos.length)throw Error('Só é permitido usar uma manobra por ataque.');
         await enviar({tipo:'rolando',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});
-        for(const expressao of expressoes){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:validacao.error||'Expressão inválida.'});return;}}
+        for(const expressao of expressoes.filter(f=>!/^[-+]?\d+$/.test(f))){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:validacao.error||'Expressão inválida.'});return;}}
         const parcelasBase=meta.tipo==='dano-lote'?(meta.parcelasDano??[]):[(meta.parcelasDano?.[0]??{tipo:meta.tipoDano}),...extras.map(x=>({tipo:x.elemento,tags:x.tags}))];
         const parcelasSelecionadas=rolarDuas?[parcelasBase[0],parcelasBase[0],...parcelasBase.slice(1)]:parcelasBase;
         const expressoesDice=['dano','dano-lote'].includes(meta.tipo)?expressoes.map((f,i)=>{const modelo=infoTipoDano(parcelasSelecionadas[i]?.tipo).modelo;return f.replace(/(\d+d(?:4|6|8|10|12|20))(?!\{)/gi,'$1{'+modelo+'}');}):expressoes;
         const tituloInstancia=i=>rolarDuas?(i<2?(meta.modificadorDano?.nome??'Dano da arma')+' · rolagem '+(i+1):extras[i-2]?.nome??'Instância '+(i+1)):(meta.instancias?.[i]?.titulo??(i===0?'Dano base':extras[i-1]?.nome??'Instância '+(i+1)));
-        const notacao=expressoesDice.length>1?expressoesDice.map((f,i)=>f+'#'+tituloInstancia(i)).join(', '):expressoesDice[0];
-        resultado=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
-        if(!rolarDuas&&resultado.grupos?.length)resultado.mapaGrupos=expressoesDice.flatMap((f,i)=>Array.from({length:(String(f).match(/\d*d\d+/gi)??[]).length},()=>i));
+        // Parcelas fixas mantêm seu tipo de dano e não viram dados fictícios.
+        const indicesRolados=expressoesDice.map((f,i)=>i).filter(i=>!/^[-+]?\d+$/.test(expressoesDice[i]));
+        const expressoesRoladas=indicesRolados.map(i=>expressoesDice[i]);
+        const notacao=expressoesRoladas.length>1?indicesRolados.map(i=>expressoesDice[i]+'#'+tituloInstancia(i)).join(', '):expressoesRoladas[0];
+        resultado=notacao?await executarDice({id:destino,name:roladorNome??usuario.name},notacao):{total:0,grupos:[],resumo:'0'};
+        if(indicesRolados.length!==expressoesDice.length){
+          const rolados=resultado.resultados??[resultado];let indice=0;
+          const partes=expressoesDice.map(f=>/^[-+]?\d+$/.test(f)?{total:Number(f),formula:f,resumo:f,grupos:[]}:rolados[indice++]);
+          if(partes.some(p=>!p))throw Error('O Dice+ não devolveu todas as parcelas da rolagem.');
+          resultado={...resultado,total:partes.reduce((n,p)=>n+p.total,0),resultados:partes,resumo:partes.map(p=>p.resumo??String(p.total)).join(' + ')};
+        }
+        if(!rolarDuas&&resultado.grupos?.length)resultado.mapaGrupos=indicesRolados.flatMap(i=>Array.from({length:(String(expressoesDice[i]).match(/\d*d\d+/gi)??[]).length},()=>i));
         if(rolarDuas){
           const alternativas=(resultado.resultados??[]).slice(0,2),melhor=alternativas[0]?.total>=alternativas[1]?.total?alternativas[0]:alternativas[1],restantes=(resultado.resultados??[]).slice(2);
           if(!melhor)throw Error('O Dice+ não devolveu as duas rolagens de '+meta.modificadorDano.nome+'.');
@@ -361,7 +370,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.33',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.34',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }
