@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.11';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.11';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.12';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.12';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -153,21 +153,10 @@ export function atualizarMagias(f){
     v.automacao={...automacao,alcanceM:faixa.longo,alcanceNormalM:faixa.normal,arremesso:true};
     f.opcoes.push(v);
   }
-  // Expor círculos superiores como opções com o custo e o número de alvos correspondentes.
-  for(const o of [...(f.opcoes??[])]){
-    if(!['projeteis','bencao'].includes(o.automacao?.tipo)||o.varianteDe||!o.selecao)continue;
-    const base=o.circuloBase??1;
-    if(!o.custo?.some(c=>c.id==='espaco-'+base))continue;
-    for(let n=base+1;n<=5;n++){
-      const id=o.id+'-c'+n;
-      if(!f.recursos?.some(r=>r.id==='espaco-'+n)||f.opcoes.some(x=>x.id===id))continue;
-      const v=structuredClone(o);v.id=id;v.varianteDe=o.id;v.circuloBase=n;
-      v.nome=o.nome.replace(/^\dº\s*\|\s*/,'').split(' · ')[0]+' ('+n+'º círculo)';
-      v.custo.find(c=>c.id==='espaco-'+base).id='espaco-'+n;
-      v.selecao.max+=n-base;if(v.selecao.repetirAlvo)v.selecao.min+=n-base;
-      f.opcoes.push(v);
-    }
-  }
+  // M04: o círculo usado é uma escolha da instância, não uma cópia da magia.
+  // Remover variantes geradas por versões antigas mantém um único registro no
+  // livro e permite que mudanças futuras na definição alcancem todos os usos.
+  f.opcoes=f.opcoes.filter(o=>!(o.categoria==='magia'&&o.varianteDe&&/-c[1-9]$/.test(o.id??'')));
   corrigirRecuperacoes(f);
   corrigirCdAtaqueDesarmado(f);
   corrigirArtesMarciais(f);
@@ -184,6 +173,29 @@ export function atualizarMagias(f){
 // Correções de magias e ações da revisão de regras (#14, #15, #17, #27).
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
 const POR_CIRCULO={'sussurros dissonantes':{dano:6},'enfeiticar pessoa':{alvos:1},'riso histerico de tasha':{alvos:1},'imobilizar pessoa':{alvos:1}};
+const formulaComDadosAdicionais=(formula,faces,quantidade)=>String(formula??'').replace(/^(\d+)d(\d+)/,(_,n,l)=>Number(l)===Number(faces)?(Number(n)+quantidade)+'d'+l:n+'d'+l);
+export function circulosConjuracao(a,o){
+  const f=a?.ficha??a,base=Number(o?.circuloBase)||0;
+  if(o?.categoria!=='magia'||base<1||!o?.custo?.some(c=>c.tipo==='recurso'&&/^espaco-\d+$/.test(c.id??'')))return [];
+  return (f?.recursos??[]).filter(r=>/^espaco-\d+$/.test(r.id)&&r.maximo>0).map(r=>Number(r.id.slice(7))).filter(n=>Number.isInteger(n)&&n>=base).sort((x,y)=>x-y);
+}
+export function derivarOpcaoCirculo(a,o,circuloUsado){
+  const disponiveis=circulosConjuracao(a,o);
+  if(!disponiveis.length)return o;
+  const base=Number(o.circuloBase),circulo=circuloUsado===undefined?disponiveis[0]:Number(circuloUsado);
+  exigir(Number.isInteger(circulo)&&disponiveis.includes(circulo),'Círculo de conjuração indisponível.');
+  const v=structuredClone(o),acima=circulo-base;v.circuloUsado=circulo;
+  const espaco=v.custo?.find(c=>c.tipo==='recurso'&&/^espaco-\d+$/.test(c.id??''));if(espaco)espaco.id='espaco-'+circulo;
+  if(v.automacao?.tipo==='projeteis'&&v.selecao){v.selecao.max+=acima;v.selecao.min+=acima;}
+  if(v.automacao?.tipo==='bencao'&&v.selecao)v.selecao.max+=acima;
+  const nomeEscala=textoNormal(v.nome).replace(/^\d+º?\s*\|\s*/,'').split(' · ')[0].trim(),regra=POR_CIRCULO[nomeEscala];
+  if(regra?.dano&&v.automacao?.dano)v.automacao.dano=formulaComDadosAdicionais(v.automacao.dano,regra.dano,acima);
+  if(regra?.alvos&&acima>0)v.selecao={tipo:'alvos',min:1,max:1+regra.alvos*acima,repetirAlvo:false,alcanceM:v.automacao?.alcanceM};
+  const escala=v.escalaCirculo;
+  if(escala?.danoDadosPorCirculo&&v.automacao?.dano)v.automacao.dano=formulaComDadosAdicionais(v.automacao.dano,escala.facesDano??/d(\d+)/.exec(v.automacao.dano)?.[1],acima*escala.danoDadosPorCirculo);
+  if(escala?.alvosPorCirculo&&v.selecao)v.selecao.max+=acima*escala.alvosPorCirculo;
+  return v;
+}
 function corrigirMagiasRevisao(f){
   // #30 Metamagia: Potencializada vira rerrolagem do dano de magia; Duplicada dá +1 alvo nas magias que escalam por alvo.
   for(const o of f.opcoes??[]){
@@ -252,11 +264,9 @@ function corrigirMagiasRevisao(f){
     if(nome==='emaranhar'&&o.automacao?.efeitoFalha?.condicao==='imobilizado'){o.automacao.efeitoFalha.condicao='contido';o.automacao.efeitoFalha.nome='Contido por Emaranhar';}
     if(nome==='encontrar familiar'&&o.custo?.some(c=>c.tipo==='bonus')){o.custo=[];o.requisitosUso={...(o.requisitosUso??{}),somenteForaCombate:true};} // ritual de 1 hora
     if(nome==='sussurros dissonantes'&&o.custo?.some(c=>c.tipo==='reacao'))o.custo=o.custo.map(c=>c.tipo==='reacao'?{tipo:'acao',quantidade:c.quantidade}:c); // #14 é Ação
-    const regra=POR_CIRCULO[nome],espaco=o.custo?.find(c=>/^espaco-\d$/.test(c.id??'')),circulo=espaco?Number(espaco.id.slice(-1)):0,acima=circulo-(o.circuloBase??circulo);
-    if(!regra||acima<=0||o.escalaAplicada===circulo||!o.automacao)continue;
-    if(regra.dano&&o.automacao.dano)o.automacao.dano=o.automacao.dano.replace(/^(\d+)d(\d+)/,(_,n,l)=>Number(l)===regra.dano?(Number(n)+acima)+'d'+l:n+'d'+l);
-    if(regra.alvos)o.selecao={tipo:'alvos',min:1,max:1+regra.alvos*acima,repetirAlvo:false,alcanceM:o.automacao.alcanceM};
-    o.escalaAplicada=circulo;
+    // M04 aplica a progressão somente à instância de conjuração. A definição
+    // compartilhada permanece no círculo base, inclusive para Magia de Pacto.
+    delete o.escalaAplicada;
   }
 }
 // #16 Zombaria Perversa: Desvantagem na próxima jogada de ataque antes do fim do próximo turno do alvo.
@@ -1019,6 +1029,24 @@ function registrarEspacoNoTurno(s,a,custos){
 function custosDisponiveis(a,o,modo='automatico'){
   const plano=planoCustoOpcao(a,o,modo);return Boolean(plano&&plano.custos.every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade));
 }
+function validarPlanoAntesDoCusto(s,a,o,rule,c){
+  if(o.composicao){
+    const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):[]),contagens={};
+    exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
+    for(const entrada of entradas){
+      const modo=def.modos.find(m=>m.id===entrada.modoId),alvo=s.atores.find(x=>x.id===entrada.alvoId);
+      exigir(modo&&alvo,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
+      exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
+      exigir(distancia(a,alvo)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
+    }
+    return;
+  }
+  const selecao=multi(o);if(!selecao)return;
+  exigir(Array.isArray(c.alvos)&&c.alvos.length>=selecao.min&&c.alvos.length<=selecao.max,'Quantidade de alvos inválida.');
+  exigir(selecao.repetirAlvo||new Set(c.alvos).size===c.alvos.length,'Escolha criaturas diferentes.');
+  const alvos=c.alvos.map(id=>s.atores.find(x=>x.id===id));
+  exigir(alvos.every(p=>p&&distancia(a,p)<=rule.alcanceM+1e-8),'Alvo ausente ou fora do alcance.');
+}
 function abrirProximaReacaoEvento(s){
   if(s.reacaoPendente)return s.atores.find(a=>a.id===s.reacaoPendente.reator)??null;
   while(s.filaReacoes?.length){
@@ -1639,7 +1667,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         break;
       }
       exigir(c.tipo==='usar','Comando desconhecido.');
-      const o=opcaoDeclarada;exigir(o,'Opção desconhecida.');exigir(opcaoDisponivel(a,o),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
+      const oBase=opcaoDeclarada;exigir(oBase,'Opção desconhecida.');exigir(opcaoDisponivel(a,oBase),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
+      const o=derivarOpcaoCirculo(a,oBase,c.circuloUsado);
       exigir(o.categoria!=='magia'||armadurasSemTreino(a).length===0,'Não é possível conjurar usando armadura sem treinamento.');
       exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
       let rule=o.automacao;
@@ -1647,6 +1676,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if(rule?.usarArmaAnterior){const anterior=(a.eventosTurno?.ataques??[]).at(-1),arma=anterior&&opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);exigir(arma?.automacao?.tipo==='ataque','Faça antes um ataque com arma neste turno.');rule={...structuredClone(arma.automacao),ataques:undefined,efeitoAcerto:arma.automacao.efeitoAcerto};}
       // #10 O jogador pode declarar uma opção assistida: gasta o custo, registra no histórico e o mestre arbitra o efeito.
       exigir(rule || c.assistido,'Opção assistida. Confirme para declarar e deixar o efeito com o mestre.');
+      validarPlanoAntesDoCusto(s,a,o,rule,c);
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
       if(!o.naoConjura)registrarEspacoNoTurno(s,a,plano.custos); // converter espaço em pontos (Fonte de Magia) não é conjurar

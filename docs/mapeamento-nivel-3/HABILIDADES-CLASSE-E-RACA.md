@@ -1,6 +1,6 @@
 # Habilidades de classe e raça até o nível 3
 
-Catálogo SRD 5.2.1 reavaliado para a extensão 0.8.11. Os nomes oficiais permanecem em inglês para manter correspondência inequívoca com a fonte.
+Catálogo SRD 5.2.1 reavaliado para a extensão 0.8.12. Os nomes oficiais permanecem em inglês para manter correspondência inequívoca com a fonte.
 
 ## Raças
 

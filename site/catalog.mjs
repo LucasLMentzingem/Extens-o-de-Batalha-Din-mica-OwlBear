@@ -1,4 +1,4 @@
-import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.11';
+import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.12';
 
 const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x])),lojas=new Map((catalogo.lojas??[]).map(x=>[x.id,x]));
 const clone=x=>structuredClone(x);

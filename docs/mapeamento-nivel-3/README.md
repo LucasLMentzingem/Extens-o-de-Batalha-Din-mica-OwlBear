@@ -1,6 +1,6 @@
 # Mapeamento de regras até o nível 3
 
-Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.11. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
+Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.12. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
 
 A proposta de implementação está em `PRE-ARQUITETURA-MODULOS.md`; o fechamento prático das sete fichas atuais é acompanhado em `../TESTES-SETE-FICHAS-NIVEL-3.md`.
 
@@ -85,7 +85,7 @@ As 16 entradas classificadas como `NOVO_MODULO` apontam para capacidades ausente
 - **Transformação temporária de ficha:** Alter Self.
 - **Ilusões e manifestações ambientais declarativas:** Druidcraft, Elementalism e Mirror Image.
 
-Foram definidos 16 módulos genéricos, ordenados por dependência. A reavaliação da 0.8.11 encontrou **10 módulos parcialmente implementados** e **6 ainda ausentes**. Nenhum dos 16 pode ser retirado do plano: os parciais ainda possuem ao menos uma regra de nível 3 que excede sua cobertura atual. A especificação, contratos, critérios de aceite e decisões pendentes estão em [Pré-arquitetura dos módulos](PRE-ARQUITETURA-MODULOS.md). A contagem por módulo está em [modulos-nivel-3.json](modulos-nivel-3.json).
+Foram definidos 16 módulos genéricos, ordenados por dependência. A reavaliação da 0.8.12 encontrou **10 módulos parcialmente implementados** e **6 ainda ausentes**. Nenhum dos 16 pode ser retirado do plano: os parciais ainda possuem ao menos uma regra de nível 3 que excede sua cobertura atual. A especificação, contratos, critérios de aceite e decisões pendentes estão em [Pré-arquitetura dos módulos](PRE-ARQUITETURA-MODULOS.md). A contagem por módulo está em [modulos-nivel-3.json](modulos-nivel-3.json).
 
 | Estado | Módulos |
 |---|---|

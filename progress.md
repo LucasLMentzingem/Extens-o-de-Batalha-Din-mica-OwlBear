@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — primeiro incremento do M04 0.8.12
+
+- Magias deixaram de gerar cópias por círculo: a instância guarda `circuloUsado` e deriva espaço consumido, dano, alvos e projéteis da definição compartilhada.
+- A Gaveta de Composição ganhou seletor de círculo, planejamento expandido `2×7` e execução compacta `2×4` durante ajuste, rolagem e resultado.
+- Os custos saíram da linha textual **Uso** e aparecem como mini recursos abaixo do título e junto ao botão de execução, ambos alimentados pelo mesmo plano derivado.
+- Composições e seleções múltiplas são validadas antes do consumo, evitando perder ação ou recurso por círculo, modo, alvo, quantidade ou alcance inválido.
+- Magias de Pacto legadas foram normalizadas no círculo base; o espaço de 2º círculo agora escala Enfeitiçar Pessoa, Riso Histérico e Sussurros Dissonantes somente na instância.
+- Validação: 164 testes automatizados, catálogo gerado consistente, teste oficial de navegador sem erros e inspeção visual dos estados `2×7` e `2×4`.
+- Próximo corte do M04: plano serial de ataques, começando pelo ataque Ágil de Zurich dentro da mesma Ação Atacar.
+
 ## 2026-11-14 — controles de inventário do GM 0.8.5
 
 - Depois da barra de carga, o GM recebe os botões **Adicionar item** e **Adicionar PO**; eles não são renderizados para jogadores.
@@ -695,7 +705,7 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Validação visual: `work/gaveta-nikki-v0810.png` e `work/gaveta-dragoberto-v0810.png`.
 - Smoke test pelo cliente padrão: `work/web-game-v0810/shot-0.png`, sem erros de console.
 
-### Versão 0.8.11: página e filtro de raça
+### Versão 0.8.12: página e filtro de raça
 
 - [x] Classificar no catálogo central as habilidades e passivas raciais das sete fichas.
 - [x] Remover habilidades raciais das páginas **Comum** e **Classe**.
@@ -704,7 +714,7 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Criar no rodapé o filtro racial depois da classe e antes de **Itens**.
 - [x] Exibir os nomes reais das passivas no rodapé, preservando a descrição completa no balão.
 - [x] Adicionar `origemTipo` ao schema para que novas contribuições classifiquem a origem sem depender do texto do nome.
-- [x] Remapear as 320 regras de nível 3 na versão 0.8.11 e separar 124 habilidades de classe, 31 raciais, 141 magias, 16 comuns e 8 talentos.
+- [x] Remapear as 320 regras de nível 3 na versão 0.8.12 e separar 124 habilidades de classe, 31 raciais, 141 magias, 16 comuns e 8 talentos.
 - [x] Reavaliar os 16 módulos planejados: 10 parcialmente implementados e 6 ainda ausentes.
 - [x] Gerar uma relação completa e determinística das habilidades de classe e raça com portabilidade e módulos pendentes.
 

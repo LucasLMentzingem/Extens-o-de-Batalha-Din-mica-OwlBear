@@ -287,11 +287,11 @@ export default {
     },
     {
       "id": "habilidade.1-enfeiticar-pessoa",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Enfeitiçar Pessoa",
         "categoria": "magia",
-        "descricao": "Ação · 9 m, salvaguarda de SAB CD 13, até 2 alvos (2º círculo), 1 hora, sem concentração; o alvo sabe que foi enfeitiçado quando acaba; silenciosa.",
+        "descricao": "Ação · 9 m, salvaguarda de SAB CD 13, 1 alvo no 1º círculo e +1 alvo por círculo acima, 1 hora, sem concentração; o alvo sabe que foi enfeitiçado quando acaba; silenciosa.",
         "custo": [
           {
             "tipo": "acao",
@@ -318,11 +318,10 @@ export default {
         "selecao": {
           "tipo": "alvos",
           "min": 1,
-          "max": 2,
+          "max": 1,
           "repetirAlvo": false,
           "alcanceM": 9
-        },
-        "escalaAplicada": 2
+        }
       }
     },
     {
@@ -840,11 +839,11 @@ export default {
     },
     {
       "id": "habilidade.1-riso-histerico-de-tasha",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Riso Histérico de Tasha",
         "categoria": "magia",
-        "descricao": "Ação · 9 m · concentração até 1 min. Com espaço de Pacto de 2º círculo, até 2 alvos rolam SAB CD 13. Na falha, ficam caídos e incapacitados, rindo. Repetem a salvaguarda ao fim de cada turno e ao sofrer dano (com vantagem nesse último caso).",
+        "descricao": "Ação · 9 m · concentração até 1 min. Um alvo no 1º círculo e +1 alvo por círculo acima rolam SAB CD 13. Na falha, ficam caídos e incapacitados, rindo. Repetem a salvaguarda ao fim de cada turno e ao sofrer dano (com vantagem nesse último caso).",
         "custo": [
           {
             "tipo": "acao",
@@ -881,11 +880,10 @@ export default {
         "selecao": {
           "tipo": "alvos",
           "min": 1,
-          "max": 2,
+          "max": 1,
           "repetirAlvo": false,
           "alcanceM": 9
-        },
-        "escalaAplicada": 2
+        }
       }
     },
     {
@@ -929,11 +927,11 @@ export default {
     },
     {
       "id": "habilidade.1-sussurros-dissonantes",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Sussurros Dissonantes",
         "categoria": "magia",
-        "descricao": "Ação · 18 m · espaço de Pacto de 2º círculo. O alvo rola SAB CD 13. Falha: [4d6] psíquico e usa a reação disponível para se afastar pela rota mais segura. Sucesso: metade do dano.",
+        "descricao": "Ação · 18 m. O alvo rola SAB CD 13. Falha: [3d6] psíquico no 1º círculo, +1d6 por círculo acima, e usa a reação disponível para se afastar pela rota mais segura. Sucesso: metade do dano.",
         "custo": [
           {
             "tipo": "acao",
@@ -950,7 +948,7 @@ export default {
           "tipo": "salva",
           "atributo": "sab",
           "cd": 13,
-          "dano": "4d6",
+          "dano": "3d6",
           "alcanceM": 18,
           "metade": true,
           "elemento": "psiquico",
@@ -959,8 +957,7 @@ export default {
             "turnos": 1,
             "consomeReacao": true
           }
-        },
-        "escalaAplicada": 2
+        }
       }
     },
     {

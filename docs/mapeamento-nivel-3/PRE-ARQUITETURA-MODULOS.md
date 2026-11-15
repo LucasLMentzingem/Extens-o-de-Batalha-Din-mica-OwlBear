@@ -1,6 +1,6 @@
 # Pré-arquitetura dos módulos para cobertura do nível 3
 
-Estado: reavaliado na versão 0.8.11; proposta para leitura e aprovação. Nenhum contrato parcial ou ausente deve ser considerado estável antes da revisão do mestre.
+Estado: reavaliado na versão 0.8.12; proposta para leitura e aprovação. Nenhum contrato parcial ou ausente deve ser considerado estável antes da revisão do mestre.
 
 Referências de regras: [SRD 5.2.1](https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf), [Equipment — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/equipment), [Rules Glossary — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/rules-glossary) e [Playing the Game — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/playing-the-game).
 
@@ -48,7 +48,7 @@ O catálogo pode declarar o plano; a ficha só conserva algo como `{"ref":"magia
 | 3 | M09, M10, M11, M12 | Generalizam exceções mecânicas recorrentes. |
 | 4 | M13, M14, M15, M16 | Fecham expressões especiais, arbitragem, escala e reservas. |
 
-## Diagnóstico da versão 0.8.11
+## Diagnóstico da versão 0.8.12
 
 Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença é que o motor já possui partes reutilizáveis de dez deles; os outros seis ainda precisam nascer como módulos declarativos.
 

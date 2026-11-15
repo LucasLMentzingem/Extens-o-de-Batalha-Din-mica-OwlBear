@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
@@ -75,7 +75,7 @@ test('mapa do nível 3 referencia somente módulos planejados e cobre toda opç�
  assert.deepEqual(contagem,mapaNivel3.resumo.porModulo);
 });
 test('mapeamento completo separa raça, classe e registra módulos parciais ou ausentes',()=>{
- assert.equal(mapaNivel3.versao,'0.8.11');
+ assert.equal(mapaNivel3.versao,'0.8.12');
  assert.deepEqual(mapaNivel3.resumo.porOrigemSistema,{classe:124,comum:16,magia:141,raca:31,talento:8});
  assert.deepEqual(modulosNivel3.porEstado,{PARCIAL:10,AUSENTE:6});
  assert.equal(mapaNivel3.itens.filter(x=>x.origem_sistema==='classe').length,124);
@@ -366,10 +366,21 @@ test('rajada com testes de ataque resolve cada projétil e suporta alvos repetid
 });
 test('círculo superior requer quatro dardos e gasta o recurso correto',async()=>{
  const m=mesa();await m.iniciar();
- const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&o.circuloBase===2);
- assert.equal(o.selecao.max,4);
- await m.go('usar',{ator:m.a.id,opcao:o.id,alvos:[m.b.id,m.b.id,m.b.id,m.b.id]},player,[2,2,2,2]);
+ const o=m.s.atores[0].ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe),derivada=derivarOpcaoCirculo(m.s.atores[0],o,2);
+ assert.equal(derivada.selecao.max,4);assert.equal(m.s.atores[0].ficha.opcoes.some(x=>x.varianteDe===o.id),false);
+ await m.go('usar',{ator:m.a.id,opcao:o.id,circuloUsado:2,alvos:[m.b.id,m.b.id,m.b.id,m.b.id]},player,[2,2,2,2]);
  assert.equal(m.s.atores[0].rec['espaco-1'],4);assert.equal(m.s.atores[0].rec['espaco-2'],1);
+});
+test('M04 deriva círculo, custo e escala da mesma magia sem alterar a definição',async()=>{
+ const m=mesa();await m.iniciar();const a=m.s.atores[0],o=a.ficha.opcoes.find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe);
+ assert.deepEqual(circulosConjuracao(a,o),[1,2]);
+ const base=derivarOpcaoCirculo(a,o,1),superior=derivarOpcaoCirculo(a,o,2);
+ assert.equal(base.selecao.max,3);assert.equal(superior.selecao.max,4);assert.equal(o.selecao.max,3);
+ assert.equal(planoCustoOpcao(a,base).custos.find(c=>c.tipo==='recurso').id,'espaco-1');
+ assert.equal(planoCustoOpcao(a,superior).custos.find(c=>c.tipo==='recurso').id,'espaco-2');
+ const antes={acao:a.acao,e1:a.rec['espaco-1'],e2:a.rec['espaco-2']};
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:o.id,circuloUsado:3,alvos:[m.b.id,m.b.id,m.b.id,m.b.id,m.b.id]},player),/Círculo de conjuração indisponível/);
+ assert.deepEqual({acao:a.acao,e1:a.rec['espaco-1'],e2:a.rec['espaco-2']},antes);
 });
 test('ataque aceita dado extra e modificador antes da rolagem',async()=>{
  const m=mesa();await m.iniciar();const fogo=m.a.ficha.opcoes.find(o=>o.nome.includes('Raio de Fogo')&&o.automacao);m.s.atores[0].x=-3;
@@ -1248,13 +1259,15 @@ test('#14 #15 #17 #27 magias: concentração pelo nome, Enfeitiçar sem concentr
   const op=(f,trecho)=>f.opcoes.find(o=>o.nome.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(trecho));
   assert.equal(op(nikki,'sopro de dragao').concentracao,true,'#15 nome diz concentração');
   assert.equal(op(skimi,'enfeiticar pessoa').concentracao,undefined,'#14 Enfeitiçar Pessoa não é concentração');
-  assert.equal(op(skimi,'enfeiticar pessoa').selecao.max,2,'espaço de 2º do Pacto: +1 alvo');
-  const sussurros=op(skimi,'sussurros dissonantes');assert.ok(sussurros.custo.some(c=>c.tipo==='acao'));assert.equal(sussurros.automacao.dano,'4d6');
+  const atorSkimi={ficha:skimi},enfeiticar=derivarOpcaoCirculo(atorSkimi,op(skimi,'enfeiticar pessoa'),2);
+  assert.equal(enfeiticar.selecao.max,2,'espaço de 2º do Pacto: +1 alvo');
+  const sussurros=op(skimi,'sussurros dissonantes');assert.ok(sussurros.custo.some(c=>c.tipo==='acao'));assert.equal(sussurros.automacao.dano,'3d6');assert.equal(derivarOpcaoCirculo(atorSkimi,sussurros,2).automacao.dano,'4d6');
   const familiar=op(skimi,'encontrar familiar');assert.deepEqual(familiar.custo,[]);assert.equal(familiar.requisitosUso.somenteForaCombate,true);
   const emaranhar=op(zurich,'emaranhar');assert.equal(emaranhar.automacao.efeitoFalha.condicao,'contido');assert.equal(emaranhar.concentracao,true);
   for(const id of idsJogadores)assert.ok((await fichaRev(id)).opcoes.filter(o=>/^Preparar\b/.test(o.nome)).every(o=>o.custo.some(c=>c.tipo==='acao')),'#27 Preparar usa a Ação');
-  // validar de novo não escala duas vezes
-  assert.equal(op(validar(structuredClone(skimi)),'sussurros dissonantes').automacao.dano,'4d6');
+  // validar de novo conserva a definição base e a projeção não escala duas vezes
+  const revalidada=validar(structuredClone(skimi)),sussurrosRevalidado=op(revalidada,'sussurros dissonantes');
+  assert.equal(sussurrosRevalidado.automacao.dano,'3d6');assert.equal(derivarOpcaoCirculo({ficha:revalidada},sussurrosRevalidado,2).automacao.dano,'4d6');
   // Contido: imóvel, Desvantagem nos ataques e salvas de DES, Vantagem contra
   let {s,a,b}=await duelo('zurich');
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'emaranhar').id,alvo:b.id,x:b.x,y:b.y},player,roladorSala({salva:2}).rolar).catch(()=>s);
@@ -1264,12 +1277,12 @@ test('#14 #15 #17 #27 magias: concentração pelo nome, Enfeitiçar sem concentr
 
 test('#6 só um espaço de magia por turno; truques e o turno seguinte continuam liberados',async()=>{
   let {s,a,b}=await duelo('nikki');
-  const m1=opcoesDisponiveis(a).find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe),m2=opRev(a,'misseis magicos (2');
+  const m1=opcoesDisponiveis(a).find(o=>o.automacao?.tipo==='projeteis'&&!o.varianteDe);
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,alvos:[b.id,b.id,b.id]},player,roladorSala().rolar);
   s.atores[0].acao=1;
-  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar),/um espaço de magia neste turno/);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,circuloUsado:2,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar),/um espaço de magia neste turno/);
   s.rodada=2;
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m2.id,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,circuloUsado:2,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar);
   assert.equal(s.atores[0].espacoNoTurno,'2-0');
 });
 
@@ -1371,7 +1384,7 @@ test('#18 Imobilizar Pessoa e Riso Histérico repetem a salvaguarda no fim do tu
   let {s,a,b}=await duelo('skimi');
   const imob=opRev(a,'imobilizar pessoa'),riso=opRev(a,'riso histerico');
   assert.equal(imob.automacao.efeitoFalha.salvaRepetida.atributo,'sab');assert.ok(riso.automacao.efeitoFalha.salvaRepetida);
-  assert.ok(riso.selecao?.max>=2,'Riso no 2º círculo: 2 alvos');
+  assert.ok(derivarOpcaoCirculo(a,riso,2).selecao?.max>=2,'Riso no 2º círculo: 2 alvos');
   b.efeitosAtivos=[{id:'x',nome:'Rindo no chão',tipo:'condicao',restricoes:{caido:true},duracao:{restante:10,expira:'inicio_alvo'},salvaRepetida:{atributo:'sab',cd:13}}];
   s.vez=1;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala({d20:5}).rolar);
   assert.ok(s.atores[1].efeitosAtivos.some(e=>e.id==='x'),'falhou: continua');

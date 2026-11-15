@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.11';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.11';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.11';
-import {pronto} from './bridge.mjs?v=0.8.11';
-import {canalHud} from './hud-controller.mjs?v=0.8.11';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.12';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.12';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.12';
+import {pronto} from './bridge.mjs?v=0.8.12';
+import {canalHud} from './hud-controller.mjs?v=0.8.12';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -53,21 +53,28 @@ function efeitosHud(a){
   const lista=[...(a.efeitosAtivos??[])];if(a.concentracaoAtiva)lista.unshift({nome:a.concentracaoAtiva.nome,tipo:'concentracao',descricao:'Concentração ativa'});
   return lista.length?'<div class="efeitos-hud" aria-label="Buffs, condições e concentração">'+lista.map(e=>'<span class="efeito-hud '+esc(e.tipo??'efeito')+'" tabindex="0" data-info="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':e.tipo==='concentracao'?'◉':'✦')+'</b><small>'+esc(e.nome)+'</small></span>').join('')+'</div>':'';
 }
-function cartaoAcao(o,f){
+function barraCustos(p,classe=''){
+  const simbolo={acao:'●',bonus:'▲',reacao:'✦',recurso:'◆'};
+  const custos=p?.custos??[];if(!custos.length)return '<div class="custos-compositor '+classe+'"><span class="custo-mini sem-custo"><b>○</b><small>Sem custo</small></span></div>';
+  return '<div class="custos-compositor '+classe+'">'+custos.map(c=>'<span class="custo-mini '+esc(c.tipo)+'" data-info="'+esc(c.nome+' · custo '+c.quantidade+' · saldo '+(c.saldo??'—')+'/'+(c.maximo??'—'))+'"><b>'+simbolo[c.tipo]+'</b><small>'+esc(c.tipo==='recurso'?(c.saldo??0)+'/'+(c.maximo??0):c.quantidade)+'</small></span>').join('')+'</div>';
+}
+function cartaoAcao(o,f,p){
   if(!o)return '';
-  const r=o.automacao??{},s=o.selecao,custos=(o.custo??[]).map(c=>c.quantidade+' '+(c.tipo==='recurso'?(f.recursos?.find(x=>x.id===c.id)?.nome??c.id):({acao:'ação',bonus:'ação bônus',reacao:'reação'})[c.tipo])).join(' + ');
+  const r=o.automacao??{},s=o.selecao;
   const linha=(nome,valor)=>valor?'<div><dt>'+esc(nome)+'</dt><dd>'+esc(valor)+'</dd></div>':'';
-  const uso=custos||'Sem custo',alcance=r.arremesso?r.alcanceNormalM+'/'+r.alcanceM+' m':r.alcanceM!=null?r.alcanceM+' m':'—';
+  const alcance=r.arremesso?r.alcanceNormalM+'/'+r.alcanceM+' m':r.alcanceM!=null?r.alcanceM+' m':'—';
   const resistencia=r.cd?(r.atributos??[r.atributo]).map(x=>x.toUpperCase()).join(' ou ')+' · CD '+r.cd:r.tipo==='ataque'?'Ataque '+(r.bonus>=0?'+':'')+r.bonus:'—';
   const efeito=(o.descricao??'').replace(/\n+/g,' · ');
   const area=r.raioM?r.raioM+' m de raio':r.area?.forma==='circulo'?r.area.raioM+' m de raio':r.area?.forma==='quadrado'?r.area.tamanhoM+' m × '+r.area.tamanhoM+' m':r.area?.forma==='cone'?'cone de '+r.area.comprimentoM+' m':r.area?.forma==='linha'?'linha de '+r.area.comprimentoM+' m × '+(r.area.larguraM??1.5)+' m':'';
-  return '<section class="carta-acao"><header><h2>'+esc(o.nome)+'</h2><small>'+esc([o.categoria,o.circuloBase!=null?(o.circuloBase?o.circuloBase+'º círculo':'Truque'):'',o.origem].filter(Boolean).join(' · '))+'</small></header><dl>'+linha('Uso',uso)+linha('Alcance',alcance)+linha('Área',area)+linha(r.tipo==='ataque'?'Ataque':'Resistência',resistencia)+linha('Dano',r.dano?[r.dano,r.elemento].filter(Boolean).join(' '):'')+linha('Deslocamento',r.deslocamentoForcado?'Empurra '+r.deslocamentoForcado.distanciaM+' m para longe da origem':'')+linha('Alvos',s?.max?('de '+s.min+' a '+s.max+(s.repetirAlvo?' · pode repetir':' · distintos')):'')+linha('Efeito',efeito)+'</dl></section>';
+  return '<section class="carta-acao"><header><h2>'+esc(o.nome)+'</h2>'+barraCustos(p,'custos-cabecalho')+'<small>'+esc([o.categoria,o.circuloUsado!=null?(o.circuloUsado+'º círculo usado'):o.circuloBase!=null?(o.circuloBase?o.circuloBase+'º círculo':'Truque'):'',o.origem].filter(Boolean).join(' · '))+'</small></header><dl>'+linha('Alcance',alcance)+linha('Área',area)+linha(r.tipo==='ataque'?'Ataque':'Resistência',resistencia)+linha('Dano',r.dano?[r.dano,r.elemento].filter(Boolean).join(' '):'')+linha('Deslocamento',r.deslocamentoForcado?'Empurra '+r.deslocamentoForcado.distanciaM+' m para longe da origem':'')+linha('Alvos',s?.max?('de '+s.min+' a '+s.max+(s.repetirAlvo?' · pode repetir':' · distintos')):'')+linha('Efeito',efeito)+'</dl></section>';
 }
 function gavetaComposicao(p){
-  const c=p.composicao;if(!c)return '';
-  const recolhida=c.gavetaAberta===false,usos=Object.fromEntries(c.modos.map(m=>[m.id,c.instancias.filter(x=>x.modoId===m.id).length]));
-  const modos=c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||esgotado?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join('');
-  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Gaveta de Composição">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+c.instancias.length+'/'+c.quantidadeMaxima+'</small>':'<header><strong>Composição</strong><small>'+c.instancias.length+'/'+c.quantidadeMaxima+'</small></header><div class="grade-composicao">'+modos+'</div>')+'</aside>';
+  const c=p.composicao,editor=p.compositor;if(!c&&!editor)return '';
+  const gaveta=c??editor,recolhida=gaveta.gavetaAberta===false,usos=c?Object.fromEntries(c.modos.map(m=>[m.id,c.instancias.filter(x=>x.modoId===m.id).length])):{};
+  const circulos=editor?.circulos?.length?'<section class="circulos-compositor"><strong>Círculo</strong><div>'+editor.circulos.map(n=>btn('alterarCirculo',n+'º','data-valor="'+n+'" aria-pressed="'+(editor.circuloAtivo===n)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Conjurar usando espaço de '+n+'º círculo"')).join('')+'</div></section>':'';
+  const modos=c?c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
+  const contador=c?c.instancias.length+'/'+c.quantidadeMaxima:(editor?.circuloAtivo+'º');
+  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
 }
 function render(){
   if(!v)return;
@@ -101,10 +108,11 @@ function render(){
     const atorAcao=s.atores.find(x=>x.id===p.atorId)??a,o=p.opcaoPublica??(atorAcao&&opcaoPorId(atorAcao,p.opcao)),ficha=p.fichaPublica??atorAcao?.ficha??{recursos:[]};
     const executar=p.lista?btn('confirmar','Executar seleção','class="ouro" '+(p.pronto?'':'disabled')):(p.pronto?btn('confirmar',p.substitui?'Executar pelo jogador':'Executar','class="ouro"'):'');
     const desfazer=p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled'):'';
-    const cartao=cartaoAcao(o,ficha)||'<section class="carta-acao"><header><h2>'+esc(p.titulo??'Ação')+'</h2><small>'+esc(p.donoAcao??atorAcao?.nome??'Participante')+'</small></header></section>';
+    const cartao=cartaoAcao(o,ficha,p)||'<section class="carta-acao"><header><h2>'+esc(p.titulo??'Ação')+'</h2>'+barraCustos(p,'custos-cabecalho')+'<small>'+esc(p.donoAcao??atorAcao?.nome??'Participante')+'</small></header></section>';
     const controles=p.rolagem?'<small class="observador-acao">Rolagem em andamento · esta ação permanece visível para a mesa.</small>':p.somenteLeitura?'<small class="observador-acao">Acompanhando a ação de '+esc(p.donoAcao??atorAcao?.nome??'outro participante')+'.</small>':desfazer+executar+btn('cancelar','Cancelar');
     const composicao=p.composicao?'<section class="resumo-composicao"><header><strong>Composição escolhida</strong><small>Selecionado agora: '+esc(p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo)?.nome??'—')+'</small></header>'+(p.composicao.instancias.length?p.composicao.instancias.map(x=>'<div><b>'+x.ordem+'</b><span>'+esc(x.modoNome)+'</span><small>→ '+esc(x.alvoNome)+'</small></div>').join(''):'<p>Escolha o modo na gaveta e clique no alvo da primeira instância.</p>')+'</section>':'';
-    html='<section class="painel-acao-shell '+(p.composicao?'com-composicao ':'')+(p.composicao?.gavetaAberta===false?'gaveta-recolhida':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+controles+'</div></div></section></section>';
+    const temCompositor=p.composicao||p.compositor,gaveta=p.composicao??p.compositor;
+    html='<section class="painel-acao-shell '+(temCompositor?'com-composicao ':'')+(gaveta?.gavetaAberta===false?'gaveta-recolhida ':'')+(p.rolagem?'em-rolagem':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div class="linha-execucao">'+barraCustos(p,'custos-execucao')+'<div>'+controles+'</div></div></div></section></section>';
   }else if(parte==='reacao'&&s.reacaoPendente){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));
@@ -239,7 +247,7 @@ root.onclick=e=>{
   if(tipo==='selecionarTodasIniciativas'){iniciativasSelecionadas=new Set(v.estado.atores.filter(x=>x.emCombate!==false&&x.init===null).map(x=>x.id));render();return;}
   if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
+  bus.postMessage({tipo,id,valor:b.dataset.valor,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});

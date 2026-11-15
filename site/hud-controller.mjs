@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.11';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.11';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.11';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.11';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.12';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.12';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.12';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.12';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.11',import.meta.url);
+const url=new URL('./hud.html?v=0.8.12',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -45,13 +45,19 @@ export async function iniciarHud(){
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
   const acaoVisivel=()=>pendente??acaoPublica;
+  function custosPrevia(a,o,modo='automatico'){
+    const plano=planoCustoOpcao(a,o,modo);if(!plano)return [];
+    return plano.custos.map(c=>{const recurso=c.tipo==='recurso'?a?.ficha?.recursos?.find(r=>r.id===c.id):null,key=c.tipo==='recurso'?c.id:c.tipo;
+      return {tipo:c.tipo,id:c.id,quantidade:c.quantidade,nome:recurso?.nome??({acao:'Ação',bonus:'Ação bônus',reacao:'Reação'})[c.tipo]??c.id,saldo:c.tipo==='recurso'?a?.rec?.[key]:a?.[key],maximo:recurso?.maximo??1};});
+  }
   function resumoPendente(p,somenteLeitura=false){
     if(!p)return null;
     const a=atores().find(x=>x.id===(p.cmd?.ator??p.atorId)),o=p.opcaoPublica??opcoesDisponiveis(a??{}).find(x=>x.id===(p.cmd?.opcao??p.opcao));
     return {id:p.publicId??p.id,atorId:a?.id??p.atorId,titulo:p.titulo,detalhe:p.detalhe,pronto:p.pronto,
       opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?structuredClone(o):null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
-      alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
+      alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
+      custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
   }
   function transmitir(){
     const p=acaoVisivel();
@@ -84,8 +90,9 @@ export async function iniciarHud(){
       espacoEfeitos=0;
       // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
       // histórico e a barra de rolagem sem comprimir os ícones da grade.
-      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(176+3*54,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
-      const larguraGaveta=acaoAtual?.composicao?(acaoAtual.composicao.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
+      const temCompositor=Boolean(acaoAtual?.composicao||acaoAtual?.compositor),gaveta=acaoAtual?.composicao??acaoAtual?.compositor;
+      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(temCompositor&&!acaoAtual?.rolagem?590:176+3*54,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
+      const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
       const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
       const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
       const limiteBarra=acaoLadoALado?leftAcao-gap:w-10;
@@ -208,20 +215,21 @@ export async function iniciarHud(){
     const a=ator();
     if(!controla(a))return;
     await cancelar();
-    const o=opcoesDisponiveis(a).find(o=>o.id===d.opcao),rule=o?.automacao;
+    const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),o=base?derivarOpcaoCirculo(a,base,circuloUsado):base,rule=o?.automacao;
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
     const foraCombate=d.tipo==='usar'&&estado.fase==='preparo';
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
-    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:o?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico'};
+    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {})};
     let escolha=null;
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     if(o?.composicao){escolha='lista';cmd.alvos=[];cmd.composicao=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
-    pendente={publicId:crypto.randomUUID(),cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
+    pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
+    if(circulos.length>1)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado};
     if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso}))),instancias:[]};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
@@ -396,7 +404,15 @@ export async function iniciarHud(){
     }
     else if(d.tipo==='ficha'){localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:atorId,quando:Date.now()}));if(ator()?.token)await OBR.player.select([ator().token],true);await OBR.action.open();bus.postMessage({abrirFicha:atorId});return;}
     else if(d.tipo==='ator'){if(!atores().some(a=>a.id===d.id&&controla(a)))return;await cancelar();atorId=d.id;}
-    else if(d.tipo==='alternarGavetaComposicao'&&pendente?.composicao){pendente.composicao.gavetaAberta=!pendente.composicao.gavetaAberta;}
+    else if(d.tipo==='alternarGavetaComposicao'&&(pendente?.composicao||pendente?.compositor)){
+      const gaveta=pendente.composicao??pendente.compositor,gavetaAberta=gaveta.gavetaAberta!==false;
+      if(pendente.composicao)pendente.composicao.gavetaAberta=!gavetaAberta;
+      if(pendente.compositor)pendente.compositor.gavetaAberta=!gavetaAberta;
+    }
+    else if(d.tipo==='alterarCirculo'&&pendente?.compositor){
+      const circulo=Number(d.valor);if(pendente.rolagem||!pendente.compositor.circulos.includes(circulo))return;
+      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:circulo});
+    }
     else if(d.tipo==='selecionarModoComposicao'&&pendente?.composicao){
       const modo=pendente.composicao.modos.find(m=>m.id===d.id);if(!modo)return;
       const usados=pendente.cmd.composicao.filter(x=>x.modoId===modo.id).length;if(modo.limitePorUso&&usados>=modo.limitePorUso)return;

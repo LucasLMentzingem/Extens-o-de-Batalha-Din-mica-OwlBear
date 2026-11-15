@@ -1,6 +1,6 @@
 # M04 — Arquitetura do Compositor de Ações
 
-Estado: arquitetura em aprovação. Este documento não representa implementação concluída.
+Estado: implementação incremental iniciada na versão 0.8.12. Círculo dinâmico, custos derivados e os dois estados visuais já estão operacionais; etapas seriadas, reservas condicionais e integrações completas continuam pendentes.
 
 O M04 é o orquestrador transacional das ações. Ele monta um plano, recebe escolhas, calcula custos, valida tudo e executa etapas em série. Escolhas pertencem ao M03, escalonamento ao M15, gatilhos ao M02, modificadores de rolagem ao M09 e efeitos persistentes ao M01.
 
@@ -173,14 +173,14 @@ Falha técnica desfaz a transação. Resultado normal, como errar um ataque, nã
 
 ## Critérios de aceite visual
 
-- [ ] Planejamento suporta `2×7` sem cobrir o rodapé ou sair da área segura.
-- [ ] Execução compacta para `2×4` quando ajuste, rolagem ou resultado abrir.
+- [x] Planejamento suporta `2×7` sem cobrir o rodapé ou sair da área segura.
+- [x] Execução compacta para `2×4` quando ajuste, rolagem ou resultado abrir.
 - [ ] Scroll aparece acima de catorze opções no planejamento e acima de oito na execução.
 - [ ] Redimensionar não perde seleção, alvo, scroll ou foco.
-- [ ] Custos aparecem abaixo do título e junto ao botão Executar.
-- [ ] As duas barras mostram valores idênticos e atualizam no mesmo quadro.
-- [ ] Alterar círculo ou composição atualiza custo e poder imediatamente.
-- [ ] Observadores veem composição e custos, mas somente dono e mestre editam.
+- [x] Custos aparecem abaixo do título e junto ao botão Executar.
+- [x] As duas barras mostram valores idênticos e atualizam no mesmo quadro.
+- [x] Alterar círculo atualiza custo, alvos e dano imediatamente.
+- [x] Observadores veem composição e custos, mas somente dono e mestre editam.
 
 ## Ordem recomendada
 
