@@ -1134,7 +1134,7 @@ const usaArmadura=a=>{
 const distancia=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function dentroDaArea(origem,ponto,alvo,regra){
   const area=regra?.area??(regra?.raioM?{forma:'circulo',raioM:regra.raioM}:null);if(!area)return false;
-  if(area.forma==='circulo')return distancia(ponto,alvo)<=raioEfetivoArea(area.raioM)+1e-8; // valor da área = diâmetro (decisão da mesa)
+  if(area.forma==='circulo')return distancia(ponto,alvo)<=raioEfetivoArea(area.raioM,regra)+1e-8; // valor da área = diâmetro (decisão da mesa)
   if(area.forma==='quadrado'){const metade=area.tamanhoM/2;return Math.abs(alvo.x-ponto.x)<=metade+1e-8&&Math.abs(alvo.y-ponto.y)<=metade+1e-8;}
   const dx=ponto.x-origem.x,dy=ponto.y-origem.y,norma=Math.hypot(dx,dy);if(norma<=1e-8)return false;
   const ux=dx/norma,uy=dy/norma,ax=alvo.x-origem.x,ay=alvo.y-origem.y,frente=ax*ux+ay*uy,lado=Math.abs(ax*-uy+ay*ux),comprimento=area.comprimentoM;

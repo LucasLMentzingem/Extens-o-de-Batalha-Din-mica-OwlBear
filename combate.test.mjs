@@ -2537,3 +2537,16 @@ test('decisão da mesa: o valor das áreas circulares é o diâmetro (Despedaça
     assert.equal(s.atores[1].pv<pv,dentro,'alvo a '+dx+' m do centro');
   }
 });
+
+test('áreas: emanação (Braços de Hadar) continua com 3 m ao redor; esferas usam o valor como diâmetro',async()=>{
+  for(const [dx,dentro] of [[1.5,true],[2.9,true],[3.2,false]]){
+    let {s,a,b}=await duelo('nikki',undefined,{distancia:dx});const pv=b.pv;
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'bracos de hadar').id},player,roladorSala({salva:2,dano:6}).rolar);
+    assert.equal(s.atores[1].pv<pv,dentro,'Braços de Hadar a '+dx+' m');
+  }
+  for(const [dx,dentro] of [[2.9,true],[3.1,false]]){
+    let {s,a,b}=await duelo('nikki',undefined,{distancia:9});b.x=9+dx;const pv=b.pv;
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'acalmar emocoes').id,ponto:{x:9,y:0}},player,roladorSala({salva:2}).rolar);
+    assert.equal((s.atores[1].efeitosAtivos??[]).some(e=>/Emoções/.test(e.nome)),dentro,'Acalmar Emoções a '+dx+' m do centro');
+  }
+});
