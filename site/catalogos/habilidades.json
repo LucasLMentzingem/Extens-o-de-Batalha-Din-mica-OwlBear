@@ -3719,11 +3719,12 @@
     },
     {
       "id": "habilidade.mao-de-cura-no-lugar-de-um-golpe-da-torrente",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Mão de Cura · no lugar de um golpe da Torrente",
         "categoria": "acao",
         "descricao": "Depois de usar a Torrente de Golpes neste turno, troque um dos golpes por Mão de Cura sem gastar Foco.",
+        "somenteComposicao": true,
         "custo": [],
         "requisitosUso": {
           "aposOpcao": "torrente-de-golpes-5-acao-bonus-1-foco-2",
@@ -4954,7 +4955,7 @@
     },
     {
       "id": "habilidade.torrente-de-golpes-5-acao-bonus-1-foco",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Torrente de Golpes +5 | ação bônus · 1 Foco",
         "categoria": "acao",
@@ -5007,6 +5008,41 @@
           "min": 2,
           "max": 2,
           "repetirAlvo": true
+        },
+        "composicao": {
+          "quantidadeMinima": 2,
+          "quantidadeMaxima": 2,
+          "modoPadrao": "soco-normal",
+          "modos": [
+            {
+              "id": "soco-normal",
+              "nome": "Soco normal",
+              "descricao": "Ataque desarmado da Torrente de Golpes.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d6+3",
+                "alcanceM": 1.5,
+                "elemento": "contundente",
+                "tags": [
+                  "desarmado"
+                ]
+              }
+            },
+            {
+              "id": "mao-de-cura",
+              "nome": "Mão de Cura",
+              "descricao": "Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional.",
+              "tipo": "cura",
+              "limitePorUso": 1,
+              "automacao": {
+                "tipo": "cura",
+                "formula": "1d6+1",
+                "alcanceM": 1.5
+              }
+            }
+          ]
         }
       }
     },

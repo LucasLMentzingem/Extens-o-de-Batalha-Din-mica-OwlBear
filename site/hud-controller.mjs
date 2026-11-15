@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.8';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.8';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.8';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.8';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.9';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis} from './engine.mjs?v=0.8.9';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.9';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.9';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.8',import.meta.url);
+const url=new URL('./hud.html?v=0.8.9',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -51,7 +51,7 @@ export async function iniciarHud(){
     return {id:p.publicId??p.id,atorId:a?.id??p.atorId,titulo:p.titulo,detalhe:p.detalhe,pronto:p.pronto,
       opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?structuredClone(o):null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
-      alvos:p.cmd?.alvos??p.alvos??[],rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
+      alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
   }
   function transmitir(){
     const p=acaoVisivel();
@@ -84,8 +84,9 @@ export async function iniciarHud(){
       espacoEfeitos=0;
       // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
       // histórico e a barra de rolagem sem comprimir os ícones da grade.
-      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(176+3*54,h-96),larguraAcao=Math.min(410,Math.max(300,w*.36));
-      const acaoLadoALado=Boolean(acaoAtual)&&w>=820;
+      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(176+3*54,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
+      const larguraGaveta=acaoAtual?.composicao?(acaoAtual.composicao.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
+      const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
       const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
       const limiteBarra=acaoLadoALado?leftAcao-gap:w-10;
       const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
@@ -162,11 +163,11 @@ export async function iniciarHud(){
     const ponta2={x:fim.x-tam*Math.cos(ang+.55),y:fim.y-tam*Math.sin(ang+.55)};
     return [[origem,fim],[fim,ponta1],[fim,ponta2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#e54848').strokeWidth(5).layer('CONTROL').locked(true).disableHit(true).build());
   }
-  function setaAlvo(origem,fim,indice=0,total=1){
+  function setaAlvo(origem,fim,indice=0,total=1,cor='#e5c079'){
     const dx=fim.x-origem.x,dy=fim.y-origem.y,tamLinha=Math.hypot(dx,dy)||1,offset=(indice-(total-1)/2)*dpi*.12;
     const ox=-dy/tamLinha*offset,oy=dx/tamLinha*offset,a={x:origem.x+ox,y:origem.y+oy},b={x:fim.x+ox,y:fim.y+oy};
     const ang=Math.atan2(b.y-a.y,b.x-a.x),tam=Math.min(dpi*.22,tamLinha*.22),p1={x:b.x-tam*Math.cos(ang-.5),y:b.y-tam*Math.sin(ang-.5)},p2={x:b.x-tam*Math.cos(ang+.5),y:b.y-tam*Math.sin(ang+.5)};
-    return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor('#e5c079').strokeWidth(4).layer('CONTROL').locked(true).disableHit(true).build());
+    return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor(cor).strokeWidth(4).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function setaDeslocamento(origem,fim){
     const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(dpi*.28,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
@@ -176,6 +177,27 @@ export async function iniciarHud(){
   function marcasDeslocamento(rule,origem,alvos){
     const regra=rule?.deslocamentoForcado;if(!regra)return [];
     return alvos.flatMap(alvo=>{const inicio=pos(alvo),fim=destinoDeslocamento(origem,inicio,regra.distanciaM*dpi);return fim?[...setaDeslocamento(inicio,fim),circulo(fim,dpi*.2,'#ffffff')]:[];});
+  }
+  function marcasComposicao(p){
+    const instancias=p?.composicao?.instancias??[],contagem={};
+    for(const x of instancias)contagem[x.alvoId]=(contagem[x.alvoId]??0)+1;
+    const vistos={};
+    return instancias.flatMap(x=>{
+      const alvo=atores().find(a=>a.id===x.alvoId);if(!alvo)return [];
+      const i=vistos[x.alvoId]??0;vistos[x.alvoId]=i+1;
+      const modo=p.composicao.modos.find(m=>m.id===x.modoId),cor=modo?.tipo==='cura'?'#67dca0':'#e5c079';
+      return [...setaAlvo(p.origem,pos(alvo),i,contagem[x.alvoId],cor),circulo(pos(alvo),dpi*.46,cor)];
+    });
+  }
+  async function atualizarPreviaAdicionais(){
+    if(!pendente)return;
+    const extras=(pedidoDado?.meta?.adicionais??[]).filter(x=>(pedidoDado?.recursosAtivos??[]).includes(x.id)&&x.previsualizacaoArea),items=[...(pendente.marcasBase??[])];
+    for(const extra of extras){
+      const area=extra.previsualizacaoArea,centro=atores().find(a=>a.id===area.centroAtorId);if(!centro)continue;
+      items.push(circulo(pos(centro),area.raioM*dpi,'#f2a64e'));
+      for(const ref of area.alvos??[]){const alvo=atores().find(a=>a.id===ref.id);if(alvo)items.push(circulo(pos(alvo),dpi*.5,'#ffcf75'));}
+    }
+    await desenhar(items);
   }
   async function cancelar(){
     const publicId=pendente?.publicId,atorIdPublico=pendente?.cmd?.ator;pendente=null;await limparMarcas();await fecharPreviaPublica(publicId,atorIdPublico);
@@ -196,16 +218,18 @@ export async function iniciarHud(){
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
+    if(o?.composicao){escolha='lista';cmd.alvos=[];cmd.composicao=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={publicId:crypto.randomUUID(),cmd,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
+    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso}))),instancias:[]};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
-      const origem=pos(a),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):rule.alcanceM;
+      const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
       pendente.origem=origem;pendente.raio=raio;
       const direcional=['cone','linha'].includes(rule?.area?.forma);
       pendente.detalhe=(direcional?'Aponte e clique para travar '+(rule.area.forma==='cone'?'o cone':'a linha'):{destino:'Marque o destino no mapa',area:'Marque o centro da área',alvo:'Clique no token do alvo'}[escolha])+' · '+medida(raio);
-      if(escolha==='lista')pendente.detalhe='Selecione no mapa · 0/'+o.selecao.max;
+      if(escolha==='lista')pendente.detalhe='Selecione no mapa · 0/'+(o.composicao?.quantidadeMaxima??o.selecao.max);
       anterior=await OBR.tool.getActiveTool();
       await OBR.tool.activateTool(tool);await OBR.tool.activateMode(tool,mode);
       await desenhar([circulo(origem,raio*dpi,'#e5c079')]);
@@ -213,11 +237,18 @@ export async function iniciarHud(){
   }
   async function atualizarLista(p){
     const ids=p.cmd.alvos;
+    if(p.composicao){
+      p.composicao.instancias=(p.cmd.composicao??[]).map((x,i)=>{const modo=p.composicao.modos.find(m=>m.id===x.modoId),alvo=atores().find(a=>a.id===x.alvoId);return {...x,ordem:i+1,modoNome:modo?.nome??x.modoId,alvoNome:alvo?.nome??'Alvo'};});
+      p.pronto=p.composicao.instancias.length>=p.composicao.quantidadeMinima;
+      p.detalhe='Componha a habilidade · '+p.composicao.instancias.length+'/'+p.composicao.quantidadeMaxima+(p.composicao.instancias.length?' · '+p.composicao.instancias.map(x=>x.ordem+'. '+x.modoNome+' → '+x.alvoNome).join(' · '):'');
+      const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasComposicao(p)];p.marcasBase=items;
+      await desenhar(items);await layout();transmitir();return;
+    }
     const unicos=[...new Set(ids)].map(id=>atores().find(a=>a.id===id));
     p.pronto=ids.length>=p.regraLista.min;p.detalhe='Selecione no mapa · '+ids.length+'/'+p.regraLista.max+(ids.length?' · '+unicos.map(a=>a.nome+' ×'+ids.filter(id=>id===a.id).length).join(', '):'');
     const contagem=Object.fromEntries(unicos.map(a=>[a.id,ids.filter(id=>id===a.id).length])),vistos={};
     const trajetorias=ids.flatMap(id=>{const alvo=atores().find(a=>a.id===id),i=vistos[id]??0;vistos[id]=i+1;return setaAlvo(p.origem,pos(alvo),i,contagem[id]);});
-    await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias,...marcasDeslocamento(p.rule,p.origem,unicos)]);
+    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias,...marcasDeslocamento(p.rule,p.origem,unicos)];p.marcasBase=items;await desenhar(items);
     await layout();transmitir();
   }
   async function sincronizarTokens(items){
@@ -243,7 +274,7 @@ export async function iniciarHud(){
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
     const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
-    await desenhar(marcas);
+    p.marcasBase=marcas;await desenhar(marcas);
     const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
     p.ponto=ponto;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(distancia)+(p.pronto?'':' · fora do alcance');
     await layout();transmitir();
@@ -263,6 +294,17 @@ export async function iniciarHud(){
       p.pronto=false;await layout();transmitir();throw Error('Fora do alcance. Escolha outro ponto.');
     }
     if(p.escolha==='lista'){
+      if(p.composicao){
+        const modo=p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo),def=(opcoesDisponiveis(ator()).find(o=>o.id===p.cmd.opcao)?.composicao?.modos??[]).find(m=>m.id===modo?.id);
+        if(!modo||!def)throw Error('Escolha um modo válido na Gaveta de Composição.');
+        if(d>(def.automacao?.alcanceM??p.raio)+1e-8)throw Error(modo.nome+' está fora do alcance.');
+        const usados=(p.cmd.composicao??[]).filter(x=>x.modoId===modo.id).length;
+        if(modo.limitePorUso&&usados>=modo.limitePorUso)throw Error('O limite de '+modo.nome+' foi atingido.');
+        if((p.cmd.composicao?.length??0)>=p.composicao.quantidadeMaxima)throw Error('Composição completa. Desfaça uma escolha para trocar o alvo.');
+        p.cmd.alvos.push(alvo.id);p.cmd.composicao.push({modoId:modo.id,alvoId:alvo.id});
+        if(modo.limitePorUso&&usados+1>=modo.limitePorUso)p.composicao.modoAtivo=opcoesDisponiveis(ator()).find(o=>o.id===p.cmd.opcao)?.composicao?.modoPadrao??p.composicao.modoAtivo;
+        await atualizarLista(p);return;
+      }
       p.cmd.alvos=incluirAlvo(p.cmd.alvos,alvo.id,p.regraLista);
       await atualizarLista(p);return;
     }
@@ -294,7 +336,7 @@ export async function iniciarHud(){
         for(const x of ameacas)items.push(...seta(pos(x.ator),x.ponto));
       }
     }
-    await desenhar(items);
+    p.marcasBase=items;await desenhar(items);
     await layout();transmitir();
   }
   async function atualizar(s,i){
@@ -328,7 +370,7 @@ export async function iniciarHud(){
     if(comandosDado.includes(d.tipo)&&pedidoDado?.podeEditar===false)return;
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
       const dados=pedidoDado.meta?.adicionais??[],validos=new Set(dados.map(x=>x.id));if(!validos.has(d.id)||dados.find(x=>x.id===d.id)?.automatico)return;
-      const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};transmitir();
+      const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};await atualizarPreviaAdicionais();transmitir();
     }else if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
       const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();
       const resposta={pedido};
@@ -354,8 +396,14 @@ export async function iniciarHud(){
     }
     else if(d.tipo==='ficha'){localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:atorId,quando:Date.now()}));if(ator()?.token)await OBR.player.select([ator().token],true);await OBR.action.open();bus.postMessage({abrirFicha:atorId});return;}
     else if(d.tipo==='ator'){if(!atores().some(a=>a.id===d.id&&controla(a)))return;await cancelar();atorId=d.id;}
+    else if(d.tipo==='alternarGavetaComposicao'&&pendente?.composicao){pendente.composicao.gavetaAberta=!pendente.composicao.gavetaAberta;}
+    else if(d.tipo==='selecionarModoComposicao'&&pendente?.composicao){
+      const modo=pendente.composicao.modos.find(m=>m.id===d.id);if(!modo)return;
+      const usados=pendente.cmd.composicao.filter(x=>x.modoId===modo.id).length;if(modo.limitePorUso&&usados>=modo.limitePorUso)return;
+      pendente.composicao.modoAtivo=modo.id;
+    }
     else if(d.tipo==='desfazer'&&pendente?.escolha==='lista'){
-      pendente.cmd.alvos.pop();await atualizarLista(pendente);
+      pendente.cmd.alvos.pop();if(pendente.composicao)pendente.cmd.composicao.pop();await atualizarLista(pendente);
     }
     else if(d.tipo==='concluir'&&pendente?.escolha==='lista'){
       if(pendente.cmd.alvos.length<pendente.regraLista.min)return;

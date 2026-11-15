@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.8';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.8';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.9';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.9';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -173,6 +173,10 @@ export function atualizarMagias(f){
   corrigirArtesMarciais(f);
   corrigirDuracoes(f);
   corrigirMagiasRevisao(f);
+  // A antiga ação avulsa representava a substituição de forma incorreta
+  // (dois socos e depois uma cura). Ela permanece migrável pelo catálogo,
+  // mas não pode mais ser executada fora da Gaveta de Composição.
+  for(const o of f.opcoes??[])if(o.id==='mao-de-cura-torrente'||o.catalogoRef==='habilidade.mao-de-cura-no-lugar-de-um-golpe-da-torrente')o.somenteComposicao=true;
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
@@ -221,10 +225,14 @@ function corrigirMagiasRevisao(f){
     if(nome==='saraivada de espinhos'&&!o.automacao&&!o.aprimoramento){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
     if(nome==='golpe constritor'&&!o.automacao){o.automacao={tipo:'salva',atributo:'for',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,alcanceM:18,efeitoFalha:{nome:'Contido (Golpe Constritor)',condicao:'contido',turnos:10,danoInicioTurno:{formula:'1d6',elemento:'perfurante'}}};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma'],alvoIgualAoAnterior:true};}
     if(/destruidor de hordas/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.usarArmaAnterior)o.automacao.usarArmaAnterior=true;
-    if(/^torrente de golpes/.test(completo)&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente')){
+    if(/^torrente de golpes/.test(completo)){
       const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento),cura=f.opcoes.find(x=>textoNormal(x.nome)==='mao de cura'&&x.automacao?.tipo==='cura');
-      if(dolo)f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
-      if(cura)f.opcoes.push({id:'mao-de-cura-torrente',nome:'Mão de Cura · no lugar de um golpe da Torrente',categoria:'acao',descricao:'Depois de usar a Torrente de Golpes neste turno, troque um dos golpes por Mão de Cura sem gastar Foco.',custo:[],requisitosUso:{aposOpcao:o.id,umaVezPorTurno:'mao-de-cura-torrente'},automacao:structuredClone(cura.automacao)});
+      const soco=structuredClone(o.automacao?.ataques?.[0]??o.automacao);
+      if(soco){delete soco.ataques;o.composicao={quantidadeMinima:2,quantidadeMaxima:2,modoPadrao:'soco-normal',modos:[
+        {id:'soco-normal',nome:'Soco normal',descricao:'Ataque desarmado da Torrente de Golpes.',tipo:'ataque',automacao:soco},
+        ...(cura?[{id:'mao-de-cura',nome:'Mão de Cura',descricao:'Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional.',tipo:'cura',limitePorUso:1,automacao:structuredClone(cura.automacao)}]:[])
+      ]};}
+      if(dolo&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente'))f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
     }
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano'){o.automacao.elementos=['contundente','cortante','perfurante'];const m=/CD (\d+)[^\[]*\[([^\]]+)\]/.exec(o.descricao??'');o.automacao.redirecionar??={recurso:'pontos-de-foco',cd:Number(m?.[1])||11,dano:m?.[2]??'2d6+3'};}
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
@@ -459,6 +467,16 @@ export function validar(f) {
       const g=o.usoGratuito;
       exigir(idOK(g.recursoId)&&f.recursos.some(r=>r.id===g.recursoId)&&inteiro(g.quantidade??1,1,999),'Uso gratuito inválido em '+o.id);
       exigir(g.nome===undefined||nomeOK(g.nome),'Nome do uso gratuito inválido em '+o.id);
+    }
+    if(o.composicao){
+      const c=o.composicao,modos=c.modos??[];
+      exigir(inteiro(c.quantidadeMinima,1,64)&&inteiro(c.quantidadeMaxima,c.quantidadeMinima,64)&&Array.isArray(modos)&&modos.length>=2&&new Set(modos.map(m=>m.id)).size===modos.length&&modos.some(m=>m.id===c.modoPadrao),'Composição inválida em '+o.id);
+      for(const m of modos){
+        exigir(idOK(m.id)&&nomeOK(m.nome)&&['ataque','cura'].includes(m.tipo)&&m.automacao?.tipo===m.tipo,'Modo de composição inválido em '+o.id);
+        exigir(m.limitePorUso===undefined||inteiro(m.limitePorUso,1,c.quantidadeMaxima),'Limite de modo inválido em '+o.id);
+        if(m.tipo==='ataque')exigir(inteiro(m.automacao.bonus,-20,40)&&formulaDanoValida(m.automacao.dano)&&Number.isFinite(m.automacao.alcanceM),'Ataque composto inválido em '+o.id);
+        if(m.tipo==='cura')exigir(formulaDanoValida(m.automacao.formula)&&Number.isFinite(m.automacao.alcanceM),'Cura composta inválida em '+o.id);
+      }
     }
     const a=o.automacao;
     if(!a) continue;
@@ -725,7 +743,7 @@ function sincronizarConcessoesItens(a){
   for(const id of Object.keys(a.rec))if(id.startsWith('item-')&&!recursosVivos.has(id))delete a.rec[id];
   return a;
 }
-export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);return [...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];};
+export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);return [...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];};
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
@@ -1672,6 +1690,30 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const bonus=bonusTesteFerramenta(a,rule),rr=await rolarD20(bonus,a,{tipo:'teste',atributo:rule.atributo,titulo:'Teste · '+o.nome,cd:rule.cd});
         msg+=' • '+rr.total+(rr.total>=rule.cd?' sucesso':' falha')+' contra CD '+rule.cd;break;
       }
+      if(o.composicao){
+        const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):[]);
+        exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
+        const contagens={};
+        for(let i=0;i<entradas.length;i++){
+          const entrada=entradas[i],modo=def.modos.find(m=>m.id===entrada.modoId),p=s.atores.find(x=>x.id===entrada.alvoId);
+          exigir(modo&&p,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
+          exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
+          exigir(distancia(a,p)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
+          if(modo.tipo==='cura'){
+            const cura=(await resultado(modo.automacao.formula,{tipo:'cura',titulo:'Cura '+(i+1)+' · '+modo.nome,alvo:p.nome})).total,aplicado=curarAtor(p,cura);
+            a.usosTurno['mao-de-cura-torrente']=true;msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': '+aplicado+' PV';continue;
+          }
+          const r=modo.automacao,defesa=caAtual(p),ra=restricoesAtivas(a),rp=restricoesAtivas(p),vantagem=c.modo==='vantagem'||ra.vantagemAtaques||rp.vantagemAtaquesContra||rp.caido,desvantagem=c.modo==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra;
+          const modoDado=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem',modoAnterior=c.modo;c.modo=modoDado;
+          const rr=await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Golpe '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
+          const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
+          a.eventosTurno.ataques.push(evento);msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
+          if(!acertou){msg+=' • errou';continue;}
+          a.eventosTurno.acertos.push(evento);const critico=face===20||(rp.criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),formula=critico?formulaCritica(r.dano):r.dano,tags=tagsAtaque(o,r),rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano '+(i+1)+' · '+modo.nome,critico,alvo:p.nome,tipoDano:r.elemento,parcelasDano:[{tipo:r.elemento,tags}],alvoDano:resumoAlvoDano(p)}),dano=await aplicarDanoNoAtor(p,rolagem.total,r.elemento,{critico,origem:a,relatorio:rolagem.relatoriosDano?.[0]});
+          msg+=' • '+(critico?'crítico · ':'')+dano+' PV';
+        }
+        break;
+      }
       const selecao=multi(o);let escolhidos;
       if(selecao){
         exigir(Array.isArray(c.alvos)&&c.alvos.length>=selecao.min&&c.alvos.length<=selecao.max,'Quantidade de alvos inválida.');
@@ -1824,7 +1866,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];
       if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome})){msg+=' • aguardando reação de '+p.nome;continue;}
       const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=rerrolagensDano(a,o),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
-      const metaAdicionais=adicionais.map(g=>({id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??''}));
+      const metaAdicionais=adicionais.map(g=>{
+        const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
+        return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
+          ...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};
+      });
       const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
       const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
       const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});

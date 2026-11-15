@@ -1382,7 +1382,11 @@ test('#32 Saraivada de Espinhos, Golpe Constritor e Destruidor de Hordas',async(
   const pv=b.pv,bonus=a.bonus,espaco=a.rec['espaco-1'];let etapa=0;
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,async(formula,meta)=>{
     etapa++;if(meta.tipo==='ataque')return {total:18,natural:13,formula,resumo:'18'};
-    if(meta.tipo==='dano'){const extra=meta.adicionais.find(x=>x.id===sar.id);assert.ok(extra);return {total:11,natural:null,formula,resumo:'6 + 5',resultados:[{total:6,resumo:'1d8+3 = 6'},{total:5,resumo:'1d10 = 5'}],recursosAtivos:[sar.id],rerrolagensUsadas:[]};}
+    if(meta.tipo==='dano'){
+      const extra=meta.adicionais.find(x=>x.id===sar.id);assert.ok(extra);
+      assert.deepEqual(extra.previsualizacaoArea,{forma:'circulo',raioM:1.5,centroAtorId:b.id,centroNome:b.nome,alvos:[{id:b.id,nome:b.nome}]});
+      return {total:11,natural:null,formula,resumo:'6 + 5',resultados:[{total:6,resumo:'1d8+3 = 6'},{total:5,resumo:'1d10 = 5'}],recursosAtivos:[sar.id],rerrolagensUsadas:[]};
+    }
     if(meta.tipo==='salvaguarda')return {total:2,natural:2,formula,resumo:'2'};
     throw Error('rolagem inesperada '+meta.tipo);
   });
@@ -1409,7 +1413,12 @@ test('#32 Saraivada combina área, resistências e resultados diferentes por alv
   const sar=opRev(a,'saraivada'),pv=[b.pv,c.pv,d.pv],bonus=a.bonus,espaco=a.rec['espaco-1'];let salva=0;
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,async(formula,meta)=>{
     if(meta.tipo==='ataque')return {total:18,natural:13,formula,resumo:'18'};
-    if(meta.tipo==='dano')return {total:14,natural:null,formula,resumo:'6 + 8',resultados:[{total:6,resumo:'1d8+3 = 6'},{total:8,resumo:'1d10 = 8'}],recursosAtivos:[sar.id],rerrolagensUsadas:[]};
+    if(meta.tipo==='dano'){
+      const area=meta.adicionais.find(x=>x.id===sar.id).previsualizacaoArea;
+      assert.equal(area.centroAtorId,b.id);assert.equal(area.raioM,1.5);
+      assert.deepEqual(new Set(area.alvos.map(x=>x.id)),new Set([b.id,c.id,d.id]));
+      return {total:14,natural:null,formula,resumo:'6 + 8',resultados:[{total:6,resumo:'1d8+3 = 6'},{total:8,resumo:'1d10 = 8'}],recursosAtivos:[sar.id],rerrolagensUsadas:[]};
+    }
     if(meta.tipo==='salvaguarda'){
       const totais=[5,6,15],total=totais[salva++];return {total,natural:total,formula,resumo:String(total)};
     }
@@ -1436,15 +1445,19 @@ test('as sete fichas concluem o ataque básico do turno com a arma atualmente eq
 
 test('#21 #34 Mão de Dolo e Mão de Cura na Torrente, Defletir redireciona e Valentão empurra',async()=>{
   let {s,a,b}=await duelo('loteria');
-  // Torrente + Mão de Dolo no alvo atingido + Mão de Cura sem Foco
+  // A Gaveta compõe exatamente duas instâncias: um soco e uma cura substituta.
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'torrente').id,alvos:[b.id,b.id]},player,roladorSala().rolar);
+  s.atores[0].pv=5;const focoAntes=s.atores[0].rec['pontos-de-foco'],pvAlvo=s.atores[1].pv;
+  const torrente=opRev(s.atores[0],'torrente');
+  assert.equal(torrente.composicao.quantidadeMaxima,2);assert.equal(torrente.composicao.modos.find(x=>x.id==='mao-de-cura').limitePorUso,1);
+  assert.ok(!opcoesDisponiveis(s.atores[0]).some(o=>o.id==='mao-de-cura-torrente'),'a cura antiga não pode aparecer como terceira ação');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:torrente.id,composicao:[{modoId:'soco-normal',alvoId:b.id},{modoId:'mao-de-cura',alvoId:a.id}]},player,roladorSala({dano:4}).rolar);
+  assert.equal(s.atores[1].pv,pvAlvo-4,'a cura substitui o segundo soco');assert.equal(s.atores[0].pv,9);assert.equal(s.atores[0].rec['pontos-de-foco'],focoAntes-1);assert.equal(s.atores[0].bonus,0);
   const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-dolo-torrente',alvo:b.id},player,roladorSala({dano:5}).rolar);
   assert.equal(s.atores[1].pv,pv-5);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1);
-  s.atores[0].pv=5;
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-cura-torrente',alvo:a.id},player,roladorSala({dano:4}).rolar);
-  assert.equal(s.atores[0].pv,9);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1,'sem gastar Foco');
+  ({s,a,b}=await duelo('loteria'));
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'torrente').id,composicao:[{modoId:'mao-de-cura',alvoId:a.id},{modoId:'mao-de-cura',alvoId:a.id}]},player,roladorSala().rolar),/limite de Mão de Cura/);
   // Valentão de Taverna: empurrão opcional depois do golpe desarmado
   ({s,a,b}=await duelo('loteria'));
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);

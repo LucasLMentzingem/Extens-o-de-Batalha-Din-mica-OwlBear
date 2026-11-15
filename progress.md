@@ -666,3 +666,17 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Fluxo visual completo aprovado sem erros de console: `work/playwright-v088-troca-unilateral/`.
 - Smoke test pelo cliente padrão: `work/playwright-v088-smoke/shot-0.png`.
 
+### Versão 0.8.9: composição da Torrente e prévia da Saraivada
+
+- [x] Criar a **Gaveta de Composição** à esquerda da instância de ação, recolhível e com grade de duas colunas por três linhas visíveis.
+- [x] Permitir que cada instância da Torrente de Golpes escolha seu próprio modo e alvo.
+- [x] Fazer Mão de Cura substituir exatamente um dos dois socos, sem gastar Foco adicional e sem permanecer disponível como uma terceira ação separada.
+- [x] Exibir na própria instância o modo e o alvo escolhidos para cada golpe.
+- [x] Anexar à Saraivada de Espinhos o centro, o raio de 1,5 m e todos os alvos atualmente contidos na explosão.
+- [x] Ao selecionar a Saraivada no ajuste de dano, mostrar sua área e seus alvos e desenhar a prévia pública no mapa para toda a mesa.
+- [x] Preservar a trajetória original do ataque ao ativar e desativar a prévia da explosão.
+
+- Testes do motor: 161 aprovados.
+- Validação visual: `work/gaveta-composicao-v089.png` e `work/saraivada-area-v089.png`.
+- Smoke test pelo cliente padrão: `work/playwright-v089-smoke/shot-0.png`.
+

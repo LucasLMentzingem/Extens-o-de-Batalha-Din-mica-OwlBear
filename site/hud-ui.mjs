@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.8';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.8';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.8';
-import {pronto} from './bridge.mjs?v=0.8.8';
-import {canalHud} from './hud-controller.mjs?v=0.8.8';
+import {detalhes} from './ficha-view.mjs?v=0.8.9';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.9';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.9';
+import {pronto} from './bridge.mjs?v=0.8.9';
+import {canalHud} from './hud-controller.mjs?v=0.8.9';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -62,6 +62,12 @@ function cartaoAcao(o,f){
   const area=r.raioM?r.raioM+' m de raio':r.area?.forma==='circulo'?r.area.raioM+' m de raio':r.area?.forma==='quadrado'?r.area.tamanhoM+' m × '+r.area.tamanhoM+' m':r.area?.forma==='cone'?'cone de '+r.area.comprimentoM+' m':r.area?.forma==='linha'?'linha de '+r.area.comprimentoM+' m × '+(r.area.larguraM??1.5)+' m':'';
   return '<section class="carta-acao"><header><h2>'+esc(o.nome)+'</h2><small>'+esc([o.categoria,o.circuloBase!=null?(o.circuloBase?o.circuloBase+'º círculo':'Truque'):'',o.origem].filter(Boolean).join(' · '))+'</small></header><dl>'+linha('Uso',uso)+linha('Alcance',alcance)+linha('Área',area)+linha(r.tipo==='ataque'?'Ataque':'Resistência',resistencia)+linha('Dano',r.dano?[r.dano,r.elemento].filter(Boolean).join(' '):'')+linha('Deslocamento',r.deslocamentoForcado?'Empurra '+r.deslocamentoForcado.distanciaM+' m para longe da origem':'')+linha('Alvos',s?.max?('de '+s.min+' a '+s.max+(s.repetirAlvo?' · pode repetir':' · distintos')):'')+linha('Efeito',efeito)+'</dl></section>';
 }
+function gavetaComposicao(p){
+  const c=p.composicao;if(!c)return '';
+  const recolhida=c.gavetaAberta===false,usos=Object.fromEntries(c.modos.map(m=>[m.id,c.instancias.filter(x=>x.modoId===m.id).length]));
+  const modos=c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||esgotado?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join('');
+  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Gaveta de Composição">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+c.instancias.length+'/'+c.quantidadeMaxima+'</small>':'<header><strong>Composição</strong><small>'+c.instancias.length+'/'+c.quantidadeMaxima+'</small></header><div class="grade-composicao">'+modos+'</div>')+'</aside>';
+}
 function render(){
   if(!v)return;
   const {estado:s,eu,ocupado,pendente:p}=v;
@@ -96,7 +102,8 @@ function render(){
     const desfazer=p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled'):'';
     const cartao=cartaoAcao(o,ficha)||'<section class="carta-acao"><header><h2>'+esc(p.titulo??'Ação')+'</h2><small>'+esc(p.donoAcao??atorAcao?.nome??'Participante')+'</small></header></section>';
     const controles=p.rolagem?'<small class="observador-acao">Rolagem em andamento · esta ação permanece visível para a mesa.</small>':p.somenteLeitura?'<small class="observador-acao">Acompanhando a ação de '+esc(p.donoAcao??atorAcao?.nome??'outro participante')+'.</small>':desfazer+executar+btn('cancelar','Cancelar');
-    html='<section class="painel-acao">'+cartao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+controles+'</div></div></section>';
+    const composicao=p.composicao?'<section class="resumo-composicao"><header><strong>Golpes escolhidos</strong><small>Selecionado agora: '+esc(p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo)?.nome??'—')+'</small></header>'+(p.composicao.instancias.length?p.composicao.instancias.map(x=>'<div><b>'+x.ordem+'</b><span>'+esc(x.modoNome)+'</span><small>→ '+esc(x.alvoNome)+'</small></div>').join(''):'<p>Escolha o modo na gaveta e clique no alvo do primeiro golpe.</p>')+'</section>':'';
+    html='<section class="painel-acao-shell '+(p.composicao?'com-composicao ':'')+(p.composicao?.gavetaAberta===false?'gaveta-recolhida':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+controles+'</div></div></section></section>';
   }else if(parte==='reacao'&&s.reacaoPendente){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));
@@ -122,7 +129,8 @@ function render(){
       }else{
         const valor=document.querySelector('#formulaDado')?.value||d.formula||'',temD20=/^(?:1d20|2d20k[hl]1)/i.test(valor),modo=modoFormula(valor),botaoModo=(id,label)=>btn('modoDado',label,'data-modo="'+id+'" aria-pressed="'+(modo===id)+'" '+(editavel?'':'disabled'));
         const adicionais=m.adicionais??[],selecionados=adicionais.filter(x=>adicionaisAtivos.has(x.id));
-        const painelAdicionais=adicionais.length?'<div class="recursos-rolagem adicionais"><small>'+esc(m.rotuloAdicionais??'Habilidades disponíveis após o acerto')+'</small><div>'+adicionais.map(x=>btn('alternarAdicional',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+adicionaisAtivos.has(x.id)+'" '+(x.automatico||!editavel?'disabled ':'')+'data-info="'+esc((x.automatico?'Aplicação automática.\n':'')+(x.descricao||x.nome))+'"')).join('')+'</div>'+(selecionados.length?'<div class="dados-bloqueados">'+selecionados.map(x=>'<span><b>'+esc(x.formula)+'</b> · '+esc(x.nome)+'</span>').join('')+'</div>':'')+'</div>':'';
+        const areasSelecionadas=selecionados.filter(x=>x.previsualizacaoArea);
+        const painelAdicionais=adicionais.length?'<div class="recursos-rolagem adicionais"><small>'+esc(m.rotuloAdicionais??'Habilidades disponíveis após o acerto')+'</small><div>'+adicionais.map(x=>btn('alternarAdicional',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+adicionaisAtivos.has(x.id)+'" '+(x.automatico||!editavel?'disabled ':'')+'data-info="'+esc((x.automatico?'Aplicação automática.\n':'')+(x.descricao||x.nome))+'"')).join('')+'</div>'+(selecionados.length?'<div class="dados-bloqueados">'+selecionados.map(x=>'<span><b>'+esc(x.formula)+'</b> · '+esc(x.nome)+'</span>').join('')+'</div>':'')+(areasSelecionadas.length?'<div class="areas-aprimoramento">'+areasSelecionadas.map(x=>{const a=x.previsualizacaoArea;return '<article><strong>'+esc(x.nome)+' · área de '+esc(a.raioM)+' m</strong><small>Centro: '+esc(a.centroNome)+' · Alvos: '+esc(a.alvos.map(y=>y.nome).join(', ')||'nenhum')+'</small></article>';}).join('')+'</div>':'')+'</div>':'';
         const painelModificador=m.modificadorDano?'<div class="modificador-dano-automatico"><small>Modificador automático desta rolagem</small><strong>'+esc(m.modificadorDano.nome)+'</strong><span>'+esc(m.modificadorDano.descricao||'Os dados de dano da arma serão rolados duas vezes; o maior resultado será aplicado.')+'</span></div>':'';
         const painelDefesa=painelDefesas(m,selecionados);
         html='<section class="prompt rolagem"><strong>'+esc(m.titulo||'Ajustar rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd,m.critico&&'Crítico: dados de dano já dobrados'].filter(Boolean).join(' · '))+'</small>'+observador+(temD20?'<div class="modos-d20" role="group" aria-label="Modo do d20">'+botaoModo('normal','Normal')+botaoModo('vantagem','Vantagem')+botaoModo('desvantagem','Desvantagem')+'</div>':'')+'<label>Comando do Dice+<input id="formulaDado" value="'+esc(valor)+'" autocomplete="off" spellcheck="false" '+(editavel?'':'readonly')+'></label>'+painelModificador+painelAdicionais+painelDefesa+(d.erro?'<b class="erro">'+esc(d.erro)+'</b>':'')+(d.tipo==='rolando'?'<p>Rolando todos os dados juntos…</p>':editavel?'<div>'+btn('cancelarDado','Cancelar')+btn('rolarDado','Rolar dados','class="ouro"')+'</div>':'')+'</section>';
