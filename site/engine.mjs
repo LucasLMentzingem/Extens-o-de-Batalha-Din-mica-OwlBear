@@ -1538,7 +1538,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1862,6 +1862,24 @@ export async function aplicar(s,c,u,rolar) {
       exigir(a&&inteiro(c.quantidade,1,9999999),'Quantidade de PO inválida.');
       definirSaldoMoedasPc(a,saldoMoedasPc(a)+c.quantidade*100);
       msg='Mestre adicionou '+c.quantidade.toLocaleString('pt-BR')+' PO ao inventário de '+a.nome+'.';break;
+    }
+    case 'gmExcluirItem': {
+      exigir(a,'Ficha não encontrada.');
+      exigir(c.confirmado===true&&c.confirmacaoFinal===true,'Confirme a exclusão do item nas duas etapas.');
+      const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);
+      exigir(item,'Item não encontrado. Atualize o inventário.');
+      a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i.id!==item.id);
+      a.pv=Math.min(a.pv,pvMaximosAtuais(a));
+      a.metros=Math.min(a.metros,deslocamentoMaximo(a));
+      const troca=trocaDoAtor(s,a.id);
+      if(troca&&['ofertas','final'].includes(troca.status)){
+        const oferta=ofertaTroca(troca,a.id),antes=oferta.itens.length,poAntes=oferta.poPc;
+        oferta.itens=oferta.itens.filter(i=>i.itemId!==item.id);
+        oferta.poPc=Math.min(oferta.poPc,saldoMoedasPc(a));
+        if(oferta.itens.length!==antes||oferta.poPc!==poAntes)resetarConfirmacoesTroca(troca);
+      }
+      msg='Mestre excluiu '+item.quantidade+'× '+item.nome+' do inventário de '+a.nome+'.';
+      break;
     }
     case 'inventario': {
       exigir(a&&['equipar','desequipar','usar'].includes(c.operacao),'Operação de inventário inválida.');

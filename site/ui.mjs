@@ -308,6 +308,7 @@ async function abrirAdicionarPoMestre(){
 async function alterarItem(operacao,slot){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
   const item=a.ficha.inventario?.itens.find(x=>x.id===itemContexto);if(!item)return;
+  if(operacao==='excluir')return excluirItemMestre(a,item);
   if(operacao==='oferecer-troca')return oferecerItemNaTroca(item,false);
   if(operacao==='oferecer-po-troca')return oferecerItemNaTroca(item,true);
   const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
@@ -317,6 +318,16 @@ async function alterarItem(operacao,slot){
     await enviar('vender',{lojaId:loja.id,itemId:itemContexto,quantidade:Number(slot)||1,confirmado});
   }else await enviar('inventario',{operacao,itemId:itemContexto,slot,confirmado});
   itemContexto=null;itemContextoSlot=null;$('itemMenu').close();aviso(operacao==='usar'?'Consumível usado.':'Equipamento atualizado.');
+}
+async function excluirItemMestre(ator,item){
+  if(info.role!=='GM'||testar)throw Error('Somente o mestre pode excluir itens.');
+  const rev=s.rev,quantidade=Number(item.quantidade).toLocaleString('pt-BR',{maximumFractionDigits:2});
+  itemContexto=null;itemContextoSlot=null;$('itemMenu').close();
+  const descricao=quantidade+'× '+item.nome+' do inventário de '+ator.nome+'. A pilha inteira será removida.';
+  if(!await confirma('Excluir '+item.nome+'?',descricao))return;
+  if(!await confirma('Confirmar exclusão definitiva?',descricao))return;
+  await enviar('gmExcluirItem',{ator:ator.id,itemId:item.id,rev,confirmado:true,confirmacaoFinal:true});
+  aviso(item.nome+' excluído do inventário de '+ator.nome+'.');
 }
 async function abrirLojas(atorId){
   if(s.fase!=='preparo'||!lojasAtivas(s).length)throw Error('Nenhuma loja está aberta.');
@@ -517,7 +528,8 @@ $('app').oncontextmenu=e=>{
      if(i.tipo==='moeda')acoes+='<button type="button" data-item-acao="oferecer-po-troca">Oferecer PO na troca</button>';
      else acoes+='<button type="button" data-item-acao="oferecer-troca">Oferecer na troca</button>';
    }
-   $('itemMenuAcoes').innerHTML=acoes;$('itemMenuCusto').textContent=s.fase==='turnos'?'Durante o combate esta operação gasta 1 ação.':'Fora de combate não há custo de ação.';$('itemMenu').showModal();return;
+   if(gm)acoes+='<button type="button" data-item-acao="excluir" class="perigo">Excluir item</button>';
+   $('itemMenuAcoes').innerHTML=acoes;$('itemMenuCusto').textContent=s.fase==='turnos'?'Equipar, desequipar ou usar consome 1 ação.':'Fora de combate não há custo de ação.';$('itemMenu').showModal();return;
  }
  const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
 $('app').onpointerover=e=>{const alvo=e.target.closest('[data-info]');if(!alvo)return;dicaLivro.textContent=alvo.dataset.info;dicaLivro.hidden=false;const r=alvo.getBoundingClientRect(),w=Math.min(360,innerWidth-16);dicaLivro.style.width=w+'px';const direita=r.right+8,esquerda=r.left-w-8;dicaLivro.style.left=Math.max(8,Math.min(innerWidth-w-8,direita+w<=innerWidth?direita:esquerda))+'px';dicaLivro.style.top=Math.max(8,Math.min(innerHeight-dicaLivro.offsetHeight-8,r.top))+'px';};

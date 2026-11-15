@@ -1308,6 +1308,60 @@ test('mestre adiciona item do catálogo e PO diretamente à ficha',async()=>{
  await assert.rejects(aplicar(s,{tipo:'gmAdicionarPo',ator:a.id,quantidade:1,rev:s.rev},player,dadoLocal),/Somente o mestre/);
  await assert.rejects(aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.moedas-de-ouro',quantidade:1,rev:s.rev},gm,dadoLocal),/use Adicionar PO/);
 });
+test('excluir item é exclusivo do mestre, exige duas confirmações e remove a pilha inteira',async()=>{
+ let s=novo();const a=adicionar(s,nikki);a.dono='p';
+ s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:3,rev:s.rev},gm,dadoLocal);
+ const item=s.atores[0].ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!i.equipado&&i.quantidade===3);
+ const comando={tipo:'gmExcluirItem',ator:a.id,itemId:item.id,rev:s.rev,confirmado:true,confirmacaoFinal:true},antes=structuredClone(s);
+ await assert.rejects(aplicar(s,comando,player,dadoLocal),/Somente o mestre/);
+ await assert.rejects(aplicar(s,{...comando,confirmado:false},gm,dadoLocal),/duas etapas/);
+ await assert.rejects(aplicar(s,{...comando,confirmacaoFinal:false},gm,dadoLocal),/duas etapas/);
+ await assert.rejects(aplicar(s,{...comando,itemId:'inexistente'},gm,dadoLocal),/Item não encontrado/);
+ assert.deepEqual(s,antes);
+ s=await aplicar(s,comando,gm,dadoLocal);
+ assert.equal(s.atores[0].ficha.inventario.itens.some(i=>i.id===item.id),false);
+ assert.deepEqual(s.atores[0].ficha.inventario.itens.map(i=>i.id),antes.atores[0].ficha.inventario.itens.filter(i=>i.id!==item.id).map(i=>i.id));
+ assert.equal(s.atores[0].acao,antes.atores[0].acao);
+ assert.match(s.historico[0],/Mestre excluiu 3× Adaga/);
+ await assert.rejects(aplicar(s,comando,gm,dadoLocal),/O encontro mudou/);
+ const reaberto=reabrirMesa(s);
+ assert.equal(reaberto.atores[0].ficha.inventario.itens.some(i=>i.id===item.id),false);
+});
+test('excluir equipamento recalcula CA e remove ações e recursos concedidos sem gastar ação',async()=>{
+ let s=novo();const a=adicionar(s,fichasJogadores.find(f=>f.id==='draven-thorne'));
+ for(const ref of ['item.escudo','item.la-arte.botas-escapistas-mais-2']){
+   s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:ref,quantidade:1,rev:s.rev},gm,dadoLocal);
+   const item=s.atores[0].ficha.inventario.itens.find(i=>i.catalogoRef===ref);
+   s=await aplicar(s,{tipo:'inventario',ator:a.id,operacao:'equipar',itemId:item.id,rev:s.rev,confirmado:true},gm,dadoLocal);
+ }
+ const escudo=s.atores[0].ficha.inventario.itens.find(i=>i.catalogoRef==='item.escudo');
+ const botas=s.atores[0].ficha.inventario.itens.find(i=>i.catalogoRef==='item.la-arte.botas-escapistas-mais-2');
+ const caComEscudo=caAtual(s.atores[0]);
+ assert.ok(s.atores[0].ficha.recursos.some(r=>r.concedidoPorItem===botas.id));
+ s.fase='turnos';s.rodada=1;s.ordem=[a.id];s.vez=0;s.atores[0].acao=0;
+ for(const item of [escudo,botas])s=await aplicar(s,{tipo:'gmExcluirItem',ator:a.id,itemId:item.id,rev:s.rev,confirmado:true,confirmacaoFinal:true},gm,dadoLocal);
+ assert.equal(caAtual(s.atores[0]),caComEscudo-2);
+ assert.equal(s.atores[0].ficha.opcoes.some(o=>o.concedidaPorItem===botas.id),false);
+ assert.equal(s.atores[0].ficha.recursos.some(r=>r.concedidoPorItem===botas.id),false);
+ assert.equal(Object.keys(s.atores[0].rec).some(id=>id.startsWith('item-'+botas.id+'-')),false);
+ assert.equal(s.atores[0].acao,0);
+});
+test('excluir item oferecido ou PO reinicia as confirmações de uma troca pendente',async()=>{
+ let s=novo();const a=adicionar(s,nikki),b=adicionar(s,soldado);
+ const item=a.ficha.inventario.itens.find(i=>!i.equipado&&i.tipo!=='moeda'),moeda=a.ficha.inventario.itens.find(i=>i.tipo==='moeda');
+ const id='troca-exclusao';
+ const criarTroca=(itens,poPc)=>({id,status:'final',solicitante:a.id,destinatario:b.id,ofertas:{[a.id]:{itens,poPc},[b.id]:{itens:[],poPc:0}},confirmacaoItens:{[a.id]:true,[b.id]:true},confirmacaoFinal:{[a.id]:true,[b.id]:false}});
+ s.comercio.trocas=[criarTroca([{itemId:item.id,quantidade:1}],0)];
+ s=await aplicar(s,{tipo:'gmExcluirItem',ator:a.id,itemId:item.id,rev:s.rev,confirmado:true,confirmacaoFinal:true},gm,dadoLocal);
+ let troca=trocaDoAtor(s,a.id);
+ assert.equal(troca.status,'ofertas');assert.deepEqual(troca.ofertas[a.id].itens,[]);
+ assert.ok(Object.values(troca.confirmacaoItens).every(x=>x===false));
+ assert.ok(Object.values(troca.confirmacaoFinal).every(x=>x===false));
+ s.comercio.trocas=[criarTroca([],saldoMoedasPc(s.atores[0]))];
+ s=await aplicar(s,{tipo:'gmExcluirItem',ator:a.id,itemId:moeda.id,rev:s.rev,confirmado:true,confirmacaoFinal:true},gm,dadoLocal);
+ troca=trocaDoAtor(s,a.id);
+ assert.equal(saldoMoedasPc(s.atores[0]),0);assert.equal(troca.ofertas[a.id].poPc,0);assert.equal(troca.status,'ofertas');
+});
 test('troca entre jogadores exige aceite, duas confirmações e transfere itens e PO atomicamente',async()=>{
  let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';a.ficha.inventario.capacidadeCargaKg=999;b.ficha.inventario.capacidadeCargaKg=999;
  s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:3,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];
