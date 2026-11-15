@@ -76,7 +76,7 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 ### Ordem prática atualizada
 
 1. Fechar **M01–M04**, pois eles transformam várias exceções já existentes em contratos reutilizáveis.
-2. Implementar **M14** cedo, para que regras narrativas deixem de ser cartas soltas enquanto os módulos físicos são construídos.
+2. Usar registro e custo para efeitos de interpretação. Manter o **M14** como melhoria de fluxo opcional.
 3. Implementar **M05–M07**, que são os maiores bloqueadores absolutos de magias e características.
 4. Completar **M08–M13**, priorizando M11 e M13 por ainda estarem ausentes.
 5. Finalizar **M15–M16** e então converter as definições restantes do catálogo.
@@ -188,7 +188,7 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 
 ## Critério para declarar o nível 3 concluído
 
-- As 320 entradas têm definição central ou pedido estruturado de adjudicação.
+- As 320 entradas têm definição central ou tratamento registrado. Para interpretação, registro e custo aplicável bastam conforme o [padrão da mesa](../HABILIDADES-DE-INTERPRETACAO.md).
 - Nenhuma regra depende de texto duplicado nas fichas.
 - Cada módulo possui testes unitários, de interação e ao menos um smoke test visual.
 - As sete fichas atuais completam seus turnos padrão, combinações principais e descansos sem intervenção no estado interno.

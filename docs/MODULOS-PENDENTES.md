@@ -28,7 +28,7 @@ As quatro issues permanecem abertas; a existência de testes próximos não comp
 | M11 — Efeitos em equipamentos | Sem módulo geral | Encantamento temporário ligado à instância de arma/armadura, acompanhando troca e portador | [#50](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/50) |
 | M12 — Agendador | Parcial | Fila persistida, genérica e cancelável de dano, cura, testes e efeitos futuros | [#51](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/51) |
 | M13 — Dados estendidos | Sem módulo geral | Dados explosivos e transformações recursivas com limites de segurança | [#52](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/52) |
-| M14 — Adjudicação estruturada | Sem módulo geral | Pedido ao mestre com contexto, escolhas, aprovar/alterar/negar, consequência e auditoria | [#53](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/53) |
+| M14 — Adjudicação estruturada | Melhoria de fluxo | Pedido ao mestre com contexto e auditoria. Opcional para efeitos de interpretação nas quatro etapas. | [#53](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/53) |
 | M15 — Escalonamento | Parcial | Tabela única por nível total, classe e círculo para dados, alvos, área, duração e recursos | [#54](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/54) |
 | M16 — Reservas de cura/recursos | Parcial | Distribuição interativa, teto por alvo e confirmação de consumo parcial | [#55](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/55) |
 
@@ -41,25 +41,25 @@ As quatro issues permanecem abertas; a existência de testes próximos não comp
 
 ## Dependências das sete fichas
 
-Esta matriz conserva os bloqueios declarados nas issues de fechamento; não transforma um fluxo validado em garantia de todas as combinações.
+Esta matriz lista os bloqueios mecânicos. Habilidades de interpretação são verificadas pelo registro e custo, sem dependência do M14.
 
 | Ficha | Módulos apontados para o fechamento | Issue |
 |---|---|---|
-| Dragoberto | M02, M03, M14 | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
+| Dragoberto | M02, M03 | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
 | Draven Thorne | M03, M04 | [#57](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/57) |
-| Hannah Montana | M03, M14 | [#58](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/58) |
+| Hannah Montana | Revisar Ilusão Menor pelo novo padrão | [#58](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/58) |
 | Loteria | M03, M04 | [#59](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/59) |
-| Nikki Lauda | M02, M03, M04, M09, M13, M14 | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
-| Skimi | M03, M06, M07, M10, M14 | [#61](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/61) |
-| Zurich | M02, M05, M14; revisar M04 pela #65 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |
+| Nikki Lauda | M01 (Taumaturgia), M02, M03, M04, M09, M13 | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
+| Skimi | M01 (Disfarçar-se e Taumaturgia), M03, M06, M10 | [#61](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/61) |
+| Zurich | M02, M05; revisar M04 pela #65 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |
 
-M01 e correções sistêmicas de turno/movimento também podem afetar todas as fichas. Os demais módulos continuam necessários para o escopo completo de nível 3, mesmo sem bloqueio nominal nesta seleção de sete personagens.
+M01 e correções sistêmicas de turno/movimento também podem afetar todas as fichas. Priorize os demais módulos conforme os efeitos mecânicos do escopo de nível 3.
 
 ## Ordem sugerida de retomada
 
 1. Resolver #4, #63, #64 e #65 antes de declarar estáveis os fluxos envolvidos.
 2. Retomar M04 no ponto de reservas/custos condicionais; integrar M01–M03 e testar Loteria, Draven, Zurich e Nikki.
-3. M14 para formalizar o uso assistido; M05–M07 para zonas, familiares e transformações.
+3. M05–M07 para zonas, familiares e transformações. M14 passa a ser uma melhoria de fluxo para as habilidades [classificadas como interpretação](HABILIDADES-DE-INTERPRETACAO.md).
 4. Completar M08–M13 e M15–M16 conforme as dependências do catálogo; remapear e testar a etapa de nível 3 antes de encerrá-la.
 
 O M04 permanece pausado pela instrução anterior; este registro organiza a retomada e não autoriza desenvolvimento adicional por si só.

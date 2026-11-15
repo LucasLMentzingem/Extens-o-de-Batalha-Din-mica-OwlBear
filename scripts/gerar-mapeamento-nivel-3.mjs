@@ -8,7 +8,7 @@ const destino=resolve(raiz,'docs/mapeamento-nivel-3');
 const catalogo=JSON.parse(await readFile(fonte,'utf8'));
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const contem=(s,...termos)=>termos.some(t=>normal(s).includes(normal(t)));
-const versao='0.8.11';
+const versao='0.8.13';
 
 const MODULOS_PLANEJADOS=Object.freeze({
   'M01-ciclo-efeitos':{prioridade:1,estado:'PARCIAL',nome:'Ciclo de vida declarativo de efeitos',escopo:'Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término.',entregue:'Durações por início/fim de turno, concentração, descanso, condições e salvaguardas repetidas.',falta:'Empilhamento declarativo, eventos arbitrários e remoções compostas persistidas.'},
@@ -73,7 +73,24 @@ function modulosExistentes(item){
   if(m==='passiva_ficha')mods.push('atributos_pericias_sentidos');
   mods.push('limite_alcance_18m');return [...new Set(mods)];
 }
+const interpretativasAprovadas=new Set([
+  'detect magic','detect thoughts','druidcraft','knock','message','speak with animals','telepathic speech',
+  'detectar magia','detectar pensamentos','arte druidica','arrombar','mensagem','falar com animais','fala telepatica'
+]);
 function avaliar(item){
+  const nomeNormal=normal(item.nome);
+  if(interpretativasAprovadas.has(nomeNormal))return {
+    status_portabilidade:'INTERPRETACAO',modulos_existentes:['registro_e_custo'],
+    lacuna_atual:'Validar registro e custo aplicável. O efeito é resolvido na mesa.'
+  };
+  if(['disguise self','disfarcar-se'].includes(nomeNormal))return {
+    status_portabilidade:'PARCIAL',modulos_existentes:modulosExistentes(item),
+    lacuna_atual:'Efeito interpretativo. Falta aplicar e expirar o marcador visual Disfarçado.'
+  };
+  if(['thaumaturgy','taumaturgia'].includes(nomeNormal))return {
+    status_portabilidade:'PARCIAL',modulos_existentes:modulosExistentes(item),
+    lacuna_atual:'Voz Amplificada deve dar vantagem em Intimidação por 1 minuto. As demais opções são interpretativas.'
+  };
   const nome=item.nome,modelo=item.modelo_extensao,forma=normal(item.formas),texto=normal([item.especial,item.lacuna_principal].join(' '));
   let status='PARCIAL',lacuna='A interação principal cabe nos módulos atuais, mas requer configuração e teste específico.';
   if(portaveis.has(nome)){status='PORTAVEL';lacuna='Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.';}
@@ -98,7 +115,8 @@ function avaliar(item){
 }
 
 function modulosNecessarios(item,status){
-  if(status==='PORTAVEL')return [];
+  if(status==='PORTAVEL'||status==='INTERPRETACAO')return [];
+  if(['disguise self','disfarcar-se','thaumaturgy','taumaturgia'].includes(normal(item.nome)))return ['M01-ciclo-efeitos'];
   const texto=normal([item.nome,item.modelo_extensao,item.lacuna_principal,item.especial,item.formas].join(' ')),mods=new Set();
   const add=id=>mods.add(id);
   if(contem(texto,'concentracao','concentração','termino do efeito','término do efeito','condicao oficial','condição oficial','remocao','remoção','duracao'))add('M01-ciclo-efeitos');
@@ -114,7 +132,7 @@ function modulosNecessarios(item,status){
   if(contem(texto,'vincular o buff a uma arma','magic weapon','shillelagh','flame blade'))add('M11-vinculo-equipamento');
   if(contem(texto,'agendar','fim do proximo turno','fim do próximo turno','dano acido','dano ácido','inicio do turno','início do turno'))add('M12-agendador');
   if(contem(texto,'dados explosivos'))add('M13-dados-estendidos');
-  if(contem(texto,'conferido pela mesa','resolucao narrativa','resolução narrativa','consequencia nao numerica','consequência não numérica')||item.modelo_extensao==='assistido')add('M14-adjudicacao-estruturada');
+  const candidatoInterpretativo=contem(texto,'conferido pela mesa','resolucao narrativa','consequencia nao numerica')||item.modelo_extensao==='assistido';
   if(contem(texto,'escalonamento','revisar area','revisar área','por nivel','por nível','por circulo','por círculo'))add('M15-escalonamento-variantes');
   if(contem(texto,'cura/pv temporario','cura/pv temporário','controlar o limite','saldo e recuperacao','saldo e recuperação','preserve life','lay on hands'))add('M16-limites-cura-recursos');
   if(item.modelo_extensao==='invocacao'&&!mods.has('M06-entidades-vinculadas'))add('M06-entidades-vinculadas');
@@ -125,7 +143,7 @@ function modulosNecessarios(item,status){
   // A Gaveta de Composição já resolve a escolha do tipo da Explosão Elemental.
   // Os dados explosivos do truque ainda dependem dos módulos M09 e M13.
   if(item.nome==='Sorcerous Burst')mods.delete('M03-escolhas-declarativas');
-  if(!mods.size)add(status==='ASSISTIDO'?'M14-adjudicacao-estruturada':'M01-ciclo-efeitos');
+  if(!mods.size&&status!=='ASSISTIDO'&&!candidatoInterpretativo)add('M01-ciclo-efeitos');
   return [...mods].sort((a,b)=>MODULOS_PLANEJADOS[a].prioridade-MODULOS_PLANEJADOS[b].prioridade||a.localeCompare(b));
 }
 
@@ -134,7 +152,7 @@ const itens=catalogo.itens.filter(item=>item.categoria==='magia'?Number(item.cir
 const contagem=campo=>Object.fromEntries([...new Set(itens.map(x=>x[campo]))].sort().map(valor=>[valor,itens.filter(x=>x[campo]===valor).length]));
 const porModulo=Object.fromEntries(Object.keys(MODULOS_PLANEJADOS).map(id=>[id,itens.filter(x=>x.modulos_necessarios.includes(id)).length]));
 const porEstadoModulo=Object.fromEntries(['PARCIAL','AUSENTE'].map(estado=>[estado,Object.values(MODULOS_PLANEJADOS).filter(x=>x.estado===estado).length]));
-const saida={versao,escopo:'SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3',fonte:'https://www.dndbeyond.com/srd',geradoEm:'2026-11-15',criterios:{PORTAVEL:'O motor atual possui os módulos fundamentais; requer cadastro/teste da definição.',PARCIAL:'O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.',ASSISTIDO:'Pode ser registrado e ter custo, mas a consequência é decidida pelo mestre.',NOVO_MODULO:'Falta uma capacidade reutilizável essencial.'},modulosPlanejados:MODULOS_PLANEJADOS,resumo:{total:itens.length,porOrigemSistema:contagem('origem_sistema'),porCategoria:contagem('categoria'),porPortabilidade:contagem('status_portabilidade'),porEstadoModulo,porModulo},itens};
+const saida={versao,escopo:'SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3',fonte:'https://www.dndbeyond.com/srd',geradoEm:'2026-11-15',criterios:{PORTAVEL:'O motor atual possui os módulos fundamentais; requer cadastro/teste da definição.',PARCIAL:'O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.',ASSISTIDO:'Fluxo assistido sujeito a revisão de escopo.',INTERPRETACAO:'Efeito resolvido na mesa, com registro e custo aplicável.',NOVO_MODULO:'Falta uma capacidade reutilizável essencial.'},modulosPlanejados:MODULOS_PLANEJADOS,resumo:{total:itens.length,porOrigemSistema:contagem('origem_sistema'),porCategoria:contagem('categoria'),porPortabilidade:contagem('status_portabilidade'),porEstadoModulo,porModulo},itens};
 await mkdir(destino,{recursive:true});await writeFile(resolve(destino,'catalogo-nivel-3.json'),JSON.stringify(saida,null,2)+'\n');
 const campos=['id','nome','origem_sistema','categoria','origem','nivel_minimo','circulo','ativacao','custo','recurso','alcance','alvo','formas','rolagem','dano_cura','tipos_dano','buff_debuff','duracao','concentracao','gatilho','status_portabilidade','modelo_extensao','modulos_existentes','modulos_necessarios','lacuna_atual','fonte_secao'];
 const csv=v=>'"'+String(v??'').replaceAll('"','""')+'"';

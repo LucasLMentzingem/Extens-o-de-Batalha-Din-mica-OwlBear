@@ -24,12 +24,14 @@ Conclui o escopo original do protótipo: fichas e interações de personagens at
 
 ## Critério de conclusão de cada etapa
 
+Aplique o [padrão de habilidades de interpretação](docs/HABILIDADES-DE-INTERPRETACAO.md) em todas as etapas. Uma habilidade classificada como interpretação conta como coberta quando a ficha apresenta a regra e registra o uso com o custo aplicável. A adjudicação estruturada do M14 é uma melhoria de fluxo e não bloqueia esses casos.
+
 Uma etapa só termina quando:
 
 1. todas as opções do escopo estiverem inventariadas e classificadas;
 2. as definições reutilizáveis estiverem no catálogo central, sem cópias desnecessárias nas fichas;
 3. cada opção automatizável tiver testes de regra, custo, recurso, alvo e interação relevante;
-4. opções ainda assistidas estiverem explicitamente documentadas, sem parecer automação completa;
+4. opções de interpretação estiverem documentadas e testadas quanto ao registro e custo, e lacunas de automação mecânica estiverem identificadas como pendências;
 5. as sete fichas de referência carregarem e funcionarem após a migração;
 6. inventário, equipamentos, descansos, reações e concentração tiverem regressões compatíveis;
 7. lacunas e decisões restantes estiverem registradas em issues.

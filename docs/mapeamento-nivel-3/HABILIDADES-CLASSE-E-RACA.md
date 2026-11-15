@@ -13,7 +13,7 @@ Total: **31**.
 | Breath Weapon | traço_espécie | 1 | PORTAVEL | — |
 | Damage Resistance | traço_espécie | 1 | PORTAVEL | — |
 | Darkvision | traço_espécie | 1 | PORTAVEL | — |
-| Draconic Ancestry | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Draconic Ancestry | traço_espécie | 1 | ASSISTIDO | — |
 
 ### Dwarf
 
@@ -22,7 +22,7 @@ Total: **31**.
 | Darkvision | traço_espécie | 1 | PORTAVEL | — |
 | Dwarven Resilience | traço_espécie | 1 | PORTAVEL | — |
 | Dwarven Toughness | traço_espécie | 1 | PORTAVEL | — |
-| Stonecunning | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Stonecunning | traço_espécie | 1 | ASSISTIDO | — |
 
 ### Elf
 
@@ -32,7 +32,7 @@ Total: **31**.
 | Elven Lineage | traço_espécie | 1 | PORTAVEL | — |
 | Fey Ancestry | traço_espécie | 1 | PORTAVEL | — |
 | Keen Senses | traço_espécie | 1 | PORTAVEL | — |
-| Trance | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Trance | traço_espécie | 1 | ASSISTIDO | — |
 
 ### Gnome
 
@@ -40,23 +40,23 @@ Total: **31**.
 |---|---|---:|---|---|
 | Darkvision | traço_espécie | 1 | PORTAVEL | — |
 | Gnomish Cunning | traço_espécie | 1 | PORTAVEL | — |
-| Gnomish Lineage | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Gnomish Lineage | traço_espécie | 1 | ASSISTIDO | — |
 
 ### Goliath
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
 | Giant Ancestry | traço_espécie | 1 | PORTAVEL | — |
-| Powerful Build | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Powerful Build | traço_espécie | 1 | ASSISTIDO | — |
 
 ### Halfling
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
 | Brave | traço_espécie | 1 | PORTAVEL | — |
-| Halfling Nimbleness | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Halfling Nimbleness | traço_espécie | 1 | ASSISTIDO | — |
 | Luck | traço_espécie | 1 | PORTAVEL | — |
-| Naturally Stealthy | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Naturally Stealthy | traço_espécie | 1 | ASSISTIDO | — |
 
 ### Human
 
@@ -80,7 +80,7 @@ Total: **31**.
 |---|---|---:|---|---|
 | Darkvision | traço_espécie | 1 | PORTAVEL | — |
 | Fiendish Legacy | traço_espécie | 1 | PORTAVEL | — |
-| Otherworldly Presence | traço_espécie | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Otherworldly Presence | traço_espécie | 1 | ASSISTIDO | — |
 
 ## Classes
 
@@ -96,7 +96,7 @@ Total: **124**.
 | Danger Sense | habilidade_classe | 2 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |
 | Reckless Attack | habilidade_classe | 2 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |
 | Barbarian Subclass | habilidade_classe | 3 | PORTAVEL | — |
-| Primal Knowledge | habilidade_classe | 3 | PARCIAL | M03-escolhas-declarativas, M14-adjudicacao-estruturada |
+| Primal Knowledge | habilidade_classe | 3 | PARCIAL | M03-escolhas-declarativas |
 
 ### Barbarian — Path of the Berserker
 
@@ -125,7 +125,7 @@ Total: **124**.
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
-| Divine Order | habilidade_classe | 1 | ASSISTIDO | M03-escolhas-declarativas, M14-adjudicacao-estruturada |
+| Divine Order | habilidade_classe | 1 | ASSISTIDO | M03-escolhas-declarativas |
 | Spellcasting | habilidade_classe | 1 | PORTAVEL | — |
 | Channel Divinity | habilidade_classe | 2 | PARCIAL | M03-escolhas-declarativas, M16-limites-cura-recursos |
 | Cleric Subclass | habilidade_classe | 3 | PORTAVEL | — |
@@ -142,8 +142,8 @@ Total: **124**.
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
-| Druidic | habilidade_classe | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Primal Order | habilidade_classe | 1 | ASSISTIDO | M03-escolhas-declarativas, M14-adjudicacao-estruturada |
+| Druidic | habilidade_classe | 1 | ASSISTIDO | — |
+| Primal Order | habilidade_classe | 1 | ASSISTIDO | M03-escolhas-declarativas |
 | Spellcasting | habilidade_classe | 1 | PORTAVEL | — |
 | Wild Companion | habilidade_classe | 2 | NOVO_MODULO | M06-entidades-vinculadas, M07-sobreposicao-ficha |
 | Wild Shape | habilidade_classe | 2 | PARCIAL | M07-sobreposicao-ficha, M16-limites-cura-recursos |
@@ -164,7 +164,7 @@ Total: **124**.
 | Second Wind | habilidade_classe | 1 | PORTAVEL | — |
 | Weapon Mastery | habilidade_classe | 1 | PARCIAL | M03-escolhas-declarativas, M04-compositor-acoes |
 | Action Surge | habilidade_classe | 2 | PORTAVEL | — |
-| Tactical Mind | habilidade_classe | 2 | PARCIAL | M14-adjudicacao-estruturada |
+| Tactical Mind | habilidade_classe | 2 | PARCIAL | — |
 | Fighter Subclass | habilidade_classe | 3 | PORTAVEL | — |
 
 ### Fighter — Champion
@@ -172,7 +172,7 @@ Total: **124**.
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
 | Improved Critical | habilidade_subclasse | 3 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |
-| Remarkable Athlete | habilidade_subclasse | 3 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Remarkable Athlete | habilidade_subclasse | 3 | ASSISTIDO | — |
 
 ### Monk
 
@@ -226,7 +226,7 @@ Total: **124**.
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
-| Hunter’s Lore | habilidade_subclasse | 3 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Hunter’s Lore | habilidade_subclasse | 3 | ASSISTIDO | — |
 | Hunter’s Prey | habilidade_subclasse | 3 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |
 
 ### Rogue
@@ -235,7 +235,7 @@ Total: **124**.
 |---|---|---:|---|---|
 | Expertise | habilidade_classe | 1 | PORTAVEL | — |
 | Sneak Attack | habilidade_classe | 1 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |
-| Thieves’ Cant | habilidade_classe | 1 | ASSISTIDO | M03-escolhas-declarativas, M14-adjudicacao-estruturada |
+| Thieves’ Cant | habilidade_classe | 1 | ASSISTIDO | M03-escolhas-declarativas |
 | Weapon Mastery | habilidade_classe | 1 | PARCIAL | M03-escolhas-declarativas, M04-compositor-acoes |
 | Cunning Action | habilidade_classe | 2 | PORTAVEL | — |
 | Rogue Subclass | habilidade_classe | 3 | PORTAVEL | — |
@@ -245,8 +245,8 @@ Total: **124**.
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
-| Fast Hands | habilidade_subclasse | 3 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Second-Story Work | habilidade_subclasse | 3 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Fast Hands | habilidade_subclasse | 3 | ASSISTIDO | — |
+| Second-Story Work | habilidade_subclasse | 3 | ASSISTIDO | — |
 
 ### Sorcerer
 
@@ -254,18 +254,18 @@ Total: **124**.
 |---|---|---:|---|---|
 | Innate Sorcery | habilidade_classe | 1 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |
 | Spellcasting | habilidade_classe | 1 | PORTAVEL | — |
-| Careful Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Distant Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Careful Spell | metamagia | 2 | ASSISTIDO | — |
+| Distant Spell | metamagia | 2 | ASSISTIDO | — |
 | Empowered Spell | metamagia | 2 | PORTAVEL | — |
-| Extended Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Extended Spell | metamagia | 2 | ASSISTIDO | — |
 | Font of Magic | habilidade_classe | 2 | PORTAVEL | — |
-| Heightened Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Heightened Spell | metamagia | 2 | ASSISTIDO | — |
 | Metamagic | habilidade_classe | 2 | PARCIAL | M03-escolhas-declarativas, M04-compositor-acoes |
-| Quickened Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Seeking Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Subtle Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Transmuted Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Twinned Spell | metamagia | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Quickened Spell | metamagia | 2 | ASSISTIDO | — |
+| Seeking Spell | metamagia | 2 | ASSISTIDO | — |
+| Subtle Spell | metamagia | 2 | ASSISTIDO | — |
+| Transmuted Spell | metamagia | 2 | ASSISTIDO | — |
+| Twinned Spell | metamagia | 2 | ASSISTIDO | — |
 | Sorcerer Subclass | habilidade_classe | 3 | PORTAVEL | — |
 
 ### Sorcerer — Draconic Sorcery
@@ -281,20 +281,20 @@ Total: **124**.
 |---|---|---:|---|---|
 | Armor of Shadows | invocação | 1 | PORTAVEL | — |
 | Eldritch Invocations | habilidade_classe | 1 | PARCIAL | M03-escolhas-declarativas, M04-compositor-acoes |
-| Eldritch Mind | invocação | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Eldritch Mind | invocação | 1 | ASSISTIDO | — |
 | Pact Magic | habilidade_classe | 1 | PORTAVEL | — |
-| Pact of the Blade | invocação | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Pact of the Chain | invocação | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Pact of the Tome | invocação | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Agonizing Blast | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Devil’s Sight | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Eldritch Spear | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Pact of the Blade | invocação | 1 | ASSISTIDO | — |
+| Pact of the Chain | invocação | 1 | ASSISTIDO | — |
+| Pact of the Tome | invocação | 1 | ASSISTIDO | — |
+| Agonizing Blast | invocação | 2 | ASSISTIDO | — |
+| Devil’s Sight | invocação | 2 | ASSISTIDO | — |
+| Eldritch Spear | invocação | 2 | ASSISTIDO | — |
 | Fiendish Vigor | invocação | 2 | PORTAVEL | — |
-| Lessons of the First Ones | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Lessons of the First Ones | invocação | 2 | ASSISTIDO | — |
 | Magical Cunning | habilidade_classe | 2 | PORTAVEL | — |
-| Mask of Many Faces | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Misty Visions | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Otherworldly Leap | invocação | 2 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Mask of Many Faces | invocação | 2 | ASSISTIDO | — |
+| Misty Visions | invocação | 2 | ASSISTIDO | — |
+| Otherworldly Leap | invocação | 2 | ASSISTIDO | — |
 | Repelling Blast | invocação | 2 | PORTAVEL | — |
 | Warlock Subclass | habilidade_classe | 3 | PORTAVEL | — |
 
@@ -309,28 +309,28 @@ Total: **124**.
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
-| Cleave | maestria_arma | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Cleave | maestria_arma | 1 | ASSISTIDO | — |
 | Graze | maestria_arma | 1 | PORTAVEL | — |
 | Nick | maestria_arma | 1 | PORTAVEL | — |
-| Push | maestria_arma | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Sap | maestria_arma | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Push | maestria_arma | 1 | ASSISTIDO | — |
+| Sap | maestria_arma | 1 | ASSISTIDO | — |
 | Slow | maestria_arma | 1 | PORTAVEL | — |
-| Topple | maestria_arma | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
-| Vex | maestria_arma | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Topple | maestria_arma | 1 | ASSISTIDO | — |
+| Vex | maestria_arma | 1 | ASSISTIDO | — |
 
 ### Wizard
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
 | Arcane Recovery | habilidade_classe | 1 | PORTAVEL | — |
-| Ritual Adept | habilidade_classe | 1 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Ritual Adept | habilidade_classe | 1 | ASSISTIDO | — |
 | Spellcasting | habilidade_classe | 1 | PORTAVEL | — |
-| Scholar | habilidade_classe | 2 | ASSISTIDO | M03-escolhas-declarativas, M14-adjudicacao-estruturada |
+| Scholar | habilidade_classe | 2 | ASSISTIDO | M03-escolhas-declarativas |
 | Wizard Subclass | habilidade_classe | 3 | PORTAVEL | — |
 
 ### Wizard — Evoker
 
 | Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |
 |---|---|---:|---|---|
-| Evocation Savant | habilidade_subclasse | 3 | ASSISTIDO | M14-adjudicacao-estruturada |
+| Evocation Savant | habilidade_subclasse | 3 | ASSISTIDO | — |
 | Potent Cantrip | habilidade_subclasse | 3 | PARCIAL | M02-gatilhos-interceptacoes, M03-escolhas-declarativas |

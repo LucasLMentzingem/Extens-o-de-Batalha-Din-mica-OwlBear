@@ -35,9 +35,10 @@ As **124 habilidades de classe** incluem habilidades de classe e subclasse, invo
 | Estado | Quantidade | Significado |
 |---|---:|---|
 | `PORTAVEL` | 128 | Os módulos fundamentais existem; ainda pode faltar cadastrar e testar a definição. |
-| `PARCIAL` | 91 | O fluxo principal funciona, mas alguma escolha, consequência ou regra secundária ainda é manual. |
-| `ASSISTIDO` | 85 | A ficha pode apresentar e gastar a opção, mas o mestre resolve sua consequência. |
-| `NOVO_MODULO` | 16 | Falta uma capacidade reutilizável essencial no motor. |
+| `PARCIAL` | 89 | Falta cobrir uma escolha, consequência ou regra secundária. |
+| `ASSISTIDO` | 82 | Fluxos assistidos ainda sujeitos a revisão de escopo. |
+| `INTERPRETACAO` | 6 | Resolução na mesa aprovada, com registro e custo aplicável. |
+| `NOVO_MODULO` | 15 | Falta uma capacidade reutilizável essencial no motor. |
 
 “Portável” não significa “já disponível em todas as fichas”. Uma opção só é considerada concluída na etapa quando tiver definição central, validação do esquema, testes de interação e, quando aplicável, interface utilizável.
 
@@ -78,14 +79,14 @@ A Forma Grande do Golias e o Voo Dracônico do Draconato começam no nível 5 e,
 
 ## Novos módulos necessários
 
-As 16 entradas classificadas como `NOVO_MODULO` apontam para capacidades ausentes, mas a arquitetura também classifica as lacunas das opções `PARCIAL` e `ASSISTIDO`. Cada entrada do JSON e CSV contém agora `modulos_necessarios`.
+As 15 entradas em `NOVO_MODULO` apontam para capacidades ausentes. As entradas em `INTERPRETACAO` ficam sem dependências de módulos. Casos ainda assistidos podem ser revisados pelo [padrão da mesa](../HABILIDADES-DE-INTERPRETACAO.md). O M14 é uma melhoria de fluxo opcional.
 
 - **Entidades vinculadas, familiares e servos:** Find Familiar, Find Steed, Unseen Servant e Wild Companion.
 - **Zonas, emanações e objetos persistentes:** Alarm, Create or Destroy Water, Find Traps, Floating Disk, Moonbeam, Rope Trick, Spiritual Weapon e Web.
 - **Transformação temporária de ficha:** Alter Self.
-- **Ilusões e manifestações ambientais declarativas:** Druidcraft, Elementalism e Mirror Image.
+- **Ilusões e manifestações ambientais declarativas:** Elementalism e Mirror Image.
 
-Foram definidos 16 módulos genéricos, ordenados por dependência. A reavaliação da 0.8.13 encontrou **10 módulos parcialmente implementados** e **6 ainda ausentes**. Nenhum dos 16 pode ser retirado do plano: os parciais ainda possuem ao menos uma regra de nível 3 que excede sua cobertura atual. A especificação, contratos, critérios de aceite e decisões pendentes estão em [Pré-arquitetura dos módulos](PRE-ARQUITETURA-MODULOS.md). A contagem por módulo está em [modulos-nivel-3.json](modulos-nivel-3.json).
+Foram definidos 16 módulos. A revisão da 0.8.13 encontrou 10 parciais e 6 ausentes. O acompanhamento de prioridade está em [Módulos pendentes](../MODULOS-PENDENTES.md) e a contagem por módulo em [modulos-nivel-3.json](modulos-nivel-3.json).
 
 | Estado | Módulos |
 |---|---|

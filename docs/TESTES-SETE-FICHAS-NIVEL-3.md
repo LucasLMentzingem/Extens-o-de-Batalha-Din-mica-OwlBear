@@ -2,6 +2,8 @@
 
 Estado na versão 0.8.10: testes em andamento. Este documento separa o que já foi comprovado pelo motor do que ainda depende dos módulos propostos para a cobertura completa do nível 3.
 
+A [classificação aprovada de habilidades de interpretação](HABILIDADES-DE-INTERPRETACAO.md) define os casos que exigem apenas registro e custo aplicável. A matriz lista lacunas de implementação ou revisão.
+
 ## Base comum já comprovada
 
 - As sete fichas carregam simultaneamente por referências do catálogo central.
@@ -16,19 +18,19 @@ Estado na versão 0.8.10: testes em andamento. Este documento separa o que já f
 |---|---|---|
 | Dragoberto | Cimitarra/arco, Arquearia, Golpe Certeiro com Gaveta de Composição para arma e dano, duas formas de Sopro Dracônico, Marca do Predador, Golpe Constritor e Destruidor de Hordas. | Presa do Caçador ainda é assistida; variantes narrativas dependem de M03/M14. |
 | Draven Thorne | Espada Grande, Surto de Ação, Recuperar Fôlego, Atacante Selvagem, Queimadura de Fogo, Ataque Ameaçador e duração de Caído. | Ataque Prostrador, Desarme e parte da seleção de manobras precisam do compositor M04 e escolhas M03. |
-| Hannah Montana | Adagas/mão fraca, Inspiração de Bardo, Fogo das Fadas, Zombaria Viciosa e Ancestralidade Feérica. | Arrombar, Detectar Magia, Falar com Animais, Arte Druídica e Ilusão Menor exigem adjudicação estruturada M14 ou efeitos declarativos adicionais. |
+| Hannah Montana | Adagas/mão fraca, Inspiração de Bardo, Fogo das Fadas, Zombaria Viciosa e Ancestralidade Feérica. | Revisar Ilusão Menor pelo novo padrão. |
 | Loteria | Lança, Golpe Desarmado, soco bônus, Torrente de Golpes com composição independente dos dois golpes, Mão de Dolo, Mão de Cura, Defletir Ataques, Valentão de Taverna e Metabolismo Aprimorado. | Mão de Dolo fora da Torrente e escolhas situacionais ainda precisam ser consolidadas no compositor M04/M03. |
-| Nikki Lauda | Adagas, Mísseis Mágicos, Explosão Elemental com sete tipos na Gaveta de Composição, Sopro de Dragão, Fonte de Magia, Feitiçaria Inata, Magia Potencializada, Talho Mental, Toque Chocante e Passo Nebuloso gratuito. | Os tipos de Explosão Elemental já são selecionáveis; os dados explosivos ainda dependem de M09/M13. Magia Duplicada, Detectar Pensamentos, Queda Suave, Mãos Mágicas, Taumaturgia e Fala Telepática dependem sobretudo de M02/M03/M14. |
-| Skimi | Adagas, Rajada Mística, Imobilizar Pessoa, Riso Histérico, Invisibilidade, Sussurros Dissonantes, Astúcia Mágica, Ponto de Sorte e Inspiração Heroica. | Familiar exige M06; Força Fantasmagórica, Detectar Pensamentos, Disfarçar-se, Mãos Mágicas, Mensagem, Taumaturgia e Mente Desperta exigem M07/M14 e escolhas. |
-| Zurich | Arco/cimitarra/espada curta, Ágil, Marca do Predador, Lentidão, Emaranhar, Orientação, Saraivada de Espinhos, resistências por alvo e sequência de arma leve. | Assassino de Colossos precisa ser generalizado no barramento M02; Falar com Animais e Arte Druídica permanecem assistidas por M14. |
+| Nikki Lauda | Adagas, Mísseis Mágicos, Explosão Elemental com sete tipos na Gaveta de Composição, Sopro de Dragão, Fonte de Magia, Feitiçaria Inata, Magia Potencializada, Talho Mental, Toque Chocante e Passo Nebuloso gratuito. | Dados explosivos, Magia Duplicada, Queda Suave e buff de Intimidação de Taumaturgia. Revisar Mãos Mágicas pelo novo padrão. |
+| Skimi | Adagas, Rajada Mística, Imobilizar Pessoa, Riso Histérico, Invisibilidade, Sussurros Dissonantes, Astúcia Mágica, Ponto de Sorte e Inspiração Heroica. | Familiar, Força Fantasmagórica, marcador de Disfarçar-se e buff de Intimidação de Taumaturgia. Revisar Mãos Mágicas e Mente Desperta pelo novo padrão. |
+| Zurich | Arco/cimitarra/espada curta, Ágil, Marca do Predador, Lentidão, Emaranhar, Orientação, Saraivada de Espinhos, resistências por alvo e sequência de arma leve. | Assassino de Colossos no M02 e zona persistente de Emaranhar no M05. |
 
 ## Critério de fechamento
 
 Uma ficha será marcada como fechada quando:
 
 1. ataque, magia, recurso, descanso e reação principais tiverem teste automatizado;
-2. todas as suas opções mecânicas forem portáteis ou parciais com módulo identificado;
-3. opções narrativas abrirem um pedido estruturado ao mestre em vez de depender de texto solto;
+2. todas as suas opções mecânicas tiverem a cobertura exigida pelo escopo da ficha;
+3. opções de interpretação aprovadas tiverem registro e custo aplicável verificados, incluindo marcador ou efeito mecânico quando indicado;
 4. um smoke test visual concluir um turno padrão sem erro de console;
 5. compactar, salvar e reabrir a ficha não duplicar definições nem perder estado.
 
