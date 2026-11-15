@@ -3,7 +3,7 @@ import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.30';
 import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.30';
 import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.30';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.30';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.30';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona,raioEfetivoArea} from './zonas.mjs?v=0.8.30';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
 const url=new URL('./hud.html?v=0.8.30',import.meta.url);
@@ -20,7 +20,7 @@ function circulo(centro,raio,cor){
 function poligono(posicao,pontos,cor){return buildCurve().position(posicao).points(pontos).closed(true).fillColor(cor).fillOpacity(.10).strokeColor(cor).strokeWidth(3).layer('CONTROL').locked(true).disableHit(true).build();}
 function marcaArea(rule,origem,ponto,dpi){
   const area=rule?.area??(rule?.raioM?{forma:'circulo',raioM:rule.raioM}:null);if(!area)return [];
-  if(area.forma==='circulo')return [circulo(ponto,area.raioM*dpi,'#79cfb1')];
+  if(area.forma==='circulo')return [circulo(ponto,raioEfetivoArea(area.raioM)*dpi,'#79cfb1')];
   if(area.forma==='quadrado'){const m=area.tamanhoM*dpi/2;return [poligono(ponto,[{x:-m,y:-m},{x:m,y:-m},{x:m,y:m},{x:-m,y:m}],'#79cfb1')];}
   const dx=ponto.x-origem.x,dy=ponto.y-origem.y,n=Math.hypot(dx,dy)||1,ux=dx/n,uy=dy/n,l=area.comprimentoM*dpi,w=(area.larguraM??(area.forma==='cone'?area.comprimentoM:1.5))*dpi/2,fx=ux*l,fy=uy*l,px=-uy*w,py=ux*w;
   return area.forma==='cone'?[poligono(origem,[{x:0,y:0},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py}],'#79cfb1')]:[poligono(origem,[{x:px,y:py},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py},{x:-px,y:-py}],'#79cfb1')];
@@ -39,7 +39,7 @@ function itensZona(z,dpi){
   const cor=z.cor??'#5fae5b',g=z.geometria??{},assinatura=JSON.stringify([z.centro,g,cor,dpi]),meta={[chaveZona]:assinatura};
   const centro={x:z.centro.x*dpi,y:z.centro.y*dpi};
   if(g.forma==='circulo'){
-    const r=g.raioM*dpi,pontos=Array.from({length:80},(_,i)=>({x:r*Math.cos(i*Math.PI/40),y:r*Math.sin(i*Math.PI/40)}));
+    const r=raioEfetivoArea(g.raioM)*dpi,pontos=Array.from({length:80},(_,i)=>({x:r*Math.cos(i*Math.PI/40),y:r*Math.sin(i*Math.PI/40)}));
     return buildCurve().id(chaveZona+'/'+z.id).position(centro).points(pontos).closed(true).fillColor(cor).fillOpacity(.18).strokeColor(cor).strokeWidth(3).strokeDash([12,6])
       .layer('ATTACHMENT').locked(true).disableHit(true).name(z.nome??'Área').metadata(meta).build();
   }

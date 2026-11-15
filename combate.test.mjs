@@ -2273,7 +2273,7 @@ test('M05 geometria: trecho contínuo, travessia completa, primeiro contato e zo
   assert.deepEqual(trechoNaZona(q,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.3,0.7],'começa e termina fora, mas atravessa');
   assert.equal(trechoNaZona(q,{x:0,y:5},{x:10,y:5}),null,'passa ao lado');
   const circ={id:'c',centro:{x:5,y:0},geometria:{forma:'circulo',raioM:1},afetaConjurador:true};
-  assert.deepEqual(trechoNaZona(circ,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.4,0.6]);
+  assert.deepEqual(trechoNaZona(circ,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.45,0.55],'área de 1 m = diâmetro (decisão da mesa)');
   const contato=primeiroContato([circ,q],{x:0,y:0},{x:10,y:0},{id:'outro'});assert.equal(contato.zona.id,q.id);assert.equal(+contato.ponto.x.toFixed(3),3);
   assert.equal(primeiroContato([q],{x:0,y:0},{x:10,y:0},{id:'dono'}),null,'a zona não é hostil para quem conjurou');
   assert.equal(+terrenoDificilDasZonas([q,zonaQuadrada(6,0,4,{id:'z2'})],{x:0,y:0},{x:10,y:0},{id:'outro'}).toFixed(3),5,'sobreposição de 3..8 conta uma vez');
@@ -2528,4 +2528,12 @@ test('fuzz: salvaguarda de entidade invocada vai para o jogador que a controla',
   const sb=s.atores.find(x=>x.id===b.id);sb.ficha=validar(b.ficha);sb.acao=1;
   await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:'grito',alvo:mao.id},gm,async(f,m={})=>{metas.push(m);return /d20/.test(f)?{total:5,natural:5,formula:f}:{total:1,formula:f};});
   assert.equal(metas.find(m=>m.tipo==='salvaguarda').destinoId,'p');
+});
+
+test('decisão da mesa: o valor das áreas circulares é o diâmetro (Despedaçar 3 m = círculo de 3 m de largura)',async()=>{
+  for(const [dx,dentro] of [[0,true],[1.4,true],[1.6,false],[2.9,false]]){
+    let {s,a,b}=await duelo('nikki',undefined,{distancia:6});b.x=6+dx;b.y=0;const pv=b.pv;
+    const desp=opRev(a,'despedacar');s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:desp.id,ponto:{x:6,y:0}},player,roladorSala({salva:2,dano:8}).rolar);
+    assert.equal(s.atores[1].pv<pv,dentro,'alvo a '+dx+' m do centro');
+  }
 });
