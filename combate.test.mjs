@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {controladorAtor,metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
@@ -2516,4 +2516,16 @@ test('critério das sete fichas: salvar, compactar e reabrir não perde estado n
       assert.deepEqual(ids,opcoesDisponiveis(a).map(o=>o.id),a.nome+' mesmas opções após reabrir');
     }
   }
+});
+
+test('fuzz: salvaguarda de entidade invocada vai para o jogador que a controla',async()=>{
+  let {s,a,b}=await duelo('nikki');const maos=opRev(a,'maos magicas');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:maos.id,ponto:{x:3,y:0}},player,roladorSala().rolar);
+  const mao=s.atores.find(x=>x.invocacao);assert.equal(controladorAtor(mao),'p');assert.equal(controladorAtor(s.atores.find(x=>x.ficha.tipo==='npc'&&!x.invocacao)),'GM');
+  // um efeito de salvaguarda contra a mão pede a rolagem ao dono
+  s.vez=s.ordem.indexOf(b.id);const metas=[];
+  b.ficha.opcoes.push({id:'grito',nome:'Grito',categoria:'acao',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'salva',atributo:'sab',cd:12,alcanceM:18,dano:'1d4',elemento:'trovejante'}});
+  const sb=s.atores.find(x=>x.id===b.id);sb.ficha=validar(b.ficha);sb.acao=1;
+  await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:'grito',alvo:mao.id},gm,async(f,m={})=>{metas.push(m);return /d20/.test(f)?{total:5,natural:5,formula:f}:{total:1,formula:f};});
+  assert.equal(metas.find(m=>m.tipo==='salvaguarda').destinoId,'p');
 });
