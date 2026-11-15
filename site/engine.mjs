@@ -1,6 +1,6 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.34';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.34';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.34';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.35';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.35';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.35';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -260,6 +260,7 @@ function corrigirMagiasRevisao(f){
   for(const o of f.opcoes??[]){
     const completo=String(o.nome??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nome=completo.split('|').pop().split('·')[0].trim();
     if(/^preparar\b/.test(completo)){o.custo=[{tipo:'acao',quantidade:1}];delete o.concentracao;} // #27 Preparar usa a Ação; a Reação vem no gatilho
+    if(['imobilizar pessoa','enfeiticar pessoa','acalmar emocoes'].includes(nome)&&o.automacao?.tipo==='salva')o.automacao.tiposCriatura=['humanoide']; // M10 (#49)
     if(['imobilizar pessoa','riso histerico de tasha','riso histerico'].includes(nome)&&o.automacao?.efeitoFalha)o.automacao.efeitoFalha.salvaRepetida={atributo:o.automacao.atributo??'sab',quando:'fim_turno',...(/riso/.test(nome)?{aoSofrerDano:true}:{})}; // #18
     if(nome==='talho mental'&&o.automacao?.efeitoFalha&&!o.automacao.efeitoFalha.expira){o.automacao.efeitoFalha.turnos=2;o.automacao.efeitoFalha.expira='fim_origem';} // #13 até o fim do próximo turno do conjurador
     if(nome==='saraivada de espinhos'&&!o.automacao&&!o.aprimoramento){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
@@ -282,7 +283,7 @@ function corrigirMagiasRevisao(f){
       if(dolo&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente'))f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
     }
     // #59 Gaveta do Golpe Desarmado avulso: mesma pré-seleção de Mão de Dolo da Torrente (1 golpe por uso).
-    if(/^soco|golpe desarmado/.test(completo)&&!/^torrente/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.ataques&&(!o.composicao||o.composicao.golpeDesarmado)){
+    if(/^soco\b|golpe desarmado/.test(completo)&&!/^torrente/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.ataques&&(!o.composicao||o.composicao.golpeDesarmado)){
       const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento);
       if(dolo){const golpe=structuredClone(o.automacao);delete golpe.ataques;golpe.tags=[...new Set([...(golpe.tags??[]),'desarmado'])];
         o.composicao={golpeDesarmado:true,quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'golpe-normal',modos:[
@@ -538,7 +539,7 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','invocar','peca','teleporte','teste','saque'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','invocar','peca','teleporte','teste','saque','encerrar_efeito','dano_ilusao'].includes(a.tipo), 'Automação desconhecida em '+o.id);
     if(a.tipo==='teleporte')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>0&&a.alcanceM<=LIMITE_ALCANCE_M,'Alcance de teleporte inválido em '+o.id);
     if(a.tipo==='economia'){
       exigir(['acao','bonus','reacao'].every(k=>a.adicionar?.[k]===undefined||inteiro(a.adicionar[k],0,5)),'Economia adicional inválida em '+o.id);
@@ -570,7 +571,7 @@ export function validar(f) {
       exigir(e.removeEm===undefined||['descanso_curto','descanso_longo'].includes(e.removeEm),'Recuperação do efeito inválida em '+o.id);
       exigir(e.condicao===undefined||Object.hasOwn(condicoesCombate,e.condicao),'Condição desconhecida em '+o.id);
       if(e.danoAoSerAtingido!==undefined)exigir(formulaDanoValida(e.danoAoSerAtingido.formula)&&(e.danoAoSerAtingido.tagsAtaque===undefined||Array.isArray(e.danoAoSerAtingido.tagsAtaque)&&e.danoAoSerAtingido.tagsAtaque.every(nomeOK)),'Dano persistente inválido em '+o.id);
-      if(e.duracao!==undefined)exigir(inteiro(e.duracao.turnos,1,100)&&expiraValido.has(e.duracao.expira),'Duração de efeito inválida em '+o.id);
+      if(e.duracao!==undefined)exigir(inteiro(e.duracao.turnos,1,600)&&expiraValido.has(e.duracao.expira),'Duração de efeito inválida em '+o.id);
     }
     if(['ataque','salva'].includes(a.tipo)) {
       const danoValido=formulaDanoValida(a.dano);
@@ -733,7 +734,7 @@ function ataqueGeradoArma(a,item,modelo,indice){
     ...(maestriaAtiva(f,item,'garantido')&&mod(f.atributos[atributo])>0?{danoAoErrar:mod(f.atributos[atributo])}:{})};
   return {id:'item-'+slug(item.id)+'-'+(modelo.modo??indice),nome:item.nome+modoNome+' '+(bonus>=0?'+':'')+bonus+' | '+(agil?'na ação Atacar · Ágil':custoTipo==='bonus'?'ação bônus':'ação'),categoria:'acao',origem:'equipamento',origemItem:item.id,geradaPorItem:true,...(requisitos?{requisitosUso:requisitos}:{}),
     descricao:[modelo.modo==='distancia'?'Ataque à distância':modelo.modo==='arremesso'?'Arremesso':'Ataque corpo a corpo','Atributo '+atributo.toUpperCase(),proficiente?'proficiente':'sem proficiência',maestria?'maestria'+(nomeM?' '+nomeM:''):'sem maestria','dano '+dano+' '+modelo.tipoDano].join(' · ')+'.',
-    custo:custoArma,automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...extrasMaestria,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[])]},
+    custo:custoArma,automacao:{tipo:'ataque',bonus,dano,elemento:modelo.tipoDano,alcanceM:alcance,...extrasMaestria,...(modelo.alcanceNormalM!==undefined?{alcanceNormalM:Math.min(LIMITE_ALCANCE_M,modelo.alcanceNormalM)}:{}),arremesso:modelo.modo==='arremesso',tags:['arma',d.tipoArma,modelo.modo,...(d.propriedades??[]),...(duasMaos?['empunhada_duas_maos']:[])]},
     dadosEquipamento:{itemId:item.id,tipoArma:d.tipoArma,grupoProficiencia:d.grupoProficiencia,propriedades:[...(d.propriedades??[])],atributo,proficiente,maestria,tipoDano:modelo.tipoDano}};
 }
 export function ataquesEquipados(a){
@@ -1074,6 +1075,22 @@ function cobrarRerrolagens(a,lista,rolagem){
   for(const g of ids.map(id=>lista.find(x=>x.id===id)))for(const c of g.custo??[]){const bag=c.tipo==='recurso'?a.rec:a,key=c.tipo==='recurso'?c.id:c.tipo;exigir(bag[key]>=c.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=c.quantidade;}
 }
 function opcoesRerrolagemD20(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_d20'&&o.rerrolagem?.tipo==='d20'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
+// Combate com Armas Grandes: a fonte declara facesMinimasDano {minimo, requisitos:{tagsAtaque, duasMaos}}.
+function empunhadaDuasMaos(a,o,tags){
+  if(tags.includes('duas_maos')||tags.includes('empunhada_duas_maos'))return true;
+  const item=(a.ficha.inventario?.itens??[]).find(i=>i.id===(o.origemItem??o.requerItemEquipado));
+  return Boolean(item)&&armaDuasMaos(item);
+}
+export function fonteFacesMinimas(a,o,rule){
+  if(rule?.tipo!=='ataque')return null;
+  const tags=tagsAtaque(o,rule),fontes=[...opcoesDisponiveis(a),...(a.ficha.passivas??[]).filter(p=>p.ativa!==false)];
+  const g=fontes.find(x=>x.facesMinimasDano);if(!g)return null;
+  const r=g.facesMinimasDano.requisitos??{};
+  if((r.tagsAtaque??[]).some(t=>!tags.includes(t)))return null;
+  if(rule.arremesso||tags.includes('distancia')||tags.includes('arremesso'))return null;
+  if(r.duasMaos&&!empunhadaDuasMaos(a,o,tags))return null;
+  return g;
+}
 function modificadorDanoAntesDaRolagem(a,o){
   const tags=tagsAtaque(o,o.automacao),fontes=[...opcoesDisponiveis(a),...(a.ficha.passivas??[]).filter(p=>p.ativa!==false)],usos=a.usosTurno??{};
   return fontes.find(g=>g.gatilho==='ao_rolar_dano'&&g.modificadorDano?.tipo==='rolar_duas_escolher_maior'&&(!g.umaVezPorTurno||!usos[g.id])&&(()=>{const r=g.modificadorDano.requisitos??{};return !r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t));})());
@@ -1323,7 +1340,16 @@ export function normalizarZonas(s){
 // M10 (#49): tamanho da criatura. Fichas sem o campo são Médias.
 export const TAMANHOS=['miudo','pequeno','medio','grande','enorme','imenso'];
 export function tamanhoCriatura(a){const t=slug(String(a?.ficha?.tamanho??'medio')).replace(/-/g,'');return TAMANHOS.includes(t)?t:'medio';}
+// M10 (#49): tipo de criatura. Fichas sem o campo são humanoides (PJs e NPCs da campanha).
+export const tipoCriatura=a=>slug(String(a?.ficha?.tipoCriatura??'humanoide'));
 export const tamanhoAte=(a,maximo)=>TAMANHOS.indexOf(tamanhoCriatura(a))<=TAMANHOS.indexOf(maximo);
+// Combate com Armas Grandes: faces dos dados da parcela base (a arma), sem d20 nem dados negativos.
+export function facesDanoBase(rolagem,base=rolagem){
+  if(Array.isArray(base?.faces))return base.faces.map(Number);
+  let grupos=base?.grupos;
+  if(!grupos?.length&&rolagem?.grupos?.length)grupos=rolagem.grupos.filter((g,i)=>(rolagem.mapaGrupos?.[i]??0)===0);
+  return (grupos??[]).filter(g=>String(g.diceType??'').toLowerCase()!=='d20'&&!g.isNegative).flatMap(g=>(g.dice??[]).filter(d=>d.kept!==false).map(d=>Number(d.value)));
+}
 // M13: conta faces máximas nos grupos do Dice+ (ou no campo "faces" de testes simulados).
 export function facesMaximas(r,lados){
   const faces=Array.isArray(r?.faces)?r.faces:(r?.grupos??[]).filter(g=>!g.diceType||g.diceType==='d'+lados).flatMap(g=>(g.dice??[]).filter(d=>d.kept!==false).map(d=>d.value));
@@ -1472,6 +1498,14 @@ export async function aplicar(s,c,u,rolar) {
     enfileirarReacaoAoSofrerDano(s,p,origem,resolvido.danoRecebido,elemento);
     return resolvido.pvPerdido;
   };
+  // Combate com Armas Grandes: cada 1 ou 2 nos dados da arma conta como 3 (ajusta a parcela base antes de aplicar).
+  const aplicarFacesMinimas=(o,rule,rolagem)=>{
+    const g=fonteFacesMinimas(a,o,rule);if(!g)return '';
+    const base=(rolagem.resultados?.length?rolagem.resultados:[rolagem])[0],minimo=Number(g.facesMinimasDano.minimo)||3;
+    const delta=facesDanoBase(rolagem,base).reduce((n,v)=>n+Math.max(0,minimo-v),0);if(!delta)return '';
+    base.total=(Number(base.total)||0)+delta;if(base!==rolagem)rolagem.total=(Number(rolagem.total)||0)+delta;
+    return ' ('+g.nome+' +'+delta+')';
+  };
   // M13 (#52): dados explosivos — cada face máxima rola mais um dado do mesmo tipo, até o limite.
   const explodirDados=async(rule,p,base,tags,nome)=>{
     if(!rule?.dadosExplosivos||p.pv<=0)return '';
@@ -1520,10 +1554,11 @@ export async function aplicar(s,c,u,rolar) {
       const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;
     }
     for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
-    if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
+    if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(ataqueBase,rule,rolagem);
     const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
     const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});
     const textos=[];
+    if(notaFaces)textos.push(notaFaces.trim().replace(/^\(|\)$/g,''));
     {const t=await explodirDados(rule,p,base,tagsDano,titulo??o.nome);if(t)textos.push(t.replace(/^ \+ /,''));}
     for(let i=0;i<escolhidos.length;i++){
       const g=escolhidos[i];textos.push(valoresBrutos[i+1]+' de '+g.nome);
@@ -2233,12 +2268,30 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         else{if(s.fase==='iniciativa')ent.init=null;msg+=' • '+ent.nome+' apareceu';}
         break;
       }
+      if(rule.tipo==='encerrar_efeito'){ // marcadores encerráveis (Disfarçar-se, Mente Desperta)
+        const e=(a.efeitosAtivos??[]).find(x=>x.id===o.concedidaPorEfeito);exigir(e,'O efeito já terminou.');
+        if(e.concentracaoId&&a.concentracaoAtiva?.id===e.concentracaoId)encerrarConcentracao(s,a,'encerrada por '+a.nome);
+        for(const x of s.atores)x.efeitosAtivos=(x.efeitosAtivos??[]).filter(y=>y.id!==e.id);
+        msg+=' • '+e.nome+' encerrado';break;
+      }
+      if(rule.tipo==='dano_ilusao'){ // M06 Força Fantasmagórica: 2d8 psíquico, 1x em cada turno do conjurador, sem custo
+        const e=(a.efeitosAtivos??[]).find(x=>x.id===o.concedidaPorEfeito&&x.ilusao);exigir(e,'A ilusão não está ativa.');
+        const il=e.ilusao,p=s.atores.find(x=>x.id===il.alvoId),peca=(s.pecas??[]).find(x=>x.id===il.pecaId);
+        exigir(p&&peca&&(p.efeitosAtivos??[]).some(x=>x.ilusaoId===il.pecaId),'A ilusão terminou ou o alvo não está mais afetado.');
+        exigir(distancia(p,peca.posicao)<=(peca.tamanhoM??1.5)/2+1.5+1e-8,p.nome+' precisa estar dentro da ilusão ou a até 1,5 m dela.');
+        validarRequisitosUso(s,a,o,p);
+        const rl=await resultado(il.dano,{tipo:'dano',titulo:'Dano · '+e.nome,alvo:p.nome,tipoDano:il.elemento,parcelasDano:[{tipo:il.elemento,tags:['magia']}],alvoDano:resumoAlvoDano(p)});
+        const v=await aplicarDanoNoAtor(p,rl.total,il.elemento,{origem:a,relatorio:rl.relatoriosDano?.[0]});msg+=' • '+p.nome+' perdeu '+v+' PV';break;
+      }
       if(rule.tipo==='escapar'){ // M05: ação para se soltar (Emaranhar: FOR/Atletismo contra a CD da magia)
         const e=(a.efeitosAtivos??[]).find(x=>x.id===o.concedidaPorEfeito&&x.escape);exigir(e,'Não há efeito do qual se soltar.');
         const esc=e.escape,bonus=esc.pericia?bonusPericia(a.ficha,esc.pericia):mod(a.ficha.atributos[esc.atributo??'for']);
         const r=await rolarD20(bonus,a,{tipo:'teste',titulo:'Soltar-se · '+e.nome+' · '+(esc.pericia??String(esc.atributo).toUpperCase()),cd:esc.cd});
-        if(r.total>=esc.cd){a.efeitosAtivos=a.efeitosAtivos.filter(x=>x!==e);msg+=' • se soltou ('+r.total+' contra CD '+esc.cd+')';}
-        else msg+=' • continua preso ('+r.total+' contra CD '+esc.cd+')';
+        if(r.total>=esc.cd){a.efeitosAtivos=a.efeitosAtivos.filter(x=>x!==e);msg+=' • '+(esc.textoSucesso??'se soltou')+' ('+r.total+' contra CD '+esc.cd+')';
+          // Força Fantasmagórica: perceber a ilusão encerra a magia (marcador, token e dano do conjurador).
+          const origem=esc.encerraOrigem&&s.atores.find(x=>x.id===e.origemAtorId);
+          if(origem&&e.concentracaoId&&origem.concentracaoAtiva?.id===e.concentracaoId)encerrarConcentracao(s,origem,a.nome+' '+(esc.textoSucesso??'escapou'));}
+        else msg+=' • '+(esc.textoFalha??'continua preso')+' ('+r.total+' contra CD '+esc.cd+')';
         break;
       }
       if(rule.tipo==='economia'){validarRequisitosUso(s,a,o,null);
@@ -2264,6 +2317,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if(o.composicao){
         const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):(c.alvo?[{modoId:def.modoPadrao,alvoId:c.alvo}]:[]));
         exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
+        // #59 Soco bônus das Artes Marciais na Gaveta: mantém o requisito de ter atacado antes no turno.
+        if(def.golpeDesarmado&&o.requisitosUso)validarRequisitosUso(s,a,o,s.atores.find(x=>x.id===entradas[0]?.alvoId)??null);
         const contagens={};
         for(let i=0;i<entradas.length;i++){
           const entrada=entradas[i],modo=def.modos.find(m=>m.id===entrada.modoId),p=s.atores.find(x=>x.id===entrada.alvoId);
@@ -2305,10 +2360,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           exigir(escolhidos.filter(ehManobra).length<=1,'Só é permitido usar uma manobra por ataque.');
           for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;}
           for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
-          if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
+          if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(ataqueInstancia,r,rolagem);
           const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],valores=[parcelas[0].total,...escolhidos.map((g,j)=>(parcelas[j+1]??{total:0}).total)],pacotes=[{valor:valores[0],tipo:r.elemento,tags},...escolhidos.filter(g=>!g.aprimoramento.salvaArea).map((g,j)=>({valor:valores[escolhidos.indexOf(g)+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags}))];
           const dano=await aplicarDanoNoAtor(p,pacotes.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:pacotes});
           msg+=' • '+(critico?'crítico · ':'')+dano+' PV'+escolhidos.map((g,j)=>' + '+valores[j+1]+' '+g.nome).join('');
+          msg+=notaFaces;
           msg+=await explodirDados(r,p,parcelas[0],tags,modo.nome);
           for(let j=0;j<escolhidos.length;j++){
             const g=escolhidos[j];
@@ -2335,7 +2391,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       // zerava o vetor e fazia a área nunca conter ninguém.
       const centro=temArea?(rule.origemArea==='conjurador'&&!areaDirecional?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
-      const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&!((rule.excluirConjurador||['cone','linha'].includes(rule.area?.forma))&&x===a)); // #22 cone e linha partem de quem usa e não o atingem
+      const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&(!temArea||!rule.tiposCriatura||rule.tiposCriatura.includes(tipoCriatura(x)))&&!((rule.excluirConjurador||['cone','linha'].includes(rule.area?.forma))&&x===a));
+      if(rule.tiposCriatura&&!temArea)exigir(afetados.every(x=>rule.tiposCriatura.includes(tipoCriatura(x))),'Esta magia só afeta criaturas do tipo '+rule.tiposCriatura.join(' ou ')+'.'); // #22 cone e linha partem de quem usa e não o atingem
       validarRequisitosUso(s,a,o,afetados[0]);
       // M05 #44: a magia deixa uma zona persistente com identidade, origem, geometria, duração e concentração.
       if(rule.zona&&temArea){
@@ -2364,6 +2421,9 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         exigir(afetados.length===1,'Escolha um alvo para o efeito.');const p=afetados[0],def=structuredClone(rule.efeito),id=o.id+'-'+a.id;
         exigir(!def.requisitos?.semArmadura||!usaArmadura(p),p.nome+' está usando armadura.');
         const maxAntes=pvMaximosAtuais(p);p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.id!==o.id&&e.id!==id);
+        // Mente Desperta: o vínculo marca conjurador e alvo; um novo uso substitui o anterior nos dois.
+        if(def.tambemNoConjurador)for(const x of s.atores)x.efeitosAtivos=(x.efeitosAtivos??[]).filter(e=>e.id!==id);
+        const doConjurador=def.opcoesConcedidasConjurador;delete def.opcoesConcedidasConjurador;
         def.id=id;def.origem=o.origem;def.origemAtorId=a.id;def.concentracaoId=concentracaoId??undefined;def.descricao=def.descricao??o.descricao;def.modificadores=def.modificadores??{};
         if(Array.isArray(def.opcoesConcedidas)){
           const bonusCD=efeitos.reduce((n,e)=>n+(Number(e.bonusCD)||0),0);
@@ -2377,6 +2437,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         if(def.duracao)def.duracao={...def.duracao,restante:def.duracao.turnos};
         if(Number.isFinite(def.caMinima))def.modificadores.ca=Math.max(0,def.caMinima+mod(p.ficha.atributos.des)-caAtual(p));
         p.efeitosAtivos.push(def);const maxDepois=pvMaximosAtuais(p);
+        if(def.tambemNoConjurador&&p!==a){const copia={...structuredClone(def),opcoesConcedidas:doConjurador?structuredClone(doConjurador):undefined};a.efeitosAtivos=[...(a.efeitosAtivos??[]),copia];}
+        else if(doConjurador&&p===a)def.opcoesConcedidas=[...(def.opcoesConcedidas??[]),...structuredClone(doConjurador)];
         if(def.aumentaPVAtual&&maxDepois>maxAntes)p.pv+=maxDepois-maxAntes;p.pv=Math.min(p.pv,maxDepois);
         if(restricoesAtivas(p).semAcoes)encerrarConcentracao(s,p,'incapacitado');
         msg+=' • '+p.nome+' recebeu '+def.nome;break;
@@ -2464,11 +2526,27 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,indice=resultadosSalva.filter(x=>!x.sucesso||rule.metade).indexOf(r),valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a,relatorio:temArea?null:relatoriosDiretos[indice]});msg+=' • '+r.p.nome+' perdeu '+valor+' PV';}
           if(!r.sucesso)deslocarForcado(r.p);
           if(!r.sucesso&&rule.efeitoFalha){
-            const efeito={id:o.id,escape:rule.efeitoFalha.escape?{...rule.efeitoFalha.escape,cd}:undefined,opcoesConcedidas:rule.efeitoFalha.escape?[{id:'soltar-se',nome:'Soltar-se · '+rule.efeitoFalha.nome+' | ação',categoria:'acao',descricao:'Use a ação para um teste de '+(rule.efeitoFalha.escape.pericia??'atributo')+' contra CD '+cd+'. No sucesso, deixa de estar preso.',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'escapar'}}]:undefined,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,danoInicioTurno:rule.efeitoFalha.danoInicioTurno,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
+            const efeito={id:o.id,escape:rule.efeitoFalha.escape?{...rule.efeitoFalha.escape,cd}:undefined,opcoesConcedidas:rule.efeitoFalha.escape?[{id:'soltar-se',nome:(rule.efeitoFalha.escape.nomeAcao??'Soltar-se')+' · '+rule.efeitoFalha.nome+' | ação',categoria:'acao',descricao:'Use a ação para um teste de '+(rule.efeitoFalha.escape.pericia??'atributo')+' contra CD '+cd+'. '+(rule.efeitoFalha.escape.descricaoSucesso??'No sucesso, deixa de estar preso.'),custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'escapar'}}]:undefined,nome:rule.efeitoFalha.nome,descricao:rule.efeitoFalha.descricao,marcador:rule.efeitoFalha.marcador,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,danoInicioTurno:rule.efeitoFalha.danoInicioTurno,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
             r.p.efeitosAtivos=(r.p.efeitosAtivos??[]).filter(e=>e.id!==o.id);r.p.efeitosAtivos.push(efeito);
             if(rule.efeitoFalha.consomeReacao)r.p.reacao=0;msg+=' • efeito: '+efeito.nome;
             if(restricoesAtivas(r.p).semAcoes)encerrarConcentracao(s,r.p,'incapacitado');
           }
+        }
+        // M06 Força Fantasmagórica: token público da ilusão; se marcada "Ilusão causa dano" e o alvo falhou, o conjurador ganha o dano gratuito.
+        if(rule.ilusao&&afetados.length===1){
+          const p=afetados[0],il=rule.ilusao,pecaId=crypto.randomUUID(),ponto=c.ponto&&Number.isFinite(c.ponto.x)&&Number.isFinite(c.ponto.y)?c.ponto:{x:p.x,y:p.y},turnos=rule.efeitoFalha?.turnos??10,nomeIlusao=il.peca?.nome??o.nome;
+          s.pecas=(s.pecas??[]).filter(x=>!(x.opcaoId===o.id&&x.origemAtorId===a.id));
+          s.pecas.push({id:pecaId,nome:nomeIlusao,opcaoId:o.id,origemAtorId:a.id,posicao:{x:ponto.x,y:ponto.y},tamanhoM:il.peca?.tamanhoM??1.5,imagem:il.peca?.imagem??'assets/tokens/invocacao-padrao.png',duracao:{restante:turnos,expira:'inicio_origem'},concentracaoId:concentracaoId??undefined});
+          a.efeitosAtivos=(a.efeitosAtivos??[]).filter(x=>x.ilusao?.opcaoId!==o.id);
+          const falhou=resultadosSalva[0]&&!resultadosSalva[0].sucesso;
+          if(falhou){const ef=(p.efeitosAtivos??[]).find(x=>x.id===o.id&&x.origemAtorId===a.id);if(ef)ef.ilusaoId=pecaId;}
+          if(falhou&&c.ilusaoCausaDano===true){
+            a.efeitosAtivos.push({id:o.id+'-ilusao',nome:nomeIlusao+' · ilusão ativa',tipo:'buff',marcador:true,descricao:'A ilusão pode ferir '+p.nome+': uma vez em cada turno seu, use '+nomeIlusao+' · Dano sem gastar ação.',origemAtorId:a.id,concentracaoId:concentracaoId??undefined,duracao:{turnos,restante:turnos,expira:'inicio_origem'},
+              ilusao:{opcaoId:o.id,alvoId:p.id,pecaId,dano:il.dano,elemento:il.elemento},
+              opcoesConcedidas:[{id:'dano',nome:nomeIlusao+' · Dano | sem ação',categoria:'acao',descricao:'Se a ilusão continua ativa e '+p.nome+' está nela ou a até 1,5 m, cause '+il.dano+' de dano '+il.elemento+'. Uma vez em cada turno seu, sem ação nem espaço.',custo:[],requisitosUso:{somenteNoProprioTurno:true,umaVezPorTurno:o.id+'-dano'},automacao:{tipo:'dano_ilusao',alcanceM:0}}]});
+            msg+=' • a ilusão pode causar dano';
+          }
+          msg+=' • ilusão posicionada';
         }
         c.modo=modoOriginal;break;
       }
@@ -2508,9 +2586,10 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;
       }
       for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
-      if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
+      if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(o,rule,rolagem);
       const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
       const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});msg+=' • '+p.nome+' perdeu '+danoDireto+' PV';
+      msg+=notaFaces;
       msg+=await explodirDados(rule,p,base,tagsDano,o.nome);
       for(let i=0;i<escolhidos.length;i++){
         const g=escolhidos[i];msg+=' + '+valoresBrutos[i+1]+' de '+g.nome;

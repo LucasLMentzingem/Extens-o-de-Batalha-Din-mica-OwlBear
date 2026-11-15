@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.34, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+Revisão de 15 de novembro de 2026, versão 0.8.35, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
 
 A 0.8.33 restaura o raio do livro nas áreas circulares e calibra a cena para 1,5 m por célula. Motor, HUD, zonas, alvos, deslocamentos e tokens usam a mesma conversão entre pixels e metros. A régua nativa é configurada em metros e distância euclidiana. Estados anteriores são migrados uma única vez, preservando a posição no desenho. Uma trajetória pendente precisa de nova seleção para recalcular oportunidades na escala corrigida.
 
@@ -8,7 +8,14 @@ Verificação da 0.8.33 com 228 testes automatizados e Chromium headless com SDK
 
 A 0.8.34 acrescenta os dois itens de missão ao catálogo central e ao Conteúdo configurado. A adaga aplica 1 necrótico fixo por acerto e o colar concede Falar com os Mortos uma vez por amanhecer. Saldos de itens persistem nas instâncias, e o mestre possui um comando confirmado para registrar o amanhecer. Verificação com 236 testes de motor e fluxo da HUD em Chromium com SDK/Dice+ simulados, incluindo aplicação de dano, gasto da ação e recuperação pelo botão do mestre.
 
-As descrições das sete issues foram atualizadas. Continuam abertas a pré-seleção de Mão de Dolo no soco bônus, as mecânicas restantes de Skimi e a validação em sala real requerida pelos critérios de conclusão.
+A 0.8.35 fecha as pendências mecânicas das sete fichas no motor:
+
+- **Combate com Armas Grandes (Draven):** com arma corpo a corpo empunhada com duas mãos, cada 1 ou 2 nos dados da arma conta como 3. Vale no ataque simples, na Gaveta de Composição e no ataque de oportunidade. Arremesso e distância não contam. O ajuste aparece no histórico.
+- **Mão de Dolo no soco bônus (Loteria):** o soco das Artes Marciais ganhou a Gaveta com "Golpe + Mão de Dolo". O requisito de ter atacado antes no turno continua valendo na Gaveta. A causa era um caractere de controle no lugar de `\b` na expressão que reconhece o soco.
+- **Skimi:** Disfarçar-se aplica o marcador Disfarçado por 1 hora, com opção de encerrar antes. Mente Desperta marca conjurador e alvo por 3 minutos, substitui o vínculo anterior e o encerramento remove os dois marcadores. Força Fantasmagórica cria o token público da ilusão no alvo e faz uma única salvaguarda de INT. Na falha, aplica o marcador e concede Estudar ao alvo. Com "Ilusão causa dano" marcada no Compositor, Skimi ganha Força Fantasmagórica · Dano: 2d8 psíquico, sem custo, uma vez em cada turno seu, com o alvo dentro da ilusão ou a até 1,5 m dela. Sucesso em Estudar, fim da concentração ou expiração removem marcador, token e dano.
+- **M10 tipo de criatura:** o campo `tipoCriatura` da ficha vale `humanoide` quando ausente. Imobilizar Pessoa, Enfeitiçar Pessoa e Acalmar Emoções só afetam humanoides. O Familiar é `fada` e a Mão Mágica é `objeto`.
+
+Verificação: 241 testes de motor em Node com dados simulados, `validar-versao` e `gerar-catalogo-runtime --check`. A HUD do Compositor ("Ilusão causa dano") passou só na checagem de sintaxe, sem renderização. Continua aberta a validação em sala real exigida pelos critérios de conclusão.
 
 ## Entregas recentes
 

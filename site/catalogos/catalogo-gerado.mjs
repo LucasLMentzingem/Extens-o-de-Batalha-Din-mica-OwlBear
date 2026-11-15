@@ -415,7 +415,7 @@ export default {
     },
     {
       "id": "habilidade.1-disfarcar-se",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Disfarçar-se",
         "categoria": "magia",
@@ -426,7 +426,34 @@ export default {
             "quantidade": 1
           }
         ],
-        "circuloBase": 1
+        "circuloBase": 1,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 0,
+          "efeito": {
+            "nome": "Disfarçado",
+            "tipo": "buff",
+            "marcador": true,
+            "descricao": "Marcador interpretativo: aparência alterada por Disfarçar-se. Investigação contra CD 13 revela a ilusão. Não altera testes nem a arte do token.",
+            "duracao": {
+              "turnos": 600,
+              "expira": "inicio_origem"
+            },
+            "opcoesConcedidas": [
+              {
+                "id": "encerrar",
+                "nome": "Encerrar Disfarçar-se | sem ação",
+                "categoria": "acao",
+                "descricao": "Encerra o disfarce antes de 1 hora.",
+                "custo": [],
+                "automacao": {
+                  "tipo": "encerrar_efeito",
+                  "alcanceM": 0
+                }
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -481,7 +508,7 @@ export default {
     },
     {
       "id": "habilidade.1-encontrar-familiar",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "1º | Encontrar Familiar",
         "categoria": "magia",
@@ -555,7 +582,8 @@ export default {
                   "nome": "Entidade invocada",
                   "descricao": "Forma única provisória (moeda com T). CA 11, PV 1, voo 18 m. Não ataca. Some a 0 PV; o conjurador pode dispensá-lo."
                 }
-              ]
+              ],
+              "tipoCriatura": "fada"
             }
           }
         }
@@ -1406,11 +1434,11 @@ export default {
     },
     {
       "id": "habilidade.2-forca-fantasmagorica",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "2º | Força Fantasmagórica",
         "categoria": "magia",
-        "descricao": "Ação · 18 m, salvaguarda de INT CD 13, ilusão que o alvo acredita ser real, concentração; silenciosa. Até 1 min. Quando a ilusão pode logicamente ferir o alvo, pode causar [2d8] psíquico por turno.",
+        "descricao": "Ação · 18 m, salvaguarda de INT CD 13, ilusão que o alvo acredita ser real, concentração; silenciosa. Até 1 min. Token público da ilusão no alvo. No Compositor, marque Ilusão causa dano se a ilusão puder ferir: na falha, você ganha Força Fantasmagórica · Dano [2d8] psíquico, uma vez em cada turno seu, sem custo. O alvo pode usar Estudar (Investigação contra a CD) para encerrar a ilusão.",
         "custo": [
           {
             "tipo": "acao",
@@ -1423,7 +1451,37 @@ export default {
           }
         ],
         "circuloBase": 2,
-        "concentracao": true
+        "concentracao": true,
+        "automacao": {
+          "tipo": "salva",
+          "atributo": "int",
+          "cd": 13,
+          "alcanceM": 18,
+          "ilusao": {
+            "peca": {
+              "nome": "Força Fantasmagórica",
+              "tamanhoM": 1.5
+            },
+            "dano": "2d8",
+            "elemento": "psiquico"
+          },
+          "efeitoFalha": {
+            "nome": "Força Fantasmagórica",
+            "marcador": true,
+            "descricao": "Acredita que a ilusão é real. Use Estudar (ação) para um teste de Inteligência (Investigação) contra a CD da magia; no sucesso, a ilusão termina.",
+            "turnos": 10,
+            "expira": "inicio_origem",
+            "escape": {
+              "atributo": "int",
+              "pericia": "Investigação",
+              "nomeAcao": "Estudar",
+              "encerraOrigem": true,
+              "textoSucesso": "percebeu a ilusão",
+              "textoFalha": "continua acreditando na ilusão",
+              "descricaoSucesso": "No sucesso, percebe a ilusão e a magia termina."
+            }
+          }
+        }
       }
     },
     {
@@ -2462,10 +2520,20 @@ export default {
     },
     {
       "id": "habilidade.combate-com-armas-grandes",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Combate com Armas Grandes",
-        "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. A regra está registrada para a próxima etapa de automação de resultados individuais."
+        "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. Automático: o ajuste aparece no histórico do ataque.",
+        "facesMinimasDano": {
+          "minimo": 3,
+          "requisitos": {
+            "tagsAtaque": [
+              "arma",
+              "corpo_a_corpo"
+            ],
+            "duasMaos": true
+          }
+        }
       }
     },
     {
@@ -3028,7 +3096,7 @@ export default {
       "definicao": {
         "nome": "Espada grande +5 | ação",
         "categoria": "acao",
-        "descricao": "Duas mãos · 1,5 m · cortante. Garantido: 3 de dano se errar. Para Combate com Armas Grandes, leia cada 1 ou 2 de dano como 3. Atacante Selvagem: 1x/turno, role os dados de dano da arma duas vezes e escolha o maior total.\nNormal [1d20+5]\nDano [2d6+3] · Crítico [3d6+3]",
+        "descricao": "Duas mãos · 1,5 m · cortante. Garantido: 3 de dano se errar. Combate com Armas Grandes: 1 ou 2 nos dados da arma contam como 3 (automático). Atacante Selvagem: 1x/turno, role os dados de dano da arma duas vezes e escolha o maior total.\nNormal [1d20+5]\nDano [2d6+3] · Crítico [3d6+3]",
         "custo": [
           {
             "tipo": "acao",
@@ -4109,7 +4177,7 @@ export default {
     },
     {
       "id": "habilidade.mente-desperta",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Mente Desperta",
         "categoria": "bonus",
@@ -4119,7 +4187,35 @@ export default {
             "tipo": "bonus",
             "quantidade": 1
           }
-        ]
+        ],
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 9,
+          "efeito": {
+            "nome": "Mente Desperta",
+            "tipo": "buff",
+            "marcador": true,
+            "tambemNoConjurador": true,
+            "descricao": "Marcador interpretativo: vínculo telepático por 3 minutos. O mestre arbitra comunicação e distância.",
+            "duracao": {
+              "turnos": 30,
+              "expira": "inicio_origem"
+            },
+            "opcoesConcedidasConjurador": [
+              {
+                "id": "encerrar",
+                "nome": "Encerrar Mente Desperta | sem ação",
+                "categoria": "acao",
+                "descricao": "Encerra o vínculo telepático e remove os dois marcadores.",
+                "custo": [],
+                "automacao": {
+                  "tipo": "encerrar_efeito",
+                  "alcanceM": 0
+                }
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -5863,7 +5959,7 @@ export default {
     },
     {
       "id": "habilidade.truque-maos-magicas",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Mãos Mágicas",
         "categoria": "magia",
@@ -5928,7 +6024,8 @@ export default {
                   "nome": "Entidade invocada",
                   "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
                 }
-              ]
+              ],
+              "tipoCriatura": "objeto"
             }
           }
         }
@@ -5936,7 +6033,7 @@ export default {
     },
     {
       "id": "habilidade.truque-maos-magicas-utilidade-classe",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Mãos Mágicas · utilidade · classe",
         "categoria": "magia",
@@ -6002,7 +6099,8 @@ export default {
                   "nome": "Entidade invocada",
                   "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
                 }
-              ]
+              ],
+              "tipoCriatura": "objeto"
             }
           }
         }

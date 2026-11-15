@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {controladorAtor,metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {tipoCriatura,facesDanoBase,fonteFacesMinimas,controladorAtor,metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
@@ -1764,8 +1764,9 @@ test('#8 ataque à distância com inimigo a 1,5 m tem Desvantagem; corpo a corpo
 });
 
 test('#10 jogador declara opção sem automação; #11 monstro a 0 PV é pulado na iniciativa',async()=>{
-  let {s,a,b}=await duelo('skimi');
-  const assistida=a.ficha.opcoes.find(o=>!o.automacao&&o.custo?.length===1&&o.custo[0].tipo==='bonus');
+  let s,a,b,assistida;
+  for(const id of idsJogadores){({s,a,b}=await duelo(id));assistida=a.ficha.opcoes.find(o=>!o.automacao&&!o.informativa&&!o.requisitosUso&&o.custo?.length===1&&o.custo[0].tipo==='bonus');if(assistida)break;}
+  assert.ok(assistida,'alguma ficha tem opção de ação bônus sem automação');
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:assistida.id,assistido:true},player,roladorSala().rolar);
   assert.equal(s.atores[0].bonus,0);assert.match(s.historico.at(-1)??s.historico[0],/declarado/);
   ({s,a,b}=await duelo('draven-thorne'));
@@ -1870,9 +1871,9 @@ test('#29 Skimi (Humana) tem Inspiração Heroica como recurso e rerrolagem de d
   assert.ok(skimi.recursos.some(r=>r.id==='inspiracao-heroica'&&r.maximo===1));
   assert.equal(skimi.opcoes.find(o=>o.id==='inspiracao-heroica-rerrolagem').gatilho,'apos_rolagem_d20');
   assert.ok(!hannah.recursos.some(r=>r.id==='inspiracao-heroica'));
-  // Mente Desperta (sem automação) pode ser declarada pelo jogador (#10)
-  let {s,a}=await duelo('skimi');
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',assistido:true},player,roladorSala().rolar);
+  // Mente Desperta: ação bônus com marcadores no conjurador e no alvo
+  let {s,a,b}=await duelo('skimi');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',alvo:b.id},player,roladorSala().rolar);
   assert.equal(s.atores[0].bonus,0);
 });
 
@@ -2721,4 +2722,102 @@ test('recursos de itens: NPC duplicado recebe usos iniciais em uma instância in
   sincronizarCopiasNpc(s,tokens,pixelsPorMetro(100));
   assert.equal(s.atores[0].rec['item-'+item.id+'-ultima-palavra'],0);
   assert.equal(s.atores[1].rec['item-'+item.id+'-ultima-palavra'],1);
+});
+
+test('Combate com Armas Grandes: 1 e 2 nos dados da espada grande contam como 3; outras armas não mudam',async()=>{
+  assert.deepEqual(facesDanoBase({grupos:[{diceType:'d6',dice:[{value:1},{value:5},{value:2,kept:false}]},{diceType:'d20',dice:[{value:1}]}]}),[1,5]);
+  let {s,a,b}=await duelo('draven-thorne');b.pv=200;b.ficha.pvMaximos=200;b.ficha.resistencias=[];
+  const espada=opcoesDisponiveis(a).find(o=>o.automacao?.tipo==='ataque'&&/espada grande/i.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+  assert.ok(espada,'Draven ataca com a espada grande');
+  const rolar=faces=>async(f,meta={})=>meta.tipo==='ataque'?{total:20,natural:15,formula:f}:{total:faces.reduce((n,v)=>n+v,0)+3,faces,formula:f};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:espada.id,alvo:b.id},player,rolar([1,2]));
+  assert.equal(s.atores[1].pv,200-(3+3+3),'1 e 2 viram 3: 3+3+3');
+  assert.ok(s.historico.some(h=>/Combate com Armas Grandes \+3/.test(h)),'histórico mostra o ajuste');
+  // sem 1 ou 2, nada muda
+  ({s,a,b}=await duelo('draven-thorne'));b.pv=200;b.ficha.pvMaximos=200;b.ficha.resistencias=[];
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:espada.id,alvo:b.id},player,rolar([4,6]));
+  assert.equal(s.atores[1].pv,200-13);
+  // quem não tem o estilo não recebe o ajuste
+  for(const id of idsJogadores.filter(x=>x!=='draven-thorne')){
+    ({s,a,b}=await duelo(id));
+    const arma=opcoesDisponiveis(a).find(o=>o.automacao?.tipo==='ataque'&&o.custo?.some(c=>c.tipo==='acao'));
+    if(arma)assert.equal(fonteFacesMinimas(a,arma,arma.automacao),null,id);
+  }
+});
+
+test('#59 Soco bônus das Artes Marciais também prepara Mão de Dolo na Gaveta',async()=>{
+  let {s,a,b}=await duelo('loteria');b.pv=200;b.ficha.pvMaximos=200;
+  const bonus=opcoesDisponiveis(a).find(o=>/^Soco \+/.test(o.nome)&&o.custo?.some(c=>c.tipo==='bonus'));
+  assert.ok(bonus?.composicao?.modos.some(m=>m.id==='golpe-mao-de-dolo'),'soco bônus tem o modo Golpe + Mão de Dolo');
+  const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+  const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo'),vistos=[];
+  const rolar=async(formula,meta)=>{
+    if(meta.tipo==='ataque')return {total:22,natural:17,formula};
+    const usar=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado);vistos.push(...usar);
+    return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'golpe-normal',alvoId:b.id}]},player,rolar);
+  const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,composicao:[{modoId:'golpe-mao-de-dolo',alvoId:b.id}]},player,rolar);
+  assert.ok(vistos.some(x=>x.id===dolo.id&&x.preSelecionado),'Mão de Dolo chega marcada no dano');
+  assert.equal(s.atores[0].bonus,0,'gastou a ação bônus');
+  assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1,'1 Foco da Mão de Dolo');assert.equal(s.atores[1].pv,pv-9);
+});
+
+test('#61 Disfarçar-se e Mente Desperta: marcadores com duração e encerramento conjunto',async()=>{
+  let {s,a,b}=await duelo('skimi');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'1-disfarcar-se-29',alvo:a.id},player,roladorSala().rolar);
+  let disf=s.atores[0].efeitosAtivos.find(e=>e.nome==='Disfarçado');
+  assert.ok(disf?.marcador&&disf.duracao.restante===600,'Disfarçado por 1 hora (600 rodadas)');assert.equal(s.atores[0].rec['espaco-1']??null,null);
+  const encerrarDisf=opcoesDisponiveis(s.atores[0]).find(o=>o.automacao?.tipo==='encerrar_efeito'&&/Disfar/.test(o.nome));assert.ok(encerrarDisf);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:encerrarDisf.id,alvo:a.id},player,roladorSala().rolar);
+  assert.ok(!s.atores[0].efeitosAtivos.some(e=>e.nome==='Disfarçado'),'encerrado pelo jogador');
+  // Mente Desperta: os dois recebem o marcador; um novo vínculo substitui o anterior; encerrar remove dos dois
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',alvo:b.id},player,roladorSala().rolar);
+  const md=x=>(x.efeitosAtivos??[]).filter(e=>e.nome==='Mente Desperta');
+  assert.equal(md(s.atores[0]).length,1);assert.equal(md(s.atores[1]).length,1);assert.equal(md(s.atores[1])[0].duracao.restante,30,'3 minutos');
+  const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=3;c.y=0;s.ordem.push(c.id);s.atores[0].bonus=1;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mente-desperta-acao',alvo:c.id},player,roladorSala().rolar);
+  assert.equal(md(s.atores[1]).length,0,'vínculo anterior removido');assert.equal(md(s.atores[2]).length,1);assert.equal(md(s.atores[0]).length,1);
+  const encerrar=opcoesDisponiveis(s.atores[0]).find(o=>o.automacao?.tipo==='encerrar_efeito'&&/Mente/.test(o.nome));
+  assert.ok(encerrar&&!opcoesDisponiveis(s.atores[2]).some(o=>o.automacao?.tipo==='encerrar_efeito'),'só o conjurador encerra');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:encerrar.id,alvo:a.id},player,roladorSala().rolar);
+  assert.equal(md(s.atores[0]).length+md(s.atores[2]).length,0,'os dois marcadores saem juntos');
+});
+
+test('#61 Força Fantasmagórica: token público, salvaguarda única, dano gratuito 1x por turno e Estudar encerra tudo',async()=>{
+  let {s,a,b}=await duelo('skimi',undefined,{distancia:6});b.pv=200;b.ficha.pvMaximos=200;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'2-forca-fantasmagorica-22',alvo:b.id,ilusaoCausaDano:true},player,roladorSala({salva:2}).rolar);
+  const alvo=()=>s.atores[1],skimi=()=>s.atores[0];
+  assert.equal(s.pecas.length,1,'token público da ilusão');assert.deepEqual(s.pecas[0].posicao,{x:6,y:0});
+  const marcador=alvo().efeitosAtivos.find(e=>e.nome==='Força Fantasmagórica');assert.ok(marcador?.ilusaoId===s.pecas[0].id);
+  const estudar=opcoesDisponiveis(alvo()).find(o=>/^Estudar/.test(o.nome));assert.ok(estudar,'alvo ganha Estudar');
+  const dano=opcoesDisponiveis(skimi()).find(o=>o.automacao?.tipo==='dano_ilusao');assert.ok(dano&&!dano.custo.length,'dano gratuito concedido no turno da conjuração');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:dano.id,alvo:a.id},player,roladorSala({dano:9}).rolar);
+  assert.equal(alvo().pv,191,'2d8 psíquico');
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:dano.id,alvo:a.id},player,roladorSala({dano:9}).rolar),/já foi usada neste turno/);
+  // a salvaguarda não se repete no turno do alvo
+  s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala().rolar);
+  assert.ok(alvo().efeitosAtivos.some(e=>e.nome==='Força Fantasmagórica'),'sem nova salvaguarda');
+  // longe da ilusão: dano negado
+  alvo().x=12;s.vez=0;skimi().usosTurno={};
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:dano.id,alvo:a.id},player,roladorSala().rolar),/até 1,5 m/);
+  alvo().x=6;s.vez=1;
+  // Estudar com sucesso remove marcador, token e o dano do conjurador
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:b.id,opcao:estudar.id},gm,roladorSala({d20:15}).rolar);
+  assert.ok(!alvo().efeitosAtivos.some(e=>e.nome==='Força Fantasmagórica'));assert.equal(s.pecas.length,0);
+  assert.ok(!opcoesDisponiveis(skimi()).some(o=>o.automacao?.tipo==='dano_ilusao'));assert.equal(skimi().concentracaoAtiva,undefined);
+  // sem marcar "Ilusão causa dano", nada de dano gratuito
+  ({s,a,b}=await duelo('skimi',undefined,{distancia:6}));
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'2-forca-fantasmagorica-22',alvo:b.id},player,roladorSala({salva:2}).rolar);
+  assert.ok(!opcoesDisponiveis(s.atores[0]).some(o=>o.automacao?.tipo==='dano_ilusao'));
+});
+
+test('#49 M10 tipo de criatura: Imobilizar Pessoa só em humanoides',async()=>{
+  let {s,a,b}=await duelo('skimi',undefined,{distancia:6});
+  b.ficha.tipoCriatura='fera';
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'2-imobilizar-pessoa-24',alvo:b.id},player,roladorSala({salva:2}).rolar),/humanoide/);
+  b.ficha.tipoCriatura='humanoide';
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'2-imobilizar-pessoa-24',alvo:b.id},player,roladorSala({salva:2}).rolar);
+  assert.ok(temCondicao(s.atores[1],'paralisado'));
+  assert.equal(tipoCriatura({ficha:{}}),'humanoide');
 });
