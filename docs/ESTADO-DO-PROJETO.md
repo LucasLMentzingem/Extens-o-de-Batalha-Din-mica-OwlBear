@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.26, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+Revisão de 15 de novembro de 2026, versão 0.8.28, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
 
 ## Entregas recentes
 
@@ -18,6 +18,7 @@ Revisão de 15 de novembro de 2026, versão 0.8.26, linha 0.8.x. Contribuição 
 | 0.8.22 | Duplicação de NPCs | Token duplicado recebe ator independente; equipamentos e escolhas preservados, PV/recursos iniciais, sem efeitos temporários ou dono |
 | 0.8.24 | Estabilização | Bênção no relógio, oportunidades na trajetória inteira e primeira paridade de ataques compostos |
 | 0.8.25 | Importação de pastas | Pastas de fichas viram grupos reutilizáveis |
+| 0.8.28 | M05, M06 e fichas | Zonas persistentes (Emaranhar), prévia vermelha de trajetória, entidades invocadas (Familiar, Mãos Mágicas), Ilusão Menor, Prostrador por tamanho, dados explosivos, Taumaturgia e Mão de Dolo na Gaveta do golpe avulso |
 | 0.8.26 | Fichas de nível 3 | Paridade #65, Destruidor de Hordas na Gaveta, Desarme, Mão de Dolo preparada, Magia Potencializada por dados, Magia Duplicada e escolha da Presa do Caçador no descanso |
 
 O manual de criação de fichas está em [MANUAL-CRIACAO-FICHAS.md](MANUAL-CRIACAO-FICHAS.md).

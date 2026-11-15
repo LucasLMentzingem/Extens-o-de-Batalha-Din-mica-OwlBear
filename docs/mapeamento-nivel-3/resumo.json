@@ -19,11 +19,11 @@
     "traço_espécie": 31
   },
   "porPortabilidade": {
-    "ASSISTIDO": 82,
+    "ASSISTIDO": 81,
     "INTERPRETACAO": 6,
-    "NOVO_MODULO": 15,
-    "PARCIAL": 89,
-    "PORTAVEL": 128
+    "NOVO_MODULO": 14,
+    "PARCIAL": 87,
+    "PORTAVEL": 132
   },
   "porEstadoModulo": {
     "PARCIAL": 10,
