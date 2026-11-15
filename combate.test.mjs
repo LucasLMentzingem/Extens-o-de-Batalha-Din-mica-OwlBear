@@ -2390,3 +2390,17 @@ test('M06 Ilusão Menor: peça visual estática pública, sem ficha nem iniciati
   for(let i=0;i<9;i++)s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
   assert.equal(s.pecas.length,1);s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);assert.equal(s.pecas.length,0,'1 minuto');
 });
+
+test('#59 Gaveta do Golpe Desarmado avulso prepara Mão de Dolo (gasta Foco só se acertar)',async()=>{
+  for(const acerta of [true,false]){
+    let {s,a,b}=await duelo('loteria');const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+    const modo=golpe.composicao?.modos.find(m=>m.id==='golpe-mao-de-dolo');assert.ok(modo,'modo preparado na Gaveta');
+    const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo'),foco=a.rec['pontos-de-foco'],pv=b.pv,vistos=[];
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'golpe-mao-de-dolo',alvoId:b.id}]},player,async(formula,meta)=>{
+      if(meta.tipo==='ataque')return acerta?{total:22,natural:17,formula}:{total:3,natural:2,formula};
+      const usar=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado);vistos.push(...usar);
+      return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};});
+    if(acerta){assert.ok(vistos.some(x=>x.id===dolo.id&&x.preSelecionado));assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1);assert.equal(s.atores[1].pv,pv-9);}
+    else{assert.equal(s.atores[0].rec['pontos-de-foco'],foco,'errou: nada cobrado');}
+  }
+});

@@ -281,6 +281,14 @@ function corrigirMagiasRevisao(f){
       ]};}
       if(dolo&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente'))f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
     }
+    // #59 Gaveta do Golpe Desarmado avulso: mesma pré-seleção de Mão de Dolo da Torrente (1 golpe por uso).
+    if(/^soco|golpe desarmado/.test(completo)&&!/^torrente/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.ataques&&(!o.composicao||o.composicao.golpeDesarmado)){
+      const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento);
+      if(dolo){const golpe=structuredClone(o.automacao);delete golpe.ataques;golpe.tags=[...new Set([...(golpe.tags??[]),'desarmado'])];
+        o.composicao={golpeDesarmado:true,quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'golpe-normal',modos:[
+          {id:'golpe-normal',nome:'Golpe normal',descricao:'Golpe desarmado sem adicionais preparados.',tipo:'ataque',limitePorUso:1,automacao:golpe},
+          {id:'golpe-mao-de-dolo',nome:'Golpe + Mão de Dolo',descricao:'Mão de Dolo já marcada: só se aplica se o golpe acertar e ainda estiver disponível no turno; então gasta 1 Foco.',tipo:'ataque',limitePorUso:1,preparar:[dolo.id],automacao:structuredClone(golpe)}]};}
+    }
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano'){o.automacao.elementos=['contundente','cortante','perfurante'];const m=/CD (\d+)[^\[]*\[([^\]]+)\]/.exec(o.descricao??'');o.automacao.redirecionar??={recurso:'pontos-de-foco',cd:Number(m?.[1])||11,dano:m?.[2]??'2d6+3'};}
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
     if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
