@@ -1,5 +1,10 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — retorno à contagem normal 0.8.20
+
+- Recuperação confirmada pelo usuário. Mesma implementação da 0.8.192 republicada como 0.8.20 por solicitação explícita.
+- Manifesto usual e endereços alternativos apontam à versão normalizada.
+
 ## 2026-11-15 — recuperação do saldo da Skimi 0.8.192
 
 - Causa reproduzida no backup fornecido: 9604.3 PO multiplicados por 100 resultam em 960429.9999999999. A validação exigia inteiro exato e bloqueava a hidratação da sala.
