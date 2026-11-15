@@ -1,8 +1,8 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.27';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.27';
-import {compactarEstado} from './catalog.mjs?v=0.8.27';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.27';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.28';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.28';
+import {compactarEstado} from './catalog.mjs?v=0.8.28';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.28';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -10,7 +10,7 @@ export const emSala=OBR.isAvailable;
 export const pronto=()=>new Promise(resolve=>OBR.onReady(resolve));
 const local=()=>new BroadcastChannel(ns+'/'+OBR.room.id);
 const hidratar=s=>{
-  normalizarComercio(s);
+  normalizarComercio(s);normalizarZonas(s);
   for(const a of s.atores??[]){
     try{a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}
     catch(e){throw Error('Falha ao carregar '+(a.nome??a.ficha?.nome??a.id)+': '+e.message);}
@@ -59,7 +59,7 @@ function extrairResultado(result){
   const grupo=result.groups?.find(g=>g.diceType==='d20');
   const natural=grupo?.dice?.find(d=>d.kept!==false)?.value;
   const segmentos=String(result.rollSummary??'').split(/\s*\|\s*/).filter(Boolean);
-  const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo};}):null;
+  const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo,grupos:g?[g]:[]};}):null;
   return {total:result.totalValue,natural:Number.isFinite(natural)?natural:null,formula:result.diceNotation,resumo:result.rollSummary,grupos:result.groups??[],resultados};
 }
 // #24 Jogador ausente não trava a mesa: quem não está na sala tem a rolagem enviada direto ao mestre,
@@ -181,6 +181,22 @@ function executarDice(usuario,formula){
     const timer=setTimeout(()=>finish('Dice+ não respondeu. Confira a extensão antes de tentar novamente.'),20000);
     OBR.broadcast.sendMessage('dice-plus/roll-request',{rollId,playerId:usuario.id,playerName:usuario.name,source:ns,timestamp:Date.now(),diceNotation:formula,rollTarget:'dm',showResults:false},{destination:'ALL'}).catch(e=>finish(e.message));
   });
+}
+// M06 (#45): o mestre cria o token de cada entidade invocada (id fixo, sem duplicar) e apaga o de quem acabou.
+const prefixoInvocacao='laarte-invocacao-';
+async function sincronizarTokensInvocacao(s,dpi){
+  const itens=await OBR.scene.items.getItems(i=>String(i.id).startsWith(prefixoInvocacao));
+  const lado=1254,novos=[];
+  for(const a of s.atores.filter(x=>x.invocacao&&!x.token)){
+    const id=prefixoInvocacao+a.id;a.token=id;
+    if(itens.some(i=>i.id===id))continue;
+    const escala=a.ficha.tamanho==='miudo'?.5:1;
+    novos.push(buildImage({url:new URL('./'+(a.invocacao.imagem??'assets/tokens/invocacao-padrao.png'),location.href).href,mime:'image/png',width:lado,height:lado},{dpi:lado/escala,offset:{x:lado/2,y:lado/2}})
+      .id(id).name(a.nome).layer('CHARACTER').position({x:a.x*dpi,y:a.y*dpi}).build());
+  }
+  if(novos.length)await OBR.scene.items.addItems(novos);
+  const orfaos=itens.filter(i=>!s.atores.some(a=>a.token===i.id)).map(i=>i.id);
+  if(orfaos.length)await OBR.scene.items.deleteItems(orfaos);
 }
 async function getTokens(){
   return (await OBR.scene.items.getItems()).filter(x=>x.type==='IMAGE' && x.layer==='CHARACTER').map(x=>({id:x.id,name:x.name,x:x.position.x,y:x.position.y,visible:x.visible}));
@@ -308,6 +324,7 @@ export async function host(){
       }
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*dpi,y:a.y*dpi};}});
+      await sincronizarTokensInvocacao(next,dpi); // M06
       persistir(key,next);
       const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
       await mostrar(estadoMostrar);await reply({});
@@ -340,7 +357,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.27',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.28',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }

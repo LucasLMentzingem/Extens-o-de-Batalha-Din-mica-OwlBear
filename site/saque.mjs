@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.27';
-import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.27';
-import {resumoItem} from './ficha-view.mjs?v=0.8.27';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.28';
+import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.28';
+import {resumoItem} from './ficha-view.mjs?v=0.8.28';
 const root=document.querySelector('#saque'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const atorId=new URLSearchParams(location.search).get('ator');

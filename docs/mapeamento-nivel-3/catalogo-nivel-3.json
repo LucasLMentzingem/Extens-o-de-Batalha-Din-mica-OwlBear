@@ -2243,21 +2243,24 @@
       "movimento": "",
       "gatilho": "",
       "especial": "",
-      "status_extensao": "PARCIAL",
+      "status_extensao": "PRONTO_FICHA",
       "modelo_extensao": "salva",
       "lacuna_principal": "A interação principal cabe no motor, mas concentração e término do efeito ainda não são genéricos.",
       "fonte_secao": "Spells > Spell Descriptions",
       "origem_sistema": "magia",
       "status_portabilidade": "PORTAVEL",
       "modulos_existentes": [
-        "salvaguarda_por_alvo",
         "dano_meia_ou_anula",
         "efeito_na_falha",
-        "limite_alcance_18m"
+        "escape_atletismo",
+        "limite_alcance_18m",
+        "salvaguarda_por_alvo",
+        "terreno_dificil_zona",
+        "zona_persistente"
       ],
-      "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
+      "lacuna_atual": "0.8.28: zona persistente pública (M05), terreno difícil no trajeto, Contido até o fim da magia e ação para se soltar. Falta smoke visual em sala real.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.13"
+      "avaliado_na_versao": "0.8.28"
     },
     {
       "id": "spell-enthrall",
@@ -2514,21 +2517,24 @@
       "movimento": "",
       "gatilho": "reação/condição descrita",
       "especial": "escolha durante uso",
-      "status_extensao": "EXIGE_MODULO",
+      "status_extensao": "PARCIAL",
       "modelo_extensao": "invocacao",
       "lacuna_principal": "Criar/controlar tokens, ficha derivada, iniciativa e comandos de criatura.",
       "fonte_secao": "Spells > Spell Descriptions",
       "origem_sistema": "magia",
-      "status_portabilidade": "NOVO_MODULO",
+      "status_portabilidade": "PARCIAL",
       "modulos_existentes": [
-        "limite_alcance_18m"
+        "entidade_vinculada",
+        "limite_alcance_18m",
+        "reforco_iniciativa",
+        "token_invocacao"
       ],
-      "lacuna_atual": "Exige entidade/token derivado, transformação de ficha ou zona persistente ainda não generalizada.",
+      "lacuna_atual": "0.8.28: entidade com ficha própria, dono, lado, token T e reforço (M06). Forma única provisória; formas oficiais e sentidos compartilhados ainda manuais.",
       "modulos_necessarios": [
         "M03-escolhas-declarativas",
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.13"
+      "avaliado_na_versao": "0.8.28"
     },
     {
       "id": "spell-find-steed",
@@ -4145,18 +4151,21 @@
       "movimento": "",
       "gatilho": "",
       "especial": "",
-      "status_extensao": "ASSISTIDO",
+      "status_extensao": "PRONTO_FICHA",
       "modelo_extensao": "assistido",
       "lacuna_principal": "Pode constar na ficha, gastar recursos e mostrar a carta; resolução narrativa/manual.",
       "fonte_secao": "Spells > Spell Descriptions",
       "origem_sistema": "magia",
-      "status_portabilidade": "ASSISTIDO",
+      "status_portabilidade": "PORTAVEL",
       "modulos_existentes": [
-        "limite_alcance_18m"
+        "duracao",
+        "entidade_vinculada",
+        "limite_alcance_18m",
+        "token_invocacao"
       ],
-      "lacuna_atual": "Pode constar na ficha e gastar recursos; a consequência permanece sob decisão do mestre.",
+      "lacuna_atual": "0.8.28: mão como entidade controlável por 1 minuto (M06). O limite de 9 m do conjurador segue arbitrado.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.13"
+      "avaliado_na_versao": "0.8.28"
     },
     {
       "id": "spell-magic-missile",
@@ -4452,24 +4461,24 @@
       "movimento": "",
       "gatilho": "",
       "especial": "",
-      "status_extensao": "EXIGE_MODULO",
+      "status_extensao": "PRONTO_FICHA",
       "modelo_extensao": "geometria_area",
       "lacuna_principal": "Templates espaciais além do círculo: cone, linha, cubo, cilindro, parede ou emanação móvel.",
       "fonte_secao": "Spells > Spell Descriptions",
       "origem_sistema": "magia",
-      "status_portabilidade": "PARCIAL",
+      "status_portabilidade": "PORTAVEL",
       "modulos_existentes": [
-        "salvaguarda_por_alvo",
-        "dano_meia_ou_anula",
-        "efeito_na_falha",
         "area_circulo_quadrado_cone_linha",
-        "limite_alcance_18m"
+        "dano_meia_ou_anula",
+        "duracao",
+        "efeito_na_falha",
+        "limite_alcance_18m",
+        "peca_visual",
+        "salvaguarda_por_alvo"
       ],
-      "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "modulos_necessarios": [
-        "M05-zonas-persistentes"
-      ],
-      "avaliado_na_versao": "0.8.13"
+      "lacuna_atual": "0.8.28: imagem como peça visual estática pública por 1 minuto (M06). Som e investigação seguem interpretativos.",
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.28"
     },
     {
       "id": "spell-mirror-image",
@@ -5928,25 +5937,23 @@
       "movimento": "",
       "gatilho": "",
       "especial": "",
-      "status_extensao": "PARCIAL",
+      "status_extensao": "PRONTO_FICHA",
       "modelo_extensao": "ataque",
       "lacuna_principal": "Ataque funciona; escolha do tipo de dano e dados explosivos exigem resolução declarativa.",
       "fonte_secao": "Spells > Spell Descriptions",
       "origem_sistema": "magia",
-      "status_portabilidade": "PARCIAL",
+      "status_portabilidade": "PORTAVEL",
       "modulos_existentes": [
-        "ataque_vs_ca",
-        "dano_tipado",
         "aprimoramento_pos_acerto",
+        "ataque_vs_ca",
         "critico",
+        "dados_explosivos",
+        "dano_tipado",
         "limite_alcance_18m"
       ],
-      "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "modulos_necessarios": [
-        "M09-modificadores-rolagem",
-        "M13-dados-estendidos"
-      ],
-      "avaliado_na_versao": "0.8.13"
+      "lacuna_atual": "0.8.28: dados explosivos (M13) com limite de 3 dados, em todos os caminhos de ataque.",
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.28"
     },
     {
       "id": "spell-spare-the-dying",
@@ -6301,23 +6308,22 @@
       "movimento": "",
       "gatilho": "",
       "especial": "escolha durante uso",
-      "status_extensao": "PARCIAL",
+      "status_extensao": "PRONTO_FICHA",
       "modelo_extensao": "efeito",
       "lacuna_principal": "Precisa de um prompt declarativo para escolhas feitas durante a conjuração.",
       "fonte_secao": "Spells > Spell Descriptions",
       "origem_sistema": "magia",
-      "status_portabilidade": "PARCIAL",
+      "status_portabilidade": "PORTAVEL",
       "modulos_existentes": [
         "buff_debuff",
-        "duracao",
         "concentracao",
-        "limite_alcance_18m"
+        "duracao",
+        "limite_alcance_18m",
+        "vantagem_pericia"
       ],
-      "lacuna_atual": "Voz Amplificada deve dar vantagem em Intimidação por 1 minuto. As demais opções são interpretativas.",
-      "modulos_necessarios": [
-        "M01-ciclo-efeitos"
-      ],
-      "avaliado_na_versao": "0.8.13"
+      "lacuna_atual": "0.8.28: Vantagem em Intimidação por 1 minuto (M01); demais opções interpretativas.",
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.28"
     },
     {
       "id": "spell-thunderwave",

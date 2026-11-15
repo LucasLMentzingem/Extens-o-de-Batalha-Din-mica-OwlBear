@@ -2199,3 +2199,208 @@ test('#56 #62 Presa do Caçador: escolha aberta ao fim do descanso, confirmada p
  s=await aplicar(reaberta,{rev:reaberta.rev,tipo:'descanso',periodo:'longo'},gm,dadoLocal);assert.ok(s.atores[0].escolhasDescanso.length);
  const reaberta2=JSON.parse(JSON.stringify(compactarEstado(s)));for(const a of reaberta2.atores)a.ficha=validar(a.ficha);assert.ok(reaberta2.atores[0].escolhasDescanso.length,'a pendência sobrevive à reabertura');
 });
+
+// ===== M05 — zonas persistentes (issue #44) e trajetória com zonas (M08, issue #47) =====
+import {trechoNaZona,primeiroContato,terrenoDificilDasZonas,entradasNaTrajetoria,pontoNaZona} from './site/zonas.mjs';
+import {normalizarZonas,encerrarConcentracao as encerrarConcM05} from './site/engine.mjs';
+const zonaQuadrada=(x,y,lado=6,extra={})=>({id:'z-'+x+'-'+y,nome:'Teste',centro:{x,y},geometria:{forma:'quadrado',tamanhoM:lado},terrenoDificil:true,afetaConjurador:false,origemAtorId:'dono',...extra});
+async function cenaEmaranhar({distancia=9}={}){
+  let s=novo();const z=adicionar(s,await fichaRev('zurich')),alvo=adicionar(s,await fichaRev('soldado'),'Soldado I'),fora=adicionar(s,await fichaRev('soldado'),'Soldado II');
+  z.dono='p';z.x=0;z.y=0;alvo.x=distancia;alvo.y=0;fora.x=distancia;fora.y=8;
+  s.fase='turnos';s.rodada=1;s.vez=0;s.ordem=[z.id,alvo.id,fora.id];
+  for(const x of s.atores){x.init=10;x.acao=1;x.bonus=1;x.reacao=1;x.metros=9;}
+  const emaranhar=opRev(z,'emaranhar');
+  return {s,z,alvo,fora,emaranhar};
+}
+const conjurar=async(m,{salva=2,ponto}={})=>aplicar(m.s,{rev:m.s.rev,tipo:'usar',ator:m.z.id,opcao:m.emaranhar.id,ponto:ponto??{x:m.alvo.x,y:m.alvo.y}},player,roladorSala({salva}).rolar);
+
+test('M05 geometria: trecho contínuo, travessia completa, primeiro contato e zonas sobrepostas',()=>{
+  const q=zonaQuadrada(5,0,4);
+  assert.deepEqual(trechoNaZona(q,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.3,0.7],'começa e termina fora, mas atravessa');
+  assert.equal(trechoNaZona(q,{x:0,y:5},{x:10,y:5}),null,'passa ao lado');
+  const circ={id:'c',centro:{x:5,y:0},geometria:{forma:'circulo',raioM:1},afetaConjurador:true};
+  assert.deepEqual(trechoNaZona(circ,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.4,0.6]);
+  const contato=primeiroContato([circ,q],{x:0,y:0},{x:10,y:0},{id:'outro'});assert.equal(contato.zona.id,q.id);assert.equal(+contato.ponto.x.toFixed(3),3);
+  assert.equal(primeiroContato([q],{x:0,y:0},{x:10,y:0},{id:'dono'}),null,'a zona não é hostil para quem conjurou');
+  assert.equal(+terrenoDificilDasZonas([q,zonaQuadrada(6,0,4,{id:'z2'})],{x:0,y:0},{x:10,y:0},{id:'outro'}).toFixed(3),5,'sobreposição de 3..8 conta uma vez');
+  assert.deepEqual(entradasNaTrajetoria([q],{x:5,y:0},{x:10,y:0},{id:'outro'}),[],'quem já estava dentro não "entra"');
+  assert.ok(pontoNaZona(q,{x:7,y:2})&&!pontoNaZona(q,{x:7.1,y:0}));
+});
+
+test('M05 Emaranhar: conjuração cria uma zona pública, prende quem falha e poupa o conjurador',async()=>{
+  const m=await cenaEmaranhar();
+  const s=await conjurar(m);
+  assert.equal(s.zonas.length,1);const z=s.zonas[0];
+  assert.deepEqual({nome:z.nome,forma:z.geometria.forma,lado:z.geometria.tamanhoM,centro:z.centro,origem:z.origemAtorId,turnos:z.duracao.restante,terreno:z.terrenoDificil},
+    {nome:'Emaranhar',forma:'quadrado',lado:6,centro:{x:9,y:0},origem:m.z.id,turnos:10,terreno:true});
+  assert.equal(z.concentracaoId,s.atores[0].concentracaoAtiva.id,'zona vinculada à concentração');
+  assert.ok(temCondicao(s.atores[1],'contido'),'alvo na área falhou e ficou Contido');
+  assert.ok(!temCondicao(s.atores[2],'contido'),'quem estava fora da área não é afetado');
+  assert.ok(publico(s).zonas.some(x=>x.id===z.id),'a zona vai para a visão pública de todos');
+  // Conjurador dentro da própria área não faz salvaguarda
+  const m2=await cenaEmaranhar({distancia:3});m2.z.x=3;m2.z.y=1;const r=roladorSala({salva:2});
+  const s2=await aplicar(m2.s,{rev:m2.s.rev,tipo:'usar',ator:m2.z.id,opcao:m2.emaranhar.id,ponto:{x:3,y:0}},player,r.rolar);
+  assert.ok(!temCondicao(s2.atores[0],'contido'));assert.equal(r.formulas.filter(x=>x.meta.tipo==='salvaguarda').length,1);
+});
+
+test('M05 Emaranhar: atravessar a área custa o trecho em dobro e não pede nova salvaguarda; prévia vermelha só para quem é afetado',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  // Soldado II atravessa a área de fora a fora (entra em y=3 e sai em y=-3)
+  s.vez=2;const sold=s.atores[2];sold.x=9;sold.y=5;sold.metros=30;
+  const r=roladorSala();
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:sold.id,x:9,y:-5},gm,r.rolar);
+  assert.equal(s.atores[2].y,-5);assert.equal(+s.atores[2].metros.toFixed(3),30-10-6,'10 m andados + 6 m extras dentro da área');
+  assert.ok(!r.formulas.some(x=>x.meta.tipo==='salvaguarda'),'Emaranhar não pede salvaguarda ao entrar');
+  assert.ok(!temCondicao(s.atores[2],'contido'));
+  const contato=primeiroContato(s.zonas,{x:9,y:5},{x:9,y:-5},s.atores[2]);assert.equal(+contato.ponto.y.toFixed(3),3,'vermelho a partir de y=3');
+  assert.equal(primeiroContato(s.zonas,{x:0,y:0},{x:12,y:0},s.atores[0]),null,'para Zurich a área não é hostil');
+  // Zurich anda dentro da própria área sem custo extra
+  s.vez=0;s.atores[0].metros=9;s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:m.z.id,x:7,y:0},player,r.rolar);assert.equal(s.atores[0].metros,2);
+});
+
+test('M05 Emaranhar: soltar-se usa a Ação e Atletismo contra a CD; fim da concentração limpa área e Contido',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  s.vez=1;const preso=s.atores[1],soltar=opcoesDisponiveis(preso).find(o=>o.automacao?.tipo==='escapar');
+  assert.ok(soltar,'a condição concede a opção de se soltar');assert.equal(preso.metros,9);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:preso.id,opcao:soltar.id},gm,roladorSala({d20:2}).rolar);
+  assert.ok(temCondicao(s.atores[1],'contido'),'falhou no teste');assert.equal(s.atores[1].acao,0);
+  s.atores[1].acao=1;const r=roladorSala({d20:15});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:preso.id,opcao:soltar.id},gm,r.rolar);
+  assert.equal(r.formulas[0].meta.cd,12);assert.ok(!temCondicao(s.atores[1],'contido'),'se soltou');assert.equal(s.zonas.length,1,'a área continua');
+  // Encerrar a concentração (nova magia de concentração) remove a área e quem ainda estiver Contido
+  const m2=await cenaEmaranhar();let t=await conjurar(m2);assert.ok(temCondicao(t.atores[1],'contido'));
+  const zurich=t.atores[0];encerrarConcM05(t,zurich,'teste');
+  assert.equal(t.zonas.length,0);assert.ok(!temCondicao(t.atores[1],'contido'));
+});
+
+test('M05 Emaranhar: expira em 10 rodadas no combate e no avanço de tempo do mestre',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  for(let rodada=0;rodada<10;rodada++)for(const ator of [...s.ordem]){const atualId=atual(s).id;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:atualId,confirmado:true},gm,roladorSala({salva:2}).rolar);}
+  assert.equal(s.zonas.length,0,'terminou no início do 11º turno de Zurich');assert.ok(!s.atores[0].concentracaoAtiva);assert.ok(!temCondicao(s.atores[1],'contido'));
+  // Fora de combate: o avanço de tempo do mestre conta a duração da área
+  const m2=await cenaEmaranhar();let t=await conjurar(m2);
+  t=await aplicar(t,{rev:t.rev,tipo:'encerrar'},gm,()=>0);assert.equal(t.zonas.length,1,'a área continua depois do combate');
+  const passos=t.zonas[0].duracao.restante;
+  for(let i=0;i<passos-1;i++)t=await aplicar(t,{rev:t.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+  assert.equal(t.zonas.length,1);t=await aplicar(t,{rev:t.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+  assert.equal(t.zonas.length,0,'expirou pelo relógio do mestre');assert.ok(!t.atores[0].concentracaoAtiva);
+});
+
+test('M05 várias zonas, gatilhos genéricos de entrada e restauração idempotente após reabrir a cena',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  // segunda zona genérica com gatilho de entrada (salvaguarda + dano), para validar o contrato do módulo
+  s.zonas.push({id:'fogo',nome:'Chamas',origemAtorId:'npc',centro:{x:0,y:-10},geometria:{forma:'circulo',raioM:2},cd:13,afetaConjurador:true,gatilhos:[{evento:'entrada',salva:{atributo:'des'},dano:'2d6',elemento:'fogo',umaVezPorTurno:true}]});
+  s.vez=2;const sold=s.atores[2];sold.x=0;sold.y=-5;sold.metros=30;const pv=sold.pv;const r=roladorSala({salva:2,dano:7});
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:sold.id,x:0,y:-15},gm,r.rolar);
+  assert.ok(r.formulas.some(x=>x.meta.tipo==='salvaguarda'&&x.meta.cd===13));assert.equal(s.atores[2].pv,pv-7,'entrar na zona de chamas causa dano');
+  // restauração: JSON (como o localStorage), duplicada e com zona órfã
+  const salvo=JSON.parse(JSON.stringify(compactarEstado(s)));salvo.zonas.push(structuredClone(salvo.zonas[0]),{id:'orfa',centro:{x:0,y:0},geometria:{forma:'circulo',raioM:1},concentracaoId:'acabou'});
+  normalizarZonas(salvo);normalizarZonas(salvo);
+  assert.deepEqual(salvo.zonas.map(z=>z.id).sort(),[s.zonas[0].id,'fogo'].sort(),'uma representação por zona, sem órfãs');
+});
+
+// ===== Pendências das sete fichas (0.8.28) =====
+import {facesMaximas,tamanhoAte,modoPericiaEquipamento as modoPericiaM01} from './site/engine.mjs';
+
+test('#57 Ataque Prostrador só derruba Grande ou menor (M10)',async()=>{
+  for(const [tamanho,cai] of [[undefined,true],['Grande',true],['Enorme',false]]){
+    let {s,a,b}=await duelo('draven-thorne');if(tamanho)b.ficha.tamanho=tamanho;
+    const prostrador=a.ficha.opcoes.find(o=>/Ataque Prostrador/.test(o.nome));
+    const rolar=async(f,meta={})=>{if(meta.tipo==='ataque')return {total:20,natural:15,formula:f};if(meta.tipo==='salvaguarda')return {total:1,natural:1,formula:f};
+      const r={total:4,natural:null,formula:f,recursosAtivos:(meta.adicionais??[]).filter(x=>x.id===prostrador.id||x.automatico).map(x=>x.id)};if(Array.isArray(f))r.resultados=f.map(()=>({total:4}));return r;};
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,rolar);
+    assert.equal(temCondicao(s.atores[1],'caido'),cai,String(tamanho));
+  }
+  assert.ok(tamanhoAte({ficha:{}},'grande'),'sem tamanho na ficha = Médio');
+});
+
+test('#60 Explosão Elemental: cada 8 rola mais um d8, até 3 dados extras (M13)',async()=>{
+  assert.equal(facesMaximas({grupos:[{diceType:'d8',dice:[{value:8},{value:3},{value:8,kept:false}]}]},8),1);
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});const explosao=opRev(a,'explosao elemental (fogo)');
+  assert.deepEqual(explosao.automacao.dadosExplosivos,{lados:8,limite:3});
+  const pedidos=[];let n=0;
+  const rolar=async(f,meta={})=>{pedidos.push({f,meta});if(meta.tipo==='ataque')return {total:20,natural:15,formula:f};
+    n++;return n===1?{total:8,faces:[8],formula:f}:{total:8*Number(f[0]),faces:Array(Number(f[0])).fill(8),formula:f};};
+  b.pv=200;b.ficha.pvMaximos=200;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:explosao.id,alvo:b.id},player,rolar);
+  const extras=pedidos.filter(x=>/explosivo/.test(x.meta.titulo??''));
+  assert.deepEqual(extras.map(x=>x.f),['1d8','1d8','1d8'],'para no limite de 3 dados');assert.equal(s.atores[1].pv,200-8-24);
+  // sem 8, nenhum dado extra
+  ({s,a,b}=await duelo('nikki',undefined,{distancia:6}));const p2=[];
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:explosao.id,alvo:b.id},player,async(f,meta={})=>{p2.push(meta);return meta.tipo==='ataque'?{total:20,natural:15,formula:f}:{total:5,faces:[5],formula:f};});
+  assert.ok(!p2.some(m=>/explosivo/.test(m.titulo??'')));
+});
+
+test('#60 #61 Taumaturgia dá Vantagem em Intimidação por 1 minuto; Queda Suave registra e gasta reação e espaço',async()=>{
+  for(const nome of ['nikki','skimi']){
+    let {s,a}=await duelo(nome);const t=opRev(a,'taumaturgia');assert.ok(t?.automacao,nome);
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:t.id,alvo:a.id},player,roladorSala().rolar);
+    assert.equal(modoPericiaM01(s.atores[0],'Intimidação'),'vantagem',nome);assert.equal(modoPericiaM01(s.atores[0],'Enganação'),'normal');
+    const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'teste',ator:a.id,grupo:'pericias',chave:'Intimidação',modo:'normal'},player,r.rolar);
+    assert.match(r.formulas[0].f,/^2d20kh1/);
+    s=await aplicar(s,{rev:s.rev,tipo:'encerrar'},gm,()=>0);
+    for(let i=0;i<10;i++)s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+    assert.equal(modoPericiaM01(s.atores[0],'Intimidação'),'normal','expirou em 1 minuto');
+  }
+  let {s,a}=await duelo('nikki');s.vez=1;const queda=a.ficha.opcoes.find(o=>/Queda Suave/.test(o.nome)),espacos=a.rec['espaco-1'];
+  s=await aplicar(s,{rev:s.rev,tipo:'reagir',ator:a.id,opcao:queda.id},player,roladorSala().rolar);
+  assert.equal(s.atores[0].reacao,0);assert.equal(s.atores[0].rec['espaco-1'],espacos-1);assert.match(s.historico.join(' '),/Queda Suave/);
+});
+
+// ===== M06 — entidades vinculadas e peças visuais (issue #45) =====
+test('M06 Encontrar Familiar: entidade com ficha própria, controlada por quem invocou, e reforço em combate',async()=>{
+  let {s,a,b}=await duelo('skimi');s.fase='preparo';s.ordem=[];
+  const enc=opRev(a,'encontrar familiar');assert.equal(enc.automacao.tipo,'invocar');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:enc.id,ponto:{x:-1,y:-1}},player,roladorSala().rolar);
+  const fam=s.atores.find(x=>x.invocacao);assert.ok(fam,'familiar criado');
+  assert.deepEqual({dono:fam.dono,origem:fam.invocacao.origemAtorId,tamanho:fam.ficha.tamanho,pv:fam.pv,ca:caAtual(fam),imagem:fam.invocacao.imagem},
+    {dono:'p',origem:a.id,tamanho:'miudo',pv:1,ca:11,imagem:'assets/tokens/invocacao-padrao.png'});
+  assert.equal(fam.ficha.lado,'pj','fica do lado de quem invocou');
+  // o jogador que invocou controla o familiar; outro jogador não
+  s.fase='turnos';s.ordem=[a.id,b.id,fam.id];s.vez=2;s.rodada=1;fam.metros=9;fam.acao=1;
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:fam.id,x:-1,y:-2},player,roladorSala().rolar);assert.equal(s.atores.find(x=>x.id===fam.id).y,-2);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'mover',ator:fam.id,x:-1,y:-3},{id:'outro',role:'PLAYER'},()=>0),/não controla/);
+  // conjurar de novo substitui o anterior (uma representação por conjurador)
+  s.fase='preparo';s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:enc.id,ponto:{x:2,y:2}},player,roladorSala().rolar);
+  assert.equal(s.atores.filter(x=>x.invocacao).length,1);
+  // Dispensar e 0 PV encerram a entidade
+  const novo=s.atores.find(x=>x.invocacao);s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:novo.id,opcao:'dispensar-invocacao'},player,roladorSala().rolar);
+  assert.equal(s.atores.filter(x=>x.invocacao).length,0);
+});
+
+test('M06 Mãos Mágicas: em combate rola iniciativa como reforço e some após 1 minuto ou a 0 PV',async()=>{
+  let {s,a,b}=await duelo('nikki');const maos=opRev(a,'maos magicas');assert.equal(maos.automacao.turnos,10);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:maos.id,ponto:{x:3,y:0}},player,roladorSala({d20:12}).rolar);
+  const mao=s.atores.find(x=>x.invocacao);assert.ok(Number.isFinite(mao.init),'iniciativa de reforço');assert.ok(s.ordem.includes(mao.id));assert.equal(atual(s).id,a.id,'a vez não muda');
+  let passes=0;while(s.atores.some(x=>x.invocacao)&&passes<40){s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:atual(s).id,confirmado:true},gm,roladorSala().rolar);passes++;}
+  assert.equal(s.rodada,11,'some no início do 11º turno de Nikki (1 minuto)');
+  assert.equal(s.atores.filter(x=>x.invocacao).length,0,'expirou');assert.ok(!s.ordem.includes(mao.id));
+  ({s,a,b}=await duelo('nikki'));s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:maos.id,ponto:{x:3,y:0}},player,roladorSala().rolar);
+  s.atores.find(x=>x.invocacao).pv=0;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala().rolar);
+  assert.equal(s.atores.filter(x=>x.invocacao).length,0,'a 0 PV some');
+});
+
+test('M06 Ilusão Menor: peça visual estática pública, sem ficha nem iniciativa, removida ao expirar',async()=>{
+  let {s,a}=await duelo('hannah-montana');const ilusao=opRev(a,'ilusao menor');assert.equal(ilusao.automacao.tipo,'peca');
+  const atores=s.atores.length;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ilusao.id,ponto:{x:2,y:2}},player,roladorSala().rolar);
+  assert.equal(s.atores.length,atores,'não cria ator');assert.equal(s.pecas.length,1);assert.deepEqual(publico(s).pecas[0].posicao,{x:2,y:2});
+  s.atores[0].acao=1;await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ilusao.id,ponto:{x:20,y:0}},player,roladorSala().rolar),/alcance/);
+  s=await aplicar(s,{rev:s.rev,tipo:'encerrar'},gm,()=>0);
+  for(let i=0;i<9;i++)s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+  assert.equal(s.pecas.length,1);s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);assert.equal(s.pecas.length,0,'1 minuto');
+});
+
+test('#59 Gaveta do Golpe Desarmado avulso prepara Mão de Dolo (gasta Foco só se acertar)',async()=>{
+  for(const acerta of [true,false]){
+    let {s,a,b}=await duelo('loteria');const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+    const modo=golpe.composicao?.modos.find(m=>m.id==='golpe-mao-de-dolo');assert.ok(modo,'modo preparado na Gaveta');
+    const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo'),foco=a.rec['pontos-de-foco'],pv=b.pv,vistos=[];
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'golpe-mao-de-dolo',alvoId:b.id}]},player,async(formula,meta)=>{
+      if(meta.tipo==='ataque')return acerta?{total:22,natural:17,formula}:{total:3,natural:2,formula};
+      const usar=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado);vistos.push(...usar);
+      return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};});
+    if(acerta){assert.ok(vistos.some(x=>x.id===dolo.id&&x.preSelecionado));assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1);assert.equal(s.atores[1].pv,pv-9);}
+    else{assert.equal(s.atores[0].rec['pontos-de-foco'],foco,'errou: nada cobrado');}
+  }
+});

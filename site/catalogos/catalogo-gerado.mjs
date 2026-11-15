@@ -431,11 +431,11 @@ export default {
     },
     {
       "id": "habilidade.1-emaranhar-concentracao",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Emaranhar · Concentração",
         "categoria": "magia",
-        "descricao": "Ação, 27 m, quadrado de 6 m de terreno difícil por 1 min. Criaturas na área: salvaguarda de FOR CD 12 ou ficam Contidas (ataques contra elas com Vantagem). Uma ação e teste de FOR (Atletismo) CD 12 para se soltar.",
+        "descricao": "Ação, 27 m, quadrado de 6 m de terreno difícil por 1 min (concentração). As plantas não afetam quem conjura. Criaturas na área ao conjurar: salvaguarda de FOR CD 12 ou ficam Contidas até a magia acabar (ataques contra elas com Vantagem). Uma ação e teste de FOR (Atletismo) CD 12 para se soltar. Entrar ou atravessar a área depois não pede salvaguarda: custa deslocamento em dobro.",
         "custo": [
           {
             "tipo": "acao",
@@ -457,10 +457,23 @@ export default {
             "forma": "quadrado",
             "tamanhoM": 6
           },
+          "excluirConjurador": true,
+          "zona": {
+            "nome": "Emaranhar",
+            "turnos": 10,
+            "terrenoDificil": true,
+            "afetaConjurador": false,
+            "cor": "#5fae5b",
+            "gatilhos": []
+          },
           "efeitoFalha": {
             "nome": "Contido por Emaranhar",
             "condicao": "contido",
-            "turnos": 10
+            "turnos": 10,
+            "escape": {
+              "atributo": "for",
+              "pericia": "Atletismo"
+            }
           }
         },
         "concentracao": true
@@ -468,7 +481,7 @@ export default {
     },
     {
       "id": "habilidade.1-encontrar-familiar",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Encontrar Familiar",
         "categoria": "magia",
@@ -477,6 +490,74 @@ export default {
         "circuloBase": 1,
         "requisitosUso": {
           "somenteForaCombate": true
+        },
+        "automacao": {
+          "tipo": "invocar",
+          "alcanceM": 3,
+          "entidade": {
+            "nome": "Familiar",
+            "imagem": "assets/tokens/invocacao-padrao.png",
+            "ficha": {
+              "versaoFormato": 1,
+              "id": "familiar-t",
+              "nome": "Familiar",
+              "tipo": "npc",
+              "classes": [
+                {
+                  "id": "invocacao",
+                  "nivel": 1
+                }
+              ],
+              "tamanho": "miudo",
+              "atributos": {
+                "for": 3,
+                "des": 13,
+                "con": 8,
+                "int": 2,
+                "sab": 12,
+                "car": 7
+              },
+              "pvMaximos": 1,
+              "caBase": 11,
+              "deslocamentosM": {
+                "andar": 1.5,
+                "voo": 18
+              },
+              "opcoes": [
+                {
+                  "id": "familiar-entregar-toque",
+                  "nome": "Entregar magia de toque | reação",
+                  "categoria": "acao",
+                  "descricao": "Quando o conjurador conjura uma magia de toque, o familiar a 30 m pode entregá-la usando a própria reação. Resolução assistida.",
+                  "custo": [
+                    {
+                      "tipo": "reacao",
+                      "quantidade": 1
+                    }
+                  ]
+                },
+                {
+                  "id": "familiar-ajudar",
+                  "nome": "Ajudar | ação",
+                  "categoria": "acao",
+                  "descricao": "Ajuda um aliado em um teste ou ataque. Resolução assistida.",
+                  "custo": [
+                    {
+                      "tipo": "acao",
+                      "quantidade": 1
+                    }
+                  ]
+                }
+              ],
+              "recursos": [],
+              "notas": [
+                {
+                  "nome": "Entidade invocada",
+                  "descricao": "Forma única provisória (moeda com T). CA 11, PV 1, voo 18 m. Não ataca. Some a 0 PV; o conjurador pode dispensá-lo."
+                }
+              ]
+            }
+          }
         }
       }
     },
@@ -2246,7 +2327,7 @@ export default {
     },
     {
       "id": "habilidade.ataque-prostrador",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Ataque Prostrador",
         "categoria": "acao",
@@ -2269,6 +2350,7 @@ export default {
           "salva": {
             "atributo": "for",
             "cd": 13,
+            "tamanhoMaximo": "grande",
             "efeitoFalha": {
               "nome": "Ataque Prostrador",
               "condicao": "caido",
@@ -5352,7 +5434,7 @@ export default {
     },
     {
       "id": "habilidade.truque-explosao-elemental-acido-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (ácido) · ataque +5 · classe",
         "categoria": "magia",
@@ -5370,14 +5452,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "acido",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-fogo-ataque-5-classe",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
         "categoria": "magia",
@@ -5395,7 +5481,11 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "fogo",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "composicao": {
           "quantidadeMinima": 1,
@@ -5499,7 +5589,7 @@ export default {
     },
     {
       "id": "habilidade.truque-explosao-elemental-frio-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (frio) · ataque +5 · classe",
         "categoria": "magia",
@@ -5517,14 +5607,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "frio",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-psiquico-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (psíquico) · ataque +5 · classe",
         "categoria": "magia",
@@ -5542,14 +5636,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "psiquico",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-raio-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (raio) · ataque +5 · classe",
         "categoria": "magia",
@@ -5567,14 +5665,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "raio",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-trovejante-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (trovejante) · ataque +5 · classe",
         "categoria": "magia",
@@ -5592,14 +5694,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "trovejante",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-veneno-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (veneno) · ataque +5 · classe",
         "categoria": "magia",
@@ -5617,7 +5723,11 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "veneno",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
@@ -5727,23 +5837,33 @@ export default {
     },
     {
       "id": "habilidade.truque-ilusao-menor",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Ilusão Menor",
         "categoria": "magia",
-        "descricao": "Ação, 9 m, 1 min: cria um som ou uma imagem parada que cabe num cubo de 1,5 m. Teste de Investigação contra CD 13 revela a ilusão.",
+        "descricao": "Ação, 9 m, 1 min: cria um som ou uma imagem parada que cabe num cubo de 1,5 m. Teste de Investigação contra CD 13 revela a ilusão. Imagem: peça visual estática (moeda com T), sem ficha nem iniciativa, removida ao fim de 1 minuto. Som: interpretativo.",
         "custo": [
           {
             "tipo": "acao",
             "quantidade": 1
           }
         ],
-        "circuloBase": 0
+        "circuloBase": 0,
+        "automacao": {
+          "tipo": "peca",
+          "alcanceM": 9,
+          "turnos": 10,
+          "peca": {
+            "nome": "Ilusão Menor",
+            "tamanhoM": 1.5,
+            "imagem": "assets/tokens/invocacao-padrao.png"
+          }
+        }
       }
     },
     {
       "id": "habilidade.truque-maos-magicas",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Mãos Mágicas",
         "categoria": "magia",
@@ -5754,12 +5874,69 @@ export default {
             "quantidade": 1
           }
         ],
-        "circuloBase": 0
+        "circuloBase": 0,
+        "automacao": {
+          "tipo": "invocar",
+          "alcanceM": 9,
+          "turnos": 10,
+          "entidade": {
+            "nome": "Mão Mágica",
+            "imagem": "assets/tokens/invocacao-padrao.png",
+            "ficha": {
+              "versaoFormato": 1,
+              "id": "mao-magica",
+              "nome": "Mão Mágica",
+              "tipo": "npc",
+              "classes": [
+                {
+                  "id": "invocacao",
+                  "nivel": 1
+                }
+              ],
+              "tamanho": "miudo",
+              "atributos": {
+                "for": 1,
+                "des": 10,
+                "con": 10,
+                "int": 10,
+                "sab": 10,
+                "car": 10
+              },
+              "pvMaximos": 1,
+              "caBase": 10,
+              "deslocamentosM": {
+                "andar": 9,
+                "voo": 9
+              },
+              "opcoes": [
+                {
+                  "id": "mao-magica-manipular",
+                  "nome": "Manipular objeto | ação",
+                  "categoria": "acao",
+                  "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos.",
+                  "custo": [
+                    {
+                      "tipo": "acao",
+                      "quantidade": 1
+                    }
+                  ]
+                }
+              ],
+              "recursos": [],
+              "notas": [
+                {
+                  "nome": "Entidade invocada",
+                  "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
+                }
+              ]
+            }
+          }
+        }
       }
     },
     {
       "id": "habilidade.truque-maos-magicas-utilidade-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Mãos Mágicas · utilidade · classe",
         "categoria": "magia",
@@ -5771,7 +5948,64 @@ export default {
           }
         ],
         "circuloBase": 0,
-        "origem": "feiticeiro"
+        "origem": "feiticeiro",
+        "automacao": {
+          "tipo": "invocar",
+          "alcanceM": 9,
+          "turnos": 10,
+          "entidade": {
+            "nome": "Mão Mágica",
+            "imagem": "assets/tokens/invocacao-padrao.png",
+            "ficha": {
+              "versaoFormato": 1,
+              "id": "mao-magica",
+              "nome": "Mão Mágica",
+              "tipo": "npc",
+              "classes": [
+                {
+                  "id": "invocacao",
+                  "nivel": 1
+                }
+              ],
+              "tamanho": "miudo",
+              "atributos": {
+                "for": 1,
+                "des": 10,
+                "con": 10,
+                "int": 10,
+                "sab": 10,
+                "car": 10
+              },
+              "pvMaximos": 1,
+              "caBase": 10,
+              "deslocamentosM": {
+                "andar": 9,
+                "voo": 9
+              },
+              "opcoes": [
+                {
+                  "id": "mao-magica-manipular",
+                  "nome": "Manipular objeto | ação",
+                  "categoria": "acao",
+                  "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos.",
+                  "custo": [
+                    {
+                      "tipo": "acao",
+                      "quantidade": 1
+                    }
+                  ]
+                }
+              ],
+              "recursos": [],
+              "notas": [
+                {
+                  "nome": "Entidade invocada",
+                  "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
+                }
+              ]
+            }
+          }
+        }
       }
     },
     {
@@ -5967,7 +6201,7 @@ export default {
     },
     {
       "id": "habilidade.truque-taumaturgia",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Taumaturgia",
         "categoria": "magia",
@@ -5978,12 +6212,28 @@ export default {
             "quantidade": 1
           }
         ],
-        "circuloBase": 0
+        "circuloBase": 0,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 0,
+          "efeito": {
+            "nome": "Taumaturgia",
+            "tipo": "buff",
+            "descricao": "Voz trovejante e sinais sobrenaturais: Vantagem em testes de Carisma (Intimidação) por 1 minuto. Os demais efeitos são interpretativos.",
+            "vantagemPericias": [
+              "Intimidação"
+            ],
+            "duracao": {
+              "turnos": 10,
+              "expira": "inicio_origem"
+            }
+          }
+        }
       }
     },
     {
       "id": "habilidade.truque-taumaturgia-utilidade-infernal",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Taumaturgia · utilidade · infernal",
         "origemTipo": "raca",
@@ -5996,6 +6246,22 @@ export default {
           }
         ],
         "circuloBase": 0,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 0,
+          "efeito": {
+            "nome": "Taumaturgia",
+            "tipo": "buff",
+            "descricao": "Voz trovejante e sinais sobrenaturais: Vantagem em testes de Carisma (Intimidação) por 1 minuto. Os demais efeitos são interpretativos.",
+            "vantagemPericias": [
+              "Intimidação"
+            ],
+            "duracao": {
+              "turnos": 10,
+              "expira": "inicio_origem"
+            }
+          }
+        },
         "origem": "infernal"
       }
     },
