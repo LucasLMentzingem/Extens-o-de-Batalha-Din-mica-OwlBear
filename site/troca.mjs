@@ -1,5 +1,5 @@
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.7';
-import {saldoMoedasPo} from './engine.mjs?v=0.8.7';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.8';
+import {saldoMoedasPo} from './engine.mjs?v=0.8.8';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);let trocaId=params.get('troca'),atorId=params.get('ator'),s,info,api,ocupado=false,encerrada=false;
@@ -35,7 +35,7 @@ function render(){
     const destinatario=atorId===t.destinatario;
     corpo+='<section class="pedido-troca"><h2>'+esc(ator(t.solicitante)?.nome)+' solicitou uma troca</h2><p>'+(destinatario?'Aceite para montar as duas ofertas.':'Aguardando '+esc(ator(t.destinatario)?.nome)+' responder.')+'</p><footer>'+(destinatario?'<button data-responder="false">Recusar</button><button class="primario" data-responder="true">Aceitar</button>':'')+'<button data-cancelar>Cancelar solicitação</button></footer></section>';
   }else{
-    corpo+=blocoOferta(t,outroId,false)+blocoOferta(t,atorId,true)+'<p class="ajuda-troca">Para acrescentar itens, volte ao inventário da ficha e clique com o botão direito no item. Itens equipados não podem ser oferecidos. Alterar qualquer oferta reinicia a primeira confirmação.</p><div class="confirmacoes">'+ids.map(id=>statusConfirmacao(t,id)).join('')+'</div><div class="acoes-troca"><button class="cancelar" data-cancelar>Cancelar troca</button>'+(t.status==='ofertas'?'<button data-oferecer-po>Oferecer PO</button><button class="primario" data-confirmar-itens '+(t.confirmacaoItens?.[atorId]?'disabled':'')+'>Confirmar meus itens</button>':'<button class="primario" data-confirmar-final '+(t.confirmacaoFinal?.[atorId]?'disabled':'')+'>Confirmar troca final</button>')+'</div>';
+    corpo+=blocoOferta(t,outroId,false)+blocoOferta(t,atorId,true)+'<p class="ajuda-troca">Para acrescentar itens, volte ao inventário da ficha e clique com o botão direito no item. Itens equipados não podem ser oferecidos. Você pode confirmar uma oferta vazia para apenas receber ou dar algo sem exigir pagamento. A troca inteira precisa conter ao menos um item ou PO. Alterar qualquer oferta reinicia a primeira confirmação.</p><div class="confirmacoes">'+ids.map(id=>statusConfirmacao(t,id)).join('')+'</div><div class="acoes-troca"><button class="cancelar" data-cancelar>Cancelar troca</button>'+(t.status==='ofertas'?'<button data-oferecer-po>Oferecer PO</button><button class="primario" data-confirmar-itens '+(t.confirmacaoItens?.[atorId]?'disabled':'')+'>Confirmar minha oferta</button>':'<button class="primario" data-confirmar-final '+(t.confirmacaoFinal?.[atorId]?'disabled':'')+'>Confirmar troca final</button>')+'</div>';
   }
   root.innerHTML=corpo;
 }

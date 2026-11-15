@@ -654,3 +654,15 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Matriz das fichas: `docs/TESTES-SETE-FICHAS-NIVEL-3.md`.
 - Próxima etapa: revisar com o mestre as cinco decisões abertas da pré-arquitetura e continuar os turnos compostos na ordem Loteria/Draven, Zurich/Dragoberto, Nikki/Skimi e Hannah.
 
+### Versão 0.8.8: presentes e trocas unilaterais
+
+- [x] Permitir que um participante confirme uma oferta vazia para somente receber algo.
+- [x] Permitir presentes compostos por item, pilha, PO ou uma combinação deles sem contrapartida.
+- [x] Preservar as duas etapas de confirmação, carga máxima, saldo, disponibilidade e transferência atômica.
+- [x] Bloquear somente a negociação em que as duas ofertas estejam completamente vazias.
+- [x] Renomear o botão para **Confirmar minha oferta** e explicar o fluxo unilateral na janela.
+
+- Testes do motor: 161 aprovados.
+- Fluxo visual completo aprovado sem erros de console: `work/playwright-v088-troca-unilateral/`.
+- Smoke test pelo cliente padrão: `work/playwright-v088-smoke/shot-0.png`.
+

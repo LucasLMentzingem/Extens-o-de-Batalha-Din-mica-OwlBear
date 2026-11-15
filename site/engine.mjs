@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.7';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.7';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.8';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.8';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -1346,10 +1346,14 @@ export async function aplicar(s,c,u,rolar) {
     case 'confirmarItensTroca': {
       const t=s.comercio.trocas.find(x=>x.id===c.trocaId);
       exigir(s.fase==='preparo'&&t?.status==='ofertas'&&participantesTroca(t).includes(a?.id),'A seleção de itens não pode ser confirmada.');
-      const oferta=ofertaTroca(t,a.id);exigir(oferta.itens.length>0||oferta.poPc>0,'Inclua ao menos um item ou PO na sua oferta.');
+      const oferta=ofertaTroca(t,a.id),vazia=oferta.itens.length===0&&oferta.poPc===0;
       for(const entrada of oferta.itens){const item=a.ficha.inventario?.itens.find(i=>i.id===entrada.itemId);exigir(item&&!item.equipado&&item.tipo!=='moeda'&&item.negociavel!==false&&entrada.quantidade<=item.quantidade,'Um item da oferta não está mais disponível.');}
       exigir(saldoMoedasPc(a)>=oferta.poPc,'PO insuficientes para a oferta.');t.confirmacaoItens[a.id]=true;
-      if(participantesTroca(t).every(id=>t.confirmacaoItens[id]))t.status='final';msg=a.nome+' confirmou os itens oferecidos.';break;
+      if(participantesTroca(t).every(id=>t.confirmacaoItens[id])){
+        exigir(participantesTroca(t).some(id=>{const x=ofertaTroca(t,id);return x.itens.length>0||x.poPc>0;}),'A troca precisa conter ao menos um item ou PO no total.');
+        t.status='final';
+      }
+      msg=a.nome+' confirmou '+(vazia?'que não entregará nada.':'sua oferta.');break;
     }
     case 'confirmarTroca': {
       const t=s.comercio.trocas.find(x=>x.id===c.trocaId),ids=t?participantesTroca(t):[],outroId=ids.find(id=>id!==a?.id),outro=s.atores.find(x=>x.id===outroId);

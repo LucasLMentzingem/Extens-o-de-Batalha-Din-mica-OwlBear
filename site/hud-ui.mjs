@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.7';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.7';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.7';
-import {pronto} from './bridge.mjs?v=0.8.7';
-import {canalHud} from './hud-controller.mjs?v=0.8.7';
+import {detalhes} from './ficha-view.mjs?v=0.8.8';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.8';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.8';
+import {pronto} from './bridge.mjs?v=0.8.8';
+import {canalHud} from './hud-controller.mjs?v=0.8.8';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

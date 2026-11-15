@@ -976,6 +976,23 @@ test('troca entre jogadores exige aceite, duas confirmações e transfere itens 
  assert.equal(b.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.adaga').reduce((n,i)=>n+i.quantidade,0)>=2,true);assert.equal(b.ficha.inventario.itens.some(i=>i.id===escudo.id),false);
  assert.equal(saldoMoedasPc(a),saldoA-50);assert.equal(saldoMoedasPc(b),saldoB+50);
 });
+test('troca unilateral permite dar item ou PO sem exigir contrapartida',async()=>{
+ let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';a.ficha.inventario.capacidadeCargaKg=999;b.ficha.inventario.capacidadeCargaKg=999;
+ const p1={id:'p1',role:'PLAYER'},p2={id:'p2',role:'PLAYER'};s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:1,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];
+ const presente=a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!i.equipado&&i.quantidade===1),saldoA=saldoMoedasPc(a),saldoB=saldoMoedasPc(b);
+ s=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal);let t=trocaDoAtor(s,a.id);s=await aplicar(s,{tipo:'responderTroca',ator:b.id,trocaId:t.id,aceitar:true,rev:s.rev},p2,dadoLocal);t=trocaDoAtor(s,a.id);
+ s=await aplicar(s,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:presente.id,quantidade:1,rev:s.rev},p1,dadoLocal);
+ s=await aplicar(s,{tipo:'definirPoTroca',ator:a.id,trocaId:t.id,quantidadePc:200,rev:s.rev},p1,dadoLocal);
+ s=await aplicar(s,{tipo:'confirmarItensTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal);assert.equal(trocaDoAtor(s,a.id).status,'ofertas');
+ s=await aplicar(s,{tipo:'confirmarItensTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);assert.equal(trocaDoAtor(s,a.id).status,'final');
+ s=await aplicar(s,{tipo:'confirmarTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);s=await aplicar(s,{tipo:'confirmarTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal);a=s.atores[0];b=s.atores[1];
+ assert.equal(a.ficha.inventario.itens.some(i=>i.id===presente.id),false);assert.ok(b.ficha.inventario.itens.some(i=>i.catalogoRef==='item.adaga'&&!i.equipado));assert.equal(saldoMoedasPc(a),saldoA-200);assert.equal(saldoMoedasPc(b),saldoB+200);
+});
+test('troca completamente vazia continua bloqueada',async()=>{
+ let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';const p1={id:'p1',role:'PLAYER'},p2={id:'p2',role:'PLAYER'};
+ s=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},p1,dadoLocal);let t=trocaDoAtor(s,a.id);s=await aplicar(s,{tipo:'responderTroca',ator:b.id,trocaId:t.id,aceitar:true,rev:s.rev},p2,dadoLocal);t=trocaDoAtor(s,a.id);
+ s=await aplicar(s,{tipo:'confirmarItensTroca',ator:a.id,trocaId:t.id,rev:s.rev},p1,dadoLocal);await assert.rejects(aplicar(s,{tipo:'confirmarItensTroca',ator:b.id,trocaId:t.id,rev:s.rev},p2,dadoLocal),/ao menos um item ou PO no total/);
+});
 test('alterar uma oferta reinicia confirmações e itens equipados não podem ser negociados',async()=>{
  let s=novo(),a=adicionar(s,nikki),b=adicionar(s,fichasJogadores.find(x=>x.id==='skimi'));a.dono='p1';b.dono='p2';const p1={id:'p1',role:'PLAYER'},p2={id:'p2',role:'PLAYER'};
  s=await aplicar(s,{tipo:'gmAdicionarItem',ator:a.id,itemRef:'item.adaga',quantidade:2,rev:s.rev},gm,dadoLocal);a=s.atores[0];b=s.atores[1];const item=a.ficha.inventario.itens.find(i=>i.catalogoRef==='item.adaga'&&!i.equipado&&i.quantidade===2),equipado=a.ficha.inventario.itens.find(i=>i.equipado&&i.tipo!=='moeda');
