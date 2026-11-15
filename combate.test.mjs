@@ -75,7 +75,7 @@ test('mapa do nível 3 referencia somente módulos planejados e cobre toda opç�
  assert.deepEqual(contagem,mapaNivel3.resumo.porModulo);
 });
 test('mapeamento completo separa raça, classe e registra módulos parciais ou ausentes',()=>{
- assert.equal(mapaNivel3.versao,'0.8.12');
+ assert.equal(mapaNivel3.versao,'0.8.13');
  assert.deepEqual(mapaNivel3.resumo.porOrigemSistema,{classe:124,comum:16,magia:141,raca:31,talento:8});
  assert.deepEqual(modulosNivel3.porEstado,{PARCIAL:10,AUSENTE:6});
  assert.equal(mapaNivel3.itens.filter(x=>x.origem_sistema==='classe').length,124);
@@ -1075,7 +1075,7 @@ test('rodapé começa pelas armas equipadas e mantém cada arremesso logo depois
  const m=mesa(),ordenadas=ordenarOpcoesRodape(m.a),armas=ordenadas.slice(0,4),itens=new Map(m.a.ficha.inventario.itens.map(i=>[i.id,i]));
  assert.ok(armas.every(o=>o.geradaPorItem));assert.deepEqual(armas.map(o=>itens.get(o.origemItem).equipadoSlot),['mao_forte','mao_forte','mao_fraca','mao_fraca']);assert.deepEqual(armas.map(o=>Boolean(o.automacao.arremesso)),[false,true,false,true]);
  const s=novo(),zurichAtor=adicionar(s,fichasJogadores.find(x=>x.id==='zurich')),primeiras=ordenarOpcoesRodape(zurichAtor).filter(o=>o.geradaPorItem).slice(0,3),itensZurich=new Map(zurichAtor.ficha.inventario.itens.map(i=>[i.id,i]));
- assert.deepEqual(primeiras.map(o=>itensZurich.get(o.origemItem).equipadoSlot),['mao_forte','mao_fraca','arma_distancia']);
+ assert.deepEqual(primeiras.map(o=>itensZurich.get(o.origemItem).equipadoSlot),['mao_forte','arma_distancia'],'a arma Ágil da mão fraca fica dentro do compositor da principal');
 });
 test('o mesmo item recalcula acerto, dano e proficiência para o novo portador',()=>{
  const s=novo(),d=adicionar(s,fichasJogadores.find(x=>x.id==='draven-thorne')),n=adicionar(s,nikki),espada=structuredClone(d.ficha.inventario.itens.find(i=>i.tipoArma==='espada_grande'));
@@ -1222,6 +1222,19 @@ test('#19/#20 ataque extra Leve exige ataque antes; com Ágil não gasta Ação 
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:curta.id,alvo:b.id},player,roladorSala().rolar);
   assert.equal(s.atores[0].bonus,0,'só a Marca gastou a Ação Bônus');assert.equal(s.atores[0].acao,0);
   await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:curta.id,alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno/);
+});
+test('M04 compõe o ataque Ágil de Zurich na mesma Ação Atacar',async()=>{
+  let {s,a,b}=await duelo('zurich');
+  const cimitarra=opRev(a,'cimitarra'),modos=cimitarra.composicao?.modos??[];
+  assert.equal(cimitarra.composicao?.tipo,'sequencia');assert.equal(modos.length,2);
+  assert.equal(modos[0].ordem,1);assert.equal(modos[1].ordem,2);assert.equal(modos[1].requerModoAnterior,modos[0].id);
+  assert.ok(!ordenarOpcoesRodape(a).some(o=>o.id===modos[1].origemOpcaoId),'o ataque Ágil fica dentro do compositor');
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao:[{modoId:modos[1].id,alvoId:b.id}]},player,roladorSala().rolar),/ordem|etapa anterior/);
+  assert.equal(s.atores[0].acao,1,'plano inválido não gasta a ação');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao:[{modoId:modos[0].id,alvoId:b.id},{modoId:modos[1].id,alvoId:b.id}]},player,roladorSala().rolar);
+  assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,1,'Ágil conserva a Ação Bônus');
+  assert.equal(s.atores[0].eventosTurno.ataques.length,2);assert.equal(s.atores[0].usosTurno['maestria-agil'],true);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:modos[1].origemOpcaoId,alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno|Saldo insuficiente/);
 });
 test('#34 Loteria tem Golpe Desarmado com a Ação e o soco bônus exige ataque antes',async()=>{
   let {s,a,b}=await duelo('loteria');

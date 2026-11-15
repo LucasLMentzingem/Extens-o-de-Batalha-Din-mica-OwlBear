@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.12';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.12';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.12';
-import {pronto} from './bridge.mjs?v=0.8.12';
-import {canalHud} from './hud-controller.mjs?v=0.8.12';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.13';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.13';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.13';
+import {pronto} from './bridge.mjs?v=0.8.13';
+import {canalHud} from './hud-controller.mjs?v=0.8.13';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -72,7 +72,7 @@ function gavetaComposicao(p){
   const c=p.composicao,editor=p.compositor;if(!c&&!editor)return '';
   const gaveta=c??editor,recolhida=gaveta.gavetaAberta===false,usos=c?Object.fromEntries(c.modos.map(m=>[m.id,c.instancias.filter(x=>x.modoId===m.id).length])):{};
   const circulos=editor?.circulos?.length?'<section class="circulos-compositor"><strong>Círculo</strong><div>'+editor.circulos.map(n=>btn('alterarCirculo',n+'º','data-valor="'+n+'" aria-pressed="'+(editor.circuloAtivo===n)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Conjurar usando espaço de '+n+'º círculo"')).join('')+'</div></section>':'';
-  const modos=c?c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
+  const modos=c?c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,indice=c.instancias.length+1,anterior=c.instancias.at(-1),foraDaOrdem=Boolean(m.ordem&&m.ordem!==indice||m.requerModoAnterior&&anterior?.modoId!==m.requerModoAnterior),contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado||foraDaOrdem?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
   const contador=c?c.instancias.length+'/'+c.quantidadeMaxima:(editor?.circuloAtivo+'º');
   return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
 }

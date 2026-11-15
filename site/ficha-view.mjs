@@ -1,4 +1,4 @@
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.12';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.13';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -45,7 +45,7 @@ function inventarioFicha(a,podeEditar,lojas=[],gm=false,trocasPermitidas=true,tr
 const habilidadeIcone=o=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa ':'')+(o.indisponivel?'indisponivel':'')+'" data-habilidade-id="'+esc(o.id??'')+'" data-habilidade-tipo="'+esc(o.tipoLivro??'opcao')+'" data-info="'+esc(o.info??o.descricao??o.nome)+'"><b>'+esc((o.nome??'?').slice(0,2).toUpperCase())+'</b><span>'+esc(o.nome??'')+'</span></button>';
 export function livroHabilidades(a,pagina='classe',podeEditar=false){
   const f=a.ficha,prep=f.preparacao??{vagas:0,preparadas:[],semprePreparadas:[]},preparadas=new Set(prep.preparadas),sempre=new Set(prep.semprePreparadas);
-  const opcoes=opcoesCalculadas(a);
+  const opcoes=opcoesCalculadas(a).filter(o=>!o.ocultarListas);
   const classeNome=f.classes.map(c=>c.nome??c.id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase())).join(' / ');
   const comInfo=o=>({...o,info:o.tipoLivro==='passiva'?(o.nome+'\n'+(o.descricao??'')):detalhes(o,f)});
   const racial=o=>habilidadeRacial(f,o),passivasRaciais=(f.passivas??[]).filter(racial),passivasGerais=(f.passivas??[]).filter(o=>!racial(o));
@@ -93,7 +93,7 @@ export function efeitosFicha(a){
   return '<section class="efeitos-ficha"><h3>Buffs, condições e concentração</h3><div>'+lista.map(e=>'<article class="efeito '+esc(e.tipo??'efeito')+'" title="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':e.tipo==='concentracao'?'◉':'✦')+'</b><span><strong>'+esc(e.nome)+'</strong><small>'+esc(resumo(e))+'</small></span></article>').join('')+'</div></section>';
 }
 export function biblioteca(a){
-  const f=a.ficha,opcoes=opcoesCalculadas(a),grupos=[
+  const f=a.ficha,opcoes=opcoesCalculadas(a).filter(o=>!o.ocultarListas),grupos=[
     ['Ações',opcoes.filter(o=>o.categoria!=='magia'&&!o.custo?.some(c=>c.tipo==='reacao'))],
     ['Magias',opcoes.filter(o=>o.categoria==='magia').sort((a,b)=>(b.circuloBase??0)-(a.circuloBase??0))],
     ['Reações',opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao'))],

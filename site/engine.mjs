@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.12';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.12';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.13';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.13';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -682,7 +682,7 @@ function ataqueGeradoArma(a,item,modelo,indice){
   // #19 Maestria Ágil na arma principal: esse ataque extra entra na ação Atacar (sem Ação Bônus), 1x por turno.
   const principal=itensEquipados(a).find(i=>i!==item&&i.equipadoSlot==='mao_forte'&&chaveArma(i)),agil=secundaria&&maestriaAtiva(f,principal,'agil');
   const custoArma=secundaria?(agil?[]:[{tipo:'bonus',quantidade:1}]):[{tipo:'acao',quantidade:1}];
-  const requisitos=secundaria?{aposAtaque:true,tagsAtaqueAnterior:['arma','leve'],...(agil?{umaVezPorTurno:'maestria-agil'}:{})}:undefined;
+  const requisitos=secundaria?{aposAtaque:true,tagsAtaqueAnterior:['arma','leve'],...(agil?{umaVezPorTurno:'maestria-agil',itemAtaqueAnterior:principal.id}:{})}:undefined;
   // #28 Maestrias Lentidão (−3 m até o início do próximo turno do atacante) e Garantido (erra: dano = mod. do atributo).
   const extrasMaestria={...(maestriaAtiva(f,item,'lentidao')?{efeitoAcerto:{nome:'Lentidão',tipo:'debuff',descricao:'Deslocamento −3 m (maestria Lentidão).',modificadores:{deslocamentoM:-3},duracao:{turnos:1,restante:1,expira:'inicio_origem'}}}:{}),
     ...(maestriaAtiva(f,item,'garantido')&&mod(f.atributos[atributo])>0?{danoAoErrar:mod(f.atributos[atributo])}:{})};
@@ -692,7 +692,22 @@ function ataqueGeradoArma(a,item,modelo,indice){
     dadosEquipamento:{itemId:item.id,tipoArma:d.tipoArma,grupoProficiencia:d.grupoProficiencia,propriedades:[...(d.propriedades??[])],atributo,proficiente,maestria,tipoDano:modelo.tipoDano}};
 }
 export function ataquesEquipados(a){
-  return itensEquipados(a).filter(i=>chaveArma(i)).flatMap(item=>(item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).map((m,n)=>ataqueGeradoArma(a,item,m,n)));
+  const ataques=itensEquipados(a).filter(i=>chaveArma(i)).flatMap(item=>(item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).map((m,n)=>ataqueGeradoArma(a,item,m,n)));
+  // M04: Ágil transforma o ataque da segunda arma Leve em uma etapa opcional
+  // da mesma Ação Atacar. A opção calculada continua existindo para o motor e
+  // para migrações, mas deixa de competir como botão separado no rodapé/livro.
+  for(const extra of ataques.filter(o=>o.requisitosUso?.umaVezPorTurno==='maestria-agil')){
+    const itemPrincipal=extra.requisitosUso.itemAtaqueAnterior;
+    const principal=ataques.find(o=>o.origemItem===itemPrincipal&&o.automacao?.tipo==='ataque'&&!o.automacao.arremesso&&o.custo?.some(c=>c.tipo==='acao'));
+    if(!principal)continue;
+    const modoPrincipal='ataque-principal-'+principal.id,modoExtra='ataque-extra-'+extra.id;
+    principal.composicao={tipo:'sequencia',quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:modoPrincipal,modos:[
+      {id:modoPrincipal,nome:principal.nome.replace(/\s*\|.*$/,''),descricao:'Primeiro ataque da Ação Atacar.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:principal.id,automacao:structuredClone(principal.automacao)},
+      {id:modoExtra,nome:extra.nome.replace(/\s*\|.*$/,''),descricao:'Ataque extra da propriedade Leve com Ágil; não gasta Ação Bônus.',tipo:'ataque',ordem:2,requerModoAnterior:modoPrincipal,limitePorUso:1,umaVezPorTurno:'maestria-agil',origemOpcaoId:extra.id,automacao:structuredClone(extra.automacao)}
+    ]};
+    extra.ocultarListas=true;
+  }
+  return ataques;
 }
 export const bonusEfeito=(a,campo)=>(a?.efeitosAtivos??[]).reduce((n,e)=>n+(Number(e.modificadores?.[campo])||0),0);
 export const itensEquipados=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.equipado);
@@ -760,7 +775,7 @@ export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);return [...(a?.f
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
-  return opcoes.map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
+  return opcoes.filter(o=>!o.ocultarListas).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
     const ax=Boolean(x.opcao.geradaPorItem&&x.opcao.automacao?.tipo==='ataque'),ay=Boolean(y.opcao.geradaPorItem&&y.opcao.automacao?.tipo==='ataque');
     if(ax!==ay)return ax?-1:1;if(!ax)return x.indice-y.indice;
     return x.item.slot-y.item.slot||x.item.indice-y.item.indice||Number(Boolean(x.opcao.automacao.arremesso))-Number(Boolean(y.opcao.automacao.arremesso))||x.indice-y.indice;
@@ -1031,12 +1046,16 @@ function custosDisponiveis(a,o,modo='automatico'){
 }
 function validarPlanoAntesDoCusto(s,a,o,rule,c){
   if(o.composicao){
-    const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):[]),contagens={};
+    const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):(c.alvo?[{modoId:def.modoPadrao,alvoId:c.alvo}]:[])),contagens={};
     exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
-    for(const entrada of entradas){
+    for(let indice=0;indice<entradas.length;indice++){
+      const entrada=entradas[indice];
       const modo=def.modos.find(m=>m.id===entrada.modoId),alvo=s.atores.find(x=>x.id===entrada.alvoId);
       exigir(modo&&alvo,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
       exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
+      exigir(!modo.ordem||modo.ordem===indice+1,'A ordem da composição de '+modo.nome+' é inválida.');
+      exigir(!modo.requerModoAnterior||entradas[indice-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
+      exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
       exigir(distancia(a,alvo)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
     }
     return;
@@ -1724,13 +1743,16 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         msg+=' • '+rr.total+(rr.total>=rule.cd?' sucesso':' falha')+' contra CD '+rule.cd;break;
       }
       if(o.composicao){
-        const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):[]);
+        const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):(c.alvo?[{modoId:def.modoPadrao,alvoId:c.alvo}]:[]));
         exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
         const contagens={};
         for(let i=0;i<entradas.length;i++){
           const entrada=entradas[i],modo=def.modos.find(m=>m.id===entrada.modoId),p=s.atores.find(x=>x.id===entrada.alvoId);
           exigir(modo&&p,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
           exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
+          exigir(!modo.ordem||modo.ordem===i+1,'A ordem da composição de '+modo.nome+' é inválida.');
+          exigir(!modo.requerModoAnterior||entradas[i-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
+          exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
           exigir(distancia(a,p)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
           if(modo.tipo==='cura'){
             const cura=(await resultado(modo.automacao.formula,{tipo:'cura',titulo:'Cura '+(i+1)+' · '+modo.nome,alvo:p.nome})).total,aplicado=curarAtor(p,cura);
@@ -1739,7 +1761,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const r=modo.automacao,defesa=caAtual(p),ra=restricoesAtivas(a),rp=restricoesAtivas(p),vantagem=c.modo==='vantagem'||ra.vantagemAtaques||rp.vantagemAtaquesContra||rp.caido,desvantagem=c.modo==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra;
           const modoDado=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem',modoAnterior=c.modo;c.modo=modoDado;
           const rr=await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Instância '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
-          const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
+          const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:modo.origemOpcaoId??o.id,planoOpcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
+          if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;
           a.eventosTurno.ataques.push(evento);msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
           if(!acertou){msg+=' • errou';continue;}
           a.eventosTurno.acertos.push(evento);const critico=face===20||(rp.criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),formula=critico?formulaCritica(r.dano):r.dano,tags=tagsAtaque(o,r),rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano '+(i+1)+' · '+modo.nome,critico,alvo:p.nome,tipoDano:r.elemento,parcelasDano:[{tipo:r.elemento,tags}],alvoDano:resumoAlvoDano(p)}),dano=await aplicarDanoNoAtor(p,rolagem.total,r.elemento,{critico,origem:a,relatorio:rolagem.relatoriosDano?.[0]});

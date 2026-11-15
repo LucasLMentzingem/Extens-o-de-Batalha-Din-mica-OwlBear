@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — segundo incremento do M04 0.8.13
+
+- A maestria **Ágil** de Zurich entrou no Compositor: Cimitarra e Espada Curta podem receber alvos próprios e são resolvidas em série pela mesma Ação Atacar.
+- O ataque extra da arma Leve não gasta Ação Bônus, não soma o modificador ao dano sem a regra apropriada e é limitado a uma vez por turno.
+- A sequência exige o ataque principal como primeira etapa, mas não exige que ele acerte; planos fora de ordem são rejeitados antes de gastar a Ação.
+- A opção secundária deixou de aparecer isolada no rodapé, Livro de Habilidades e painel legado quando pertence ao compositor Ágil.
+- Comandos antigos com um único `alvo` continuam executando apenas o ataque principal, preservando compatibilidade com encontros e integrações anteriores.
+- Validação: 165 testes automatizados, incluindo ordem, custo único, preservação da Ação Bônus, bloqueio de repetição e compatibilidade regressiva.
+- Próximo corte do M04: reservas e custos condicionais, seguido pela generalização para manobras, metamagias e Smites.
+
 ## 2026-11-15 — primeiro incremento do M04 0.8.12
 
 - Magias deixaram de gerar cópias por círculo: a instância guarda `circuloUsado` e deriva espaço consumido, dano, alvos e projéteis da definição compartilhada.

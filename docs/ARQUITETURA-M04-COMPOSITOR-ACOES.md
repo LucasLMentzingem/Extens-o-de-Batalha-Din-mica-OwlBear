@@ -1,6 +1,6 @@
 # M04 — Arquitetura do Compositor de Ações
 
-Estado: implementação incremental iniciada na versão 0.8.12. Círculo dinâmico, custos derivados e os dois estados visuais já estão operacionais; etapas seriadas, reservas condicionais e integrações completas continuam pendentes.
+Estado: implementação incremental na versão 0.8.13. Círculo dinâmico, custos derivados, os dois estados visuais e a primeira sequência seriada (Ágil de Zurich) estão operacionais; reservas condicionais e integrações completas continuam pendentes.
 
 O M04 é o orquestrador transacional das ações. Ele monta um plano, recebe escolhas, calcula custos, valida tudo e executa etapas em série. Escolhas pertencem ao M03, escalonamento ao M15, gatilhos ao M02, modificadores de rolagem ao M09 e efeitos persistentes ao M01.
 
@@ -181,6 +181,7 @@ Falha técnica desfaz a transação. Resultado normal, como errar um ataque, nã
 - [x] As duas barras mostram valores idênticos e atualizam no mesmo quadro.
 - [x] Alterar círculo atualiza custo, alvos e dano imediatamente.
 - [x] Observadores veem composição e custos, mas somente dono e mestre editam.
+- [x] Zurich compõe Cimitarra e Espada Curta com alvos próprios, uma Ação e nenhuma Ação Bônus adicional.
 
 ## Ordem recomendada
 
@@ -188,7 +189,7 @@ Falha técnica desfaz a transação. Resultado normal, como errar um ataque, nã
 2. Estados visuais expandido `2×7` e compacto `2×4`.
 3. Botões reduzidos de custo e atualização reativa.
 4. Seletor de círculo integrado ao M15.
-5. Sequência de ataques e Ágil de Zurich.
+5. Sequência de ataques e Ágil de Zurich. **Concluído no primeiro caso real.**
 6. Reservas e custos condicionais.
 7. Janelas integradas ao M02.
 8. Conflitos e limites de composição.

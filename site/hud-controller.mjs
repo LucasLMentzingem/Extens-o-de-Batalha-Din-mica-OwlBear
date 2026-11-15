@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.12';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.12';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.12';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.12';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.13';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.13';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.13';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.13';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.12',import.meta.url);
+const url=new URL('./hud.html?v=0.8.13',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -230,7 +230,7 @@ export async function iniciarHud(){
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(circulos.length>1)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado};
-    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso}))),instancias:[]};
+    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno}))),instancias:[]};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
@@ -308,9 +308,13 @@ export async function iniciarHud(){
         if(d>(def.automacao?.alcanceM??p.raio)+1e-8)throw Error(modo.nome+' está fora do alcance.');
         const usados=(p.cmd.composicao??[]).filter(x=>x.modoId===modo.id).length;
         if(modo.limitePorUso&&usados>=modo.limitePorUso)throw Error('O limite de '+modo.nome+' foi atingido.');
+        const indice=(p.cmd.composicao?.length??0)+1,anterior=p.cmd.composicao?.at(-1);
+        if(modo.ordem&&modo.ordem!==indice)throw Error(modo.nome+' deve ocupar a etapa '+modo.ordem+'.');
+        if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)throw Error(modo.nome+' exige a etapa anterior da composição.');
         if((p.cmd.composicao?.length??0)>=p.composicao.quantidadeMaxima)throw Error('Composição completa. Desfaça uma escolha para trocar o alvo.');
         p.cmd.alvos.push(alvo.id);p.cmd.composicao.push({modoId:modo.id,alvoId:alvo.id});
-        if(modo.limitePorUso&&usados+1>=modo.limitePorUso)p.composicao.modoAtivo=opcoesDisponiveis(ator()).find(o=>o.id===p.cmd.opcao)?.composicao?.modoPadrao??p.composicao.modoAtivo;
+        const proximaOrdem=p.cmd.composicao.length+1,proximo=p.composicao.modos.find(m=>(!m.ordem||m.ordem===proximaOrdem)&&(!m.requerModoAnterior||m.requerModoAnterior===modo.id)&&(!m.limitePorUso||(p.cmd.composicao??[]).filter(x=>x.modoId===m.id).length<m.limitePorUso));
+        if(proximo)p.composicao.modoAtivo=proximo.id;
         await atualizarLista(p);return;
       }
       p.cmd.alvos=incluirAlvo(p.cmd.alvos,alvo.id,p.regraLista);
@@ -416,13 +420,16 @@ export async function iniciarHud(){
     else if(d.tipo==='selecionarModoComposicao'&&pendente?.composicao){
       const modo=pendente.composicao.modos.find(m=>m.id===d.id);if(!modo)return;
       const usados=pendente.cmd.composicao.filter(x=>x.modoId===modo.id).length;if(modo.limitePorUso&&usados>=modo.limitePorUso)return;
+      const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1);
+      if(modo.ordem&&modo.ordem!==indice)return;
+      if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)return;
       pendente.composicao.modoAtivo=modo.id;
     }
     else if(d.tipo==='desfazer'&&pendente?.escolha==='lista'){
-      pendente.cmd.alvos.pop();if(pendente.composicao)pendente.cmd.composicao.pop();await atualizarLista(pendente);
+      pendente.cmd.alvos.pop();if(pendente.composicao){pendente.cmd.composicao.pop();const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1),proximo=pendente.composicao.modos.find(m=>(!m.ordem||m.ordem===indice)&&(!m.requerModoAnterior||m.requerModoAnterior===anterior?.modoId));if(proximo)pendente.composicao.modoAtivo=proximo.id;}await atualizarLista(pendente);
     }
     else if(d.tipo==='concluir'&&pendente?.escolha==='lista'){
-      if(pendente.cmd.alvos.length<pendente.regraLista.min)return;
+      if(pendente.cmd.alvos.length<(pendente.composicao?.quantidadeMinima??pendente.regraLista?.min??1))return;
       pendente.pronto=true;
     }
     else if(d.tipo==='cancelar')await cancelar();

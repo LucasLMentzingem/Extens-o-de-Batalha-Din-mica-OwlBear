@@ -1,8 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.12';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.12';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor} from './engine.mjs?v=0.8.12';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.12';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.13';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.13';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor} from './engine.mjs?v=0.8.13';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.13';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -104,7 +104,7 @@ function render(){
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
     if(s.fase==='iniciativa'&&meu&&a.init===null)h+=btn('iniciativa','Rolar iniciativa','primario');
     if(s.fase==='turnos'&&ativo===a&&meu){
-      const ops=opcoesDisponiveis(a).filter(x=>x.automacao || (gm && !(x.custo??[]).some(y=>y.tipo==='reacao')));
+      const ops=opcoesDisponiveis(a).filter(x=>!x.ocultarListas&&(x.automacao || (gm && !(x.custo??[]).some(y=>y.tipo==='reacao'))));
       const o=ops.find(x=>x.id===acao)??ops[0];acao=o?.id;
       h+='<div class="painel"><h3>Turno de '+esc(a.nome)+'</h3><label>Ação ou magia<select id="acao">'+ops.map(x=>opt(x.id,x.nome+(x.automacao?'':' · assistida'),x===o)).join('')+'</select></label>';
       const targets=s.atores.filter(x=>x!==a).concat(a);const target=targets.find(x=>x.id===alvo)??targets[0];alvo=target.id;
@@ -254,7 +254,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.12',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.13',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -265,7 +265,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.12',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.13',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
