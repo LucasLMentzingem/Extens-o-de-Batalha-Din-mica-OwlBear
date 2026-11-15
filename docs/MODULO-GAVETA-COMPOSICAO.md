@@ -32,7 +32,7 @@ Submódulo reutilizável do **M04 — Compositor e modificador de ações**. Ser
 
 - `quantidadeMinima` e `quantidadeMaxima`: quantas instâncias precisam ser escolhidas.
 - `modoPadrao`: opção selecionada ao abrir a gaveta.
-- `modos`: grade 2×3; acima de seis opções, a gaveta ganha rolagem vertical.
+- `modos`: no planejamento, grade 2×7; durante ajuste, rolagem ou resultado, grade compacta 2×4. Acima do limite visível de cada estado, a gaveta ganha rolagem vertical.
 - `limitePorUso`: limita quantas instâncias da mesma composição podem usar aquele modo.
 - `umaVezPorTurno`: opcional; registra o uso no turno depois que o modo é executado.
 - `automacao`: definição resolvida pelo motor. A versão atual aceita `ataque` e `cura`.
@@ -59,6 +59,15 @@ A definição permanece no catálogo. A ficha guarda somente a referência da ha
 5. Ataques abrem seus próprios ajustes de acerto e dano; curas abrem ajuste de cura.
 6. O custo da habilidade é cobrado uma única vez, independentemente da quantidade de instâncias.
 7. Uma composição inválida, incompleta ou acima do limite não altera recursos nem o estado da mesa.
+
+## Estados visuais aprovados para o M04
+
+- Antes da primeira rolagem, Gaveta e Instância podem crescer juntas para comportar até catorze opções em uma grade 2×7.
+- Ao abrir ajuste, rolagem ou resultado, a Gaveta recolhe para 2×4, permanece visível e fica somente leitura.
+- Custos deixam o texto do título e são exibidos como botões reduzidos dos recursos do rodapé, abaixo do título e novamente junto à confirmação.
+- As duas barras de custos compartilham o mesmo cálculo e atualizam quando círculo, composição, recurso ou modificador mudar.
+
+A arquitetura completa está em [M04 — Arquitetura do Compositor de Ações](ARQUITETURA-M04-COMPOSITOR-ACOES.md).
 
 ## Fichas configuradas
 

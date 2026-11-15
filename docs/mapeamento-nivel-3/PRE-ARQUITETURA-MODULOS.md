@@ -105,6 +105,7 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 - Motor: compõe custo, ataque, dano, alvos e efeitos antes da confirmação; nada é cobrado duas vezes.
 - Aceite: smites, maestrias, metamagias e ataques extras reutilizam o mesmo contrato.
 - Implementado em 0.8.9/0.8.10: submódulo **M04.1 — Gaveta de Composição**, para ações com uma ou mais instâncias configuráveis de ataque ou cura. Consulte `../MODULO-GAVETA-COMPOSICAO.md`.
+- Arquitetura em aprovação: plano transacional, círculo de magia, sequências, custos derivados e interface responsiva 2×7/2×4. Consulte `../ARQUITETURA-M04-COMPOSITOR-ACOES.md`.
 
 ## M05 — Templates e zonas persistentes · ausente
 
