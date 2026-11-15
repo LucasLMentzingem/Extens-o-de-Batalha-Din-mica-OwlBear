@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.22';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.22';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.22';
-import {pronto} from './bridge.mjs?v=0.8.22';
-import {canalHud} from './hud-controller.mjs?v=0.8.22';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.23';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.23';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.23';
+import {pronto} from './bridge.mjs?v=0.8.23';
+import {canalHud} from './hud-controller.mjs?v=0.8.23';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -250,7 +250,7 @@ function render(){
     const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
     html='<section class="dock" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+btn('ficha','Ficha')+'</header>'+
       '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud"><label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
-      '<div class="centro-hud"><div class="grade" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+(p?'<small>Ação aberta</small>':a.pv===0&&a.estadoVida==='inconsciente'&&turno?btn('salvaguardaMorte','Morte'):btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
+      '<div class="centro-hud"><div class="grade" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
       '<div class="filtros-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</div>'+(!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+'</article></div></section>';
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;

@@ -101,6 +101,13 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 - Interface: prompt único no cartão da habilidade, visível a todos; edição só pelo controlador.
 - Aceite: uma magia escolhe tipo de dano, atributo ou benefício sem duplicar a definição central.
 
+## M03 — Escolhas após descanso
+
+- Cada habilidade declara quais descansos permitem a escolha e quais opções são mutuamente exclusivas. **Presa do Caçador** é o primeiro caso e aceita descanso curto ou longo.
+- Ao concluir o descanso pelo mestre, enviar a escolha ao jogador online vinculado à ficha. Se estiver offline ou sem vínculo, enviar ao mestre.
+- Mostrar a opção atual e as alternativas. Confirmar preserva a seleção atual ou troca a opção ativa. A solicitação pertence ao descanso que a abriu e só pode ser concluída uma vez. A confirmação não altera o resultado do descanso.
+- A troca fica bloqueada durante combate. Testar roteamento ao jogador e ao mestre, confirmação única e exclusividade entre Assassino de Colossos e Destruidor de Hordas.
+
 ## M04 — Compositor e modificador de ações · parcial
 
 - Dados: `ancora` (`proximo_ataque`, `arma_escolhida`, `acao_atual`), `alteracoes`, `consumo` e `termino`.
@@ -114,12 +121,20 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 - Formas: cubo, cilindro, parede, emanação; círculo, quadrado, cone e linha continuam no módulo atual.
 - Dados: geometria, âncora, orientação, altura, bloqueio, mobilidade, gatilhos de entrada/saída/turno e duração.
 - Mapa: marcas públicas acima dos tokens, identificadas por `efeitoId`, sem depender do grid.
+- Decisão da mesa: a área permanece visível para todos enquanto estiver ativa e some do mapa ao expirar. Fora do combate, os controles de avanço de tempo do mestre também contabilizam a duração dessas áreas.
+- Durante a prévia do movimento, a trajetória fica vermelha a partir do primeiro contato com uma área hostil. Detectar o contato pelo percurso contínuo, inclusive quando o destino fica do outro lado da área. O aviso visual não decide sozinho se há dano, teste ou bloqueio. Esses efeitos vêm da habilidade que criou a área.
 - Aceite: Web e Moonbeam mantêm uma zona sincronizada, selecionam alvos por geometria euclidiana e reagem a movimento.
 
 ## M06 — Entidades, familiares e objetos vinculados · ausente
 
 - Dados: `fichaRef`, `token`, `dono`, `controlador`, `iniciativa`, `comandos`, `limite`, `distanciaVinculo` e `termino`.
 - Motor: instancia derivada com ID próprio; a definição permanece no catálogo.
+- Decisão da mesa: a conjuração cria um token controlável pelo jogador que invocou. A entidade recebe uma ficha independente, visível na lista de fichas desse jogador, com atributos, habilidades e ações da própria entidade.
+- Usar uma única imagem padrão de invocação enquanto não houver arte individual. A primeira entrega deve cobrir **Encontrar Familiar** e **Mãos Mágicas** (mão fantasma), com opções e limites próprios de cada magia.
+- **Ilusão Menor:** a opção de imagem cria um token estático, puramente visual e sem ficha, ações ou iniciativa. A opção de som segue por interpretação. O token é removido quando o efeito termina.
+- Arte provisória de **Ilusão Menor**: moeda com a letra **T**, de token.
+- **Mãos Mágicas:** cria uma entidade controlável pelo conjurador, com ficha própria na lista do jogador e ações limitadas ao que a magia permite.
+- **Encontrar Familiar:** usar uma forma provisória única representada pelo token com **T**, sem seletor de forma nesta etapa. A entidade recebe ficha própria. Se aparecer durante um combate, entra imediatamente como reforço. O jogador que a controla sempre rola a iniciativa dela, seguindo as regras de entrada tardia já usadas pela mesa.
 - Aceite: Find Familiar, Find Steed, Unseen Servant, Wild Companion e Spiritual Weapon entram/saem sem duplicar fichas.
 
 ## M07 — Transformações e sobreposição de ficha · ausente
@@ -180,7 +195,7 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 
 ## Decisões que precisam de aprovação
 
-1. Zonas devem bloquear movimento/visão automaticamente ou começar apenas detectando entradas e alvos?
+1. Quais efeitos específicos de cada zona, como bloqueio de movimento ou visão, entram na primeira entrega? A visibilidade, a expiração e a prévia de contato hostil já estão definidas no M05.
 2. Entidades invocadas devem entrar na mesma iniciativa da origem por padrão ou cada definição decide?
 3. Transformações trocam a imagem do token automaticamente ou pedem confirmação do jogador?
 4. O módulo de adjudicação pode permitir ao mestre criar um efeito temporário no resultado ou somente registrar a decisão?

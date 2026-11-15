@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.22';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.22';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.22';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.22';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.23';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.23';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.23';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.23';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.22',import.meta.url);
+const url=new URL('./hud.html?v=0.8.23',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -395,7 +395,14 @@ export async function iniciarHud(){
     if(comandosDado.includes(d.tipo)&&pedidoDado?.podeEditar===false)return;
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
       const dados=pedidoDado.meta?.adicionais??[],validos=new Set(dados.map(x=>x.id));if(!validos.has(d.id)||dados.find(x=>x.id===d.id)?.automatico)return;
-      const selecionados=new Set(pedidoDado.recursosAtivos??[]);selecionados.has(d.id)?selecionados.delete(d.id):selecionados.add(d.id);pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};await atualizarPreviaAdicionais();transmitir();
+      const selecionados=new Set(pedidoDado.recursosAtivos??[]);
+      if(selecionados.has(d.id))selecionados.delete(d.id);
+      else{
+        const grupo=dados.find(opcao=>opcao.id===d.id)?.grupoExclusivo;
+        if(grupo)for(const opcao of dados)if(opcao.grupoExclusivo===grupo)selecionados.delete(opcao.id);
+        selecionados.add(d.id);
+      }
+      pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};await atualizarPreviaAdicionais();transmitir();
     }else if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
       const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();
       const resposta={pedido};
@@ -480,9 +487,6 @@ export async function iniciarHud(){
     }else if(d.tipo==='encerrarConcentracao'){
       const a=ator();if(!controla(a)||!a.concentracaoAtiva)return;
       ocupado=true;transmitir();try{await api.enviar({tipo:'encerrarConcentracao',ator:a.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
-    }else if(d.tipo==='salvaguardaMorte'){
-      const a=ator();if(!controla(a)||a.pv!==0||a.estadoVida!=='inconsciente'||estado.ordem[estado.vez]!==a.id)return;
-      await cancelar();pendente={cmd:{tipo:'salvaguardaMorte',ator:a.id,rev:estado.rev},rev:estado.rev,escolha:null,titulo:'Salvaguarda contra a morte · '+a.nome,pronto:true,rolagem:false,substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'10 ou mais: sucesso · 1 natural: duas falhas · 20 natural: recupera 1 PV.'};
     }else if(d.tipo==='usarItem'){
       const a=ator(),item=a?.ficha.inventario?.itens.find(i=>i.id===d.itemId&&i.tipo==='consumivel'&&i.quantidade>0);if(!controla(a)||!item)return;
       ocupado=true;transmitir();try{await api.enviar({tipo:'inventario',ator:a.id,operacao:'usar',itemId:item.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}

@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — versão 0.8.23
+
+- Salvaguardas contra a morte na abertura do turno em combate e ao avançar 1T fora de combate. Cura restaura consciência e Ajudar possibilita estabilizar com Medicina CD 10.
+- Manobras do Mestre da Batalha ficam limitadas a uma por ataque no ajuste de dano. A interface substitui a seleção anterior e o motor impede gasto múltiplo no mesmo acerto.
+- As decisões das sete fichas e seu reaproveitamento nas etapas 3, 5, 7 e 10 estão na matriz de testes e no roadmap. Zonas, invocações, Desarme, escolhas após descanso e Força Fantasmagórica seguem como escopo planejado.
+- Passaram 180 testes automatizados. A validação em sala real do Owlbear está pendente.
+
 ## 2026-11-15 — consolidação do progresso após 0.8.22
 
 - Atualizado `docs/ESTADO-DO-PROJETO.md` com entregas 0.8.16–0.8.22, 176 testes do motor e limites da validação simulada.

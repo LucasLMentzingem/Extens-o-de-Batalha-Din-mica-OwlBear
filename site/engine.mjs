@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.22';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.22';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.23';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.23';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -49,6 +49,11 @@ function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
 export function atualizarMagias(f){
+  // Variante mecânica de Ajudar; a ajuda narrativa/ao ataque continua disponível.
+  if(f.opcoes?.some(o=>o.catalogoRef==='habilidade.ajudar-acao'||slug(o.nome).startsWith('ajudar-'))&&!f.opcoes.some(o=>o.catalogoRef==='habilidade.ajudar-estabilizar')){
+    const ref='habilidade.ajudar-estabilizar',def=definicaoHabilidade(ref);
+    if(def)f.opcoes.push({...def,id:'ajudar-estabilizar',catalogoRef:ref});
+  }
   // #13 Nome da perícia no livro de 2024 em português.
   if(f.pericias&&f.pericias['Adestrar Animais']!==undefined){f.pericias['Lidar com Animais']??=f.pericias['Adestrar Animais'];delete f.pericias['Adestrar Animais'];}
   // Migração das fichas de guarda antigas: a CA 16 era gravada como base e
@@ -936,6 +941,10 @@ const tagsAtaque=(o,rule)=>{
   tags.add(rule.alcanceM<=1.5?'corpo_a_corpo':'distancia');return [...tags];
 };
 const custoDisponivel=(a,c)=>(c.tipo==='recurso'?a.rec?.[c.id]:a?.[c.tipo])>=c.quantidade;
+const grupoManobra='manobra-mestre-da-batalha';
+function ehManobra(opcao){
+  return (opcao.custo??[]).some(custo=>custo.tipo==='recurso'&&custo.id==='dados-de-superioridade');
+}
 function opcoesDepoisDoAcerto(a,o,alvo){
   const tags=tagsAtaque(o,o.automacao),usos=a.usosTurno??{};
   const manuais=opcoesDisponiveis(a).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!usos[g.id])).filter(g=>{
@@ -1169,6 +1178,7 @@ async function inserirReforco(s,a,resultado,formulaD20){
 }
 function iniciarTurno(s,a){
   processarDuracoes(s,a,'inicio_turno');restaurarEconomia(a);
+  a.salvaguardaMortePendente=a.ficha.tipo==='pj'&&a.pv===0&&a.estadoVida==='inconsciente';
   if(restricoesAtivas(a).semAcoes)encerrarConcentracao(s,a,'incapacitado');
 }
 function iniciarTurnos(s){
@@ -1219,6 +1229,21 @@ export async function aplicar(s,c,u,rolar) {
     for(const id of usados){const g=rerrolagens.find(x=>x.id===id);for(const custo of g.custo??[]){const bag=custo.tipo==='recurso'?p.rec:p,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;}}
     if(efeito)p.efeitosAtivos=p.efeitosAtivos.filter(e=>e!==efeito);
     return r;
+  };
+  const resolverMorte=async p=>{
+    const comando=c;
+    c={...c,modo:'normal',ajuste:0,dadosAjuste:[]};
+    let r;
+    try{r=await rolarD20(0,p,{tipo:'salvaguarda',atributo:'morte',cd:10,titulo:'Salvaguarda contra a morte · '+p.nome});}
+    finally{c=comando;}
+    const face=r.natural??r.total;let texto;
+    if(face===20){curarAtor(p,1);restaurarEconomia(p);texto=p.nome+' tirou 20 natural e recuperou 1 PV.';}
+    else if(face===1){p.salvaguardasMorte.falhas=Math.min(3,p.salvaguardasMorte.falhas+2);texto=p.nome+' sofreu duas falhas contra a morte.';}
+    else if(r.total>=10){p.salvaguardasMorte.sucessos=Math.min(3,p.salvaguardasMorte.sucessos+1);texto=p.nome+' obteve um sucesso contra a morte.';}
+    else{p.salvaguardasMorte.falhas=Math.min(3,p.salvaguardasMorte.falhas+1);texto=p.nome+' sofreu uma falha contra a morte.';}
+    if(p.salvaguardasMorte.falhas>=3){p.estadoVida='morto';texto+=' Morreu.';}
+    else if(p.salvaguardasMorte.sucessos>=3){p.estadoVida='estavel';p.salvaguardasMorte={sucessos:0,falhas:0};texto+=' Ficou estável.';}
+    msg+=(msg?' • ':'')+texto;
   };
   const aplicarDanoNoAtor=async(p,dano,elemento,{critico=false,origem=null,relatorio=null,parcelas=null,ajustes=[]}={})=>{
     // O relatório vindo da rolagem foi calculado com a foto do alvo antes do primeiro acerto.
@@ -1403,18 +1428,6 @@ export async function aplicar(s,c,u,rolar) {
       else {const r=a.ficha.recursos.find(r=>r.id===c.campo);exigir(r,'Recurso desconhecido.');a.rec[r.id]=Math.min(r.maximo,Math.max(0,a.rec[r.id]+c.valor));}
       if(a.pv===0)encerrarConcentracao(s,a,'reduzido a 0 PV');
       msg='Ajuste do mestre em '+a.nome;break;
-    }
-    case 'salvaguardaMorte': {
-      exigir(s.fase==='turnos'&&atual(s)?.id===a?.id&&a.pv===0&&a.estadoVida!=='morto'&&a.estadoVida!=='estavel','Salvaguarda contra a morte indisponível.');
-      const r=await resultado(formulaD20(0,a),{tipo:'salvaguarda',atributo:'morte',titulo:'Salvaguarda contra a morte · '+a.nome});
-      const face=r.natural??r.total;
-      if(face===20){curarAtor(a,1);msg=a.nome+' tirou 20 natural e recuperou 1 PV.';}
-      else if(face===1){a.salvaguardasMorte.falhas=Math.min(3,a.salvaguardasMorte.falhas+2);msg=a.nome+' sofreu duas falhas contra a morte.';}
-      else if(r.total>=10){a.salvaguardasMorte.sucessos=Math.min(3,a.salvaguardasMorte.sucessos+1);msg=a.nome+' obteve um sucesso contra a morte.';}
-      else{a.salvaguardasMorte.falhas=Math.min(3,a.salvaguardasMorte.falhas+1);msg=a.nome+' sofreu uma falha contra a morte.';}
-      if(a.salvaguardasMorte.sucessos>=3){a.estadoVida='estavel';msg+=' Ficou estável.';}
-      if(a.salvaguardasMorte.falhas>=3){a.estadoVida='morto';msg+=' Morreu.';}
-      break;
     }
     case 'teste': {
       const bonus=c.grupo==='pericias'?bonusPericia(a,c.chave):(a.ficha.salvaguardas?.[c.chave]??mod(a.ficha.atributos[c.chave]));
@@ -1711,7 +1724,11 @@ export async function aplicar(s,c,u,rolar) {
         }
       }
       const concentracoes=new Set(s.atores.flatMap(x=>(x.efeitosAtivos??[]).map(e=>e.concentracaoId).filter(Boolean)));
+      msg='O mestre avançou '+segundos+' s fora de combate.';
       for(let i=0;i<segundos/6;i++)for(const ator of s.atores){
+        if(c.passo==='1t'&&ator.ficha.tipo==='pj'&&ator.pv===0&&ator.estadoVida==='inconsciente'){
+          await resolverMorte(ator);
+        }
         processarDuracoes(s,ator,'inicio_turno');
         processarDuracoes(s,ator,'fim_turno');
       }
@@ -1721,12 +1738,12 @@ export async function aplicar(s,c,u,rolar) {
         ator.pv=Math.min(ator.pv,pvMaximosAtuais(ator));
       }
       s.tempoForaCombateSeg=(s.tempoForaCombateSeg??0)+segundos;
-      msg='O mestre avançou '+segundos+' s fora de combate.';break;
+      break;
     }
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       exigir(c.atores===undefined||Array.isArray(c.atores)&&c.atores.every(id=>s.atores.some(x=>x.id===id)),'Personagens do descanso inválidos.');
-      for(const p of s.atores.filter(x=>x.ficha.tipo==='pj'&&(!c.atores||c.atores.includes(x.id)))){ // #12 descanso só de quem foi escolhido
+      for(const p of s.atores.filter(x=>x.ficha.tipo==='pj'&&x.estadoVida!=='morto'&&(!c.atores||c.atores.includes(x.id)))){ // #12 descanso só de quem foi escolhido
         // #25 O descanso longo também aplica tudo que um descanso curto recuperaria.
         const eventosDescanso=c.periodo==='longo'?['descanso_curto','descanso_longo']:['descanso_curto'];
         for(const r of p.ficha.recursos){
@@ -1763,7 +1780,7 @@ export async function aplicar(s,c,u,rolar) {
               for(const x of s.atores)delete x.reforcoAdiantado;
             }
           }
-          const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);
+          const prox=atual(s);if(!prox||prox.pv>0||prox.ficha.tipo==='pj'&&prox.estadoVida!=='morto')break;pulados.push(prox.nome);
         }
         const iniciado=atual(s);iniciarTurno(s,iniciado);
         // #32 Dano no início do turno do afetado (Golpe Constritor).
@@ -1936,6 +1953,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if(rule.tipo==='estabilizar'){
         exigir(afetados.length===1,'Escolha uma criatura para estabilizar.');const p=afetados[0];
         exigir(p.pv===0&&p.estadoVida==='inconsciente',p.nome+' não pode ser estabilizado agora.');
+        if(rule.testeMedicina){
+          const rr=await rolarD20(bonusPericia(a,'Medicina'),a,{tipo:'teste',atributo:'sab',cd:10,titulo:'Medicina · estabilizar '+p.nome});
+          msg+=' • Medicina '+rr.total+' contra CD 10';
+          if(rr.total<10){msg+=': falhou; '+p.nome+' continua inconsciente';break;}
+        }
         p.estadoVida='estavel';p.salvaguardasMorte={sucessos:0,falhas:0};msg+=' • '+p.nome+' ficou estável';break;
       }
       if(rule.tipo==='cura'||rule.tipo==='pv_temporario'){
@@ -2038,6 +2060,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       const metaAdicionais=adicionais.map(g=>{
         const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
         return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
+          ...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),
           ...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};
       });
       const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
@@ -2048,6 +2071,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');
       exigir(idsRerrolagem.every(id=>rerrolagens.some(g=>g.id===id)),'Rerrolagem de dano inválida.');
       const escolhidos=idsAdicionais.map(id=>adicionais.find(g=>g.id===id)),usadosRerrolagem=idsRerrolagem.map(id=>rerrolagens.find(g=>g.id===id));
+      exigir(escolhidos.filter(ehManobra).length<=1,'Só é permitido usar uma manobra por ataque.');
       for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){
         const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;
       }
@@ -2070,6 +2094,13 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         deslocarForcado(p);
       }
       c.modo=modoOriginal;
+    }
+  }
+  if(s.fase==='turnos'){
+    const p=atual(s);
+    if(p?.salvaguardaMortePendente){
+      if(p.pv===0&&p.estadoVida==='inconsciente')await resolverMorte(p);
+      delete p.salvaguardaMortePendente;
     }
   }
   for(const p of s.atores)sincronizarConcessoesItens(p);

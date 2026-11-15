@@ -1882,6 +1882,26 @@ export default {
       }
     },
     {
+      "id": "habilidade.ajudar-estabilizar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ajudar · Estabilizar",
+        "categoria": "acao",
+        "descricao": "Faça um teste de Sabedoria (Medicina) CD 10 para estabilizar uma criatura inconsciente a 0 PV a até 1,5 m.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "estabilizar",
+          "alcanceM": 1.5,
+          "testeMedicina": true
+        }
+      }
+    },
+    {
       "id": "habilidade.analisar-acao",
       "revisao": 1,
       "definicao": {

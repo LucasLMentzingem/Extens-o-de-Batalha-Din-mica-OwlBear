@@ -39,19 +39,30 @@ As quatro issues permanecem abertas; a existência de testes próximos não comp
 - **M08:** geometria euclidiana, teleporte e empurrão já existem; a travessia completa de alcance na mesma trajetória permanece pendente.
 - Catálogo central, fichas por referência, inventário/equipamentos, lojas Victor e La Arte, trocas, saque e grupos fixos já possuem implementação. Permanecem sujeitos à auditoria de interações da [issue #39](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/39).
 
+## Reaproveitamento nas etapas seguintes
+
+| Módulos | Contrato a compartilhar |
+|---|---|
+| M01 e M12 | Associar marcador, ação concedida e token a um efeito de origem. Expirar o conjunto em combate, no avanço do relógio pelo mestre ou no fim da concentração. Serve para Emaranhar, Disfarçar-se, Mente Desperta, Taumaturgia e Força Fantasmagórica. |
+| M02 e M04 | Um ataque pode oferecer opções no gatilho ou receber seleção antecipada na gaveta. Ambos usam a mesma validação, com limite por ataque ou turno e cobrança no gatilho. Reutilizar em Ataque Extra, manobras, maestrias e efeitos pós-acerto. |
+| M03 | Escolhas após descanso declaradas por habilidade e persistidas na ficha. O dono online confirma. O mestre confirma para fichas sem dono ou com dono offline. Reutilizar para outras escolhas elegíveis por descanso, como Táticas Defensivas do Caçador no nível 7. |
+| M05 e M08 | Zonas públicas têm duração e hostilidade. Uma consulta geométrica comum encontra o primeiro contato da trajetória e colore a prévia a partir dali. Cada habilidade declara suas consequências e seus gatilhos. |
+| M06 | Separar token de cenário sem ficha de entidade controlável com ficha e ações. Compartilhar criação e remoção da peça, com regras de controle e iniciativa por definição. Força Fantasmagórica usa token público com efeito restrito ao alvo original. |
+| M04 e M11 | Desarme provisório usa a remoção do slot e o inventário existente. A futura peça de item no chão poderá usar o mesmo resultado de desarme, preservando a instância do item. |
+
 ## Dependências das sete fichas
 
 Esta matriz lista os bloqueios mecânicos. Habilidades de interpretação são verificadas pelo registro e custo, sem dependência do M14.
 
 | Ficha | Módulos apontados para o fechamento | Issue |
 |---|---|---|
-| Dragoberto | M02, M03 | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
+| Dragoberto | M02, M03 (descanso), M04 (Destruidor de Hordas) e testes de Assassino de Colossos | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
 | Draven Thorne | M03, M04 | [#57](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/57) |
-| Hannah Montana | Revisar Ilusão Menor pelo novo padrão | [#58](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/58) |
+| Hannah Montana | M06 (Ilusão Menor como token visual) | [#58](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/58) |
 | Loteria | M03, M04 | [#59](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/59) |
-| Nikki Lauda | M01 (Taumaturgia), M02, M03, M04, M09, M13 | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
-| Skimi | M01 (Disfarçar-se e Taumaturgia), M03, M06, M10 | [#61](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/61) |
-| Zurich | M02, M05; revisar M04 pela #65 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |
+| Nikki Lauda | M01 (Taumaturgia), M03/M04 (Magia Duplicada), M06 (Mãos Mágicas), M09/M13 (Explosão Elemental). Queda Suave interpretativa. | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
+| Skimi | M01 (Disfarçar-se, Taumaturgia, Mente Desperta e duração de Força Fantasmagórica), M03/M06 (ilusão e invocações), M10 (restrições) | [#61](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/61) |
+| Zurich | M02/M03/M04 (Caçador), M05 (Emaranhar), testes de Assassino de Colossos e #65 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |
 
 M01 e correções sistêmicas de turno/movimento também podem afetar todas as fichas. Priorize os demais módulos conforme os efeitos mecânicos do escopo de nível 3.
 

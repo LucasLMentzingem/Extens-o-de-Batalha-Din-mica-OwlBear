@@ -1,8 +1,8 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.22';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.22';
-import {compactarEstado} from './catalog.mjs?v=0.8.22';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.22';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.23';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.23';
+import {compactarEstado} from './catalog.mjs?v=0.8.23';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.23';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -104,6 +104,8 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
       if(fase!=='ajuste'||!expressoes.length)return;
       fase='rolando';
       try{
+        const grupos=extras.map(extra=>extra.grupoExclusivo).filter(Boolean);
+        if(new Set(grupos).size!==grupos.length)throw Error('Só é permitido usar uma manobra por ataque.');
         await enviar({tipo:'rolando',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});
         for(const expressao of expressoes){const validacao=await validarNotacao(expressao);if(!validacao.valid){fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:validacao.error||'Expressão inválida.'});return;}}
         const parcelasBase=meta.tipo==='dano-lote'?(meta.parcelasDano??[]):[(meta.parcelasDano?.[0]??{tipo:meta.tipoDano}),...extras.map(x=>({tipo:x.elemento,tags:x.tags}))];
@@ -125,7 +127,9 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
           if(resultado.resultados?.length)resultado.resultados=resultado.resultados.map((x,i)=>({...x,relatorioDano:relatoriosDano[i]}));
         }
         const status=meta.tipo==='ataque'?(resultado.natural===1?'Falha crítica':resultado.natural===20?'Acerto crítico':resultado.total>=meta.cd?'Acerto':'Falha'):
-          meta.tipo==='salvaguarda'?(resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':meta.tipo==='iniciativa_lote'?'Iniciativas roladas':meta.tipo==='iniciativa'?'Iniciativa':'';
+          meta.atributo==='morte'&&resultado.natural===20?'Recuperou 1 PV':
+          meta.atributo==='morte'&&resultado.natural===1?'Duas falhas':
+          ['salvaguarda','teste'].includes(meta.tipo)&&Number.isFinite(meta.cd)?(resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':meta.tipo==='iniciativa_lote'?'Iniciativas roladas':meta.tipo==='iniciativa'?'Iniciativa':'';
         fase='resultado';await enviar({tipo:'resultado',pedido,resultado,status,recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});
       }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:e.message});}
     };
@@ -312,7 +316,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.22',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.23',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }

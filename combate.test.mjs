@@ -65,17 +65,18 @@ test('livro separa habilidades raciais, ordena ativas antes das passivas e prese
  assert.equal(nomePassiva({nome:'Passiva | Herança dracônica'}),'Herança dracônica');
  assert.equal(nomePassiva({nome:'Passivas | Sentidos e defesas'}),'Sentidos e defesas');
 });
-test('mapa do nível 3 referencia somente módulos planejados e cobre toda opção ainda não portátil',()=>{
+test('mapa do nível 3 referencia módulos planejados e não exige módulos para interpretação',()=>{
  const ids=new Set(Object.keys(modulosNivel3.modulos));
  assert.deepEqual(ids,new Set(Object.keys(mapaNivel3.modulosPlanejados)));
  assert.equal(mapaNivel3.itens.length,320);
  for(const item of mapaNivel3.itens){
   const necessarios=item.modulos_necessarios??[];
-  if(item.status_portabilidade==='PORTAVEL')assert.deepEqual(necessarios,[],item.nome+' já portátil não deve depender de módulo novo');
-  else assert.ok(necessarios.length>0,item.nome+' precisa indicar ao menos um módulo');
+  if(['PORTAVEL','INTERPRETACAO'].includes(item.status_portabilidade))assert.deepEqual(necessarios,[],item.nome+' não deve depender de módulo novo');
+  if(item.status_portabilidade==='NOVO_MODULO')assert.ok(necessarios.length>0,item.nome+' precisa indicar ao menos um módulo');
   for(const id of necessarios)assert.ok(ids.has(id),item.nome+' referencia módulo inexistente '+id);
  }
- const contagem={};for(const item of mapaNivel3.itens)for(const id of item.modulos_necessarios??[])contagem[id]=(contagem[id]??0)+1;
+ const contagem=Object.fromEntries([...ids].map(id=>[id,0]));
+ for(const item of mapaNivel3.itens)for(const id of item.modulos_necessarios??[])contagem[id]++;
  assert.deepEqual(contagem,mapaNivel3.resumo.porModulo);
 });
 test('mapeamento completo separa raça, classe e registra módulos parciais ou ausentes',()=>{
@@ -668,7 +669,57 @@ test('PV temporários conservam o maior valor e absorvem dano antes dos PV',asyn
 
 test('redução a 0 PV, salvaguarda contra a morte e 20 natural recuperando 1 PV',async()=>{
  const m=mesa();await m.iniciar();await m.go('ajustar',{ator:m.a.id,campo:'pv',valor:-20,confirmado:true});assert.equal(m.s.atores[0].pv,0);assert.equal(m.s.atores[0].estadoVida,'inconsciente');
- await m.go('salvaguardaMorte',{ator:m.a.id},player,[20]);assert.equal(m.s.atores[0].pv,1);assert.equal(m.s.atores[0].estadoVida,'consciente');assert.match(m.s.historico[0],/20 natural/);
+ await m.go('passar',{ator:m.a.id},player);
+ await m.go('passar',{ator:m.b.id});
+ await m.go('passar',{ator:m.c.id},gm,[20]);
+ assert.equal(m.s.atores[0].pv,1);assert.equal(m.s.atores[0].estadoVida,'consciente');assert.equal(m.s.atores[0].acao,1);assert.match(m.s.historico[0],/20 natural/);
+});
+
+test('1T fora de combate encaminha a salvaguarda ao dono e estabiliza no terceiro sucesso',async()=>{
+ const m=mesa();
+ await m.go('vincular',{ator:m.a.id,dono:'p'});
+ await m.go('ajustar',{ator:m.a.id,campo:'pv',valor:-20,confirmado:true});
+ await m.go('avancarTempo',{passo:'30seg'});
+ for(let sucesso=1;sucesso<=3;sucesso++){
+   const antes=m.s;
+   const depois=await aplicar(antes,{tipo:'avancarTempo',passo:'1t',rev:antes.rev},gm,async(formula,meta)=>{
+     assert.equal(formula,'1d20');
+     assert.equal(meta.destinoId,'p');
+     assert.equal(meta.cd,10);
+     return {total:10,natural:10};
+   });
+   await m.go('avancarTempo',{passo:'1t'},gm,[10]);
+   assert.deepEqual(m.s.atores[0].salvaguardasMorte,depois.atores[0].salvaguardasMorte);
+   assert.equal(m.s.atores[0].salvaguardasMorte.sucessos,sucesso===3?0:sucesso);
+ }
+ assert.equal(m.s.atores[0].estadoVida,'estavel');
+ await m.go('avancarTempo',{passo:'1t'});
+});
+
+test('Ajudar gasta a ação em combate e só estabiliza se Medicina passar',async()=>{
+ const m=mesa();const aliado=adicionar(m.s,nikki,'Aliado');
+ aliado.emCombate=false;
+ await m.iniciar();
+ Object.assign(m.s.atores.find(a=>a.id===aliado.id),{x:1,y:0,pv:0,estadoVida:'inconsciente',salvaguardasMorte:{sucessos:0,falhas:2}});
+ await m.go('usar',{ator:m.a.id,opcao:'ajudar-estabilizar',alvo:aliado.id},player,[2]);
+ assert.equal(m.s.atores[0].acao,0);
+ assert.equal(m.s.atores.find(a=>a.id===aliado.id).estadoVida,'inconsciente');
+ await m.go('encerrar');
+ await m.go('usar',{ator:m.a.id,opcao:'ajudar-estabilizar',alvo:aliado.id},player,[19]);
+ const alvo=m.s.atores.find(a=>a.id===aliado.id);
+ assert.equal(alvo.pv,0);assert.equal(alvo.estadoVida,'estavel');
+ assert.deepEqual(alvo.salvaguardasMorte,{sucessos:0,falhas:0});
+});
+
+test('0 PV marca duas falhas com 1 natural e dano igual aos PV máximos mata',async()=>{
+ const m=mesa();
+ await m.go('ajustar',{ator:m.a.id,campo:'pv',valor:-20,confirmado:true});
+ await m.go('avancarTempo',{passo:'1t'},gm,[1]);
+ assert.equal(m.s.atores[0].salvaguardasMorte.falhas,2);
+ await m.go('ajustar',{ator:m.a.id,campo:'pv',valor:-20,confirmado:true});
+ assert.equal(m.s.atores[0].estadoVida,'morto');
+ await m.go('descanso',{periodo:'longo'});
+ assert.equal(m.s.atores[0].estadoVida,'morto');
 });
 
 test('dano massivo mata e estabilizar encerra salvaguardas contra a morte',async()=>{
@@ -1345,6 +1396,22 @@ async function duelo(fichaA,fichaB='soldado',{distancia=1.5}={}){
   return {s,a,b};
 }
 const opRev=(a,trecho)=>opcoesDisponiveis(a).find(o=>o.nome.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().includes(trecho));
+
+test('Draven só pode gastar um Dado de Superioridade por ataque',async()=>{
+  const {s,a,b}=await duelo('draven-thorne');
+  const comando={rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id};
+  const rolar=quantidade=>async(formula,meta)=>{
+    if(meta.tipo==='ataque')return {total:22,natural:17};
+    if(meta.tipo==='salvaguarda')return {total:20,natural:18};
+    const manobras=meta.adicionais.filter(x=>x.grupoExclusivo==='manobra-mestre-da-batalha');
+    assert.equal(manobras.length,3);
+    return {total:8,resultados:[{total:4},{total:4}],recursosAtivos:manobras.slice(0,quantidade).map(x=>x.id)};
+  };
+  await assert.rejects(aplicar(s,comando,player,rolar(3)),/uma manobra por ataque/);
+  assert.equal(a.rec['dados-de-superioridade'],4);
+  const resultado=await aplicar(s,comando,player,rolar(1));
+  assert.equal(resultado.atores[0].rec['dados-de-superioridade'],3);
+});
 
 test('#35 vários acertos no mesmo alvo somam o dano (Mísseis Mágicos e Torrente de Golpes)',async()=>{
   for(const [ficha,trecho,n] of [['nikki','misseis magicos',3],['loteria','torrente',2]]){

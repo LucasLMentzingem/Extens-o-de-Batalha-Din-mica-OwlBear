@@ -88,8 +88,9 @@ export function resolverDano({parcelas=[],defesas=[],alvo={},ajustes=[]}={}){
 }
 export function aplicarRelatorioDano(a,r,{critico=false,pvMaximos}={}){
   a.pvTemporarios=r.pvTemporariosDepois;a.pv=r.pvDepois;
-  if(a.pv===0&&r.danoRecebido>0){
+  if(a.pv===0&&r.danoRecebido>0&&a.estadoVida!=='morto'){
     if(a.estadoVida==='inconsciente'||a.estadoVida==='estavel'){
+      if(r.danoRecebido>=Number(pvMaximos??a.ficha?.pvMaximos??Infinity)){a.estadoVida='morto';return r;}
       a.estadoVida='inconsciente';a.salvaguardasMorte=a.salvaguardasMorte??{sucessos:0,falhas:0};a.salvaguardasMorte.falhas=Math.min(3,a.salvaguardasMorte.falhas+(critico?2:1));if(a.salvaguardasMorte.falhas>=3)a.estadoVida='morto';
     }else{a.estadoVida=r.excesso>=Number(pvMaximos??a.ficha?.pvMaximos??0)?'morto':'inconsciente';a.salvaguardasMorte={sucessos:0,falhas:0};}
   }
