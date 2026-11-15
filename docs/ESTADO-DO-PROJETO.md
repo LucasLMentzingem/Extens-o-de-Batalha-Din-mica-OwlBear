@@ -1,6 +1,10 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.28, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+Revisão de 15 de novembro de 2026, versão 0.8.33, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+
+A 0.8.33 restaura o raio do livro nas áreas circulares e calibra a cena para 1,5 m por célula. Motor, HUD, zonas, alvos, deslocamentos e tokens usam a mesma conversão entre pixels e metros. A régua nativa é configurada em metros e distância euclidiana. Estados anteriores são migrados uma única vez, preservando a posição no desenho. Uma trajetória pendente precisa de nova seleção para recalcular oportunidades na escala corrigida.
+
+Verificação da 0.8.33 com 228 testes automatizados e Chromium headless com SDK simulado. A HUD mostrou Despedaçar com raio de duas células, alcance de 18 m com doze células, movimento de 1,5 m com uma célula, zona antiga no mesmo ponto do mapa e reabertura idempotente, sem erros de página. A confirmação em sala real do Owlbear permanece pendente.
 
 ## Entregas recentes
 

@@ -47,7 +47,7 @@ O efeito estruturado aceita modificadores de `ca`, `pvMaximos` e `deslocamentoM`
 
 Na ficha de exemplo, Nikki possui **CA 12 sem armadura** (10 + DES). **Armadura Arcana** pode ser usada dentro ou fora do combate, seleciona uma criatura sem armadura a até 1,5 m e concede o bônus necessário para chegar a `13 + DES`; em Nikki, isso aparece como `13 + 2 = CA 15`. O efeito termina no descanso longo.
 
-O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel desenha células de um metro apenas como referência visual e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
+O mestre consolida os comandos em segundo plano mesmo com seu painel fechado. Durante o combate as peças vinculadas são bloqueadas para arrasto normal. A movimentação passa pelo painel e o encerramento restaura os bloqueios anteriores. O tabuleiro no painel desenha células de 1,5 metro apenas como referência visual e acompanha as posições das peças quando o mestre processa um comando. O mestre que iniciou o encontro deve permanecer conectado, com o armazenamento do navegador disponível. O progresso fica no navegador desse mestre por sala e cena. Ao limpar os dados do navegador, perde-se o progresso. Consultas de NPC compartilhadas ocultam PV e CA. Atores ligados a peças invisíveis são omitidos da projeção do jogador.
 
 ### Decisão de arquitetura: distâncias contínuas
 
@@ -55,9 +55,11 @@ O sistema não usa as casas da grade para calcular alcance ou deslocamento. As p
 
 Por isso, não existem passos diagonais, arredondamento por células nem uma regra especial para uma casa diagonal adjacente. Um ataque corpo a corpo alcança o alvo somente quando a distância real entre as peças é menor ou igual ao alcance declarado. Da mesma forma, um deslocamento consome o comprimento euclidiano real da trajetória. Esse comportamento é intencional e está registrado nas issues [#1](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/1) e [#2](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/2) como decisão do sistema, não como defeito da grade.
 
-### Decisão da mesa: áreas circulares por diâmetro
+### Escala da cena e áreas do livro
 
-Desde a 0.8.31, o valor das áreas circulares é tratado como **diâmetro**: Despedaçar "3 m" cobre um círculo de 3 m de largura. O livro de 2024 usa raio (Despedaçar tem 3 m de raio). A regra fica em `AREA_CIRCULAR_COMO_DIAMETRO`, em `site/zonas.mjs`; trocar para `false` volta ao livro. Emanações (como Braços de Hadar, "3 m ao redor de quem conjura") e distâncias como "a 1,5 m do alvo" não mudam; quadrados, cubos, cones e linhas já usam lado e comprimento.
+Desde a 0.8.33, uma célula do Owlbear representa **1,5 m**. A conversão compartilhada em `site/scene-scale.mjs` usa `pixels por metro = DPI da cena / 1,5`; a régua nativa é configurada em metros e distância euclidiana. Alcances, movimento, teleporte, empurrões, cones, linhas e zonas persistentes usam essa mesma conversão. As posições continuam livres, inclusive entre células.
+
+As áreas circulares voltam ao **raio do livro**. Despedaçar tem 3 m de raio (6 m de diâmetro, quatro células); Acalmar Emoções tem 6 m de raio. Braços de Hadar mantém 3 m ao redor do conjurador. Quadrados usam o lado, cones e linhas usam comprimento e largura. As cenas anteriores têm seus pontos salvos convertidos uma única vez para preservar a posição das peças e dos centros das áreas na imagem; as medidas e recursos das fichas permanecem em metros. Uma trajetória pendente na escala anterior é cancelada para nova seleção.
 
 ## Jogar com a ficha fechada
 

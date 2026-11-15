@@ -1,13 +1,13 @@
-import {adicionar} from './engine.mjs?v=0.8.32';
-import {compactarFicha} from './catalog.mjs?v=0.8.32';
+import {adicionar} from './engine.mjs?v=0.8.33';
+import {compactarFicha} from './catalog.mjs?v=0.8.33';
 
 export const chaveFichaNpc='aventura-dnd.combate.v1/ficha-npc';
 export const chaveBloqueioNpc='aventura-dnd.combate.v1/bloqueio-anterior';
 
 // O marcador é copiado pelo Owlbear. O vínculo real continua sendo o ID
 // exclusivo do token, de modo que repetir um evento nunca cria outra ficha.
-export function sincronizarCopiasNpc(estado,itens,dpi){
-  if(!Number.isFinite(dpi)||dpi<=0)throw Error('Escala da cena inválida.');
+export function sincronizarCopiasNpc(estado,itens,pixelsMetro){
+  if(!Number.isFinite(pixelsMetro)||pixelsMetro<=0)throw Error('Escala da cena inválida.');
   const tokens=itens.filter(i=>i.type==='IMAGE'&&i.layer==='CHARACTER');
   const vinculados=new Map(estado.atores.filter(a=>a.token).map(a=>[a.token,a]));
   const porId=new Map(estado.atores.map(a=>[a.id,a]));
@@ -23,7 +23,7 @@ export function sincronizarCopiasNpc(estado,itens,dpi){
         while(estado.atores.some(a=>a.nome===base+' ('+indice+')'))indice++;
         ator=adicionar(estado,compactarFicha(origem.ficha),base+' ('+indice+')');
         ator.token=token.id;ator.dono=null;
-        ator.x=token.position.x/dpi;ator.y=token.position.y/dpi;
+        ator.x=token.position.x/pixelsMetro;ator.y=token.position.y/pixelsMetro;
         ator.emCombate=estado.fase==='preparo';
         vinculados.set(token.id,ator);porId.set(ator.id,ator);novos.push(ator.id);
       }

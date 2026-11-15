@@ -1274,11 +1274,11 @@ export default {
     },
     {
       "id": "habilidade.2-acalmar-emocoes-salva-de-car-concentracao-aberrante",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "2º | Acalmar Emoções · salva de CAR · concentração · aberrante",
         "categoria": "magia",
-        "descricao": "Ação · 18 m · Esfera de 6 m de diâmetro (regra da mesa; no livro, 6 m de raio) · Concentração até 1 min. Cada humanoide na área rola CAR, CD 13 (14 com Inata). Na falha, escolha por alvo: imunidade a enfeitiçado e amedrontado (suprime essas condições existentes), ou indiferença diante de criaturas que ele hostiliza. A indiferença termina se ele sofrer dano ou vir aliados sofrerem dano.",
+        "descricao": "Ação · 18 m · Esfera de 6 m de raio · Concentração até 1 min. Cada humanoide na área rola CAR, CD 13 (14 com Inata). Na falha, escolha por alvo: imunidade a enfeitiçado e amedrontado (suprime essas condições existentes), ou indiferença diante de criaturas que ele hostiliza. A indiferença termina se ele sofrer dano ou vir aliados sofrerem dano.",
         "custo": [
           {
             "tipo": "acao",
@@ -1329,11 +1329,11 @@ export default {
     },
     {
       "id": "habilidade.2-despedacar-salva-de-con-classe",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "2º | Despedaçar · salva de CON · classe",
         "categoria": "magia",
-        "descricao": "Ação · 18 m · Esfera de 3 m de diâmetro (regra da mesa; no livro, 3 m de raio). Cada alvo rola CON, CD 13 (14 com Inata). Constructos rolam com desvantagem. Dano [3d8] trovejante, metade no sucesso.",
+        "descricao": "Ação · 18 m · Esfera de 3 m de raio. Cada alvo rola CON, CD 13 (14 com Inata). Constructos rolam com desvantagem. Dano [3d8] trovejante, metade no sucesso.",
         "custo": [
           {
             "tipo": "acao",

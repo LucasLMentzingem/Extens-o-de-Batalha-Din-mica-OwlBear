@@ -12,6 +12,7 @@ import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
 import {catalogoCentral,compactarFicha,compactarEstado,resolverCatalogoLoja} from './site/catalog.mjs';
 import {fichaEditavel,habilidadeRacial,livroHabilidades,nomePassiva,nomeRaca} from './site/ficha-view.mjs';
+import {METROS_POR_CELULA,pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './site/scene-scale.mjs';
 const fichaFonte=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const ficha=async name=>validar(await fichaFonte(name));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
@@ -23,6 +24,57 @@ const habilidadesClasseRaca=await readFile(new URL('./docs/mapeamento-nivel-3/HA
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
+
+test('escala de cena: 1,5 m por célula, posições livres e diagonais euclidianas',()=>{
+  assert.equal(METROS_POR_CELULA,1.5);
+  for(const dpi of [70,100,150,300]){
+    const ppm=pixelsPorMetro(dpi);
+    assert.equal(9*ppm/dpi,6,'9 m ocupa seis células');
+    assert.equal(18*ppm/dpi,12,'18 m ocupa doze células');
+    assert.equal(2*3*ppm/dpi,4,'Despedaçar tem quatro células de diâmetro');
+    assert.equal(4.5*ppm/dpi,3,'cone de 4,5 m tem três células de comprimento');
+    assert.ok(Math.abs(Math.hypot(dpi,dpi)/ppm-1.5*Math.SQRT2)<1e-12);
+    assert.ok(Math.abs((123.456/ppm)*ppm-123.456)<1e-10,'ida e volta preserva frações de pixel');
+  }
+  for(const dpi of [0,-1,NaN,Infinity])assert.throws(()=>pixelsPorMetro(dpi));
+});
+
+test('escala de cena: régua nativa configurada uma vez em metros e euclidiana',async()=>{
+  let escala={parsed:{multiplier:1,unit:'m'}},medicao='CHEBYSHEV';const chamadas=[];
+  const grid={getScale:async()=>escala,getMeasurement:async()=>medicao,
+    setScale:async valor=>{chamadas.push(valor);escala={parsed:{multiplier:1.5,unit:'m'}};},
+    setMeasurement:async valor=>{chamadas.push(valor);medicao=valor;}};
+  await configurarEscalaCena(grid);await configurarEscalaCena(grid);
+  assert.deepEqual(chamadas,['1.5m','EUCLIDEAN']);
+});
+
+test('escala de cena: migração preserva ancoragem no mapa, raios, recursos e compactação',()=>{
+  const s=novo(),a=adicionar(s,nikki);a.x=6;a.y=-2;a.metros=7.25;
+  s.zonas=[{centro:{x:4,y:8},geometria:{forma:'circulo',raioM:3}},
+    {centro:{x:6,y:2},geometria:{forma:'cone',origem:{x:1,y:2},comprimentoM:4.5}}];
+  s.pecas=[{posicao:{x:3,y:4},tamanhoM:1.5}];
+  const rec=structuredClone(a.rec),rev=s.rev;
+  assert.equal(migrarEscalaCena(s),true);assert.equal(s.rev,rev+1);
+  assert.deepEqual({x:a.x*pixelsPorMetro(150),y:a.y*pixelsPorMetro(150)},{x:6*150,y:-2*150});
+  assert.equal(s.zonas[0].centro.x*pixelsPorMetro(150),4*150);
+  assert.equal(s.zonas[0].geometria.raioM,3);
+  assert.deepEqual(s.zonas[1].geometria.origem,{x:1.5,y:3});
+  assert.equal(s.zonas[1].geometria.comprimentoM,4.5);
+  assert.deepEqual(s.pecas[0],{posicao:{x:4.5,y:6},tamanhoM:1.5});
+  assert.equal(a.metros,7.25);assert.deepEqual(a.rec,rec);
+  const reaberto=JSON.parse(JSON.stringify(compactarEstado(s)));
+  const antes=structuredClone(reaberto);
+  assert.equal(migrarEscalaCena(reaberto),false);assert.deepEqual(reaberto,antes);
+});
+
+test('escala de cena: trajetória antiga pede nova seleção e preserva reação de outro gatilho',()=>{
+  for(const gatilho of ['sair_alcance','ser_atingido']){
+    const s=novo();s.movimentoPendente={ator:'a',origem:{x:0,y:0},destino:{x:5,y:0}};
+    s.reacaoPendente={gatilho};migrarEscalaCena(s);
+    assert.equal(s.movimentoPendente,undefined);
+    assert.equal(Boolean(s.reacaoPendente),gatilho!=='sair_alcance');
+  }
+});
 
 test('prévia pública aceita mestre ou dono e limita as marcas a linhas e áreas seguras',()=>{
   const ator={id:'a',dono:'p',ficha:{tipo:'pj'}},linha={type:'LINE',startPosition:{x:0,y:0},endPosition:{x:100,y:50},style:{strokeColor:'#e5c079',strokeWidth:4}};
@@ -2273,7 +2325,7 @@ test('M05 geometria: trecho contínuo, travessia completa, primeiro contato e zo
   assert.deepEqual(trechoNaZona(q,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.3,0.7],'começa e termina fora, mas atravessa');
   assert.equal(trechoNaZona(q,{x:0,y:5},{x:10,y:5}),null,'passa ao lado');
   const circ={id:'c',centro:{x:5,y:0},geometria:{forma:'circulo',raioM:1},afetaConjurador:true};
-  assert.deepEqual(trechoNaZona(circ,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.45,0.55],'área de 1 m = diâmetro (decisão da mesa)');
+  assert.deepEqual(trechoNaZona(circ,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.4,0.6],'círculo de 1 m de raio');
   const contato=primeiroContato([circ,q],{x:0,y:0},{x:10,y:0},{id:'outro'});assert.equal(contato.zona.id,q.id);assert.equal(+contato.ponto.x.toFixed(3),3);
   assert.equal(primeiroContato([q],{x:0,y:0},{x:10,y:0},{id:'dono'}),null,'a zona não é hostil para quem conjurou');
   assert.equal(+terrenoDificilDasZonas([q,zonaQuadrada(6,0,4,{id:'z2'})],{x:0,y:0},{x:10,y:0},{id:'outro'}).toFixed(3),5,'sobreposição de 3..8 conta uma vez');
@@ -2530,21 +2582,21 @@ test('fuzz: salvaguarda de entidade invocada vai para o jogador que a controla',
   assert.equal(metas.find(m=>m.tipo==='salvaguarda').destinoId,'p');
 });
 
-test('decisão da mesa: o valor das áreas circulares é o diâmetro (Despedaçar 3 m = círculo de 3 m de largura)',async()=>{
-  for(const [dx,dentro] of [[0,true],[1.4,true],[1.6,false],[2.9,false]]){
+test('áreas do livro: Despedaçar tem 3 m de raio e 6 m de diâmetro',async()=>{
+  for(const [dx,dentro] of [[0,true],[1.4,true],[1.6,true],[2.9,true],[3,true],[3.1,false]]){
     let {s,a,b}=await duelo('nikki',undefined,{distancia:6});b.x=6+dx;b.y=0;const pv=b.pv;
     const desp=opRev(a,'despedacar');s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:desp.id,ponto:{x:6,y:0}},player,roladorSala({salva:2,dano:8}).rolar);
     assert.equal(s.atores[1].pv<pv,dentro,'alvo a '+dx+' m do centro');
   }
 });
 
-test('áreas: emanação (Braços de Hadar) continua com 3 m ao redor; esferas usam o valor como diâmetro',async()=>{
+test('áreas do livro: Braços de Hadar tem 3 m ao redor e Acalmar Emoções tem 6 m de raio',async()=>{
   for(const [dx,dentro] of [[1.5,true],[2.9,true],[3.2,false]]){
     let {s,a,b}=await duelo('nikki',undefined,{distancia:dx});const pv=b.pv;
     s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'bracos de hadar').id},player,roladorSala({salva:2,dano:6}).rolar);
     assert.equal(s.atores[1].pv<pv,dentro,'Braços de Hadar a '+dx+' m');
   }
-  for(const [dx,dentro] of [[2.9,true],[3.1,false]]){
+  for(const [dx,dentro] of [[2.9,true],[3.1,true],[6,true],[6.1,false]]){
     let {s,a,b}=await duelo('nikki',undefined,{distancia:9});b.x=9+dx;const pv=b.pv;
     s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'acalmar emocoes').id,ponto:{x:9,y:0}},player,roladorSala({salva:2}).rolar);
     assert.equal((s.atores[1].efeitosAtivos??[]).some(e=>/Emoções/.test(e.nome)),dentro,'Acalmar Emoções a '+dx+' m do centro');

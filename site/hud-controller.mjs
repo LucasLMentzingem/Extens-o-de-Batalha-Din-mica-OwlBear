@@ -1,12 +1,13 @@
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.32';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.32';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.32';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.32';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona,raioEfetivoArea} from './zonas.mjs?v=0.8.32';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.33';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.33';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.33';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.33';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.33';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.33';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.32',import.meta.url);
+const url=new URL('./hud.html?v=0.8.33',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -18,33 +19,33 @@ function circulo(centro,raio,cor){
     .strokeColor(cor).strokeWidth(3).layer('CONTROL').locked(true).disableHit(true).build();
 }
 function poligono(posicao,pontos,cor){return buildCurve().position(posicao).points(pontos).closed(true).fillColor(cor).fillOpacity(.10).strokeColor(cor).strokeWidth(3).layer('CONTROL').locked(true).disableHit(true).build();}
-function marcaArea(rule,origem,ponto,dpi){
+function marcaArea(rule,origem,ponto,pixelsMetro){
   const area=rule?.area??(rule?.raioM?{forma:'circulo',raioM:rule.raioM}:null);if(!area)return [];
-  if(area.forma==='circulo')return [circulo(ponto,raioEfetivoArea(area.raioM,rule)*dpi,'#79cfb1')];
-  if(area.forma==='quadrado'){const m=area.tamanhoM*dpi/2;return [poligono(ponto,[{x:-m,y:-m},{x:m,y:-m},{x:m,y:m},{x:-m,y:m}],'#79cfb1')];}
-  const dx=ponto.x-origem.x,dy=ponto.y-origem.y,n=Math.hypot(dx,dy)||1,ux=dx/n,uy=dy/n,l=area.comprimentoM*dpi,w=(area.larguraM??(area.forma==='cone'?area.comprimentoM:1.5))*dpi/2,fx=ux*l,fy=uy*l,px=-uy*w,py=ux*w;
+  if(area.forma==='circulo')return [circulo(ponto,area.raioM*pixelsMetro,'#79cfb1')];
+  if(area.forma==='quadrado'){const m=area.tamanhoM*pixelsMetro/2;return [poligono(ponto,[{x:-m,y:-m},{x:m,y:-m},{x:m,y:m},{x:-m,y:m}],'#79cfb1')];}
+  const dx=ponto.x-origem.x,dy=ponto.y-origem.y,n=Math.hypot(dx,dy)||1,ux=dx/n,uy=dy/n,l=area.comprimentoM*pixelsMetro,w=(area.larguraM??(area.forma==='cone'?area.comprimentoM:1.5))*pixelsMetro/2,fx=ux*l,fy=uy*l,px=-uy*w,py=ux*w;
   return area.forma==='cone'?[poligono(origem,[{x:0,y:0},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py}],'#79cfb1')]:[poligono(origem,[{x:px,y:py},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py},{x:-px,y:-py}],'#79cfb1')];
 }
-function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
-  const origemM={x:origem.x/dpi,y:origem.y/dpi},pontoM={x:ponto.x/dpi,y:ponto.y/dpi};
+function alvosDaArea(rule,origem,ponto,atores,pos,pixelsMetro){
+  const origemM={x:origem.x/pixelsMetro,y:origem.y/pixelsMetro},pontoM={x:ponto.x/pixelsMetro,y:ponto.y/pixelsMetro};
   return atores.filter(a=>{
     const p=pos(a),mesmoPonto=Math.hypot(p.x-origem.x,p.y-origem.y)<=1e-8;
-    return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,{x:p.x/dpi,y:p.y/dpi},rule);
+    return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,{x:p.x/pixelsMetro,y:p.y/pixelsMetro},rule);
   });
 }
 // M05: cada cliente desenha as zonas ativas a partir do estado público (persistem ao recarregar,
 // uma única peça por zona). Ficam na camada acima dos tokens e não recebem clique.
 const chaveZona=ns+'/zona';
-function itensZona(z,dpi){
-  const cor=z.cor??'#5fae5b',g=z.geometria??{},assinatura=JSON.stringify([z.centro,g,cor,dpi]),meta={[chaveZona]:assinatura};
-  const centro={x:z.centro.x*dpi,y:z.centro.y*dpi};
+function itensZona(z,pixelsMetro){
+  const cor=z.cor??'#5fae5b',g=z.geometria??{},assinatura=JSON.stringify([z.centro,g,cor,pixelsMetro]),meta={[chaveZona]:assinatura};
+  const centro={x:z.centro.x*pixelsMetro,y:z.centro.y*pixelsMetro};
   if(g.forma==='circulo'){
-    const r=raioEfetivoArea(g.raioM)*dpi,pontos=Array.from({length:80},(_,i)=>({x:r*Math.cos(i*Math.PI/40),y:r*Math.sin(i*Math.PI/40)}));
+    const r=g.raioM*pixelsMetro,pontos=Array.from({length:80},(_,i)=>({x:r*Math.cos(i*Math.PI/40),y:r*Math.sin(i*Math.PI/40)}));
     return buildCurve().id(chaveZona+'/'+z.id).position(centro).points(pontos).closed(true).fillColor(cor).fillOpacity(.18).strokeColor(cor).strokeWidth(3).strokeDash([12,6])
       .layer('ATTACHMENT').locked(true).disableHit(true).name(z.nome??'Área').metadata(meta).build();
   }
   const pol=poligonoZona(z);if(!pol)return null;
-  return buildCurve().id(chaveZona+'/'+z.id).position(centro).points(pol.map(p=>({x:p.x*dpi-centro.x,y:p.y*dpi-centro.y}))).closed(true).fillColor(cor).fillOpacity(.18).strokeColor(cor).strokeWidth(3).strokeDash([12,6])
+  return buildCurve().id(chaveZona+'/'+z.id).position(centro).points(pol.map(p=>({x:p.x*pixelsMetro-centro.x,y:p.y*pixelsMetro-centro.y}))).closed(true).fillColor(cor).fillOpacity(.18).strokeColor(cor).strokeWidth(3).strokeDash([12,6])
     .layer('ATTACHMENT').locked(true).disableHit(true).name(z.nome??'Área').metadata(meta).build();
 }
 export async function iniciarHud(){
@@ -54,14 +55,15 @@ export async function iniciarHud(){
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let alturaConteudoAcao=590;
-  let dpi=1,marcas=[],marcasPublicas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
+  let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
+  let marcas=[],marcasPublicas=[],tokens=[],fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
   async function sincronizarPecas(){ // M06: peças visuais estáticas (Ilusão Menor), públicas e idempotentes
     if(!pronta)return;
     const chave=ns+'/peca',desejadas=new Map((estado?.pecas??[]).map(p=>{
-      const lado=1254,escala=Math.max(.25,(p.tamanhoM??1.5)/1.5),assinatura=JSON.stringify([p.posicao,p.tamanhoM,dpi]);
+      const lado=1254,escala=Math.max(.25,(p.tamanhoM??1.5)/METROS_POR_CELULA),assinatura=JSON.stringify([p.posicao,p.tamanhoM,pixelsMetro]);
       return [chave+'/'+p.id,buildImage({url:new URL('./'+(p.imagem??'assets/tokens/invocacao-padrao.png'),url).href,mime:'image/png',width:lado,height:lado},{dpi:lado/escala,offset:{x:lado/2,y:lado/2}})
-        .id(chave+'/'+p.id).position({x:p.posicao.x*dpi,y:p.posicao.y*dpi}).layer('CHARACTER').locked(true).disableHit(true).name(p.nome??'Ilusão').metadata({[chave]:assinatura}).build()];
+        .id(chave+'/'+p.id).position({x:p.posicao.x*pixelsMetro,y:p.posicao.y*pixelsMetro}).layer('CHARACTER').locked(true).disableHit(true).name(p.nome??'Ilusão').metadata({[chave]:assinatura}).build()];
     }));
     const existentes=await OBR.scene.local.getItems(i=>i.metadata?.[chave]!==undefined);
     const remover=existentes.filter(i=>!desejadas.has(i.id)||desejadas.get(i.id).metadata[chave]!==i.metadata[chave]).map(i=>i.id);
@@ -72,7 +74,7 @@ export async function iniciarHud(){
   }
   async function sincronizarZonas(){
     if(!pronta)return;
-    const desejadas=new Map((estado?.zonas??[]).map(z=>[chaveZona+'/'+z.id,itensZona(z,dpi)]).filter(([,item])=>item));
+    const desejadas=new Map((estado?.zonas??[]).map(z=>[chaveZona+'/'+z.id,itensZona(z,pixelsMetro)]).filter(([,item])=>item));
     const existentes=await OBR.scene.local.getItems(i=>i.metadata?.[chaveZona]!==undefined);
     const remover=existentes.filter(i=>!desejadas.has(i.id)||desejadas.get(i.id).metadata[chaveZona]!==i.metadata[chaveZona]).map(i=>i.id);
     if(remover.length)await OBR.scene.local.deleteItems(remover);
@@ -84,7 +86,7 @@ export async function iniciarHud(){
   const ator=()=>atores().find(a=>a.id===atorId);
   const controla=a=>a&&(eu.role==='GM'||((a.ficha.tipo==='pj'||a.invocacao?.controlavel)&&a.dono===eu.id)); // M06: quem invocou controla a entidade
   const token=a=>tokens.find(t=>t.id===a?.token);
-  const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
+  const pos=a=>token(a)?.position??{x:a.x*pixelsMetro,y:a.y*pixelsMetro};
   const acaoVisivel=()=>pendente??acaoPublica;
   function custosPrevia(a,o,modo='automatico'){
     const plano=planoCustoOpcao(a,o,modo);if(!plano)return [];
@@ -212,30 +214,30 @@ export async function iniciarHud(){
         .strokeColor(m.cor).strokeWidth(m.largura).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function seta(origem,fim){
-    const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(dpi*.32,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
+    const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(pixelsMetro*.32,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
     const ponta1={x:fim.x-tam*Math.cos(ang-.55),y:fim.y-tam*Math.sin(ang-.55)};
     const ponta2={x:fim.x-tam*Math.cos(ang+.55),y:fim.y-tam*Math.sin(ang+.55)};
     return [[origem,fim],[fim,ponta1],[fim,ponta2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#e54848').strokeWidth(5).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function setaAlvo(origem,fim,indice=0,total=1,cor='#e5c079'){
-    const dx=fim.x-origem.x,dy=fim.y-origem.y,tamLinha=Math.hypot(dx,dy)||1,offset=(indice-(total-1)/2)*dpi*.12;
+    const dx=fim.x-origem.x,dy=fim.y-origem.y,tamLinha=Math.hypot(dx,dy)||1,offset=(indice-(total-1)/2)*pixelsMetro*.12;
     const ox=-dy/tamLinha*offset,oy=dx/tamLinha*offset,a={x:origem.x+ox,y:origem.y+oy},b={x:fim.x+ox,y:fim.y+oy};
-    const ang=Math.atan2(b.y-a.y,b.x-a.x),tam=Math.min(dpi*.22,tamLinha*.22),p1={x:b.x-tam*Math.cos(ang-.5),y:b.y-tam*Math.sin(ang-.5)},p2={x:b.x-tam*Math.cos(ang+.5),y:b.y-tam*Math.sin(ang+.5)};
+    const ang=Math.atan2(b.y-a.y,b.x-a.x),tam=Math.min(pixelsMetro*.22,tamLinha*.22),p1={x:b.x-tam*Math.cos(ang-.5),y:b.y-tam*Math.sin(ang-.5)},p2={x:b.x-tam*Math.cos(ang+.5),y:b.y-tam*Math.sin(ang+.5)};
     return [[a,b],[b,p1],[b,p2]].map(([x,y])=>buildLine().startPosition(x).endPosition(y).strokeColor(cor).strokeWidth(4).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function setaDeslocamento(origem,fim){
-    const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(dpi*.28,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
+    const ang=Math.atan2(fim.y-origem.y,fim.x-origem.x),tam=Math.min(pixelsMetro*.28,Math.hypot(fim.x-origem.x,fim.y-origem.y)*.3);
     const p1={x:fim.x-tam*Math.cos(ang-.52),y:fim.y-tam*Math.sin(ang-.52)},p2={x:fim.x-tam*Math.cos(ang+.52),y:fim.y-tam*Math.sin(ang+.52)};
     return [[origem,fim],[fim,p1],[fim,p2]].map(([a,b])=>buildLine().startPosition(a).endPosition(b).strokeColor('#ffffff').strokeWidth(5).layer('CONTROL').locked(true).disableHit(true).build());
   }
   function marcasDeslocamento(rule,origem,alvos){
     const regra=rule?.deslocamentoForcado;if(!regra)return [];
-    return alvos.flatMap(alvo=>{const inicio=pos(alvo),fim=destinoDeslocamento(origem,inicio,regra.distanciaM*dpi);return fim?[...setaDeslocamento(inicio,fim),circulo(fim,dpi*.2,'#ffffff')]:[];});
+    return alvos.flatMap(alvo=>{const inicio=pos(alvo),fim=destinoDeslocamento(origem,inicio,regra.distanciaM*pixelsMetro);return fim?[...setaDeslocamento(inicio,fim),circulo(fim,pixelsMetro*.2,'#ffffff')]:[];});
   }
   // #65 Prévia do Destruidor de Hordas: círculo de 1,5 m no alvo anterior e destaque das criaturas elegíveis.
   function marcasDestruidor(centroId,raioM,elegiveis){
     const centro=atores().find(a=>a.id===centroId);if(!centro)return [];
-    return [circulo(pos(centro),raioM*dpi,'#f2a64e'),...elegiveis.flatMap(ref=>{const alvo=atores().find(a=>a.id===ref.id);return alvo?[circulo(pos(alvo),dpi*.5,'#ffcf75')]:[];})];
+    return [circulo(pos(centro),raioM*pixelsMetro,'#f2a64e'),...elegiveis.flatMap(ref=>{const alvo=atores().find(a=>a.id===ref.id);return alvo?[circulo(pos(alvo),pixelsMetro*METROS_POR_CELULA*.5,'#ffcf75')]:[];})];
   }
   function marcasDestruidorAvulso(p){
     if(!p.rule?.usarArmaAnterior)return [];
@@ -261,7 +263,7 @@ export async function iniciarHud(){
       const alvo=atores().find(a=>a.id===x.alvoId);if(!alvo)return [];
       const i=vistos[x.alvoId]??0;vistos[x.alvoId]=i+1;
       const modo=p.composicao.modos.find(m=>m.id===x.modoId),cor=modo?.tipo==='cura'?'#67dca0':'#e5c079';
-      return [...setaAlvo(p.origem,pos(alvo),i,contagem[x.alvoId],cor),circulo(pos(alvo),dpi*.46,cor)];
+      return [...setaAlvo(p.origem,pos(alvo),i,contagem[x.alvoId],cor),circulo(pos(alvo),pixelsMetro*METROS_POR_CELULA*.46,cor)];
     });
   }
   async function atualizarPreviaAdicionais(){
@@ -269,8 +271,8 @@ export async function iniciarHud(){
     const extras=(pedidoDado?.meta?.adicionais??[]).filter(x=>(pedidoDado?.recursosAtivos??[]).includes(x.id)&&x.previsualizacaoArea),items=[...(pendente.marcasBase??[])];
     for(const extra of extras){
       const area=extra.previsualizacaoArea,centro=atores().find(a=>a.id===area.centroAtorId);if(!centro)continue;
-      items.push(circulo(pos(centro),area.raioM*dpi,'#f2a64e'));
-      for(const ref of area.alvos??[]){const alvo=atores().find(a=>a.id===ref.id);if(alvo)items.push(circulo(pos(alvo),dpi*.5,'#ffcf75'));}
+      items.push(circulo(pos(centro),area.raioM*pixelsMetro,'#f2a64e'));
+      for(const ref of area.alvos??[]){const alvo=atores().find(a=>a.id===ref.id);if(alvo)items.push(circulo(pos(alvo),pixelsMetro*METROS_POR_CELULA*.5,'#ffcf75'));}
     }
     await desenhar(items);
   }
@@ -309,7 +311,7 @@ export async function iniciarHud(){
     if(circulos.length>1||duplicadaDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{})};
     if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
-      dpi=await OBR.scene.grid.getDpi();
+      pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
       pendente.origem=origem;pendente.raio=raio;
       const direcional=['cone','linha'].includes(rule?.area?.forma);
@@ -317,8 +319,8 @@ export async function iniciarHud(){
       if(escolha==='lista')pendente.detalhe='Selecione no mapa · 0/'+(o.composicao?.quantidadeMaxima??o.selecao.max);
       anterior=await OBR.tool.getActiveTool();
       await OBR.tool.activateTool(tool);await OBR.tool.activateMode(tool,mode);
-      if(oferta){pendente.detalhe=oferta.alvos.length?'Alvos elegíveis: '+oferta.alvos.map(x=>x.nome).join(', '):'Nenhuma criatura elegível a '+medida(oferta.raioM)+' do alvo anterior.';pendente.marcasBase=[circulo(origem,raio*dpi,'#e5c079'),...marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos)];}
-      await desenhar(pendente.marcasBase??[circulo(origem,raio*dpi,'#e5c079')]);
+      if(oferta){pendente.detalhe=oferta.alvos.length?'Alvos elegíveis: '+oferta.alvos.map(x=>x.nome).join(', '):'Nenhuma criatura elegível a '+medida(oferta.raioM)+' do alvo anterior.';pendente.marcasBase=[circulo(origem,raio*pixelsMetro,'#e5c079'),...marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos)];}
+      await desenhar(pendente.marcasBase??[circulo(origem,raio*pixelsMetro,'#e5c079')]);
     }else await publicarPrevia([]);
   }
   async function atualizarLista(p){
@@ -327,14 +329,14 @@ export async function iniciarHud(){
       p.composicao.instancias=(p.cmd.composicao??[]).map((x,i)=>{const modo=p.composicao.modos.find(m=>m.id===x.modoId),alvo=atores().find(a=>a.id===x.alvoId);return {...x,ordem:i+1,modoNome:modo?.nome??x.modoId,alvoNome:alvo?.nome??'Alvo'};});
       p.pronto=p.composicao.instancias.length>=p.composicao.quantidadeMinima;
       p.detalhe='Componha a habilidade · '+p.composicao.instancias.length+'/'+p.composicao.quantidadeMaxima+(p.composicao.instancias.length?' · '+p.composicao.instancias.map(x=>x.ordem+'. '+x.modoNome+' → '+x.alvoNome).join(' · '):'');
-      const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasComposicao(p)];p.marcasBase=items;
+      const items=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasComposicao(p)];p.marcasBase=items;
       await desenhar(items);await layout();transmitir();return;
     }
     const unicos=[...new Set(ids)].map(id=>atores().find(a=>a.id===id));
     p.pronto=ids.length>=p.regraLista.min;p.detalhe='Selecione no mapa · '+ids.length+'/'+p.regraLista.max+(ids.length?' · '+unicos.map(a=>a.nome+' ×'+ids.filter(id=>id===a.id).length).join(', '):'');
     const contagem=Object.fromEntries(unicos.map(a=>[a.id,ids.filter(id=>id===a.id).length])),vistos={};
     const trajetorias=ids.flatMap(id=>{const alvo=atores().find(a=>a.id===id),i=vistos[id]??0;vistos[id]=i+1;return setaAlvo(p.origem,pos(alvo),i,contagem[id]);});
-    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...unicos.map(a=>circulo(pos(a),dpi*.5,'#79cfb1')),...trajetorias,...marcasDeslocamento(p.rule,p.origem,unicos)];p.marcasBase=items;await desenhar(items);
+    const items=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...unicos.map(a=>circulo(pos(a),pixelsMetro*METROS_POR_CELULA*.5,'#79cfb1')),...trajetorias,...marcasDeslocamento(p.rule,p.origem,unicos)];p.marcasBase=items;await desenhar(items);
     await layout();transmitir();
   }
   async function sincronizarTokens(items){
@@ -349,16 +351,16 @@ export async function iniciarHud(){
     if(p.escolha==='destino'){
       p.pronto=false;delete p.cmd.x;delete p.cmd.y;delete p.ponto;
       p.detalhe='Marque o destino no mapa · '+medida(p.raio);
-      await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079')]);transmitir();return;
+      await desenhar([circulo(p.origem,p.raio*pixelsMetro,'#e5c079')]);transmitir();return;
     }
     const alvoSelecionado=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
     let ponto=alvoSelecionado?pos(alvoSelecionado):p.ponto;
-    if(!ponto){await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p)]);transmitir();return;}
-    const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi,temArea=Boolean(p.rule?.raioM||p.rule?.area);
+    if(!ponto){await desenhar([circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p)]);transmitir();return;}
+    const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro,temArea=Boolean(p.rule?.raioM||p.rule?.area);
     p.pronto=distancia<=p.raio+1e-8;
-    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,dpi):[];
+    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro):[];
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
-    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
+    const marcas=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
     p.marcasBase=marcas;await desenhar(marcas);
     const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
@@ -371,7 +373,7 @@ export async function iniciarHud(){
     let alvo;
     if(p.escolha==='alvo'||p.escolha==='lista'){
       alvo=atores().find(a=>a.token===evento.target?.id);
-      if(!alvo)alvo=atores().filter(a=>token(a)).sort((a,b)=>dist(a)-dist(b)).find(a=>dist(a)<=dpi*.65);
+      if(!alvo)alvo=atores().filter(a=>token(a)).sort((a,b)=>dist(a)-dist(b)).find(a=>dist(a)<=pixelsMetro*METROS_POR_CELULA*.65);
       function dist(a){const c=pos(a);return Math.hypot(c.x-ponto.x,c.y-ponto.y);}
       if(!alvo)throw Error('Clique em um participante visível.');ponto=pos(alvo);
     }
@@ -379,7 +381,7 @@ export async function iniciarHud(){
       const oferta=ofertaDestruidorDeHordas(estado,ator());
       if(!oferta?.alvos.some(x=>x.id===alvo?.id))throw Error('Destruidor de Hordas: escolha uma criatura destacada e ainda não atacada neste turno.');
     }
-    const d=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi;
+    const d=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro;
     if(d>p.raio+1e-8){
       p.pronto=false;await layout();transmitir();throw Error('Fora do alcance. Escolha outro ponto.');
     }
@@ -403,20 +405,20 @@ export async function iniciarHud(){
       p.cmd.alvos=incluirAlvo(p.cmd.alvos,alvo.id,p.regraLista);
       await atualizarLista(p);return;
     }
-    const celula={x:ponto.x/dpi,y:ponto.y/dpi};
+    const celula={x:ponto.x/pixelsMetro,y:ponto.y/pixelsMetro};
     if(alvo)p.cmd.alvo=alvo.id;
     if(p.escolha==='area')p.cmd.ponto=celula;
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
-    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,dpi):alvo?[alvo]:[];
+    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro):alvo?[alvo]:[];
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
-    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
+    const items=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
     let contatoZona=null,terrenoZona=0;
     if(p.escolha==='destino'){
-      const origemM={x:p.origem.x/dpi,y:p.origem.y/dpi},destinoM={x:ponto.x/dpi,y:ponto.y/dpi};
+      const origemM={x:p.origem.x/pixelsMetro,y:p.origem.y/pixelsMetro},destinoM={x:ponto.x/pixelsMetro,y:ponto.y/pixelsMetro};
       contatoZona=primeiroContato(estado?.zonas,origemM,destinoM,ator());terrenoZona=terrenoDificilDasZonas(estado?.zonas,origemM,destinoM,ator());
       const linha=(a,b,cor)=>buildLine().startPosition(a).endPosition(b).strokeColor(cor).strokeWidth(4).layer('CONTROL').disableHit(true).build();
-      if(contatoZona){const corte={x:contatoZona.ponto.x*dpi,y:contatoZona.ponto.y*dpi};items.push(linha(p.origem,corte,'#f2d398'),linha(corte,ponto,'#e54848'));}
+      if(contatoZona){const corte={x:contatoZona.ponto.x*pixelsMetro,y:contatoZona.ponto.y*pixelsMetro};items.push(linha(p.origem,corte,'#f2d398'),linha(corte,ponto,'#e54848'));}
       else items.push(linha(p.origem,ponto,'#f2d398'));
     }
     await desenhar(items);
@@ -426,7 +428,7 @@ export async function iniciarHud(){
         const lado=a=>a.ficha.lado??a.ficha.tipo;
         if(lado(outro)===lado(ator())||outro.pv===0||outro.reacao<=0||!token(outro))return [];
         const centro=pos(outro), alcance=outro.ficha.alcanceCorpoACorpoM??1.5;
-        const r=alcance*dpi,dx=ponto.x-p.origem.x,dy=ponto.y-p.origem.y,px=p.origem.x-centro.x,py=p.origem.y-centro.y;
+        const r=alcance*pixelsMetro,dx=ponto.x-p.origem.x,dy=ponto.y-p.origem.y,px=p.origem.x-centro.x,py=p.origem.y-centro.y;
         if(Math.hypot(px,py)>r+1e-8||Math.hypot(ponto.x-centro.x,ponto.y-centro.y)<=r+1e-8)return [];
         const aa=dx*dx+dy*dy,bb=2*(px*dx+py*dy),cc=px*px+py*py-r*r,delta=bb*bb-4*aa*cc;
         if(aa<=0||delta<0)return [];
@@ -448,6 +450,7 @@ export async function iniciarHud(){
     // sala com a mesma revisao nao pode fechar a selecao recem-aberta.
     if(pendente&&pendente.rev!==s.rev)await cancelar();
     estado=s;eu=i;
+    pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
     await sincronizarZonas().catch(e=>console.error('Zonas:',e));
     await sincronizarPecas().catch(e=>console.error('Peças:',e));
     if(acaoPublica&&!atores().some(a=>a.id===acaoPublica.atorId)){acaoPublica=null;await limparMarcasPublicas();}
@@ -542,7 +545,7 @@ export async function iniciarHud(){
       if(modo.ordem&&modo.ordem!==indice)return;
       if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)return;
       pendente.composicao.modoAtivo=modo.id;
-      if(modo.destruidorDeHordas||pendente.marcasBase){const items=[circulo(pendente.origem,pendente.raio*dpi,'#e5c079'),...marcasComposicao(pendente)];pendente.marcasBase=items;await desenhar(items);}
+      if(modo.destruidorDeHordas||pendente.marcasBase){const items=[circulo(pendente.origem,pendente.raio*pixelsMetro,'#e5c079'),...marcasComposicao(pendente)];pendente.marcasBase=items;await desenhar(items);}
     }
     else if(d.tipo==='desfazer'&&pendente?.escolha==='lista'){
       pendente.cmd.alvos.pop();if(pendente.composicao){pendente.cmd.composicao.pop();const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1),proximo=pendente.composicao.modos.find(m=>(!m.ordem||m.ordem===indice)&&(!m.requerModoAnterior||m.requerModoAnterior===anterior?.modoId));if(proximo)pendente.composicao.modoAtivo=proximo.id;}await atualizarLista(pendente);
@@ -667,6 +670,13 @@ export async function iniciarHud(){
     if(r)await api.notify();
   }));
   OBR.player.onChange(p=>{const a=atores().find(x=>x.token===p.selection?.[0]);if(a&&controla(a)&&!pendente&&a.id!==atorId)serial(()=>mensagem({tipo:'ator',id:a.id}));});
+  OBR.scene.grid.onChange(grid=>serial(async()=>{
+    const proxima=pixelsPorMetro(grid.dpi);
+    if(proxima===pixelsMetro)return;
+    await cancelar();pixelsMetro=proxima;
+    await sincronizarZonas();await sincronizarPecas();
+    await layout();transmitir();
+  }));
   if(typeof OBR.scene.items.onChange==='function'){
     let quadro=0,ultimos;
     OBR.scene.items.onChange(items=>{ultimos=items;if(quadro)return;quadro=requestAnimationFrame(()=>{quadro=0;const lote=ultimos;serial(()=>sincronizarTokens(lote));});});

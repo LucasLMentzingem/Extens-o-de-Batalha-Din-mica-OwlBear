@@ -1,10 +1,11 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.32';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.32';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.32';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.32';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.32';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.32';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.33';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.33';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.33';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.33';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.33';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.33';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.33';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -53,7 +54,7 @@ async function sincronizarSaqueVisual(){
   }
   if(saqueVisualId===saque.id)return;
   saqueVisualId=saque.id;
-  const url=new URL('./saque.html?v=0.8.32',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.33',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
     await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -176,7 +177,7 @@ function render(){
         h+='<div class="campos"><label>Alvo<select id="alvo">'+targets.map(x=>opt(x.id,x.nome,x===target)).join('')+'</select></label>'+btn('marcar','Adicionar alvo')+btn('desfazer','Desfazer')+'</div><p>'+alvos.length+'/'+o.selecao.max+' · '+alvos.map(id=>esc(s.atores.find(x=>x.id===id)?.nome)).join(', ')+'</p>';
       }else if(o?.automacao?.raioM)h+='<div class="campos">'+coord('cx','Centro X',target.x)+coord('cy','Centro Y',target.y)+'</div>';
       else if(['salva','ataque','efeito'].includes(o?.automacao?.tipo))h+='<div class="campos"><label>Alvo<select id="alvo">'+targets.map(x=>opt(x.id,x.nome,x===target)).join('')+'</select></label></div>';
-      h+='<details><summary>Mapa tático · 1 m por célula</summary><div class="campos"><label>Clique no mapa para<select id="mapModo">'+(o?.automacao?.raioM?opt('centro','Marcar centro da área'):opt('alvo','Escolher alvo'))+opt('mover','Marcar destino de movimento')+'</select></label><small id="medida"></small></div><div class="tabuleiro" id="tabuleiro"></div></details><details><summary>Opções da rolagem</summary><div class="campos"><select id="rolagem"><option>normal</option><option>vantagem</option><option>desvantagem</option></select>'+coord('ajuste','Ajuste ao d20',0)+'</div></details>';
+      h+='<details><summary>Mapa tático · 1,5 m por célula</summary><div class="campos"><label>Clique no mapa para<select id="mapModo">'+(o?.automacao?.raioM?opt('centro','Marcar centro da área'):opt('alvo','Escolher alvo'))+opt('mover','Marcar destino de movimento')+'</select></label><small id="medida"></small></div><div class="tabuleiro" id="tabuleiro"></div></details><details><summary>Opções da rolagem</summary><div class="campos"><select id="rolagem"><option>normal</option><option>vantagem</option><option>desvantagem</option></select>'+coord('ajuste','Ajuste ao d20',0)+'</div></details>';
       if(o)h+=btn('usar','Executar','primario');h+='</div><details><summary>Deslocar em metros</summary><div class="campos">'+coord('x','Destino X',a.x)+coord('y','Destino Y',a.y)+btn('mover','Conferir trajeto')+'</div></details>'+btn('passar','Finalizar turno');
     }
     if(meu){
@@ -201,9 +202,9 @@ function render(){
     const rule=opcaoPorId(a,acao)?.automacao;
     const board=$('tabuleiro');
     for(let j=-4;j<=4;j++)for(let i=-6;i<=6;i++){
-      const x=Math.round(a.x)+i,y=Math.round(a.y)+j;
+      const x=(Math.round(a.x/METROS_POR_CELULA)+i)*METROS_POR_CELULA,y=(Math.round(a.y/METROS_POR_CELULA)+j)*METROS_POR_CELULA;
       const tile=document.createElement('button');
-      const occupants=s.atores.filter(p=>Math.round(p.x)===x&&Math.round(p.y)===y);
+      const occupants=s.atores.filter(p=>Math.round(p.x/METROS_POR_CELULA)===x/METROS_POR_CELULA&&Math.round(p.y/METROS_POR_CELULA)===y/METROS_POR_CELULA);
       const who=occupants[0];
       tile.title=x+', '+y+' m'+(who?' · '+occupants.map(p=>p.nome).join(', '):'');
       tile.setAttribute('aria-label',tile.title);
@@ -336,7 +337,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.32',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.33',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -347,7 +348,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.32',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.33',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -565,7 +566,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.32');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.33');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();

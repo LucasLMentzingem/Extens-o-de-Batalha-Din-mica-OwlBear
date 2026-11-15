@@ -1,8 +1,9 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.32';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.32';
-import {compactarEstado} from './catalog.mjs?v=0.8.32';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.32';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.33';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.33';
+import {compactarEstado} from './catalog.mjs?v=0.8.33';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.33';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.33';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -184,7 +185,7 @@ function executarDice(usuario,formula){
 }
 // M06 (#45): o mestre cria o token de cada entidade invocada (id fixo, sem duplicar) e apaga o de quem acabou.
 const prefixoInvocacao='laarte-invocacao-';
-async function sincronizarTokensInvocacao(s,dpi){
+async function sincronizarTokensInvocacao(s,pixelsMetro){
   const itens=await OBR.scene.items.getItems(i=>String(i.id).startsWith(prefixoInvocacao));
   const lado=1254,novos=[];
   for(const a of s.atores.filter(x=>x.invocacao&&!x.token)){
@@ -192,7 +193,7 @@ async function sincronizarTokensInvocacao(s,dpi){
     if(itens.some(i=>i.id===id))continue;
     const escala=a.ficha.tamanho==='miudo'?.5:1;
     novos.push(buildImage({url:new URL('./'+(a.invocacao.imagem??'assets/tokens/invocacao-padrao.png'),location.href).href,mime:'image/png',width:lado,height:lado},{dpi:lado/escala,offset:{x:lado/2,y:lado/2}})
-      .id(id).name(a.nome).layer('CHARACTER').position({x:a.x*dpi,y:a.y*dpi}).build());
+      .id(id).name(a.nome).layer('CHARACTER').position({x:a.x*pixelsMetro,y:a.y*pixelsMetro}).build());
   }
   if(novos.length)await OBR.scene.items.addItems(novos);
   const orfaos=itens.filter(i=>!s.atores.some(a=>a.token===i.id)).map(i=>i.id);
@@ -203,7 +204,7 @@ async function getTokens(){
 }
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
-  const ch=local();let fila=Promise.resolve(),timerReacao;const pedidos=new Map();
+  const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada;const pedidos=new Map();
   const serial=fn=>{fila=fila.then(fn).catch(e=>console.error(e));};
   async function carregar(){
     if(!await OBR.scene.isReady())throw Error('Abra uma cena primeiro.');
@@ -217,7 +218,10 @@ export async function host(){
       id=id||crypto.randomUUID();await OBR.scene.setMetadata({[chaveCena]:id,[autoridade]:eu.id});
     }
     const key=ns+'/'+OBR.room.id+'/'+id;
-    const s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo());return {key,s};
+    const s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo());
+    if(cenaCalibrada!==id){await configurarEscalaCena(OBR.scene.grid);cenaCalibrada=id;}
+    if(migrarEscalaCena(s))persistir(key,s);
+    return {key,s};
   }
   async function mostrar(s){
     clearTimeout(timerReacao);
@@ -243,7 +247,7 @@ export async function host(){
   async function sincronizarNpcs(){
     const {key,s}=await carregar();
     const [itens,dpi]=await Promise.all([OBR.scene.items.getItems(),OBR.scene.grid.getDpi()]);
-    const {novos,alteracoes}=sincronizarCopiasNpc(s,itens,dpi);
+    const {novos,alteracoes}=sincronizarCopiasNpc(s,itens,pixelsPorMetro(dpi));
     if(novos.length){
       s.historico.unshift(novos.length+' cópia(s) de NPC vinculada(s) automaticamente.');
       persistir(key,s);
@@ -267,7 +271,7 @@ export async function host(){
     try{
       const {key,s}=await carregar();
       if(c.tipo==='sync'){await mostrar(await sincronizarNpcs());await reply({});return;}
-      const tokens=await getTokens(), dpi=await OBR.scene.grid.getDpi();
+      const tokens=await getTokens(), dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);
       if(c.tipo==='criarPeca'){
         const a=s.atores.find(x=>x.id===c.ator);
         if(u.role!=='GM'||c.rev!==s.rev||s.fase!=='preparo'||!a||a.token)throw Error('Escolha uma ficha sem vínculo na preparação.');
@@ -277,7 +281,7 @@ export async function host(){
         const token=buildImage({url:new URL(asset,location.href).href,mime:guarda?'image/png':'image/svg+xml',width:lado,height:lado},{dpi:lado,offset:{x:lado/2,y:lado/2}})
           .name(a.nome).layer('CHARACTER').position({x:Math.round(pos.x/dpi+s.atores.indexOf(a))*dpi,y:Math.round(pos.y/dpi)*dpi}).build();
         await OBR.scene.items.addItems([token]);
-        a.token=token.id;a.x=token.position.x/dpi;a.y=token.position.y/dpi;s.rev++;
+        a.token=token.id;a.x=token.position.x/pixelsMetro;a.y=token.position.y/pixelsMetro;s.rev++;
         persistir(key,s);await mostrar(await sincronizarNpcs());await reply({});return;
       }
       if(c.tipo==='iniciar' && s.atores.filter(a=>a.emCombate!==false).some(a=>!tokens.some(t=>t.id===a.token)))throw Error('Antes de iniciar, crie ou vincule um token para cada participante do combate.');
@@ -288,7 +292,7 @@ export async function host(){
       }
       for(const a of s.atores){
         const t=tokens.find(t=>t.id===a.token);
-        if(t){a.x=t.x/dpi;a.y=t.y/dpi;}
+        if(t){a.x=t.x/pixelsMetro;a.y=t.y/pixelsMetro;}
       }
       if(c.tipo==='usar'||c.tipo==='mover'){
         const ator=s.atores.find(a=>a.id===c.ator);
@@ -303,7 +307,7 @@ export async function host(){
       const faseAntes=s.fase;
       const presentes=new Set([eu.id,...(await OBR.party.getPlayers()).map(p=>p.id)]);
       const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes));
-      if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/dpi;a.y=t.y/dpi;}}
+      if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/pixelsMetro;a.y=t.y/pixelsMetro;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
         const ids=next.atores.filter(a=>a.token&&(c.tipo==='encerrar'||a.emCombate!==false)).map(a=>a.token);
         if(ids.length)await OBR.scene.items.updateItems(ids,items=>{
@@ -323,8 +327,8 @@ export async function host(){
         }});
       }
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
-      if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*dpi,y:a.y*dpi};}});
-      await sincronizarTokensInvocacao(next,dpi); // M06
+      if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*pixelsMetro,y:a.y*pixelsMetro};}});
+      await sincronizarTokensInvocacao(next,pixelsMetro); // M06
       persistir(key,next);
       const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
       await mostrar(estadoMostrar);await reply({});
@@ -357,7 +361,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.32',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.33',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }
