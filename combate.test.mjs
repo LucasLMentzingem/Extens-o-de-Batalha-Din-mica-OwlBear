@@ -2458,3 +2458,62 @@ test('#59 Gaveta do Golpe Desarmado avulso prepara Mão de Dolo (gasta Foco só 
     else{assert.equal(s.atores[0].rec['pontos-de-foco'],foco,'errou: nada cobrado');}
   }
 });
+
+// ===== Critérios de conclusão das sete fichas (#56–#62) =====
+import {normalizarZonas as normalizarZonasCrit} from './site/engine.mjs';
+
+test('critério das sete fichas: turno padrão (mover, atacar com a arma e passar) sem erro',async()=>{
+  for(const id of idsJogadores){
+    let {s,a,b}=await duelo(id,undefined,{distancia:3});
+    s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:a.id,x:1.5,y:0},player,roladorSala().rolar);
+    const arma=opcoesDisponiveis(s.atores[0]).find(o=>o.geradaPorItem&&o.automacao?.tipo==='ataque'&&o.custo?.some(c=>c.tipo==='acao')&&!o.automacao.arremesso);
+    assert.ok(arma,id+' tem ataque com arma');
+    const pv=s.atores[1].pv;
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:arma.id,alvo:b.id},player,roladorSala({d20:15}).rolar);
+    assert.ok(s.atores[1].pv<pv,id+' causou dano');assert.equal(s.atores[0].acao,0,id+' gastou a Ação');
+    s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala().rolar);
+    assert.equal(atual(s).id,b.id,id+' passou o turno');
+  }
+});
+
+test('critério das sete fichas: opções de interpretação registram o uso e cobram o custo',async()=>{
+  const cobertas={};
+  for(const id of idsJogadores){
+    const base=await duelo(id);
+    const interpretativas=opcoesDisponiveis(base.a).filter(o=>!o.automacao&&!o.gatilho&&!o.informativa&&!o.requisitosUso&&o.categoria!=='passiva');
+    for(const o of interpretativas){
+      let {s,a}=await duelo(id);if(o.foraCombate||o.requisitosUso?.somenteForaCombate){s.fase='preparo';}
+      const reacao=o.custo?.some(c=>c.tipo==='reacao'),antes=structuredClone(s.atores[0]);if(reacao)s.vez=1;
+      s=await aplicar(s,{rev:s.rev,tipo:reacao?'reagir':'usar',ator:a.id,opcao:o.id,assistido:true},player,roladorSala().rolar);
+      const depois=s.atores[0];
+      for(const c of o.custo??[]){
+        if(s.fase==='preparo'&&c.tipo!=='recurso')continue;
+        const k=c.tipo==='recurso'?c.id:c.tipo,ant=c.tipo==='recurso'?antes.rec[k]:antes[k],dep=c.tipo==='recurso'?depois.rec[k]:depois[k];
+        assert.equal(dep,ant-c.quantidade,id+' · '+o.nome+' cobra '+k);
+      }
+      assert.ok(s.historico.some(h=>h.includes(o.nome)),id+' · '+o.nome+' registrado no histórico');
+      (cobertas[id]??=[]).push(o.nome);
+    }
+  }
+  assert.ok(Object.keys(cobertas).length>=5);
+});
+
+test('critério das sete fichas: salvar, compactar e reabrir não perde estado nem duplica definições',async()=>{
+  let s=novo();const atores=[];
+  for(const id of idsJogadores){const a=adicionar(s,await fichaRev(id));a.dono='p';atores.push(a);}
+  // estado com uso de recursos, efeito, zona e invocação
+  atores[6].rec['espaco-1']=0;atores[0].pv-=3;atores[4].efeitosAtivos=[{id:'teste',nome:'Taumaturgia',tipo:'buff',vantagemPericias:['Intimidação'],duracao:{turnos:10,restante:7,expira:'inicio_origem'},origemAtorId:atores[4].id}];
+  const skimi=atores[5];s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:skimi.id,opcao:opRev(skimi,'encontrar familiar').id,ponto:{x:skimi.x+1,y:0}},player,roladorSala().rolar);
+  const salvo=JSON.parse(JSON.stringify(compactarEstado(s)));
+  const reaberto=salvo;for(const a of reaberto.atores){a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}normalizarZonasCrit(reaberto);
+  const reaberto2=JSON.parse(JSON.stringify(compactarEstado(reaberto)));for(const a of reaberto2.atores){a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}
+  for(const [i,a] of s.atores.entries()){
+    for(const r of [reaberto,reaberto2]){
+      const b=r.atores[i];
+      const j=x=>JSON.parse(JSON.stringify(x??null));
+      assert.deepEqual(j({pv:b.pv,rec:b.rec,ef:b.efeitosAtivos,dono:b.dono,inv:b.invocacao,lado:b.ficha.lado}),j({pv:a.pv,rec:a.rec,ef:a.efeitosAtivos,dono:a.dono,inv:a.invocacao,lado:a.ficha.lado}),a.nome);
+      const ids=opcoesDisponiveis(b).map(o=>o.id);assert.equal(new Set(ids).size,ids.length,a.nome+' sem opções duplicadas');
+      assert.deepEqual(ids,opcoesDisponiveis(a).map(o=>o.id),a.nome+' mesmas opções após reabrir');
+    }
+  }
+});
