@@ -131,6 +131,7 @@ Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença
 - Motor: instancia derivada com ID próprio; a definição permanece no catálogo.
 - Decisão da mesa: a conjuração cria um token controlável pelo jogador que invocou. A entidade recebe uma ficha independente, visível na lista de fichas desse jogador, com atributos, habilidades e ações da própria entidade.
 - Usar uma única imagem padrão de invocação enquanto não houver arte individual. A primeira entrega deve cobrir **Encontrar Familiar** e **Mãos Mágicas** (mão fantasma), com opções e limites próprios de cada magia.
+- A moeda com **T** está disponível em [site/assets/tokens/invocacao-padrao.png](../../site/assets/tokens/invocacao-padrao.png). O PNG tem 1254 × 1254 pixels e transparência ao redor da moeda. Reutilizar a imagem para invocações e peças visuais provisórias, dimensionando a peça conforme a definição da habilidade.
 - **Ilusão Menor:** a opção de imagem cria um token estático, puramente visual e sem ficha, ações ou iniciativa. A opção de som segue por interpretação. O token é removido quando o efeito termina.
 - Arte provisória de **Ilusão Menor**: moeda com a letra **T**, de token.
 - **Mãos Mágicas:** cria uma entidade controlável pelo conjurador, com ficha própria na lista do jogador e ações limitadas ao que a magia permite.
