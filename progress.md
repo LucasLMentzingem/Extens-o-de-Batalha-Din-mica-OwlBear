@@ -1,5 +1,13 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — grupos fixos de fichas 0.8.21
+
+- Botões antigos de cenários substituídos por Aventureiros (sete fichas) e Soldados do Reino (Soldado 3, Comandante 4, Mago 3 e Arqueiro 3).
+- Grupos recolhíveis permitem adição integral ou individual em cenas ocupadas. Cópias são independentes e começam sem vínculos.
+- NPCs adaptados das versões recentes da guarda, com inventário real, recursos, perícias e habilidades compartilhadas. Limitações de automação registradas em docs/GRUPOS-DE-FICHAS.md.
+- Importação de grupo validada atomicamente e autorizada somente ao mestre. Reforços reaproveitam o fluxo existente de iniciativa.
+- Arco curto e espada longa do Reino usam modelos de arma declarativos. O cálculo de proficiência agora aceita tipos de arma definidos pelo próprio item.
+
 ## 2026-11-15 — retorno à contagem normal 0.8.20
 
 - Recuperação confirmada pelo usuário. Mesma implementação da 0.8.192 republicada como 0.8.20 por solicitação explícita.

@@ -4,9 +4,9 @@
   "resumo": {
     "classes": 6,
     "racas": 6,
-    "habilidades": 251,
+    "habilidades": 259,
     "comuns": 15,
-    "itens": 92
+    "itens": 94
   },
   "sistemaEquipamentos": {
     "status": "Configurado",
@@ -1092,6 +1092,10 @@
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
+      "nome": "Arco curto",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
       "nome": "Arco longo",
       "status": "CA, classe, slot e modificadores configurados"
     },
@@ -1265,6 +1269,10 @@
     },
     {
       "nome": "Espada Grande da Falha +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Espada longa",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {

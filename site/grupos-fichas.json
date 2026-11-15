@@ -1,0 +1,27 @@
+{
+  "grupos": [
+    {
+      "id": "aventureiros",
+      "nome": "Aventureiros",
+      "fichas": [
+        {"id": "dragoberto", "nome": "Dragoberto"},
+        {"id": "draven-thorne", "nome": "Draven Thorne"},
+        {"id": "hannah-montana", "nome": "Hannah Montana"},
+        {"id": "loteria", "nome": "Loteria"},
+        {"id": "nikki", "nome": "Nikki Lauda"},
+        {"id": "skimi", "nome": "Skimi"},
+        {"id": "zurich", "nome": "Zurich"}
+      ]
+    },
+    {
+      "id": "soldados-do-reino",
+      "nome": "Soldados do Reino",
+      "fichas": [
+        {"id": "reino-soldado-3", "nome": "Soldado do Reino · nível 3"},
+        {"id": "reino-comandante-4", "nome": "Comandante do Reino · nível 4"},
+        {"id": "reino-mago-3", "nome": "Mago do Reino · nível 3"},
+        {"id": "reino-arqueiro-3", "nome": "Arqueiro do Reino · nível 3"}
+      ]
+    }
+  ]
+}

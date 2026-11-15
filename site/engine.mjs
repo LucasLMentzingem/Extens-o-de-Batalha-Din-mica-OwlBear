@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.20';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.20';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.21';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.21';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -338,6 +338,7 @@ export const definicoesArmas=Object.freeze({
 });
 function chaveArma(item){
   if(item?.tipoArma&&definicoesArmas[item.tipoArma])return item.tipoArma;
+  if(item?.tipoArma&&Array.isArray(item.modelosAcoes)&&item.modelosAcoes.length&&['simples','marcial'].includes(item.grupoProficiencia))return item.tipoArma;
   const n=textoNormal(item?.nome).replace(/^\d+\s+/,'');
   return Object.keys(definicoesArmas).find(k=>n.includes(k.replaceAll('_',' ')));
 }
@@ -637,12 +638,12 @@ function proficienciasArmas(f){
   return new Set((f?.classes??[]).flatMap(c=>classesArmas[textoNormal(c.id)]??[]));
 }
 export function proficienteComArma(f,item){
-  const d=definicoesArmas[chaveArma(item)],p=proficienciasArmas(f);if(!d)return false;
+  const d=definicoesArmas[chaveArma(item)]??(chaveArma(item)?item:null),p=proficienciasArmas(f);if(!d)return false;
   return p.has('todas')||p.has(d.tipoArma)||p.has(d.grupoProficiencia)||d.grupoProficiencia==='marcial'&&p.has('marciais_leves')&&d.propriedades.includes('leve');
 }
 function mongeUsaArma(f,item){
   const monge=(f?.classes??[]).some(c=>textoNormal(c.id)==='monge');
-  const d=definicoesArmas[chaveArma(item)];
+  const d=definicoesArmas[chaveArma(item)]??(chaveArma(item)?item:null);
   return monge&&!usaArmadura({ficha:f})&&d&&(d.grupoProficiencia==='simples'||d.grupoProficiencia==='marcial'&&d.propriedades.includes('leve'))&&!d.propriedades.includes('pesada');
 }
 function atributoAtaqueArma(f,item,modelo){
@@ -1248,7 +1249,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1296,6 +1297,15 @@ export async function aplicar(s,c,u,rolar) {
       exigir(Array.isArray(c.fichas)&&c.fichas.length===7,'O grupo de teste precisa das sete fichas.');
       for(const ficha of c.fichas){const p=adicionar(s,ficha,ficha.nome);if(c.ensaio){p.token='sim-'+p.id;p.dono='teste';}}
       msg='As sete fichas de jogadores entraram no encontro.';break;
+    }
+    case 'adicionarGrupo': {
+      exigir(Array.isArray(c.fichas)&&c.fichas.length>0&&c.fichas.length<=50,'Selecione de uma a cinquenta fichas.');
+      const fichas=c.fichas.map(validar);
+      for(const ficha of fichas){
+        const novo=adicionar(s,ficha,ficha.nome);
+        if(s.fase==='turnos')await inserirReforco(s,novo,resultado,formulaD20);
+      }
+      msg=fichas.length+' ficha(s) adicionada(s) ao encontro.';break;
     }
     case 'adicionar': {
       // #12 Reforços no meio do combate: entram com iniciativa rolada e na posição certa da ordem.
@@ -1365,7 +1375,10 @@ export async function aplicar(s,c,u,rolar) {
       a.token=c.token||null;a.dono=c.dono||null;msg='Vínculo atualizado para '+a.nome+'.';break;
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
-      {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;});msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
+      {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{
+        x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;
+        if(x.emCombate!==false)for(const r of x.ficha.recursos)if(r.recuperacao?.some(v=>v.evento==='inicio_combate'&&v.modo==='completar'))x.rec[r.id]=r.maximo;
+      });msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,desvantagemArmaduraSemTreino(a,'des')?'desvantagem':'normal'),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;

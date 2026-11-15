@@ -1,0 +1,145 @@
+{
+  "$schema": "./ficha.schema.json",
+  "versaoFormato": 2,
+  "id": "reino-arqueiro-3",
+  "nome": "Arqueiro do Reino · nível 3",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "arqueiro",
+      "nivel": 3
+    }
+  ],
+  "especie": "Humano",
+  "atributos": {
+    "for": 10,
+    "des": 16,
+    "con": 12,
+    "int": 10,
+    "sab": 12,
+    "car": 10
+  },
+  "salvaguardas": {
+    "for": 0,
+    "des": 5,
+    "con": 1,
+    "int": 0,
+    "sab": 3,
+    "car": 0
+  },
+  "proficiencia": 2,
+  "pvMaximos": 21,
+  "caBase": 10,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [
+      "leve",
+      "media",
+      "escudo"
+    ],
+    "maestrias": []
+  },
+  "sentidos": "Percepção passiva 13; visão normal.",
+  "idiomas": "Comum",
+  "pericias": {"Furtividade": 5, "Percepção": 3, "Acrobacia": 5},
+  "recursos": [
+    {
+      "id": "disparo-preparado",
+      "nome": "Disparo preparado",
+      "maximo": 1,
+      "saldoInicial": 1,
+      "recuperacao": [
+        {
+          "evento": "inicio_combate",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "concessoes": [
+    {"id": "esquivar", "ref": "habilidade.esquivar-acao", "tipo": "habilidade"},
+    {"id": "ajudar", "ref": "habilidade.ajudar-acao", "tipo": "habilidade"},
+    {"id": "golpe-desarmado", "ref": "habilidade.golpe-desarmado-2-acao", "tipo": "habilidade", "ajustes": {"nome": "Golpe desarmado +2 | ação", "descricao": "Ataque desarmado a até 1,5 m. Dano fixo 1 contundente.", "automacao": {"bonus": 2, "dano": "1"}}},
+    {
+      "id": "9733d2ac-3544-575c-90a9-fe057e862788",
+      "ref": "habilidade.tocar-o-sino-acao-da-missao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "cae79d30-a752-5e58-af9d-8befa34d4ea3",
+      "ref": "habilidade.ataque-de-oportunidade-reacao-9f6eea1d",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "disparada",
+      "ref": "habilidade.correr",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "desengajar",
+      "ref": "habilidade.desengajar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "reino-arqueiro-3-habilidade-4",
+      "ref": "habilidade.reino-arqueiro-3.d6dee2a8-75b6-4891-9328-11a49a754000",
+      "tipo": "habilidade"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "versaoOcupacao": 6,
+    "capacidadeCargaKg": 75,
+    "itens": [
+      {
+        "id": "reino-arqueiro-3-item-0",
+        "ref": "item.armadura-de-couro",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "reino-arqueiro-3-item-1",
+        "ref": "item.reino.arco-curto",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "arma_distancia"
+      },
+      {
+        "id": "reino-arqueiro-3-item-2",
+        "ref": "item.adaga",
+        "quantidade": 1
+      },
+      {
+        "id": "reino-arqueiro-3-item-3",
+        "ref": "item.20-flechas-e-aljava",
+        "quantidade": 20
+      }
+    ]
+  },
+  "notas": [
+    {
+      "titulo": "Origem",
+      "descricao": "Adaptado de Arqueiro-Nv3.json. NPC caseiro da aventura anterior. Nível é uma identificação de campanha, não uma progressão completa de classe."
+    },
+    {
+      "titulo": "Resumo — NPC CASEIRO",
+      "descricao": "NPC da mansão. PV 21, CA 14, deslocamento 9 m. Iniciativa [1d20+3]. Uma ação de ataque realiza um ataque. Nível de campanha, sem ND atribuído."
+    },
+    {
+      "titulo": "Proteção e tática",
+      "descricao": "CA 14 = couro 11 + DES 3. Sem escudo. Usa cobertura e escolhe alvos visíveis. Meia cobertura do alvo concede +2 à CA; três quartos +5; cobertura total impede o disparo direto. Não ignora cobertura ou aliados na linha de tiro. Se precisar escapar de inimigo adjacente, Desengajar usa a ação e impede disparar no mesmo turno. Não possui ação bônus especial ou Ataques Múltiplos."
+    }
+  ]
+}

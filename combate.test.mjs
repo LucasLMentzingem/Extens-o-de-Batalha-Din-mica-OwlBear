@@ -806,6 +806,28 @@ test('as sete fichas de jogadores carregam juntas com recursos e automações pr
  assert.equal(porId('hannah-montana').opcoes.find(o=>o.id==='inspiracao-bardo-acao').automacao.tipo,'conceder_dado');
  assert.equal(porId('skimi').opcoes.find(o=>o.id==='ponto-sorte-rerrolagem').gatilho,'apos_rolagem_d20');
 });
+test('grupos fixos acrescentam fichas independentes sem alterar participantes ou criar vínculos',async()=>{
+ const grupos=JSON.parse(await readFile(new URL('./site/grupos-fichas.json',import.meta.url))).grupos;
+ assert.deepEqual(grupos.map(g=>g.id),['aventureiros','soldados-do-reino']);
+ assert.equal(grupos[0].fichas.length,7);
+ const reino=await Promise.all(grupos[1].fichas.map(f=>fichaFonte(f.id)));
+ let s=novo();const existente=adicionar(s,nikki);existente.pv=7;existente.dono='p';existente.token='token-existente';
+ const antes=structuredClone(existente);
+ s=await aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,fichas:reino},gm,dadoLocal);
+ assert.equal(s.atores.length,5);assert.deepEqual(s.atores[0],antes);
+ assert.ok(s.atores.slice(1).every(a=>a.token===null&&a.dono===null&&a.ficha.tipo==='npc'));
+ assert.deepEqual(s.atores.slice(1).map(caAtual),[16,17,12,14]);
+ assert.ok(opcoesDisponiveis(s.atores[2]).some(o=>o.geradaPorItem&&o.automacao.bonus===5));
+ assert.ok(opcoesDisponiveis(s.atores[4]).some(o=>o.geradaPorItem&&o.automacao.bonus===5));
+ s=await aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,fichas:[reino[0]]},gm,dadoLocal);
+ assert.notEqual(s.atores[1].id,s.atores[5].id);
+ s.atores[1].pv=1;assert.equal(s.atores[5].pv,24);
+ const snapshot=structuredClone(s);
+ await assert.rejects(aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,fichas:[reino[0],{nome:'inválida'}]},gm,dadoLocal));
+ assert.deepEqual(s,snapshot);
+ await assert.rejects(aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,fichas:reino},player,dadoLocal),/Somente o mestre/);
+ for(const a of s.atores)assert.doesNotThrow(()=>validar(compactarFicha(a.ficha)));
+});
 test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recursos',async()=>{
  let s=novo(),d=adicionar(s,fichasJogadores.find(f=>f.id==='draven-thorne')),g=adicionar(s,soldado,'Alvo');
  const rolar=async formula=>({total:/d20/.test(formula)?20:/d10/.test(formula)?8:5,natural:/d20/.test(formula)?20:null,formula,resumo:'teste'});

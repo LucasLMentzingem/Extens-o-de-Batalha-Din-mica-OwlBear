@@ -1,0 +1,175 @@
+{
+  "$schema": "./ficha.schema.json",
+  "versaoFormato": 2,
+  "id": "reino-mago-3",
+  "nome": "Mago do Reino · nível 3",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "mago",
+      "nivel": 3
+    }
+  ],
+  "especie": "Humano",
+  "atributos": {
+    "for": 8,
+    "des": 14,
+    "con": 14,
+    "int": 16,
+    "sab": 12,
+    "car": 10
+  },
+  "salvaguardas": {
+    "for": -1,
+    "des": 2,
+    "con": 2,
+    "int": 5,
+    "sab": 3,
+    "car": 0
+  },
+  "proficiencia": 2,
+  "pvMaximos": 21,
+  "caBase": 10,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [],
+    "maestrias": []
+  },
+  "sentidos": "Percepção passiva 13; visão normal.",
+  "idiomas": "Comum",
+  "pericias": {"Arcanismo": 5, "Investigação": 5, "Percepção": 3},
+  "recursos": [
+    {
+      "id": "espaco-1",
+      "nome": "Espaços de 1º círculo",
+      "maximo": 4,
+      "saldoInicial": 4,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-2",
+      "nome": "Espaços de 2º círculo",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "concessoes": [
+    {"id": "esquivar", "ref": "habilidade.esquivar-acao", "tipo": "habilidade"},
+    {"id": "ajudar", "ref": "habilidade.ajudar-acao", "tipo": "habilidade"},
+    {"id": "golpe-desarmado", "ref": "habilidade.golpe-desarmado-2-acao", "tipo": "habilidade", "ajustes": {"nome": "Golpe desarmado +2 | ação", "descricao": "Ataque desarmado a até 1,5 m. Dano fixo 1 contundente.", "automacao": {"bonus": 2, "dano": "1"}}},
+    {
+      "id": "9733d2ac-3544-575c-90a9-fe057e862788",
+      "ref": "habilidade.tocar-o-sino-acao-da-missao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "cae79d30-a752-5e58-af9d-8befa34d4ea3",
+      "ref": "habilidade.ataque-de-oportunidade-reacao-9f6eea1d",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "disparada",
+      "ref": "habilidade.correr",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "desengajar",
+      "ref": "habilidade.desengajar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "reino-mago-3-habilidade-4",
+      "ref": "habilidade.reino.raio-de-gelo",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "reino-mago-3-habilidade-5",
+      "ref": "habilidade.1-misseis-magicos-acerto-automatico-classe",
+      "tipo": "habilidade",
+      "ajustes": {
+        "origem": "mago"
+      }
+    },
+    {
+      "id": "reino-mago-3-habilidade-6",
+      "ref": "magia.passo-nebuloso",
+      "tipo": "habilidade",
+      "ajustes": {
+        "nome": "Passo Nebuloso",
+        "origem": "mago"
+      }
+    },
+    {
+      "id": "reino-mago-3-habilidade-7",
+      "ref": "habilidade.reino.graxa",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "reino-mago-3-habilidade-8",
+      "ref": "habilidade.reino.escudo-arcano",
+      "tipo": "habilidade"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": [
+      "reino-mago-3-habilidade-5",
+      "reino-mago-3-habilidade-6",
+      "reino-mago-3-habilidade-7",
+      "reino-mago-3-habilidade-8"
+    ]
+  },
+  "inventario": {
+    "versaoOcupacao": 6,
+    "capacidadeCargaKg": 60,
+    "itens": [
+      {
+        "id": "reino-mago-3-item-0",
+        "ref": "item.veste-simples",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "reino-mago-3-item-1",
+        "ref": "item.adaga",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_forte"
+      }
+    ]
+  },
+  "notas": [
+    {
+      "titulo": "Origem",
+      "descricao": "Adaptado de Mago-Nv3.json. NPC caseiro da aventura anterior. Nível é uma identificação de campanha, não uma progressão completa de classe."
+    },
+    {
+      "titulo": "Resumo — NPC CASEIRO",
+      "descricao": "NPC da mansão. PV 21, CA 12, deslocamento 9 m. Iniciativa [1d20+2]. Uma ação de ataque realiza um ataque. Nível de campanha, sem ND atribuído."
+    },
+    {
+      "titulo": "Proteção e tática",
+      "descricao": "CA 12; com Escudo Arcano, CA 17. Usa Graxa na passagem e Raio de Gelo contra perseguidores. Se cercado, pode lançar Passo Nebuloso como ação bônus e Raio de Gelo como ação. Guarda o livro para manter uma mão livre."
+    }
+  ]
+}

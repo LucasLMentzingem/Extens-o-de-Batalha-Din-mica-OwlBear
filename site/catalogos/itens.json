@@ -2,6 +2,70 @@
   "versaoCatalogo": 1,
   "itens": [
     {
+      "id": "item.reino.arco-curto",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco curto",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "slotEquipamento": "arma_distancia",
+        "tipoArma": "arco_curto",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "municao"
+        ],
+        "duasMaos": true,
+        "pesoKg": 1,
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "descricao": "Arco curto da guarda. Alcance limitado a 18 m pela regra da mesa. Controle de munição assistido."
+      }
+    },
+    {
+      "id": "item.reino.espada-longa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada longa",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "slotEquipamento": "mao_forte",
+        "tipoArma": "espada_longa",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil"
+        ],
+        "pesoKg": 1.5,
+        "preco": {
+          "valor": 15,
+          "moeda": "po"
+        },
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "danoDuasMaos": "1d10",
+            "tipoDano": "cortante"
+          }
+        ],
+        "descricao": "Espada longa da guarda."
+      }
+    },
+    {
       "id": "item.20-flechas-e-aljava",
       "revisao": 1,
       "definicao": {

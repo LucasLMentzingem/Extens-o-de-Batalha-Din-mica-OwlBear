@@ -3,6 +3,181 @@ export default {
   "versaoCatalogo": 1,
   "habilidades": [
     {
+      "id": "habilidade.reino.raio-de-gelo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Raio de Gelo",
+        "categoria": "magia",
+        "origemTipo": "classe",
+        "origem": "mago",
+        "circuloBase": 0,
+        "descricao": "Ataque à distância a até 18 m. Causa 1d8 de frio e reduz deslocamento em 3 m até o próximo turno do conjurador.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 5,
+          "dano": "1d8",
+          "elemento": "gelo",
+          "alcanceM": 18,
+          "efeitoAcerto": {
+            "nome": "Lentidão de Raio de Gelo",
+            "tipo": "debuff",
+            "modificadores": {
+              "deslocamentoM": -3
+            },
+            "duracao": {
+              "turnos": 1,
+              "expira": "inicio_origem"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "habilidade.reino-soldado-3.144380e9-4eec-438d-baaa-838b07c468e0",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Conter avanço — 1 vez por turno",
+        "categoria": "acao",
+        "origemTipo": "classe",
+        "descricao": "Ao acertar com a lança em corpo a corpo, pode reduzir o deslocamento do alvo em 3 m até o início do próximo turno do soldado. Reduções desta técnica não se acumulam. Técnica da guarda. Efeito assistido pelo mestre.",
+        "custo": [],
+        "requisitosUso": {
+          "aposAcerto": true,
+          "umaVezPorTurno": "conter-avanco"
+        }
+      }
+    },
+    {
+      "id": "habilidade.reino-comandante-4.7d10e068-066c-4078-aba4-2bcd7a5b8c4f",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Golpe de comando — 1 vez por combate",
+        "categoria": "acao",
+        "origemTipo": "classe",
+        "descricao": "Após acertar com a espada longa, escolha acrescentar [1d8] de dano cortante ao golpe. Em acerto crítico, role [2d8] para o adicional. Marque o uso. Efeito assistido pelo mestre.",
+        "custo": [
+          {
+            "tipo": "recurso",
+            "id": "golpe-comando",
+            "quantidade": 1
+          }
+        ],
+        "requisitosUso": {
+          "aposAcerto": true
+        }
+      }
+    },
+    {
+      "id": "habilidade.reino-comandante-4.c3e29932-415b-50bc-9cd4-65162c716d45",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Reposicionar soldado — AÇÃO BÔNUS / 3 por descanso longo",
+        "categoria": "acao",
+        "origemTipo": "classe",
+        "descricao": "Habilidade caseira preservada. Um aliado da guarda a até 9 m que possa ouvi-lo e não esteja Incapacitado pode gastar a própria reação para mover-se até metade do deslocamento (normalmente 4,5 m). Esse movimento pode provocar oportunidades. Não concede ataque ou ação de tocar sino. Usos iniciais 3/3; recuperar em descanso longo. Efeito assistido pelo mestre.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "reposicionar",
+            "quantidade": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "habilidade.reino-comandante-4.c85c654d-b4e1-5e93-bbe7-d442b957269f",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Aparar — REAÇÃO",
+        "categoria": "acao",
+        "origemTipo": "classe",
+        "descricao": "Habilidade caseira preservada. Ao ser atingido por ataque corpo a corpo de atacante visível, empunhando a espada e não estando Incapacitado, ganha +2 de CA SOMENTE contra esse ataque: CA 17 vira 19. Pode converter o acerto em erro. Não se aplica contra tiros ou resistência. Compete com oportunidade pela única reação, renovada no início do próprio turno. Efeito assistido pelo mestre.",
+        "custo": [
+          {
+            "tipo": "reacao",
+            "quantidade": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "habilidade.reino.graxa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Graxa — 1º CÍRCULO / AÇÃO",
+        "categoria": "magia",
+        "origemTipo": "classe",
+        "origem": "mago",
+        "circuloBase": 1,
+        "descricao": "Alcance 18 m; V,S,M (manteiga ou gordura, disponível na bolsa). Gasta um espaço. Quadrado de 3 m de lado no chão vira terreno difícil durante 1 minuto, SEM concentração. Cada criatura na área quando aparece faz resistência de DES CD 13 ou fica Caída. Também testa ao entrar ou terminar o turno na área. Afeta aliados. Não causa dano e não é inflamável. Para levantar, criatura Caída gasta metade do próprio deslocamento. Efeito assistido pelo mestre.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "habilidade.reino.escudo-arcano",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo Arcano (Shield) — 1º CÍRCULO / REAÇÃO",
+        "categoria": "magia",
+        "origemTipo": "classe",
+        "origem": "mago",
+        "circuloBase": 1,
+        "descricao": "Ao ser atingido por uma jogada de ataque ou ser alvo de Mísseis Mágicos, pode gastar a reação e um espaço. CA sobe de 12 para 17, inclusive contra o ataque que disparou a reação, até o início do próximo turno do mago. Não sofre dano de Mísseis Mágicos durante o efeito. V,S; precisa conseguir falar e gesticular. Não ajuda contra efeito que pede resistência, como Emaranhar. Não é permanente. Na regra 2024, não pode gastar outro espaço no MESMO TURNO; geralmente pode usá-lo no turno posterior de um inimigo mesmo tendo lançado magia no próprio turno. Efeito assistido pelo mestre.",
+        "custo": [
+          {
+            "tipo": "reacao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "habilidade.reino-arqueiro-3.d6dee2a8-75b6-4891-9328-11a49a754000",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Disparo preparado — 1 vez por combate",
+        "categoria": "acao",
+        "origemTipo": "classe",
+        "descricao": "Antes de se mover no próprio turno, pode firmar os pés para fazer o ataque de arco com vantagem. Seu deslocamento passa a 0 até o fim do turno. Acerto [2d20kh1+5] contra CA, depois dano [1d6+3]. Substitui o disparo normal. Com desvantagem, vantagem e desvantagem se anulam: use o disparo normal. Efeito assistido pelo mestre.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "disparo-preparado",
+            "quantidade": 1
+          }
+        ]
+      }
+    },
+    {
       "id": "habilidade.saquear",
       "revisao": 1,
       "definicao": {
@@ -5941,6 +6116,70 @@ export default {
     }
   ],
   "itens": [
+    {
+      "id": "item.reino.arco-curto",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Arco curto",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "slotEquipamento": "arma_distancia",
+        "tipoArma": "arco_curto",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "distancia",
+          "duas_maos",
+          "municao"
+        ],
+        "duasMaos": true,
+        "pesoKg": 1,
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "modelosAcoes": [
+          {
+            "modo": "distancia",
+            "alcanceNormalM": 18,
+            "alcanceM": 18,
+            "dano": "1d6",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "descricao": "Arco curto da guarda. Alcance limitado a 18 m pela regra da mesa. Controle de munição assistido."
+      }
+    },
+    {
+      "id": "item.reino.espada-longa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Espada longa",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "slotEquipamento": "mao_forte",
+        "tipoArma": "espada_longa",
+        "grupoProficiencia": "marcial",
+        "propriedades": [
+          "corpo_a_corpo",
+          "versatil"
+        ],
+        "pesoKg": 1.5,
+        "preco": {
+          "valor": 15,
+          "moeda": "po"
+        },
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d8",
+            "danoDuasMaos": "1d10",
+            "tipoDano": "cortante"
+          }
+        ],
+        "descricao": "Espada longa da guarda."
+      }
+    },
     {
       "id": "item.20-flechas-e-aljava",
       "revisao": 1,
