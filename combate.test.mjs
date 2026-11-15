@@ -2298,3 +2298,51 @@ test('M05 várias zonas, gatilhos genéricos de entrada e restauração idempote
   normalizarZonas(salvo);normalizarZonas(salvo);
   assert.deepEqual(salvo.zonas.map(z=>z.id).sort(),[s.zonas[0].id,'fogo'].sort(),'uma representação por zona, sem órfãs');
 });
+
+// ===== Pendências das sete fichas (0.8.28) =====
+import {facesMaximas,tamanhoAte,modoPericiaEquipamento as modoPericiaM01} from './site/engine.mjs';
+
+test('#57 Ataque Prostrador só derruba Grande ou menor (M10)',async()=>{
+  for(const [tamanho,cai] of [[undefined,true],['Grande',true],['Enorme',false]]){
+    let {s,a,b}=await duelo('draven-thorne');if(tamanho)b.ficha.tamanho=tamanho;
+    const prostrador=a.ficha.opcoes.find(o=>/Ataque Prostrador/.test(o.nome));
+    const rolar=async(f,meta={})=>{if(meta.tipo==='ataque')return {total:20,natural:15,formula:f};if(meta.tipo==='salvaguarda')return {total:1,natural:1,formula:f};
+      const r={total:4,natural:null,formula:f,recursosAtivos:(meta.adicionais??[]).filter(x=>x.id===prostrador.id||x.automatico).map(x=>x.id)};if(Array.isArray(f))r.resultados=f.map(()=>({total:4}));return r;};
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,rolar);
+    assert.equal(temCondicao(s.atores[1],'caido'),cai,String(tamanho));
+  }
+  assert.ok(tamanhoAte({ficha:{}},'grande'),'sem tamanho na ficha = Médio');
+});
+
+test('#60 Explosão Elemental: cada 8 rola mais um d8, até 3 dados extras (M13)',async()=>{
+  assert.equal(facesMaximas({grupos:[{diceType:'d8',dice:[{value:8},{value:3},{value:8,kept:false}]}]},8),1);
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});const explosao=opRev(a,'explosao elemental (fogo)');
+  assert.deepEqual(explosao.automacao.dadosExplosivos,{lados:8,limite:3});
+  const pedidos=[];let n=0;
+  const rolar=async(f,meta={})=>{pedidos.push({f,meta});if(meta.tipo==='ataque')return {total:20,natural:15,formula:f};
+    n++;return n===1?{total:8,faces:[8],formula:f}:{total:8*Number(f[0]),faces:Array(Number(f[0])).fill(8),formula:f};};
+  b.pv=200;b.ficha.pvMaximos=200;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:explosao.id,alvo:b.id},player,rolar);
+  const extras=pedidos.filter(x=>/explosivo/.test(x.meta.titulo??''));
+  assert.deepEqual(extras.map(x=>x.f),['1d8','1d8','1d8'],'para no limite de 3 dados');assert.equal(s.atores[1].pv,200-8-24);
+  // sem 8, nenhum dado extra
+  ({s,a,b}=await duelo('nikki',undefined,{distancia:6}));const p2=[];
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:explosao.id,alvo:b.id},player,async(f,meta={})=>{p2.push(meta);return meta.tipo==='ataque'?{total:20,natural:15,formula:f}:{total:5,faces:[5],formula:f};});
+  assert.ok(!p2.some(m=>/explosivo/.test(m.titulo??'')));
+});
+
+test('#60 #61 Taumaturgia dá Vantagem em Intimidação por 1 minuto; Queda Suave registra e gasta reação e espaço',async()=>{
+  for(const nome of ['nikki','skimi']){
+    let {s,a}=await duelo(nome);const t=opRev(a,'taumaturgia');assert.ok(t?.automacao,nome);
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:t.id,alvo:a.id},player,roladorSala().rolar);
+    assert.equal(modoPericiaM01(s.atores[0],'Intimidação'),'vantagem',nome);assert.equal(modoPericiaM01(s.atores[0],'Enganação'),'normal');
+    const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'teste',ator:a.id,grupo:'pericias',chave:'Intimidação',modo:'normal'},player,r.rolar);
+    assert.match(r.formulas[0].f,/^2d20kh1/);
+    s=await aplicar(s,{rev:s.rev,tipo:'encerrar'},gm,()=>0);
+    for(let i=0;i<10;i++)s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+    assert.equal(modoPericiaM01(s.atores[0],'Intimidação'),'normal','expirou em 1 minuto');
+  }
+  let {s,a}=await duelo('nikki');s.vez=1;const queda=a.ficha.opcoes.find(o=>/Queda Suave/.test(o.nome)),espacos=a.rec['espaco-1'];
+  s=await aplicar(s,{rev:s.rev,tipo:'reagir',ator:a.id,opcao:queda.id},player,roladorSala().rolar);
+  assert.equal(s.atores[0].reacao,0);assert.equal(s.atores[0].rec['espaco-1'],espacos-1);assert.match(s.historico.join(' '),/Queda Suave/);
+});

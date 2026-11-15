@@ -954,7 +954,10 @@ export function bonusTesteFerramenta(a,{ferramenta,atributo='des',contexto}={}){
 }
 export const modoPericiaEquipamento=(a,nome)=>{
   const chave=textoNormal(nome),atributo=periciasPadrao[nome],furtividade=itensEquipados(a).some(i=>textoNormal(i.penalidades?.furtividade)==='desvantagem');
-  return chave==='furtividade'&&furtividade||desvantagemArmaduraSemTreino(a,atributo)?'desvantagem':'normal';
+  const desvantagem=chave==='furtividade'&&furtividade||desvantagemArmaduraSemTreino(a,atributo);
+  // M01: efeitos temporários podem dar Vantagem em perícias (Taumaturgia → Intimidação).
+  const vantagem=(a?.efeitosAtivos??[]).some(e=>(e.vantagemPericias??[]).some(x=>textoNormal(x)===chave));
+  return vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
 };
 export function curarAtor(a,valor){
   const antes=a.pv,quantidade=Math.max(0,Math.floor(Number(valor)||0));
@@ -1304,6 +1307,15 @@ export function normalizarZonas(s){
     &&!vistos.has(z.id)&&vistos.add(z.id)&&(!z.concentracaoId||concentracoes.has(z.concentracaoId)));
   return s;
 }
+// M10 (#49): tamanho da criatura. Fichas sem o campo são Médias.
+export const TAMANHOS=['miudo','pequeno','medio','grande','enorme','imenso'];
+export function tamanhoCriatura(a){const t=slug(String(a?.ficha?.tamanho??'medio')).replace(/-/g,'');return TAMANHOS.includes(t)?t:'medio';}
+export const tamanhoAte=(a,maximo)=>TAMANHOS.indexOf(tamanhoCriatura(a))<=TAMANHOS.indexOf(maximo);
+// M13: conta faces máximas nos grupos do Dice+ (ou no campo "faces" de testes simulados).
+export function facesMaximas(r,lados){
+  const faces=Array.isArray(r?.faces)?r.faces:(r?.grupos??[]).filter(g=>!g.diceType||g.diceType==='d'+lados).flatMap(g=>(g.dice??[]).filter(d=>d.kept!==false).map(d=>d.value));
+  return faces.filter(v=>Number(v)===lados).length;
+}
 function restaurarEconomia(a){
   const r=restricoesAtivas(a);
   const consciente=a.pv>0&&a.estadoVida!=='morto';
@@ -1427,6 +1439,16 @@ export async function aplicar(s,c,u,rolar) {
     enfileirarReacaoAoSofrerDano(s,p,origem,resolvido.danoRecebido,elemento);
     return resolvido.pvPerdido;
   };
+  // M13 (#52): dados explosivos — cada face máxima rola mais um dado do mesmo tipo, até o limite.
+  const explodirDados=async(rule,p,base,tags,nome)=>{
+    if(!rule?.dadosExplosivos||p.pv<=0)return '';
+    const {lados,limite}=rule.dadosExplosivos;let pendentes=facesMaximas(base,lados),extras=0,totalExtra=0;
+    while(pendentes>0&&extras<limite){
+      const n=Math.min(pendentes,limite-extras),r=await resultado(n+'d'+lados,{tipo:'dano',titulo:'Dano explosivo · '+nome,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags}],alvoDano:resumoAlvoDano(p)});
+      extras+=n;totalExtra+=r.total;pendentes=facesMaximas(r,lados);
+    }
+    return extras?' + '+(await aplicarDanoNoAtor(p,totalExtra,rule.elemento,{origem:a}))+' explosivo ('+extras+'d'+lados+')':'';
+  };
   // #57 Ataque de Desarme: a arma sai do slot e continua no inventário do alvo; reequipar em combate gasta uma ação.
   // Com duas armas diferentes empunhadas, 1d10 decide: 1–6 mão principal (60%), 7–10 mão fraca (40%).
   const desarmarAlvo=async p=>{
@@ -1469,6 +1491,7 @@ export async function aplicar(s,c,u,rolar) {
     const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
     const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});
     const textos=[];
+    {const t=await explodirDados(rule,p,base,tagsDano,titulo??o.nome);if(t)textos.push(t.replace(/^ \+ /,''));}
     for(let i=0;i<escolhidos.length;i++){
       const g=escolhidos[i];textos.push(valoresBrutos[i+1]+' de '+g.nome);
       if(g.aprimoramento.salvaArea){
@@ -1477,6 +1500,7 @@ export async function aplicar(s,c,u,rolar) {
         continue;
       }
       const salva=g.aprimoramento.salva;
+      if(salva?.tamanhoMaximo&&!tamanhoAte(p,salva.tamanhoMaximo)){textos.push(p.nome+' é grande demais para '+g.nome);continue;} // M10
       if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});
         if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){textos.push((await desarmarAlvo(p)).replace(/^ • /,''));}else if(rr.total<salva.cd&&salva.efeitoFalha){const e={id:g.id,nome:salva.efeitoFalha.nome,tipo:'condicao',condicao:salva.efeitoFalha.condicao,duracao:{restante:salva.efeitoFalha.turnos??1,expira:salva.efeitoFalha.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);textos.push(p.nome+' falhou e recebeu '+e.nome);}else textos.push(p.nome+' resistiu a '+g.nome);
       }
@@ -2194,10 +2218,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],valores=[parcelas[0].total,...escolhidos.map((g,j)=>(parcelas[j+1]??{total:0}).total)],pacotes=[{valor:valores[0],tipo:r.elemento,tags},...escolhidos.filter(g=>!g.aprimoramento.salvaArea).map((g,j)=>({valor:valores[escolhidos.indexOf(g)+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags}))];
           const dano=await aplicarDanoNoAtor(p,pacotes.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:pacotes});
           msg+=' • '+(critico?'crítico · ':'')+dano+' PV'+escolhidos.map((g,j)=>' + '+valores[j+1]+' '+g.nome).join('');
+          msg+=await explodirDados(r,p,parcelas[0],tags,modo.nome);
           for(let j=0;j<escolhidos.length;j++){
             const g=escolhidos[j];
             if(g.aprimoramento.salvaArea){const area=g.aprimoramento.salvaArea,atingidos=s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8);for(const alvoArea of atingidos){const bonus=alvoArea.ficha.salvaguardas?.[area.atributo]??mod(alvoArea.ficha.atributos[area.atributo]),rr=await rolarD20(bonus,alvoArea,{tipo:'salvaguarda',atributo:area.atributo,titulo:'Salvaguarda · '+g.nome,alvo:alvoArea.nome,cd:area.cd,destinoId:controladorDe(alvoArea),roladorNome:alvoArea.nome}),bruto=rr.total>=area.cd&&area.metade?Math.floor(valores[j+1]/2):rr.total>=area.cd?0:valores[j+1],recebido=bruto?await aplicarDanoNoAtor(alvoArea,bruto,g.aprimoramento.elemento,{origem:a,parcelas:[{valor:bruto,tipo:g.aprimoramento.elemento,tags:['arma','area']}]}):0;msg+=' • '+alvoArea.nome+' '+(rr.total>=area.cd?'passou':'falhou')+' e perdeu '+recebido+' PV';}continue;}
-            const salva=g.aprimoramento.salva;if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){msg+=await desarmarAlvo(p);}else if(rr.total<salva.cd&&salva.efeitoFalha){const def=salva.efeitoFalha,e={id:g.id,nome:def.nome,tipo:'condicao',condicao:def.condicao,duracao:{restante:def.turnos??1,expira:def.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;}
+            const salva=g.aprimoramento.salva;if(salva?.tamanhoMaximo&&!tamanhoAte(p,salva.tamanhoMaximo))msg+=' • '+p.nome+' é grande demais para '+g.nome;else if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){msg+=await desarmarAlvo(p);}else if(rr.total<salva.cd&&salva.efeitoFalha){const def=salva.efeitoFalha,e={id:g.id,nome:def.nome,tipo:'condicao',condicao:def.condicao,duracao:{restante:def.turnos??1,expira:def.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;}
           }
         }
         break;
@@ -2394,6 +2419,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
       const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
       const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});msg+=' • '+p.nome+' perdeu '+danoDireto+' PV';
+      msg+=await explodirDados(rule,p,base,tagsDano,o.nome);
       for(let i=0;i<escolhidos.length;i++){
         const g=escolhidos[i];msg+=' + '+valoresBrutos[i+1]+' de '+g.nome;
         if(g.aprimoramento.salvaArea){
@@ -2402,7 +2428,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           continue;
         }
         const salva=g.aprimoramento.salva;
-        if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});
+        if(salva?.tamanhoMaximo&&!tamanhoAte(p,salva.tamanhoMaximo))msg+=' • '+p.nome+' é grande demais para '+g.nome;
+        else if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});
           if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){msg+=await desarmarAlvo(p);}else if(rr.total<salva.cd&&salva.efeitoFalha){const e={id:g.id,nome:salva.efeitoFalha.nome,tipo:'condicao',condicao:salva.efeitoFalha.condicao,duracao:{restante:salva.efeitoFalha.turnos??1,expira:salva.efeitoFalha.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;
         }
       }

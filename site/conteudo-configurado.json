@@ -305,7 +305,7 @@
         },
         {
           "nome": "Truque | Taumaturgia",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Usar Objeto | ação",
@@ -492,7 +492,7 @@
         },
         {
           "nome": "Truque | Taumaturgia · utilidade · infernal",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Truque | Toque Chocante · ataque +5 · classe",
@@ -991,7 +991,7 @@
         },
         {
           "nome": "Truque | Taumaturgia · utilidade · infernal",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         }
       ]
     }

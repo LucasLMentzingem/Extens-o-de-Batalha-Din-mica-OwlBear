@@ -59,7 +59,7 @@ function extrairResultado(result){
   const grupo=result.groups?.find(g=>g.diceType==='d20');
   const natural=grupo?.dice?.find(d=>d.kept!==false)?.value;
   const segmentos=String(result.rollSummary??'').split(/\s*\|\s*/).filter(Boolean);
-  const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo};}):null;
+  const resultados=segmentos.length>1?segmentos.map((resumo,i)=>{const m=/=\s*(-?\d+(?:[,.]\d+)?)\s*$/.exec(resumo),g=result.groups?.[i],n=g?.dice?.find(d=>d.kept!==false)?.value;return {total:m?Number(m[1].replace(',','.')):g?.total,natural:Number.isFinite(n)?n:null,resumo,grupos:g?[g]:[]};}):null;
   return {total:result.totalValue,natural:Number.isFinite(natural)?natural:null,formula:result.diceNotation,resumo:result.rollSummary,grupos:result.groups??[],resultados};
 }
 // #24 Jogador ausente não trava a mesa: quem não está na sala tem a rolagem enviada direto ao mestre,

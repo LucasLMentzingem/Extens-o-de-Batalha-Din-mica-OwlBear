@@ -2259,7 +2259,7 @@ export default {
     },
     {
       "id": "habilidade.ataque-prostrador",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Ataque Prostrador",
         "categoria": "acao",
@@ -2282,6 +2282,7 @@ export default {
           "salva": {
             "atributo": "for",
             "cd": 13,
+            "tamanhoMaximo": "grande",
             "efeitoFalha": {
               "nome": "Ataque Prostrador",
               "condicao": "caido",
@@ -5365,7 +5366,7 @@ export default {
     },
     {
       "id": "habilidade.truque-explosao-elemental-acido-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (ácido) · ataque +5 · classe",
         "categoria": "magia",
@@ -5383,14 +5384,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "acido",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-fogo-ataque-5-classe",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
         "categoria": "magia",
@@ -5408,7 +5413,11 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "fogo",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "composicao": {
           "quantidadeMinima": 1,
@@ -5512,7 +5521,7 @@ export default {
     },
     {
       "id": "habilidade.truque-explosao-elemental-frio-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (frio) · ataque +5 · classe",
         "categoria": "magia",
@@ -5530,14 +5539,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "frio",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-psiquico-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (psíquico) · ataque +5 · classe",
         "categoria": "magia",
@@ -5555,14 +5568,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "psiquico",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-raio-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (raio) · ataque +5 · classe",
         "categoria": "magia",
@@ -5580,14 +5597,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "raio",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-trovejante-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (trovejante) · ataque +5 · classe",
         "categoria": "magia",
@@ -5605,14 +5626,18 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "trovejante",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
     },
     {
       "id": "habilidade.truque-explosao-elemental-veneno-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (veneno) · ataque +5 · classe",
         "categoria": "magia",
@@ -5630,7 +5655,11 @@ export default {
           "bonus": 5,
           "dano": "1d8",
           "elemento": "veneno",
-          "alcanceM": 18
+          "alcanceM": 18,
+          "dadosExplosivos": {
+            "lados": 8,
+            "limite": 3
+          }
         },
         "varianteDe": "80382f78-315c-5279-be65-98a7df74fb0c"
       }
@@ -5980,7 +6009,7 @@ export default {
     },
     {
       "id": "habilidade.truque-taumaturgia",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Taumaturgia",
         "categoria": "magia",
@@ -5991,12 +6020,28 @@ export default {
             "quantidade": 1
           }
         ],
-        "circuloBase": 0
+        "circuloBase": 0,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 0,
+          "efeito": {
+            "nome": "Taumaturgia",
+            "tipo": "buff",
+            "descricao": "Voz trovejante e sinais sobrenaturais: Vantagem em testes de Carisma (Intimidação) por 1 minuto. Os demais efeitos são interpretativos.",
+            "vantagemPericias": [
+              "Intimidação"
+            ],
+            "duracao": {
+              "turnos": 10,
+              "expira": "inicio_origem"
+            }
+          }
+        }
       }
     },
     {
       "id": "habilidade.truque-taumaturgia-utilidade-infernal",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Taumaturgia · utilidade · infernal",
         "origemTipo": "raca",
@@ -6009,6 +6054,22 @@ export default {
           }
         ],
         "circuloBase": 0,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 0,
+          "efeito": {
+            "nome": "Taumaturgia",
+            "tipo": "buff",
+            "descricao": "Voz trovejante e sinais sobrenaturais: Vantagem em testes de Carisma (Intimidação) por 1 minuto. Os demais efeitos são interpretativos.",
+            "vantagemPericias": [
+              "Intimidação"
+            ],
+            "duracao": {
+              "turnos": 10,
+              "expira": "inicio_origem"
+            }
+          }
+        },
         "origem": "infernal"
       }
     },
