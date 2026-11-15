@@ -1,5 +1,12 @@
 {
   "total": 320,
+  "porOrigemSistema": {
+    "classe": 124,
+    "comum": 16,
+    "magia": 141,
+    "raca": 31,
+    "talento": 8
+  },
   "porCategoria": {
     "ação_básica": 16,
     "habilidade_classe": 69,
@@ -16,6 +23,10 @@
     "NOVO_MODULO": 16,
     "PARCIAL": 91,
     "PORTAVEL": 128
+  },
+  "porEstadoModulo": {
+    "PARCIAL": 10,
+    "AUSENTE": 6
   },
   "porModulo": {
     "M01-ciclo-efeitos": 32,

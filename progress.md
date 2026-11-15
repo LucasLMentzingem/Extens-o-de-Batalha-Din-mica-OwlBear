@@ -704,8 +704,11 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Criar no rodapé o filtro racial depois da classe e antes de **Itens**.
 - [x] Exibir os nomes reais das passivas no rodapé, preservando a descrição completa no balão.
 - [x] Adicionar `origemTipo` ao schema para que novas contribuições classifiquem a origem sem depender do texto do nome.
+- [x] Remapear as 320 regras de nível 3 na versão 0.8.11 e separar 124 habilidades de classe, 31 raciais, 141 magias, 16 comuns e 8 talentos.
+- [x] Reavaliar os 16 módulos planejados: 10 parcialmente implementados e 6 ainda ausentes.
+- [x] Gerar uma relação completa e determinística das habilidades de classe e raça com portabilidade e módulos pendentes.
 
-- Testes do motor: 162 aprovados.
+- Testes do motor: 163 aprovados.
 - Validação visual: `work/livro-raca-v0811.png` e `work/rodape-raca-passivas-v0811.png`.
 - Smoke test pelo cliente padrão: `work/web-game-v0811/shot-0.png`, sem erros de console.
 

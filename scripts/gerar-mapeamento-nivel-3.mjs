@@ -8,26 +8,30 @@ const destino=resolve(raiz,'docs/mapeamento-nivel-3');
 const catalogo=JSON.parse(await readFile(fonte,'utf8'));
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const contem=(s,...termos)=>termos.some(t=>normal(s).includes(normal(t)));
-const versao='0.8.10';
+const versao='0.8.11';
 
 const MODULOS_PLANEJADOS=Object.freeze({
-  'M01-ciclo-efeitos':{prioridade:1,nome:'Ciclo de vida declarativo de efeitos',escopo:'Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término.'},
-  'M02-gatilhos-interceptacoes':{prioridade:1,nome:'Barramento de gatilhos e interceptações',escopo:'Antes/depois de ataque, dano, cura, movimento, teste ou conjuração; permite cancelar, redirecionar ou substituir etapas.'},
-  'M03-escolhas-declarativas':{prioridade:1,nome:'Escolhas e variantes durante a resolução',escopo:'Prompt tipado para escolher dano, atributo, modo, alvo, benefício ou variante sem criar uma habilidade duplicada.'},
-  'M04-compositor-acoes':{prioridade:1,nome:'Compositor e modificador de ações',escopo:'Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação.',implementado:['M04.1-gaveta-composicao'],documentacao:'../MODULO-GAVETA-COMPOSICAO.md'},
-  'M05-zonas-persistentes':{prioridade:1,nome:'Templates e zonas persistentes',escopo:'Cubo, cilindro, parede, emanação e áreas móveis, com entrada/saída/início/fim de turno e visual público.'},
-  'M06-entidades-vinculadas':{prioridade:1,nome:'Entidades, familiares e objetos vinculados',escopo:'Criar token e ficha derivada, definir dono, iniciativa, comandos, duração, PV e encerramento junto da origem.'},
-  'M07-sobreposicao-ficha':{prioridade:1,nome:'Transformações e sobreposição de ficha',escopo:'Substituir temporariamente estatísticas, tamanho, deslocamentos, sentidos, ações e token, preservando o estado original.'},
-  'M08-movimento-avancado':{prioridade:2,nome:'Movimento e trajetórias avançadas',escopo:'Puxar, fugir, direção escolhida, voo, escalada, salto, terreno difícil, deslocamento por zona e colisões.'},
-  'M09-modificadores-rolagem':{prioridade:2,nome:'Modificadores condicionais de rolagem',escopo:'Vantagem, desvantagem, rerrolagem, dados explosivos, mínimo/máximo e substituição de resultados por gatilho.'},
-  'M10-tags-restricoes':{prioridade:2,nome:'Tags de criatura e restrições sistêmicas',escopo:'Tipo de criatura, imunidades funcionais, bloqueio de cura, requisitos de alvo e exceções por condição.'},
-  'M11-vinculo-equipamento':{prioridade:2,nome:'Vínculo persistente com equipamento',escopo:'Encantar uma arma/armadura escolhida e recalcular dinamicamente ações e bônus enquanto o vínculo existir.'},
-  'M12-agendador':{prioridade:2,nome:'Agendador de efeitos e dano',escopo:'Executar dano, cura, teste ou efeito em um evento futuro específico, inclusive no fim do próximo turno.'},
-  'M13-dados-estendidos':{prioridade:3,nome:'Expressões de dados estendidas',escopo:'Dados explosivos e outras transformações que não cabem hoje nas fórmulas Dice+ simples.'},
-  'M14-adjudicacao-estruturada':{prioridade:3,nome:'Pedido estruturado de adjudicação ao mestre',escopo:'Para efeitos narrativos: coleta escolhas, alvo, CD e contexto, cobra custo e envia uma decisão auditável ao mestre.'},
-  'M15-escalonamento-variantes':{prioridade:3,nome:'Escalonamento e variantes por nível/círculo',escopo:'Resolver tabelas, quantidade de alvos, área, dados e opções conforme nível total, classe ou círculo gasto.'},
-  'M16-limites-cura-recursos':{prioridade:3,nome:'Limites de cura, PV temporários e recursos',escopo:'Distribuição de reserva, tetos por alvo, consumo parcial e recuperação condicionada.'}
+  'M01-ciclo-efeitos':{prioridade:1,estado:'PARCIAL',nome:'Ciclo de vida declarativo de efeitos',escopo:'Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término.',entregue:'Durações por início/fim de turno, concentração, descanso, condições e salvaguardas repetidas.',falta:'Empilhamento declarativo, eventos arbitrários e remoções compostas persistidas.'},
+  'M02-gatilhos-interceptacoes':{prioridade:1,estado:'PARCIAL',nome:'Barramento de gatilhos e interceptações',escopo:'Antes/depois de ataque, dano, cura, movimento, teste ou conjuração; permite cancelar, redirecionar ou substituir etapas.',entregue:'Reações de oportunidade, sofrer dano, ser atingido, pós-acerto e pós-rolagem com retomada da ação.',falta:'Barramento genérico ordenado para todo evento, prioridade e redirecionamento declarativos.'},
+  'M03-escolhas-declarativas':{prioridade:1,estado:'PARCIAL',nome:'Escolhas e variantes durante a resolução',escopo:'Prompt tipado para escolher dano, atributo, modo, alvo, benefício ou variante sem criar uma habilidade duplicada.',entregue:'Escolha de alvos, tipos elementais e modos da Gaveta de Composição.',falta:'Escolhas genéricas de atributo, benefício, condição, área e persistência entre descansos.'},
+  'M04-compositor-acoes':{prioridade:1,estado:'PARCIAL',nome:'Compositor e modificador de ações',escopo:'Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação.',entregue:'Aprimoramentos pós-acerto, dano adicional, ataques em sequência e M04.1 Gaveta de Composição.',falta:'Composição declarativa completa para metamagias, smites, maestrias e substituição de etapas.',implementado:['M04.1-gaveta-composicao'],documentacao:'../MODULO-GAVETA-COMPOSICAO.md'},
+  'M05-zonas-persistentes':{prioridade:1,estado:'AUSENTE',nome:'Templates e zonas persistentes',escopo:'Cubo, cilindro, parede, emanação e áreas móveis, com entrada/saída/início/fim de turno e visual público.',entregue:'Áreas instantâneas em círculo, quadrado, cone e linha.',falta:'Entidade de zona persistente, formas restantes e gatilhos espaciais.'},
+  'M06-entidades-vinculadas':{prioridade:1,estado:'AUSENTE',nome:'Entidades, familiares e objetos vinculados',escopo:'Criar token e ficha derivada, definir dono, iniciativa, comandos, duração, PV e encerramento junto da origem.',entregue:'Vínculo comum entre ficha e token.',falta:'Criação e ciclo de vida de familiar, servo, montaria e objeto controlável derivados.'},
+  'M07-sobreposicao-ficha':{prioridade:1,estado:'AUSENTE',nome:'Transformações e sobreposição de ficha',escopo:'Substituir temporariamente estatísticas, tamanho, deslocamentos, sentidos, ações e token, preservando o estado original.',entregue:'Buffs numéricos sem troca de forma.',falta:'Camadas reversíveis de ficha, PV, ações, tamanho, sentidos, equipamento e token.'},
+  'M08-movimento-avancado':{prioridade:2,estado:'PARCIAL',nome:'Movimento e trajetórias avançadas',escopo:'Puxar, fugir, direção escolhida, voo, escalada, salto, terreno difícil, deslocamento por zona e colisões.',entregue:'Distância euclidiana, teleporte, empurrão vetorial, terreno difícil e ataques de oportunidade ao longo do caminho.',falta:'Puxar, direção livre, voo, escalada, salto, colisão e movimento associado a zonas.'},
+  'M09-modificadores-rolagem':{prioridade:2,estado:'PARCIAL',nome:'Modificadores condicionais de rolagem',escopo:'Vantagem, desvantagem, rerrolagem, dados explosivos, mínimo/máximo e substituição de resultados por gatilho.',entregue:'Vantagem/desvantagem, dados adicionais, rerrolagens de d20/dano e rolar duas vezes escolhendo o maior.',falta:'Mínimo/máximo, substituição genérica, filtros compostos e integração com dados explosivos.'},
+  'M10-tags-restricoes':{prioridade:2,estado:'PARCIAL',nome:'Tags de criatura e restrições sistêmicas',escopo:'Tipo de criatura, imunidades funcionais, bloqueio de cura, requisitos de alvo e exceções por condição.',entregue:'Tags de ataque/dano e requisitos como alvo vivo, 0 PV, diferente ou já atingido.',falta:'Tipo de criatura, tamanho, imunidades funcionais e predicados declarativos combináveis.'},
+  'M11-vinculo-equipamento':{prioridade:2,estado:'AUSENTE',nome:'Vínculo persistente com equipamento',escopo:'Encantar uma arma/armadura escolhida e recalcular dinamicamente ações e bônus enquanto o vínculo existir.',entregue:'Equipamento recalcula ataque, dano, proficiência e concessões enquanto equipado.',falta:'Efeito temporário que escolhe e acompanha uma instância específica de item.'},
+  'M12-agendador':{prioridade:2,estado:'PARCIAL',nome:'Agendador de efeitos e dano',escopo:'Executar dano, cura, teste ou efeito em um evento futuro específico, inclusive no fim do próximo turno.',entregue:'Dano no início do turno, duração, salvaguardas repetidas e eventos do próximo turno.',falta:'Fila genérica persistida para dano, cura, teste ou efeito futuro com cancelamento.'},
+  'M13-dados-estendidos':{prioridade:3,estado:'AUSENTE',nome:'Expressões de dados estendidas',escopo:'Dados explosivos e outras transformações que não cabem hoje nas fórmulas Dice+ simples.',entregue:'Lotes, manter maior/menor e dados críticos.',falta:'Explosão recursiva segura e demais transformações declarativas.'},
+  'M14-adjudicacao-estruturada':{prioridade:3,estado:'AUSENTE',nome:'Pedido estruturado de adjudicação ao mestre',escopo:'Para efeitos narrativos: coleta escolhas, alvo, CD e contexto, cobra custo e envia uma decisão auditável ao mestre.',entregue:'Execução assistida simples e histórico textual.',falta:'Formulário público, decisão aprovar/alterar/negar, consequência e auditoria estruturadas.'},
+  'M15-escalonamento-variantes':{prioridade:3,estado:'PARCIAL',nome:'Escalonamento e variantes por nível/círculo',escopo:'Resolver tabelas, quantidade de alvos, área, dados e opções conforme nível total, classe ou círculo gasto.',entregue:'Escala de truques, Mísseis Mágicos por círculo e algumas variantes geradas.',falta:'Tabela declarativa única para nível, nível de classe, círculo, alvos, área e recursos.'},
+  'M16-limites-cura-recursos':{prioridade:3,estado:'PARCIAL',nome:'Limites de cura, PV temporários e recursos',escopo:'Distribuição de reserva, tetos por alvo, consumo parcial e recuperação condicionada.',entregue:'Cura, PV temporários, 0 PV, recursos, custos e descansos.',falta:'Distribuição interativa de reservas, teto por alvo e consumo parcial confirmado.'}
 });
+
+const origemSistema=item=>item.categoria==='traço_espécie'?'raca':
+  ['habilidade_classe','habilidade_subclasse','invocação','metamagia','maestria_arma'].includes(item.categoria)?'classe':
+  item.categoria==='magia'?'magia':item.categoria==='talento'?'talento':'comum';
 
 const portaveis=new Set([
   'Attack','Dash','Disengage','Dodge','Grapple','Shove: Topple','Shove: Push','Opportunity Attack','Bless','Magic Missile','Mage Armor','Misty Step',
@@ -126,14 +130,28 @@ function modulosNecessarios(item,status){
 }
 
 const nivelCorrigido=item=>item.nome==='Large Form'&&item.origem==='Goliath'?5:Number(item.nivel_minimo);
-const itens=catalogo.itens.filter(item=>item.categoria==='magia'?Number(item.circulo)<=2:nivelCorrigido(item)<=3).map(item=>{const avaliacao=avaliar(item);return {...item,nivel_minimo:nivelCorrigido(item),...avaliacao,modulos_necessarios:modulosNecessarios(item,avaliacao.status_portabilidade),avaliado_na_versao:versao};});
+const itens=catalogo.itens.filter(item=>item.categoria==='magia'?Number(item.circulo)<=2:nivelCorrigido(item)<=3).map(item=>{const avaliacao=avaliar(item);return {...item,origem_sistema:origemSistema(item),nivel_minimo:nivelCorrigido(item),...avaliacao,modulos_necessarios:modulosNecessarios(item,avaliacao.status_portabilidade),avaliado_na_versao:versao};});
 const contagem=campo=>Object.fromEntries([...new Set(itens.map(x=>x[campo]))].sort().map(valor=>[valor,itens.filter(x=>x[campo]===valor).length]));
 const porModulo=Object.fromEntries(Object.keys(MODULOS_PLANEJADOS).map(id=>[id,itens.filter(x=>x.modulos_necessarios.includes(id)).length]));
-const saida={versao,escopo:'SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3',fonte:'https://www.dndbeyond.com/srd',geradoEm:'2026-11-14',criterios:{PORTAVEL:'O motor atual possui os módulos fundamentais; requer cadastro/teste da definição.',PARCIAL:'O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.',ASSISTIDO:'Pode ser registrado e ter custo, mas a consequência é decidida pelo mestre.',NOVO_MODULO:'Falta uma capacidade reutilizável essencial.'},modulosPlanejados:MODULOS_PLANEJADOS,resumo:{total:itens.length,porCategoria:contagem('categoria'),porPortabilidade:contagem('status_portabilidade'),porModulo},itens};
+const porEstadoModulo=Object.fromEntries(['PARCIAL','AUSENTE'].map(estado=>[estado,Object.values(MODULOS_PLANEJADOS).filter(x=>x.estado===estado).length]));
+const saida={versao,escopo:'SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3',fonte:'https://www.dndbeyond.com/srd',geradoEm:'2026-11-15',criterios:{PORTAVEL:'O motor atual possui os módulos fundamentais; requer cadastro/teste da definição.',PARCIAL:'O fluxo principal existe, mas uma regra secundária ainda é manual ou específica.',ASSISTIDO:'Pode ser registrado e ter custo, mas a consequência é decidida pelo mestre.',NOVO_MODULO:'Falta uma capacidade reutilizável essencial.'},modulosPlanejados:MODULOS_PLANEJADOS,resumo:{total:itens.length,porOrigemSistema:contagem('origem_sistema'),porCategoria:contagem('categoria'),porPortabilidade:contagem('status_portabilidade'),porEstadoModulo,porModulo},itens};
 await mkdir(destino,{recursive:true});await writeFile(resolve(destino,'catalogo-nivel-3.json'),JSON.stringify(saida,null,2)+'\n');
-const campos=['id','nome','categoria','origem','nivel_minimo','circulo','ativacao','custo','recurso','alcance','alvo','formas','rolagem','dano_cura','tipos_dano','buff_debuff','duracao','concentracao','gatilho','status_portabilidade','modelo_extensao','modulos_existentes','modulos_necessarios','lacuna_atual','fonte_secao'];
+const campos=['id','nome','origem_sistema','categoria','origem','nivel_minimo','circulo','ativacao','custo','recurso','alcance','alvo','formas','rolagem','dano_cura','tipos_dano','buff_debuff','duracao','concentracao','gatilho','status_portabilidade','modelo_extensao','modulos_existentes','modulos_necessarios','lacuna_atual','fonte_secao'];
 const csv=v=>'"'+String(v??'').replaceAll('"','""')+'"';
 await writeFile(resolve(destino,'catalogo-nivel-3.csv'),[campos.join(','),...itens.map(item=>campos.map(c=>csv(Array.isArray(item[c])?item[c].join('|'):item[c])).join(','))].join('\n')+'\n');
 await writeFile(resolve(destino,'resumo.json'),JSON.stringify(saida.resumo,null,2)+'\n');
-await writeFile(resolve(destino,'modulos-nivel-3.json'),JSON.stringify({versao,modulos:MODULOS_PLANEJADOS,porModulo},null,2)+'\n');
+await writeFile(resolve(destino,'modulos-nivel-3.json'),JSON.stringify({versao,modulos:MODULOS_PLANEJADOS,porEstado:porEstadoModulo,porModulo},null,2)+'\n');
+const tituloGrupo=x=>x==='raca'?'Raças':'Classes';
+const linhasHabilidades=['# Habilidades de classe e raça até o nível 3','',`Catálogo SRD 5.2.1 reavaliado para a extensão ${versao}. Os nomes oficiais permanecem em inglês para manter correspondência inequívoca com a fonte.`,''];
+for(const tipo of ['raca','classe']){
+  const listaTipo=itens.filter(x=>x.origem_sistema===tipo);
+  const grupos=Object.entries(Object.groupBy(listaTipo,x=>x.origem)).sort(([a],[b])=>a.localeCompare(b));
+  linhasHabilidades.push('## '+tituloGrupo(tipo),'',`Total: **${listaTipo.length}**.`,'');
+  for(const [origem,lista] of grupos){
+    linhasHabilidades.push('### '+origem,'','| Habilidade | Tipo | Nível | Estado | Módulos ainda necessários |','|---|---|---:|---|---|');
+    for(const x of lista.sort((a,b)=>a.nivel_minimo-b.nivel_minimo||a.nome.localeCompare(b.nome)))linhasHabilidades.push(`| ${x.nome} | ${x.categoria} | ${x.nivel_minimo} | ${x.status_portabilidade} | ${x.modulos_necessarios.join(', ')||'—'} |`);
+    linhasHabilidades.push('');
+  }
+}
+await writeFile(resolve(destino,'HABILIDADES-CLASSE-E-RACA.md'),linhasHabilidades.join('\n').replace(/\n+$/,'')+'\n');
 console.log(JSON.stringify(saida.resumo,null,2));

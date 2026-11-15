@@ -1,6 +1,6 @@
 # Pré-arquitetura dos módulos para cobertura do nível 3
 
-Estado: proposta para leitura e aprovação. Nenhum dos contratos abaixo deve ser considerado estável antes da revisão do mestre.
+Estado: reavaliado na versão 0.8.11; proposta para leitura e aprovação. Nenhum contrato parcial ou ausente deve ser considerado estável antes da revisão do mestre.
 
 Referências de regras: [SRD 5.2.1](https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf), [Equipment — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/equipment), [Rules Glossary — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/rules-glossary) e [Playing the Game — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/playing-the-game).
 
@@ -48,98 +48,129 @@ O catálogo pode declarar o plano; a ficha só conserva algo como `{"ref":"magia
 | 3 | M09, M10, M11, M12 | Generalizam exceções mecânicas recorrentes. |
 | 4 | M13, M14, M15, M16 | Fecham expressões especiais, arbitragem, escala e reservas. |
 
-## M01 — Ciclo de vida declarativo de efeitos
+## Diagnóstico da versão 0.8.11
+
+Todos os 16 módulos continuam necessários para fechar o nível 3. A diferença é que o motor já possui partes reutilizáveis de dez deles; os outros seis ainda precisam nascer como módulos declarativos.
+
+| Módulo | Estado | Cobertura já entregue | Bloqueio que permanece |
+|---|---|---|---|
+| M01 | Parcial | Durações, concentração, descansos, condições e salvas repetidas | Empilhamento e ciclo arbitrário por eventos |
+| M02 | Parcial | Oportunidade, pós-acerto, sofrer dano, ser atingido e pós-rolagem | Barramento genérico com prioridade, cancelamento e redirecionamento |
+| M03 | Parcial | Alvos, elementos e modos da Gaveta | Escolhas genéricas de atributo, benefício, condição e área |
+| M04 | Parcial | Dano extra, sequências e Gaveta M04.1 | Composição completa de metamagia, smite e maestria |
+| M05 | Ausente | Áreas instantâneas básicas | Zona persistente e novas geometrias/gatilhos espaciais |
+| M06 | Ausente | Ficha/token comum | Familiar, servo, montaria e objeto controlável derivados |
+| M07 | Ausente | Buffs numéricos | Transformação reversível de ficha e token |
+| M08 | Parcial | Euclidiano, teleporte, empurrão, terreno e oportunidade no trajeto | Puxar, voo, escalada, salto e colisão |
+| M09 | Parcial | Vantagem, dados extras e rerrolagens | Mínimo/máximo, substituição e filtros compostos |
+| M10 | Parcial | Tags de ataque/dano e requisitos simples de alvo | Tipo/tamanho de criatura e imunidades funcionais |
+| M11 | Ausente | Recalcular equipamento e concessões | Efeito temporário vinculado a uma instância de item |
+| M12 | Parcial | Dano inicial, próximo turno e salva repetida | Fila genérica persistida e cancelável |
+| M13 | Ausente | Lotes, maior/menor e crítico | Dados explosivos e transformações recursivas seguras |
+| M14 | Ausente | Histórico e efeito assistido simples | Pedido estruturado com aprovação/alteração/negação |
+| M15 | Parcial | Truques e algumas escalas por círculo | Tabela genérica por nível, classe, círculo, área e alvos |
+| M16 | Parcial | Cura, PV temporários, 0 PV e recursos | Distribuição de reserva, teto por alvo e consumo parcial |
+
+### Ordem prática atualizada
+
+1. Fechar **M01–M04**, pois eles transformam várias exceções já existentes em contratos reutilizáveis.
+2. Implementar **M14** cedo, para que regras narrativas deixem de ser cartas soltas enquanto os módulos físicos são construídos.
+3. Implementar **M05–M07**, que são os maiores bloqueadores absolutos de magias e características.
+4. Completar **M08–M13**, priorizando M11 e M13 por ainda estarem ausentes.
+5. Finalizar **M15–M16** e então converter as definições restantes do catálogo.
+
+## M01 — Ciclo de vida declarativo de efeitos · parcial
 
 - Dados: `inicio`, `duracao`, `expiraEm`, `removeQuando`, `repetirEm`, `concentracaoId` e `empilhamento`.
 - Motor: agenda eventos no início/fim de turno, dano, cura, descanso, queda a 0 PV e fim de concentração.
 - Interface: contador e motivo de término no balão do efeito.
 - Aceite: um efeito persistido sobrevive à recarga, termina uma única vez e remove todas as concessões derivadas.
 
-## M02 — Barramento de gatilhos e interceptações
+## M02 — Barramento de gatilhos e interceptações · parcial
 
 - Dados: `evento`, `fase` (`antes`, `depois`), `filtros`, `prioridade`, `umaVez`, `resposta`.
 - Eventos iniciais: ataque, acerto, erro, dano, cura, teste, conjuração, entrada/saída de área e movimento.
 - Motor: fila ordenada, pausa com reação quando necessário e retomada da etapa original.
 - Aceite: Sanctuary pode interceptar um ataque sem apagar o comando original; múltiplos gatilhos têm ordem estável.
 
-## M03 — Escolhas e variantes declarativas
+## M03 — Escolhas e variantes declarativas · parcial
 
 - Dados: `id`, `momento`, `opcoes`, `min`, `max`, `padrao`, `condicoes` e `persistir`.
 - Interface: prompt único no cartão da habilidade, visível a todos; edição só pelo controlador.
 - Aceite: uma magia escolhe tipo de dano, atributo ou benefício sem duplicar a definição central.
 
-## M04 — Compositor e modificador de ações
+## M04 — Compositor e modificador de ações · parcial
 
 - Dados: `ancora` (`proximo_ataque`, `arma_escolhida`, `acao_atual`), `alteracoes`, `consumo` e `termino`.
 - Motor: compõe custo, ataque, dano, alvos e efeitos antes da confirmação; nada é cobrado duas vezes.
 - Aceite: smites, maestrias, metamagias e ataques extras reutilizam o mesmo contrato.
 - Implementado em 0.8.9/0.8.10: submódulo **M04.1 — Gaveta de Composição**, para ações com uma ou mais instâncias configuráveis de ataque ou cura. Consulte `../MODULO-GAVETA-COMPOSICAO.md`.
 
-## M05 — Templates e zonas persistentes
+## M05 — Templates e zonas persistentes · ausente
 
 - Formas: cubo, cilindro, parede, emanação; círculo, quadrado, cone e linha continuam no módulo atual.
 - Dados: geometria, âncora, orientação, altura, bloqueio, mobilidade, gatilhos de entrada/saída/turno e duração.
 - Mapa: marcas públicas acima dos tokens, identificadas por `efeitoId`, sem depender do grid.
 - Aceite: Web e Moonbeam mantêm uma zona sincronizada, selecionam alvos por geometria euclidiana e reagem a movimento.
 
-## M06 — Entidades, familiares e objetos vinculados
+## M06 — Entidades, familiares e objetos vinculados · ausente
 
 - Dados: `fichaRef`, `token`, `dono`, `controlador`, `iniciativa`, `comandos`, `limite`, `distanciaVinculo` e `termino`.
 - Motor: instancia derivada com ID próprio; a definição permanece no catálogo.
 - Aceite: Find Familiar, Find Steed, Unseen Servant, Wild Companion e Spiritual Weapon entram/saem sem duplicar fichas.
 
-## M07 — Transformações e sobreposição de ficha
+## M07 — Transformações e sobreposição de ficha · ausente
 
 - Dados: camadas de atributos, tamanho, deslocamentos, sentidos, resistências, ações, token e política de PV.
 - Motor: pilha reversível; cada camada conhece sua origem e precedência.
 - Aceite: Alter Self e Wild Shape terminam restaurando exatamente o estado anterior, inclusive equipamentos e recursos.
 
-## M08 — Movimento e trajetórias avançadas
+## M08 — Movimento e trajetórias avançadas · parcial
 
 - Dados: modo (`andar`, `voar`, `nadar`, `escalar`, `teleportar`, `forcado`), vetor, caminho, terreno e colisão.
 - Regra da campanha: distância euclidiana contínua; o grid é somente visual.
 - Terreno difícil: recebe o comprimento real do trecho; botas e efeitos podem ignorar apenas a parcela permitida.
 - Aceite: puxar, fugir, Gust of Wind, Levitate, Spider Climb e Rope Trick compartilham o mesmo resolvedor.
 
-## M09 — Modificadores condicionais de rolagem
+## M09 — Modificadores condicionais de rolagem · parcial
 
 - Dados: tipos de teste, filtros, momento, vantagem/desvantagem, rerrolagem, substituição, mínimo/máximo e consumo.
 - Aceite: modificadores aparecem no ajuste/resultado correto, cobram recurso somente se escolhidos e não vazam CD.
 
-## M10 — Tags de criatura e restrições sistêmicas
+## M10 — Tags de criatura e restrições sistêmicas · parcial
 
 - Dados: `tagsCriatura`, `imunidadesFuncionais`, `requisitosAlvo`, `bloqueios`.
 - Aceite: uma regra pode distinguir morto-vivo, constructo, aliado, criatura viva ou alvo curável sem comparar nomes.
 
-## M11 — Vínculo persistente com equipamento
+## M11 — Vínculo persistente com equipamento · ausente
 
 - Dados: `itemId`, `slot`, `alteracoes`, `termino`, `permiteTroca`.
 - Motor: recalcula ações pelo portador atual e termina ou acompanha o item conforme a regra.
 - Aceite: Magic Weapon e Shillelagh não criam cópias de arma e continuam corretos após equipar/desequipar.
 
-## M12 — Agendador de efeitos e dano
+## M12 — Agendador de efeitos e dano · parcial
 
 - Dados: evento futuro, origem, alvo, fórmula, tipo, tags e cancelamento.
 - Aceite: Acid Arrow agenda o dano posterior uma única vez e respeita defesas vigentes quando o evento ocorre.
 
-## M13 — Expressões de dados estendidas
+## M13 — Expressões de dados estendidas · ausente
 
 - Dados: operação (`explodir`, `manter`, `rerrolar`, `substituir`) e limite de segurança.
 - Integração: preparar um comando Dice+ quando suportado; caso contrário, rolar lote e somar no host.
 - Aceite: Sorcerous Burst resolve dados explosivos sem loop infinito e mostra todas as parcelas.
 
-## M14 — Pedido estruturado de adjudicação
+## M14 — Pedido estruturado de adjudicação · ausente
 
 - Dados: pergunta, contexto, opções, CD sugerida, alvos, custos e campos de resposta.
 - Interface: tarefa do mestre com `aprovar`, `alterar` ou `negar`; resposta entra no histórico.
 - Aceite: efeitos narrativos deixam de ser texto solto, ainda que não sejam automatizados.
 
-## M15 — Escalonamento e variantes
+## M15 — Escalonamento e variantes · parcial
 
 - Dados: tabelas por nível total, nível de classe, círculo usado, quantidade de alvos e tamanho de área.
 - Aceite: uma definição produz a variante correta sem a ficha armazenar versões redundantes.
 
-## M16 — Limites de cura, PV temporários e recursos
+## M16 — Limites de cura, PV temporários e recursos · parcial
 
 - Dados: reserva, distribuição, teto por alvo, mínimo, alvo válido, consumo parcial e recuperação.
 - Aceite: Preserve Life e efeitos semelhantes distribuem apenas o saldo confirmado e nunca ultrapassam o limite da regra.

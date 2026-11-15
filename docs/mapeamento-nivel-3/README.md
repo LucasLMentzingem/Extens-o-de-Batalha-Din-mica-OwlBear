@@ -1,6 +1,6 @@
 # Mapeamento de regras até o nível 3
 
-Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.10. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
+Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.11. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
 
 A proposta de implementação está em `PRE-ARQUITETURA-MODULOS.md`; o fechamento prático das sete fichas atuais é acompanhado em `../TESTES-SETE-FICHAS-NIVEL-3.md`.
 
@@ -9,6 +9,16 @@ Fontes primárias: [SRD 5.2.1](https://www.dndbeyond.com/srd), [Classes — Regr
 ## Resultado da varredura
 
 Foram classificados **320 itens**:
+
+| Origem no sistema | Quantidade |
+|---|---:|
+| Classe | 124 |
+| Raça/espécie | 31 |
+| Magia | 141 |
+| Comum | 16 |
+| Talento | 8 |
+
+As **124 habilidades de classe** incluem habilidades de classe e subclasse, invocações, metamagias e propriedades de maestria concedidas pelas classes. As **31 raciais** são os traços das nove espécies SRD. A relação nominal completa está em [Habilidades de classe e raça](HABILIDADES-CLASSE-E-RACA.md).
 
 | Categoria | Quantidade |
 |---|---:|
@@ -75,7 +85,14 @@ As 16 entradas classificadas como `NOVO_MODULO` apontam para capacidades ausente
 - **Transformação temporária de ficha:** Alter Self.
 - **Ilusões e manifestações ambientais declarativas:** Druidcraft, Elementalism e Mirror Image.
 
-Foram definidos 16 módulos genéricos, ordenados por dependência. A especificação, contratos, critérios de aceite e decisões pendentes estão em [Pré-arquitetura dos módulos](PRE-ARQUITETURA-MODULOS.md). A contagem por módulo está em [modulos-nivel-3.json](modulos-nivel-3.json).
+Foram definidos 16 módulos genéricos, ordenados por dependência. A reavaliação da 0.8.11 encontrou **10 módulos parcialmente implementados** e **6 ainda ausentes**. Nenhum dos 16 pode ser retirado do plano: os parciais ainda possuem ao menos uma regra de nível 3 que excede sua cobertura atual. A especificação, contratos, critérios de aceite e decisões pendentes estão em [Pré-arquitetura dos módulos](PRE-ARQUITETURA-MODULOS.md). A contagem por módulo está em [modulos-nivel-3.json](modulos-nivel-3.json).
+
+| Estado | Módulos |
+|---|---|
+| Parcial | M01, M02, M03, M04, M08, M09, M10, M12, M15 e M16 |
+| Ausente | M05, M06, M07, M11, M13 e M14 |
+
+O M04 já contém o submódulo funcional **M04.1 — Gaveta de Composição**, mas ainda precisa da composição geral de metamagias, smites, maestrias e substituições de etapa.
 
 ## Módulos já reconhecidos
 
@@ -87,6 +104,7 @@ O submódulo [M04.1 — Gaveta de Composição](../MODULO-GAVETA-COMPOSICAO.md) 
 
 - [Catálogo completo em JSON](catalogo-nivel-3.json)
 - [Planilha em CSV](catalogo-nivel-3.csv)
+- [Habilidades de classe e raça](HABILIDADES-CLASSE-E-RACA.md)
 - [Resumo para automação](resumo.json)
 - [Módulos planejados em JSON](modulos-nivel-3.json)
 - [Pré-arquitetura para aprovação](PRE-ARQUITETURA-MODULOS.md)

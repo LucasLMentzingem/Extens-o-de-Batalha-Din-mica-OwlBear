@@ -14,6 +14,7 @@ const catalogoVictor=resolverCatalogoLoja(JSON.parse(await readFile(new URL('./s
 const conteudoConfigurado=JSON.parse(await readFile(new URL('./site/conteudo-configurado.json',import.meta.url),'utf8'));
 const mapaNivel3=JSON.parse(await readFile(new URL('./docs/mapeamento-nivel-3/catalogo-nivel-3.json',import.meta.url),'utf8'));
 const modulosNivel3=JSON.parse(await readFile(new URL('./docs/mapeamento-nivel-3/modulos-nivel-3.json',import.meta.url),'utf8'));
+const habilidadesClasseRaca=await readFile(new URL('./docs/mapeamento-nivel-3/HABILIDADES-CLASSE-E-RACA.md',import.meta.url),'utf8');
 const idsJogadores=['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich'];
 const fichasJogadores=await Promise.all(idsJogadores.map(ficha));
 const gm={id:'m',role:'GM'},player={id:'p',role:'PLAYER'};
@@ -72,6 +73,17 @@ test('mapa do nível 3 referencia somente módulos planejados e cobre toda opç�
  }
  const contagem={};for(const item of mapaNivel3.itens)for(const id of item.modulos_necessarios??[])contagem[id]=(contagem[id]??0)+1;
  assert.deepEqual(contagem,mapaNivel3.resumo.porModulo);
+});
+test('mapeamento completo separa raça, classe e registra módulos parciais ou ausentes',()=>{
+ assert.equal(mapaNivel3.versao,'0.8.11');
+ assert.deepEqual(mapaNivel3.resumo.porOrigemSistema,{classe:124,comum:16,magia:141,raca:31,talento:8});
+ assert.deepEqual(modulosNivel3.porEstado,{PARCIAL:10,AUSENTE:6});
+ assert.equal(mapaNivel3.itens.filter(x=>x.origem_sistema==='classe').length,124);
+ assert.equal(mapaNivel3.itens.filter(x=>x.origem_sistema==='raca').length,31);
+ assert.ok(mapaNivel3.itens.filter(x=>x.categoria==='traço_espécie').every(x=>x.origem_sistema==='raca'));
+ assert.ok(mapaNivel3.itens.filter(x=>['habilidade_classe','habilidade_subclasse','invocação','metamagia','maestria_arma'].includes(x.categoria)).every(x=>x.origem_sistema==='classe'));
+ for(const modulo of Object.values(modulosNivel3.modulos)){assert.ok(['PARCIAL','AUSENTE'].includes(modulo.estado));assert.ok(modulo.entregue);assert.ok(modulo.falta);}
+ for(const item of mapaNivel3.itens.filter(x=>['classe','raca'].includes(x.origem_sistema)))assert.ok(habilidadesClasseRaca.includes('| '+item.nome+' |'),item.nome+' ausente da relação de classe/raça');
 });
 test('persistência compacta conserva o estado mutável sem salvar definições do catálogo',()=>{
  const s=novo(),a=adicionar(s,nikki),item=a.ficha.inventario.itens[0],passiva=a.ficha.passivas[0];item.quantidade=2;passiva.ativa=false;a.rec.feiticaria=1;
