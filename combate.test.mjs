@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
+import {oportunidades} from './site/engine.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
 import {catalogoCentral,compactarFicha,compactarEstado,resolverCatalogoLoja} from './site/catalog.mjs';
@@ -413,12 +414,53 @@ test('perícias e salvaguardas podem ser roladas antes e fora do próprio turno'
 test('mestre retira e recoloca uma ficha sem perder o vínculo',async()=>{
  const m=mesa();await m.go('vincular',{ator:m.a.id,dono:'p',token:'n'});await m.go('vincular',{ator:m.b.id,token:'b'});await m.go('alternarCombate',{ator:m.b.id});assert.equal(m.s.atores[1].emCombate,false);
  await m.go('iniciar');await m.go('iniciativa',{ator:m.a.id},player,[18]);await m.go('iniciativa',{ator:m.c.id},gm,[8]);
- assert.deepEqual(m.s.ordem,[m.a.id,m.c.id]);await m.go('alternarCombate',{ator:m.b.id},gm,[12]);
+ assert.deepEqual(m.s.ordem,[m.a.id,m.c.id]);await m.go('alternarCombate',{ator:m.b.id},gm,[19,12]);
  assert.equal(m.s.atores[1].emCombate,true);assert.ok(m.s.ordem.includes(m.b.id));assert.equal(m.s.atores[1].token,'b');
 });
 test('painel de contexto altera valor atual e máximo de PV e recursos',async()=>{
  const m=mesa();await m.go('definirRecurso',{ator:m.a.id,campo:'pv',atual:23,maximo:25});assert.equal(m.s.atores[0].pv,23);assert.equal(m.s.atores[0].ficha.pvMaximos,25);
  await m.go('definirRecurso',{ator:m.a.id,campo:'feiticaria',atual:4,maximo:5});assert.equal(m.s.atores[0].rec.feiticaria,4);assert.equal(m.s.atores[0].ficha.recursos.find(r=>r.id==='feiticaria').maximo,5);
+});
+test('mestre avança a duração de efeitos e conserva condições sem prazo',async()=>{
+ const m=mesa();
+ m.s.atores[0].efeitosAtivos=[
+   {id:'a',nome:'Orientação',duracao:{restante:10,expira:'inicio_alvo'}},
+   {id:'b',nome:'Caído',condicao:'caido'}
+ ];
+ await assert.rejects(m.go('avancarTempo',{passo:'5t'},player),/Somente o mestre/);
+ await m.go('avancarTempo',{passo:'30seg'});
+ assert.equal(m.s.atores[0].efeitosAtivos[0].duracao.restante,5);
+ await m.go('avancarTempo',{passo:'5t'});
+ assert.deepEqual(m.s.atores[0].efeitosAtivos.map(e=>e.id),['b']);
+ assert.equal(m.s.tempoForaCombateSeg,60);
+});
+test('reforço que passou da vez age logo depois e recupera a posição na rodada seguinte',async()=>{
+ const m=mesa();
+ await m.go('vincular',{ator:m.a.id,dono:'p',token:'n'});
+ await m.go('alternarCombate',{ator:m.b.id});
+ await m.go('iniciar',{pvp:true});
+ assert.equal(m.s.pvp,true);
+ await m.go('iniciativa',{ator:m.a.id},player,[16]);
+ await m.go('iniciativa',{ator:m.c.id},gm,[8]);
+ await m.go('passar',{ator:m.a.id},player);
+ await m.go('alternarCombate',{ator:m.b.id},gm,[20,19]);
+ assert.equal(atual(m.s).id,m.c.id);
+ assert.equal(m.s.ordem[m.s.vez+1],m.b.id);
+ await m.go('passar',{ator:m.c.id});
+ await m.go('passar',{ator:m.b.id});
+ assert.equal(m.s.rodada,2);
+ assert.equal(atual(m.s).id,m.b.id);
+ await m.go('encerrar');
+ assert.equal(m.s.pvp,false);
+});
+test('PvP habilita ameaças de oportunidade entre jogadores no mesmo lado',()=>{
+ const m=mesa();
+ m.b.ficha.tipo='pj';
+ m.b.ficha.lado=m.a.ficha.lado;
+ m.c.emCombate=false;
+ assert.equal(oportunidades(m.s,m.a,{x:4,y:0}).length,0);
+ m.s.pvp=true;
+ assert.deepEqual(oportunidades(m.s,m.a,{x:4,y:0}).map(x=>x.reator),[m.b.id]);
 });
 
 test('dono salva sua ficha sem alterar identidade, tipo ou vínculo',async()=>{
@@ -1296,7 +1338,7 @@ test('#6 só um espaço de magia por turno; truques e o turno seguinte continuam
   await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,circuloUsado:2,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar),/um espaço de magia neste turno/);
   s.rodada=2;
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:m1.id,circuloUsado:2,alvos:[b.id,b.id,b.id,b.id]},player,roladorSala().rolar);
-  assert.equal(s.atores[0].espacoNoTurno,'2-0');
+  assert.equal(s.atores[0].espacoNoTurno,'2-'+atual(s).id);
 });
 
 test('#8 ataque à distância com inimigo a 1,5 m tem Desvantagem; corpo a corpo e inimigo incapacitado não',async()=>{

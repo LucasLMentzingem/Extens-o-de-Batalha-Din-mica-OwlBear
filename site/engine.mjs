@@ -1,8 +1,9 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.13';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.13';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.14';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.14';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
+export const avancosMesa=[['10min','10 Min',600],['1min','1 Min',60],['30seg','30 Seg',30],['1t','1T',6],['5t','5T',30],['10t','10T',60]];
 export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
 export const periciasPadrao = {
   'Acrobacia':'des','Lidar com Animais':'sab','Arcanismo':'int','Atletismo':'for',
@@ -989,6 +990,7 @@ export function destinoDeslocamento(origem,alvo,distanciaM){
   return {x:alvo.x+dx/tamanho*distanciaM,y:alvo.y+dy/tamanho*distanciaM};
 }
 const lado=a=>a.ficha.lado??a.ficha.tipo;
+const adversarios=(s,a,b)=>a.ficha.tipo==='pj'&&b.ficha.tipo==='pj'?s.pvp===true:lado(a)!==lado(b);
 function pontoSaida(origem,destino,centro,raio){
   const vx=destino.x-origem.x,vy=destino.y-origem.y,px=origem.x-centro.x,py=origem.y-centro.y;
   const aa=vx*vx+vy*vy,bb=2*(px*vx+py*vy),cc=px*px+py*py-raio*raio;
@@ -1001,7 +1003,7 @@ export function oportunidades(s,movente,destino){
   return s.atores.flatMap(reator=>{
     const alcance=reator.ficha.alcanceCorpoACorpoM??1.5;
     const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='sair_alcance'&&o.custo?.some(c=>c.tipo==='reacao'));
-    if(reator.emCombate===false||movente.emCombate===false||reator===movente||lado(reator)===lado(movente)||reator.pv<=0||reator.reacao<=0||!opcoes.length)return [];
+    if(reator.emCombate===false||movente.emCombate===false||reator===movente||!adversarios(s,reator,movente)||reator.pv<=0||reator.reacao<=0||!opcoes.length)return [];
     if(distancia(reator,movente)>alcance+1e-8||distancia(reator,destino)<=alcance+1e-8)return [];
     const ponto=pontoSaida(movente,destino,reator,alcance);
     return ponto?[{reator:reator.id,ponto:{x:ponto.x,y:ponto.y},t:ponto.t,opcoes:opcoes.map(o=>o.id)}]:[];
@@ -1036,9 +1038,9 @@ export function planoCustoOpcao(a,o,modo='automatico'){
 }
 // #6 "Em um turno, você pode usar apenas um espaço de magia para conjurar uma magia." Reações no turno de outra criatura contam para aquele turno.
 function registrarEspacoNoTurno(s,a,custos){
-  if(s.fase!=='turnos'||!custos?.some(c=>c.tipo==='recurso'&&/^espaco-\d$/.test(c.id??'')))return;
-  const turno=s.rodada+'-'+s.vez;
-  exigir(a.espacoNoTurno!==turno,'Você já usou um espaço de magia neste turno (só um por turno).');
+  if(s.fase!=='turnos'||a.emCombate===false||!custos?.some(c=>c.tipo==='recurso'&&/^espaco-\d$/.test(c.id??'')))return;
+  const turno=s.rodada+'-'+atual(s)?.id;
+  exigir(a.espacoNoTurno!==turno&&a.espacoNoTurno!==s.rodada+'-'+s.vez,'Você já usou um espaço de magia neste turno (só um por turno).');
   a.espacoNoTurno=turno;
 }
 function custosDisponiveis(a,o,modo='automatico'){
@@ -1132,6 +1134,19 @@ function restaurarEconomia(a){
   a.acao=!consciente||r.semAcoes?0:1;a.bonus=!consciente||r.semAcoes||r.semBonus?0:1;a.reacao=!consciente||r.semReacao?0:1;
   a.metros=!consciente||r.imovel?0:deslocamentoMaximo(a);a.desengajado=false;a.pv=Math.min(a.pv,pvMaximosAtuais(a));a.usosTurno={};a.eventosTurno={ataques:[],acertos:[]};
 }
+async function inserirReforco(s,a,resultado,formulaD20){
+  const atualId=atual(s)?.id;
+  a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,'desvantagem'),{tipo:'iniciativa',titulo:'Iniciativa de reforço · '+a.nome})).total;
+  const porId=new Map(s.atores.map(x=>[x.id,x]));
+  const posicao=s.ordem.findIndex(id=>{
+    const outro=porId.get(id);
+    return !outro.reforcoAdiantado&&(a.init>outro.init||a.init===outro.init&&a.ficha.atributos.des>outro.ficha.atributos.des);
+  });
+  a.reforcoAdiantado=posicao>=0&&posicao<=s.vez;
+  s.ordem.splice(a.reforcoAdiantado?s.vez+1:posicao<0?s.ordem.length:posicao,0,a.id);
+  s.vez=Math.max(0,s.ordem.indexOf(atualId));
+  restaurarEconomia(a);
+}
 function iniciarTurno(s,a){
   processarDuracoes(s,a,'inicio_turno');restaurarEconomia(a);
   if(restricoesAtivas(a).semAcoes)encerrarConcentracao(s,a,'incapacitado');
@@ -1214,7 +1229,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1240,9 +1255,8 @@ export async function aplicar(s,c,u,rolar) {
       // #12 Reforços no meio do combate: entram com iniciativa rolada e na posição certa da ordem.
       const novo=adicionar(s,c.ficha,c.nome||c.ficha.nome);msg='Ficha adicionada.';
       if(s.fase==='turnos'){
-        const atualId=atual(s)?.id;novo.init=(await resultado(formulaD20(bonusIniciativa(novo),novo,null,desvantagemArmaduraSemTreino(novo,'des')?'desvantagem':'normal'),{tipo:'iniciativa',titulo:'Iniciativa · '+novo.nome})).total;s.ordem.push(novo.id);
-        s.ordem.sort((x,y)=>{const p=s.atores.find(a=>a.id===x),q=s.atores.find(a=>a.id===y);return q.init-p.init||q.ficha.atributos.des-p.ficha.atributos.des;});
-        s.vez=Math.max(0,s.ordem.indexOf(atualId));restaurarEconomia(novo);msg=novo.nome+' entrou no combate com iniciativa '+novo.init+'.';
+        await inserirReforco(s,novo,resultado,formulaD20);
+        msg=novo.nome+' entrou no combate com iniciativa '+novo.init+'.';
       }else if(s.fase==='iniciativa')novo.init=null;
       break;
     }
@@ -1260,9 +1274,7 @@ export async function aplicar(s,c,u,rolar) {
       if(entrando){
         a.emCombate=true;
         if(s.fase==='turnos'){
-          const atualId=atual(s)?.id;a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,desvantagemArmaduraSemTreino(a,'des')?'desvantagem':'normal'),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;s.ordem.push(a.id);
-          s.ordem.sort((x,y)=>{const p=s.atores.find(a=>a.id===x),q=s.atores.find(a=>a.id===y);return q.init-p.init||q.ficha.atributos.des-p.ficha.atributos.des;});
-          s.vez=Math.max(0,s.ordem.indexOf(atualId));restaurarEconomia(a);
+          await inserirReforco(s,a,resultado,formulaD20);
         }else a.init=null;
         msg=a.nome+' entrou no combate.';
       }else{
@@ -1307,7 +1319,7 @@ export async function aplicar(s,c,u,rolar) {
       a.token=c.token||null;a.dono=c.dono||null;msg='Vínculo atualizado para '+a.nome+'.';break;
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
-      {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;});msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
+      {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;});msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,desvantagemArmaduraSemTreino(a,'des')?'desvantagem':'normal'),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
@@ -1626,7 +1638,32 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'encerrar':
       delete s.reacaoPendente;delete s.movimentoPendente;delete s.resolucaoPendente;s.filaReacoes=[];
+      s.pvp=false;
       s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(restaurarEconomia);msg='Combate encerrado.';break;
+    case 'avancarTempo': {
+      exigir(s.fase==='preparo','Encerre o combate antes de avançar o tempo.');
+      const segundos=avancosMesa.find(([id])=>id===c.passo)?.[2];
+      exigir(Number.isInteger(segundos),'Intervalo inválido.');
+      for(const alvo of s.atores)for(const efeito of alvo.efeitosAtivos??[]){
+        if(efeito.modificadorRolagem&&slug(efeito.nome)==='orientacao'&&!efeito.duracao){
+          const origem=s.atores.find(x=>x.id===efeito.origemAtorId);
+          efeito.duracao={turnos:10,restante:10,expira:origem?'inicio_origem':'inicio_alvo'};
+          if(origem?.concentracaoAtiva&&slug(origem.concentracaoAtiva.nome).includes('orientacao'))efeito.concentracaoId=origem.concentracaoAtiva.id;
+        }
+      }
+      const concentracoes=new Set(s.atores.flatMap(x=>(x.efeitosAtivos??[]).map(e=>e.concentracaoId).filter(Boolean)));
+      for(let i=0;i<segundos/6;i++)for(const ator of s.atores){
+        processarDuracoes(s,ator,'inicio_turno');
+        processarDuracoes(s,ator,'fim_turno');
+      }
+      for(const ator of s.atores){
+        const id=ator.concentracaoAtiva?.id;
+        if(id&&concentracoes.has(id)&&!s.atores.some(x=>x.efeitosAtivos?.some(e=>e.concentracaoId===id)))encerrarConcentracao(s,ator);
+        ator.pv=Math.min(ator.pv,pvMaximosAtuais(ator));
+      }
+      s.tempoForaCombateSeg=(s.tempoForaCombateSeg??0)+segundos;
+      msg='O mestre avançou '+segundos+' s fora de combate.';break;
+    }
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       exigir(c.atores===undefined||Array.isArray(c.atores)&&c.atores.every(id=>s.atores.some(x=>x.id===id)),'Personagens do descanso inválidos.');
@@ -1645,7 +1682,7 @@ export async function aplicar(s,c,u,rolar) {
     default: {
       exigir(!s.reacaoPendente,'Resolva a reação pendente antes de continuar.');
       const opcaoDeclarada=c.tipo==='usar'?opcaoPorId(a,c.opcao):null;
-      const foraCombate=c.tipo==='usar'&&s.fase==='preparo';
+      const foraCombate=c.tipo==='usar'&&(s.fase==='preparo'||a.emCombate===false);
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
         processarDuracoes(s,a,'fim_turno');a.jaAgiuNoCombate=true;
@@ -1657,7 +1694,18 @@ export async function aplicar(s,c,u,rolar) {
         }
         // #11 Monstro a 0 PV morre (Cap. 1): a vez dele é pulada. PJ a 0 PV continua para as salvaguardas contra a morte.
         const pulados=[];
-        for(let i=0;i<s.ordem.length;i++){s.vez=(s.vez+1)%s.ordem.length;if(!s.vez)s.rodada++;const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);}
+        for(let i=0;i<s.ordem.length;i++){
+          s.vez=(s.vez+1)%s.ordem.length;
+          if(!s.vez){
+            s.rodada++;
+            if(s.atores.some(x=>x.reforcoAdiantado)){
+              const porId=new Map(s.atores.map(x=>[x.id,x]));
+              s.ordem.sort((x,y)=>porId.get(y).init-porId.get(x).init||porId.get(y).ficha.atributos.des-porId.get(x).ficha.atributos.des);
+              for(const x of s.atores)delete x.reforcoAdiantado;
+            }
+          }
+          const prox=atual(s);if(!prox||prox.ficha.tipo==='pj'||prox.pv>0)break;pulados.push(prox.nome);
+        }
         const iniciado=atual(s);iniciarTurno(s,iniciado);
         // #32 Dano no início do turno do afetado (Golpe Constritor).
         for(const e of (iniciado?.efeitosAtivos??[]).filter(e=>e.danoInicioTurno&&iniciado.pv>0)){
@@ -1796,7 +1844,9 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       };
       if(rule.tipo==='conceder_dado'){
         exigir(afetados.length===1,'Escolha uma criatura para receber o dado.');const p=afetados[0],def=structuredClone(rule.modificador),id=o.id+'-'+a.id;
+        const duracao=slug(def.nome??o.nome)==='orientacao'?{turnos:10,restante:10,expira:'inicio_origem'}:undefined;
         p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.id!==id);p.efeitosAtivos.push({id,nome:def.nome??o.nome,tipo:'buff',descricao:def.descricao??o.descricao,origemAtorId:a.id,removeEm:def.removeEm,
+          duracao,concentracaoId:concentracaoId??undefined,
           modificadorRolagem:{formula:def.formula,tipos:[...def.tipos],removeAoUsar:def.removeAoUsar!==false}});msg+=' • '+p.nome+' recebeu '+(def.nome??o.nome);break;
       }
       if(rule.tipo==='efeito'){
@@ -1844,7 +1894,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       const caidoLonge=rule.tipo==='ataque'&&afetados.some((p,i)=>restricoesAlvos[i].caido&&distancia(a,p)>1.5+1e-8);
       // #8 Ataque à distância com inimigo a 1,5 m (que possa agir) tem Desvantagem.
       const tagsRegra=rule.tags??[],ataqueDistancia=rule.tipo==='ataque'&&(tagsRegra.includes('distancia')||tagsRegra.includes('arremesso')||(!tagsRegra.includes('corpo_a_corpo')&&!tagsRegra.includes('desarmado')&&(rule.alcanceM??1.5)>1.5+1e-8));
-      const inimigoColado=ataqueDistancia&&s.atores.some(x=>x!==a&&x.emCombate!==false&&x.pv>0&&lado(x)!==lado(a)&&!restricoesAtivas(x).semAcoes&&distancia(a,x)<=1.5+1e-8);
+      const inimigoColado=ataqueDistancia&&s.atores.some(x=>x!==a&&x.emCombate!==false&&x.pv>0&&adversarios(s,a,x)&&!restricoesAtivas(x).semAcoes&&distancia(a,x)<=1.5+1e-8);
       const vantagem=c.modo==='vantagem'||(rule.tipo==='ataque'&&efeitos.some(e=>e.vantagemAtaque))||(rule.tipo==='ataque'&&restricoesAtacante.vantagemAtaques)||(rule.tipo==='ataque'&&restricoesAlvos.some(r=>r.vantagemAtaquesContra))||caidoPerto;
       const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&restricoesAtacante.desvantagemAtaques)||(rule.tipo==='ataque'&&restricoesAlvos.some(r=>r.desvantagemAtaquesContra))||caidoLonge||inimigoColado||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distancia(a,p)>rule.alcanceNormalM+1e-8));
       const modoOriginal=c.modo;c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';

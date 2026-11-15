@@ -1,9 +1,28 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.13';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.13';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.13';
-import {pronto} from './bridge.mjs?v=0.8.13';
-import {canalHud} from './hud-controller.mjs?v=0.8.13';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.14';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa} from './engine.mjs?v=0.8.14';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.14';
+import {pronto} from './bridge.mjs?v=0.8.14';
+import {canalHud} from './hud-controller.mjs?v=0.8.14';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
+let confirmacaoMesa=null;
+function controlesMesa(s,fora){
+  if(confirmacaoMesa?.rev!==s.rev)confirmacaoMesa=null;
+  if(confirmacaoMesa){
+    const {tipo,etapa}=confirmacaoMesa;
+    const titulo={iniciar:'Iniciar combate?',encerrar:etapa===1?'Parar combate?':'Confirmar encerramento?',curto:'Fazer descanso curto?',longo:'Fazer descanso longo?'}[tipo];
+    return '<section class="confirmacao-mesa"><strong>'+titulo+'</strong>'+
+      (tipo==='iniciar'?'<label><input id="pvp-mesa" type="checkbox" '+(confirmacaoMesa.pvp?'checked':'')+'> PvP</label>':'')+
+      btn('cancelarMesa','Cancelar')+btn('confirmarMesa',tipo==='encerrar'&&etapa===1?'Continuar':'Confirmar','class="ouro"')+'</section>';
+  }
+  if(!fora)return '<footer class="controles-mesa">'+btn('pedirMesa','Parar combate','data-id="encerrar"')+'</footer>';
+  const avancos=(inicio,fim)=>avancosMesa.slice(inicio,fim).map(([id,nome])=>btn('avancarTempo',nome,'data-id="'+id+'" '+(s.fase==='preparo'?'':'disabled'))).join('');
+  return '<section class="mesa-fora"><div class="passos-mesa">'+avancos(0,3)+'</div>'+
+    btn('pedirMesa','Iniciar<br>combate','data-id="iniciar" class="ouro iniciar-mesa" '+(s.fase==='preparo'?'':'disabled'))+
+    '<div class="passos-mesa">'+avancos(3,6)+'</div><div class="descansos-mesa">'+
+    btn('pedirMesa','Descanso curto','data-id="curto" '+(s.fase==='preparo'?'':'disabled'))+
+    btn('pedirMesa','Descanso longo','data-id="longo" '+(s.fase==='preparo'?'':'disabled'))+'</div>'+
+    (s.fase==='preparo'?'':'<small>Combate em andamento</small>')+'</section>';
+}
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
@@ -90,12 +109,16 @@ function render(){
   iniciativasSelecionadas=new Set([...iniciativasSelecionadas].filter(id=>idsPendentes.has(id)));
   let html='';
   if(parte==='ordem'){
+    const fora=s.fase==='preparo'||a?.emCombate===false;
+    if(!fora){
     const ordem=s.fase==='iniciativa'?s.atores.filter(x=>x.emCombate!==false).map(x=>x.id):s.vez<0?s.ordem:[...s.ordem.slice(s.vez),...s.ordem.slice(0,s.vez)];
     html='<nav><strong>'+(s.rodada?'Rodada '+s.rodada:'Iniciativa')+'</strong>'+ordem.map(id=>{
       const x=s.atores.find(a=>a.id===id);if(!x)return '';
       return btn('ator','<i>'+retrato(x)+'</i><span>'+esc(x.nome)+'<small>'+esc(x.init??'…')+'</small></span>',
         'data-id="'+esc(id)+'" class="ord '+(id===ativo?'atual ':'')+(meus.includes(x)?'':'observador')+'"');
     }).join('')+'</nav>';
+    }
+    if(gm)html+=controlesMesa(s,fora);
   }else if(parte==='iniciativa'){
     if(gm){
       const marcadas=iniciativasPendentes.filter(x=>iniciativasSelecionadas.has(x.id));
@@ -161,7 +184,7 @@ function render(){
     const ops=ordenarOpcoesRodape(a);
     const opcoesGratuitas=ops.filter(o=>o.usoGratuito);
     if(filtro==='Usos gratuitos'&&!opcoesGratuitas.length)filtro='Comum';
-    const foraCombate=s.fase==='preparo',pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',raca=!recursoAtivo&&filtro==='Raça',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';
+    const foraCombate=s.fase==='preparo'||a.emCombate===false,pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',raca=!recursoAtivo&&filtro==='Raça',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';
     const recursosFicha=a.ficha.recursos??[],idsRecursos=new Set(['acao','bonus','reacao',...recursosFicha.map(r=>'recurso:'+r.id)]);
     if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;
     const usaRecurso=o=>!recursoAtivo||(o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
@@ -176,7 +199,7 @@ function render(){
     const botoesRecursos=recursos.map(r=>btn('recurso','<b>'+r.simbolo+'</b><small>'+esc(r.atual)+(r.maximo>1?'/'+r.maximo:'')+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"')).join('');
     const consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
     const renderOpcao=o=>{
-        const livre=s.fase==='preparo';
+        const livre=foraCombate;
         const modoCusto=gratuitos?'gratuito':'automatico',plano=planoCustoOpcao(a,o,modoCusto),custoIndisponivel=!plano||plano.custos.some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
         const req=o.requisitosUso??{},ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[];
         const requisitoIndisponivel=!livre&&((req.aposAtaque&&!ataques.length)||(req.aposAcerto&&!acertos.length)||(req.umaVezPorTurno&&a.usosTurno?.[req.umaVezPorTurno]));
@@ -227,6 +250,22 @@ root.onclick=e=>{
   const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
   if(controleDado&&v.pedidoDado?.podeEditar===false)return;
   if(v.ocupado&&!controleDado)return;
+  if(['pedirMesa','cancelarMesa','confirmarMesa','avancarTempo'].includes(tipo)){
+    if(v.eu?.role!=='GM')return;
+    if(tipo==='pedirMesa')confirmacaoMesa={tipo:id,etapa:1,rev:v.estado.rev};
+    if(tipo==='cancelarMesa')confirmacaoMesa=null;
+    if(tipo==='avancarTempo')bus.postMessage({tipo,passo:id,rev:v.estado.rev});
+    if(tipo==='confirmarMesa'&&confirmacaoMesa?.rev===v.estado.rev){
+      const pedido=confirmacaoMesa;
+      if(pedido.tipo==='encerrar'&&pedido.etapa===1)pedido.etapa=2;
+      else{
+        const descanso=['curto','longo'].includes(pedido.tipo);
+        bus.postMessage({tipo:descanso?'descanso':pedido.tipo,periodo:descanso?pedido.tipo:undefined,rev:pedido.rev,pvp:document.querySelector('#pvp-mesa')?.checked===true});
+        confirmacaoMesa=null;
+      }
+    }
+    render();return;
+  }
   if(tipo==='modoDado'){
     const campo=document.querySelector('#formulaDado');if(!campo)return;
     const prefixo=b.dataset.modo==='vantagem'?'2d20kh1':b.dataset.modo==='desvantagem'?'2d20kl1':'1d20';
@@ -252,7 +291,10 @@ root.onclick=e=>{
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});
 };
-root.onchange=e=>{if(e.target.id==='linhas')bus.postMessage({tipo:'linhas',valor:e.target.value});};
+root.onchange=e=>{
+  if(e.target.id==='linhas')bus.postMessage({tipo:'linhas',valor:e.target.value});
+  if(e.target.id==='pvp-mesa'&&confirmacaoMesa)confirmacaoMesa.pvp=e.target.checked;
+};
 root.oncontextmenu=e=>{const b=e.target.closest('[data-cmd="usar"]');if(b&&!b.disabled){e.preventDefault();b.click();}};
 root.ondblclick=e=>{
   const ordem=e.target.closest('[data-cmd="ator"]');if(ordem){e.preventDefault();bus.postMessage({tipo:'focar',id:ordem.dataset.id});return;}

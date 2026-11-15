@@ -1,16 +1,17 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.13';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.13';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor} from './engine.mjs?v=0.8.13';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.13';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.14';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.14';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.14';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.14';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
 const btn=(id,n,cls='')=>'<button data-do="'+id+'" class="'+cls+'">'+n+'</button>';
 let s,info,api,escolhido,acao,alvo,ocupado=false,testar=false,catalogo;
 const aviso=t=>{$('aviso').textContent=t;};
-function confirma(t,d){
+function confirma(t,d,comPvp=false){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
+  $('opcao-pvp').hidden=!comPvp;$('pvp-inicio').checked=false;
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
 let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null,trocaLocalId=null,trocaLocalAtor=null,trocaSolicitadaPor=null,abrindoTroca=false;
@@ -86,7 +87,7 @@ function render(){
     }
     h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-configurar-vinculo="'+esc(p.id)+'">Configurar</button><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
     if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
-    h+='</section>'+renderControleFichasMestre()+renderControleLojas()+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+    h+='</section>'+renderControleFichasMestre()+renderControleLojas()+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+avancosMesa.map(([id,nome])=>btn('tempo-'+id,nome)).join('')+btn('curto','Descanso curto')+btn('longo','Descanso longo')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
     $('app').innerHTML=h;return;
   }
   h+='<div class="colunas '+(mestre?'gestao':'folha')+'"><section><h2>'+(mestre?'Participantes':'Personagens')+'</h2>';
@@ -132,7 +133,6 @@ function render(){
 
   }
   h+='</section></div>'+(lojaLocalAtor&&info.modo==='ensaio'?'<aside class="loja-local"><iframe title="Lojas ativas" src="loja.html?local=1&ator='+encodeURIComponent(lojaLocalAtor)+'"></iframe><button type="button" data-fechar-loja-local>Fechar loja</button></aside>':'')+(trocaLocalId&&info.modo==='ensaio'?'<aside class="troca-local"><iframe title="Troca entre personagens" src="troca.html?local=1&troca='+encodeURIComponent(trocaLocalId)+'&ator='+encodeURIComponent(trocaLocalAtor??'')+'"></iframe></aside>':'');if(mestre)h+='<section><h2>Histórico</h2><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
-  if(mestre)h+='<footer>'+(s.fase==='preparo'?btn('curto','Descanso curto')+btn('longo','Descanso longo'):btn('encerrar','Encerrar combate'))+'</footer>';
   $('app').innerHTML=h;
   if($('tabuleiro')){
     const rule=opcaoPorId(a,acao)?.automacao;
@@ -254,7 +254,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.13',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.14',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -265,7 +265,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.13',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.14',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -342,8 +342,19 @@ async function executar(k){
     await enviar('iniciativas',{atores});return;
   }
   if(['curto','longo'].includes(k)){const atores=s.atores.filter(x=>x.ficha.tipo==='pj'&&x.emCombate!==false).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação só aos jogadores marcados como no encontro ('+atores.length+').'))await enviar('descanso',{periodo:k,atores});return;}
-  if(['encerrar','remover'].includes(k)){if(await confirma(k==='encerrar'?'Encerrar combate?':'Retirar participante?',a?.nome??''))await enviar(k);return;}
-  if(['iniciar','criarPeca'].includes(k))return enviar(k);
+  if(k.startsWith('tempo-'))return enviar('avancarTempo',{passo:k.slice(6)});
+  if(k==='encerrar'){
+    const rev=s.rev;
+    if(await confirma('Parar combate?','Os turnos serão encerrados.')&&await confirma('Confirmar encerramento?','A mesa voltará à preparação.'))await enviar(k,{rev});
+    return;
+  }
+  if(k==='remover'){if(await confirma('Retirar participante?',a?.nome??''))await enviar(k);return;}
+  if(k==='iniciar'){
+    const rev=s.rev;
+    if(await confirma('Iniciar combate?','Os participantes vão rolar iniciativa.',true))await enviar(k,{rev,pvp:$('pvp-inicio').checked});
+    return;
+  }
+  if(k==='criarPeca')return enviar(k);
   if(k==='ajustar'){
     const subst=info.role==='GM'&&!testar&&a.ficha.tipo==='pj';
     const extra={confirmado:subst};

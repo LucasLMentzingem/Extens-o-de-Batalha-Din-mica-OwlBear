@@ -1,5 +1,11 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — controles do mestre
+
+- M04 pausado. O carrossel ganhou controles exclusivos de combate e de preparação.
+- Na preparação, cada turno avançado equivale a 6 segundos para a duração dos efeitos. O avanço não dispara eventos de combate.
+- Reforços entram com desvantagem ajustável. PvP é uma opção por encontro, desmarcada por padrão.
+
 ## 2026-11-15 — segundo incremento do M04 0.8.13
 
 - A maestria **Ágil** de Zurich entrou no Compositor: Cimitarra e Espada Curta podem receber alvos próprios e são resolvidas em série pela mesma Ação Atacar.

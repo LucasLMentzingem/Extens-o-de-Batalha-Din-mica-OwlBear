@@ -11,6 +11,20 @@ button:disabled{opacity:.55;cursor:default}
 button.ouro:hover{background:#eed1a2;color:#211e18}
 nav,.prompt,.dock-corpo{background:linear-gradient(135deg,#263331fa,#162321fa);border:1px solid #9d865d;border-radius:8px;box-shadow:inset 0 0 0 2px #161c1b}
 nav{display:flex;gap:5px;align-items:center;width:max-content;max-width:100%;margin:auto;padding:4px;overflow:auto;scrollbar-width:thin}
+.controles-mesa{display:flex;justify-content:center;margin-top:4px}
+.controles-mesa button,.mesa-fora,.confirmacao-mesa{background:#202c2a;border:1px solid #9a8053;border-radius:8px}
+.mesa-fora,.confirmacao-mesa{width:max-content;max-width:100%;margin:0 auto;padding:6px}
+.mesa-fora{display:grid;grid-template-columns:auto auto auto;gap:5px;align-items:start}
+.passos-mesa{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+.passos-mesa button{width:clamp(34px,9vw,48px);aspect-ratio:1;padding:0;font-size:clamp(9px,2.4vw,12px)}
+.iniciar-mesa{grid-row:span 2;min-height:66px;padding:3px 6px}
+.descansos-mesa{display:contents}
+.descansos-mesa button{font-size:11px}
+.descansos-mesa button:first-child{grid-column:1;grid-row:2;justify-self:end}
+.descansos-mesa button:last-child{grid-column:3;grid-row:2;justify-self:start}
+.mesa-fora>small{grid-column:1/-1;text-align:center}
+.confirmacao-mesa{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.confirmacao-mesa label{white-space:nowrap}
 nav strong{padding:0 6px;white-space:nowrap}
 .ord{display:flex;align-items:center;gap:5px;text-align:left;white-space:nowrap}
 .ord:disabled{opacity:.85}

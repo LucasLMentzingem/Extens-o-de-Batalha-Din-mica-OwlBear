@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.13';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.13';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.13';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.13';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.14';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.14';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.14';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.14';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.13',import.meta.url);
+const url=new URL('./hud.html?v=0.8.14',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -97,7 +97,11 @@ export async function iniciarHud(){
       const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
       const limiteBarra=acaoLadoALado?leftAcao-gap:w-10;
       const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
-      if(estado.fase!=='preparo')caixas.ordem=[Math.round((w-Math.min(620,w-100))/2),4,Math.min(620,w-100),55];
+      const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
+      if(!foraDaOrdem||eu.role==='GM'){
+        const larguraOrdem=Math.min(620,w-12);
+        caixas.ordem=[Math.round((w-larguraOrdem)/2),4,larguraOrdem,eu.role==='GM'?116:55];
+      }
       if(ator()){
         const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
         const left=leftBarra,top=h-alturaBarra-48;
@@ -218,7 +222,7 @@ export async function iniciarHud(){
     const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),o=base?derivarOpcaoCirculo(a,base,circuloUsado):base,rule=o?.automacao;
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
-    const foraCombate=d.tipo==='usar'&&estado.fase==='preparo';
+    const foraCombate=d.tipo==='usar'&&(estado.fase==='preparo'||a.emCombate===false);
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {})};
     let escolha=null;
@@ -460,6 +464,13 @@ export async function iniciarHud(){
     }else if(d.tipo==='usarItem'){
       const a=ator(),item=a?.ficha.inventario?.itens.find(i=>i.id===d.itemId&&i.tipo==='consumivel'&&i.quantidade>0);if(!controla(a)||!item)return;
       ocupado=true;transmitir();try{await api.enviar({tipo:'inventario',ator:a.id,operacao:'usar',itemId:item.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
+    }else if(['iniciar','encerrar','avancarTempo','descanso'].includes(d.tipo)){
+      if(eu.role!=='GM'||d.rev!==estado.rev)return;
+      ocupado=true;transmitir();
+      try{
+        const atores=d.tipo==='descanso'?estado.atores.filter(x=>x.ficha.tipo==='pj'&&x.emCombate!==false).map(x=>x.id):undefined;
+        await api.enviar({tipo:d.tipo,rev:d.rev,pvp:d.pvp===true,passo:d.passo,periodo:d.periodo,atores});
+      }finally{ocupado=false;}
     }else if(d.tipo==='iniciativas'||d.tipo==='npcs'){
       if(eu.role!=='GM'||estado.fase!=='iniciativa')return;
       const ids=d.tipo==='npcs'?atores().filter(a=>a.emCombate!==false&&a.ficha.tipo==='npc'&&a.init===null).map(a=>a.id):[...new Set(d.atores??[])];
