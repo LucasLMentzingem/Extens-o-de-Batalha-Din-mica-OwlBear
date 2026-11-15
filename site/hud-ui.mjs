@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.31';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.31';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.31';
-import {pronto} from './bridge.mjs?v=0.8.31';
-import {canalHud} from './hud-controller.mjs?v=0.8.31';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.32';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.32';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.32';
+import {pronto} from './bridge.mjs?v=0.8.32';
+import {canalHud} from './hud-controller.mjs?v=0.8.32';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -96,7 +96,7 @@ function cartaoAcao(o,f,p){
   const alcance=r.arremesso?r.alcanceNormalM+'/'+r.alcanceM+' m':r.alcanceM!=null?r.alcanceM+' m':'—';
   const resistencia=r.cd?(r.atributos??[r.atributo]).map(x=>x.toUpperCase()).join(' ou ')+' · CD '+r.cd:r.tipo==='ataque'?'Ataque '+(r.bonus>=0?'+':'')+r.bonus:'—';
   const efeito=(o.descricao??'').replace(/\n+/g,' · ');
-  const area=r.raioM?r.raioM+' m de diâmetro':r.area?.forma==='circulo'?r.area.raioM+' m de diâmetro':r.area?.forma==='quadrado'?r.area.tamanhoM+' m × '+r.area.tamanhoM+' m':r.area?.forma==='cone'?'cone de '+r.area.comprimentoM+' m':r.area?.forma==='linha'?'linha de '+r.area.comprimentoM+' m × '+(r.area.larguraM??1.5)+' m':'';
+  const area=r.raioM?(r.origemArea==='conjurador'?'emanação de '+r.raioM+' m':r.raioM+' m de diâmetro'):r.area?.forma==='circulo'?r.area.raioM+' m de diâmetro':r.area?.forma==='quadrado'?r.area.tamanhoM+' m × '+r.area.tamanhoM+' m':r.area?.forma==='cone'?'cone de '+r.area.comprimentoM+' m':r.area?.forma==='linha'?'linha de '+r.area.comprimentoM+' m × '+(r.area.larguraM??1.5)+' m':'';
   return '<section class="carta-acao"><header><h2>'+esc(o.nome)+'</h2>'+barraCustos(p,'custos-cabecalho')+'<small>'+esc([o.categoria,o.circuloUsado!=null?(o.circuloUsado+'º círculo usado'):o.circuloBase!=null?(o.circuloBase?o.circuloBase+'º círculo':'Truque'):'',o.origem].filter(Boolean).join(' · '))+'</small></header><dl>'+linha('Alcance',alcance)+linha('Área',area)+linha(r.tipo==='ataque'?'Ataque':'Resistência',resistencia)+linha('Dano',r.dano?[r.dano,r.elemento].filter(Boolean).join(' '):'')+linha('Deslocamento',r.deslocamentoForcado?'Empurra '+r.deslocamentoForcado.distanciaM+' m para longe da origem':'')+linha('Alvos',s?.max?('de '+s.min+' a '+s.max+(s.repetirAlvo?' · pode repetir':' · distintos')):'')+linha('Efeito',efeito)+'</dl></section>';
 }
 function gavetaComposicao(p){

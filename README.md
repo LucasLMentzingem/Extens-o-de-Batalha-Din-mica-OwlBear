@@ -57,7 +57,7 @@ Por isso, não existem passos diagonais, arredondamento por células nem uma reg
 
 ### Decisão da mesa: áreas circulares por diâmetro
 
-Desde a 0.8.31, o valor das áreas circulares é tratado como **diâmetro**: Despedaçar "3 m" cobre um círculo de 3 m de largura. O livro de 2024 usa raio (Despedaçar tem 3 m de raio). A regra fica em `AREA_CIRCULAR_COMO_DIAMETRO`, em `site/zonas.mjs`; trocar para `false` volta ao livro. Distâncias como "a 1,5 m do alvo" não mudam.
+Desde a 0.8.31, o valor das áreas circulares é tratado como **diâmetro**: Despedaçar "3 m" cobre um círculo de 3 m de largura. O livro de 2024 usa raio (Despedaçar tem 3 m de raio). A regra fica em `AREA_CIRCULAR_COMO_DIAMETRO`, em `site/zonas.mjs`; trocar para `false` volta ao livro. Emanações (como Braços de Hadar, "3 m ao redor de quem conjura") e distâncias como "a 1,5 m do alvo" não mudam; quadrados, cubos, cones e linhas já usam lado e comprimento.
 
 ## Jogar com a ficha fechada
 

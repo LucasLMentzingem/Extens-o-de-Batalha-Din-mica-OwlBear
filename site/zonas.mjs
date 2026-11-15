@@ -8,7 +8,8 @@ const EPS=1e-9;
 // Ex.: Despedaçar "3 m" cobre um círculo de 3 m de largura (raio 1,5 m). O livro usa raio;
 // para voltar à regra do livro, troque para false.
 export const AREA_CIRCULAR_COMO_DIAMETRO=true;
-export const raioEfetivoArea=valorM=>AREA_CIRCULAR_COMO_DIAMETRO?valorM/2:valorM;
+// Emanações (área ao redor de quem usa) são uma distância: o valor continua sendo o raio.
+export const raioEfetivoArea=(valorM,regra)=>AREA_CIRCULAR_COMO_DIAMETRO&&regra?.origemArea!=='conjurador'?valorM/2:valorM;
 
 // Polígono convexo da zona, em coordenadas absolutas. Círculos retornam null.
 export function poligonoZona(z){
