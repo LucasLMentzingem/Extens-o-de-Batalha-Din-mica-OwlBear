@@ -6,6 +6,7 @@ import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normaliza
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
 import {catalogoCentral,compactarFicha,compactarEstado,resolverCatalogoLoja} from './site/catalog.mjs';
+import {fichaEditavel,habilidadeRacial,livroHabilidades,nomePassiva,nomeRaca} from './site/ficha-view.mjs';
 const fichaFonte=async name=>JSON.parse(await readFile(new URL('./site/fichas/'+name+'.json',import.meta.url),'utf8'));
 const ficha=async name=>validar(await fichaFonte(name));
 const nikki=await ficha('nikki'),soldado=await ficha('soldado');
@@ -31,6 +32,33 @@ test('catálogo central resolve referências compartilhadas e as fichas não dup
  const catalogo=catalogoCentral(),refs=new Set(catalogo.habilidades.map(x=>x.id)),itens=new Set(catalogo.itens.map(x=>x.id)),desengajar=[];
  for(const id of idsJogadores){const fonte=await fichaFonte(id);assert.equal(fonte.versaoFormato,2);assert.equal(fonte.opcoes,undefined);assert.equal(fonte.passivas,undefined);for(const c of fonte.concessoes){assert.ok(c.ref?refs.has(c.ref):c.definicaoLocal,id+' possui concessão quebrada');if(c.ref==='habilidade.desengajar-acao')desengajar.push(id);}for(const i of fonte.inventario.itens)assert.ok(i.ref?itens.has(i.ref):i.definicaoLocal,id+' possui item quebrado');}
  assert.equal(desengajar.length,7,'a ação compartilhada deve ter uma única definição para os sete jogadores');
+});
+test('livro separa habilidades raciais, ordena ativas antes das passivas e preserva nomes úteis',()=>{
+ const esperadas={
+  dragoberto:['Ataque de Sopro','Herança dracônica'],
+  'draven-thorne':['Queimadura de Fogo','Defesas e sentidos'],
+  'hannah-montana':['Passos Largos','Arte Druídica','Elfo Silvestre'],
+  loteria:['Pico de Adrenalina','Visão no Escuro'],
+  nikki:['Repreensão Diabólica','Raio de Fogo','Taumaturgia','Sentidos e defesas'],
+  skimi:['Inspiração Heroica','Humano'],
+  zurich:['Passos Largos','Arte Druídica','Elfo Silvestre']
+ };
+ for(const f of fichasJogadores){
+  const a=adicionar(novo(),f),raciais=[...f.opcoes,...f.passivas].filter(x=>habilidadeRacial(f,x));
+  assert.ok(raciais.some(x=>x.categoria!=='passiva'&&!/^Passiva/i.test(x.nome)),f.nome+' sem habilidade racial ativa');
+  assert.ok(raciais.some(x=>f.passivas.includes(x)),f.nome+' sem passiva racial');
+  for(const trecho of esperadas[f.id])assert.ok(raciais.some(x=>x.nome.toLocaleLowerCase('pt-BR').includes(trecho.toLocaleLowerCase('pt-BR'))),f.nome+' não classificou '+trecho+' como racial');
+  const html=fichaEditavel(a,true,'habilidades','raca'),classe=html.indexOf('data-livro-aba="classe"'),comum=html.indexOf('data-livro-aba="comum"'),raca=html.indexOf('data-livro-aba="raca"'),reacoes=html.indexOf('data-livro-aba="reacoes"');
+  assert.ok(classe<comum&&comum<raca&&raca<reacoes,f.nome+' com ordem incorreta das páginas');
+  assert.ok(html.includes('>'+nomeRaca(f)+'</button>'),f.nome+' sem nome da raça na aba');
+  assert.ok(html.indexOf('Habilidades raciais ativas')<html.indexOf('Passivas raciais'),f.nome+' não lista ativas primeiro');
+ }
+ const n=fichasJogadores.find(x=>x.id==='nikki'),a=adicionar(novo(),n),comum=livroHabilidades(a,'comum',true),classe=livroHabilidades(a,'classe',true);
+ const raio=n.opcoes.find(x=>x.nome.includes('Raio de Fogo')),repreensao=n.opcoes.find(x=>x.nome.includes('Repreensão Diabólica'));
+ assert.ok(!comum.includes('data-habilidade-id="'+raio.id+'"'), 'Raio de Fogo infernal ainda aparece em Comum');
+ assert.ok(!classe.includes('data-habilidade-id="'+repreensao.id+'"'), 'Repreensão Diabólica ainda aparece em Classe');
+ assert.equal(nomePassiva({nome:'Passiva | Herança dracônica'}),'Herança dracônica');
+ assert.equal(nomePassiva({nome:'Passivas | Sentidos e defesas'}),'Sentidos e defesas');
 });
 test('mapa do nível 3 referencia somente módulos planejados e cobre toda opção ainda não portátil',()=>{
  const ids=new Set(Object.keys(modulosNivel3.modulos));

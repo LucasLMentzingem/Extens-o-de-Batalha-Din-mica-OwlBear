@@ -700,9 +700,10 @@ export default {
     },
     {
       "id": "habilidade.1-passos-largos-elfo",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Passos Largos · Elfo",
+        "origemTipo": "raca",
         "categoria": "magia",
         "descricao": "Ação, toque, 1 h: +3 m de Deslocamento. 1x grátis por descanso longo.",
         "custo": [
@@ -739,9 +740,10 @@ export default {
     },
     {
       "id": "habilidade.1-passos-largos-elfo-0cb98763",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Passos Largos · Elfo",
+        "origemTipo": "raca",
         "categoria": "magia",
         "descricao": "Ação, toque, 1 h: +3 m de Deslocamento. 1x grátis por descanso longo; também na lista do Guardião.",
         "custo": [
@@ -800,9 +802,10 @@ export default {
     },
     {
       "id": "habilidade.1-repreensao-diabolica-reacao-salva-de-des-infernal",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Repreensão Diabólica · reação · salva de DES · infernal",
+        "origemTipo": "raca",
         "categoria": "magia",
         "descricao": "Ao sofrer dano de uma criatura visível a até 18 m, ela rola DES, CD 13. Falha: dano ígneo. Sucesso: metade. Um uso gratuito de 1º por descanso longo ou gaste espaço.\n1º [2d10] · 2º [3d10]",
         "custo": [
@@ -1958,9 +1961,10 @@ export default {
     },
     {
       "id": "habilidade.ataque-de-sopro-cone",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Ataque de Sopro · cone",
+        "origemTipo": "raca",
         "categoria": "acao",
         "filtroHud": "Classe",
         "descricao": "Substitui o ataque da ação Atacar. Cone de 4,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica.",
@@ -1993,9 +1997,10 @@ export default {
     },
     {
       "id": "habilidade.ataque-de-sopro-linha",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Ataque de Sopro · linha",
+        "origemTipo": "raca",
         "categoria": "acao",
         "filtroHud": "Classe",
         "descricao": "Substitui o ataque da ação Atacar. Linha de 9 m por 1,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica.",
@@ -3372,9 +3377,10 @@ export default {
     },
     {
       "id": "habilidade.inspiracao-heroica",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Inspiração Heroica",
+        "origemTipo": "raca",
         "categoria": "acao",
         "descricao": "Depois de ver um d20, gaste a Inspiração Heroica para rerrolá-lo e use o novo resultado.",
         "gatilho": "apos_rolagem_d20",
@@ -3956,17 +3962,19 @@ export default {
     },
     {
       "id": "habilidade.passiva-defesas-e-sentidos",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passiva | Defesas e sentidos",
+        "origemTipo": "raca",
         "descricao": "Testes de resistência: FOR +5, DES +1, CON +4, INT +0, SAB +1, CAR -1. Ponto fraco: testes de SAB (medo, encantamento). Percepção passiva 13; Intuição passiva 13. Sem resistências ou imunidades a dano. Vantagem para se soltar de Imobilizado (Porte Poderoso)."
       }
     },
     {
       "id": "habilidade.passiva-elfo-silvestre",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passiva | Elfo Silvestre",
+        "origemTipo": "raca",
         "descricao": "Visão no Escuro 18 m. Ancestralidade Feérica: Vantagem em salvaguardas contra ficar Enfeitiçado. Transe: descanso longo em 4 h, sem dormir; magia não o faz dormir. Sentidos Aguçados: Percepção. Truque Arte Druídica.  Passos Largos usa o saldo no topo."
       }
     },
@@ -3996,17 +4004,19 @@ export default {
     },
     {
       "id": "habilidade.passiva-heranca-draconica",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passiva | Herança dracônica",
+        "origemTipo": "raca",
         "descricao": "Resistência a dano elétrico e visão no escuro 18 m. Voo Dracônico só é adquirido no nível 5; não disponível nesta ficha de nível 3."
       }
     },
     {
       "id": "habilidade.passiva-humano",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passiva | Humano",
+        "origemTipo": "raca",
         "descricao": "Engenhoso: ganha Inspiração Heroica a cada Descanso Longo (rerrola 1 dado). Habilidoso: proficiência em Percepção. Versátil: talento de origem Sortudo. Tamanho Médio; deslocamento 9 m."
       }
     },
@@ -4159,9 +4169,10 @@ export default {
     },
     {
       "id": "habilidade.passiva-visao-no-escuro",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passiva | Visão no Escuro",
+        "origemTipo": "raca",
         "descricao": "36 m."
       }
     },
@@ -4183,9 +4194,10 @@ export default {
     },
     {
       "id": "habilidade.passivas-sentidos-e-defesas",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passivas | sentidos e defesas",
+        "origemTipo": "raca",
         "descricao": "Visão no escuro 18 m · Percepção passiva 13 · Resistência a dano ígneo."
       }
     },
@@ -4563,9 +4575,10 @@ export default {
     },
     {
       "id": "habilidade.pico-de-adrenalina",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Pico de Adrenalina",
+        "origemTipo": "raca",
         "categoria": "bonus",
         "custo": [
           {
@@ -4656,9 +4669,10 @@ export default {
     },
     {
       "id": "habilidade.queimadura-de-fogo",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Queimadura de Fogo",
+        "origemTipo": "raca",
         "categoria": "acao",
         "filtroHud": "Classe",
         "descricao": "Herança do Gigante de Fogo. Depois de acertar uma jogada de ataque e causar dano, gaste 1 uso para somar 1d10 de dano de fogo ao mesmo alvo. Usos iguais ao bônus de proficiência; recupera no descanso longo.",
@@ -5100,9 +5114,10 @@ export default {
     },
     {
       "id": "habilidade.truque-arte-druidica-elfo",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Arte Druídica · Elfo",
+        "origemTipo": "raca",
         "categoria": "magia",
         "descricao": "Pequenos efeitos da natureza: prever o tempo, fazer uma flor desabrochar, efeitos sensoriais inofensivos, acender ou apagar uma chama pequena.",
         "custo": [
@@ -5652,9 +5667,10 @@ export default {
     },
     {
       "id": "habilidade.truque-raio-de-fogo-ataque-5-infernal",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Raio de Fogo · ataque +5 · infernal",
+        "origemTipo": "raca",
         "categoria": "magia",
         "descricao": "Ação · 18 m · Ígneo · Criatura ou objeto.\nNormal [1d20+5]\nDano [1d10] · Crítico [2d10]",
         "custo": [
@@ -5746,9 +5762,10 @@ export default {
     },
     {
       "id": "habilidade.truque-taumaturgia-utilidade-infernal",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Taumaturgia · utilidade · infernal",
+        "origemTipo": "raca",
         "categoria": "magia",
         "descricao": "Ação, pequenos prodígios por até 1 minuto: voz amplificada, chamas que tremulam, tremores leves, olhos alterados.",
         "custo": [

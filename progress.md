@@ -695,3 +695,17 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Validação visual: `work/gaveta-nikki-v0810.png` e `work/gaveta-dragoberto-v0810.png`.
 - Smoke test pelo cliente padrão: `work/web-game-v0810/shot-0.png`, sem erros de console.
 
+### Versão 0.8.11: página e filtro de raça
+
+- [x] Classificar no catálogo central as habilidades e passivas raciais das sete fichas.
+- [x] Remover habilidades raciais das páginas **Comum** e **Classe**.
+- [x] Criar no Livro de Habilidades uma página com o nome da espécie, depois de **Comum** e antes de **Reações**.
+- [x] Exibir nessa página primeiro as habilidades raciais ativas e depois as passivas raciais.
+- [x] Criar no rodapé o filtro racial depois da classe e antes de **Itens**.
+- [x] Exibir os nomes reais das passivas no rodapé, preservando a descrição completa no balão.
+- [x] Adicionar `origemTipo` ao schema para que novas contribuições classifiquem a origem sem depender do texto do nome.
+
+- Testes do motor: 162 aprovados.
+- Validação visual: `work/livro-raca-v0811.png` e `work/rodape-raca-passivas-v0811.png`.
+- Smoke test pelo cliente padrão: `work/web-game-v0811/shot-0.png`, sem erros de console.
+

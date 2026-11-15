@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.10';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.10';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.10';
-import {pronto} from './bridge.mjs?v=0.8.10';
-import {canalHud} from './hud-controller.mjs?v=0.8.10';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.11';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.11';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.11';
+import {pronto} from './bridge.mjs?v=0.8.11';
+import {canalHud} from './hud-controller.mjs?v=0.8.11';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -27,7 +27,8 @@ function resultadoDano(relatorios){
 }
 const comuns=['golpe desarmado','agarrar','imobilizar','correr','analisar','usar objeto','esconder','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
 const nomeClasse=f=>{const id=f.classes?.[0]?.nome??f.classes?.[0]?.id??'Classe';return ({guardiao:'Guardião',guerreiro:'Guerreiro',bardo:'Bardo',monge:'Monge',feiticeiro:'Feiticeiro',bruxo:'Bruxo'})[normalizar(id)]??id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase());};
-function categoriaHud(o){
+function categoriaHud(f,o){
+  if(habilidadeRacial(f,o))return 'Raça';
   if(o.filtroHud)return o.filtroHud;
   const texto=normalizar(o.nome+' '+(o.origem??''));
   if(o.geradaPorItem&&o.automacao?.tipo==='ataque')return 'Comum';
@@ -152,11 +153,11 @@ function render(){
     const ops=ordenarOpcoesRodape(a);
     const opcoesGratuitas=ops.filter(o=>o.usoGratuito);
     if(filtro==='Usos gratuitos'&&!opcoesGratuitas.length)filtro='Comum';
-    const foraCombate=s.fase==='preparo',pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';
+    const foraCombate=s.fase==='preparo',pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',raca=!recursoAtivo&&filtro==='Raça',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';
     const recursosFicha=a.ficha.recursos??[],idsRecursos=new Set(['acao','bonus','reacao',...recursosFicha.map(r=>'recurso:'+r.id)]);
     if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;
     const usaRecurso=o=>!recursoAtivo||(o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
-    const disp=ops.filter(o=>usaRecurso(o)&&(gratuitos?Boolean(o.usoGratuito):(recursoAtivo||categoriaHud(o)===filtro)));
+    const disp=ops.filter(o=>usaRecurso(o)&&(gratuitos?Boolean(o.usoGratuito):(recursoAtivo||categoriaHud(a.ficha,o)===filtro)));
     const recuperacao=r=>(r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', ')||'Recuperação especial';
     const recursos=[
       {id:'acao',nome:'Ação',simbolo:'●',atual:foraCombate?'∞':a.acao,maximo:1,descricao:'Seu recurso principal no combate. Recarga: uma vez por turno.'},
@@ -179,10 +180,13 @@ function render(){
         return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       };
     const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',esc(i.nome+' ×'+i.quantidade),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
+    const passivasRaciais=(a.ficha.passivas??[]).filter(x=>habilidadeRacial(a.ficha,x)),passivasGerais=(a.ficha.passivas??[]).filter(x=>!habilidadeRacial(a.ficha,x));
+    const botaoPassiva=x=>btn('passiva',esc(nomePassiva(x)),'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"');
     const conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a,nome);return btn('teste',esc(nome+' '+(bonus>=0?'+':'')+bonus),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus atual: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
       salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',esc(chave.toUpperCase()+' '+(bonus>=0?'+':'')+bonus),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
-      passivas?(a.ficha.passivas??[]).map(x=>btn('passiva',esc(curto(x)),'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"')).join(''):itensGrade+disp.map(renderOpcao).join('');
-    const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
+      raca?disp.map(renderOpcao).join('')+passivasRaciais.map(botaoPassiva).join(''):
+      passivas?passivasGerais.map(botaoPassiva).join(''):itensGrade+disp.map(renderOpcao).join('');
+    const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Raça',nomeRaca(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
     const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
     html='<section class="dock" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+btn('ficha','Ficha')+'</header>'+
       '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud"><label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+

@@ -1,5 +1,9 @@
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.10';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.11';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
+export const habilidadeRacial=(f,h)=>h?.origemTipo==='raca'||normalizarOrigem(h?.filtroHud)==='raca';
+export const nomePassiva=h=>{const nome=String(h?.nome??'Passiva').replace(/^Passivas?\s*\|\s*/i,'').trim()||'Passiva';return nome[0].toUpperCase()+nome.slice(1);};
 export function detalhes(o,f){
   const r=o.automacao??{},s=o.selecao;
   const custos=(o.custo??[]).map(c=>c.quantidade+' '+(c.tipo==='recurso'?f.recursos?.find(x=>x.id===c.id)?.nome??c.id:({acao:'ação',bonus:'ação bônus',reacao:'reação'})[c.tipo]));
@@ -39,28 +43,30 @@ function inventarioFicha(a,podeEditar,lojas=[],gm=false,trocasPermitidas=true,tr
   return '<section class="pagina-inventario"><header><div><small>INVENTÁRIO</small><h2>Equipamentos e carga</h2></div><div class="saldo-e-loja"><strong class="contador-po">◉ '+poTexto+' PO</strong>'+acessoLoja+'</div></header><h3>Equipamentos</h3><p class="muted">Clique com o botão direito para equipar ou desequipar. Em combate a troca custa 1 ação.</p><div class="slots-equipamento">'+slots+'</div><h3>Inventário</h3><div class="grade-inventario">'+celulas+'</div><div class="carga-inventario"><div><span style="width:'+percentual+'%"></span></div><strong>'+peso.toLocaleString('pt-BR',{maximumFractionDigits:2})+' / '+capacidade.toLocaleString('pt-BR')+' kg</strong></div>'+controleTroca+controlesGm+(podeEditar?'':'<p class="muted">Inventário disponível somente para consulta.</p>')+'</section>';
 }
 const habilidadeIcone=o=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa ':'')+(o.indisponivel?'indisponivel':'')+'" data-habilidade-id="'+esc(o.id??'')+'" data-habilidade-tipo="'+esc(o.tipoLivro??'opcao')+'" data-info="'+esc(o.info??o.descricao??o.nome)+'"><b>'+esc((o.nome??'?').slice(0,2).toUpperCase())+'</b><span>'+esc(o.nome??'')+'</span></button>';
-function livroHabilidades(a,pagina='classe',podeEditar=false){
+export function livroHabilidades(a,pagina='classe',podeEditar=false){
   const f=a.ficha,prep=f.preparacao??{vagas:0,preparadas:[],semprePreparadas:[]},preparadas=new Set(prep.preparadas),sempre=new Set(prep.semprePreparadas);
   const opcoes=opcoesCalculadas(a);
   const classeNome=f.classes.map(c=>c.nome??c.id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase())).join(' / ');
   const comInfo=o=>({...o,info:o.tipoLivro==='passiva'?(o.nome+'\n'+(o.descricao??'')):detalhes(o,f)});
-  const magiasBase=opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe),reacoes=opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao')&&opcaoPreparada(f,o));
+  const racial=o=>habilidadeRacial(f,o),passivasRaciais=(f.passivas??[]).filter(racial),passivasGerais=(f.passivas??[]).filter(o=>!racial(o));
+  const raciaisAtivas=opcoes.filter(o=>racial(o)&&!o.varianteDe),magiasBase=opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe&&!racial(o)),reacoes=opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao')&&opcaoPreparada(f,o));
   const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(comInfo).map(habilidadeIcone).join('')+'</div></section>':'';
-  const comum=o=>o.categoria!=='magia'&&(/ataque de oportunidade|golpe desarmado|soco|torrente de golpes|agarrar|imobilizar|derrubar|empurrar|disparada|correr|desengajar|esquivar|ajudar|esconder|analisar|usar objeto|procurar|preparar \| ação|estudar|influenciar|utilizar|usar magia/i.test(o.nome)||o.geradaPorItem||o.automacao?.tipo==='ataque'&&!o.origem);
+  const comum=o=>!racial(o)&&o.categoria!=='magia'&&(/ataque de oportunidade|golpe desarmado|soco|torrente de golpes|agarrar|imobilizar|derrubar|empurrar|disparada|correr|desengajar|esquivar|ajudar|esconder|analisar|usar objeto|procurar|preparar \| ação|estudar|influenciar|utilizar|usar magia/i.test(o.nome)||o.geradaPorItem||o.automacao?.tipo==='ataque'&&!o.origem);
   let corpo='';
   if(pagina==='reacoes')corpo=grade('Reações disponíveis',reacoes.map(o=>({...o,ativa:o.ativa!==false,indisponivel:o.ativa===false})));
+  else if(pagina==='raca')corpo=grade('Habilidades raciais ativas',raciaisAtivas)+grade('Passivas raciais',passivasRaciais.map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   else if(pagina==='comum'){
     const comuns=opcoes.filter(o=>comum(o)&&!o.custo?.some(c=>c.tipo==='reacao'));
-    corpo=grade('Truques',magiasBase.filter(o=>(o.circuloBase??0)===0))+grade('Ações de arma',comuns.filter(o=>o.automacao?.tipo==='ataque').map(o=>({...o,indisponivel:!opcaoDisponivel(a,o)})))+grade('Ações comuns',comuns.filter(o=>o.automacao?.tipo!=='ataque'))+grade('Passivas',(f.passivas??[]).map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
+    corpo=grade('Truques',magiasBase.filter(o=>(o.circuloBase??0)===0))+grade('Ações de arma',comuns.filter(o=>o.automacao?.tipo==='ataque').map(o=>({...o,indisponivel:!opcaoDisponivel(a,o)})))+grade('Ações comuns',comuns.filter(o=>o.automacao?.tipo!=='ataque'))+grade('Passivas',passivasGerais.map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   }else{
     const magias=magiasBase.filter(o=>!o.custo?.some(c=>c.tipo==='reacao'));
-    const acoes=opcoes.filter(o=>o.categoria!=='magia'&&!comum(o)&&!o.custo?.some(c=>c.tipo==='reacao'));
+    const acoes=opcoes.filter(o=>!racial(o)&&o.categoria!=='magia'&&!comum(o)&&!o.custo?.some(c=>c.tipo==='reacao'));
     corpo=grade('Ações de classe',acoes)+grade('Truques',magias.filter(o=>(o.circuloBase??0)===0))+grade('Magias sempre preparadas',magias.filter(o=>(o.circuloBase??0)>0&&sempre.has(o.id)).map(o=>({...o,preparada:true})))+grade('Magias preparadas',magias.filter(o=>preparadas.has(o.id)).map(o=>({...o,preparada:true})),'<small>'+preparadas.size+'/'+prep.vagas+'</small>');
     const circulos=[...new Set(magias.map(o=>o.circuloBase??0).filter(Boolean))].sort((x,y)=>y-x);
-    corpo+=circulos.map(n=>grade(n+'º círculo',magias.filter(o=>(o.circuloBase??0)===n).map(o=>({...o,preparada:preparadas.has(o.id)||sempre.has(o.id),indisponivel:!preparadas.has(o.id)&&!sempre.has(o.id)})))).join('')+grade('Habilidades de classe passivas',(f.passivas??[]).map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
+    corpo+=circulos.map(n=>grade(n+'º círculo',magias.filter(o=>(o.circuloBase??0)===n).map(o=>({...o,preparada:preparadas.has(o.id)||sempre.has(o.id),indisponivel:!preparadas.has(o.id)&&!sempre.has(o.id)})))).join('')+grade('Habilidades de classe passivas',passivasGerais.map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   }
-  const nomes={classe:classeNome,comum:'Comum',reacoes:'Reações'};
-  return '<section class="livro-habilidades"><header><div><small>LIVRO DE HABILIDADES</small><h2>'+esc(nomes[pagina])+'</h2></div><nav>'+['classe','comum','reacoes'].map(id=>'<button type="button" data-livro-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+esc(nomes[id])+'</button>').join('')+'</nav></header><p class="muted">'+(podeEditar?'Clique com o botão direito para preparar magias ou ativar e desativar passivas e reações.':'Livro disponível somente para consulta.')+'</p>'+corpo+'</section>';
+  const nomes={classe:classeNome,comum:'Comum',raca:nomeRaca(f),reacoes:'Reações'};
+  return '<section class="livro-habilidades"><header><div><small>LIVRO DE HABILIDADES</small><h2>'+esc(nomes[pagina]??nomes.classe)+'</h2></div><nav>'+['classe','comum','raca','reacoes'].map(id=>'<button type="button" data-livro-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+esc(nomes[id])+'</button>').join('')+'</nav></header><p class="muted">'+(podeEditar?'Clique com o botão direito para preparar magias ou ativar e desativar passivas e reações.':'Livro disponível somente para consulta.')+'</p>'+corpo+'</section>';
 }
 export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe',lojas=[],gm=false,trocasPermitidas=true,trocaAtiva=false){
   const f=a.ficha,bloqueado=podeEditar?'':'disabled',nivel=f.classes.reduce((n,c)=>n+c.nivel,0);

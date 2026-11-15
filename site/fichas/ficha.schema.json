@@ -473,6 +473,15 @@
         "origem": {
           "type": "string"
         },
+        "origemTipo": {
+          "enum": [
+            "comum",
+            "classe",
+            "raca",
+            "talento",
+            "item"
+          ]
+        },
         "circuloBase": {
           "type": "integer",
           "minimum": 0,
