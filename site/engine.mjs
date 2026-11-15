@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.17';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.17';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.18';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.18';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -54,6 +54,7 @@ export function atualizarMagias(f){
   // camisa + escudo formavam um único item. Separar as peças permite que a CA
   // caia para 14 ao guardar o escudo, inclusive em encontros já persistidos.
   if(f.id==='soldado'){
+    const protecaoLegada=f.caBase===16;
     if(f.caBase===16)f.caBase=10;
     const separarProtecao=itens=>{
       if(!Array.isArray(itens))return;
@@ -63,7 +64,7 @@ export function atualizarMagias(f){
         if('description'in combinado)combinado.description='Armadura média. CA 13 + DES, máximo +2 de DES.';else combinado.descricao='Armadura média. CA 13 + DES, máximo +2 de DES.';
         Object.assign(combinado,{pesoKg:10,slotEquipamento:'vestes',categoriaArmadura:'media',classeArmadura:{tipo:'base',valor:13,classe:'media',atributo:'des',limiteAtributo:2}});
       }
-      if(!itens.some(i=>/escudo/i.test(i.nome??i.name??'')))itens.push({id:'soldado-escudo',nome:'Escudo',name:'Escudo',descricao:'Empunhado na mão fraca. +2 à CA.',description:'Empunhado na mão fraca. +2 à CA.',tipo:'equipamento',quantidade:1,pesoKg:3,slotEquipamento:'mao_fraca',categoriaArmadura:'escudo',classeArmadura:{tipo:'bonus',valor:2,classe:'escudo'},inUse:true,equipado:true,equipadoSlot:'mao_fraca'});
+      if((combinado||protecaoLegada)&&!itens.some(i=>/escudo/i.test(i.nome??i.name??'')))itens.push({id:'soldado-escudo',nome:'Escudo',name:'Escudo',descricao:'Empunhado na mão fraca. +2 à CA.',description:'Empunhado na mão fraca. +2 à CA.',tipo:'equipamento',quantidade:1,pesoKg:3,slotEquipamento:'mao_fraca',categoriaArmadura:'escudo',classeArmadura:{tipo:'bonus',valor:2,classe:'escudo'},inUse:true,equipado:true,equipadoSlot:'mao_fraca'});
     };
     separarProtecao(f.equipamentos);separarProtecao(f.inventario?.itens);
   }
@@ -497,7 +498,7 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','teleporte','teste'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','teleporte','teste','saque'].includes(a.tipo), 'Automação desconhecida em '+o.id);
     if(a.tipo==='teleporte')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>0&&a.alcanceM<=LIMITE_ALCANCE_M,'Alcance de teleporte inválido em '+o.id);
     if(a.tipo==='economia'){
       exigir(['acao','bonus','reacao'].every(k=>a.adicionar?.[k]===undefined||inteiro(a.adicionar[k],0,5)),'Economia adicional inválida em '+o.id);
@@ -775,7 +776,18 @@ function sincronizarConcessoesItens(a){
   for(const id of Object.keys(a.rec))if(id.startsWith('item-')&&!recursosVivos.has(id))delete a.rec[id];
   return a;
 }
-export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);return [...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];};
+export const acaoSaquear={...definicaoHabilidade('habilidade.saquear'),id:'saquear',catalogoRef:'habilidade.saquear'};
+export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);return [...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];};
+function alvoSaque(s,a,alvoId){
+  const alvo=s.atores.find(x=>x.id===alvoId);
+  exigir(a.pv>0&&alvo&&alvo!==a&&alvo.pv<=0&&adversarios(s,a,alvo),'Escolha um inimigo derrotado.');
+  exigir(distancia(a,alvo)<=1.5+1e-8,'O alvo do saque está a mais de 1,5 m.');
+  return alvo;
+}
+export function itensSaque(s,a){
+  const alvo=s.atores.find(x=>x.id===a?.saqueAberto?.alvoId);
+  return [...(alvo?.ficha?.inventario?.itens??a?.saqueAberto?.itens??[])].sort((x,y)=>Number(Boolean(y.equipado))-Number(Boolean(x.equipado)));
+}
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
@@ -1052,6 +1064,7 @@ function custosDisponiveis(a,o,modo='automatico'){
   const plano=planoCustoOpcao(a,o,modo);return Boolean(plano&&plano.custos.every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade));
 }
 function validarPlanoAntesDoCusto(s,a,o,rule,c){
+  if(rule?.tipo==='saque')alvoSaque(s,a,c.alvo);
   if(o.composicao){
     const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):(c.alvo?[{modoId:def.modoPadrao,alvoId:c.alvo}]:[])),contagens={};
     exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
@@ -1241,6 +1254,33 @@ export async function aplicar(s,c,u,rolar) {
   }
   let msg='';
   switch(c.tipo) {
+    case 'cancelarSaque':
+      delete a.saqueAberto;msg=a.nome+' fechou o saque.';break;
+    case 'confirmarSaque': {
+      exigir(a.saqueAberto?.id===c.saqueId,'Abra novamente o saque.');
+      const alvo=alvoSaque(s,a,a.saqueAberto.alvoId);
+      exigir(Array.isArray(c.itens)&&c.itens.length>0&&new Set(c.itens.map(x=>x.itemId)).size===c.itens.length,'Selecione itens distintos para saquear.');
+      const transferencias=c.itens.map(entrada=>{
+        const item=alvo.ficha.inventario.itens.find(i=>i.id===entrada.itemId);
+        exigir(item&&Number.isFinite(entrada.quantidade)&&entrada.quantidade>0&&entrada.quantidade<=item.quantidade,'Quantidade indisponível. Confira os pertences atuais.');
+        exigir(item.tipo==='moeda'?Number.isInteger(entrada.quantidade*100):Number.isInteger(entrada.quantidade),'Quantidade inválida.');
+        return {item,quantidade:entrada.quantidade};
+      });
+      const copias=transferencias.map(({item,quantidade})=>{
+        const copia=structuredClone(item);copia.id=crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
+        return copia;
+      });
+      const simulacao={ficha:{...a.ficha,inventario:{...a.ficha.inventario,itens:[...a.ficha.inventario.itens,...copias]}}};
+      exigir(pesoInventario(simulacao)<=capacidadeCargaAtual(a)+1e-8,'O saque ultrapassa sua capacidade de carga.');
+      transferencias.forEach(({item,quantidade})=>{
+        if(item.tipo!=='moeda')retirarQuantidadeItem(alvo,item,quantidade);
+        else if(quantidade===item.quantidade)alvo.ficha.inventario.itens=alvo.ficha.inventario.itens.filter(i=>i!==item);
+        else item.quantidade=Math.round((item.quantidade-quantidade)*100)/100;
+      });
+      copias.forEach(item=>adicionarItemInventario(a,item));
+      delete a.saqueAberto;
+      msg=a.nome+' saqueou '+alvo.nome+' • '+copias.map(i=>i.quantidade+'× '+i.nome).join(', ');break;
+    }
     case 'exemplo': {
       exigir(gm && s.fase==='preparo' && s.atores.length===0,'Carregue o exemplo em um encontro vazio.');
       const [f,g]=c.fichas;
@@ -1760,6 +1800,10 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       msg=a.nome+' • '+o.nome+(plano.gratuito?' • uso gratuito':'');
       if((o.categoria==='magia'||rule?.tipo==='ataque'||rule?.dano)&&(a.efeitosAtivos??[]).some(e=>e.encerraAoAgir)){a.efeitosAtivos=a.efeitosAtivos.filter(e=>!e.encerraAoAgir);msg+=' • deixou de estar Invisível';} // #14
       const concentracaoId=o.concentracao?iniciarConcentracao(s,a,o):null;
+      if(rule?.tipo==='saque'){
+        a.saqueAberto={id:crypto.randomUUID(),alvoId:c.alvo};
+        msg+=' • escolha os pertences para levar.';break;
+      }
       if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}
       if(rule.tipo==='efeito_conjuracao'){
         a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>e.id!==o.id);
@@ -2019,6 +2063,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
 }
 export function publico(s){
   const v=structuredClone(s);
+  for(const a of v.atores)if(a.saqueAberto){
+    const alvo=s.atores.find(x=>x.id===a.saqueAberto.alvoId);
+    a.saqueAberto.itens=itensSaque(s,a);
+    a.saqueAberto.alvoNome=alvo?.nome;
+  }
   delete v.filaReacoes;delete v.resolucaoPendente;
   for(const a of v.atores)if(a.ficha.tipo==='npc'){
     delete a.bencao;

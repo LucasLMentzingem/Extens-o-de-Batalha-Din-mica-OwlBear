@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.17';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.17';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.17';
-import {pronto} from './bridge.mjs?v=0.8.17';
-import {canalHud} from './hud-controller.mjs?v=0.8.17';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.18';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.18';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.18';
+import {pronto} from './bridge.mjs?v=0.8.18';
+import {canalHud} from './hud-controller.mjs?v=0.8.18';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -50,6 +50,7 @@ function resultadoDano(relatorios){
 const comuns=['golpe desarmado','agarrar','imobilizar','correr','analisar','usar objeto','esconder','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','ataque de oportunidade'];
 const nomeClasse=f=>{const id=f.classes?.[0]?.nome??f.classes?.[0]?.id??'Classe';return ({guardiao:'Guardião',guerreiro:'Guerreiro',bardo:'Bardo',monge:'Monge',feiticeiro:'Feiticeiro',bruxo:'Bruxo'})[normalizar(id)]??id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase());};
 function categoriaHud(f,o){
+  if(o.id==='saquear')return 'Comum';
   if(habilidadeRacial(f,o))return 'Raça';
   if(o.filtroHud)return o.filtroHud;
   const texto=normalizar(o.nome+' '+(o.origem??''));

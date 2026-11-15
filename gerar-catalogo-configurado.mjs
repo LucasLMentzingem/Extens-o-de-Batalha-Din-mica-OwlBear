@@ -28,7 +28,7 @@ for(const f of fichas){
   atual.habilidades=unicos(atual.habilidades);racas.set(chave,atual);
 }
 
-const comuns=unicos(fichas.flatMap(f=>f.opcoes.filter(comum).map(habilidade)));
+const comuns=unicos([...fichas.flatMap(f=>f.opcoes.filter(comum).map(habilidade)),...central.habilidades.filter(h=>h.definicao.origemTipo==='comum').map(h=>habilidade(h.definicao))]);
 const statusItem=i=>i.tipo==='equipamento'&&i.arma?'Ataque e equipamento configurados':i.tipo==='equipamento'?'CA, classe, slot e modificadores configurados':i.tipo==='consumivel'?'Consumível e custo configurados':'Item, peso e carga configurados';
 const itens=unicos(central.itens.map(({definicao:i})=>({nome:i.nome,status:statusItem(i)})).filter(x=>x.nome));
 const modulos=[

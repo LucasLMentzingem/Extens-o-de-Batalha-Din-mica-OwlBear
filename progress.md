@@ -1,5 +1,14 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — saque 0.8.18
+
+- Saquear é uma ação comum do catálogo central disponível nas fichas, com custo de uma ação e alcance de 1,5 m. Alvo precisa ser adversário com 0 PV.
+- O saque abre Inventário e uma grade de pertences do alvo, com equipamentos primeiro. Seleção de quantidades e PO exibe impacto na carga.
+- Confirmação revalida alcance, alvo, sessão, disponibilidade e peso antes de transferir os itens. Equipamentos chegam desequipados. Cancelar conserva o custo já gasto.
+- Inventários públicos só recebem os pertences do alvo após abrir uma sessão de saque. A confirmação é autorizada pelo mestre ou dono do saqueador.
+- Corrigida migração de escudo do soldado para impedir recriação de itens saqueados ao recarregar a ficha.
+- Validação do motor e da interface cobre alvos inválidos, alcance, carga, quantidades parciais, cancelamento, repetição de confirmação e abertura automática do inventário.
+
 ## 2026-11-15 — venda vinculada ao catálogo e PO sem peso 0.8.17
 
 - O menu Vender exige catálogo aberto para a mesma ficha e usa a loja selecionada. O vínculo é revalidado ao confirmar e a recompra pertence àquela loja.

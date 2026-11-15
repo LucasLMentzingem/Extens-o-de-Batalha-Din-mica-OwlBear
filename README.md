@@ -57,6 +57,8 @@ Por isso, não existem passos diagonais, arredondamento por células nem uma reg
 
 ## Jogar com a ficha fechada
 
+**Saquear** aparece nas ações comuns. Escolha um inimigo a 0 PV a até 1,5 m e execute para gastar uma ação em combate. A HUD se fecha e abre o inventário do saqueador junto dos pertences do alvo. Equipamentos aparecem primeiro. Marque os itens, ajuste quantidades e PO e confira o peso antes de confirmar. Itens transferidos chegam desequipados. Cancelar conserva a ação já gasta.
+
 O [manual de criação de fichas JSON](docs/MANUAL-CRIACAO-FICHAS.md) documenta importação, preparação, recursos, equipamentos e referências. Consulte também o [estado atual do projeto](docs/ESTADO-DO-PROJETO.md) para entregas e limitações verificadas.
 
 O mestre dispõe de controles recolhíveis acima do mapa. Fora de combate, pode iniciar um encontro, avançar tempo ou turnos e executar descansos com confirmação. Em combate, o botão de encerramento exige duas confirmações. PvP começa desmarcado em cada encontro. Reforços usam iniciativa com desvantagem ajustável e, quando a posição já passou, agem após o turno atual e assumem sua posição na rodada seguinte.

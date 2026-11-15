@@ -4,8 +4,8 @@
   "resumo": {
     "classes": 6,
     "racas": 6,
-    "habilidades": 250,
-    "comuns": 14,
+    "habilidades": 251,
+    "comuns": 15,
     "itens": 92
   },
   "sistemaEquipamentos": {
@@ -1048,6 +1048,10 @@
     {
       "nome": "Procurar | ação",
       "status": "Assistida pelo mestre"
+    },
+    {
+      "nome": "Saquear",
+      "status": "Automatizada"
     },
     {
       "nome": "Usar Magia | ação",

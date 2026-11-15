@@ -3,6 +3,26 @@ export default {
   "versaoCatalogo": 1,
   "habilidades": [
     {
+      "id": "habilidade.saquear",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Saquear",
+        "categoria": "acao",
+        "origemTipo": "comum",
+        "descricao": "Abra os pertences de um inimigo derrotado a até 1,5 m. Selecione itens e quantidades e confirme respeitando sua capacidade de carga.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "saque",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
       "id": "habilidade.1-armadura-arcana-defesa-classe",
       "revisao": 1,
       "definicao": {

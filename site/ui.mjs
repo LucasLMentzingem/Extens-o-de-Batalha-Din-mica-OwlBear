@@ -1,9 +1,9 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.17';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.17';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.17';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.17';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.17';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.18';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.18';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.18';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.18';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.18';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -17,6 +17,25 @@ function confirma(t,d,comPvp=false){
 }
 let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null,trocaLocalId=null,trocaLocalAtor=null,trocaSolicitadaPor=null,abrindoTroca=false;
 let lojaDaVenda=null;
+let saqueVisualId=null;
+async function sincronizarSaqueVisual(){
+  const a=s?.atores.find(x=>x.id===escolhido),saque=a?.saqueAberto;
+  const pode=a&&(info.role==='GM'||a.dono===info.id);
+  if(!saque||!pode){
+    if(saqueVisualId&&emSala)await OBR.popover.close(ns+'/saque').catch(()=>{});
+    document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
+  }
+  if(saqueVisualId===saque.id)return;
+  saqueVisualId=saque.id;
+  const url=new URL('./saque.html?v=0.8.18',location.href);url.searchParams.set('ator',a.id);
+  if(emSala){
+    const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
+    await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  }else{
+    const painel=document.createElement('aside');painel.id='saque-local';painel.className='loja-local';
+    const frame=document.createElement('iframe');frame.src=url.href;frame.title='Saquear';painel.append(frame);document.body.append(painel);
+  }
+}
 function lojaSelecionada(atorId){
   const catalogo=catalogoAberto(atorId);
   return s?.fase==='preparo'&&catalogo?lojasAtivas(s).find(x=>x.id===catalogo.lojaId):null;
@@ -42,7 +61,10 @@ function view(estado,i){
   const id=solicitacaoFicha??s.atores.find(a=>tokenSelecionado&&a.token===tokenSelecionado)?.id;
   if(id){const p=s.atores.find(a=>a.id===id&&(i.role==='GM'||a.dono===i.id));if(p)escolhido=p.id;}
   solicitacaoFicha=null;
+  const a=s.atores.find(x=>x.id===escolhido)??s.atores.find(x=>x.saqueAberto&&(i.role==='GM'||x.dono===i.id));
+  if(a?.saqueAberto&&saqueVisualId!==a.saqueAberto.id){escolhido=a.id;secao='ficha';paginaFicha='inventario';}
   render();
+  queueMicrotask(()=>sincronizarSaqueVisual().catch(e=>aviso(e.message)));
   queueMicrotask(()=>sincronizarTrocaVisual().catch(e=>aviso(e.message)));
 }
 const jogadoresOnline=()=>info.players.filter(p=>p.role!=='GM');
@@ -269,7 +291,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.17',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.18',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -280,7 +302,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.17',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.18',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -464,7 +486,7 @@ try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);awai
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
    function pedido(raw){if(!raw)return;const d=JSON.parse(raw);if(Date.now()-d.quando>30000)return;
-     secao='ficha';solicitacaoFicha=d.id;if(s)view(recebido,info);localStorage.removeItem(chave);}
+     secao='ficha';solicitacaoFicha=d.id;if(d.pagina)paginaFicha=d.pagina;if(s)view(recebido,info);localStorage.removeItem(chave);}
    window.addEventListener('storage',e=>{if(e.key===chave)pedido(e.newValue);});pedido(localStorage.getItem(chave));
    let ultimo;
    const selecionar=id=>{tokenSelecionado=id||null;if(!id||id===ultimo){ultimo=id;return;}ultimo=id;if(!s)return;const a=s?.atores.find(x=>x.token===id&&(info?.role==='GM'||x.dono===info?.id));if(a){escolhido=a.id;acao=null;alvos=[];}if(info?.role==='GM'&&secao==='gm'||a)render();};

@@ -129,3 +129,9 @@ Ao alterar o catálogo, gere novamente o runtime e Conteúdo configurado com os 
 Importe pelo Controle do Mestre, em Controle de fichas. Vincule a ficha ao token e ao jogador online. Confira armas equipadas, CA, recursos, preparação, ataques, descanso e uma habilidade representativa da build.
 
 O estado da mesa guarda PV, saldos, equipamento, vínculos e efeitos. A ficha de criação guarda dados iniciais. Alterar o arquivo publicado não substitui automaticamente uma instância que já está carregada na sala.
+
+## Saque de inimigos
+
+O motor disponibiliza a ação comum Saquear automaticamente, a partir de `habilidade.saquear` no catálogo. Ela usa uma ação em combate e seleciona um adversário a 0 PV a até 1,5 m. O saque oferece os itens reais do inventário do alvo, incluindo equipamentos. Preencha o inventário dos NPCs para definir o que os jogadores poderão obter.
+
+O motor valida os IDs e quantidades enviados e transfere os itens entre as fichas, respeitando carga e mantendo as definições compartilhadas. Equipamentos transferidos chegam desequipados. PO seguem a regra de peso zero. Sessões de saque pertencem ao estado da mesa e são revalidadas ao confirmar.
