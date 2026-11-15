@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.15';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.15';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.15';
-import {pronto} from './bridge.mjs?v=0.8.15';
-import {canalHud} from './hud-controller.mjs?v=0.8.15';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.16';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.16';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.16';
+import {pronto} from './bridge.mjs?v=0.8.16';
+import {canalHud} from './hud-controller.mjs?v=0.8.16';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -188,16 +188,27 @@ function render(){
     const opcoesGratuitas=ops.filter(o=>o.usoGratuito);
     if(filtro==='Usos gratuitos'&&!opcoesGratuitas.length)filtro='Comum';
     const foraCombate=s.fase==='preparo'||a.emCombate===false,pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',raca=!recursoAtivo&&filtro==='Raça',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';
-    const recursosFicha=[...(a.ficha.recursos??[])].sort((x,y)=>{
+    const recursosFicha=[...(a.ficha.recursos??[])];
+    for(const opcao of ops){
+      const circulo=Number(opcao.circuloBase);
+      if(opcao.categoria!=='magia'||!circulo||recursosFicha.some(r=>r.id==='espaco-'+circulo))continue;
+      const fonteId='espaco-'+circulosConjuracao(a,opcao)[0];
+      const fonte=a.ficha.recursos.find(r=>r.id===fonteId);
+      if(fonte)recursosFicha.push({...fonte,id:'espaco-'+circulo,nome:'Magias de '+circulo+'º círculo',fonteId});
+    }
+    recursosFicha.sort((x,y)=>{
       const cx=Number(/^espaco-(\d+)$/.exec(x.id)?.[1])||0,cy=Number(/^espaco-(\d+)$/.exec(y.id)?.[1])||0;
       return cy-cx;
-    }),temTruques=ops.some(o=>o.categoria==='magia'&&Number(o.circuloBase)===0);
+    });
+    const temTruques=ops.some(o=>o.categoria==='magia'&&Number(o.circuloBase)===0);
     const idsRecursos=new Set(['acao','bonus','reacao',...(temTruques?['truques']:[]),...recursosFicha.map(r=>'recurso:'+r.id)]);
     if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;
     const usaRecurso=o=>{
       if(!recursoAtivo)return true;
       if(recursoAtivo==='truques')return o.categoria==='magia'&&Number(o.circuloBase)===0;
       const circulo=Number(/^recurso:espaco-(\d+)$/.exec(recursoAtivo)?.[1]);
+      const recurso=recursosFicha.find(r=>'recurso:'+r.id===recursoAtivo);
+      if(recurso?.fonteId)return o.categoria==='magia'&&Number(o.circuloBase)===circulo&&circulosConjuracao(a,o).length>0;
       if(circulo&&circulosConjuracao(a,o).includes(circulo))return true;
       return (o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
     };
@@ -207,7 +218,7 @@ function render(){
       {id:'acao',nome:'Ação',simbolo:'●',atual:foraCombate?'∞':a.acao,maximo:1,descricao:'Seu recurso principal no combate. Recarga: uma vez por turno.'},
       {id:'bonus',nome:'Ação Bônus',simbolo:'▲',atual:foraCombate?'∞':a.bonus,maximo:1,descricao:'Seu recurso secundário no combate. Recarga: uma vez por turno.'},
       ...(temTruques?[{id:'truques',nome:'Truques',simbolo:'◇',atual:'∞',maximo:1,descricao:'Magias que não gastam espaços de magia.'}]:[]),
-      ...recursosFicha.map(r=>({id:'recurso:'+r.id,nome:r.nome,simbolo:/^espaco-/.test(r.id)?r.id.slice(7)+'º':'◆',atual:a.rec[r.id],maximo:r.maximo,descricao:'Recurso renovável. Recarga: '+recuperacao(r)+'.'})),
+      ...recursosFicha.map(r=>({id:'recurso:'+r.id,nome:r.nome,simbolo:/^espaco-/.test(r.id)?r.id.slice(7)+'º':'◆',atual:a.rec[r.fonteId??r.id],maximo:r.maximo,descricao:(r.fonteId?'Saldo compartilhado com os espaços de '+r.fonteId.slice(7)+'º círculo. ':'Recurso renovável. ')+'Recarga: '+recuperacao(r)+'.'})),
       {id:'reacao',nome:'Reação',simbolo:'✦',atual:foraCombate?'∞':a.reacao,maximo:1,descricao:'Usada por gatilhos fora do seu turno. Recarga: no início do turno.'}
     ];
     const botoesRecursos=recursos.map(r=>btn('recurso','<b>'+r.simbolo+'</b><small>'+esc(r.atual)+(r.maximo>1?'/'+r.maximo:'')+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"')).join('');

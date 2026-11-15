@@ -1,5 +1,11 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — filtro de círculo menor 0.8.16
+
+- A HUD deriva um botão para círculos de magias disponíveis sem espaços próprios, como o 1º círculo da Skimi.
+- Esse filtro mostra o saldo compartilhado do espaço superior no contador e no balão. A execução conserva o custo e a escala do círculo efetivamente gasto.
+- Validado visualmente o botão de 1º da Skimi com Sussurros Dissonantes habilitado e a ordem decrescente dos círculos da Nikki.
+
 ## 2026-11-15 — fix de HUD e revisão 0.8.15
 
 - Controles do mestre recolhíveis, recursos ordenados por círculo independente, Truques e Reação na posição solicitada.

@@ -100,7 +100,7 @@ Os arrays `preparadas` e `semprePreparadas` referenciam os IDs locais das habili
 
 Cada círculo disponível recebe um recurso independente, `espaco-1`, `espaco-2` e assim por diante. A HUD os ordena do maior para o menor. Truques usam círculo base zero e seu filtro aparece quando há truques disponíveis.
 
-Skimi é bruxa de nível 3 e possui dois espaços de 2º círculo recuperados por descanso curto. As magias de 1º círculo dela usam esses espaços. Criar um saldo de 1º círculo modificaria os recursos da personagem. O filtro de 2º deve incluir as magias de 1º elegíveis e derivar seu custo e escala.
+Skimi é bruxa de nível 3 e possui dois espaços de 2º círculo recuperados por descanso curto. As magias de 1º círculo dela usam esses espaços. A HUD mostra também um botão de 1º círculo para filtrar essas magias, com contador compartilhado e explicação no balão. Esse botão é derivado da lista de habilidades. O filtro de 2º inclui as magias de 1º elegíveis e deriva seu custo e escala.
 
 Outros recursos usam IDs estáveis, máximo, saldo inicial e recuperação. Ação, ação bônus e reação são controladas pelo motor. Concessões de usos gratuitos podem apontar para um recurso próprio com `usoGratuito.recursoId`. O caso de Nikki e Passo Nebuloso está documentado no plano de fichas por referência.
 
