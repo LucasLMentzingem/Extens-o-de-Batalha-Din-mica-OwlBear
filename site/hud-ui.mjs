@@ -1,10 +1,11 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.14';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa} from './engine.mjs?v=0.8.14';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.14';
-import {pronto} from './bridge.mjs?v=0.8.14';
-import {canalHud} from './hud-controller.mjs?v=0.8.14';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.15';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.15';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.15';
+import {pronto} from './bridge.mjs?v=0.8.15';
+import {canalHud} from './hud-controller.mjs?v=0.8.15';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
+let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
 function controlesMesa(s,fora){
   if(confirmacaoMesa?.rev!==s.rev)confirmacaoMesa=null;
   if(confirmacaoMesa){
@@ -15,13 +16,15 @@ function controlesMesa(s,fora){
       btn('cancelarMesa','Cancelar')+btn('confirmarMesa',tipo==='encerrar'&&etapa===1?'Continuar':'Confirmar','class="ouro"')+'</section>';
   }
   if(!fora)return '<footer class="controles-mesa">'+btn('pedirMesa','Parar combate','data-id="encerrar"')+'</footer>';
+  if(mesaRecolhida)return btn('alternarMesa','⌄ Mesa','class="expandir-mesa" aria-label="Expandir controles do mestre"');
   const avancos=(inicio,fim)=>avancosMesa.slice(inicio,fim).map(([id,nome])=>btn('avancarTempo',nome,'data-id="'+id+'" '+(s.fase==='preparo'?'':'disabled'))).join('');
   return '<section class="mesa-fora"><div class="passos-mesa">'+avancos(0,3)+'</div>'+
     btn('pedirMesa','Iniciar<br>combate','data-id="iniciar" class="ouro iniciar-mesa" '+(s.fase==='preparo'?'':'disabled'))+
     '<div class="passos-mesa">'+avancos(3,6)+'</div><div class="descansos-mesa">'+
     btn('pedirMesa','Descanso curto','data-id="curto" '+(s.fase==='preparo'?'':'disabled'))+
     btn('pedirMesa','Descanso longo','data-id="longo" '+(s.fase==='preparo'?'':'disabled'))+'</div>'+
-    (s.fase==='preparo'?'':'<small>Combate em andamento</small>')+'</section>';
+    (s.fase==='preparo'?'':'<small>Combate em andamento</small>')+
+    btn('alternarMesa','⌃','class="recolher-mesa" aria-label="Recolher controles do mestre"')+'</section>';
 }
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -185,21 +188,35 @@ function render(){
     const opcoesGratuitas=ops.filter(o=>o.usoGratuito);
     if(filtro==='Usos gratuitos'&&!opcoesGratuitas.length)filtro='Comum';
     const foraCombate=s.fase==='preparo'||a.emCombate===false,pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',raca=!recursoAtivo&&filtro==='Raça',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';
-    const recursosFicha=a.ficha.recursos??[],idsRecursos=new Set(['acao','bonus','reacao',...recursosFicha.map(r=>'recurso:'+r.id)]);
+    const recursosFicha=[...(a.ficha.recursos??[])].sort((x,y)=>{
+      const cx=Number(/^espaco-(\d+)$/.exec(x.id)?.[1])||0,cy=Number(/^espaco-(\d+)$/.exec(y.id)?.[1])||0;
+      return cy-cx;
+    }),temTruques=ops.some(o=>o.categoria==='magia'&&Number(o.circuloBase)===0);
+    const idsRecursos=new Set(['acao','bonus','reacao',...(temTruques?['truques']:[]),...recursosFicha.map(r=>'recurso:'+r.id)]);
     if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;
-    const usaRecurso=o=>!recursoAtivo||(o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
+    const usaRecurso=o=>{
+      if(!recursoAtivo)return true;
+      if(recursoAtivo==='truques')return o.categoria==='magia'&&Number(o.circuloBase)===0;
+      const circulo=Number(/^recurso:espaco-(\d+)$/.exec(recursoAtivo)?.[1]);
+      if(circulo&&circulosConjuracao(a,o).includes(circulo))return true;
+      return (o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
+    };
     const disp=ops.filter(o=>usaRecurso(o)&&(gratuitos?Boolean(o.usoGratuito):(recursoAtivo||categoriaHud(a.ficha,o)===filtro)));
     const recuperacao=r=>(r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', ')||'Recuperação especial';
     const recursos=[
       {id:'acao',nome:'Ação',simbolo:'●',atual:foraCombate?'∞':a.acao,maximo:1,descricao:'Seu recurso principal no combate. Recarga: uma vez por turno.'},
       {id:'bonus',nome:'Ação Bônus',simbolo:'▲',atual:foraCombate?'∞':a.bonus,maximo:1,descricao:'Seu recurso secundário no combate. Recarga: uma vez por turno.'},
-      {id:'reacao',nome:'Reação',simbolo:'✦',atual:foraCombate?'∞':a.reacao,maximo:1,descricao:'Usada por gatilhos fora do seu turno. Recarga: no início do turno.'},
-      ...recursosFicha.map(r=>({id:'recurso:'+r.id,nome:r.nome,simbolo:'◆',atual:a.rec[r.id],maximo:r.maximo,descricao:'Recurso renovável. Recarga: '+recuperacao(r)+'.'}))
+      ...(temTruques?[{id:'truques',nome:'Truques',simbolo:'◇',atual:'∞',maximo:1,descricao:'Magias que não gastam espaços de magia.'}]:[]),
+      ...recursosFicha.map(r=>({id:'recurso:'+r.id,nome:r.nome,simbolo:/^espaco-/.test(r.id)?r.id.slice(7)+'º':'◆',atual:a.rec[r.id],maximo:r.maximo,descricao:'Recurso renovável. Recarga: '+recuperacao(r)+'.'})),
+      {id:'reacao',nome:'Reação',simbolo:'✦',atual:foraCombate?'∞':a.reacao,maximo:1,descricao:'Usada por gatilhos fora do seu turno. Recarga: no início do turno.'}
     ];
     const botoesRecursos=recursos.map(r=>btn('recurso','<b>'+r.simbolo+'</b><small>'+esc(r.atual)+(r.maximo>1?'/'+r.maximo:'')+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"')).join('');
     const consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
     const renderOpcao=o=>{
         const livre=foraCombate;
+        const circulo=Number(/^recurso:espaco-(\d+)$/.exec(recursoAtivo??'')?.[1]);
+        const podeEscolher=circulosConjuracao(a,o);
+        o=derivarOpcaoCirculo(a,o,podeEscolher.includes(circulo)?circulo:undefined);
         const modoCusto=gratuitos?'gratuito':'automatico',plano=planoCustoOpcao(a,o,modoCusto),custoIndisponivel=!plano||plano.custos.some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
         const req=o.requisitosUso??{},ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[];
         const requisitoIndisponivel=!livre&&((req.aposAtaque&&!ataques.length)||(req.aposAcerto&&!acertos.length)||(req.umaVezPorTurno&&a.usosTurno?.[req.umaVezPorTurno]));
@@ -208,7 +225,7 @@ function render(){
           requisitoIndisponivel?'Requisito de turno ainda não cumprido':'';
         const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
         const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratuitos?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
-        return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
+        return btn('usar',esc(curto(o)+(o.nome.includes('duas mãos')?' · 2 mãos':'')),'data-id="'+esc(o.id)+'" '+(o.circuloUsado?'data-circulo="'+o.circuloUsado+'" ':'')+'data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       };
     const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',esc(i.nome+' ×'+i.quantidade),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
     const passivasRaciais=(a.ficha.passivas??[]).filter(x=>habilidadeRacial(a.ficha,x)),passivasGerais=(a.ficha.passivas??[]).filter(x=>!habilidadeRacial(a.ficha,x));
@@ -226,6 +243,12 @@ function render(){
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
   ocultarDica();root.innerHTML=html;
+  if(parte==='acao'&&p&&!p.rolagem)requestAnimationFrame(()=>{
+    const painel=root.querySelector('.painel-acao');
+    if(!painel)return;
+    const altura=Math.ceil([...painel.children].reduce((total,el)=>total+el.getBoundingClientRect().height,0)+32);
+    bus?.postMessage({tipo:'alturaAcao',altura:Math.min(590,p.composicao||p.compositor?Math.max(altura,440):Math.max(160,altura))});
+  });
   if(root.querySelector('.grade'))root.querySelector('.grade').scrollLeft=scroll;
 }
 const dica=document.createElement('div');dica.className='dica-skill';dica.hidden=true;dica.setAttribute('role','tooltip');document.body.append(dica);
@@ -250,6 +273,12 @@ root.onclick=e=>{
   const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
   if(controleDado&&v.pedidoDado?.podeEditar===false)return;
   if(v.ocupado&&!controleDado)return;
+  if(tipo==='alternarMesa'){
+    if(v.eu.role!=='GM')return;
+    mesaRecolhida=!mesaRecolhida;
+    localStorage.setItem('la-arte/mesa-recolhida',mesaRecolhida?'1':'0');
+    render();return;
+  }
   if(['pedirMesa','cancelarMesa','confirmarMesa','avancarTempo'].includes(tipo)){
     if(v.eu?.role!=='GM')return;
     if(tipo==='pedirMesa')confirmacaoMesa={tipo:id,etapa:1,rev:v.estado.rev};
@@ -286,7 +315,7 @@ root.onclick=e=>{
   if(tipo==='selecionarTodasIniciativas'){iniciativasSelecionadas=new Set(v.estado.atores.filter(x=>x.emCombate!==false&&x.init===null).map(x=>x.id));render();return;}
   if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,valor:b.dataset.valor,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
+  bus.postMessage({tipo,id,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});

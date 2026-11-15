@@ -1,6 +1,6 @@
 # M04 — Arquitetura do Compositor de Ações
 
-Estado: implementação incremental na versão 0.8.13. Círculo dinâmico, custos derivados, os dois estados visuais e a primeira sequência seriada (Ágil de Zurich) estão operacionais; reservas condicionais e integrações completas continuam pendentes.
+Estado atualizado na 0.8.15. Desenvolvimento pausado a pedido do responsável após a entrega da 0.8.13. Círculo dinâmico, custos derivados e a primeira sequência seriada (Ágil de Zurich) estão operacionais. Reservas condicionais e integrações completas continuam pendentes. O fix de HUD estende o limite de altura expandida a todas as instâncias, com ajuste ao conteúdo e recolhimento durante rolagens.
 
 O M04 é o orquestrador transacional das ações. Ele monta um plano, recebe escolhas, calcula custos, valida tudo e executa etapas em série. Escolhas pertencem ao M03, escalonamento ao M15, gatilhos ao M02, modificadores de rolagem ao M09 e efeitos persistentes ao M01.
 

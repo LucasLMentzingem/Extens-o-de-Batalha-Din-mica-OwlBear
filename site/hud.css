@@ -25,6 +25,8 @@ nav{display:flex;gap:5px;align-items:center;width:max-content;max-width:100%;mar
 .mesa-fora>small{grid-column:1/-1;text-align:center}
 .confirmacao-mesa{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .confirmacao-mesa label{white-space:nowrap}
+.recolher-mesa{grid-column:1/-1;justify-self:center;padding:0 22px;line-height:14px;border-color:transparent;background:transparent}
+.expandir-mesa{display:block;margin:0 auto;padding:3px 12px;font-size:11px;opacity:.8}
 nav strong{padding:0 6px;white-space:nowrap}
 .ord{display:flex;align-items:center;gap:5px;text-align:left;white-space:nowrap}
 .ord:disabled{opacity:.85}

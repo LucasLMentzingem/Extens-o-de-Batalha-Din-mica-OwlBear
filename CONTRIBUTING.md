@@ -1,5 +1,7 @@
 # Contribuindo com conteúdo
 
+Para criar personagens importáveis, consulte o [manual de criação de fichas](docs/MANUAL-CRIACAO-FICHAS.md). O [estado atual do projeto](docs/ESTADO-DO-PROJETO.md) registra entregas recentes, validação e pendências.
+
 O catálogo central é a fonte oficial das regras reutilizáveis. Não copie a definição completa de uma habilidade ou item para uma ficha.
 
 ## Estrutura

@@ -1,5 +1,13 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — fix de HUD e revisão 0.8.15
+
+- Controles do mestre recolhíveis, recursos ordenados por círculo independente, Truques e Reação na posição solicitada.
+- Custo do rodapé derivado pelo círculo efetivamente disponível, incluindo magias de 1º da Skimi conjuradas com espaços de 2º.
+- Instâncias usam altura responsiva com limite expandido de 590 px e recolhem na rolagem. Abrir Ficha compacta o rodapé.
+- Habilidades assistidas ficam no fim da grade. Manual de criação e estado do projeto adicionados em docs.
+- Revisão encontrou lacunas em duração externa de Bênção, oportunidade em trajetos de entrada e saída e integração dos ataques compostos. Detalhes em docs/ESTADO-DO-PROJETO.md.
+
 ## 2026-11-15 — controles do mestre
 
 - M04 pausado. O carrossel ganhou controles exclusivos de combate e de preparação.

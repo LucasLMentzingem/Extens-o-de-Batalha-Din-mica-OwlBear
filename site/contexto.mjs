@@ -1,6 +1,6 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,pronto,sala} from './bridge.mjs?v=0.8.14';
-import {pvMaximosAtuais} from './engine.mjs?v=0.8.14';
+import {ns,pronto,sala} from './bridge.mjs?v=0.8.15';
+import {pvMaximosAtuais} from './engine.mjs?v=0.8.15';
 
 const root=document.querySelector('#contexto');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.14';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.14';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.14';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.14';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.15';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.15';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.15';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.15';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.14',import.meta.url);
+const url=new URL('./hud.html?v=0.8.15',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -37,6 +37,7 @@ export async function iniciarHud(){
   const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado'];
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
+  let alturaConteudoAcao=590;
   let dpi=1,marcas=[],marcasPublicas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
   const atores=()=>estado?.atores??[];
@@ -91,7 +92,7 @@ export async function iniciarHud(){
       // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
       // histórico e a barra de rolagem sem comprimir os ícones da grade.
       const temCompositor=Boolean(acaoAtual?.composicao||acaoAtual?.compositor),gaveta=acaoAtual?.composicao??acaoAtual?.compositor;
-      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(temCompositor&&!acaoAtual?.rolagem?590:176+3*54,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
+      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(acaoAtual?.rolagem?338:Math.min(590,alturaConteudoAcao),h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
       const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
       const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
       const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
@@ -100,7 +101,7 @@ export async function iniciarHud(){
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
       if(!foraDaOrdem||eu.role==='GM'){
         const larguraOrdem=Math.min(620,w-12);
-        caixas.ordem=[Math.round((w-larguraOrdem)/2),4,larguraOrdem,eu.role==='GM'?116:55];
+        caixas.ordem=[Math.round((w-larguraOrdem)/2),4,larguraOrdem,eu.role==='GM'?140:55];
       }
       if(ator()){
         const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
@@ -379,6 +380,14 @@ export async function iniciarHud(){
   }
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
+    if(d.tipo==='alturaAcao'){
+      const altura=Number(d.altura);
+      if(Number.isFinite(altura)&&altura>=100&&altura<=590&&Math.abs(altura-alturaConteudoAcao)>4){
+        alturaConteudoAcao=altura;
+        await layout();
+      }
+      return;
+    }
     if(d.tipo==='dicaEfeito'){
       dicaEfeito=typeof d.info==='string'&&d.info.trim()?d.info:null;await layout();transmitir();return;
     }
@@ -410,7 +419,13 @@ export async function iniciarHud(){
       const [w,h,escala]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight(),OBR.viewport.getScale()]);
       const zoom=Math.max(escala,1.35);await OBR.viewport.animateTo({scale:zoom,position:{x:w/2-p.x*zoom,y:h/2-p.y*zoom}});return;
     }
-    else if(d.tipo==='ficha'){localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:atorId,quando:Date.now()}));if(ator()?.token)await OBR.player.select([ator().token],true);await OBR.action.open();bus.postMessage({abrirFicha:atorId});return;}
+    else if(d.tipo==='ficha'){
+      compacto=true;localStorage.setItem(ns+'/compacto','1');
+      await layout();transmitir();
+      localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:atorId,quando:Date.now()}));
+      if(ator()?.token)await OBR.player.select([ator().token],true);
+      await OBR.action.open();bus.postMessage({abrirFicha:atorId});return;
+    }
     else if(d.tipo==='ator'){if(!atores().some(a=>a.id===d.id&&controla(a)))return;await cancelar();atorId=d.id;}
     else if(d.tipo==='alternarGavetaComposicao'&&(pendente?.composicao||pendente?.compositor)){
       const gaveta=pendente.composicao??pendente.compositor,gavetaAberta=gaveta.gavetaAberta!==false;
