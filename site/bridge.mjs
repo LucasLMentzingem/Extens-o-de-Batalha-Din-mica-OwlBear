@@ -182,6 +182,22 @@ function executarDice(usuario,formula){
     OBR.broadcast.sendMessage('dice-plus/roll-request',{rollId,playerId:usuario.id,playerName:usuario.name,source:ns,timestamp:Date.now(),diceNotation:formula,rollTarget:'dm',showResults:false},{destination:'ALL'}).catch(e=>finish(e.message));
   });
 }
+// M06 (#45): o mestre cria o token de cada entidade invocada (id fixo, sem duplicar) e apaga o de quem acabou.
+const prefixoInvocacao='laarte-invocacao-';
+async function sincronizarTokensInvocacao(s,dpi){
+  const itens=await OBR.scene.items.getItems(i=>String(i.id).startsWith(prefixoInvocacao));
+  const lado=1254,novos=[];
+  for(const a of s.atores.filter(x=>x.invocacao&&!x.token)){
+    const id=prefixoInvocacao+a.id;a.token=id;
+    if(itens.some(i=>i.id===id))continue;
+    const escala=a.ficha.tamanho==='miudo'?.5:1;
+    novos.push(buildImage({url:new URL('./'+(a.invocacao.imagem??'assets/tokens/invocacao-padrao.png'),location.href).href,mime:'image/png',width:lado,height:lado},{dpi:lado/escala,offset:{x:lado/2,y:lado/2}})
+      .id(id).name(a.nome).layer('CHARACTER').position({x:a.x*dpi,y:a.y*dpi}).build());
+  }
+  if(novos.length)await OBR.scene.items.addItems(novos);
+  const orfaos=itens.filter(i=>!s.atores.some(a=>a.token===i.id)).map(i=>i.id);
+  if(orfaos.length)await OBR.scene.items.deleteItems(orfaos);
+}
 async function getTokens(){
   return (await OBR.scene.items.getItems()).filter(x=>x.type==='IMAGE' && x.layer==='CHARACTER').map(x=>({id:x.id,name:x.name,x:x.position.x,y:x.position.y,visible:x.visible}));
 }
@@ -308,6 +324,7 @@ export async function host(){
       }
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*dpi,y:a.y*dpi};}});
+      await sincronizarTokensInvocacao(next,dpi); // M06
       persistir(key,next);
       const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
       await mostrar(estadoMostrar);await reply({});

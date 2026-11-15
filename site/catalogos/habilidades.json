@@ -472,7 +472,7 @@
     },
     {
       "id": "habilidade.1-encontrar-familiar",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Encontrar Familiar",
         "categoria": "magia",
@@ -481,6 +481,74 @@
         "circuloBase": 1,
         "requisitosUso": {
           "somenteForaCombate": true
+        },
+        "automacao": {
+          "tipo": "invocar",
+          "alcanceM": 3,
+          "entidade": {
+            "nome": "Familiar",
+            "imagem": "assets/tokens/invocacao-padrao.png",
+            "ficha": {
+              "versaoFormato": 1,
+              "id": "familiar-t",
+              "nome": "Familiar",
+              "tipo": "npc",
+              "classes": [
+                {
+                  "id": "invocacao",
+                  "nivel": 1
+                }
+              ],
+              "tamanho": "miudo",
+              "atributos": {
+                "for": 3,
+                "des": 13,
+                "con": 8,
+                "int": 2,
+                "sab": 12,
+                "car": 7
+              },
+              "pvMaximos": 1,
+              "caBase": 11,
+              "deslocamentosM": {
+                "andar": 1.5,
+                "voo": 18
+              },
+              "opcoes": [
+                {
+                  "id": "familiar-entregar-toque",
+                  "nome": "Entregar magia de toque | reação",
+                  "categoria": "acao",
+                  "descricao": "Quando o conjurador conjura uma magia de toque, o familiar a 30 m pode entregá-la usando a própria reação. Resolução assistida.",
+                  "custo": [
+                    {
+                      "tipo": "reacao",
+                      "quantidade": 1
+                    }
+                  ]
+                },
+                {
+                  "id": "familiar-ajudar",
+                  "nome": "Ajudar | ação",
+                  "categoria": "acao",
+                  "descricao": "Ajuda um aliado em um teste ou ataque. Resolução assistida.",
+                  "custo": [
+                    {
+                      "tipo": "acao",
+                      "quantidade": 1
+                    }
+                  ]
+                }
+              ],
+              "recursos": [],
+              "notas": [
+                {
+                  "nome": "Entidade invocada",
+                  "descricao": "Forma única provisória (moeda com T). CA 11, PV 1, voo 18 m. Não ataca. Some a 0 PV; o conjurador pode dispensá-lo."
+                }
+              ]
+            }
+          }
         }
       }
     },
@@ -5663,23 +5731,33 @@
     },
     {
       "id": "habilidade.truque-ilusao-menor",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Ilusão Menor",
         "categoria": "magia",
-        "descricao": "Ação, 9 m, 1 min: cria um som ou uma imagem parada que cabe num cubo de 1,5 m. Teste de Investigação contra CD 13 revela a ilusão.",
+        "descricao": "Ação, 9 m, 1 min: cria um som ou uma imagem parada que cabe num cubo de 1,5 m. Teste de Investigação contra CD 13 revela a ilusão. Imagem: peça visual estática (moeda com T), sem ficha nem iniciativa, removida ao fim de 1 minuto. Som: interpretativo.",
         "custo": [
           {
             "tipo": "acao",
             "quantidade": 1
           }
         ],
-        "circuloBase": 0
+        "circuloBase": 0,
+        "automacao": {
+          "tipo": "peca",
+          "alcanceM": 9,
+          "turnos": 10,
+          "peca": {
+            "nome": "Ilusão Menor",
+            "tamanhoM": 1.5,
+            "imagem": "assets/tokens/invocacao-padrao.png"
+          }
+        }
       }
     },
     {
       "id": "habilidade.truque-maos-magicas",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Mãos Mágicas",
         "categoria": "magia",
@@ -5690,12 +5768,69 @@
             "quantidade": 1
           }
         ],
-        "circuloBase": 0
+        "circuloBase": 0,
+        "automacao": {
+          "tipo": "invocar",
+          "alcanceM": 9,
+          "turnos": 10,
+          "entidade": {
+            "nome": "Mão Mágica",
+            "imagem": "assets/tokens/invocacao-padrao.png",
+            "ficha": {
+              "versaoFormato": 1,
+              "id": "mao-magica",
+              "nome": "Mão Mágica",
+              "tipo": "npc",
+              "classes": [
+                {
+                  "id": "invocacao",
+                  "nivel": 1
+                }
+              ],
+              "tamanho": "miudo",
+              "atributos": {
+                "for": 1,
+                "des": 10,
+                "con": 10,
+                "int": 10,
+                "sab": 10,
+                "car": 10
+              },
+              "pvMaximos": 1,
+              "caBase": 10,
+              "deslocamentosM": {
+                "andar": 9,
+                "voo": 9
+              },
+              "opcoes": [
+                {
+                  "id": "mao-magica-manipular",
+                  "nome": "Manipular objeto | ação",
+                  "categoria": "acao",
+                  "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos.",
+                  "custo": [
+                    {
+                      "tipo": "acao",
+                      "quantidade": 1
+                    }
+                  ]
+                }
+              ],
+              "recursos": [],
+              "notas": [
+                {
+                  "nome": "Entidade invocada",
+                  "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
+                }
+              ]
+            }
+          }
+        }
       }
     },
     {
       "id": "habilidade.truque-maos-magicas-utilidade-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Mãos Mágicas · utilidade · classe",
         "categoria": "magia",
@@ -5707,7 +5842,64 @@
           }
         ],
         "circuloBase": 0,
-        "origem": "feiticeiro"
+        "origem": "feiticeiro",
+        "automacao": {
+          "tipo": "invocar",
+          "alcanceM": 9,
+          "turnos": 10,
+          "entidade": {
+            "nome": "Mão Mágica",
+            "imagem": "assets/tokens/invocacao-padrao.png",
+            "ficha": {
+              "versaoFormato": 1,
+              "id": "mao-magica",
+              "nome": "Mão Mágica",
+              "tipo": "npc",
+              "classes": [
+                {
+                  "id": "invocacao",
+                  "nivel": 1
+                }
+              ],
+              "tamanho": "miudo",
+              "atributos": {
+                "for": 1,
+                "des": 10,
+                "con": 10,
+                "int": 10,
+                "sab": 10,
+                "car": 10
+              },
+              "pvMaximos": 1,
+              "caBase": 10,
+              "deslocamentosM": {
+                "andar": 9,
+                "voo": 9
+              },
+              "opcoes": [
+                {
+                  "id": "mao-magica-manipular",
+                  "nome": "Manipular objeto | ação",
+                  "categoria": "acao",
+                  "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos.",
+                  "custo": [
+                    {
+                      "tipo": "acao",
+                      "quantidade": 1
+                    }
+                  ]
+                }
+              ],
+              "recursos": [],
+              "notas": [
+                {
+                  "nome": "Entidade invocada",
+                  "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
+                }
+              ]
+            }
+          }
+        }
       }
     },
     {

@@ -150,7 +150,7 @@
         },
         {
           "nome": "Truque | Ilusão Menor",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Truque | Zombaria Perversa",
@@ -177,7 +177,7 @@
         },
         {
           "nome": "1º | Encontrar Familiar",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "1º | Enfeitiçar Pessoa",
@@ -293,7 +293,7 @@
         },
         {
           "nome": "Truque | Mãos Mágicas",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Truque | Mensagem",
@@ -476,7 +476,7 @@
         },
         {
           "nome": "Truque | Mãos Mágicas · utilidade · classe",
-          "status": "Assistida pelo mestre"
+          "status": "Automatizada"
         },
         {
           "nome": "Truque | Proteção Contra Lâminas · concentração · classe",

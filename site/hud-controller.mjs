@@ -1,4 +1,4 @@
-import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
+import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
 import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.27';
 import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.27';
 import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.27';
@@ -56,6 +56,20 @@ export async function iniciarHud(){
   let alturaConteudoAcao=590;
   let dpi=1,marcas=[],marcasPublicas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
+  async function sincronizarPecas(){ // M06: peças visuais estáticas (Ilusão Menor), públicas e idempotentes
+    if(!pronta)return;
+    const chave=ns+'/peca',desejadas=new Map((estado?.pecas??[]).map(p=>{
+      const lado=1254,escala=Math.max(.25,(p.tamanhoM??1.5)/1.5),assinatura=JSON.stringify([p.posicao,p.tamanhoM,dpi]);
+      return [chave+'/'+p.id,buildImage({url:new URL('./'+(p.imagem??'assets/tokens/invocacao-padrao.png'),url).href,mime:'image/png',width:lado,height:lado},{dpi:lado/escala,offset:{x:lado/2,y:lado/2}})
+        .id(chave+'/'+p.id).position({x:p.posicao.x*dpi,y:p.posicao.y*dpi}).layer('CHARACTER').locked(true).disableHit(true).name(p.nome??'Ilusão').metadata({[chave]:assinatura}).build()];
+    }));
+    const existentes=await OBR.scene.local.getItems(i=>i.metadata?.[chave]!==undefined);
+    const remover=existentes.filter(i=>!desejadas.has(i.id)||desejadas.get(i.id).metadata[chave]!==i.metadata[chave]).map(i=>i.id);
+    if(remover.length)await OBR.scene.local.deleteItems(remover);
+    const ficam=new Set(existentes.map(i=>i.id).filter(id=>!remover.includes(id)));
+    const novos=[...desejadas.entries()].filter(([id])=>!ficam.has(id)).map(([,item])=>item);
+    if(novos.length)await OBR.scene.local.addItems(novos);
+  }
   async function sincronizarZonas(){
     if(!pronta)return;
     const desejadas=new Map((estado?.zonas??[]).map(z=>[chaveZona+'/'+z.id,itensZona(z,dpi)]).filter(([,item])=>item));
@@ -68,7 +82,7 @@ export async function iniciarHud(){
   }
   const atores=()=>estado?.atores??[];
   const ator=()=>atores().find(a=>a.id===atorId);
-  const controla=a=>a&&(eu.role==='GM'||(a.ficha.tipo==='pj'&&a.dono===eu.id));
+  const controla=a=>a&&(eu.role==='GM'||((a.ficha.tipo==='pj'||a.invocacao?.controlavel)&&a.dono===eu.id)); // M06: quem invocou controla a entidade
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*dpi,y:a.y*dpi};
   const acaoVisivel=()=>pendente??acaoPublica;
@@ -285,7 +299,8 @@ export async function iniciarHud(){
     const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {}),...(magiaDuplicada?{magiaDuplicada:true}:{})};
     let escolha=null;
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
-    if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado','saque'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
+    if(['invocar','peca'].includes(rule?.tipo))escolha='area'; // M06: escolher o ponto onde a entidade/peça aparece
+    else if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado','saque'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     if(o?.composicao){escolha='lista';cmd.alvos=[];cmd.composicao=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
@@ -434,6 +449,7 @@ export async function iniciarHud(){
     if(pendente&&pendente.rev!==s.rev)await cancelar();
     estado=s;eu=i;
     await sincronizarZonas().catch(e=>console.error('Zonas:',e));
+    await sincronizarPecas().catch(e=>console.error('Peças:',e));
     if(acaoPublica&&!atores().some(a=>a.id===acaoPublica.atorId)){acaoPublica=null;await limparMarcasPublicas();}
     const ativo=atual(s);
     if(!controla(ator())||novoTurno)atorId=(controla(ativo)?ativo:atores().find(controla))?.id;

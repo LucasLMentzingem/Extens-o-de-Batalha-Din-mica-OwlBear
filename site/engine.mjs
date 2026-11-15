@@ -530,7 +530,7 @@ export function validar(f) {
     }
     const a=o.automacao;
     if(!a) continue;
-    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','teleporte','teste','saque'].includes(a.tipo), 'Automação desconhecida em '+o.id);
+    exigir(['ataque','salva','cura','pv_temporario','estabilizar','disparada','desengajar','economia','efeito','efeito_conjuracao','projeteis','bencao','reduzir_dano','conceder_dado','dano_direto','invocar','peca','teleporte','teste','saque'].includes(a.tipo), 'Automação desconhecida em '+o.id);
     if(a.tipo==='teleporte')exigir(Number.isFinite(a.alcanceM)&&a.alcanceM>0&&a.alcanceM<=LIMITE_ALCANCE_M,'Alcance de teleporte inválido em '+o.id);
     if(a.tipo==='economia'){
       exigir(['acao','bonus','reacao'].every(k=>a.adicionar?.[k]===undefined||inteiro(a.adicionar[k],0,5)),'Economia adicional inválida em '+o.id);
@@ -809,7 +809,7 @@ function sincronizarConcessoesItens(a){
   return a;
 }
 export const acaoSaquear={...definicaoHabilidade('habilidade.saquear'),id:'saquear',catalogoRef:'habilidade.saquear'};
-export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);const lista=[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];anexarDestruidorNaComposicao(a,lista);return lista;};
+export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);const lista=[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a),...(a?.invocacao?[{id:'dispensar-invocacao',nome:'Dispensar | sem ação',categoria:'acao',descricao:'Encerra a entidade invocada e remove o token.',custo:[],automacao:{tipo:'dispensar'}}]:[])];anexarDestruidorNaComposicao(a,lista);return lista;};
 // #65 M04: Destruidor de Hordas também pode ser preparado na Gaveta de Composição do ataque com arma.
 // A etapa reaproveita a arma da instância anterior e compartilha o limite de uma vez por turno com o botão avulso.
 function anexarDestruidorNaComposicao(a,lista){
@@ -1262,6 +1262,7 @@ export function encerrarConcentracao(s,a,motivo=''){
   const id=a?.concentracaoAtiva?.id;if(!id)return false;
   for(const alvo of s.atores)alvo.efeitosAtivos=(alvo.efeitosAtivos??[]).filter(e=>e.concentracaoId!==id);
   s.zonas=(s.zonas??[]).filter(z=>z.concentracaoId!==id); // M05
+  encerrarVinculosDaConcentracao(s,id); // M06
   if(a.bencao?.concentracaoId===id)delete a.bencao;
   const nome=a.concentracaoAtiva.nome;delete a.concentracaoAtiva;
   if(motivo)registrar(s,a.nome+' perdeu a concentração em '+nome+' • '+motivo);
@@ -1287,6 +1288,7 @@ function processarDuracoes(s,ator,evento){
     }
     alvo.efeitosAtivos=mantidos;
   }
+  processarDuracaoInvocacoes(s,ator,evento); // M06
   // M05: zonas persistentes seguem o mesmo relógio (combate e avanço de tempo do mestre).
   s.zonas=(s.zonas??[]).filter(z=>{
     const d=z.duracao;if(!d)return true;
@@ -1315,6 +1317,24 @@ export const tamanhoAte=(a,maximo)=>TAMANHOS.indexOf(tamanhoCriatura(a))<=TAMANH
 export function facesMaximas(r,lados){
   const faces=Array.isArray(r?.faces)?r.faces:(r?.grupos??[]).filter(g=>!g.diceType||g.diceType==='d'+lados).flatMap(g=>(g.dice??[]).filter(d=>d.kept!==false).map(d=>d.value));
   return faces.filter(v=>Number(v)===lados).length;
+}
+// M06 (#45): entidades vinculadas. A invocação guarda origem, controlador, duração e concentração.
+// Encerrar remove o ator do encontro e da ordem; o token sem ator é apagado pelo mestre (bridge).
+export function encerrarInvocacao(s,ent,motivo=''){
+  if(!ent?.invocacao)return false;
+  const atualId=atual(s)?.id,eraAtual=atualId===ent.id,indice=s.vez;
+  s.atores=s.atores.filter(x=>x!==ent);s.ordem=(s.ordem??[]).filter(id=>id!==ent.id);
+  if(s.ordem.length)s.vez=eraAtual?Math.min(indice,s.ordem.length-1):Math.max(0,s.ordem.indexOf(atualId));
+  registrar(s,ent.nome+' desapareceu'+(motivo?' • '+motivo:'')+'.');return true;
+}
+function encerrarVinculosDaConcentracao(s,id){
+  s.pecas=(s.pecas??[]).filter(p=>p.concentracaoId!==id);
+  for(const ent of s.atores.filter(x=>x.invocacao?.concentracaoId===id))encerrarInvocacao(s,ent,'fim da concentração');
+}
+function processarDuracaoInvocacoes(s,ator,evento){
+  const vence=d=>{if(!d)return false;const momento=(d.expira??'inicio_origem').startsWith('inicio')?'inicio_turno':'fim_turno';if(momento!==evento)return false;d.restante=(d.restante??1)-1;return d.restante<=0;};
+  s.pecas=(s.pecas??[]).filter(p=>!(p.origemAtorId===ator.id&&vence(p.duracao)&&(registrar(s,'A ilusão '+p.nome+' terminou.'),true)));
+  for(const ent of s.atores.filter(x=>x.invocacao?.origemAtorId===ator.id&&x.invocacao.duracao))if(vence(ent.invocacao.duracao))encerrarInvocacao(s,ent,'duração terminou');
 }
 function restaurarEconomia(a){
   const r=restricoesAtivas(a);
@@ -1512,7 +1532,7 @@ export async function aplicar(s,c,u,rolar) {
   const gm=u.role==='GM';
   if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
-    exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
+    exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
   }
   let msg='';
@@ -2144,6 +2164,23 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         exigir(!s.atores.some(p=>p!==a&&p.pv>0&&distancia(p,c)<.25),'O destino está ocupado.');
         a.x=c.x;a.y=c.y;msg+=' • teleportou-se '+d.toFixed(2)+' m';break;
       }
+      if(rule.tipo==='dispensar'){exigir(a.invocacao,'Só entidades invocadas podem ser dispensadas.');encerrarInvocacao(s,a,'dispensada');msg+=' • dispensada';break;}
+      if(rule.tipo==='invocar'||rule.tipo==='peca'){ // M06 #45
+        const ponto=c.ponto;exigir(ponto&&Number.isFinite(ponto.x)&&Number.isFinite(ponto.y)&&distancia(a,ponto)<=Math.min(LIMITE_ALCANCE_M,rule.alcanceM)+1e-8,'Escolha um ponto ao alcance.');
+        const duracao=rule.turnos?{restante:rule.turnos,expira:'inicio_origem'}:undefined;
+        if(rule.tipo==='peca'){
+          s.pecas=(s.pecas??[]).filter(p=>!(p.opcaoId===o.id&&p.origemAtorId===a.id));
+          s.pecas.push({id:crypto.randomUUID(),nome:rule.peca?.nome??o.nome,opcaoId:o.id,origemAtorId:a.id,posicao:{x:ponto.x,y:ponto.y},tamanhoM:rule.peca?.tamanhoM??1.5,imagem:rule.peca?.imagem??'assets/tokens/invocacao-padrao.png',duracao,concentracaoId:concentracaoId??undefined});
+          msg+=' • peça visual criada';break;
+        }
+        for(const antiga of s.atores.filter(x=>x.invocacao?.origemAtorId===a.id&&x.invocacao.opcaoId===o.id))encerrarInvocacao(s,antiga,'substituída');
+        const ent=adicionar(s,structuredClone(rule.entidade.ficha),(rule.entidade.nome??rule.entidade.ficha.nome)+' de '+a.nome);
+        ent.dono=a.dono;ent.x=ponto.x;ent.y=ponto.y;ent.ficha.lado=a.ficha.lado??a.ficha.tipo; // aliada de quem invocou (sem oportunidade entre eles)
+        ent.invocacao={origemAtorId:a.id,opcaoId:o.id,controlavel:rule.entidade.controlavel!==false,imagem:rule.entidade.imagem??'assets/tokens/invocacao-padrao.png',duracao,concentracaoId:concentracaoId??undefined};
+        if(s.fase==='turnos'){await inserirReforco(s,ent,resultado,formulaD20);msg+=' • '+ent.nome+' entrou com iniciativa '+ent.init;}
+        else{if(s.fase==='iniciativa')ent.init=null;msg+=' • '+ent.nome+' apareceu';}
+        break;
+      }
       if(rule.tipo==='escapar'){ // M05: ação para se soltar (Emaranhar: FOR/Atletismo contra a CD da magia)
         const e=(a.efeitosAtivos??[]).find(x=>x.id===o.concedidaPorEfeito&&x.escape);exigir(e,'Não há efeito do qual se soltar.');
         const esc=e.escape,bonus=esc.pericia?bonusPericia(a.ficha,esc.pericia):mod(a.ficha.atributos[esc.atributo??'for']);
@@ -2445,6 +2482,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       delete p.salvaguardaMortePendente;
     }
   }
+  for(const ent of s.atores.filter(x=>x.invocacao&&x.pv<=0))encerrarInvocacao(s,ent,'chegou a 0 PV'); // M06
   // M05: gatilhos de entrada e de início/fim de turno nas zonas, resolvidos pelo mestre (autoridade única).
   for(const ev of (s.eventosZona??[]).splice(0)){
     const p=s.atores.find(x=>x.id===ev.ator);if(!p||p.pv<=0)continue;

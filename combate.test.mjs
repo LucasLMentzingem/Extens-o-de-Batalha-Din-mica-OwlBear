@@ -2346,3 +2346,47 @@ test('#60 #61 Taumaturgia dá Vantagem em Intimidação por 1 minuto; Queda Suav
   s=await aplicar(s,{rev:s.rev,tipo:'reagir',ator:a.id,opcao:queda.id},player,roladorSala().rolar);
   assert.equal(s.atores[0].reacao,0);assert.equal(s.atores[0].rec['espaco-1'],espacos-1);assert.match(s.historico.join(' '),/Queda Suave/);
 });
+
+// ===== M06 — entidades vinculadas e peças visuais (issue #45) =====
+test('M06 Encontrar Familiar: entidade com ficha própria, controlada por quem invocou, e reforço em combate',async()=>{
+  let {s,a,b}=await duelo('skimi');s.fase='preparo';s.ordem=[];
+  const enc=opRev(a,'encontrar familiar');assert.equal(enc.automacao.tipo,'invocar');
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:enc.id,ponto:{x:-1,y:-1}},player,roladorSala().rolar);
+  const fam=s.atores.find(x=>x.invocacao);assert.ok(fam,'familiar criado');
+  assert.deepEqual({dono:fam.dono,origem:fam.invocacao.origemAtorId,tamanho:fam.ficha.tamanho,pv:fam.pv,ca:caAtual(fam),imagem:fam.invocacao.imagem},
+    {dono:'p',origem:a.id,tamanho:'miudo',pv:1,ca:11,imagem:'assets/tokens/invocacao-padrao.png'});
+  assert.equal(fam.ficha.lado,'pj','fica do lado de quem invocou');
+  // o jogador que invocou controla o familiar; outro jogador não
+  s.fase='turnos';s.ordem=[a.id,b.id,fam.id];s.vez=2;s.rodada=1;fam.metros=9;fam.acao=1;
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:fam.id,x:-1,y:-2},player,roladorSala().rolar);assert.equal(s.atores.find(x=>x.id===fam.id).y,-2);
+  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'mover',ator:fam.id,x:-1,y:-3},{id:'outro',role:'PLAYER'},()=>0),/não controla/);
+  // conjurar de novo substitui o anterior (uma representação por conjurador)
+  s.fase='preparo';s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:enc.id,ponto:{x:2,y:2}},player,roladorSala().rolar);
+  assert.equal(s.atores.filter(x=>x.invocacao).length,1);
+  // Dispensar e 0 PV encerram a entidade
+  const novo=s.atores.find(x=>x.invocacao);s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:novo.id,opcao:'dispensar-invocacao'},player,roladorSala().rolar);
+  assert.equal(s.atores.filter(x=>x.invocacao).length,0);
+});
+
+test('M06 Mãos Mágicas: em combate rola iniciativa como reforço e some após 1 minuto ou a 0 PV',async()=>{
+  let {s,a,b}=await duelo('nikki');const maos=opRev(a,'maos magicas');assert.equal(maos.automacao.turnos,10);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:maos.id,ponto:{x:3,y:0}},player,roladorSala({d20:12}).rolar);
+  const mao=s.atores.find(x=>x.invocacao);assert.ok(Number.isFinite(mao.init),'iniciativa de reforço');assert.ok(s.ordem.includes(mao.id));assert.equal(atual(s).id,a.id,'a vez não muda');
+  let passes=0;while(s.atores.some(x=>x.invocacao)&&passes<40){s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:atual(s).id,confirmado:true},gm,roladorSala().rolar);passes++;}
+  assert.equal(s.rodada,11,'some no início do 11º turno de Nikki (1 minuto)');
+  assert.equal(s.atores.filter(x=>x.invocacao).length,0,'expirou');assert.ok(!s.ordem.includes(mao.id));
+  ({s,a,b}=await duelo('nikki'));s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:maos.id,ponto:{x:3,y:0}},player,roladorSala().rolar);
+  s.atores.find(x=>x.invocacao).pv=0;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala().rolar);
+  assert.equal(s.atores.filter(x=>x.invocacao).length,0,'a 0 PV some');
+});
+
+test('M06 Ilusão Menor: peça visual estática pública, sem ficha nem iniciativa, removida ao expirar',async()=>{
+  let {s,a}=await duelo('hannah-montana');const ilusao=opRev(a,'ilusao menor');assert.equal(ilusao.automacao.tipo,'peca');
+  const atores=s.atores.length;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ilusao.id,ponto:{x:2,y:2}},player,roladorSala().rolar);
+  assert.equal(s.atores.length,atores,'não cria ator');assert.equal(s.pecas.length,1);assert.deepEqual(publico(s).pecas[0].posicao,{x:2,y:2});
+  s.atores[0].acao=1;await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ilusao.id,ponto:{x:20,y:0}},player,roladorSala().rolar),/alcance/);
+  s=await aplicar(s,{rev:s.rev,tipo:'encerrar'},gm,()=>0);
+  for(let i=0;i<9;i++)s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+  assert.equal(s.pecas.length,1);s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);assert.equal(s.pecas.length,0,'1 minuto');
+});
