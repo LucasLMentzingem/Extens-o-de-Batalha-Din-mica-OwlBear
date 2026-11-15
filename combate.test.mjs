@@ -5,6 +5,7 @@ import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvM
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
+import {lerPastaFichas} from './site/importar-pasta-fichas.mjs';
 import {quantidadeMoedaValida} from './site/engine.mjs';
 import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './site/npc-duplicates.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
@@ -875,6 +876,42 @@ test('as sete fichas de jogadores carregam juntas com recursos e automações pr
  assert.equal(porId('loteria').opcoes.find(o=>/Defletir Ataques/i.test(o.nome)).gatilho,'ser_atingido');
  assert.equal(porId('hannah-montana').opcoes.find(o=>o.id==='inspiracao-bardo-acao').automacao.tipo,'conceder_dado');
  assert.equal(porId('skimi').opcoes.find(o=>o.id==='ponto-sorte-rerrolagem').gatilho,'apos_rolagem_d20');
+});
+test('pasta de fichas lê JSONs em subpastas, ignora imagens e identifica o arquivo inválido',async()=>{
+ const arquivo=(caminho,conteudo)=>({name:caminho.split('/').at(-1),webkitRelativePath:caminho,text:async()=>conteudo});
+ const grupo=await lerPastaFichas([
+   arquivo('Minha guarda/tokens/soldado.png','imagem'),
+   arquivo('Minha guarda/tropa/soldado.json','\uFEFF'+JSON.stringify(await fichaFonte('soldado'))),
+   arquivo('Minha guarda/nikki.json',JSON.stringify(await fichaFonte('nikki')))
+ ]);
+ assert.equal(grupo.nome,'Minha guarda');assert.deepEqual(grupo.fichas.map(f=>f.nome),[nikki.nome,soldado.nome]);
+ await assert.rejects(lerPastaFichas([arquivo('Erro/correta.json',JSON.stringify(await fichaFonte('nikki'))),arquivo('Erro/ruim.json','{')]),/Erro\/ruim\.json/);
+ await assert.rejects(lerPastaFichas([arquivo('Erro/ruim.json','{"nome":"incompleta"}')]),/Erro\/ruim\.json/);
+ await assert.rejects(lerPastaFichas([arquivo('Vazia/token.png','imagem')]),/não contém fichas JSON/);
+ await assert.rejects(lerPastaFichas(Array.from({length:51},(_,i)=>arquivo('Muitos/'+i+'.json','{}'))),/até 50 fichas/);
+});
+test('grupo importado persiste como modelo privado e permite adicionar unidades e cópias completas',async()=>{
+ let s=novo();adicionar(s,nikki);const originais=s.atores.length;
+ s=await aplicar(s,{tipo:'salvarGrupoFichas',rev:s.rev,nome:'Minha guarda',fichas:[await fichaFonte('soldado'),await fichaFonte('nikki')]},gm,dadoLocal);
+ assert.equal(s.atores.length,originais,'salvar a pasta só disponibiliza o grupo');
+ const grupo=s.gruposFichas[0];assert.equal(grupo.nome,'Minha guarda');
+ assert.ok(grupo.fichas.every(f=>f.versaoFormato===2&&!f.opcoes));
+ assert.equal(publico(s).gruposFichas,undefined,'modelos do mestre não são enviados aos jogadores');
+ s=JSON.parse(JSON.stringify(compactarEstado(s)));
+ for(const ator of s.atores)ator.ficha=validar(ator.ficha);
+ s=await aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,grupoId:grupo.id,indice:0},gm,dadoLocal);
+ assert.equal(s.atores.length,originais+1);assert.equal(s.atores.at(-1).nome,soldado.nome);
+ s.atores.at(-1).pv=1;
+ s=await aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,grupoId:grupo.id},gm,dadoLocal);
+ assert.equal(s.atores.length,originais+3);assert.equal(s.atores.at(-2).pv,soldado.pvMaximos);
+ assert.equal(new Set(s.atores.map(a=>a.id)).size,s.atores.length);
+ assert.ok(s.atores.slice(originais).every(a=>!a.token&&!a.dono));
+ await assert.rejects(aplicar(s,{tipo:'salvarGrupoFichas',rev:s.rev,nome:'Proibido',fichas:[nikki]},player,dadoLocal),/Somente o mestre/);
+ await assert.rejects(aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,grupoId:grupo.id},player,dadoLocal),/Somente o mestre/);
+ const antes=structuredClone(s);
+ await assert.rejects(aplicar(s,{tipo:'salvarGrupoFichas',rev:s.rev,nome:'Inválido',fichas:[nikki,{nome:'incompleta'}]},gm,dadoLocal));
+ await assert.rejects(aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,grupoId:grupo.id,indice:-1},gm,dadoLocal),/Ficha indisponível/);
+ assert.deepEqual(s,antes);
 });
 test('grupos fixos acrescentam fichas independentes sem alterar participantes ou criar vínculos',async()=>{
  const grupos=JSON.parse(await readFile(new URL('./site/grupos-fichas.json',import.meta.url))).grupos;

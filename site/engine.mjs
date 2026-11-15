@@ -1,8 +1,9 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.24';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.24';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.25';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.25';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
+export const LIMITE_FICHAS_GRUPO = 50;
 export const quantidadeMoedaValida=valor=>Number.isFinite(valor)&&Math.abs(valor-Math.round(valor*100)/100)<1e-10;
 export const avancosMesa=[['10min','10 Min',600],['1min','1 Min',60],['30seg','30 Seg',30],['1t','1T',6],['5t','5T',30],['10t','10T',60]];
 export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
@@ -1279,7 +1280,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || (a.ficha.tipo==='pj' && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1328,9 +1329,27 @@ export async function aplicar(s,c,u,rolar) {
       for(const ficha of c.fichas){const p=adicionar(s,ficha,ficha.nome);if(c.ensaio){p.token='sim-'+p.id;p.dono='teste';}}
       msg='As sete fichas de jogadores entraram no encontro.';break;
     }
+    case 'salvarGrupoFichas': {
+      exigir(typeof c.nome==='string'&&c.nome.trim().length>0,'Informe o nome da pasta.');
+      exigir(Array.isArray(c.fichas)&&c.fichas.length>0&&c.fichas.length<=LIMITE_FICHAS_GRUPO,'Selecione de uma a cinquenta fichas.');
+      const fichas = c.fichas.map(ficha => compactarFicha(validar(ficha)));
+      s.gruposFichas ??= [];
+      s.gruposFichas.push({id:'pasta-'+crypto.randomUUID(),nome:c.nome.trim(),fichas});
+      msg='Grupo '+c.nome.trim()+' importado com '+fichas.length+' ficha(s).';
+      break;
+    }
     case 'adicionarGrupo': {
-      exigir(Array.isArray(c.fichas)&&c.fichas.length>0&&c.fichas.length<=50,'Selecione de uma a cinquenta fichas.');
-      const fichas=c.fichas.map(validar);
+      let selecionadas = c.fichas;
+      if (c.grupoId) {
+        const grupo = s.gruposFichas?.find(g => g.id===c.grupoId);
+        exigir(grupo,'Grupo indisponível.');
+        if (c.indice!==undefined) {
+          exigir(Number.isInteger(c.indice)&&c.indice>=0&&c.indice<grupo.fichas.length,'Ficha indisponível neste grupo.');
+          selecionadas = [grupo.fichas[c.indice]];
+        } else selecionadas = grupo.fichas;
+      }
+      exigir(Array.isArray(selecionadas)&&selecionadas.length>0&&selecionadas.length<=LIMITE_FICHAS_GRUPO,'Selecione de uma a cinquenta fichas.');
+      const fichas=selecionadas.map(validar);
       for(const ficha of fichas){
         const novo=adicionar(s,ficha,ficha.nome);
         if(s.fase==='turnos')await inserirReforco(s,novo,resultado,formulaD20);
@@ -2146,6 +2165,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
 }
 export function publico(s){
   const v=structuredClone(s);
+  delete v.gruposFichas;
   for(const a of v.atores)if(a.saqueAberto){
     const alvo=s.atores.find(x=>x.id===a.saqueAberto.alvoId);
     a.saqueAberto.itens=itensSaque(s,a);

@@ -1,9 +1,10 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.24';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.24';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.24';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.24';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.24';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.25';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.25';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.25';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.25';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.25';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.25';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -20,13 +21,20 @@ let lojaDaVenda=null;
 let gruposFichas=[];
 const gruposAbertos=new Set();
 function renderGruposFichas(){
-  return '<div class="grupos-fichas">'+gruposFichas.map(g=>'<details data-grupo-lista="'+esc(g.id)+'" '+(gruposAbertos.has(g.id)?'open':'')+'><summary>'+esc(g.nome)+' <small>'+g.fichas.length+' fichas</small></summary><div class="linha-grupo">'+
-    '<button type="button" data-adicionar-grupo="'+esc(g.id)+'" class="primario">Adicionar grupo inteiro</button></div><div class="lista-grupo">'+g.fichas.map(f=>'<div><span>'+esc(f.nome)+'</span><button type="button" data-adicionar-unidade="'+esc(f.id)+'">Adicionar unidade</button></div>').join('')+'</div></details>').join('')+'</div>';
+  const grupos = [...gruposFichas, ...(s.gruposFichas??[])];
+  return '<div class="grupos-fichas">'+grupos.map(g=>'<details data-grupo-lista="'+esc(g.id)+'" '+(gruposAbertos.has(g.id)?'open':'')+'><summary>'+esc(g.nome)+' <small>'+g.fichas.length+' fichas</small></summary><div class="linha-grupo">'+
+    '<button type="button" data-adicionar-grupo="'+esc(g.id)+'" class="primario">Adicionar grupo inteiro</button></div><div class="lista-grupo">'+g.fichas.map((f,indice)=>'<div><span>'+esc(f.nome)+'</span><button type="button" data-grupo-origem="'+esc(g.id)+'" data-adicionar-unidade="'+indice+'">Adicionar unidade</button></div>').join('')+'</div></details>').join('')+'</div>';
 }
-async function adicionarDoGrupo(grupoId,fichaId){
-  const grupo=gruposFichas.find(g=>grupoId?g.id===grupoId:g.fichas.some(f=>f.id===fichaId));
+async function adicionarDoGrupo(grupoId,indice){
+  const importado=s.gruposFichas?.find(g=>g.id===grupoId);
+  if(importado){
+    await enviar('adicionarGrupo',{grupoId,indice});
+    aviso((indice===undefined?importado.fichas.length:1)+' ficha(s) adicionada(s). Vincule os tokens e jogadores desejados.');
+    return;
+  }
+  const grupo=gruposFichas.find(g=>g.id===grupoId);
   if(!grupo)throw Error('Grupo indisponível.');
-  const registros=fichaId?grupo.fichas.filter(f=>f.id===fichaId):grupo.fichas;
+  const registros=indice===undefined?grupo.fichas:[grupo.fichas[indice]];
   const fichas=await Promise.all(registros.map(async f=>{
     const r=await fetch('./fichas/'+encodeURIComponent(f.id)+'.json');
     if(!r.ok)throw Error('Falha ao carregar '+f.nome);
@@ -45,7 +53,7 @@ async function sincronizarSaqueVisual(){
   }
   if(saqueVisualId===saque.id)return;
   saqueVisualId=saque.id;
-  const url=new URL('./saque.html?v=0.8.24',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.25',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
     await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -105,7 +113,7 @@ function renderControleFichasMestre(){
     return '<article class="linha-vinculo '+(a.id===escolhido?'selecionada':'')+'"><div><strong>'+esc(a.nome)+'</strong><small>'+(a.ficha.tipo==='pj'?'PERSONAGEM':'NPC')+' · '+(a.token?'token vinculado':'sem token')+'</small></div>'+seletor+opcoesDono(a)+'<div class="acoes-vinculo"><button type="button" data-usar-selecao-vinculo="'+esc(a.id)+'">Usar seleção</button><button type="button" class="primario" data-salvar-vinculo="'+esc(a.id)+'">Salvar vínculo</button><button type="button" data-ver-ficha="'+esc(a.id)+'">Abrir ficha</button><button type="button" class="perigo" data-excluir-ficha="'+esc(a.id)+'" '+(s.fase==='preparo'?'':'disabled title="Pare o combate para excluir a ficha"')+'>Excluir ficha</button></div></article>';
   }).join('');
   // #12 Durante o combate o mestre também pode adicionar reforços (entram com iniciativa rolada).
-  const importar='<div class="importar-fichas">'+renderGruposFichas()+'<div class="campos"><label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label></div>'+(s.fase==='preparo'?'':'<p class="muted">Reforços rolam iniciativa ao entrar no combate.</p>')+'</div>';
+  const importar='<div class="importar-fichas">'+renderGruposFichas()+'<div class="campos"><label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label><label>Importar pasta como grupo<input id="pasta-fichas" type="file" webkitdirectory multiple accept=".json,application/json"></label></div><p class="muted">O nome da pasta será o nome do grupo. Até 50 fichas JSON, incluindo subpastas.</p>'+(s.fase==='preparo'?'':'<p class="muted">Reforços rolam iniciativa ao entrar no combate.</p>')+'</div>';
   return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
 }
 function renderControleLojas(){
@@ -310,7 +318,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.24',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.25',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -321,7 +329,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.24',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.25',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -436,7 +444,7 @@ async function executar(k){
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
 $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.adicionarGrupo)return tarefa(()=>adicionarDoGrupo(b.dataset.adicionarGrupo));
- if(b.dataset.adicionarUnidade)return tarefa(()=>adicionarDoGrupo(null,b.dataset.adicionarUnidade));
+ if(b.hasAttribute('data-adicionar-unidade'))return tarefa(()=>adicionarDoGrupo(b.dataset.grupoOrigem,Number(b.dataset.adicionarUnidade)));
  if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
  if(b.dataset.livroAba){paginaLivro=b.dataset.livroAba;return render();}
  if(b.hasAttribute('data-abrir-lojas'))return tarefa(()=>abrirLojas(escolhido));
@@ -456,6 +464,16 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
 $('app').onsubmit=e=>{if(e.target.id==='formFicha'){e.preventDefault();tarefa(salvarFicha);}};
 $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];render();}if(e.target.id==='alvo')alvo=e.target.value;
  if(e.target.id==='ficha-token-selecionado'){escolhido=e.target.value;render();}
+ if(e.target.id==='pasta-fichas'){
+   const campo=e.target,arquivos=Array.from(campo.files??[]);
+   if(arquivos.length)tarefa(async()=>{
+     try{
+       const grupo=await lerPastaFichas(arquivos);
+       await enviar('salvarGrupoFichas',grupo);
+       aviso('Grupo '+grupo.nome+' salvo com '+grupo.fichas.length+' ficha(s). Abra a lista para adicionar ao encontro.');
+     }finally{campo.value='';}
+   });
+ }
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
 $('app').oncontextmenu=e=>{
  const habilidade=e.target.closest('[data-habilidade-id]');
@@ -527,7 +545,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.24');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.25');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();

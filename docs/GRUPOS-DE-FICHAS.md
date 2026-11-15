@@ -30,3 +30,5 @@ Durante um combate, as fichas acrescentadas entram pelo fluxo de reforços, com 
 ## Acrescentar grupos
 
 Adicione um registro com `id`, `nome` e uma lista `fichas`. Cada entrada informa o ID do arquivo JSON sem extensão e o nome exibido. Os arquivos precisam passar por `validar` do motor e referenciar entradas existentes nos catálogos. Consulte o manual de criação de fichas.
+
+O mestre também pode usar **Importar pasta como grupo** no Controle de fichas. Os grupos importados aparecem depois dos grupos fixos e ficam salvos com o estado da cena no navegador do mestre. O [manual de criação de fichas](MANUAL-CRIACAO-FICHAS.md#organizar-uma-pasta-como-grupo) explica a estrutura da pasta, a validação e a adição de unidades ou do grupo inteiro.

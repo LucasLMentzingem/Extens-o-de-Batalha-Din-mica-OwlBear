@@ -130,6 +130,33 @@ Importe pelo Controle do Mestre, em Controle de fichas. Vincule a ficha ao token
 
 O estado da mesa guarda PV, saldos, equipamento, vínculos e efeitos. A ficha de criação guarda dados iniciais. Alterar o arquivo publicado não substitui automaticamente uma instância que já está carregada na sala.
 
+## Organizar uma pasta como grupo
+
+No Painel exclusivo do mestre, abra Controle de fichas e use **Importar pasta como grupo**. Selecione a pasta que contém as fichas. O nome da pasta será o nome exibido na lista recolhível.
+
+Organize o grupo com um arquivo JSON de ficha por personagem ou modelo de NPC. Subpastas também são lidas. Por exemplo:
+
+```text
+Guarda da Cidade/
+    comandante.json
+    tropa/
+        soldado.json
+        arqueiro.json
+    tokens/
+        comandante.png
+        soldado.png
+```
+
+Nesse exemplo, o grupo **Guarda da Cidade** terá três fichas. Imagens e arquivos de outras extensões são ignorados. Os tokens são colocados no mapa e vinculados pelo mestre após adicionar as fichas.
+
+A pasta aceita de uma a cinquenta fichas nos formatos 1 ou 2. Todo arquivo `.json` encontrado precisa ser uma ficha válida. Guarde schemas, backups da mesa e arquivos de configuração em outra pasta. As referências de habilidades e itens devem existir no catálogo da extensão, ou a ficha deve fornecer as definições locais admitidas pelo formato.
+
+A importação valida todas as fichas antes de salvar o grupo. Quando um JSON falha, o aviso informa seu caminho para correção. Corrija o arquivo e selecione a pasta novamente.
+
+O grupo fica salvo junto ao estado da cena no navegador do mestre. Reabrir a extensão na mesma cena e navegador conserva os modelos. Guarde a pasta original para importar em outra cena ou computador.
+
+Abra o grupo e use **Adicionar grupo inteiro** ou **Adicionar unidade**. Salvar a pasta disponibiliza os modelos na lista. Adicioná-los ao encontro cria cópias independentes, com PV e recursos iniciais, prontas para vincular a tokens e jogadores. É possível usar o grupo repetidamente e acrescentar fichas a uma mesa já preenchida. Em combate, as fichas adicionadas seguem o fluxo de reforços.
+
 ## Saque de inimigos
 
 O motor disponibiliza a ação comum Saquear automaticamente, a partir de `habilidade.saquear` no catálogo. Ela usa uma ação em combate e seleciona um adversário a 0 PV a até 1,5 m. O saque oferece os itens reais do inventário do alvo, incluindo equipamentos. Preencha o inventário dos NPCs para definir o que os jogadores poderão obter.
