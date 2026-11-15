@@ -1,15 +1,15 @@
-# Módulos a fechar — revisão 0.8.22
+# Módulos a fechar — revisão 0.8.24
 
 Consolidação em 15/11/2026 a partir do código publicado, histórico, arquitetura M04 e issues abertas. Não representa uma nova auditoria exaustiva das 320 entradas do mapeamento. A meta prioritária continua sendo a etapa de nível 3, seguida por 5, 7 e 10.
 
 ## Prioridade imediata: regressões e base de resolução
 
 - [#4](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/4): 0 PV, inconsciência e salvaguardas contra a morte.
-- [#63](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/63): Bênção deve expirar pelo avanço de tempo fora de combate.
-- [#64](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/64): oportunidade em trajetos que começam fora e entram e saem do alcance no mesmo movimento.
-- [#65](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/65): paridade de maestrias e aprimoramentos entre ataques simples e compostos.
+- [#63](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/63): concluída na 0.8.24; relógio fora de combate reduz Bênção, a duração também avança 6 s por rodada e concentração não apaga Bênção alheia.
+- [#64](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/64): concluída na 0.8.24; interseção contínua detecta entrada e saída do alcance no mesmo trajeto e ordena vários reatores.
+- [#65](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/65): em andamento; a 0.8.24 cobre dano persistente, dano garantido no erro, efeitos de maestria no acerto, vantagens/desvantagens e opções de dano pós-acerto em sequências. Desenvolvimento pausado aqui. Falta validar Assassino de Colossos em ataque simples/composto/reação; confirmar manobras/recursos em composições e Destruidor de Hordas com e sem a gaveta; smoke test visual em Owlbear e reabrir a mesa para conferir persistência.
 
-As quatro issues permanecem abertas; a existência de testes próximos não comprova a correção desses casos.
+Os fixes #63 e #64 foram publicados e possuem regressões de motor. A paridade completa #65 continua aberta até cobrir os cenários listados acima.
 
 ## Contratos gerais
 

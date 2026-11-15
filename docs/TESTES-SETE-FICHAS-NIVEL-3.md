@@ -1,6 +1,6 @@
 # Fechamento das sete fichas de nível 3
 
-Estado na versão 0.8.10: testes em andamento. Este documento separa o que já foi comprovado pelo motor do que ainda depende dos módulos propostos para a cobertura completa do nível 3.
+Estado em 0.8.24: testes em andamento. Este documento separa o que já foi comprovado pelo motor do que ainda depende dos módulos propostos para a cobertura completa do nível 3.
 
 A [classificação aprovada de habilidades de interpretação](HABILIDADES-DE-INTERPRETACAO.md) define os casos que exigem apenas registro e custo aplicável. As decisões posteriores de invocação estão na [pré-arquitetura do M06](mapeamento-nivel-3/PRE-ARQUITETURA-MODULOS.md#m06--entidades-familiares-e-objetos-vinculados--ausente).
 
@@ -10,6 +10,9 @@ A [classificação aprovada de habilidades de interpretação](HABILIDADES-DE-IN
 - Toda ficha conclui um ataque básico com a arma equipada, consome a Ação e aplica o dano ao alvo.
 - Ataques guardados não aparecem; arremesso, mão fraca, duas mãos, acuidade, distância, proficiência e Artes Marciais derivam do item e do portador atual.
 - Iniciativa, perícias, salvaguardas, concentração, condições, descanso, carga, lojas, troca, resistências e treze tipos de dano possuem regressão automatizada.
+- Bênção expira após 60 segundos no relógio fora de combate e avança por rodada em combate; oportunidades consideram toda a linha percorrida, inclusive cruzamentos completos e múltiplos inimigos no trajeto.
+- Ataque composto de Zurich aplica Marca do Predador em cada acerto e oferece o dano persistente no ajuste de cada instância.
+- Ataques compostos também aplicam dano garantido quando erram, efeitos de maestria quando acertam e vantagem/desvantagem por instância. A suíte cobre esses fluxos no motor.
 - As opções ainda não portáteis continuam utilizáveis como declaração assistida, mas não contam como fechamento mecânico da ficha.
 
 ## Matriz por personagem
@@ -66,4 +69,8 @@ Uma ficha será marcada como fechada quando:
 2. Zurich e Dragoberto: marcas, áreas, ataques adicionais e gatilhos por alvo.
 3. Nikki e Skimi: conjuração, reação, concentração, variantes e múltiplos alvos.
 4. Hannah: suporte, dados concedidos, condições e ações narrativas assistidas.
+
+## Ponto de pausa da 0.8.24
+
+O trabalho parou na issue [#65 — paridade de maestrias e aprimoramentos em ataques compostos](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/65). A suíte automatizada terminou com 185/185 testes. Ainda falta provar Assassino de Colossos em ataque simples, composto e reação; limite e consumo de manobras nas composições; Destruidor de Hordas nos fluxos normal e pela Gaveta; e smoke test visual/persistência em Owlbear.
 

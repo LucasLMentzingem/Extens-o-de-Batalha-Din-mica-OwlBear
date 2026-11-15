@@ -362,6 +362,16 @@ test('Bênção permite menos alvos, recusa repetição e aplica dado nas salvas
  await m.go('teste',{ator:m.a.id,grupo:'salvaguardas',chave:'con'},player,[10,3]);
  assert.match(m.s.historico[0],/17/);
 });
+test('Bênção fora de combate expira pelo relógio e renova a duração corretamente',async()=>{
+ const m=mesa();m.a.ficha.opcoes.push({id:'bencao-tempo',nome:'Bênção',categoria:'magia',circuloBase:1,custo:[{tipo:'acao',quantidade:1},{tipo:'recurso',id:'espaco-1',quantidade:1}]});m.a.ficha.preparacao.semprePreparadas.push('bencao-tempo');
+ await m.go('vincular',{ator:m.a.id,dono:'p'});await m.go('usar',{ator:m.a.id,opcao:'bencao-tempo',alvos:[m.a.id]},player,[12]);
+ assert.equal(m.s.atores[0].bencao.segundosRestantes,60);
+ await m.go('avancarTempo',{passo:'30seg'});assert.equal(m.s.atores[0].bencao.segundosRestantes,30);
+ await m.go('avancarTempo',{passo:'30seg'});assert.equal(m.s.atores[0].bencao,undefined);
+ await m.go('usar',{ator:m.a.id,opcao:'bencao-tempo',alvos:[m.a.id]},player,[12]);
+ await m.go('avancarTempo',{passo:'1t'});assert.equal(m.s.atores[0].bencao.segundosRestantes,54);
+ await m.go('avancarTempo',{passo:'1min'});assert.equal(m.s.atores[0].bencao,undefined);
+});
 test('rajada com testes de ataque resolve cada projétil e suporta alvos repetidos',async()=>{
  const m=mesa();
  m.a.ficha.opcoes.push({id:'rajada',nome:'Rajada',categoria:'magia',custo:[{tipo:'acao',quantidade:1}],selecao:{tipo:'alvos',min:3,max:3,repetirAlvo:true},automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'fogo',alcanceM:18}});
@@ -409,6 +419,14 @@ test('recusar oportunidade continua o movimento e perícia ausente usa o atribut
  assert.equal(m.s.atores[0].x,4);assert.equal(m.s.atores[0].metros,5);
  await m.go('passar',{ator:m.a.id},player);await m.go('teste',{ator:m.b.id,grupo:'pericias',chave:'Acrobacia'},gm,[10]);
  assert.match(m.s.historico[0],/11/);
+});
+test('oportunidades detecta cruzamento completo começando fora do alcance e enfileira todos os inimigos',async()=>{
+ const m=mesa();m.s.fase='turnos';m.s.ordem=[m.a.id,m.b.id,m.c.id];m.s.vez=0;m.a.dono='p';m.a.x=-3;m.a.metros=12;m.b.x=0;m.c.x=4;
+ const ameaças=oportunidades(m.s,m.a,{x:7,y:0});assert.deepEqual(ameaças.map(x=>x.reator),[m.b.id,m.c.id]);assert.ok(ameaças[0].t<ameaças[1].t);
+ await m.go('mover',{ator:m.a.id,x:7,y:0},player);
+ assert.equal(m.s.reacaoPendente.reator,m.b.id);await m.go('resolverReacao',{ator:m.b.id,opcao:null},gm);
+ assert.equal(m.s.reacaoPendente.reator,m.c.id);await m.go('resolverReacao',{ator:m.c.id,opcao:null},gm);
+ assert.equal(m.s.atores.find(x=>x.id===m.a.id).x,7);assert.equal(m.s.reacaoPendente,undefined);
 });
 test('perícias e salvaguardas podem ser roladas antes e fora do próprio turno',async()=>{
  const m=mesa();await m.go('teste',{ator:m.b.id,grupo:'pericias',chave:'Acrobacia'},gm,[10]);assert.match(m.s.historico[0],/11/);
@@ -1496,6 +1514,33 @@ test('M04 compõe o ataque Ágil de Zurich na mesma Ação Atacar',async()=>{
   assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,1,'Ágil conserva a Ação Bônus');
   assert.equal(s.atores[0].eventosTurno.ataques.length,2);assert.equal(s.atores[0].usosTurno['maestria-agil'],true);
   await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:modos[1].origemOpcaoId,alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno|Saldo insuficiente/);
+});
+test('#65 ataques compostos aplicam Marca do Predador em cada acerto e enviam os modificadores ao ajuste',async()=>{
+ let {s,a,b}=await duelo('zurich');
+ b.efeitosAtivos=[{id:'marca-composta',nome:'Marca do Predador',tipo:'debuff',origemAtorId:a.id,danoAoSerAtingido:{origemAtorId:a.id,formula:'1d6',elemento:'energetico',tagsAtaque:['arma']}}];
+ const ataque=opRev(a,'cimitarra'),modos=ataque.composicao.modos;let fase=0;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:ataque.id,composicao:[{modoId:modos[0].id,alvoId:b.id},{modoId:modos[1].id,alvoId:b.id}]},player,async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:22,natural:17,formula};
+  fase++;assert.ok(meta.adicionais.some(x=>x.id==='marca-composta'&&x.automatico),'cada acerto composto deve ofertar o dano persistente');
+  assert.equal(meta.alvo,'Soldado da guarda');
+  return {total:10,formula,resultados:[{total:6},{total:4}],recursosAtivos:meta.adicionais.filter(x=>x.automatico).map(x=>x.id)};
+ });
+ assert.equal(fase,2);assert.equal(s.atores[1].pv,b.pv-20,'os dois ataques aplicam o dano-base e a marca');
+});
+test('#65 ataques compostos respeitam dano garantido no erro e efeitos de maestria no acerto',async()=>{
+ let {s,a,b}=await duelo('zurich');const op={id:'ataque-duplo-teste',nome:'Ataque duplo',categoria:'acao',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'cortante',alcanceM:1.5},composicao:{tipo:'sequencia',quantidadeMinima:2,quantidadeMaxima:2,modoPadrao:'primeiro',modos:[{id:'primeiro',nome:'Primeiro',tipo:'ataque',ordem:1,automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'cortante',alcanceM:1.5,danoAoErrar:2}},{id:'segundo',nome:'Segundo',tipo:'ataque',ordem:2,automacao:{tipo:'ataque',bonus:5,dano:'1d6',elemento:'cortante',alcanceM:1.5,efeitoAcerto:{nome:'Lentidão de teste',tipo:'debuff'}}}]}};a.ficha.opcoes.push(op);let d20=0;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:op.id,composicao:[{modoId:'primeiro',alvoId:b.id},{modoId:'segundo',alvoId:b.id}]},player,async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:[8,20][d20],natural:[3,15][d20++],formula};
+  return {total:4,formula,resultados:[{total:4}],recursosAtivos:(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id)};
+ });
+ const alvo=s.atores.find(x=>x.id===b.id);assert.equal(alvo.pv,b.pv-6,'2 de dano garantido no erro e 4 no segundo acerto');assert.ok(alvo.efeitosAtivos.some(e=>e.nome==='Lentidão de teste'));
+});
+test('#65 vantagem e desvantagem são calculadas por instância composta como no ataque simples',async()=>{
+ for(const [condicao,prefixo] of [['caido','2d20kh1'],['amedrontado','2d20kl1']]){
+  let {s,a,b}=await duelo('zurich');const afetado=condicao==='amedrontado'?a:b;afetado.efeitosAtivos=[{id:'estado-'+condicao,nome:condicao,condicao}];const o=opRev(a,'cimitarra'),modo=o.composicao.modos[0];let comando;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id,composicao:[{modoId:modo.id,alvoId:b.id}]},player,async(formula,meta)=>{if(meta.tipo==='ataque'){comando=formula;return {total:20,natural:16,formula};}return {total:1,formula};});
+  assert.ok(comando.startsWith(prefixo),condicao+' na sequência');
+ }
 });
 test('#34 Loteria tem Golpe Desarmado com a Ação e o soco bônus exige ataque antes',async()=>{
   let {s,a,b}=await duelo('loteria');
