@@ -1,14 +1,21 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.18';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.18';
-import {compactarEstado} from './catalog.mjs?v=0.8.18';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.19';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.19';
+import {compactarEstado} from './catalog.mjs?v=0.8.19';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
 export const emSala=OBR.isAvailable;
 export const pronto=()=>new Promise(resolve=>OBR.onReady(resolve));
 const local=()=>new BroadcastChannel(ns+'/'+OBR.room.id);
-const hidratar=s=>{normalizarComercio(s);for(const a of s.atores??[]){a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}return s;};
+const hidratar=s=>{
+  normalizarComercio(s);
+  for(const a of s.atores??[]){
+    try{a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}
+    catch(e){throw Error('Falha ao carregar '+(a.nome??a.ficha?.nome??a.id)+': '+e.message);}
+  }
+  return s;
+};
 const persistir=(key,s)=>localStorage.setItem(key,JSON.stringify(compactarEstado(s)));
 export async function exemplos(){
   return Promise.all(['nikki','soldado'].map(async k=>{
@@ -267,8 +274,9 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.18',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.19',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
+  sync();
 }
 export async function sala(onView){
   await pronto();const eu=await identidade();const ch=local(),espera=new Map();
@@ -289,14 +297,15 @@ export async function sala(onView){
     }).catch(console.error);});
   }
   const send=(comando,req)=>eu.role==='GM'?ch.postMessage({comando,req}):OBR.broadcast.sendMessage(canais.cmd,{comando,req},{destination:'REMOTE'});
-  return {notify:()=>send({tipo:'sync'},''),async enviar(c){
+  const enviar=async c=>{
     const req=crypto.randomUUID();
     return new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>{espera.delete(req);reject(Error('Sem confirmação do mestre. Atualize antes de repetir.'));},60000);
+      const timer=setTimeout(()=>{espera.delete(req);reject(Error(c.tipo==='sync'?'Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.':'Sem confirmação do mestre. Atualize antes de repetir.'));},c.tipo==='sync'?10000:60000);
       espera.set(req,err=>{clearTimeout(timer);err?reject(Error(err)):resolve();});
       Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
     });
-  },observarSelecao:fn=>OBR.player.onChange(p=>fn(p.selection?.[0])),selecionado:async()=>(await OBR.player.getSelection())?.[0]};
+  };
+  return {notify:()=>enviar({tipo:'sync'}),enviar,observarSelecao:fn=>OBR.player.onChange(p=>fn(p.selection?.[0])),selecionado:async()=>(await OBR.player.getSelection())?.[0]};
 }
 
 export async function interfaceRolagens(onEvent){

@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — diagnóstico de carregamento 0.8.19
+
+- Sync passa a aguardar confirmação e expor falhas de carregamento em vez de deixar o painel em Conectando.
+- Mensagens identificam a ficha cuja validação falhou. O painel oferece reconexão e exportação do estado local bruto sem modificá-lo.
+- O controlador envia a primeira sincronização ao concluir sua inicialização.
+- Equipar, compactar, salvar e reabrir a Veste dos Bolsos de Oficina foi validado nas sete fichas. O travamento específico da sala do usuário ainda depende do erro ou backup exportado.
+
 ## 2026-11-15 — saque 0.8.18
 
 - Saquear é uma ação comum do catálogo central disponível nas fichas, com custo de uma ação e alcance de 1,5 m. Alvo precisa ser adversário com 0 PV.

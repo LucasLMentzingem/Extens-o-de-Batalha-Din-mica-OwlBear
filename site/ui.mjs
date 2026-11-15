@@ -1,9 +1,9 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.18';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.18';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.18';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.18';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.18';
+import {ns,emSala,sala,demo,exemplos,grupoJogadores,conteudoConfigurado} from './bridge.mjs?v=0.8.19';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.19';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.19';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.19';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.19';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
@@ -27,7 +27,7 @@ async function sincronizarSaqueVisual(){
   }
   if(saqueVisualId===saque.id)return;
   saqueVisualId=saque.id;
-  const url=new URL('./saque.html?v=0.8.18',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.19',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
     await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -49,6 +49,7 @@ addEventListener('storage',e=>{
 const dicaLivro=document.createElement('div');dicaLivro.className='dica-livro';dicaLivro.hidden=true;dicaLivro.setAttribute('role','tooltip');document.body.append(dicaLivro);
 let testePendente;
 function view(estado,i){
+  $('recuperacao').hidden=true;
   if(s?.rev!==estado.rev)alvos=[];
   recebido=estado;s=testar?publico(estado):estado;info=i;
 
@@ -291,7 +292,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.18',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.19',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -302,7 +303,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.18',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.19',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -482,6 +483,29 @@ $('app').onpointerout=e=>{const alvo=e.target.closest('[data-info]');if(alvo&&!a
 $('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
 $('habilidadeMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-habilidade-fechar'))return $('habilidadeMenu').close();if(b.dataset.habilidadeAcao)tarefa(()=>alterarHabilidade(b.dataset.habilidadeAcao));};
 window.addEventListener('message',e=>{if(e.data?.fecharLoja){limparCatalogo();lojaLocalAtor=null;render();}if(e.data?.fecharTroca){trocaLocalId=null;trocaLocalAtor=null;render();}});
+function falhaConexao(e){
+  $('erroConexao').textContent=e?.message??String(e);
+  $('recuperacao').hidden=false;
+  $('modo').textContent='Falha na conexão';
+}
+$('reconectar').onclick=async()=>{
+  $('reconectar').disabled=true;
+  try{if(api)await api.notify();location.reload();}
+  catch(e){falhaConexao(e);}
+  finally{$('reconectar').disabled=false;}
+};
+$('backupMesa').onclick=async()=>{
+  try{
+    const prefixo=ns+'/'+(emSala?OBR.room.id+'/':'ensaio');
+    const registros=Object.fromEntries(Object.keys(localStorage).filter(k=>k.startsWith(prefixo)).map(k=>[k,localStorage.getItem(k)]));
+    if(!Object.keys(registros).length){$('statusBackup').textContent='Nenhum encontro salvo neste navegador para esta sala.';return;}
+    const dados={formato:'backup-local-la-arte',exportadoEm:new Date().toISOString(),registros};
+    const url=URL.createObjectURL(new Blob([JSON.stringify(dados,null,2)],{type:'application/json'}));
+    const link=document.createElement('a');link.href=url;link.download='backup-la-arte-'+Date.now()+'.json';link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    $('statusBackup').textContent='Backup exportado.';
+  }catch(e){$('statusBackup').textContent=e.message;}
+};
 try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
@@ -493,7 +517,7 @@ try{catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);awai
    api.observarSelecao(selecionar);const id=await api.selecionado();
    selecionar(id);
  }
- if(emSala)setTimeout(()=>{if(!s){aviso('Aguardando o mestre e a cena do Owlbear.');api.notify();}},1800);}catch(e){aviso(e.message);}
+ if(emSala)setTimeout(()=>{if(!s){aviso('Aguardando o mestre e a cena do Owlbear.');api.notify().catch(falhaConexao);}},1800);}catch(e){aviso(e.message);falhaConexao(e);}
 
 window.render_game_to_text=()=>JSON.stringify({coordenadas:'x cresce para a direita; y cresce para baixo; distâncias em metros',fase:s?.fase,rodada:s?.rodada,turno:atual(s??{atores:[],ordem:[]})?.nome,selecionado:s?.atores.find(a=>a.id===escolhido)?.nome,reacao:s?.reacaoPendente?{reator:s.atores.find(a=>a.id===s.reacaoPendente.reator)?.nome,alvo:s.atores.find(a=>a.id===s.reacaoPendente.alvo)?.nome,terminaEm:s.reacaoPendente.terminaEm}:null});
 window.advanceTime=()=>{};

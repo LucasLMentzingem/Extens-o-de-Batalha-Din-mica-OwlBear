@@ -1013,6 +1013,19 @@ test('itens respeitam capacidade, penalidade de Furtividade e bloqueio de negoci
  let estado=await aplicar(s,{tipo:'solicitarTroca',ator:a.id,destino:b.id,rev:s.rev},player,dadoLocal),t=trocaDoAtor(estado,a.id);estado=await aplicar(estado,{tipo:'responderTroca',ator:b.id,trocaId:t.id,aceitar:true,rev:estado.rev},{id:'p2',role:'PLAYER'},dadoLocal);t=trocaDoAtor(estado,a.id);
  await assert.rejects(aplicar(estado,{tipo:'oferecerTroca',ator:a.id,trocaId:t.id,itemId:bloqueado.id,quantidade:1,rev:estado.rev},player,dadoLocal),/indisponível/);
 });
+test('Veste dos Bolsos de Oficina equipa e reabre nas sete fichas sem corromper carga ou inventário',async()=>{
+ for(const ficha of fichasJogadores){
+  let s=novo();const a=adicionar(s,ficha);
+  const base=capacidadeCargaAtual(a);
+  s=await aplicar(s,{tipo:'gmAdicionarItem',rev:s.rev,ator:a.id,itemRef:'item.la-arte.veste-bolsos-oficina',quantidade:1,confirmado:true},gm,dadoLocal);
+  const veste=s.atores[0].ficha.inventario.itens.find(i=>i.catalogoRef==='item.la-arte.veste-bolsos-oficina');
+  s=await aplicar(s,{tipo:'inventario',rev:s.rev,ator:a.id,itemId:veste.id,operacao:'equipar',confirmado:true},gm,dadoLocal);
+  const antes=JSON.stringify(compactarEstado(s));
+  const reaberta=JSON.parse(antes);reaberta.atores[0].ficha=validar(reaberta.atores[0].ficha);
+  assert.equal(capacidadeCargaAtual(reaberta.atores[0]),base+14,ficha.nome);
+  assert.equal(JSON.stringify(compactarEstado(reaberta)),antes,'estado preservado para '+ficha.nome);
+ }
+});
 test('concessões de equipamento acompanham o item, consomem usos e não duplicam a ficha salva',async()=>{
  const loja=resolverCatalogoLoja(catalogoCentral().lojas.find(x=>x.id==='loja.la-arte'));
  const preparar=nome=>{const s=novo(),a=adicionar(s,nikki),item=structuredClone(loja.itens.find(i=>i.nome===nome));a.dono='p';for(const i of a.ficha.inventario.itens)if(i.equipado&&i.equipadoSlot===item.slotEquipamento)i.equipado=false;Object.assign(item,{id:'portatil-'+item.id,quantidade:1,equipado:true,equipadoSlot:item.slotEquipamento});a.ficha.inventario.itens.push(item);const op=opcoesDisponiveis(a).find(o=>o.origemItem===item.id);return {s,a,item,op};};

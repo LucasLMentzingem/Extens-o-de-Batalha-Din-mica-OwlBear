@@ -1,4 +1,4 @@
-import {ns,emSala} from './bridge.mjs?v=0.8.18';
+import {ns,emSala} from './bridge.mjs?v=0.8.19';
 import OBR from './vendor/sdk.mjs';
 
 export const chaveCatalogo=ns+'/catalogo-aberto/'+(emSala?OBR.room.id:'ensaio');
