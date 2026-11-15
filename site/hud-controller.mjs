@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.26';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.26';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.26';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.26';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.27';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.27';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.27';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.27';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.26',import.meta.url);
+const url=new URL('./hud.html?v=0.8.27',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -100,8 +100,10 @@ export async function iniciarHud(){
       const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
       if(!foraDaOrdem||eu.role==='GM'){
-        const larguraOrdem=Math.min(620,w-12);
-        caixas.ordem=[Math.round((w-larguraOrdem)/2),4,larguraOrdem,eu.role==='GM'?140:55];
+        const mesaRecolhida=foraDaOrdem&&eu.role==='GM'&&localStorage.getItem('la-arte/mesa-recolhida')==='1';
+        const larguraOrdem=Math.min(mesaRecolhida?80:620,w-12);
+        const esquerda=mesaRecolhida?Math.max(6,Math.min(w-larguraOrdem-6,w*.8-larguraOrdem/2)):(w-larguraOrdem)/2;
+        caixas.ordem=[Math.round(esquerda),4,larguraOrdem,mesaRecolhida?34:eu.role==='GM'?140:55];
       }
       if(ator()&&!ator().saqueAberto){
         const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
@@ -415,6 +417,7 @@ export async function iniciarHud(){
   }
   async function mensagem(d){
     if(d.pedir){transmitir();return;}
+    if(d.tipo==='reposicionarMesa'&&eu.role==='GM'){await layout();return;}
     if(d.tipo==='alturaAcao'){
       const altura=Number(d.altura);
       if(Number.isFinite(altura)&&altura>=100&&altura<=590&&Math.abs(altura-alturaConteudoAcao)>4){
