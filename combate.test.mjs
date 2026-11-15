@@ -1976,6 +1976,29 @@ test('#65 crítico no ataque de oportunidade dobra todos os dados',async()=>{
  assert.ok(formulas.some(([t,f])=>t==='dano'&&/^4d6/.test(f)),'Espada Grande 2d6 vira 4d6 no crítico: '+JSON.stringify(formulas));
 });
 
+test('#65 limites por turno reiniciam em um novo combate com os mesmos participantes',async()=>{
+ let {s,a,b}=await duelo('zurich');
+ const colosso=opRev(a,'assassino de colossos');
+ a.usosPorTurno={marca:'r1:'+a.id,ids:{[colosso.id]:true}};
+ assert.equal(usadoNesteTurno(s,a,colosso.id),true);
+ s=await aplicar(s,{rev:s.rev,tipo:'encerrar'},gm,dadoLocal);
+ s=await aplicar(s,{rev:s.rev,tipo:'iniciar'},gm,dadoLocal);
+ s=await aplicar(s,{rev:s.rev,tipo:'iniciativas',atores:[a.id,b.id]},gm,roladorSala({d20:15}).rolar);
+ assert.equal(atual(s).id,a.id);
+ assert.equal(usadoNesteTurno(s,s.atores[0],colosso.id),false);
+});
+
+test('#65 encontros anteriores à 0.8.26 preservam o aprimoramento já gasto no turno atual',async()=>{
+ const {s,a}=await duelo('zurich');
+ const colosso=opRev(a,'assassino de colossos');
+ a.usosTurno[colosso.id]=true;
+ delete a.usosPorTurno;
+ const reaberto=reabrirMesa(s);
+ assert.equal(usadoNesteTurno(reaberto,reaberto.atores[0],colosso.id),true);
+ reaberto.vez=1;
+ assert.equal(usadoNesteTurno(reaberto,reaberto.atores[0],colosso.id),false);
+});
+
 const reabrirMesa=s=>{const r=JSON.parse(JSON.stringify(compactarEstado(s)));for(const ator of r.atores)ator.ficha=validar(ator.ficha);return r;};
 const dragobertoCercado=async()=>{
  const {s,a,b}=await duelo('dragoberto');const extra=async(nome,x,y)=>{const p=adicionar(s,await fichaRev('soldado'),nome);p.x=x;p.y=y;s.ordem.push(p.id);for(const k of ['acao','bonus','reacao'])p[k]=1;return p;};

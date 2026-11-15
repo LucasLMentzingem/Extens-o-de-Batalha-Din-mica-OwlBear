@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.26 (proposta neste PR), linha 0.8.x.
+Revisão de 15 de novembro de 2026, versão 0.8.26, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
 
 ## Entregas recentes
 
@@ -21,6 +21,8 @@ Revisão de 15 de novembro de 2026, versão 0.8.26 (proposta neste PR), linha 0.
 | 0.8.26 | Fichas de nível 3 | Paridade #65, Destruidor de Hordas na Gaveta, Desarme, Mão de Dolo preparada, Magia Potencializada por dados, Magia Duplicada e escolha da Presa do Caçador no descanso |
 
 O manual de criação de fichas está em [MANUAL-CRIACAO-FICHAS.md](MANUAL-CRIACAO-FICHAS.md).
+
+A integração da 0.8.26 preserva os grupos de pastas da 0.8.25 e acrescenta proteção aos limites por turno entre combates e na atualização de mesas antigas. O fluxo avulso de Destruidor de Hordas usa o alcance real da arma e mantém sua prévia após selecionar o alvo. Validação local com 202 testes de motor e verificação da interface e da ponte Dice+ simulada. Os detalhes e as verificações ainda pendentes em sala real estão em [TESTES-SETE-FICHAS-NIVEL-3.md](TESTES-SETE-FICHAS-NIVEL-3.md#resultado-da-0826).
 
 ## Prioridade
 

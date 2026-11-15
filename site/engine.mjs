@@ -1001,6 +1001,8 @@ function ehManobra(opcao){
 export const marcaTurno=s=>s?.fase==='turnos'?'r'+s.rodada+':'+(s.ordem?.[s.vez]??s.vez):'fora';
 export function usadoNesteTurno(s,a,id){
   if(!s||s.fase!=='turnos')return Boolean(a.usosTurno?.[id]);
+  // Encontros antigos registravam apenas os usos do próprio turno do ator.
+  if(!a.usosPorTurno)return s.ordem?.[s.vez]===a.id&&Boolean(a.usosTurno?.[id]);
   return a.usosPorTurno?.marca===marcaTurno(s)&&Boolean(a.usosPorTurno.ids?.[id]);
 }
 function marcarUsoNesteTurno(s,a,id){
@@ -1607,7 +1609,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
       {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{
-        x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.escolhasDescanso; // escolha não feita até o combate mantém a opção atual
+        x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.usosPorTurno;delete x.escolhasDescanso; // escolha não feita até o combate mantém a opção atual
         if(x.emCombate!==false)for(const r of x.ficha.recursos)if(r.recuperacao?.some(v=>v.evento==='inicio_combate'&&v.modo==='completar'))x.rec[r.id]=r.maximo;
       });msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':

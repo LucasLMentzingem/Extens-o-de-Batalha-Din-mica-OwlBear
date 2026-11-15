@@ -72,10 +72,13 @@ Uma ficha será marcada como fechada quando:
 
 ## Resultado da 0.8.26
 
-- Suíte automatizada: 200/200 (`node --test combate.test.mjs`).
+- Suíte automatizada: 202/202 (`node --test combate.test.mjs`).
 - Novos testes: Assassino de Colossos (simples, composto, oportunidade e reabertura), crítico de reação, Destruidor de Hordas (avulso, Gaveta, alvo já atacado, Zurich com Ágil e reabertura), Desarme (arma única e sorteio 60/40), manobra na composição, Mão de Dolo preparada, Magia Potencializada por dados, Magia Duplicada e escolha da Presa do Caçador após descanso.
 - Correções sistêmicas encontradas na validação: limite "uma vez por turno" não renovava no turno de outra criatura; ataque de oportunidade não oferecia aprimoramentos pós-acerto e calculava crítico errado; ataque composto não aplicava desvantagem a distância, Caído distante, alcance longo nem a restrição de Enfeitiçado; ativação de habilidades de grupo exclusivo não persistia ao compactar a ficha.
-- Smoke local (simulador em navegador headless): páginas carregam sem erro de console; painel de escolha após descanso funciona como mestre. A checagem dentro do Owlbear com Dice+ continua pendente para cada ficha listada acima.
+- Revisão da contribuição de Soneka: testes adicionais comprovam a renovação do limite ao iniciar outro combate com os mesmos participantes e a preservação de usos já gastos em mesas salvas antes da 0.8.26. A ponte recusa dados repetidos antes de solicitar uma rerrolagem.
+- Teste local em Chromium headless com SDK Owlbear e respostas Dice+ simulados: Magia Potencializada permite escolher dois dos três d8, altera o total de 6 para 18, cobra um ponto e aplica 18 PV em cada um dos dois alvos após as salvaguardas. O compositor de Magia Duplicada permite selecionar dois alvos. A escolha de Presa do Caçador persiste após recarregar.
+- O mesmo teste percorre Destruidor de Hordas pela Gaveta e pelo botão avulso. O cartão avulso mostra o alcance real da arma anterior, recusa o alvo original e conserva o círculo de 1,5 m após selecionar uma criatura elegível. Os grupos importados por pasta também passaram no teste local da interface.
+- A checagem dentro de uma sala real do Owlbear com Dice+ continua pendente para cada ficha listada acima.
 
 ## Ponto de pausa da 0.8.24
 

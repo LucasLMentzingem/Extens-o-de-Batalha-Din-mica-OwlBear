@@ -95,7 +95,11 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
         if(opcao.modo==='dados'){
           const escolhidos=Array.isArray(resposta.dados)?resposta.dados:[],disponiveis=dadosRerrolaveis(resultado);
           const trocas=escolhidos.map(x=>disponiveis.find(d=>d.grupo===x.grupo&&d.indice===x.indice)).filter(Boolean);
-          if(!trocas.length||trocas.length!==escolhidos.length||trocas.length>(opcao.limiteDados??3)||trocas.some(d=>!d.lados))return;
+          const chaves=new Set(trocas.map(d=>d.grupo+':'+d.indice));
+          if(!trocas.length||trocas.length!==escolhidos.length||trocas.length>(opcao.limiteDados??3)||chaves.size!==trocas.length||trocas.some(d=>!d.lados)){
+            await enviar({tipo:'resultado',pedido,resultado,status:'Escolha dados distintos, respeitando o limite de '+(opcao.limiteDados??3)+'.',recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:(metaResolucaoAtual?.adicionais??[]).map(x=>x.id)}});
+            return;
+          }
           fase='rolando';
           try{
             await enviar({tipo:'rolando',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});

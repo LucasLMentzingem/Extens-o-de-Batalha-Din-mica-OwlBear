@@ -195,6 +195,11 @@ export async function iniciarHud(){
     const centro=atores().find(a=>a.id===centroId);if(!centro)return [];
     return [circulo(pos(centro),raioM*dpi,'#f2a64e'),...elegiveis.flatMap(ref=>{const alvo=atores().find(a=>a.id===ref.id);return alvo?[circulo(pos(alvo),dpi*.5,'#ffcf75')]:[];})];
   }
+  function marcasDestruidorAvulso(p){
+    if(!p.rule?.usarArmaAnterior)return [];
+    const oferta=ofertaDestruidorDeHordas(estado,ator());
+    return oferta?marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos):[];
+  }
   function elegiveisDestruidorNaComposicao(p){
     const modo=p?.composicao?.modos.find(m=>m.id===p.composicao.modoAtivo),anterior=p?.cmd?.composicao?.at(-1),a=ator();
     if(!modo?.destruidorDeHordas||!anterior||!a)return null;
@@ -236,7 +241,15 @@ export async function iniciarHud(){
     const a=ator();
     if(!controla(a))return;
     await cancelar();
-    const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),duplicadaDisponivel=Boolean(base&&metamagiaDuplicada(a,base)),magiaDuplicada=duplicadaDisponivel&&d.magiaDuplicada===true,o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
+    const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),duplicadaDisponivel=Boolean(base&&metamagiaDuplicada(a,base)),magiaDuplicada=duplicadaDisponivel&&d.magiaDuplicada===true;
+    let o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
+    const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estado,a):null;
+    if(rule?.usarArmaAnterior){
+      if(!oferta)throw Error('Faça antes um ataque com arma e confira o limite de Destruidor de Hordas.');
+      const anterior=a.eventosTurno.ataques.at(-1),arma=opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);
+      rule={...structuredClone(arma.automacao),usarArmaAnterior:true};
+      o={...o,automacao:rule};
+    }
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
     const foraCombate=d.tipo==='usar'&&(estado.fase==='preparo'||a.emCombate===false);
@@ -261,7 +274,6 @@ export async function iniciarHud(){
       if(escolha==='lista')pendente.detalhe='Selecione no mapa · 0/'+(o.composicao?.quantidadeMaxima??o.selecao.max);
       anterior=await OBR.tool.getActiveTool();
       await OBR.tool.activateTool(tool);await OBR.tool.activateMode(tool,mode);
-      const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estado,a):null;
       if(oferta){pendente.detalhe=oferta.alvos.length?'Alvos elegíveis: '+oferta.alvos.map(x=>x.nome).join(', '):'Nenhuma criatura elegível a '+medida(oferta.raioM)+' do alvo anterior.';pendente.marcasBase=[circulo(origem,raio*dpi,'#e5c079'),...marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos)];}
       await desenhar(pendente.marcasBase??[circulo(origem,raio*dpi,'#e5c079')]);
     }else await publicarPrevia([]);
@@ -298,12 +310,12 @@ export async function iniciarHud(){
     }
     const alvoSelecionado=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
     let ponto=alvoSelecionado?pos(alvoSelecionado):p.ponto;
-    if(!ponto){await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079')]);transmitir();return;}
+    if(!ponto){await desenhar([circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p)]);transmitir();return;}
     const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi,temArea=Boolean(p.rule?.raioM||p.rule?.area);
     p.pronto=distancia<=p.raio+1e-8;
     const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,dpi):[];
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
-    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
+    const marcas=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
     p.marcasBase=marcas;await desenhar(marcas);
     const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
@@ -319,6 +331,10 @@ export async function iniciarHud(){
       if(!alvo)alvo=atores().filter(a=>token(a)).sort((a,b)=>dist(a)-dist(b)).find(a=>dist(a)<=dpi*.65);
       function dist(a){const c=pos(a);return Math.hypot(c.x-ponto.x,c.y-ponto.y);}
       if(!alvo)throw Error('Clique em um participante visível.');ponto=pos(alvo);
+    }
+    if(p.rule?.usarArmaAnterior){
+      const oferta=ofertaDestruidorDeHordas(estado,ator());
+      if(!oferta?.alvos.some(x=>x.id===alvo?.id))throw Error('Destruidor de Hordas: escolha uma criatura destacada e ainda não atacada neste turno.');
     }
     const d=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/dpi;
     if(d>p.raio+1e-8){
@@ -350,7 +366,7 @@ export async function iniciarHud(){
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
     const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,dpi):alvo?[alvo]:[];
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
-    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
+    const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
     if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('CONTROL').disableHit(true).build());
     await desenhar(items);
