@@ -165,30 +165,30 @@
       "traço_espécie": 31
     },
     "porPortabilidade": {
-      "ASSISTIDO": 82,
+      "ASSISTIDO": 81,
       "INTERPRETACAO": 6,
-      "NOVO_MODULO": 15,
-      "PARCIAL": 89,
-      "PORTAVEL": 128
+      "NOVO_MODULO": 14,
+      "PARCIAL": 87,
+      "PORTAVEL": 132
     },
     "porEstadoModulo": {
       "PARCIAL": 10,
       "AUSENTE": 6
     },
     "porModulo": {
-      "M01-ciclo-efeitos": 32,
+      "M01-ciclo-efeitos": 31,
       "M02-gatilhos-interceptacoes": 15,
       "M03-escolhas-declarativas": 53,
       "M04-compositor-acoes": 8,
-      "M05-zonas-persistentes": 12,
+      "M05-zonas-persistentes": 11,
       "M06-entidades-vinculadas": 8,
       "M07-sobreposicao-ficha": 5,
       "M08-movimento-avancado": 10,
-      "M09-modificadores-rolagem": 3,
+      "M09-modificadores-rolagem": 2,
       "M10-tags-restricoes": 1,
       "M11-vinculo-equipamento": 3,
       "M12-agendador": 1,
-      "M13-dados-estendidos": 1,
+      "M13-dados-estendidos": 0,
       "M14-adjudicacao-estruturada": 0,
       "M15-escalonamento-variantes": 7,
       "M16-limites-cura-recursos": 5
