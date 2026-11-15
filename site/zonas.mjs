@@ -4,6 +4,12 @@
 
 const EPS=1e-9;
 
+// Decisão da mesa (15/11/2026): o número das áreas circulares ("3 m") é tratado como DIÂMETRO.
+// Ex.: Despedaçar "3 m" cobre um círculo de 3 m de largura (raio 1,5 m). O livro usa raio;
+// para voltar à regra do livro, troque para false.
+export const AREA_CIRCULAR_COMO_DIAMETRO=true;
+export const raioEfetivoArea=valorM=>AREA_CIRCULAR_COMO_DIAMETRO?valorM/2:valorM;
+
 // Polígono convexo da zona, em coordenadas absolutas. Círculos retornam null.
 export function poligonoZona(z){
   const c=z.centro,g=z.geometria??{};
@@ -19,7 +25,7 @@ export function poligonoZona(z){
 
 export function pontoNaZona(z,p){
   const g=z.geometria??{};
-  if(g.forma==='circulo')return Math.hypot(p.x-z.centro.x,p.y-z.centro.y)<=g.raioM+1e-8;
+  if(g.forma==='circulo')return Math.hypot(p.x-z.centro.x,p.y-z.centro.y)<=raioEfetivoArea(g.raioM)+1e-8;
   const pol=poligonoZona(z);if(!pol)return false;
   let sinal=0;
   for(let i=0;i<pol.length;i++){
@@ -34,7 +40,7 @@ export function trechoNaZona(z,a,b){
   const dx=b.x-a.x,dy=b.y-a.y,g=z.geometria??{};
   if(Math.hypot(dx,dy)<=EPS)return pontoNaZona(z,a)?[0,0]:null;
   if(g.forma==='circulo'){
-    const fx=a.x-z.centro.x,fy=a.y-z.centro.y,A=dx*dx+dy*dy,B=2*(fx*dx+fy*dy),C=fx*fx+fy*fy-g.raioM*g.raioM,delta=B*B-4*A*C;
+    const fx=a.x-z.centro.x,fy=a.y-z.centro.y,A=dx*dx+dy*dy,B=2*(fx*dx+fy*dy),C=fx*fx+fy*fy-raioEfetivoArea(g.raioM)**2,delta=B*B-4*A*C;
     if(delta<0)return null;
     const r=Math.sqrt(delta),t0=Math.max(0,(-B-r)/(2*A)),t1=Math.min(1,(-B+r)/(2*A));
     return t0<=t1+EPS?[t0,Math.max(t0,t1)]:null;

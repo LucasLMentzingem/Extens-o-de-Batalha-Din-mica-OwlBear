@@ -55,6 +55,10 @@ O sistema não usa as casas da grade para calcular alcance ou deslocamento. As p
 
 Por isso, não existem passos diagonais, arredondamento por células nem uma regra especial para uma casa diagonal adjacente. Um ataque corpo a corpo alcança o alvo somente quando a distância real entre as peças é menor ou igual ao alcance declarado. Da mesma forma, um deslocamento consome o comprimento euclidiano real da trajetória. Esse comportamento é intencional e está registrado nas issues [#1](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/1) e [#2](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/2) como decisão do sistema, não como defeito da grade.
 
+### Decisão da mesa: áreas circulares por diâmetro
+
+Desde a 0.8.31, o valor das áreas circulares é tratado como **diâmetro**: Despedaçar "3 m" cobre um círculo de 3 m de largura. O livro de 2024 usa raio (Despedaçar tem 3 m de raio). A regra fica em `AREA_CIRCULAR_COMO_DIAMETRO`, em `site/zonas.mjs`; trocar para `false` volta ao livro. Distâncias como "a 1,5 m do alvo" não mudam.
+
 ## Jogar com a ficha fechada
 
 O Controle de fichas do mestre oferece os grupos recolhíveis **Aventureiros** e **Soldados do Reino**, com adição do grupo inteiro ou de unidades. Funciona com outras fichas já carregadas e mantém as novas cópias sem vínculos automáticos. Consulte [Grupos de fichas](docs/GRUPOS-DE-FICHAS.md).
