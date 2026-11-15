@@ -1,8 +1,8 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.25';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.25';
-import {compactarEstado} from './catalog.mjs?v=0.8.25';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.25';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.26';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.26';
+import {compactarEstado} from './catalog.mjs?v=0.8.26';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.26';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -76,7 +76,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
       ch.postMessage({rolagemPublica:evento});
       await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
     };
-    let fase='ajuste',resultado,recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id),rerrolagensUsadas=[];
+    let fase='ajuste',resultado,recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado).map(x=>x.id),rerrolagensUsadas=[],metaResolucaoAtual=meta;
     const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),180000);
     const passar=destino!==mestreId?setTimeout(()=>{
       if(fase!=='ajuste')return;
@@ -91,6 +91,25 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
       if(fase==='resultado'&&resposta.rerrolar){
         const opcao=meta.rerrolagens?.find(r=>r.id===resposta.rerrolagem);
         if(!opcao||rerrolagensUsadas.includes(opcao.id))return;
+        // #60 Rerrolagem parcial (Magia Potencializada): rola só os dados escolhidos no Dice+ e substitui os valores.
+        if(opcao.modo==='dados'){
+          const escolhidos=Array.isArray(resposta.dados)?resposta.dados:[],disponiveis=dadosRerrolaveis(resultado);
+          const trocas=escolhidos.map(x=>disponiveis.find(d=>d.grupo===x.grupo&&d.indice===x.indice)).filter(Boolean);
+          if(!trocas.length||trocas.length!==escolhidos.length||trocas.length>(opcao.limiteDados??3)||trocas.some(d=>!d.lados))return;
+          fase='rolando';
+          try{
+            await enviar({tipo:'rolando',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});
+            const notacao=trocas.map((d,i)=>'1d'+d.lados+'#'+opcao.nome+' · dado '+(i+1)).join(', '),novo=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
+            const valores=(novo.grupos?.length?novo.grupos.map(g=>g.dice?.find(x=>x.kept!==false)?.value):(novo.resultados??[novo]).map(x=>x.total)).slice(0,trocas.length);
+            if(valores.length!==trocas.length||valores.some(v=>!Number.isInteger(v)))throw Error('O Dice+ não devolveu todos os dados rerrolados.');
+            resultado=aplicarRerrolagemParcial(resultado,trocas.map((d,i)=>({grupo:d.grupo,indice:d.indice,valor:valores[i]})),opcao.limiteDados??3);
+            const relatorios=relatoriosDaRolagem(resultado,metaResolucaoAtual);
+            if(relatorios.length){resultado={...resultado,relatoriosDano:relatorios};if(resultado.resultados?.length)resultado.resultados=resultado.resultados.map((x,i)=>({...x,relatorioDano:relatorios[i]}));}
+            rerrolagensUsadas.push(opcao.id);fase='resultado';
+            await enviar({tipo:'resultado',pedido,resultado,status:metaResolucaoAtual?.tipo==='dano'?'Dano total':'',recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:(metaResolucaoAtual?.adicionais??[]).map(x=>x.id)}});
+          }catch(e){fase='resultado';await enviar({tipo:'resultado',pedido,resultado,status:'Rerrolagem falhou: '+e.message,recursosAtivos,rerrolagensUsadas,meta:metaPublica});}
+          return;
+        }
         rerrolagensUsadas.push(opcao.id);fase='ajuste';
         await enviar({tipo:'ajuste',pedido,destino,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});return;
       }
@@ -114,13 +133,14 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
         const tituloInstancia=i=>rolarDuas?(i<2?(meta.modificadorDano?.nome??'Dano da arma')+' · rolagem '+(i+1):extras[i-2]?.nome??'Instância '+(i+1)):(meta.instancias?.[i]?.titulo??(i===0?'Dano base':extras[i-1]?.nome??'Instância '+(i+1)));
         const notacao=expressoesDice.length>1?expressoesDice.map((f,i)=>f+'#'+tituloInstancia(i)).join(', '):expressoesDice[0];
         resultado=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
+        if(!rolarDuas&&resultado.grupos?.length)resultado.mapaGrupos=expressoesDice.flatMap((f,i)=>Array.from({length:(String(f).match(/\d*d\d+/gi)??[]).length},()=>i));
         if(rolarDuas){
           const alternativas=(resultado.resultados??[]).slice(0,2),melhor=alternativas[0]?.total>=alternativas[1]?.total?alternativas[0]:alternativas[1],restantes=(resultado.resultados??[]).slice(2);
           if(!melhor)throw Error('O Dice+ não devolveu as duas rolagens de '+meta.modificadorDano.nome+'.');
           resultado={...resultado,...melhor,total:melhor.total+restantes.reduce((n,x)=>n+x.total,0),resultados:[melhor,...restantes],alternativasDano:alternativas,modificadorDano:meta.modificadorDano,resumo:melhor.resumo};
         }
         if(Array.isArray(formula)&&expressoes.length===1&&!resultado.resultados)resultado={...resultado,resultados:[{total:resultado.total,natural:resultado.natural,formula:resultado.formula,resumo:resultado.resumo,grupos:resultado.grupos}]};
-        const metaResolucao={...meta,adicionais:extras};
+        const metaResolucao={...meta,adicionais:extras};metaResolucaoAtual=metaResolucao;
         const relatoriosDano=relatoriosDaRolagem(resultado,metaResolucao);
         if(relatoriosDano.length){
           resultado={...resultado,relatoriosDano};
@@ -316,7 +336,7 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.25',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.26',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
@@ -1923,4 +1923,256 @@ test('#5 concentração: magia pelo nome concentra e o dano pede CON com CD entr
     if(u.reacaoPendente)u=await aplicar(u,{rev:u.rev,tipo:'resolverReacao',ator:a.id},player,r.rolar).catch(()=>u);
     const salva=r.formulas.find(x=>x.meta.tipo==='salvaguarda'&&x.meta.atributo==='con');assert.ok(salva,'pediu CON com dano '+dano);assert.equal(salva.meta.cd,cd);
   }
+});
+
+test('#65 Assassino de Colossos: alvo ferido, uma vez por turno no ataque simples e no composto',async()=>{
+ let {s,a,b}=await duelo('zurich');const colosso=opRev(a,'assassino de colossos');assert.ok(colosso,'Zurich mantém Assassino de Colossos ativo');
+ const ofertas=[];const rolar=escolher=>async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:22,natural:17,formula};
+  const extra=(meta.adicionais??[]).find(x=>x.id===colosso.id);ofertas.push(Boolean(extra));if(extra)assert.equal(extra.automatico,true,'o 1d8 é obrigatório quando o gatilho ocorre');
+  return {total:9,formula,resultados:[{total:5},...(extra&&escolher?[{total:4}]:[])],recursosAtivos:(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id)};
+ };
+ // PV completos: sem oferta.
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'arco longo').id,alvo:b.id},player,rolar(true));
+ assert.deepEqual(ofertas,[false],'alvo com PV completos não recebe o 1d8');
+ // Composto: o primeiro acerto fere o alvo; o segundo já recebe a oferta.
+ ({s,a,b}=await duelo('zurich'));ofertas.length=0;const cimitarra=opRev(a,'cimitarra'),modos=cimitarra.composicao.modos;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao:[{modoId:modos[0].id,alvoId:b.id},{modoId:modos[1].id,alvoId:b.id}]},player,rolar(true));
+ assert.deepEqual(ofertas,[false,true],'a segunda instância composta encontra o alvo já ferido');
+ assert.equal(s.atores[1].pv,b.pv-14,'5 + (5 + 4 do Assassino de Colossos)');
+ assert.ok(usadoNesteTurno(s,s.atores[0],colosso.id));
+ // Simples no mesmo turno: limite já consumido.
+ ofertas.length=0;s.atores[0].acao=1;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'arco longo').id,alvo:b.id},player,rolar(true));
+ assert.deepEqual(ofertas,[false],'uma vez por turno');
+});
+test('#65 Assassino de Colossos volta a valer no ataque de oportunidade do turno inimigo',async()=>{
+ let {s,a,b}=await duelo('zurich');const colosso=opRev(a,'assassino de colossos');b.pv-=3;
+ const escolher=async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:22,natural:17,formula};
+  if(meta.tipo==='salvaguarda')return {total:20,natural:16,formula};
+  const extra=(meta.adicionais??[]).find(x=>x.id===colosso.id);
+  return {total:extra?9:5,formula,resultados:[{total:5},...(extra?[{total:4}]:[])],recursosAtivos:(meta.adicionais??[]).filter(x=>x.automatico).map(x=>x.id)};
+ };
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'cimitarra').id,composicao:[{modoId:opRev(a,'cimitarra').composicao.modos[0].id,alvoId:b.id}]},player,escolher);
+ assert.ok(usadoNesteTurno(s,s.atores[0],colosso.id));s=reabrirMesa(s);assert.ok(usadoNesteTurno(s,s.atores[0],colosso.id),'o limite sobrevive à reabertura da mesa');const pv=s.atores[1].pv;
+ s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala().rolar);
+ assert.equal(atual(s).id,b.id);assert.equal(usadoNesteTurno(s,s.atores[0],colosso.id),false,'o turno do inimigo é outro turno');
+ s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:b.id,x:6,y:0},gm,roladorSala().rolar);
+ assert.equal(s.reacaoPendente?.reator,a.id);const oportunidade=s.atores[0].ficha.opcoes.find(o=>o.gatilho==='sair_alcance');
+ let ofertado=false;
+ s=await aplicar(s,{rev:s.rev,tipo:'resolverReacao',ator:a.id,opcao:oportunidade.id,modo:'normal',ajuste:0,dadosAjuste:[]},player,async(f,m)=>{if(m.tipo==='dano')ofertado=(m.adicionais??[]).some(x=>x.id===colosso.id);return escolher(f,m);});
+ assert.ok(ofertado,'a reação oferece o Assassino de Colossos');
+ assert.equal(s.atores[1].pv,pv-9);assert.ok(usadoNesteTurno(s,s.atores[0],colosso.id));
+ s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:b.id},gm,roladorSala().rolar);
+ assert.equal(atual(s).id,a.id);assert.equal(usadoNesteTurno(s,s.atores[0],colosso.id),false,'o uso na reação não consome o próximo turno do Zurich');
+});
+test('#65 crítico no ataque de oportunidade dobra todos os dados',async()=>{
+ let {s,a,b}=await duelo('draven-thorne');
+ s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,roladorSala().rolar);
+ s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:b.id,x:6,y:0},gm,roladorSala().rolar);
+ const oportunidade=s.atores[0].ficha.opcoes.find(o=>o.gatilho==='sair_alcance'),formulas=[];
+ s=await aplicar(s,{rev:s.rev,tipo:'resolverReacao',ator:a.id,opcao:oportunidade.id,modo:'normal',ajuste:0,dadosAjuste:[]},player,async(f,m)=>{formulas.push([m.tipo,f]);if(m.tipo==='ataque')return {total:25,natural:20,formula:f};return {total:10,formula:f,resultados:[{total:10}],recursosAtivos:[]};});
+ assert.ok(formulas.some(([t,f])=>t==='dano'&&/^4d6/.test(f)),'Espada Grande 2d6 vira 4d6 no crítico: '+JSON.stringify(formulas));
+});
+
+const reabrirMesa=s=>{const r=JSON.parse(JSON.stringify(compactarEstado(s)));for(const ator of r.atores)ator.ficha=validar(ator.ficha);return r;};
+const dragobertoCercado=async()=>{
+ const {s,a,b}=await duelo('dragoberto');const extra=async(nome,x,y)=>{const p=adicionar(s,await fichaRev('soldado'),nome);p.x=x;p.y=y;s.ordem.push(p.id);for(const k of ['acao','bonus','reacao'])p[k]=1;return p;};
+ const c=await extra('Soldado II',1,1),longe=await extra('Soldado III',-1,0),foraAlcance=await extra('Soldado IV',3,0);
+ return {s,a,b,c,longe,foraAlcance};
+};
+test('#65 Destruidor de Hordas avulso: mesma arma, alvo novo a 1,5 m, alcance e uma vez por turno',async()=>{
+ let {s,a,b,c,longe,foraAlcance}=await dragobertoCercado();const cimitarra=opRev(a,'cimitarra'),hb=()=>opRev(s.atores[0],'destruidor');
+ assert.equal(cimitarra.composicao?.opcional,true,'a arma ganha a etapa opcional na Gaveta');
+ assert.equal(ofertaDestruidorDeHordas(s,a),null,'sem ataque anterior não há oferta');
+ // O ataque inicial pode errar.
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,alvo:b.id},player,roladorSala({d20:1}).rolar);
+ assert.equal(s.atores[0].eventosTurno.ataques.length,1);assert.equal(s.atores[0].eventosTurno.acertos.length,0);
+ const oferta=ofertaDestruidorDeHordas(s,s.atores[0]);
+ assert.equal(oferta.centroAtorId,b.id);assert.equal(oferta.raioM,1.5);assert.deepEqual(oferta.alvos.map(x=>x.id),[c.id],'só o soldado ao lado do alvo e ao alcance da cimitarra');
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:hb().id,alvo:b.id},player,roladorSala().rolar),/diferente do alvo anterior/);
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:hb().id,alvo:longe.id},player,roladorSala().rolar),/longe demais/);
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:hb().id,alvo:foraAlcance.id},player,roladorSala().rolar),/alcance/);
+ const r=roladorSala();s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:hb().id,alvo:c.id},player,r.rolar);
+ assert.equal(r.formulas.find(x=>x.meta.tipo==='ataque').f,'1d20'+cimitarra.automacao.bonus.toLocaleString('en',{signDisplay:'always'}),'usa a mesma arma');
+ assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,1,'sem custo adicional de ação');
+ assert.equal(ofertaDestruidorDeHordas(s,s.atores[0]),null,'limite consumido');
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:hb().id,alvo:c.id},player,roladorSala().rolar),/já foi usada neste turno|diferente/);
+});
+test('#65 Destruidor de Hordas não ataca criatura já atacada no turno',async()=>{
+ let {s,a,b,c}=await dragobertoCercado();const cimitarra=opRev(a,'cimitarra');s.atores[0].acao=2;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,alvo:c.id},player,roladorSala().rolar);
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,alvo:b.id},player,roladorSala().rolar);
+ assert.deepEqual(ofertaDestruidorDeHordas(s,s.atores[0]).alvos,[]);
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'destruidor').id,alvo:c.id},player,roladorSala().rolar),/ainda não atacou/);
+});
+test('#65 Destruidor de Hordas pela Gaveta compartilha o limite com o botão avulso',async()=>{
+ let {s,a,b,c,longe}=await dragobertoCercado();const cimitarra=opRev(a,'cimitarra'),modos=cimitarra.composicao.modos,hbModo=modos.find(m=>m.destruidorDeHordas);
+ assert.ok(hbModo);assert.equal(hbModo.umaVezPorTurno,opRev(a,'destruidor').requisitosUso.umaVezPorTurno);
+ for(const [composicao,erro] of [
+  [[{modoId:hbModo.id,alvoId:c.id}],/ataque com a arma|anterior/],
+  [[{modoId:modos[0].id,alvoId:b.id},{modoId:hbModo.id,alvoId:b.id}],/diferente do alvo anterior/],
+  [[{modoId:modos[0].id,alvoId:b.id},{modoId:hbModo.id,alvoId:longe.id}],/até 1.5 m/]
+ ]){await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao},player,roladorSala().rolar),erro);assert.equal(s.atores[0].acao,1,'plano inválido não gasta a ação');}
+ const pvB=b.pv,pvC=c.pv;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao:[{modoId:modos[0].id,alvoId:b.id},{modoId:hbModo.id,alvoId:c.id}]},player,roladorSala({dano:5}).rolar);
+ assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,1);assert.equal(s.atores[0].eventosTurno.ataques.length,2);
+ assert.ok(s.atores.find(x=>x.id===b.id).pv<pvB&&s.atores.find(x=>x.id===c.id).pv<pvC,'cada instância atinge o próprio alvo');
+ assert.equal(s.atores[0].usosTurno[hbModo.umaVezPorTurno],true);
+ s.atores[0].acao=1;s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,alvo:b.id},player,roladorSala().rolar);
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'destruidor').id,alvo:longe.id},player,roladorSala().rolar),/já foi usada neste turno/);
+ // Ao reabrir a mesa, a composição volta a ser derivada e o limite do turno persiste.
+ s=reabrirMesa(s);const reaberto=s.atores[0];
+ assert.ok(opRev(reaberto,'cimitarra').composicao.modos.some(m=>m.destruidorDeHordas),'a etapa reaparece ao reabrir');
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(reaberto,'destruidor').id,alvo:longe.id},player,roladorSala().rolar),/já foi usada neste turno/);
+});
+test('#65 Zurich com Destruidor de Hordas ativo compõe Ágil e o ataque extra na mesma Ação',async()=>{
+ let {s,a,b}=await duelo('zurich');const hb=a.ficha.opcoes.find(o=>/destruidor de hordas/i.test(o.nome));hb.ativa=true;a.ficha.opcoes.find(o=>/assassino de colossos/i.test(o.nome)).ativa=false;
+ const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=1;c.y=1;s.ordem.push(c.id);
+ const cimitarra=opRev(a,'cimitarra'),modos=cimitarra.composicao.modos;assert.equal(cimitarra.composicao.quantidadeMaxima,3);assert.equal(cimitarra.composicao.opcional,undefined);
+ const agil=modos.find(m=>m.umaVezPorTurno==='maestria-agil'),hbModo=modos.find(m=>m.destruidorDeHordas),r=roladorSala();
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao:[{modoId:modos[0].id,alvoId:b.id},{modoId:agil.id,alvoId:b.id},{modoId:hbModo.id,alvoId:c.id}]},player,r.rolar);
+ const ataques=r.formulas.filter(x=>x.meta.tipo==='ataque');assert.equal(ataques.length,3);
+ assert.equal(ataques[2].f,ataques[1].f,'o Destruidor usa a arma da instância anterior (Espada Curta)');
+ assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,1);
+});
+
+test('#57 Ataque de Desarme guarda a arma no inventário e sorteia 60/40 entre duas armas diferentes',async()=>{
+ const rolar=(sorteio=null)=>async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:22,natural:17,formula};
+  if(meta.tipo==='salvaguarda')return {total:3,natural:2,formula};
+  if(meta.tipo==='sorteio'){assert.equal(formula,'1d10');return {total:sorteio,formula};}
+  const desarme=meta.adicionais.find(x=>/desarme/i.test(x.nome));
+  return {total:10,formula,resultados:[{total:6},{total:4}],recursosAtivos:[desarme.id]};
+ };
+ let {s,a,b}=await duelo('draven-thorne');const espada=opRev(a,'espada grande');
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:espada.id,alvo:b.id},player,rolar());
+ let alvo=s.atores[1],lanca=alvo.ficha.inventario.itens.find(i=>/lan[cç]a/i.test(i.nome));
+ assert.equal(lanca.equipado,false);assert.equal(lanca.equipadoSlot,undefined);assert.ok(alvo.ficha.inventario.itens.includes(lanca),'a arma continua no inventário');
+ assert.equal(s.atores[0].rec['dados-de-superioridade'],3);
+ assert.ok(!opcoesDisponiveis(alvo).some(o=>/lan[cç]a/i.test(o.nome)&&o.automacao?.tipo==='ataque'&&!o.automacao.arremesso&&o.origemItem===lanca.id),'sem a arma empunhada o ataque some');
+ // Duas armas diferentes: 1–6 cai a principal, 7–10 a da mão fraca.
+ for(const [sorteio,cai] of [[6,'mao_forte'],[7,'mao_fraca']]){
+  ({s,a,b}=await duelo('draven-thorne'));const itens=b.ficha.inventario.itens,escudo=itens.find(i=>/escudo/i.test(i.nome)),curta=itens.find(i=>/espada curta/i.test(i.nome));
+  escudo.equipado=false;delete escudo.equipadoSlot;curta.equipado=true;curta.equipadoSlot='mao_fraca';
+  const porSlot={mao_forte:itens.find(i=>i.equipadoSlot==='mao_forte').id,mao_fraca:curta.id};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'espada grande').id,alvo:b.id},player,rolar(sorteio));
+  const depois=s.atores[1].ficha.inventario.itens;
+  assert.equal(depois.find(i=>i.id===porSlot[cai]).equipado,false,'sorteio '+sorteio+' derruba '+cai);
+  assert.equal(depois.find(i=>i.id===porSlot[cai==='mao_forte'?'mao_fraca':'mao_forte']).equipado,true);
+ }
+});
+test('#57 manobra na composição: uma por instância, custo cobrado só no acerto e sem gasto quando erra',async()=>{
+ let {s,a,b}=await duelo('draven-thorne');const base=opRev(a,'espada grande').automacao;
+ const op={id:'ataque-composto-draven',nome:'Ataque composto',categoria:'acao',custo:[{tipo:'acao',quantidade:1}],automacao:structuredClone(base),composicao:{tipo:'sequencia',quantidadeMinima:2,quantidadeMaxima:2,modoPadrao:'um',modos:[{id:'um',nome:'Primeiro',tipo:'ataque',ordem:1,automacao:structuredClone(base)},{id:'dois',nome:'Segundo',tipo:'ataque',ordem:2,automacao:structuredClone(base)}]}};
+ a.ficha.opcoes.push(op);let d20=0;const comando={rev:s.rev,tipo:'usar',ator:a.id,opcao:op.id,composicao:[{modoId:'um',alvoId:b.id},{modoId:'dois',alvoId:b.id}]};
+ const rolar=quantidade=>async(formula,meta)=>{
+  if(meta.tipo==='ataque')return [{total:22,natural:17},{total:3,natural:2}][d20++%2];
+  if(meta.tipo==='salvaguarda')return {total:20,natural:18};
+  const manobras=meta.adicionais.filter(x=>x.grupoExclusivo==='manobra-mestre-da-batalha');assert.equal(manobras.length,3);
+  return {total:8,resultados:[{total:4},...manobras.slice(0,quantidade).map(()=>({total:4}))],recursosAtivos:manobras.slice(0,quantidade).map(x=>x.id)};
+ };
+ await assert.rejects(aplicar(s,comando,player,rolar(2)),/uma manobra por ataque/);
+ assert.equal(a.rec['dados-de-superioridade'],4);d20=0;
+ s=await aplicar(s,comando,player,rolar(1));
+ assert.equal(s.atores[0].rec['dados-de-superioridade'],3,'o segundo ataque errou e não abriu manobra');
+});
+
+test('#59 Loteria prepara Mão de Dolo na Gaveta da Torrente e no golpe da Ação, com limite e Foco compartilhados',async()=>{
+ let {s,a,b}=await duelo('loteria');const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
+ const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo');let pedidos=[];
+ const rolar=({acerta=[true,true],aceitar=true}={})=>{let n=0;return async(formula,meta)=>{
+  if(meta.tipo==='ataque')return acerta[n++]?{total:22,natural:17,formula}:{total:3,natural:2,formula};
+  pedidos.push(meta.adicionais?.find(x=>x.id===dolo.id)??null);
+  const usar=(meta.adicionais??[]).filter(x=>x.automatico||(aceitar&&x.preSelecionado));
+  return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};
+ };};
+ // Fora da Torrente: o golpe da Ação oferece Mão de Dolo no ajuste de dano.
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,alvo:b.id},player,rolar({aceitar:false}));
+ assert.ok(pedidos[0],'Mão de Dolo aparece depois do acerto');assert.equal(pedidos[0].preSelecionado,undefined,'sem preparo não vem marcada');
+ // Torrente com preparo: o primeiro golpe erra (sem gasto), o segundo é o preparado e acerta.
+ pedidos=[];const torrente=opRev(s.atores[0],'torrente'),modo=torrente.composicao.modos.find(m=>m.id==='soco-mao-de-dolo');
+ assert.ok(modo);assert.deepEqual(modo.preparar,[dolo.id]);const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:torrente.id,composicao:[{modoId:'soco-normal',alvoId:b.id},{modoId:'soco-mao-de-dolo',alvoId:b.id}]},player,rolar({acerta:[false,true]}));
+ assert.equal(pedidos.length,1);assert.equal(pedidos[0].preSelecionado,true);
+ assert.equal(s.atores[0].rec['pontos-de-foco'],foco-2,'1 Foco da Torrente + 1 da Mão de Dolo aplicada');assert.equal(s.atores[1].pv,pv-9);
+ assert.ok(usadoNesteTurno(s,s.atores[0],dolo.id));
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-dolo-torrente',alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno/,'o botão avulso compartilha o limite');
+ // Preparada mas o golpe erra: nada é cobrado.
+ ({s,a,b}=await duelo('loteria'));s.atores[0].bonus=1;const focoErro=s.atores[0].rec['pontos-de-foco'];
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,alvo:b.id},player,rolar({acerta:[false]}));
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'torrente').id,composicao:[{modoId:'soco-mao-de-dolo',alvoId:b.id},{modoId:'soco-normal',alvoId:b.id}]},player,rolar({acerta:[false,false]}));
+ assert.equal(s.atores[0].rec['pontos-de-foco'],focoErro-1,'só o custo da Torrente');assert.equal(usadoNesteTurno(s,s.atores[0],dolo.id),false);
+});
+
+test('#60 Magia Potencializada rerrola até 3 dados escolhidos por 1 ponto e usa os novos resultados',async()=>{
+ const {aplicarRerrolagemParcial,dadosRerrolaveis}=await import('./site/engine.mjs');
+ let {s,a,b}=await duelo('nikki',undefined,{distancia:6});const pot=a.ficha.opcoes.find(o=>/^Magia Potencializada/.test(o.nome));
+ assert.deepEqual({modo:pot.rerrolagem.modo,limite:pot.rerrolagem.limiteDados},{modo:'dados',limite:3});
+ // Despedaçar 3d8: os três dados baixos são rerrolados, o resto da fórmula é preservado.
+ const rolagem={total:3+2+1+0,formula:'3d8',resumo:'3d8 = 6',grupos:[{diceType:'d8',dice:[{value:3,kept:true},{value:2,kept:true},{value:1,kept:true}],total:6}]};
+ assert.equal(dadosRerrolaveis(rolagem).length,3);
+ assert.throws(()=>aplicarRerrolagemParcial(rolagem,[0,1,2,0].map((indice,i)=>({grupo:0,indice:i%3,valor:8})),3),/1 a 3 dados|inválido/);
+ assert.throws(()=>aplicarRerrolagemParcial(rolagem,[{grupo:0,indice:0,valor:9}],3),/inválido/,'d8 não rola 9');
+ const nova=aplicarRerrolagemParcial(rolagem,[{grupo:0,indice:1,valor:7},{grupo:0,indice:2,valor:8}],3);
+ assert.equal(nova.total,18);assert.deepEqual(nova.grupos[0].dice.map(d=>d.value),[3,7,8]);assert.equal(nova.dadosRerrolados.length,2);
+ // d20 e dados descartados não entram; várias instâncias somam a diferença na instância certa.
+ const lote={total:15,grupos:[{diceType:'d20',dice:[{value:12,kept:true}]},{diceType:'d6',dice:[{value:1,kept:true},{value:6,kept:false}]},{diceType:'d4',dice:[{value:1,kept:true}]}],mapaGrupos:[0,0,1],resultados:[{total:13},{total:2}]};
+ assert.deepEqual(dadosRerrolaveis(lote).map(x=>x.grupo+':'+x.indice),['1:0','2:0']);
+ const loteNovo=aplicarRerrolagemParcial(lote,[{grupo:2,indice:0,valor:4}],3);assert.equal(loteNovo.total,18);assert.equal(loteNovo.resultados[1].total,5);assert.equal(loteNovo.resultados[0].total,13);
+ // No motor: a rerrolagem aparece só em dano de magia, com o limite de dados, e cobra 1 ponto uma vez.
+ const pontos=a.rec.feiticaria;let meta=null;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'despedacar').id,ponto:{x:b.x,y:b.y}},player,async(f,m={})=>{if(/d20/.test(f))return {total:5,natural:3,formula:f};meta=m;return {...nova,rerrolagensUsadas:[pot.id]};});
+ assert.equal(meta.rerrolagens.find(x=>x.id===pot.id).limiteDados,3);assert.equal(s.atores[0].rec.feiticaria,pontos-1);
+});
+
+test('#60 Magia Duplicada na Gaveta: +1 círculo efetivo, mesmo espaço, alvo extra e 1 Ponto de Feitiçaria',async()=>{
+ let {s,a,b}=await duelo('nikki',undefined,{distancia:6});const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=6;c.y=1;s.ordem.push(c.id);
+ const dup=a.ficha.opcoes.find(o=>/^Magia Duplicada/.test(o.nome));assert.equal(dup.metamagiaAoConjurar,'duplicada');
+ assert.ok(!ordenarOpcoesRodape(a).some(x=>x.opcao?.id===dup.id||x.id===dup.id),'sai do rodapé');
+ // Nenhuma magia atual da Nikki ganha alvo ao subir de círculo: a opção não aparece para elas.
+ for(const o of opcoesDisponiveis(a).filter(o=>o.categoria==='magia'))assert.equal(metamagiaDuplicada(a,o),null,o.nome);
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'despedacar').id,ponto:{x:b.x,y:b.y},magiaDuplicada:true},player,roladorSala().rolar),/Magia Duplicada exige/);
+ // Magia elegível (Imobilizar Pessoa, +1 alvo por círculo) conjurada no espaço de 2º.
+ const imobilizar={id:'teste-imobilizar',nome:'2º | Imobilizar Pessoa · salva de SAB',categoria:'magia',circuloBase:2,concentracao:true,custo:[{tipo:'acao',quantidade:1},{tipo:'recurso',id:'espaco-2',quantidade:1}],automacao:{tipo:'salva',atributo:'sab',cd:13,alcanceM:18,efeitoFalha:{nome:'Paralisado',condicao:'paralisado',turnos:10}}};
+ a.ficha.opcoes.push(imobilizar);if(a.ficha.preparacao)a.ficha.preparacao.semprePreparadas.push(imobilizar.id);
+ assert.ok(metamagiaDuplicada(a,imobilizar));
+ const normal=derivarOpcaoCirculo(a,imobilizar,2),dupla=derivarOpcaoCirculo(a,imobilizar,2,{magiaDuplicada:true});
+ assert.equal(normal.selecao?.max??1,1);assert.equal(dupla.selecao.max,2);assert.equal(dupla.circuloUsado,2);assert.equal(dupla.circuloEfetivo,3);
+ assert.ok(dupla.custo.some(x=>x.id==='espaco-2')&&!dupla.custo.some(x=>x.id==='espaco-3'),'preserva o espaço escolhido');
+ assert.deepEqual(planoCustoOpcao(a,dupla).custos.filter(x=>x.tipo==='recurso').map(x=>x.id).sort(),['espaco-2','feiticaria']);
+ const pontos=a.rec.feiticaria,espacos=a.rec['espaco-2'];
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:imobilizar.id,circuloUsado:2,magiaDuplicada:true,alvos:[b.id,c.id]},player,roladorSala({salva:1}).rolar);
+ assert.equal(s.atores[0].rec.feiticaria,pontos-1);assert.equal(s.atores[0].rec['espaco-2'],espacos-1);
+ assert.ok([b.id,c.id].every(id=>temCondicao(s.atores.find(x=>x.id===id),'paralisado')),'os dois alvos são afetados');
+ // Sem pontos, a composição é recusada antes de gastar o espaço.
+ ({s,a,b}=await duelo('nikki',undefined,{distancia:6}));a.ficha.opcoes.push(structuredClone(imobilizar));if(a.ficha.preparacao)a.ficha.preparacao.semprePreparadas.push(imobilizar.id);a.rec.feiticaria=0;
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:imobilizar.id,circuloUsado:2,magiaDuplicada:true,alvos:[b.id]},player,roladorSala().rolar),/Magia Duplicada exige|Saldo insuficiente/);
+ assert.equal(a.rec['espaco-2'],s.atores[0].rec['espaco-2']);
+});
+
+test('#56 #62 Presa do Caçador: escolha aberta ao fim do descanso, confirmada pelo dono e preservada ao reabrir',async()=>{
+ let s=novo();const drago=adicionar(s,await fichaRev('dragoberto')),zurich=adicionar(s,await fichaRev('zurich'));drago.dono='p';zurich.dono=undefined;
+ const nomeAtivo=a=>[...a.ficha.opcoes].filter(o=>o.grupoExclusivo==='presa-do-cacador'&&o.ativa!==false).map(o=>o.nome);
+ assert.match(nomeAtivo(drago).join(),/Destruidor/);assert.match(nomeAtivo(zurich).join(),/Assassino/);
+ // Fora do descanso, o jogador não troca pelo livro.
+ const colossoDrago=drago.ficha.opcoes.find(o=>/assassino de colossos/i.test(o.nome));
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'livro',ator:drago.id,operacao:'ativar',habilidadeId:colossoDrago.id},player,dadoLocal),/fim de um descanso/);
+ s=await aplicar(s,{rev:s.rev,tipo:'descanso',periodo:'curto'},gm,dadoLocal);
+ const [pd]=s.atores[0].escolhasDescanso,[pz]=s.atores[1].escolhasDescanso;
+ assert.equal(pd.nome,'Presa do Caçador');assert.equal(pd.opcoes.length,2);assert.match(s.historico[0],/Escolhas pendentes/);
+ // Outro jogador não escolhe; o dono troca para Assassino de Colossos.
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'escolherAposDescanso',ator:drago.id,escolhaId:pd.id,opcaoId:colossoDrago.id},{id:'outro',role:'PLAYER'},dadoLocal),/não controla/);
+ s=await aplicar(s,{rev:s.rev,tipo:'escolherAposDescanso',ator:drago.id,escolhaId:pd.id,opcaoId:colossoDrago.id},player,dadoLocal);
+ assert.match(nomeAtivo(s.atores[0]).join(),/Assassino/);assert.equal(s.atores[0].escolhasDescanso,undefined);
+ assert.ok(opRev(s.atores[0],'assassino de colossos')&&!opRev(s.atores[0],'destruidor'),'só a opção escolhida fica disponível');
+ // Zurich sem dono: o mestre confirma e pode manter a atual.
+ s=await aplicar(s,{rev:s.rev,tipo:'escolherAposDescanso',ator:zurich.id,escolhaId:pz.id,opcaoId:null,confirmado:true},gm,dadoLocal);
+ assert.match(nomeAtivo(s.atores[1]).join(),/Assassino/);assert.match(s.historico[0],/mantida/);
+ // A escolha persiste ao compactar e reabrir; uma pendência não resolvida some ao iniciar combate mantendo a atual.
+ const reaberta=JSON.parse(JSON.stringify(compactarEstado(s)));for(const a of reaberta.atores)a.ficha=validar(a.ficha);
+ assert.match(nomeAtivo(reaberta.atores[0]).join(),/Assassino/);
+ s=await aplicar(reaberta,{rev:reaberta.rev,tipo:'descanso',periodo:'longo'},gm,dadoLocal);assert.ok(s.atores[0].escolhasDescanso.length);
+ const reaberta2=JSON.parse(JSON.stringify(compactarEstado(s)));for(const a of reaberta2.atores)a.ficha=validar(a.ficha);assert.ok(reaberta2.atores[0].escolhasDescanso.length,'a pendência sobrevive à reabertura');
 });

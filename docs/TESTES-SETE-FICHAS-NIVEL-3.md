@@ -1,6 +1,6 @@
 # Fechamento das sete fichas de nível 3
 
-Estado em 0.8.24: testes em andamento. Este documento separa o que já foi comprovado pelo motor do que ainda depende dos módulos propostos para a cobertura completa do nível 3.
+Estado em 0.8.26: testes em andamento; cobertura de motor ampliada para Dragoberto, Draven, Loteria, Nikki e Zurich. Este documento separa o que já foi comprovado pelo motor do que ainda depende dos módulos propostos para a cobertura completa do nível 3.
 
 A [classificação aprovada de habilidades de interpretação](HABILIDADES-DE-INTERPRETACAO.md) define os casos que exigem apenas registro e custo aplicável. As decisões posteriores de invocação estão na [pré-arquitetura do M06](mapeamento-nivel-3/PRE-ARQUITETURA-MODULOS.md#m06--entidades-familiares-e-objetos-vinculados--ausente).
 
@@ -19,13 +19,13 @@ A [classificação aprovada de habilidades de interpretação](HABILIDADES-DE-IN
 
 | Ficha | Fluxos principais já testados | Pendências relevantes para o fechamento |
 |---|---|---|
-| Dragoberto | Cimitarra/arco, Arquearia, Golpe Certeiro com Gaveta de Composição para arma e dano, duas formas de Sopro Dracônico, Marca do Predador, Golpe Constritor e ataque extra de Destruidor de Hordas. | Destruidor de Hordas com visual e seleção nos dois fluxos. Testar Assassino de Colossos quando ativo. Implementar escolha de Presa do Caçador ao fim do descanso. |
-| Draven Thorne | Espada Grande, Surto de Ação, Recuperar Fôlego, Atacante Selvagem, Queimadura de Fogo, Ataque Ameaçador e duração de Caído. | Ataque Prostrador, Desarme e parte da seleção de manobras precisam do compositor M04 e escolhas M03. |
+| Dragoberto | Cimitarra/arco, Arquearia, Golpe Certeiro com Gaveta de Composição para arma e dano, duas formas de Sopro Dracônico, Marca do Predador, Golpe Constritor. **0.8.26:** Destruidor de Hordas avulso e pela Gaveta (mesma arma, 1,5 m do alvo original, alcance, alvo não atacado, ataque inicial pode errar, limite compartilhado), prévia dos alvos elegíveis, Assassino de Colossos quando ativo e escolha da Presa do Caçador no descanso. | Smoke visual: círculo de 1,5 m e destaque dos alvos no Owlbear, nos dois fluxos; reabrir a sala no meio do turno. |
+| Draven Thorne | Espada Grande, Surto de Ação, Recuperar Fôlego, Atacante Selvagem, Queimadura de Fogo, Ataque Ameaçador e duração de Caído. **0.8.26:** uma manobra por ataque também nas composições, sem gasto quando o ataque erra; Ataque de Desarme retira a arma do slot (60/40 entre duas armas diferentes) e reequipar gasta uma ação; crítico do ataque de oportunidade dobra os dados e escolhe a melhor arma. | Ataque Prostrador ainda não verifica tamanho Grande ou menor (M10). Smoke visual de um turno com manobra. |
 | Hannah Montana | Adagas/mão fraca, Inspiração de Bardo, Fogo das Fadas, Zombaria Viciosa e Ancestralidade Feérica. | Ilusão Menor: token visual estático, sem ficha. |
-| Loteria | Lança, Golpe Desarmado, soco bônus, Torrente de Golpes com composição independente dos dois golpes, Mão de Dolo, Mão de Cura, Defletir Ataques, Valentão de Taverna e Metabolismo Aprimorado. | Mão de Dolo fora da Torrente e escolhas situacionais ainda precisam ser consolidadas no compositor M04/M03. |
-| Nikki Lauda | Adagas, Mísseis Mágicos, Explosão Elemental com sete tipos na Gaveta de Composição, Sopro de Dragão, Fonte de Magia, Feitiçaria Inata, Magia Potencializada, Talho Mental, Toque Chocante e Passo Nebuloso gratuito. | Dados explosivos, Magia Duplicada e buff de Intimidação de Taumaturgia. Mãos Mágicas: token controlável com ficha própria. Queda Suave: verificar custo e registro de uso interpretativo. |
+| Loteria | Lança, Golpe Desarmado, soco bônus, Torrente de Golpes com composição independente dos dois golpes, Mão de Cura, Defletir Ataques, Valentão de Taverna e Metabolismo Aprimorado. **0.8.26:** Mão de Dolo no golpe da Ação e na Torrente, preparada na Gaveta ("Soco + Mão de Dolo") só cobrando 1 Foco se acertar, limite de uma vez por turno compartilhado com o botão avulso. | Smoke visual da Gaveta com três modos e da marcação prévia no ajuste de dano. |
+| Nikki Lauda | Adagas, Mísseis Mágicos, Explosão Elemental com sete tipos na Gaveta de Composição, Sopro de Dragão, Fonte de Magia, Feitiçaria Inata, Talho Mental, Toque Chocante e Passo Nebuloso gratuito. **0.8.26:** Magia Potencializada rerrola até 3 dados escolhidos por 1 ponto e usa os novos resultados; Magia Duplicada na Gaveta antes da conjuração (+1 círculo efetivo, mesmo espaço, 1 ponto), oferecida só para magias que ganham alvo. Nenhuma magia preparada atual da Nikki é elegível, então a opção não aparece para ela hoje. | Dados explosivos (M13) e buff de Intimidação de Taumaturgia (M01). Mãos Mágicas: token controlável com ficha própria (M06). Queda Suave: verificar custo e registro de uso interpretativo. Smoke visual do seletor de dados com o Dice+. |
 | Skimi | Adagas, Rajada Mística, Imobilizar Pessoa, Riso Histérico, Invisibilidade, Sussurros Dissonantes, Astúcia Mágica, Ponto de Sorte e Inspiração Heroica. | Familiar, Força Fantasmagórica, marcador de Disfarçar-se e buff de Intimidação de Taumaturgia. Mãos Mágicas: token controlável com ficha própria. Mente Desperta: marcadores interpretativos nos dois participantes. |
-| Zurich | Arco/cimitarra/espada curta, Ágil, Marca do Predador, Lentidão, Emaranhar, Orientação, Saraivada de Espinhos, resistências por alvo e sequência de arma leve. | Testar Assassino de Colossos em ataques simples, compostos e reações. Área persistente de Emaranhar no M05. Compartilha a escolha de Presa do Caçador e os fluxos de Destruidor de Hordas. |
+| Zurich | Arco/cimitarra/espada curta, Ágil, Marca do Predador, Lentidão, Emaranhar, Orientação, Saraivada de Espinhos, resistências por alvo e sequência de arma leve. **0.8.26:** Assassino de Colossos em ataque simples, composto e de oportunidade, com limite por turno da mesa; Ágil + Destruidor de Hordas na mesma Ação quando ativo; escolha da Presa do Caçador no descanso. | Área persistente de Emaranhar no M05. Smoke visual da Gaveta com três etapas. |
 
 ## Testes do caçador
 
@@ -65,10 +65,17 @@ Uma ficha será marcada como fechada quando:
 
 ## Próxima ordem de testes
 
-1. Loteria e Draven: sequências marciais e consumo combinado de recursos.
-2. Zurich e Dragoberto: marcas, áreas, ataques adicionais e gatilhos por alvo.
+1. Smoke visual em Owlbear dos fluxos entregues na 0.8.26 (Dragoberto, Draven, Loteria, Nikki e Zurich).
+2. Zurich: área persistente de Emaranhar (M05).
 3. Nikki e Skimi: conjuração, reação, concentração, variantes e múltiplos alvos.
 4. Hannah: suporte, dados concedidos, condições e ações narrativas assistidas.
+
+## Resultado da 0.8.26
+
+- Suíte automatizada: 200/200 (`node --test combate.test.mjs`).
+- Novos testes: Assassino de Colossos (simples, composto, oportunidade e reabertura), crítico de reação, Destruidor de Hordas (avulso, Gaveta, alvo já atacado, Zurich com Ágil e reabertura), Desarme (arma única e sorteio 60/40), manobra na composição, Mão de Dolo preparada, Magia Potencializada por dados, Magia Duplicada e escolha da Presa do Caçador após descanso.
+- Correções sistêmicas encontradas na validação: limite "uma vez por turno" não renovava no turno de outra criatura; ataque de oportunidade não oferecia aprimoramentos pós-acerto e calculava crítico errado; ataque composto não aplicava desvantagem a distância, Caído distante, alcance longo nem a restrição de Enfeitiçado; ativação de habilidades de grupo exclusivo não persistia ao compactar a ficha.
+- Smoke local (simulador em navegador headless): páginas carregam sem erro de console; painel de escolha após descanso funciona como mestre. A checagem dentro do Owlbear com Dice+ continua pendente para cada ficha listada acima.
 
 ## Ponto de pausa da 0.8.24
 

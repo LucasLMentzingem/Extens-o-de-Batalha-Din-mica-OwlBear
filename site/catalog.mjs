@@ -1,4 +1,4 @@
-import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.25';
+import catalogo from './catalogos/catalogo-gerado.mjs?v=0.8.26';
 
 const habilidades=new Map(catalogo.habilidades.map(x=>[x.id,x])),itens=new Map(catalogo.itens.map(x=>[x.id,x])),lojas=new Map((catalogo.lojas??[]).map(x=>[x.id,x]));
 const clone=x=>structuredClone(x);
@@ -69,7 +69,8 @@ function concessaoDe(h,tipo,anterior){
   const ref=h.catalogoRef??refsHabilidade.get(assinatura(semHabilidade(h))),base=ref?habilidades.get(ref)?.definicao:null;
   const c=clone(anterior??{id:h.id,tipo});c.id=h.id;c.tipo=tipo;
   if(ref){c.ref=ref;delete c.definicaoLocal;}else{delete c.ref;c.definicaoLocal=semHabilidade(h);}
-  if(tipo==='passiva')c.ativa=h.ativa!==false;
+  // Habilidades com ativação (Presa do Caçador e grupos exclusivos) também precisam persistir a troca feita na mesa.
+  if(tipo==='passiva'||h.ativa!==undefined||c.ativa!==undefined)c.ativa=h.ativa!==false;
   if(h.usoGratuito)c.usoGratuito=clone(h.usoGratuito);else delete c.usoGratuito;
   if(h.somenteUsoGratuito)c.somenteUsoGratuito=true;else delete c.somenteUsoGratuito;
   // Ajustes existentes são decisões da ficha; não calcule um diff automático que voltaria a duplicar toda a definição.

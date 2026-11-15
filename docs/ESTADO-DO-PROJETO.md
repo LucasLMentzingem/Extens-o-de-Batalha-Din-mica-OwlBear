@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão publicada 0.8.22, linha 0.8.x.
+Revisão de 15 de novembro de 2026, versão 0.8.26 (proposta neste PR), linha 0.8.x.
 
 ## Entregas recentes
 
@@ -16,12 +16,15 @@ Revisão de 15 de novembro de 2026, versão publicada 0.8.22, linha 0.8.x.
 | 0.8.19–0.8.20 | Recuperação | Diagnóstico de carregamento, backup, recuperação de valores inválidos e precisão monetária; retorno à numeração normal após versões excepcionais autorizadas |
 | 0.8.21 | Grupos de fichas | Aventureiros e Soldados do Reino, listas recolhíveis, adição individual ou em grupo com cena já ocupada |
 | 0.8.22 | Duplicação de NPCs | Token duplicado recebe ator independente; equipamentos e escolhas preservados, PV/recursos iniciais, sem efeitos temporários ou dono |
+| 0.8.24 | Estabilização | Bênção no relógio, oportunidades na trajetória inteira e primeira paridade de ataques compostos |
+| 0.8.25 | Importação de pastas | Pastas de fichas viram grupos reutilizáveis |
+| 0.8.26 | Fichas de nível 3 | Paridade #65, Destruidor de Hordas na Gaveta, Desarme, Mão de Dolo preparada, Magia Potencializada por dados, Magia Duplicada e escolha da Presa do Caçador no descanso |
 
 O manual de criação de fichas está em [MANUAL-CRIACAO-FICHAS.md](MANUAL-CRIACAO-FICHAS.md).
 
 ## Prioridade
 
-O M04 está pausado por solicitação do responsável. Ao retomar, seguir [a arquitetura aprovada](ARQUITETURA-M04-COMPOSITOR-ACOES.md). Permanecem pendentes reservas e custos condicionais, integração geral de manobras, metamagias e Smites.
+O M04 foi retomado na 0.8.26, seguindo [a arquitetura aprovada](ARQUITETURA-M04-COMPOSITOR-ACOES.md): manobras, Destruidor de Hordas, Mão de Dolo preparada e as metamagias de Nikki já usam as regras comuns. Permanecem pendentes a reserva genérica de custos condicionais, Smites e as janelas do M02.
 
 A meta de cobertura continua organizada em níveis 3, 5, 7 e 10 no [roadmap](../ROADMAP-COBERTURA-REGRAS.md). A presença de uma definição no catálogo não comprova cobertura completa da classe.
 

@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.25';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.25';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.26';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.26';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -188,13 +188,27 @@ export function circulosConjuracao(a,o){
   if(o?.categoria!=='magia'||base<1||!o?.custo?.some(c=>c.tipo==='recurso'&&/^espaco-\d+$/.test(c.id??'')))return [];
   return (f?.recursos??[]).filter(r=>/^espaco-\d+$/.test(r.id)&&r.maximo>0).map(r=>Number(r.id.slice(7))).filter(n=>Number.isInteger(n)&&n>=base).sort((x,y)=>x-y);
 }
-export function derivarOpcaoCirculo(a,o,circuloUsado){
+// #60 Magia Duplicada (2024): só para magias que ganham um alvo ao subir de círculo; +1 círculo efetivo por 1 Ponto de Feitiçaria.
+const nomeEscalaMagia=o=>textoNormal(o?.nome).replace(/^\d+º?\s*\|\s*/,'').split(' · ')[0].trim();
+export const ganhaAlvoPorCirculo=o=>Boolean(o?.categoria==='magia'&&Number(o.circuloBase)>=1&&(POR_CIRCULO[nomeEscalaMagia(o)]?.alvos||o.escalaCirculo?.alvosPorCirculo||o.automacao?.tipo==='bencao'));
+export function metamagiaDuplicada(a,o){
+  if(!ganhaAlvoPorCirculo(o))return null;
+  return opcoesDisponiveis(a).find(x=>x.metamagiaAoConjurar==='duplicada')??null;
+}
+export function derivarOpcaoCirculo(a,o,circuloUsado,{magiaDuplicada=false}={}){
   const disponiveis=circulosConjuracao(a,o);
-  if(!disponiveis.length)return o;
+  if(!disponiveis.length){exigir(!magiaDuplicada,'Magia Duplicada exige uma magia que ganhe alvo ao subir de círculo.');return o;}
   const base=Number(o.circuloBase),circulo=circuloUsado===undefined?disponiveis[0]:Number(circuloUsado);
   exigir(Number.isInteger(circulo)&&disponiveis.includes(circulo),'Círculo de conjuração indisponível.');
-  const v=structuredClone(o),acima=circulo-base;v.circuloUsado=circulo;
+  const duplicada=magiaDuplicada?metamagiaDuplicada(a,o):null;
+  exigir(!magiaDuplicada||duplicada,'Magia Duplicada exige uma magia que ganhe alvo ao subir de círculo.');
+  const v=structuredClone(o),acima=circulo-base+(duplicada?1:0);v.circuloUsado=circulo;
   const espaco=v.custo?.find(c=>c.tipo==='recurso'&&/^espaco-\d+$/.test(c.id??''));if(espaco)espaco.id='espaco-'+circulo;
+  if(duplicada){
+    v.circuloEfetivo=circulo+1;v.metamagias=[...(v.metamagias??[]),{id:duplicada.id,nome:'Magia Duplicada'}];
+    v.custo=[...(v.custo??[]),...structuredClone(duplicada.custo??[])];
+    v.nome=v.nome+' · Duplicada';
+  }
   if(v.automacao?.tipo==='projeteis'&&v.selecao){v.selecao.max+=acima;v.selecao.min+=acima;}
   if(v.automacao?.tipo==='bencao'&&v.selecao)v.selecao.max+=acima;
   const nomeEscala=textoNormal(v.nome).replace(/^\d+º?\s*\|\s*/,'').split(' · ')[0].trim(),regra=POR_CIRCULO[nomeEscala];
@@ -209,7 +223,9 @@ function corrigirMagiasRevisao(f){
   // #30 Metamagia: Potencializada vira rerrolagem do dano de magia; Duplicada dá +1 alvo nas magias que escalam por alvo.
   for(const o of f.opcoes??[]){
     const n=textoNormal(o.nome);
-    if(n.startsWith('magia potencializada')&&!o.rerrolagem){o.gatilho='apos_rolagem_dano';o.rerrolagem={tipo:'dano',modo:'todos',somenteMagia:true};}
+    if(n.startsWith('magia potencializada')&&(!o.rerrolagem||o.rerrolagem.modo==='todos')){o.gatilho='apos_rolagem_dano';o.rerrolagem={tipo:'dano',modo:'dados',limiteDados:3,somenteMagia:true};}
+    // #60 Magia Duplicada sai do rodapé e passa a ser escolhida na Gaveta antes da conjuração.
+    if(n.startsWith('magia duplicada'))o.metamagiaAoConjurar='duplicada';
   }
   // #34 Valentão de Taverna: 1x por turno, ao acertar um golpe desarmado com a ação Atacar, pode empurrar o alvo 1,5 m.
   if((f.passivas??[]).some(p=>/valentao de taverna/.test(textoNormal(p.nome))&&p.ativa!==false)&&!f.opcoes.some(o=>o.id==='valentao-empurrar'))
@@ -247,12 +263,19 @@ function corrigirMagiasRevisao(f){
     if(nome==='talho mental'&&o.automacao?.efeitoFalha&&!o.automacao.efeitoFalha.expira){o.automacao.efeitoFalha.turnos=2;o.automacao.efeitoFalha.expira='fim_origem';} // #13 até o fim do próximo turno do conjurador
     if(nome==='saraivada de espinhos'&&!o.automacao&&!o.aprimoramento){o.automacao={tipo:'salva',atributo:'des',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,dano:'1d10',elemento:'perfurante',metade:true,alcanceM:18,raioM:1.5};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma','distancia']};}
     if(nome==='golpe constritor'&&!o.automacao){o.automacao={tipo:'salva',atributo:'for',cd:Number(/CD (\d+)/.exec(o.descricao??'')?.[1])||12,alcanceM:18,efeitoFalha:{nome:'Contido (Golpe Constritor)',condicao:'contido',turnos:10,danoInicioTurno:{formula:'1d6',elemento:'perfurante'}}};o.requisitosUso={...(o.requisitosUso??{}),aposAcerto:true,tagsAtaqueAnterior:['arma'],alvoIgualAoAnterior:true};}
-    if(/destruidor de hordas/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.usarArmaAnterior)o.automacao.usarArmaAnterior=true;
+    if(o.grupoExclusivo==='presa-do-cacador')o.trocaAposDescanso=true;
+    if(/destruidor de hordas/.test(completo)&&o.automacao?.tipo==='ataque'){
+      // #65 Destruidor de Hordas: mesma arma, no próprio turno, contra criatura que ainda não foi atacada neste turno.
+      o.automacao.usarArmaAnterior=true;
+      if(o.requisitosUso)o.requisitosUso={...o.requisitosUso,somenteNoProprioTurno:true,alvoNaoAtacadoNoTurno:true};
+    }
     if(/^torrente de golpes/.test(completo)){
       const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento),cura=f.opcoes.find(x=>textoNormal(x.nome)==='mao de cura'&&x.automacao?.tipo==='cura');
       const soco=structuredClone(o.automacao?.ataques?.[0]??o.automacao);
       if(soco){delete soco.ataques;o.composicao={quantidadeMinima:2,quantidadeMaxima:2,modoPadrao:'soco-normal',modos:[
         {id:'soco-normal',nome:'Soco normal',descricao:'Ataque desarmado da Torrente de Golpes.',tipo:'ataque',automacao:soco},
+        // #59 Mão de Dolo preparada na Gaveta: preferência aplicada só se o golpe acertar; cobra 1 Foco no ajuste de dano.
+        ...(dolo?[{id:'soco-mao-de-dolo',nome:'Soco + Mão de Dolo',descricao:'Golpe da Torrente com Mão de Dolo já marcada. Só se aplica se o golpe acertar e Mão de Dolo ainda estiver disponível no turno; então gasta 1 Foco.',tipo:'ataque',limitePorUso:1,preparar:[dolo.id],automacao:structuredClone(soco)}]:[]),
         ...(cura?[{id:'mao-de-cura',nome:'Mão de Cura',descricao:'Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional.',tipo:'cura',limitePorUso:1,automacao:structuredClone(cura.automacao)}]:[])
       ]};}
       if(dolo&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente'))f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
@@ -476,13 +499,13 @@ export function validar(f) {
       exigir(p&&formulaDanoValida(p.dano),'Aprimoramento após acerto inválido em '+o.id);
       if(p.salva)exigir(atributos.includes(p.salva.atributo)&&inteiro(p.salva.cd,1,40),'Salvaguarda do aprimoramento inválida em '+o.id);
     }
-    if(o.gatilho==='apos_rolagem_dano')exigir(o.rerrolagem?.tipo==='dano'&&['todos','dados_com_resultado'].includes(o.rerrolagem.modo),'Rerrolagem de dano inválida em '+o.id);
+    if(o.gatilho==='apos_rolagem_dano')exigir(o.rerrolagem?.tipo==='dano'&&['todos','dados_com_resultado','dados'].includes(o.rerrolagem.modo)&&(o.rerrolagem.modo!=='dados'||inteiro(o.rerrolagem.limiteDados,1,20)),'Rerrolagem de dano inválida em '+o.id);
     if(o.gatilho==='apos_rolagem_d20')exigir(o.rerrolagem?.tipo==='d20'&&o.rerrolagem.modo==='todos','Rerrolagem de d20 inválida em '+o.id);
     if(o.gatilho==='sofrer_dano')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao&&['ataque','salva'].includes(o.automacao.tipo),'Reação ao sofrer dano inválida em '+o.id);
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
-      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','alvoIgualAoAnterior','somenteForaCombate','somenteAoRolarIniciativa'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
+      exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','alvoIgualAoAnterior','somenteForaCombate','somenteAoRolarIniciativa','somenteNoProprioTurno','alvoNaoAtacadoNoTurno'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
       exigir(r.aposOpcao===undefined||typeof r.aposOpcao==='string','Requisito aposOpcao inválido em '+o.id);
       exigir(r.tagsAtaqueAnterior===undefined||Array.isArray(r.tagsAtaqueAnterior)&&r.tagsAtaqueAnterior.every(nomeOK),'Tags de requisito inválidas em '+o.id);
       exigir(r.distanciaDoAlvoAnteriorM===undefined||Number.isFinite(r.distanciaDoAlvoAnteriorM)&&r.distanciaDoAlvoAnteriorM>=0,'Distância de requisito inválida em '+o.id);
@@ -785,7 +808,34 @@ function sincronizarConcessoesItens(a){
   return a;
 }
 export const acaoSaquear={...definicaoHabilidade('habilidade.saquear'),id:'saquear',catalogoRef:'habilidade.saquear'};
-export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);return [...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];};
+export const opcoesCalculadas=a=>{sincronizarConcessoesItens(a);const lista=[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a)];anexarDestruidorNaComposicao(a,lista);return lista;};
+// #65 M04: Destruidor de Hordas também pode ser preparado na Gaveta de Composição do ataque com arma.
+// A etapa reaproveita a arma da instância anterior e compartilha o limite de uma vez por turno com o botão avulso.
+function anexarDestruidorNaComposicao(a,lista){
+  const hb=lista.find(o=>o.automacao?.usarArmaAnterior&&o.requisitosUso&&opcaoDisponivel(a,o));if(!hb)return;
+  const chave=hb.requisitosUso.umaVezPorTurno??hb.id,raioM=hb.requisitosUso.distanciaDoAlvoAnteriorM??1.5,nome=hb.nome.replace(/^\(Habilitado\)\s*/,'').replace(/\s*\|.*$/,'');
+  for(const o of lista){
+    if(!o.geradaPorItem||o.automacao?.tipo!=='ataque'||o.automacao.arremesso||!o.custo?.some(c=>c.tipo==='acao')||o.composicao?.modos?.some(m=>m.destruidorDeHordas))continue;
+    const modo={id:'destruidor-de-hordas',nome,descricao:'Depois de um ataque com esta arma, ataque outra criatura a até '+String(raioM).replace('.',',')+' m do alvo anterior, dentro do alcance da arma e ainda não atacada neste turno. Uma vez no seu turno, sem custo adicional.',tipo:'ataque',limitePorUso:1,umaVezPorTurno:chave,destruidorDeHordas:{raioM},origemOpcaoId:hb.id,automacao:structuredClone(o.automacao)};
+    if(o.composicao){o.composicao.modos.push(modo);o.composicao.quantidadeMaxima+=1;continue;}
+    const principal='ataque-principal-'+o.id;
+    o.composicao={tipo:'sequencia',opcional:true,quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:principal,modos:[
+      {id:principal,nome:o.nome.replace(/\s*\|.*$/,''),descricao:'Ataque com a arma.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:o.id,automacao:structuredClone(o.automacao)},modo]};
+  }
+}
+// Valida a etapa do Destruidor de Hordas dentro da composição; devolve a automação da arma usada.
+function validarDestruidorNaComposicao(s,a,def,entradas,indice){
+  const modo=def.modos.find(m=>m.id===entradas[indice].modoId),anteriorEntrada=entradas[indice-1],modoAnterior=def.modos.find(m=>m.id===anteriorEntrada?.modoId);
+  exigir(indice>0&&modoAnterior&&modoAnterior.tipo==='ataque'&&!modoAnterior.destruidorDeHordas&&(modoAnterior.automacao.tags??[]).includes('arma'),modo.nome+' exige um ataque com arma imediatamente antes.');
+  exigir(s.fase!=='turnos'||atual(s)?.id===a.id,modo.nome+' só pode ser usado no seu próprio turno.');
+  const original=s.atores.find(x=>x.id===anteriorEntrada.alvoId),alvo=s.atores.find(x=>x.id===entradas[indice].alvoId);
+  exigir(original&&alvo&&alvo.id!==original.id,'Escolha para '+modo.nome+' uma criatura diferente do alvo anterior.');
+  exigir(distancia(original,alvo)<=modo.destruidorDeHordas.raioM+1e-8,'O alvo de '+modo.nome+' precisa estar a até '+modo.destruidorDeHordas.raioM+' m do alvo anterior.');
+  const atacados=new Set([...(a.eventosTurno?.ataques??[]).map(e=>e.alvo),...entradas.slice(0,indice).map(e=>e.alvoId)]);
+  exigir(!atacados.has(alvo.id),'Escolha para '+modo.nome+' uma criatura que você ainda não atacou neste turno.');
+  return modoAnterior.automacao;
+}
+
 function alvoSaque(s,a,alvoId){
   const alvo=s.atores.find(x=>x.id===alvoId);
   exigir(a.pv>0&&alvo&&alvo!==a&&alvo.pv<=0&&adversarios(s,a,alvo),'Escolha um inimigo derrotado.');
@@ -799,7 +849,7 @@ export function itensSaque(s,a){
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
-  return opcoes.filter(o=>!o.ocultarListas).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
+  return opcoes.filter(o=>!o.ocultarListas&&!o.metamagiaAoConjurar).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
     const assistida=Number(!x.opcao.automacao)-Number(!y.opcao.automacao);
     if(assistida)return assistida;
     const ax=Boolean(x.opcao.geradaPorItem&&x.opcao.automacao?.tipo==='ataque'),ay=Boolean(y.opcao.geradaPorItem&&y.opcao.automacao?.tipo==='ataque');
@@ -946,9 +996,24 @@ const grupoManobra='manobra-mestre-da-batalha';
 function ehManobra(opcao){
   return (opcao.custo??[]).some(custo=>custo.tipo==='recurso'&&custo.id==='dados-de-superioridade');
 }
-function opcoesDepoisDoAcerto(a,o,alvo){
+// #65 "Uma vez por turno" vale para cada turno da mesa, inclusive o de outra criatura (ataques de reação).
+// usosTurno continua restrito ao turno do próprio ator; os aprimoramentos usam a marca do turno corrente.
+export const marcaTurno=s=>s?.fase==='turnos'?'r'+s.rodada+':'+(s.ordem?.[s.vez]??s.vez):'fora';
+export function usadoNesteTurno(s,a,id){
+  if(!s||s.fase!=='turnos')return Boolean(a.usosTurno?.[id]);
+  return a.usosPorTurno?.marca===marcaTurno(s)&&Boolean(a.usosPorTurno.ids?.[id]);
+}
+function marcarUsoNesteTurno(s,a,id){
+  if(s?.fase==='turnos'){
+    if(a.usosPorTurno?.marca!==marcaTurno(s))a.usosPorTurno={marca:marcaTurno(s),ids:{}};
+    a.usosPorTurno.ids[id]=true;
+    if(s.ordem?.[s.vez]!==a.id)return;
+  }
+  (a.usosTurno??={})[id]=true;
+}
+function opcoesDepoisDoAcerto(a,o,alvo,s=null){
   const tags=tagsAtaque(o,o.automacao),usos=a.usosTurno??{};
-  const manuais=opcoesDisponiveis(a).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!usos[g.id])).filter(g=>{
+  const manuais=opcoesDisponiveis(a).filter(g=>g.gatilho==='apos_acerto'&&g.aprimoramento&&(g.custo??[]).every(c=>custoDisponivel(a,c))&&(!g.umaVezPorTurno||!(s?usadoNesteTurno(s,a,g.id):usos[g.id]))).filter(g=>{
     const r=g.aprimoramento.requisitos??{};return (!r.tagsAtaque?.length||r.tagsAtaque.every(t=>tags.includes(t)))&&(!r.alvoFerido||alvo.pv<pvMaximosAtuais(alvo));
   });
   const persistentes=(alvo.efeitosAtivos??[]).filter(e=>e.danoAoSerAtingido?.origemAtorId===a.id).filter(e=>!e.danoAoSerAtingido.tagsAtaque?.length||e.danoAoSerAtingido.tagsAtaque.every(t=>tags.includes(t))).map(e=>({id:e.id,nome:e.nome,descricao:e.descricao,custo:[],automatico:true,aprimoramento:{dano:e.danoAoSerAtingido.formula,elemento:e.danoAoSerAtingido.elemento,critico:e.danoAoSerAtingido.critico!==false}}));
@@ -962,7 +1027,31 @@ function opcoesDepoisDoAcerto(a,o,alvo){
 function opcoesRerrolagemDano(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 // #30 Magia Potencializada só vale para dano de magia.
 function rerrolagensDano(a,o){return opcoesRerrolagemDano(a).filter(g=>!g.rerrolagem.somenteMagia||o?.categoria==='magia');}
-const metaRerrolagem=g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''});
+const metaRerrolagem=g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,...(g.rerrolagem.modo==='dados'?{limiteDados:g.rerrolagem.limiteDados}:{}),custo:g.custo??[],descricao:g.descricao??''});
+// #60 Magia Potencializada: rerrola até N dados escolhidos da rolagem de dano e usa os novos resultados.
+// Função pura usada pela ponte do Dice+ e pela suíte: troca valores de dados mantidos e recalcula grupo, instância e total.
+export function dadosRerrolaveis(resultado){
+  return (resultado?.grupos??[]).flatMap((g,grupo)=>String(g.diceType).toLowerCase()==='d20'?[]:(g.dice??[]).flatMap((d,indice)=>d.kept===false?[]:[{grupo,indice,lados:Number(String(g.diceType).replace(/\D/g,''))||null,valor:d.value}]));
+}
+export function aplicarRerrolagemParcial(resultado,trocas,limite){
+  exigir(Array.isArray(trocas)&&trocas.length>=1&&trocas.length<=limite,'Escolha de 1 a '+limite+' dados para rerrolar.');
+  const validos=dadosRerrolaveis(resultado),chaves=new Set();
+  const novo=structuredClone(resultado);let delta=0;const porInstancia={};
+  for(const t of trocas){
+    const alvo=validos.find(x=>x.grupo===t.grupo&&x.indice===t.indice),chave=t.grupo+':'+t.indice;
+    exigir(alvo&&!chaves.has(chave),'Dado inválido para rerrolagem.');chaves.add(chave);
+    exigir(Number.isInteger(t.valor)&&t.valor>=1&&(!alvo.lados||t.valor<=alvo.lados),'Novo resultado inválido para d'+alvo.lados+'.');
+    const g=novo.grupos[t.grupo],sinal=g.isNegative?-1:1,diferenca=sinal*(t.valor-g.dice[t.indice].value);
+    g.dice[t.indice]={...g.dice[t.indice],value:t.valor,rerrolado:true};g.total=(Number(g.total)||0)+(t.valor-alvo.valor);delta+=diferenca;
+    const instancia=resultado.mapaGrupos?.[t.grupo]??0;porInstancia[instancia]=(porInstancia[instancia]??0)+diferenca;
+  }
+  novo.total=(Number(resultado.total)||0)+delta;
+  if(Array.isArray(novo.resultados)&&novo.resultados.length)for(const [i,d] of Object.entries(porInstancia)){const x=novo.resultados[Number(i)]??novo.resultados[0];x.total=(Number(x.total)||0)+d;x.resumo=(x.resumo?x.resumo+' → ':'')+x.total;}
+  novo.resumo=(resultado.resumo?resultado.resumo+' → ':'')+'rerrolados '+trocas.length+' dado(s): '+novo.total;
+  novo.dadosRerrolados=trocas.map(t=>({grupo:t.grupo,indice:t.indice,anterior:resultado.grupos[t.grupo].dice[t.indice].value,novo:t.valor}));
+  delete novo.relatoriosDano;
+  return novo;
+}
 function cobrarRerrolagens(a,lista,rolagem){
   const ids=Array.isArray(rolagem?.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];exigir(ids.every(id=>lista.some(g=>g.id===id)),'Rerrolagem de dano inválida.');
   for(const g of ids.map(id=>lista.find(x=>x.id===id)))for(const c of g.custo??[]){const bag=c.tipo==='recurso'?a.rec:a,key=c.tipo==='recurso'?c.id:c.tipo;exigir(bag[key]>=c.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=c.quantidade;}
@@ -974,7 +1063,32 @@ function modificadorDanoAntesDaRolagem(a,o){
 }
 // #3 Livro 2024: no Acerto Crítico os dados de dano do ataque são jogados duas vezes
 // (2d6+3 vira 4d6+3); modificadores fixos não dobram.
+export const mediaFormula=f=>String(f??'').replace(/\s+/g,'').split(/(?=[+-])/).reduce((n,parte)=>{const m=/^([+-]?)(\d*)d(\d+)$/i.exec(parte),sinal=parte.startsWith('-')?-1:1;if(m)return n+sinal*Number(m[2]||1)*(Number(m[3])+1)/2;const k=Number(parte);return Number.isFinite(k)?n+k:n;},0);
 const formulaCritica=f=>String(f).replace(/(\d*)d(\d+)/g,(_,n,l)=>(2*Number(n||1))+'d'+l);
+// #65 Prévia do Destruidor de Hordas: criaturas a até raioM do alvo original, dentro do alcance da arma e ainda não atacadas no turno.
+export function alvosElegiveisDestruidor(s,a,{alvoOriginalId,alcanceM,raioM=1.5,jaAtacados=[]}={}){
+  const original=s.atores.find(x=>x.id===alvoOriginalId);if(!original)return [];
+  const atacados=new Set([...(a.eventosTurno?.ataques??[]).map(e=>e.alvo),...jaAtacados,original.id]);
+  return s.atores.filter(x=>x!==a&&x.emCombate!==false&&x.pv>0&&!atacados.has(x.id)&&distancia(original,x)<=raioM+1e-8&&distancia(a,x)<=Math.min(LIMITE_ALCANCE_M,alcanceM??1.5)+1e-8);
+}
+export function ofertaDestruidorDeHordas(s,a){
+  if(!a||s.fase==='turnos'&&atual(s)?.id!==a.id)return null;
+  const hb=opcoesDisponiveis(a).find(o=>o.automacao?.usarArmaAnterior&&o.requisitosUso);if(!hb)return null;
+  const chave=hb.requisitosUso.umaVezPorTurno??hb.id;if(a.usosTurno?.[chave])return null;
+  const anterior=(a.eventosTurno?.ataques??[]).at(-1);if(!anterior||!(anterior.tags??[]).includes('arma'))return null;
+  const arma=opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);if(arma?.automacao?.tipo!=='ataque')return null;
+  const raioM=hb.requisitosUso.distanciaDoAlvoAnteriorM??1.5,alvos=alvosElegiveisDestruidor(s,a,{alvoOriginalId:anterior.alvo,alcanceM:arma.automacao.alcanceM,raioM});
+  return {opcaoId:hb.id,nome:hb.nome,centroAtorId:anterior.alvo,raioM,alcanceM:arma.automacao.alcanceM,alvos:alvos.map(x=>({id:x.id,nome:x.nome}))};
+}
+// #56 #62 M03: escolhas declaradas para o fim do descanso (Presa do Caçador). A definição declara o grupo exclusivo;
+// o descanso cria a pendência, o dono confirma e o mestre confirma por fichas sem dono ou com dono ausente.
+export function escolhasDeDescanso(a,periodo){
+  const fontes=[...(a.ficha.opcoes??[]),...(a.ficha.passivas??[])].filter(h=>h.trocaAposDescanso&&h.grupoExclusivo),grupos=[...new Set(fontes.map(h=>h.grupoExclusivo))];
+  return grupos.map(grupo=>{
+    const opcoes=fontes.filter(x=>x.grupoExclusivo===grupo),nome=grupo==='presa-do-cacador'?'Presa do Caçador':grupo;
+    return {id:grupo+'-'+periodo,nome,grupoExclusivo:grupo,periodo,opcoes:opcoes.map(x=>({id:x.id,nome:x.nome.replace(/^\(Habilitado\)\s*/,'').replace(/\s*\|.*$/,'')})),atualId:opcoes.find(x=>x.ativa!==false)?.id??null};
+  }).filter(e=>e.opcoes.length>1);
+}
 function validarRequisitosUso(s,a,o,alvo){
   const r=o.requisitosUso;if(!r)return;
   const ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[],anterior=[...(r.aposAcerto?acertos:ataques)].at(-1);
@@ -991,6 +1105,8 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.alvoVivo)exigir(alvo&&alvo.estadoVida!=='morto','O alvo precisa estar vivo.');
   if(r.alvoDiferenteDoAnterior)exigir(anterior&&alvo&&anterior.alvo!==alvo.id,'Escolha uma criatura diferente do alvo anterior.');
   if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distancia(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
+  if(r.somenteNoProprioTurno)exigir(s.fase!=='turnos'||atual(s)?.id===a.id,'Esta habilidade só pode ser usada no seu próprio turno.');
+  if(r.alvoNaoAtacadoNoTurno)exigir(alvo&&!ataques.some(e=>e.alvo===alvo.id),'Escolha uma criatura que você ainda não atacou neste turno.');
   if(r.umaVezPorTurno)a.usosTurno[r.umaVezPorTurno]=true;
 }
 const usaArmadura=a=>{
@@ -1093,7 +1209,8 @@ function validarPlanoAntesDoCusto(s,a,o,rule,c){
       exigir(!modo.ordem||modo.ordem===indice+1,'A ordem da composição de '+modo.nome+' é inválida.');
       exigir(!modo.requerModoAnterior||entradas[indice-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
       exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
-      exigir(distancia(a,alvo)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
+      const automacao=modo.destruidorDeHordas?validarDestruidorNaComposicao(s,a,def,entradas,indice):modo.automacao;
+      exigir(distancia(a,alvo)<=automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
     }
     return;
   }
@@ -1192,6 +1309,15 @@ function iniciarTurnos(s){
   s.ordem=[...participantes].sort((x,y)=>y.init-x.init||y.ficha.atributos.des-x.ficha.atributos.des).map(x=>x.id);
   s.vez=0;s.rodada=1;s.fase='turnos';participantes.forEach(restaurarEconomia);iniciarTurno(s,atual(s));return true;
 }
+// #65 Paridade: o ataque composto usa a mesma regra de vantagem/desvantagem do ataque simples para um alvo.
+export function modoDoAtaque(s,a,p,rule,{modoPedido='normal',efeitosOrigem=[]}={}){
+  const ra=restricoesAtivas(a),rp=restricoesAtivas(p),perto=distancia(a,p)<=1.5+1e-8,tags=rule.tags??[];
+  const ataqueDistancia=tags.includes('distancia')||tags.includes('arremesso')||(!tags.includes('corpo_a_corpo')&&!tags.includes('desarmado')&&(rule.alcanceM??1.5)>1.5+1e-8);
+  const inimigoColado=ataqueDistancia&&s.atores.some(x=>x!==a&&x.emCombate!==false&&x.pv>0&&adversarios(s,a,x)&&!restricoesAtivas(x).semAcoes&&distancia(a,x)<=1.5+1e-8);
+  const vantagem=Boolean(modoPedido==='vantagem'||efeitosOrigem.some(e=>e.vantagemAtaque)||ra.vantagemAtaques||rp.vantagemAtaquesContra||(rp.caido&&perto));
+  const desvantagem=Boolean(modoPedido==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra||(rp.caido&&!perto)||inimigoColado||(rule.alcanceNormalM!=null&&distancia(a,p)>rule.alcanceNormalM+1e-8));
+  return vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
+}
 export async function aplicar(s,c,u,rolar) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
@@ -1276,6 +1402,62 @@ export async function aplicar(s,c,u,rolar) {
     }
     enfileirarReacaoAoSofrerDano(s,p,origem,resolvido.danoRecebido,elemento);
     return resolvido.pvPerdido;
+  };
+  // #57 Ataque de Desarme: a arma sai do slot e continua no inventário do alvo; reequipar em combate gasta uma ação.
+  // Com duas armas diferentes empunhadas, 1d10 decide: 1–6 mão principal (60%), 7–10 mão fraca (40%).
+  const desarmarAlvo=async p=>{
+    const armas=itensEquipados(p).filter(i=>chaveArma(i)&&['mao_forte','mao_fraca'].includes(i.equipadoSlot));
+    if(!armas.length)return ' • '+p.nome+' não empunha arma para largar';
+    let arma=armas[0];
+    if(armas.length>1&&new Set(armas.map(i=>i.id)).size>1){
+      const principal=armas.find(i=>i.equipadoSlot==='mao_forte')??armas[0],fraca=armas.find(i=>i!==principal);
+      const sorteio=(await resultado('1d10',{tipo:'sorteio',titulo:'Desarme · qual arma cai (1–6 principal, 7–10 mão fraca)',alvo:p.nome})).total;
+      arma=sorteio<=6?principal:fraca;
+    }
+    arma.equipado=false;delete arma.equipadoSlot;
+    return ' • '+p.nome+' foi desarmado e guardou '+arma.nome+' no inventário (equipar de novo custa uma ação)';
+  };
+  // #65 Dano de ataque com os aprimoramentos pós-acerto (Assassino de Colossos, manobras, Marca do Predador, Smites...).
+  // Compartilhado pelo ataque simples e pelos ataques de reação para manter as mesmas regras de custo e limite.
+  const resolverDanoDeAtaque=async({o,rule,p,critico,formula,tagsDano,titulo})=>{
+    const ataqueBase={...o,automacao:rule};
+    const adicionais=opcoesDepoisDoAcerto(a,ataqueBase,p,s),rerrolagens=rerrolagensDano(a,ataqueBase),modificadorDano=modificadorDanoAntesDaRolagem(a,ataqueBase);
+    const metaAdicionais=adicionais.map(g=>{
+      const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
+      return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
+        ...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),
+        ...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};
+    });
+    const metaRerrolagens=rerrolagens.map(metaRerrolagem);
+    const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
+    const rolagem=await resultado(formula,{tipo:'dano',titulo,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
+    const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
+    exigir(new Set(idsAdicionais).size===idsAdicionais.length&&idsAdicionais.every(id=>adicionais.some(g=>g.id===id)),'Aprimoramento de dano inválido.');
+    exigir(adicionais.filter(g=>g.automatico).every(g=>idsAdicionais.includes(g.id)),'Dano persistente obrigatório ausente.');
+    exigir(idsRerrolagem.every(id=>rerrolagens.some(g=>g.id===id)),'Rerrolagem de dano inválida.');
+    const escolhidos=idsAdicionais.map(id=>adicionais.find(g=>g.id===id)),usadosRerrolagem=idsRerrolagem.map(id=>rerrolagens.find(g=>g.id===id));
+    exigir(escolhidos.filter(ehManobra).length<=1,'Só é permitido usar uma manobra por ataque.');
+    for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){
+      const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;
+    }
+    for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
+    if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
+    const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
+    const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});
+    const textos=[];
+    for(let i=0;i<escolhidos.length;i++){
+      const g=escolhidos[i];textos.push(valoresBrutos[i+1]+' de '+g.nome);
+      if(g.aprimoramento.salvaArea){
+        const area=g.aprimoramento.salvaArea,atingidos=s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8);
+        for(const alvoArea of atingidos){const bonus=alvoArea.ficha.salvaguardas?.[area.atributo]??mod(alvoArea.ficha.atributos[area.atributo]),rr=await rolarD20(bonus,alvoArea,{tipo:'salvaguarda',atributo:area.atributo,titulo:'Salvaguarda · '+g.nome,alvo:alvoArea.nome,cd:area.cd,destinoId:controladorDe(alvoArea),roladorNome:alvoArea.nome}),bruto=rr.total>=area.cd&&area.metade?Math.floor(valoresBrutos[i+1]/2):rr.total>=area.cd?0:valoresBrutos[i+1],recebido=bruto?await aplicarDanoNoAtor(alvoArea,bruto,g.aprimoramento.elemento,{origem:a,parcelas:[{valor:bruto,tipo:g.aprimoramento.elemento,tags:['magia','area']}]}):0;textos.push(alvoArea.nome+' '+(rr.total>=area.cd?'passou':'falhou')+' e perdeu '+recebido+' PV');}
+        continue;
+      }
+      const salva=g.aprimoramento.salva;
+      if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});
+        if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){textos.push((await desarmarAlvo(p)).replace(/^ • /,''));}else if(rr.total<salva.cd&&salva.efeitoFalha){const e={id:g.id,nome:salva.efeitoFalha.nome,tipo:'condicao',condicao:salva.efeitoFalha.condicao,duracao:{restante:salva.efeitoFalha.turnos??1,expira:salva.efeitoFalha.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);textos.push(p.nome+' falhou e recebeu '+e.nome);}else textos.push(p.nome+' resistiu a '+g.nome);
+      }
+    }
+    return {dano:danoDireto,bruto:parcelas.reduce((n,x)=>n+(x.total??0),0),textos,escolhidos};
   };
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
@@ -1425,7 +1607,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
       {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{
-        x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;
+        x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.escolhasDescanso; // escolha não feita até o combate mantém a opção atual
         if(x.emCombate!==false)for(const r of x.ficha.recursos)if(r.recuperacao?.some(v=>v.evento==='inicio_combate'&&v.modo==='completar'))x.rec[r.id]=r.maximo;
       });msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':
@@ -1479,7 +1661,10 @@ export async function aplicar(s,c,u,rolar) {
         }else{exigir(p.preparadas.includes(id),'Esta magia não está preparada.');p.preparadas=p.preparadas.filter(x=>x!==id);}
         msg=a.nome+' '+(c.operacao==='preparar'?'preparou ':'despreparou ')+o.nome+'.';
       }else{
-        const habilidade=o??passiva;habilidade.ativa=c.operacao==='ativar';
+        const habilidade=o??passiva;
+        const grupoDescanso=Boolean(habilidade.trocaAposDescanso&&habilidade.grupoExclusivo);
+        exigir(!grupoDescanso||gm,'Essa escolha só pode ser trocada ao fim de um descanso curto ou longo.');
+        habilidade.ativa=c.operacao==='ativar';
         if(habilidade.ativa&&habilidade.grupoExclusivo)for(const outra of [...a.ficha.opcoes,...(a.ficha.passivas??[])])if(outra.id!==habilidade.id&&outra.grupoExclusivo===habilidade.grupoExclusivo)outra.ativa=false;
         msg=a.nome+' '+(habilidade.ativa?'ativou ':'desativou ')+habilidade.nome+'.';
       }
@@ -1666,8 +1851,8 @@ export async function aplicar(s,c,u,rolar) {
         if(rule.tipo==='ataque'){
           const defesa=caAtual(alvo),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',atributo:o.dadosEquipamento?.atributo??rule.atributoConjuracao,titulo:'Reação · '+o.nome,alvo:alvo.nome,cd:defesa,penalidade:restricoesAtivas(alvo).penalidadeAtaquesContra}),face=rr.natural;
           const acertou=face!==1&&(face===20||rr.total>=defesa);msg=a.nome+' reagiu com '+o.nome+' • '+(acertou?'acertou':'errou')+' '+alvo.nome;
-          if(acertou){const critico=face===20,formula=critico?formulaCritica(rule.dano):rule.dano,rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:alvo.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsAtaque(o,rule)}],alvoDano:resumoAlvoDano(alvo)}),bruto=rolagem.total;
-            msg+=' e causou '+await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{critico,origem:a,relatorio:rolagem.relatoriosDano?.[0]});}
+          if(acertou){const critico=face===20,formula=critico?formulaCritica(rule.dano):rule.dano,r=await resolverDanoDeAtaque({o,rule,p:alvo,critico,formula,tagsDano:tagsAtaque(o,rule),titulo:'Dano · '+o.nome});
+            msg+=' e causou '+r.dano+r.textos.map(x=>' • '+x).join('');}
         }else{
           const escolhas=rule.atributos??[rule.atributo],atributo=escolhas.reduce((melhor,k)=>{const bonus=alvo.ficha.salvaguardas?.[k]??mod(alvo.ficha.atributos[k]);return !melhor||bonus>melhor.bonus?{k,bonus}:melhor;},null);
           const controlador=alvo.ficha.tipo==='pj'&&alvo.dono?alvo.dono:'GM',falhaAutomatica=restricoesAtivas(alvo).falhaSalvas?.includes(atributo.k);
@@ -1695,8 +1880,11 @@ export async function aplicar(s,c,u,rolar) {
         exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para reagir.');bag[key]-=custo.quantidade;
       }
       const alcance=a.ficha.alcanceCorpoACorpoM??1.5;
-      const ataque=(o.automacao?.tipo==='ataque'?o:opcoesDisponiveis(a).filter(x=>x.automacao?.tipo==='ataque'&&x.automacao.alcanceM<=alcance+1e-8&&x.categoria!=='magia')
-        .sort((x,y)=>y.automacao.bonus-x.automacao.bonus)[0]);
+      // #65 O jogador pode indicar a arma ou o golpe; sem indicação, usa o maior bônus e, no empate, o maior dano médio.
+      const candidatosOportunidade=opcoesDisponiveis(a).filter(x=>x.automacao?.tipo==='ataque'&&x.automacao.alcanceM<=alcance+1e-8&&x.categoria!=='magia'&&!x.requisitosUso);
+      exigir(!c.ataqueId||candidatosOportunidade.some(x=>x.id===c.ataqueId),'Escolha um ataque corpo a corpo disponível para a reação.');
+      const ataque=(o.automacao?.tipo==='ataque'?o:candidatosOportunidade.find(x=>x.id===c.ataqueId)??[...candidatosOportunidade]
+        .sort((x,y)=>y.automacao.bonus-x.automacao.bonus||mediaFormula(y.automacao.dano)-mediaFormula(x.automacao.dano))[0]);
       exigir(ataque,'Nenhum ataque corpo a corpo configurado para esta reação.');
       const rule=ataque.automacao,alvo=s.atores.find(x=>x.id===p.alvo),ajuste=c.ajuste??0;
       exigir(alvo&&inteiro(ajuste,-20,20),'Ajuste ou alvo inválido.');
@@ -1709,8 +1897,9 @@ export async function aplicar(s,c,u,rolar) {
       const acertou=face!==1&&(face===20||total>=defesa);
       msg=a.nome+' • '+o.nome+' com '+ataque.nome+' • '+total+(acertou?' acertou':' errou');
       if(acertou){
-        const critico=face===20||(rt.criticoCorpoACorpo&&distancia(a,alvo)<=1.5+1e-8);let formula=rule.dano;if(critico)formula=formula.replace(/^\d+/,n=>String(+n+1));
-        const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+ataque.nome,critico,alvo:alvo.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsAtaque(ataque,rule)}],alvoDano:resumoAlvoDano(alvo)}),bruto=rolagem.total,dano=await aplicarDanoNoAtor(alvo,bruto,rule.elemento,{critico,origem:a,relatorio:rolagem.relatoriosDano?.[0]});
+        // #65 Crítico na reação segue a regra 2024 (dobra todos os dados) e o ajuste oferece os mesmos aprimoramentos do ataque comum.
+        const critico=face===20||(rt.criticoCorpoACorpo&&distancia(a,alvo)<=1.5+1e-8),formula=critico?formulaCritica(rule.dano):rule.dano;
+        const resolvido=await resolverDanoDeAtaque({o:ataque,rule,p:alvo,critico,formula,tagsDano:tagsAtaque(ataque,rule),titulo:'Dano · '+ataque.nome}),dano=resolvido.dano+resolvido.textos.map(x=>' • '+x).join('');
         const percorrida=distancia(mov.origem,p.ponto),totalTrajeto=Math.max(.0001,distancia(mov.origem,mov.destino)),custoPercorrido=(mov.custoMovimento??totalTrajeto)*Math.min(1,percorrida/totalTrajeto);
         alvo.x=p.ponto.x;alvo.y=p.ponto.y;alvo.metros=Math.max(0,alvo.metros-custoPercorrido);
         msg+=' e causou '+dano+'. O movimento parou em '+percorrida.toFixed(2)+' m.';
@@ -1783,7 +1972,22 @@ export async function aplicar(s,c,u,rolar) {
         p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>c.periodo==='curto'&&e.removeEm!=='descanso_curto');
         if(c.periodo==='longo'||!p.efeitosAtivos.some(e=>e.concentracaoId===p.concentracaoAtiva?.id))encerrarConcentracao(s,p,'descanso '+c.periodo);
         if(c.periodo==='longo'){p.pv=pvMaximosAtuais(p);p.pvTemporarios=0;p.estadoVida='consciente';p.salvaguardasMorte={sucessos:0,falhas:0};}else p.pv=Math.min(p.pv,pvMaximosAtuais(p));
-      } msg='Descanso '+c.periodo+' dos jogadores.';break;
+        const escolhas=escolhasDeDescanso(p,c.periodo);
+        if(escolhas.length)p.escolhasDescanso=[...(p.escolhasDescanso??[]).filter(e=>!escolhas.some(x=>x.grupoExclusivo===e.grupoExclusivo)),...escolhas];
+      }
+      msg='Descanso '+c.periodo+' dos jogadores.';
+      {const pendentes=s.atores.filter(x=>x.escolhasDescanso?.length).map(x=>x.nome);if(pendentes.length)msg+=' Escolhas pendentes: '+pendentes.join(', ')+'.';}
+      break;
+    case 'escolherAposDescanso': {
+      const pend=(a.escolhasDescanso??[]).find(e=>e.id===c.escolhaId);
+      exigir(pend,'Não há escolha pendente deste descanso.');
+      exigir(c.opcaoId===null||pend.opcoes.some(x=>x.id===c.opcaoId),'Opção inválida para '+pend.nome+'.');
+      const escolhida=c.opcaoId??pend.atualId;
+      for(const h of [...a.ficha.opcoes,...(a.ficha.passivas??[])])if(h.grupoExclusivo===pend.grupoExclusivo&&pend.opcoes.some(x=>x.id===h.id))h.ativa=h.id===escolhida;
+      a.escolhasDescanso=a.escolhasDescanso.filter(e=>e!==pend);if(!a.escolhasDescanso.length)delete a.escolhasDescanso;
+      msg=a.nome+' • '+pend.nome+': '+(pend.opcoes.find(x=>x.id===escolhida)?.nome??'sem alteração')+(escolhida===pend.atualId?' (mantida)':' (trocada)')+'.';
+      break;
+    }
     default: {
       exigir(!s.reacaoPendente,'Resolva a reação pendente antes de continuar.');
       const opcaoDeclarada=c.tipo==='usar'?opcaoPorId(a,c.opcao):null;
@@ -1845,7 +2049,14 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       exigir(c.tipo==='usar','Comando desconhecido.');
       const oBase=opcaoDeclarada;exigir(oBase,'Opção desconhecida.');exigir(opcaoDisponivel(a,oBase),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
-      const o=derivarOpcaoCirculo(a,oBase,c.circuloUsado);
+      let o=derivarOpcaoCirculo(a,oBase,c.circuloUsado,{magiaDuplicada:c.magiaDuplicada===true});
+      // Composição opcional (arma + Destruidor de Hordas): com uma única instância, segue o ataque simples.
+      if(o.composicao?.opcional&&!(Array.isArray(c.composicao)&&c.composicao.length>1)){
+        const unica=Array.isArray(c.composicao)?c.composicao[0]:null;
+        exigir(!unica||unica.modoId===o.composicao.modoPadrao,'Componha antes o ataque com a arma.');
+        if(unica)c={...c,alvo:unica.alvoId,composicao:undefined};
+        o={...o};delete o.composicao;
+      }
       exigir(o.categoria!=='magia'||armadurasSemTreino(a).length===0,'Não é possível conjurar usando armadura sem treinamento.');
       exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
       let rule=o.automacao;
@@ -1915,13 +2126,16 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           exigir(!modo.ordem||modo.ordem===i+1,'A ordem da composição de '+modo.nome+' é inválida.');
           exigir(!modo.requerModoAnterior||entradas[i-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
           exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
-          exigir(distancia(a,p)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
+          const automacaoModo=modo.destruidorDeHordas?validarDestruidorNaComposicao(s,a,def,entradas,i):modo.automacao;
+          exigir(distancia(a,p)<=automacaoModo.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
           if(modo.tipo==='cura'){
             const cura=(await resultado(modo.automacao.formula,{tipo:'cura',titulo:'Cura '+(i+1)+' · '+modo.nome,alvo:p.nome})).total,aplicado=curarAtor(p,cura);
             if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': '+aplicado+' PV';continue;
           }
-          const r=modo.automacao,defesa=caAtual(p),ra=restricoesAtivas(a),rp=restricoesAtivas(p),vantagem=c.modo==='vantagem'||ra.vantagemAtaques||rp.vantagemAtaquesContra||rp.caido,desvantagem=c.modo==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra;
-          const modoDado=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem',modoAnterior=c.modo;c.modo=modoDado;
+          const r=automacaoModo,defesa=caAtual(p),rp=restricoesAtivas(p);
+          const origensBloqueadas=(a.efeitosAtivos??[]).filter(e=>(e.condicao==='enfeiticado'||e.restricoes?.naoAtacarOrigem)&&e.origemAtorId).map(e=>e.origemAtorId);
+          exigir(!origensBloqueadas.includes(p.id),'Enfeitiçado: não pode atacar a origem do efeito.');
+          const modoDado=modoDoAtaque(s,a,p,r,{modoPedido:c.modo,efeitosOrigem:efeitos}),modoAnterior=c.modo;c.modo=modoDado;
           const rr=await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Instância '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
           const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:modo.origemOpcaoId??o.id,planoOpcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
           if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;
@@ -1930,9 +2144,9 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           a.eventosTurno.acertos.push(evento);
           if(r.efeitoAcerto){p.efeitosAtivos=[...(p.efeitosAtivos??[]).filter(e=>e.id!==modo.id+'-acerto'),{...structuredClone(r.efeitoAcerto),id:modo.id+'-acerto',origemAtorId:a.id}];if(r.efeitoAcerto.zerarReacao)p.reacao=0;}
           const critico=face===20||(rp.criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),ataqueInstancia={...o,nome:modo.nome,automacao:r},formula=critico?formulaCritica(r.dano):r.dano,tags=tagsAtaque(ataqueInstancia,r);
-          const adicionais=opcoesDepoisDoAcerto(a,ataqueInstancia,p),rerrolagens=rerrolagensDano(a,ataqueInstancia),modificadorDano=modificadorDanoAntesDaRolagem(a,ataqueInstancia);
-          const metaAdicionais=adicionais.map(g=>{const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};});
-          const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
+          const adicionais=opcoesDepoisDoAcerto(a,ataqueInstancia,p,s),rerrolagens=rerrolagensDano(a,ataqueInstancia),modificadorDano=modificadorDanoAntesDaRolagem(a,ataqueInstancia);
+          const metaAdicionais=adicionais.map(g=>{const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags,custo:g.custo??[],automatico:g.automatico===true,...((modo.preparar??[]).includes(g.id)?{preSelecionado:true}:{}),descricao:g.descricao??'',...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};});
+          const metaRerrolagens=rerrolagens.map(metaRerrolagem);
           const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
           const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano '+(i+1)+' · '+modo.nome,critico,alvo:p.nome,tipoDano:r.elemento,parcelasDano:[{tipo:r.elemento,tags}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
           const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
@@ -1942,7 +2156,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const escolhidos=idsAdicionais.map(id=>adicionais.find(g=>g.id===id)),usadosRerrolagem=idsRerrolagem.map(id=>rerrolagens.find(g=>g.id===id));
           exigir(escolhidos.filter(ehManobra).length<=1,'Só é permitido usar uma manobra por ataque.');
           for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;}
-          for(const g of escolhidos)if(g.umaVezPorTurno)a.usosTurno[g.id]=true;
+          for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
           if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
           const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],valores=[parcelas[0].total,...escolhidos.map((g,j)=>(parcelas[j+1]??{total:0}).total)],pacotes=[{valor:valores[0],tipo:r.elemento,tags},...escolhidos.filter(g=>!g.aprimoramento.salvaArea).map((g,j)=>({valor:valores[escolhidos.indexOf(g)+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags}))];
           const dano=await aplicarDanoNoAtor(p,pacotes.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:pacotes});
@@ -1950,7 +2164,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           for(let j=0;j<escolhidos.length;j++){
             const g=escolhidos[j];
             if(g.aprimoramento.salvaArea){const area=g.aprimoramento.salvaArea,atingidos=s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8);for(const alvoArea of atingidos){const bonus=alvoArea.ficha.salvaguardas?.[area.atributo]??mod(alvoArea.ficha.atributos[area.atributo]),rr=await rolarD20(bonus,alvoArea,{tipo:'salvaguarda',atributo:area.atributo,titulo:'Salvaguarda · '+g.nome,alvo:alvoArea.nome,cd:area.cd,destinoId:controladorDe(alvoArea),roladorNome:alvoArea.nome}),bruto=rr.total>=area.cd&&area.metade?Math.floor(valores[j+1]/2):rr.total>=area.cd?0:valores[j+1],recebido=bruto?await aplicarDanoNoAtor(alvoArea,bruto,g.aprimoramento.elemento,{origem:a,parcelas:[{valor:bruto,tipo:g.aprimoramento.elemento,tags:['arma','area']}]}):0;msg+=' • '+alvoArea.nome+' '+(rr.total>=area.cd?'passou':'falhou')+' e perdeu '+recebido+' PV';}continue;}
-            const salva=g.aprimoramento.salva;if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});if(rr.total<salva.cd&&salva.efeitoFalha){const def=salva.efeitoFalha,e={id:g.id,nome:def.nome,tipo:'condicao',condicao:def.condicao,duracao:{restante:def.turnos??1,expira:def.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;}
+            const salva=g.aprimoramento.salva;if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){msg+=await desarmarAlvo(p);}else if(rr.total<salva.cd&&salva.efeitoFalha){const def=salva.efeitoFalha,e={id:g.id,nome:def.nome,tipo:'condicao',condicao:def.condicao,duracao:{restante:def.turnos??1,expira:def.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;}
           }
         }
         break;
@@ -2113,14 +2327,14 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];
       if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome})){msg+=' • aguardando reação de '+p.nome;continue;}
-      const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p):[],rerrolagens=rerrolagensDano(a,o),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
+      const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p,s):[],rerrolagens=rerrolagensDano(a,o),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
       const metaAdicionais=adicionais.map(g=>{
         const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
         return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
           ...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),
           ...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};
       });
-      const metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,custo:g.custo??[],descricao:g.descricao??''}));
+      const metaRerrolagens=rerrolagens.map(metaRerrolagem);
       const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
       const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano · '+o.nome,critico,alvo:p.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:tagsDano}],alvoDano:resumoAlvoDano(p),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
       const idsAdicionais=Array.isArray(rolagem.recursosAtivos)?rolagem.recursosAtivos:[],idsRerrolagem=Array.isArray(rolagem.rerrolagensUsadas)?rolagem.rerrolagensUsadas:[];
@@ -2132,7 +2346,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){
         const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;
       }
-      for(const g of escolhidos)if(g.umaVezPorTurno)a.usosTurno[g.id]=true;
+      for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
       if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;
       const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
       const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});msg+=' • '+p.nome+' perdeu '+danoDireto+' PV';
@@ -2145,7 +2359,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         }
         const salva=g.aprimoramento.salva;
         if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});
-          if(rr.total<salva.cd&&salva.efeitoFalha){const e={id:g.id,nome:salva.efeitoFalha.nome,tipo:'condicao',condicao:salva.efeitoFalha.condicao,duracao:{restante:salva.efeitoFalha.turnos??1,expira:salva.efeitoFalha.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;
+          if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){msg+=await desarmarAlvo(p);}else if(rr.total<salva.cd&&salva.efeitoFalha){const e={id:g.id,nome:salva.efeitoFalha.nome,tipo:'condicao',condicao:salva.efeitoFalha.condicao,duracao:{restante:salva.efeitoFalha.turnos??1,expira:salva.efeitoFalha.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;
         }
       }
         deslocarForcado(p);

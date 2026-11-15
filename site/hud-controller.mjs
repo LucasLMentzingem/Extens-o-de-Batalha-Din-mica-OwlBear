@@ -1,11 +1,11 @@
 import OBR,{buildCurve,buildLine} from './vendor/sdk.mjs';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.25';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao} from './engine.mjs?v=0.8.25';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.25';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.25';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.26';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.26';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.26';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.26';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.25',import.meta.url);
+const url=new URL('./hud.html?v=0.8.26',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -190,7 +190,23 @@ export async function iniciarHud(){
     const regra=rule?.deslocamentoForcado;if(!regra)return [];
     return alvos.flatMap(alvo=>{const inicio=pos(alvo),fim=destinoDeslocamento(origem,inicio,regra.distanciaM*dpi);return fim?[...setaDeslocamento(inicio,fim),circulo(fim,dpi*.2,'#ffffff')]:[];});
   }
+  // #65 Prévia do Destruidor de Hordas: círculo de 1,5 m no alvo anterior e destaque das criaturas elegíveis.
+  function marcasDestruidor(centroId,raioM,elegiveis){
+    const centro=atores().find(a=>a.id===centroId);if(!centro)return [];
+    return [circulo(pos(centro),raioM*dpi,'#f2a64e'),...elegiveis.flatMap(ref=>{const alvo=atores().find(a=>a.id===ref.id);return alvo?[circulo(pos(alvo),dpi*.5,'#ffcf75')]:[];})];
+  }
+  function elegiveisDestruidorNaComposicao(p){
+    const modo=p?.composicao?.modos.find(m=>m.id===p.composicao.modoAtivo),anterior=p?.cmd?.composicao?.at(-1),a=ator();
+    if(!modo?.destruidorDeHordas||!anterior||!a)return null;
+    const def=(opcoesDisponiveis(a).find(o=>o.id===p.cmd.opcao)?.composicao?.modos??[]).find(m=>m.id===anterior.modoId);
+    const alvos=alvosElegiveisDestruidor(estado,a,{alvoOriginalId:anterior.alvoId,alcanceM:def?.automacao?.alcanceM,raioM:modo.destruidorDeHordas.raioM,jaAtacados:p.cmd.composicao.map(x=>x.alvoId)});
+    return {centroId:anterior.alvoId,raioM:modo.destruidorDeHordas.raioM,alvos};
+  }
   function marcasComposicao(p){
+    const hb=elegiveisDestruidorNaComposicao(p),extras=hb?marcasDestruidor(hb.centroId,hb.raioM,hb.alvos):[];
+    return [...extras,...marcasInstancias(p)];
+  }
+  function marcasInstancias(p){
     const instancias=p?.composicao?.instancias??[],contagem={};
     for(const x of instancias)contagem[x.alvoId]=(contagem[x.alvoId]??0)+1;
     const vistos={};
@@ -220,12 +236,12 @@ export async function iniciarHud(){
     const a=ator();
     if(!controla(a))return;
     await cancelar();
-    const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),o=base?derivarOpcaoCirculo(a,base,circuloUsado):base,rule=o?.automacao;
+    const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),duplicadaDisponivel=Boolean(base&&metamagiaDuplicada(a,base)),magiaDuplicada=duplicadaDisponivel&&d.magiaDuplicada===true,o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
     const reacao=o?.custo?.some(c=>c.tipo==='reacao');
     if(d.tipo==='usar'&&!o)return;
     const foraCombate=d.tipo==='usar'&&(estado.fase==='preparo'||a.emCombate===false);
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
-    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {})};
+    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {}),...(magiaDuplicada?{magiaDuplicada:true}:{})};
     let escolha=null;
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado','saque'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
@@ -234,8 +250,8 @@ export async function iniciarHud(){
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
-    if(circulos.length>1)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado};
-    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno}))),instancias:[]};
+    if(circulos.length>1||duplicadaDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{})};
+    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
       dpi=await OBR.scene.grid.getDpi();
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
@@ -245,7 +261,9 @@ export async function iniciarHud(){
       if(escolha==='lista')pendente.detalhe='Selecione no mapa · 0/'+(o.composicao?.quantidadeMaxima??o.selecao.max);
       anterior=await OBR.tool.getActiveTool();
       await OBR.tool.activateTool(tool);await OBR.tool.activateMode(tool,mode);
-      await desenhar([circulo(origem,raio*dpi,'#e5c079')]);
+      const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estado,a):null;
+      if(oferta){pendente.detalhe=oferta.alvos.length?'Alvos elegíveis: '+oferta.alvos.map(x=>x.nome).join(', '):'Nenhuma criatura elegível a '+medida(oferta.raioM)+' do alvo anterior.';pendente.marcasBase=[circulo(origem,raio*dpi,'#e5c079'),...marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos)];}
+      await desenhar(pendente.marcasBase??[circulo(origem,raio*dpi,'#e5c079')]);
     }else await publicarPrevia([]);
   }
   async function atualizarLista(p){
@@ -317,6 +335,7 @@ export async function iniciarHud(){
         if(modo.ordem&&modo.ordem!==indice)throw Error(modo.nome+' deve ocupar a etapa '+modo.ordem+'.');
         if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)throw Error(modo.nome+' exige a etapa anterior da composição.');
         if((p.cmd.composicao?.length??0)>=p.composicao.quantidadeMaxima)throw Error('Composição completa. Desfaça uma escolha para trocar o alvo.');
+        if(modo.destruidorDeHordas){const hb=elegiveisDestruidorNaComposicao(p);if(!hb)throw Error(modo.nome+' exige um ataque com arma na etapa anterior.');if(!hb.alvos.some(x=>x.id===alvo.id))throw Error(modo.nome+': escolha uma criatura destacada, a até '+medida(hb.raioM)+' do alvo anterior e ainda não atacada.');}
         p.cmd.alvos.push(alvo.id);p.cmd.composicao.push({modoId:modo.id,alvoId:alvo.id});
         const proximaOrdem=p.cmd.composicao.length+1,proximo=p.composicao.modos.find(m=>(!m.ordem||m.ordem===proximaOrdem)&&(!m.requerModoAnterior||m.requerModoAnterior===modo.id)&&(!m.limitePorUso||(p.cmd.composicao??[]).filter(x=>x.modoId===m.id).length<m.limitePorUso));
         if(proximo)p.composicao.modoAtivo=proximo.id;
@@ -411,7 +430,7 @@ export async function iniciarHud(){
       resposta.recursosAtivos=Array.isArray(d.recursosAtivos)?d.recursosAtivos:[];
       await responderDado(resposta);
     }else if(d.tipo==='rerrolarDado'&&pedidoDado?.tipo==='resultado'&&d.rerrolagem){
-      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();await responderDado({pedido,rerrolar:true,rerrolagem:d.rerrolagem});
+      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();await responderDado({pedido,rerrolar:true,rerrolagem:d.rerrolagem,...(Array.isArray(d.dados)?{dados:d.dados}:{})});
     }else if(d.tipo==='continuarDado'&&pedidoDado?.tipo==='resultado'){
       const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,continuar:true});
     }else if(d.tipo==='cancelarDado'&&pedidoDado){
@@ -441,7 +460,11 @@ export async function iniciarHud(){
     }
     else if(d.tipo==='alterarCirculo'&&pendente?.compositor){
       const circulo=Number(d.valor);if(pendente.rolagem||!pendente.compositor.circulos.includes(circulo))return;
-      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:circulo});
+      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:circulo,magiaDuplicada:pendente.cmd.magiaDuplicada===true});
+    }
+    else if(d.tipo==='alternarMagiaDuplicada'&&pendente?.compositor?.duplicadaDisponivel){
+      if(pendente.rolagem)return;
+      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:pendente.cmd.circuloUsado,magiaDuplicada:pendente.cmd.magiaDuplicada!==true});
     }
     else if(d.tipo==='selecionarModoComposicao'&&pendente?.composicao){
       const modo=pendente.composicao.modos.find(m=>m.id===d.id);if(!modo)return;
@@ -450,6 +473,7 @@ export async function iniciarHud(){
       if(modo.ordem&&modo.ordem!==indice)return;
       if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)return;
       pendente.composicao.modoAtivo=modo.id;
+      if(modo.destruidorDeHordas||pendente.marcasBase){const items=[circulo(pendente.origem,pendente.raio*dpi,'#e5c079'),...marcasComposicao(pendente)];pendente.marcasBase=items;await desenhar(items);}
     }
     else if(d.tipo==='desfazer'&&pendente?.escolha==='lista'){
       pendente.cmd.alvos.pop();if(pendente.composicao){pendente.cmd.composicao.pop();const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1),proximo=pendente.composicao.modos.find(m=>(!m.ordem||m.ordem===indice)&&(!m.requerModoAnterior||m.requerModoAnterior===anterior?.modoId));if(proximo)pendente.composicao.modoAtivo=proximo.id;}await atualizarLista(pendente);

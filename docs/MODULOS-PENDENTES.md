@@ -1,4 +1,4 @@
-# Módulos a fechar — revisão 0.8.24
+# Módulos a fechar — revisão 0.8.26
 
 Consolidação em 15/11/2026 a partir do código publicado, histórico, arquitetura M04 e issues abertas. Não representa uma nova auditoria exaustiva das 320 entradas do mapeamento. A meta prioritária continua sendo a etapa de nível 3, seguida por 5, 7 e 10.
 
@@ -7,9 +7,9 @@ Consolidação em 15/11/2026 a partir do código publicado, histórico, arquitet
 - [#4](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/4): 0 PV, inconsciência e salvaguardas contra a morte.
 - [#63](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/63): concluída na 0.8.24; relógio fora de combate reduz Bênção, a duração também avança 6 s por rodada e concentração não apaga Bênção alheia.
 - [#64](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/64): concluída na 0.8.24; interseção contínua detecta entrada e saída do alcance no mesmo trajeto e ordena vários reatores.
-- [#65](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/65): em andamento; a 0.8.24 cobre dano persistente, dano garantido no erro, efeitos de maestria no acerto, vantagens/desvantagens e opções de dano pós-acerto em sequências. Desenvolvimento pausado aqui. Falta validar Assassino de Colossos em ataque simples/composto/reação; confirmar manobras/recursos em composições e Destruidor de Hordas com e sem a gaveta; smoke test visual em Owlbear e reabrir a mesa para conferir persistência.
+- [#65](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/65): critérios de motor cumpridos na 0.8.26. Assassino de Colossos coberto em ataque simples, composto e de oportunidade ("uma vez por turno" vale em cada turno da mesa); crítico de reação dobra todos os dados; ataques compostos usam a mesma regra de vantagem/desvantagem do simples (#8, Caído, alcance longo, Enfeitiçado); Destruidor de Hordas com e sem Gaveta e limite compartilhado; uma manobra por instância. Falta apenas o smoke test visual em Owlbear (prévia do círculo e reabertura da sala).
 
-Os fixes #63 e #64 foram publicados e possuem regressões de motor. A paridade completa #65 continua aberta até cobrir os cenários listados acima.
+Os fixes #63 e #64 foram publicados e possuem regressões de motor. A #65 pode ser fechada após a checagem visual listada acima.
 
 ## Contratos gerais
 
@@ -17,13 +17,13 @@ Os fixes #63 e #64 foram publicados e possuem regressões de motor. A paridade c
 |---|---|---|---|
 | M01 — Ciclo de efeitos | Parcial | Empilhamento, remoção composta e duração uniforme entre estados especiais e efeitos declarativos | [#40](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/40) |
 | M02 — Gatilhos e interceptações | Parcial | Eventos ordenados, prioridade, cancelamento, redirecionamento e retomada genérica | [#41](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/41) |
-| M03 — Escolhas declarativas | Parcial | Escolher atributo, benefício, condição e área; persistir escolhas quando a regra exigir | [#42](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/42) |
-| M04 — Compositor de ações | Parcial | Reservas e custos condicionais; conflitos; janelas M02; migração geral de manobras, metamagias, Smites e maestrias | [#43](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/43) |
+| M03 — Escolhas declarativas | Parcial | 0.8.26: escolha após descanso (`trocaAposDescanso`) com pendência persistida, confirmação do dono ou do mestre. Falta escolher atributo, benefício, condição e área | [#42](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/42) |
+| M04 — Compositor de ações | Parcial | 0.8.26: Destruidor de Hordas e Mão de Dolo preparada na Gaveta, Magia Duplicada antes da conjuração, limite de manobra por instância. Falta reserva genérica de custos condicionais, Smites e janelas M02 | [#43](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/43) |
 | M05 — Zonas persistentes | Sem módulo geral | Entidade de zona, entrada/saída/turno, mobilidade e geometrias restantes | [#44](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/44) |
 | M06 — Entidades vinculadas | Sem módulo geral | Familiar/invocação com origem, controlador, iniciativa, comandos, duração e encerramento | [#45](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/45) |
 | M07 — Transformações | Sem módulo geral | Sobreposição reversível de ficha, PV, ações, sentidos, tamanho, equipamentos e token | [#46](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/46) |
 | M08 — Movimento avançado | Parcial | Puxar, direção livre, voo, escalada, salto, colisão, zonas e correção #64 | [#47](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/47) |
-| M09 — Modificadores de rolagem | Parcial | Mínimo/máximo, substituição genérica, filtros compostos e integração com dados explosivos | [#48](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/48) |
+| M09 — Modificadores de rolagem | Parcial | 0.8.26: rerrolagem parcial de até N dados (Magia Potencializada). Falta mínimo/máximo, substituição genérica, filtros compostos e dados explosivos | [#48](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/48) |
 | M10 — Tags e restrições | Parcial | Tipo/tamanho de criatura, imunidades funcionais e predicados combináveis | [#49](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/49) |
 | M11 — Efeitos em equipamentos | Sem módulo geral | Encantamento temporário ligado à instância de arma/armadura, acompanhando troca e portador | [#50](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/50) |
 | M12 — Agendador | Parcial | Fila persistida, genérica e cancelável de dano, cura, testes e efeitos futuros | [#51](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/51) |
@@ -56,13 +56,13 @@ Esta matriz lista os bloqueios mecânicos. Habilidades de interpretação são v
 
 | Ficha | Módulos apontados para o fechamento | Issue |
 |---|---|---|
-| Dragoberto | M02, M03 (descanso), M04 (Destruidor de Hordas) e testes de Assassino de Colossos | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
-| Draven Thorne | M03, M04 | [#57](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/57) |
+| Dragoberto | M02; smoke visual do Destruidor de Hordas. M03 (descanso), M04 e Assassino de Colossos cobertos na 0.8.26 | [#56](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/56) |
+| Draven Thorne | M10 (Prostrador só em Grande ou menor); smoke visual. Desarme e limite de manobras cobertos na 0.8.26 | [#57](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/57) |
 | Hannah Montana | M06 (Ilusão Menor como token visual) | [#58](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/58) |
-| Loteria | M03, M04 | [#59](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/59) |
-| Nikki Lauda | M01 (Taumaturgia), M03/M04 (Magia Duplicada), M06 (Mãos Mágicas), M09/M13 (Explosão Elemental). Queda Suave interpretativa. | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
+| Loteria | Smoke visual da Gaveta. Mão de Dolo fora e dentro da Torrente coberta na 0.8.26 | [#59](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/59) |
+| Nikki Lauda | M01 (Taumaturgia), M06 (Mãos Mágicas), M13 (dados explosivos de Explosão Elemental). Magia Potencializada e Magia Duplicada cobertas na 0.8.26. Queda Suave interpretativa. | [#60](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/60) |
 | Skimi | M01 (Disfarçar-se, Taumaturgia, Mente Desperta e duração de Força Fantasmagórica), M03/M06 (ilusão e invocações), M10 (restrições) | [#61](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/61) |
-| Zurich | M02/M03/M04 (Caçador), M05 (Emaranhar), testes de Assassino de Colossos e #65 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |
+| Zurich | M05 (Emaranhar). Caçador (M03/M04) e #65 cobertos na 0.8.26 | [#62](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/62) |
 
 M01 e correções sistêmicas de turno/movimento também podem afetar todas as fichas. Priorize os demais módulos conforme os efeitos mecânicos do escopo de nível 3.
 
@@ -73,4 +73,4 @@ M01 e correções sistêmicas de turno/movimento também podem afetar todas as f
 3. M05–M07 para zonas, familiares e transformações. M14 passa a ser uma melhoria de fluxo para as habilidades [classificadas como interpretação](HABILIDADES-DE-INTERPRETACAO.md).
 4. Completar M08–M13 e M15–M16 conforme as dependências do catálogo; remapear e testar a etapa de nível 3 antes de encerrá-la.
 
-O M04 permanece pausado pela instrução anterior; este registro organiza a retomada e não autoriza desenvolvimento adicional por si só.
+O M04 foi retomado na 0.8.26 por pedido do responsável, com prioridade no fechamento das sete fichas de nível 3.

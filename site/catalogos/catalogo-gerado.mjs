@@ -1966,11 +1966,12 @@ export default {
     },
     {
       "id": "habilidade.assassino-de-colossos",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Assassino de Colossos",
         "categoria": "acao",
         "grupoExclusivo": "presa-do-cacador",
+        "trocaAposDescanso": true,
         "descricao": "Uma vez por turno, quando atingir com arma criatura que esteja abaixo dos PV máximos, pode causar +[1d8] do dano adicional da característica. Não concede ataque extra.",
         "custo": [],
         "gatilho": "apos_acerto",
@@ -1989,11 +1990,12 @@ export default {
     },
     {
       "id": "habilidade.assassino-de-colossos-bc0fae68",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Assassino de Colossos",
         "categoria": "acao",
         "grupoExclusivo": "presa-do-cacador",
+        "trocaAposDescanso": true,
         "descricao": "Uma vez por turno, ao acertar com arma uma criatura que já está abaixo dos PV máximos: +[1d8] de dano. Pode trocar por Destruidor de Hordas ao fim de um descanso curto ou longo.",
         "custo": [],
         "gatilho": "apos_acerto",
@@ -2056,11 +2058,11 @@ export default {
     },
     {
       "id": "habilidade.ataque-ameacador",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Ataque Ameaçador",
         "categoria": "acao",
-        "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
+        "descricao": "Ao acertar com arma, gaste um Dado de Superioridade: some 1d8 ao dano e o alvo faz salvaguarda de SAB. Se falhar, fica Amedrontado até o fim do seu próximo turno.",
         "gatilho": "apos_acerto",
         "custo": [
           {
@@ -2091,11 +2093,11 @@ export default {
     },
     {
       "id": "habilidade.ataque-de-desarme",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Ataque de Desarme",
         "categoria": "acao",
-        "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
+        "descricao": "Ao acertar com arma, gaste um Dado de Superioridade: some 1d8 ao dano e o alvo faz salvaguarda de FOR. Se falhar, larga a arma empunhada, que vai para o inventário; reequipar em combate gasta uma ação. Com duas armas diferentes, 60% a principal e 40% a da mão fraca.",
         "gatilho": "apos_acerto",
         "custo": [
           {
@@ -2116,8 +2118,7 @@ export default {
             "cd": 13,
             "efeitoFalha": {
               "nome": "Desarmado",
-              "turnos": 1,
-              "expira": "fim_origem"
+              "desarmar": true
             }
           }
         }
@@ -2245,11 +2246,11 @@ export default {
     },
     {
       "id": "habilidade.ataque-prostrador",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Ataque Prostrador",
         "categoria": "acao",
-        "descricao": "Ao acertar com arma, gaste um Dado de Superioridade e some 1d8 ao dano.",
+        "descricao": "Ao acertar com arma, gaste um Dado de Superioridade: some 1d8 ao dano e o alvo Grande ou menor faz salvaguarda de FOR. Se falhar, fica Caído.",
         "gatilho": "apos_acerto",
         "custo": [
           {
@@ -2712,11 +2713,12 @@ export default {
     },
     {
       "id": "habilidade.destruidor-de-hordas",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Destruidor de Hordas",
         "categoria": "acao",
         "grupoExclusivo": "presa-do-cacador",
+        "trocaAposDescanso": true,
         "descricao": "Uma vez por turno, ao atacar com arma, faz outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original. Ativar no lugar do Assassino de Colossos após um descanso.",
         "custo": [],
         "requisitosUso": {
@@ -2726,7 +2728,9 @@ export default {
           ],
           "umaVezPorTurno": "destruidor-de-hordas-19",
           "alvoDiferenteDoAnterior": true,
-          "distanciaDoAlvoAnteriorM": 1.5
+          "distanciaDoAlvoAnteriorM": 1.5,
+          "somenteNoProprioTurno": true,
+          "alvoNaoAtacadoNoTurno": true
         },
         "automacao": {
           "tipo": "ataque",
@@ -3392,11 +3396,12 @@ export default {
     },
     {
       "id": "habilidade.habilitado-destruidor-de-hordas",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "(Habilitado) Destruidor de Hordas",
         "categoria": "acao",
         "grupoExclusivo": "presa-do-cacador",
+        "trocaAposDescanso": true,
         "descricao": "Uma vez em cada um dos seus turnos, ao realizar ataque com arma, pode realizar outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original, dentro do alcance da arma e que ainda não atacou neste turno.",
         "custo": [],
         "requisitosUso": {
@@ -3406,7 +3411,9 @@ export default {
           ],
           "umaVezPorTurno": "habilitado-destruidor-de-hordas-18",
           "alvoDiferenteDoAnterior": true,
-          "distanciaDoAlvoAnteriorM": 1.5
+          "distanciaDoAlvoAnteriorM": 1.5,
+          "somenteNoProprioTurno": true,
+          "alvoNaoAtacadoNoTurno": true
         },
         "automacao": {
           "tipo": "ataque",
@@ -3812,11 +3819,12 @@ export default {
     },
     {
       "id": "habilidade.magia-duplicada-ao-conjurar",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Magia Duplicada | ao conjurar",
         "categoria": "acao",
-        "descricao": "Gaste 1 ponto para aumentar em um o círculo efetivo de uma magia que ganhe um alvo adicional ao ser conjurada em círculo superior.",
+        "metamagiaAoConjurar": "duplicada",
+        "descricao": "Na Gaveta de Composição, antes de conjurar, gaste 1 Ponto de Feitiçaria para aumentar em um o círculo efetivo de uma magia que ganhe um alvo adicional ao subir de círculo. O espaço escolhido é mantido.",
         "custo": [
           {
             "tipo": "recurso",
@@ -3828,7 +3836,7 @@ export default {
     },
     {
       "id": "habilidade.magia-potencializada-ao-rolar-dano",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Magia Potencializada | ao rolar dano",
         "categoria": "acao",
@@ -3843,7 +3851,8 @@ export default {
         "gatilho": "apos_rolagem_dano",
         "rerrolagem": {
           "tipo": "dano",
-          "modo": "todos",
+          "modo": "dados",
+          "limiteDados": 3,
           "somenteMagia": true
         }
       }

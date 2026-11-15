@@ -4,8 +4,8 @@
   "resumo": {
     "classes": 6,
     "racas": 6,
-    "habilidades": 259,
-    "comuns": 15,
+    "habilidades": 260,
+    "comuns": 16,
     "itens": 94
   },
   "sistemaEquipamentos": {
@@ -997,6 +997,10 @@
     }
   ],
   "comuns": [
+    {
+      "nome": "Ajudar · Estabilizar",
+      "status": "Automatizada"
+    },
     {
       "nome": "Ajudar | ação",
       "status": "Assistida pelo mestre"
