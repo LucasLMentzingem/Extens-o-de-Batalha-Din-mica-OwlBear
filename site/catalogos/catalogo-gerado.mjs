@@ -7804,13 +7804,13 @@ export default {
     },
     {
       "id": "item.moedas-11-po",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas — 11 PO",
         "descricao": "Saldo do kit inicial do Monge (opção A).",
         "tipo": "moeda",
         "empilhavel": true,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
@@ -7826,13 +7826,13 @@ export default {
     },
     {
       "id": "item.moedas-19-po",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas — 19 PO",
         "descricao": "Saldo do kit inicial do Bardo (opção A).",
         "tipo": "moeda",
         "empilhavel": true,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
@@ -7848,13 +7848,13 @@ export default {
     },
     {
       "id": "item.moedas-28-po",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas — 28 PO",
         "descricao": "Saldo do kit inicial do Feiticeiro (opção A).",
         "tipo": "moeda",
         "empilhavel": true,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
@@ -7870,13 +7870,13 @@ export default {
     },
     {
       "id": "item.moedas-30-po",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas — 30 PO",
         "descricao": "Conforme a ficha.",
         "tipo": "moeda",
         "empilhavel": true,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
@@ -7892,13 +7892,13 @@ export default {
     },
     {
       "id": "item.moedas-4-po",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas — 4 PO",
         "descricao": "Saldo inicial do kit do Guerreiro.",
         "tipo": "moeda",
         "empilhavel": true,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
@@ -7914,13 +7914,13 @@ export default {
     },
     {
       "id": "item.moedas-7-po",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas — 7 PO",
         "descricao": "Saldo do kit inicial do Guardião (opção A).",
         "tipo": "moeda",
         "empilhavel": true,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
@@ -7936,7 +7936,7 @@ export default {
     },
     {
       "id": "item.moedas-de-ouro",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Moedas",
         "descricao": "Saldo monetário expresso em peças de ouro; frações representam prata e cobre.",
@@ -7949,7 +7949,7 @@ export default {
           "moeda": "po"
         },
         "negociavel": false,
-        "pesoKg": 0.01,
+        "pesoKg": 0,
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,

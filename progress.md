@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — venda vinculada ao catálogo e PO sem peso 0.8.17
+
+- O menu Vender exige catálogo aberto para a mesma ficha e usa a loja selecionada. O vínculo é revalidado ao confirmar e a recompra pertence àquela loja.
+- Fechar ou trocar o catálogo remove a oferta de venda anterior. Uma presença local com expiração impede usar catálogos encerrados.
+- PO têm peso zero no catálogo, na normalização das fichas e no cálculo de carga. Mantidos os pesos dos demais itens.
+- Teste de interface cobriu loja ativa sem catálogo, fechamento do catálogo, seleção de loja e registro da recompra.
+
 ## 2026-11-15 — filtro de círculo menor 0.8.16
 
 - A HUD deriva um botão para círculos de magias disponíveis sem espaços próprios, como o 1º círculo da Skimi.

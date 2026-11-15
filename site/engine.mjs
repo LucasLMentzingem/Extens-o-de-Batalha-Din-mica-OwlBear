@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.16';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.16';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.17';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.17';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -347,7 +347,10 @@ function normalizarItemEquipamento(item){
   }
   Object.assign(item,dadosArmadura(item.nome,item.descricao,item));
   item.preco??={valor:1,moeda:'po'};
-  if(item.tipo==='moeda'){item.moeda??='po';item.valorMoedaPc??=100;item.negociavel=false;}
+  if(item.tipo==='moeda'){
+    item.moeda??='po';item.valorMoedaPc??=100;item.negociavel=false;
+    if(item.moeda==='po')item.pesoKg=0;
+  }
   else if(item.negociavel===undefined)item.negociavel=true;
   return item;
 }
@@ -819,7 +822,7 @@ export const deslocamentoMaximo=a=>{
 };
 export const capacidadeCargaAtual=a=>(a?.ficha?.inventario?.capacidadeCargaKg??0)+bonusEquipamento(a,'capacidadeCargaKg')+bonusPassiva(a,'capacidadeCargaKg')+bonusEfeito(a,'capacidadeCargaKg');
 export const bonusIniciativa=a=>mod(a?.ficha?.atributos?.des??10)+bonusEquipamento(a,'iniciativa')+bonusPassiva(a,'iniciativa')+bonusEfeito(a,'iniciativa');
-export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(Number(i.pesoKg)||0)*Math.max(0,Number(i.quantidade)||0),0);
+export const pesoInventario=a=>(a?.ficha?.inventario?.itens??[]).reduce((n,i)=>n+(i.tipo==='moeda'&&(i.moeda??'po')==='po'?0:(Number(i.pesoKg)||0)*Math.max(0,Number(i.quantidade)||0)),0);
 const VALOR_MOEDA_PC=Object.freeze({pc:1,pp:10,pe:50,po:100,pl:1000});
 export function precoEmPc(item){
   const p=item?.preco,unidade=VALOR_MOEDA_PC[p?.moeda];

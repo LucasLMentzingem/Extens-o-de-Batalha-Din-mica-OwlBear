@@ -65,6 +65,7 @@ Este exemplo demonstra a importação. Complete as concessões da classe, espéc
 - Distâncias usam metros e valores reais. O teto sistêmico de alcance é 18 m. Áreas possuem suas próprias dimensões.
 - `caBase` representa a defesa base. Equipamentos e buffs aplicam seus modificadores dinamicamente. Confira o resultado equipado para evitar contabilizar o escudo duas vezes.
 - Pesos pertencem às definições dos itens em kg. Quantidade e equipamento pertencem à instância.
+- PO têm peso zero por decisão da mesa. Essa regra também é aplicada às fichas antigas ao carregar.
 - Cada item físico tem um ID próprio. Duas adagas equipadas precisam de duas instâncias, uma em cada mão. Armas de duas mãos ocupam ambas as mãos. Escudos usam `mao_fraca`.
 - Slots disponíveis são `cabeca`, `capa`, `vestes`, `botas`, `mao_forte`, `mao_fraca`, `arma_distancia`, `colar`, `acessorio_1` e `acessorio_2`. Confira os nomes no schema e nos exemplos antes de criar um equipamento novo.
 

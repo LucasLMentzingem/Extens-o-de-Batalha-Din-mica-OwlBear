@@ -751,7 +751,7 @@ test('as sete fichas de jogadores carregam juntas com recursos e automações pr
  let s=novo();s=await aplicar(s,{tipo:'grupoTeste',rev:s.rev,fichas:fichasJogadores,ensaio:true},gm,async()=>1);
  assert.equal(s.atores.length,7);assert.deepEqual(new Set(s.atores.map(a=>a.ficha.id)),new Set(idsJogadores));
  assert.ok(s.atores.every(a=>a.dono==='teste'&&a.token==='sim-'+a.id));
- assert.ok(s.atores.every(a=>a.ficha.inventario.itens.every(i=>i.pesoKg>0)),'todos os itens das sete fichas precisam ter peso');
+ assert.ok(s.atores.every(a=>a.ficha.inventario.itens.every(i=>i.tipo==='moeda'?i.pesoKg===0:i.pesoKg>0)),'PO não pesam e os demais itens mantêm peso');
  const porId=id=>s.atores.find(a=>a.ficha.id===id).ficha;
  assert.equal(porId('draven-thorne').opcoes.find(o=>o.id==='surto-de-acao-acao').automacao.tipo,'economia');
  assert.equal(porId('loteria').opcoes.find(o=>/Defletir Ataques/i.test(o.nome)).gatilho,'ser_atingido');
@@ -802,7 +802,10 @@ test('inventário legado separa armas, prioriza o melhor acerto e ocupa uma mão
  const adagas=f.inventario.itens.filter(i=>i.nome==='Adaga'),lanca=f.inventario.itens.find(i=>i.nome==='Lança');
  assert.ok(f.inventario.capacidadeCargaKg>0);assert.equal(moedas.quantidade,28);assert.equal(moedas.tipo,'moeda');
  assert.equal(adagas.length,2);assert.deepEqual(adagas.map(i=>i.equipadoSlot).sort(),['mao_forte','mao_fraca']);assert.equal(lanca.equipado,false);
- assert.ok(f.inventario.itens.every(i=>i.pesoKg>0),'todos os itens migrados precisam ter peso');
+ assert.ok(f.inventario.itens.every(i=>i.tipo==='moeda'?i.pesoKg===0:i.pesoKg>0),'migração mantém PO sem peso e peso dos demais itens');
+ const a={ficha:f},pesoAntes=pesoInventario(a);
+ moedas.quantidade=999999;
+ assert.equal(pesoInventario(a),pesoAntes,'a quantidade de PO não altera a carga');
 });
 test('escudo do soldado ocupa a mão fraca e altera a CA ao ser guardado',async()=>{
  const m=mesa(),escudo=m.b.ficha.inventario.itens.find(i=>i.nome==='Escudo');

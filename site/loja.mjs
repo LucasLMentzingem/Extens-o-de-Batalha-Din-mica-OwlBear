@@ -1,15 +1,24 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.16';
-import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.16';
-import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.16';
-import {resumoItem} from './ficha-view.mjs?v=0.8.16';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.17';
+import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.17';
+import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.17';
+import {resumoItem} from './ficha-view.mjs?v=0.8.17';
+import {publicarCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.17';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let s,info,api,atorId,lojaId,aba='loja',selecionado=null,ocupado=false;
+const sessaoCatalogo=crypto.randomUUID();
+function sincronizarCatalogo(){
+  if(ator()&&s?.fase==='preparo'&&lojasAtivas(s).some(x=>x.id===lojaId)){
+    publicarCatalogo(sessaoCatalogo,atorId,lojaId);
+  }else limparCatalogo(sessaoCatalogo);
+}
+const timerCatalogo=setInterval(sincronizarCatalogo,1000);
+addEventListener('pagehide',()=>{clearInterval(timerCatalogo);limparCatalogo(sessaoCatalogo);});
 const fmt=pc=>(pc/100).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2})+' PO';
 const iniciais=n=>String(n).split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
 function ator(){return s?.atores?.find(a=>a.id===atorId);}
-function fechar(){if(emSala)return OBR.popover.close(ns+'/loja').catch(()=>{});parent.postMessage({fecharLoja:true},'*');}
+function fechar(){lojaId=null;limparCatalogo(sessaoCatalogo);if(emSala)return OBR.popover.close(ns+'/loja').catch(()=>{});parent.postMessage({fecharLoja:true},'*');}
 function comparar(item,a){
   if(item.tipo!=='equipamento')return '';
   const equipado=a.ficha.inventario.itens.find(i=>i.equipado&&(i.equipadoSlot===item.slotEquipamento||i.slotEquipamento===item.slotEquipamento));
@@ -20,9 +29,10 @@ function cartao(item,preco,id,classe=''){
 }
 function render(){
   const root=$('loja'),a=ator(),ativas=s?lojasAtivas(s):[];
-  if(!s||!a){root.innerHTML='<div class="estado-loja">Aguardando a ficha vinculada.</div>';return;}
-  if(s.fase!=='preparo'||!ativas.length){root.innerHTML='<div class="estado-loja"><h2>Lojas fechadas</h2><p>As lojas não funcionam durante o combate ou quando o mestre as desativa.</p><button id="fechar">Fechar</button></div>';$('fechar').onclick=fechar;return;}
+  if(!s||!a){limparCatalogo(sessaoCatalogo);root.innerHTML='<div class="estado-loja">Aguardando a ficha vinculada.</div>';return;}
+  if(s.fase!=='preparo'||!ativas.length){limparCatalogo(sessaoCatalogo);root.innerHTML='<div class="estado-loja"><h2>Lojas fechadas</h2><p>As lojas não funcionam durante o combate ou quando o mestre as desativa.</p><button id="fechar">Fechar</button></div>';$('fechar').onclick=fechar;return;}
   if(!ativas.some(x=>x.id===lojaId))lojaId=ativas[0].id;
+  sincronizarCatalogo();
   const resumo=ativas.find(x=>x.id===lojaId),loja=resolverLoja(lojaId),estado=s.comercio.lojas[lojaId],recompras=recomprasDaLoja(s,lojaId,a.id);
   const seletor=ativas.length>1?'<select id="seletorLoja">'+ativas.map(x=>'<option value="'+esc(x.id)+'" '+(x.id===lojaId?'selected':'')+'>'+esc(x.nome)+'</option>').join('')+'</select>':'<h1>'+esc(resumo.nome)+'</h1>';
   const conteudo=aba==='loja'?loja.itens.map(i=>cartao(i,precoCompraPc(i,estado.descontoPct),i.catalogoRef,i.raridade)).join(''):recompras.map(r=>{const i=resolverInstanciaItem(r.instancia);return cartao(i,r.precoPc,r.id,i.raridade);}).join('');
