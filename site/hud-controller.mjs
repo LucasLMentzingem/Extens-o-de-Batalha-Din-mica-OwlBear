@@ -3,6 +3,7 @@ import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.27';
 import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.27';
 import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.27';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.27';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.27';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
 const url=new URL('./hud.html?v=0.8.27',import.meta.url);
@@ -31,6 +32,21 @@ function alvosDaArea(rule,origem,ponto,atores,pos,dpi){
     return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,{x:p.x/dpi,y:p.y/dpi},rule);
   });
 }
+// M05: cada cliente desenha as zonas ativas a partir do estado público (persistem ao recarregar,
+// uma única peça por zona). Ficam na camada acima dos tokens e não recebem clique.
+const chaveZona=ns+'/zona';
+function itensZona(z,dpi){
+  const cor=z.cor??'#5fae5b',g=z.geometria??{},assinatura=JSON.stringify([z.centro,g,cor,dpi]),meta={[chaveZona]:assinatura};
+  const centro={x:z.centro.x*dpi,y:z.centro.y*dpi};
+  if(g.forma==='circulo'){
+    const r=g.raioM*dpi,pontos=Array.from({length:80},(_,i)=>({x:r*Math.cos(i*Math.PI/40),y:r*Math.sin(i*Math.PI/40)}));
+    return buildCurve().id(chaveZona+'/'+z.id).position(centro).points(pontos).closed(true).fillColor(cor).fillOpacity(.18).strokeColor(cor).strokeWidth(3).strokeDash([12,6])
+      .layer('ATTACHMENT').locked(true).disableHit(true).name(z.nome??'Área').metadata(meta).build();
+  }
+  const pol=poligonoZona(z);if(!pol)return null;
+  return buildCurve().id(chaveZona+'/'+z.id).position(centro).points(pol.map(p=>({x:p.x*dpi-centro.x,y:p.y*dpi-centro.y}))).closed(true).fillColor(cor).fillOpacity(.18).strokeColor(cor).strokeWidth(3).strokeDash([12,6])
+    .layer('ATTACHMENT').locked(true).disableHit(true).name(z.nome??'Área').metadata(meta).build();
+}
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
@@ -40,6 +56,16 @@ export async function iniciarHud(){
   let alturaConteudoAcao=590;
   let dpi=1,marcas=[],marcasPublicas=[],tokens=[],pronta=await OBR.scene.isReady(),fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
+  async function sincronizarZonas(){
+    if(!pronta)return;
+    const desejadas=new Map((estado?.zonas??[]).map(z=>[chaveZona+'/'+z.id,itensZona(z,dpi)]).filter(([,item])=>item));
+    const existentes=await OBR.scene.local.getItems(i=>i.metadata?.[chaveZona]!==undefined);
+    const remover=existentes.filter(i=>!desejadas.has(i.id)||desejadas.get(i.id).metadata[chaveZona]!==i.metadata[chaveZona]).map(i=>i.id);
+    if(remover.length)await OBR.scene.local.deleteItems(remover);
+    const ficam=new Set(existentes.map(i=>i.id).filter(id=>!remover.includes(id)));
+    const novos=[...desejadas.entries()].filter(([id])=>!ficam.has(id)).map(([,item])=>item);
+    if(novos.length)await OBR.scene.local.addItems(novos);
+  }
   const atores=()=>estado?.atores??[];
   const ator=()=>atores().find(a=>a.id===atorId);
   const controla=a=>a&&(eu.role==='GM'||(a.ficha.tipo==='pj'&&a.dono===eu.id));
@@ -370,9 +396,16 @@ export async function iniciarHud(){
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
     const items=[circulo(p.origem,p.raio*dpi,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,dpi):[circulo(ponto,.43*dpi,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
-    if(p.escolha==='destino')items.push(buildLine().startPosition(p.origem).endPosition(ponto).strokeColor('#f2d398').strokeWidth(4).layer('CONTROL').disableHit(true).build());
+    let contatoZona=null,terrenoZona=0;
+    if(p.escolha==='destino'){
+      const origemM={x:p.origem.x/dpi,y:p.origem.y/dpi},destinoM={x:ponto.x/dpi,y:ponto.y/dpi};
+      contatoZona=primeiroContato(estado?.zonas,origemM,destinoM,ator());terrenoZona=terrenoDificilDasZonas(estado?.zonas,origemM,destinoM,ator());
+      const linha=(a,b,cor)=>buildLine().startPosition(a).endPosition(b).strokeColor(cor).strokeWidth(4).layer('CONTROL').disableHit(true).build();
+      if(contatoZona){const corte={x:contatoZona.ponto.x*dpi,y:contatoZona.ponto.y*dpi};items.push(linha(p.origem,corte,'#f2d398'),linha(corte,ponto,'#e54848'));}
+      else items.push(linha(p.origem,ponto,'#f2d398'));
+    }
     await desenhar(items);
-    const forma=p.rule?.area?.forma??(p.rule?.raioM?'círculo':'');p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(temArea?' · '+forma+(['cone','linha'].includes(forma)?' travado':'')+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'');
+    const forma=p.rule?.area?.forma??(p.rule?.raioM?'círculo':'');p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(temArea?' · '+forma+(['cone','linha'].includes(forma)?' travado':'')+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'')+(contatoZona?' · entra em '+contatoZona.zona.nome+(terrenoZona?' (terreno difícil: +'+medida(terrenoZona)+')':''):'');
     if(p.escolha==='destino'&&!ator().desengajado){
       const ameacas=atores().flatMap(outro=>{
         const lado=a=>a.ficha.lado??a.ficha.tipo;
@@ -400,6 +433,7 @@ export async function iniciarHud(){
     // sala com a mesma revisao nao pode fechar a selecao recem-aberta.
     if(pendente&&pendente.rev!==s.rev)await cancelar();
     estado=s;eu=i;
+    await sincronizarZonas().catch(e=>console.error('Zonas:',e));
     if(acaoPublica&&!atores().some(a=>a.id===acaoPublica.atorId)){acaoPublica=null;await limparMarcasPublicas();}
     const ativo=atual(s);
     if(!controla(ator())||novoTurno)atorId=(controla(ativo)?ativo:atores().find(controla))?.id;
