@@ -1274,10 +1274,16 @@ test('#14 #15 #16 #17 Toque Chocante, Fogo das Fadas, Invisibilidade, Orientaç�
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'rajada mistica').id,alvo:b.id},player,roladorSala().rolar).catch(async()=>aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'rajada mistica').id,alvos:[b.id]},player,roladorSala().rolar));
   assert.ok(!s.atores[0].efeitosAtivos.some(e=>e.condicao==='invisivel'));
   assert.equal(opRev((await duelo('skimi')).a,'invisibilidade').automacao.efeito.encerraAoAgir,true);
-  // Orientação dura (não some no primeiro teste) e Golpe Certeiro sem Arquearia
+  // Orientação dura e Golpe Certeiro compõe arma e tipo de dano na Gaveta.
   assert.equal(opRev((await duelo('zurich')).a,'orientacao').automacao.modificador.removeAoUsar,false);
-  const golpe=opRev((await duelo('dragoberto')).a,'golpe certeiro');assert.equal(golpe.automacao.bonus,4);
-  assert.equal(validar(structuredClone(await fichaRev('dragoberto'))).opcoes.find(o=>o.id===golpe.id).automacao.bonus,4,'não desconta duas vezes');
+  ({s,a,b}=await duelo('dragoberto',undefined,{distancia:6}));const golpe=opRev(a,'golpe certeiro');
+  assert.deepEqual(golpe.composicao.modos.map(x=>x.id),['arco-radiante','arco-perfurante','cimitarra-radiante','cimitarra-cortante']);
+  let tipoDano='';const rolarArco=async(formula,meta)=>{if(meta.tipo==='ataque'){assert.equal(formula,'1d20+6');return {total:18,natural:12,formula};}tipoDano=meta.tipoDano;return {total:6,natural:null,formula};};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'arco-radiante',alvoId:b.id}]},player,rolarArco);
+  assert.equal(tipoDano,'radiante');assert.equal(s.atores[0].acao,0);
+  ({s,a,b}=await duelo('dragoberto'));tipoDano='';const rolarCimitarra=async(formula,meta)=>{if(meta.tipo==='ataque'){assert.equal(formula,'1d20+4');return {total:18,natural:14,formula};}tipoDano=meta.tipoDano;return {total:5,natural:null,formula};};
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(a,'golpe certeiro').id,composicao:[{modoId:'cimitarra-cortante',alvoId:b.id}]},player,rolarCimitarra);
+  assert.equal(tipoDano,'cortante');
 });
 
 test('#28 Lentidão, Garantido e Ancestralidade Feérica',async()=>{
@@ -1363,11 +1369,14 @@ test('#13 nomes do livro de 2024 e Talho Mental dura até o fim do próximo turn
   assert.deepEqual((({turnos,expira})=>({turnos,expira}))(opRev(a,'talho mental').automacao.efeitoFalha),{turnos:2,expira:'fim_origem'});
 });
 
-test('#15 Explosão Elemental tem um botão por tipo de dano; #14 Riso repete a salvaguarda ao sofrer dano com Vantagem',async()=>{
-  const nikki=await fichaRev('nikki'),tipos=nikki.opcoes.filter(o=>/Explosão Elemental/.test(o.nome)).map(o=>o.automacao.elemento).sort();
-  assert.deepEqual(tipos,['acido','fogo','frio','psiquico','raio','trovejante','veneno']);
-  assert.equal(validar(structuredClone(nikki)).opcoes.filter(o=>/Explosão Elemental/.test(o.nome)).length,7,'não duplica');
-  let {s,a,b}=await duelo('draven-thorne');
+test('#15 Explosão Elemental usa a Gaveta para o tipo de dano; #14 Riso repete a salvaguarda ao sofrer dano com Vantagem',async()=>{
+  let {s,a,b}=await duelo('nikki',undefined,{distancia:6});const explosao=opRev(a,'explosao elemental');
+  assert.deepEqual(explosao.composicao.modos.map(x=>x.id).sort(),['acido','fogo','frio','psiquico','raio','trovejante','veneno']);
+  assert.equal(opcoesDisponiveis(a).filter(o=>/Explosão Elemental/.test(o.nome)).length,1,'as variantes ficam dentro da gaveta');
+  let tipoDano='';s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:explosao.id,composicao:[{modoId:'acido',alvoId:b.id}]},player,async(formula,meta)=>{if(meta.tipo==='ataque')return {total:18,natural:13,formula};tipoDano=meta.tipoDano;return {total:5,natural:null,formula};});
+  assert.equal(tipoDano,'acido');
+  const normalizado=await duelo('nikki');assert.equal(opcoesDisponiveis(normalizado.a).filter(o=>/Explosão Elemental/.test(o.nome)).length,1,'não duplica ao normalizar');
+  ({s,a,b}=await duelo('draven-thorne'));
   assert.equal(opRev((await duelo('skimi')).a,'riso histerico').automacao.efeitoFalha.salvaRepetida.aoSofrerDano,true);
   b.efeitosAtivos=[{id:'x',nome:'Rindo no chão',tipo:'condicao',restricoes:{caido:true},salvaRepetida:{atributo:'sab',cd:13,aoSofrerDano:true}}];
   const r=roladorSala({d20:15,salva:15});

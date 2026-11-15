@@ -73,6 +73,7 @@ O catálogo pode declarar o plano; a ficha só conserva algo como `{"ref":"magia
 - Dados: `ancora` (`proximo_ataque`, `arma_escolhida`, `acao_atual`), `alteracoes`, `consumo` e `termino`.
 - Motor: compõe custo, ataque, dano, alvos e efeitos antes da confirmação; nada é cobrado duas vezes.
 - Aceite: smites, maestrias, metamagias e ataques extras reutilizam o mesmo contrato.
+- Implementado em 0.8.9/0.8.10: submódulo **M04.1 — Gaveta de Composição**, para ações com uma ou mais instâncias configuráveis de ataque ou cura. Consulte `../MODULO-GAVETA-COMPOSICAO.md`.
 
 ## M05 — Templates e zonas persistentes
 

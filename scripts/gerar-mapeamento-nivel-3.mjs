@@ -8,13 +8,13 @@ const destino=resolve(raiz,'docs/mapeamento-nivel-3');
 const catalogo=JSON.parse(await readFile(fonte,'utf8'));
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const contem=(s,...termos)=>termos.some(t=>normal(s).includes(normal(t)));
-const versao='0.8.7';
+const versao='0.8.10';
 
 const MODULOS_PLANEJADOS=Object.freeze({
   'M01-ciclo-efeitos':{prioridade:1,nome:'Ciclo de vida declarativo de efeitos',escopo:'Aplicar, atualizar, repetir e remover efeitos por evento, duração, concentração e condição de término.'},
   'M02-gatilhos-interceptacoes':{prioridade:1,nome:'Barramento de gatilhos e interceptações',escopo:'Antes/depois de ataque, dano, cura, movimento, teste ou conjuração; permite cancelar, redirecionar ou substituir etapas.'},
   'M03-escolhas-declarativas':{prioridade:1,nome:'Escolhas e variantes durante a resolução',escopo:'Prompt tipado para escolher dano, atributo, modo, alvo, benefício ou variante sem criar uma habilidade duplicada.'},
-  'M04-compositor-acoes':{prioridade:1,nome:'Compositor e modificador de ações',escopo:'Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação.'},
+  'M04-compositor-acoes':{prioridade:1,nome:'Compositor e modificador de ações',escopo:'Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação.',implementado:['M04.1-gaveta-composicao'],documentacao:'../MODULO-GAVETA-COMPOSICAO.md'},
   'M05-zonas-persistentes':{prioridade:1,nome:'Templates e zonas persistentes',escopo:'Cubo, cilindro, parede, emanação e áreas móveis, com entrada/saída/início/fim de turno e visual público.'},
   'M06-entidades-vinculadas':{prioridade:1,nome:'Entidades, familiares e objetos vinculados',escopo:'Criar token e ficha derivada, definir dono, iniciativa, comandos, duração, PV e encerramento junto da origem.'},
   'M07-sobreposicao-ficha':{prioridade:1,nome:'Transformações e sobreposição de ficha',escopo:'Substituir temporariamente estatísticas, tamanho, deslocamentos, sentidos, ações e token, preservando o estado original.'},
@@ -37,7 +37,7 @@ const portaveis=new Set([
   'Empowered Spell','Armor of Shadows','Fiendish Vigor','Repelling Blast','Savage Attacker','Archery','Defense','Two-Weapon Fighting','Slow','Graze','Nick',
   'Dwarven Resilience','Gnomish Cunning','Brave','Giant Ancestry','Elven Lineage','Fiendish Legacy','Versatile','Favored Enemy','Deft Explorer','Paladin’s Smite','Fighting Style',
   'Burning Hands','Color Spray','Dragon’s Breath','Faerie Fire','Thunderwave','Ice Knife','Searing Smite','Feather Fall','Hellish Rebuke','Shield','Deflect Attacks',
-  'Guidance','Resistance','Longstrider','Ray of Frost','Shocking Grasp','Vicious Mockery','Hold Person','Hideous Laughter','Entangle','Invisibility','Hunter’s Mark','Hex'
+  'Guidance','Resistance','Longstrider','Ray of Frost','Shocking Grasp','Vicious Mockery','Hold Person','Hideous Laughter','Entangle','Invisibility','Hunter’s Mark','Hex','True Strike'
 ]);
 const novos=new Set([
   'Find Familiar','Find Steed','Wild Companion','Unseen Servant','Floating Disk','Rope Trick','Alter Self','Mirror Image','Spiritual Weapon','Web','Moonbeam'
@@ -51,7 +51,7 @@ const parciais=new Set([
   'Sorcerous Burst','Produce Flame','Sanctuary','Weapon Mastery','Metamagic','Eldritch Invocations','Sneak Attack','Frenzy','Hunter’s Prey','Open Hand Technique',
   'Tactical Mind','Primal Knowledge','Wild Shape','Channel Divinity','Preserve Life','Land’s Aid','Divine Smite','Shining Smite','Divine Favor','Magic Weapon',
   'Pass without Trace','Spike Growth','Fog Cloud','Silence','Darkness','Phantasmal Force','Silent Image','Minor Illusion','Gust of Wind','Levitate','Spider Climb',
-  'Command','Suggestion','Detect Thoughts','Animal Messenger','Calm Emotions','Enhance Ability','Enlarge/Reduce','Flaming Sphere','Heat Metal','Sleep','Shillelagh','Thaumaturgy','True Strike'
+  'Command','Suggestion','Detect Thoughts','Animal Messenger','Calm Emotions','Enhance Ability','Enlarge/Reduce','Flaming Sphere','Heat Metal','Sleep','Shillelagh','Thaumaturgy'
 ]);
 
 function modulosExistentes(item){
@@ -118,6 +118,9 @@ function modulosNecessarios(item,status){
   if(item.modelo_extensao==='interceptacao_ataque')add('M02-gatilhos-interceptacoes');
   if(item.modelo_extensao==='escolha')add('M03-escolhas-declarativas');
   if(['modificador_de_acao','etapas_compostas'].includes(item.modelo_extensao))add('M04-compositor-acoes');
+  // A Gaveta de Composição já resolve a escolha do tipo da Explosão Elemental.
+  // Os dados explosivos do truque ainda dependem dos módulos M09 e M13.
+  if(item.nome==='Sorcerous Burst')mods.delete('M03-escolhas-declarativas');
   if(!mods.size)add(status==='ASSISTIDO'?'M14-adjudicacao-estruturada':'M01-ciclo-efeitos');
   return [...mods].sort((a,b)=>MODULOS_PLANEJADOS[a].prioridade-MODULOS_PLANEJADOS[b].prioridade||a.localeCompare(b));
 }

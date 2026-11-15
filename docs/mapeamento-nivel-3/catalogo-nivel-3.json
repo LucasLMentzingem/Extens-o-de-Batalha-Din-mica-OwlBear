@@ -1,5 +1,5 @@
 {
-  "versao": "0.8.7",
+  "versao": "0.8.10",
   "escopo": "SRD 5.2.1 — todas as classes, subclasses SRD, espécies, talentos, invocações, metamagias, maestrias e magias disponíveis até o nível 3",
   "fonte": "https://www.dndbeyond.com/srd",
   "geradoEm": "2026-11-14",
@@ -28,7 +28,11 @@
     "M04-compositor-acoes": {
       "prioridade": 1,
       "nome": "Compositor e modificador de ações",
-      "escopo": "Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação."
+      "escopo": "Acoplar uma regra a uma arma/magia, gerar ataques adicionais e alterar custo, alcance, dano ou efeito da próxima ação.",
+      "implementado": [
+        "M04.1-gaveta-composicao"
+      ],
+      "documentacao": "../MODULO-GAVETA-COMPOSICAO.md"
     },
     "M05-zonas-persistentes": {
       "prioridade": 1,
@@ -107,13 +111,13 @@
     "porPortabilidade": {
       "ASSISTIDO": 85,
       "NOVO_MODULO": 16,
-      "PARCIAL": 92,
-      "PORTAVEL": 127
+      "PARCIAL": 91,
+      "PORTAVEL": 128
     },
     "porModulo": {
       "M01-ciclo-efeitos": 32,
       "M02-gatilhos-interceptacoes": 15,
-      "M03-escolhas-declarativas": 56,
+      "M03-escolhas-declarativas": 54,
       "M04-compositor-acoes": 8,
       "M05-zonas-persistentes": 13,
       "M06-entidades-vinculadas": 10,
@@ -175,7 +179,7 @@
       "modulos_necessarios": [
         "M12-agendador"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-acid-splash",
@@ -221,7 +225,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-aid",
@@ -267,7 +271,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-alarm",
@@ -314,7 +318,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-alter-self",
@@ -362,7 +366,7 @@
         "M07-sobreposicao-ficha",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-animal-friendship",
@@ -408,7 +412,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-animal-messenger",
@@ -454,7 +458,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-arcane-lock",
@@ -497,7 +501,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-arcanist-s-magic-aura",
@@ -540,7 +544,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-augury",
@@ -583,7 +587,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-bane",
@@ -630,7 +634,7 @@
         "M01-ciclo-efeitos",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-barkskin",
@@ -677,7 +681,7 @@
         "M01-ciclo-efeitos",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-bless",
@@ -718,7 +722,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-blindness-deafness",
@@ -764,7 +768,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-blur",
@@ -811,7 +815,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-burning-hands",
@@ -856,7 +860,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-calm-emotions",
@@ -902,7 +906,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-charm-person",
@@ -948,7 +952,7 @@
       "modulos_necessarios": [
         "M09-modificadores-rolagem"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-chill-touch",
@@ -996,7 +1000,7 @@
         "M02-gatilhos-interceptacoes",
         "M10-tags-restricoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-chromatic-orb",
@@ -1043,7 +1047,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-color-spray",
@@ -1088,7 +1092,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-command",
@@ -1135,7 +1139,7 @@
         "M03-escolhas-declarativas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-comprehend-languages",
@@ -1178,7 +1182,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-continual-flame",
@@ -1221,7 +1225,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-create-or-destroy-water",
@@ -1268,7 +1272,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-cure-wounds",
@@ -1311,7 +1315,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-dancing-lights",
@@ -1357,7 +1361,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-darkness",
@@ -1404,7 +1408,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-darkvision",
@@ -1447,7 +1451,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-detect-evil-and-good",
@@ -1493,7 +1497,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-detect-magic",
@@ -1539,7 +1543,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-detect-poison-and-disease",
@@ -1585,7 +1589,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-detect-thoughts",
@@ -1631,7 +1635,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-disguise-self",
@@ -1677,7 +1681,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-dissonant-whispers",
@@ -1725,7 +1729,7 @@
         "M03-escolhas-declarativas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-divine-favor",
@@ -1768,7 +1772,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-divine-smite",
@@ -1811,7 +1815,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-dragon-s-breath",
@@ -1856,7 +1860,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-druidcraft",
@@ -1903,7 +1907,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-eldritch-blast",
@@ -1950,7 +1954,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-elementalism",
@@ -1997,7 +2001,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-enhance-ability",
@@ -2043,7 +2047,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-enlarge-reduce",
@@ -2089,7 +2093,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-ensnaring-strike",
@@ -2135,7 +2139,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-entangle",
@@ -2179,7 +2183,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-enthrall",
@@ -2223,7 +2227,7 @@
         "M03-escolhas-declarativas",
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-expeditious-retreat",
@@ -2269,7 +2273,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-faerie-fire",
@@ -2314,7 +2318,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-false-life",
@@ -2357,7 +2361,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-feather-fall",
@@ -2400,7 +2404,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-find-familiar",
@@ -2444,7 +2448,7 @@
         "M03-escolhas-declarativas",
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-find-steed",
@@ -2488,7 +2492,7 @@
         "M03-escolhas-declarativas",
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-find-traps",
@@ -2535,7 +2539,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-fire-bolt",
@@ -2582,7 +2586,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-flame-blade",
@@ -2629,7 +2633,7 @@
         "M01-ciclo-efeitos",
         "M11-vinculo-equipamento"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-flaming-sphere",
@@ -2675,7 +2679,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-floating-disk",
@@ -2722,7 +2726,7 @@
         "M03-escolhas-declarativas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-fog-cloud",
@@ -2768,7 +2772,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-gentle-repose",
@@ -2811,7 +2815,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-goodberry",
@@ -2854,7 +2858,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-grease",
@@ -2900,7 +2904,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-guidance",
@@ -2944,7 +2948,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-guiding-bolt",
@@ -2991,7 +2995,7 @@
       "modulos_necessarios": [
         "M09-modificadores-rolagem"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-gust-of-wind",
@@ -3039,7 +3043,7 @@
         "M05-zonas-persistentes",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-healing-word",
@@ -3082,7 +3086,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-heat-metal",
@@ -3128,7 +3132,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-hellish-rebuke",
@@ -3171,7 +3175,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-heroism",
@@ -3214,7 +3218,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-hex",
@@ -3259,7 +3263,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-hideous-laughter",
@@ -3303,7 +3307,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-hold-person",
@@ -3347,7 +3351,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-hunter-s-mark",
@@ -3392,7 +3396,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-ice-knife",
@@ -3437,7 +3441,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-identify",
@@ -3480,7 +3484,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-illusory-script",
@@ -3523,7 +3527,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-inflict-wounds",
@@ -3569,7 +3573,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-invisibility",
@@ -3614,7 +3618,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-jump",
@@ -3661,7 +3665,7 @@
         "M03-escolhas-declarativas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-knock",
@@ -3704,7 +3708,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-lesser-restoration",
@@ -3747,7 +3751,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-levitate",
@@ -3796,7 +3800,7 @@
         "M05-zonas-persistentes",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-light",
@@ -3839,7 +3843,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-locate-animals-or-plants",
@@ -3882,7 +3886,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-locate-object",
@@ -3925,7 +3929,7 @@
       "modulos_necessarios": [
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-longstrider",
@@ -3969,7 +3973,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-mage-armor",
@@ -4013,7 +4017,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-mage-hand",
@@ -4056,7 +4060,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-magic-missile",
@@ -4099,7 +4103,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-magic-mouth",
@@ -4142,7 +4146,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-magic-weapon",
@@ -4189,7 +4193,7 @@
         "M04-compositor-acoes",
         "M11-vinculo-equipamento"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-mending",
@@ -4232,7 +4236,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-message",
@@ -4275,7 +4279,7 @@
       "modulos_necessarios": [
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-mind-spike",
@@ -4321,7 +4325,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-minor-illusion",
@@ -4368,7 +4372,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-mirror-image",
@@ -4415,7 +4419,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-misty-step",
@@ -4457,7 +4461,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-moonbeam",
@@ -4501,7 +4505,7 @@
         "M05-zonas-persistentes",
         "M07-sobreposicao-ficha"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-pass-without-trace",
@@ -4547,7 +4551,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-phantasmal-force",
@@ -4594,7 +4598,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-poison-spray",
@@ -4641,7 +4645,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-prayer-of-healing",
@@ -4684,7 +4688,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-prestidigitation",
@@ -4727,7 +4731,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-produce-flame",
@@ -4770,7 +4774,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-protection-from-evil-and-good",
@@ -4817,7 +4821,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-protection-from-poison",
@@ -4860,7 +4864,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-purify-food-and-drink",
@@ -4903,7 +4907,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-ray-of-enfeeblement",
@@ -4949,7 +4953,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-ray-of-frost",
@@ -4993,7 +4997,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-ray-of-sickness",
@@ -5040,7 +5044,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-resistance",
@@ -5084,7 +5088,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-rope-trick",
@@ -5131,7 +5135,7 @@
         "M03-escolhas-declarativas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-sacred-flame",
@@ -5177,7 +5181,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-sanctuary",
@@ -5223,7 +5227,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-scorching-ray",
@@ -5270,7 +5274,7 @@
       "modulos_necessarios": [
         "M15-escalonamento-variantes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-searing-smite",
@@ -5315,7 +5319,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-see-invisibility",
@@ -5358,7 +5362,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-shatter",
@@ -5404,7 +5408,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-shield",
@@ -5447,7 +5451,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-shield-of-faith",
@@ -5494,7 +5498,7 @@
         "M01-ciclo-efeitos",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-shillelagh",
@@ -5541,7 +5545,7 @@
         "M03-escolhas-declarativas",
         "M11-vinculo-equipamento"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-shining-smite",
@@ -5588,7 +5592,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-shocking-grasp",
@@ -5633,7 +5637,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-silence",
@@ -5679,7 +5683,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-silent-image",
@@ -5726,7 +5730,7 @@
       "modulos_necessarios": [
         "M05-zonas-persistentes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-sleep",
@@ -5773,7 +5777,7 @@
         "M01-ciclo-efeitos",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-sorcerous-burst",
@@ -5818,11 +5822,10 @@
       ],
       "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
       "modulos_necessarios": [
-        "M03-escolhas-declarativas",
         "M09-modificadores-rolagem",
         "M13-dados-estendidos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-spare-the-dying",
@@ -5865,7 +5868,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-speak-with-animals",
@@ -5908,7 +5911,7 @@
       "modulos_necessarios": [
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-spider-climb",
@@ -5955,7 +5958,7 @@
         "M03-escolhas-declarativas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-spike-growth",
@@ -6001,7 +6004,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-spiritual-weapon",
@@ -6050,7 +6053,7 @@
         "M03-escolhas-declarativas",
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-starry-wisp",
@@ -6097,7 +6100,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-suggestion",
@@ -6143,7 +6146,7 @@
       "modulos_necessarios": [
         "M01-ciclo-efeitos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-thaumaturgy",
@@ -6189,7 +6192,7 @@
       "modulos_necessarios": [
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-thunderwave",
@@ -6234,7 +6237,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-true-strike",
@@ -6269,18 +6272,16 @@
       "modelo_extensao": "efeito",
       "lacuna_principal": "Precisa de um prompt declarativo para escolhas feitas durante a conjuração.",
       "fonte_secao": "Spells > Spell Descriptions",
-      "status_portabilidade": "PARCIAL",
+      "status_portabilidade": "PORTAVEL",
       "modulos_existentes": [
         "buff_debuff",
         "duracao",
         "concentracao",
         "limite_alcance_18m"
       ],
-      "lacuna_atual": "Há suporte para parte do fluxo, mas ao menos uma escolha, gatilho ou efeito secundário ainda é manual.",
-      "modulos_necessarios": [
-        "M03-escolhas-declarativas"
-      ],
-      "avaliado_na_versao": "0.8.7"
+      "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
+      "modulos_necessarios": [],
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-unseen-servant",
@@ -6328,7 +6329,7 @@
         "M06-entidades-vinculadas",
         "M08-movimento-avancado"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-vicious-mockery",
@@ -6372,7 +6373,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-warding-bond",
@@ -6419,7 +6420,7 @@
         "M01-ciclo-efeitos",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-web",
@@ -6463,7 +6464,7 @@
         "M05-zonas-persistentes",
         "M06-entidades-vinculadas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "spell-zone-of-truth",
@@ -6506,7 +6507,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-rage",
@@ -6554,7 +6555,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-unarmored-defense",
@@ -6595,7 +6596,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-weapon-mastery",
@@ -6642,7 +6643,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-danger-sense",
@@ -6689,7 +6690,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-reckless-attack",
@@ -6737,7 +6738,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-barbarian-subclass",
@@ -6778,7 +6779,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-primal-knowledge",
@@ -6822,7 +6823,7 @@
         "M03-escolhas-declarativas",
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-barbarian-frenzy",
@@ -6869,7 +6870,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-bardic-inspiration",
@@ -6912,7 +6913,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-spellcasting",
@@ -6955,7 +6956,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-expertise",
@@ -6997,7 +6998,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-jack-of-all-trades",
@@ -7038,7 +7039,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-bard-subclass",
@@ -7079,7 +7080,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-bonus-proficiencies",
@@ -7121,7 +7122,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-bard-cutting-words",
@@ -7164,7 +7165,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-spellcasting",
@@ -7207,7 +7208,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-divine-order",
@@ -7251,7 +7252,7 @@
         "M03-escolhas-declarativas",
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-channel-divinity",
@@ -7297,7 +7298,7 @@
         "M03-escolhas-declarativas",
         "M16-limites-cura-recursos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-cleric-subclass",
@@ -7338,7 +7339,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-disciple-of-life",
@@ -7381,7 +7382,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-life-domain-spells",
@@ -7424,7 +7425,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-cleric-preserve-life",
@@ -7469,7 +7470,7 @@
       "modulos_necessarios": [
         "M16-limites-cura-recursos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-spellcasting",
@@ -7512,7 +7513,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-druidic",
@@ -7555,7 +7556,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-primal-order",
@@ -7599,7 +7600,7 @@
         "M03-escolhas-declarativas",
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-wild-shape",
@@ -7645,7 +7646,7 @@
         "M07-sobreposicao-ficha",
         "M16-limites-cura-recursos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-wild-companion",
@@ -7689,7 +7690,7 @@
         "M06-entidades-vinculadas",
         "M07-sobreposicao-ficha"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-druid-subclass",
@@ -7730,7 +7731,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-circle-of-the-land-spells",
@@ -7773,7 +7774,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-druid-land-s-aid",
@@ -7820,7 +7821,7 @@
         "M07-sobreposicao-ficha",
         "M16-limites-cura-recursos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-fighting-style",
@@ -7861,7 +7862,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-second-wind",
@@ -7904,7 +7905,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-weapon-mastery",
@@ -7951,7 +7952,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-action-surge",
@@ -7995,7 +7996,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-tactical-mind",
@@ -8038,7 +8039,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-fighter-subclass",
@@ -8079,7 +8080,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-improved-critical",
@@ -8127,7 +8128,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-fighter-remarkable-athlete",
@@ -8170,7 +8171,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-martial-arts",
@@ -8214,7 +8215,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-unarmored-defense",
@@ -8255,7 +8256,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-monk-s-focus",
@@ -8298,7 +8299,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-unarmored-movement",
@@ -8340,7 +8341,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-uncanny-metabolism",
@@ -8383,7 +8384,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-deflect-attacks",
@@ -8426,7 +8427,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-monk-subclass",
@@ -8467,7 +8468,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-monk-open-hand-technique",
@@ -8514,7 +8515,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-lay-on-hands",
@@ -8557,7 +8558,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-spellcasting",
@@ -8600,7 +8601,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-weapon-mastery",
@@ -8647,7 +8648,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-fighting-style",
@@ -8688,7 +8689,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-paladin-s-smite",
@@ -8729,7 +8730,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-channel-divinity",
@@ -8774,7 +8775,7 @@
       "modulos_necessarios": [
         "M16-limites-cura-recursos"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-paladin-subclass",
@@ -8815,7 +8816,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-oath-of-devotion-spells",
@@ -8858,7 +8859,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-paladin-sacred-weapon",
@@ -8906,7 +8907,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-spellcasting",
@@ -8949,7 +8950,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-favored-enemy",
@@ -8990,7 +8991,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-weapon-mastery",
@@ -9037,7 +9038,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-deft-explorer",
@@ -9078,7 +9079,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-fighting-style",
@@ -9119,7 +9120,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-ranger-subclass",
@@ -9160,7 +9161,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-hunter-s-lore",
@@ -9203,7 +9204,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-ranger-hunter-s-prey",
@@ -9250,7 +9251,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-expertise",
@@ -9292,7 +9293,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-sneak-attack",
@@ -9340,7 +9341,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-thieves-cant",
@@ -9384,7 +9385,7 @@
         "M03-escolhas-declarativas",
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-weapon-mastery",
@@ -9431,7 +9432,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-cunning-action",
@@ -9472,7 +9473,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-rogue-subclass",
@@ -9513,7 +9514,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-steady-aim",
@@ -9561,7 +9562,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-fast-hands",
@@ -9604,7 +9605,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-rogue-second-story-work",
@@ -9647,7 +9648,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-spellcasting",
@@ -9690,7 +9691,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-innate-sorcery",
@@ -9738,7 +9739,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-font-of-magic",
@@ -9779,7 +9780,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-metamagic",
@@ -9826,7 +9827,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-sorcerer-subclass",
@@ -9867,7 +9868,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-draconic-resilience",
@@ -9908,7 +9909,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-sorcerer-draconic-spells",
@@ -9951,7 +9952,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-warlock-eldritch-invocations",
@@ -9998,7 +9999,7 @@
         "M03-escolhas-declarativas",
         "M04-compositor-acoes"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-warlock-pact-magic",
@@ -10041,7 +10042,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-warlock-magical-cunning",
@@ -10082,7 +10083,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-warlock-warlock-subclass",
@@ -10123,7 +10124,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-warlock-dark-one-s-blessing",
@@ -10166,7 +10167,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-warlock-fiend-spells",
@@ -10209,7 +10210,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-spellcasting",
@@ -10252,7 +10253,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-ritual-adept",
@@ -10295,7 +10296,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-arcane-recovery",
@@ -10338,7 +10339,7 @@
       ],
       "lacuna_atual": "O módulo reutilizável correspondente já existe no motor atual.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-scholar",
@@ -10382,7 +10383,7 @@
         "M03-escolhas-declarativas",
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-wizard-subclass",
@@ -10423,7 +10424,7 @@
       ],
       "lacuna_atual": "A escolha de subclasse e suas concessões podem ser guardadas por referência no catálogo.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-evocation-savant",
@@ -10466,7 +10467,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "feature-wizard-potent-cantrip",
@@ -10514,7 +10515,7 @@
         "M02-gatilhos-interceptacoes",
         "M03-escolhas-declarativas"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-attack",
@@ -10555,7 +10556,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-dash",
@@ -10596,7 +10597,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-disengage",
@@ -10637,7 +10638,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-dodge",
@@ -10678,7 +10679,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-help",
@@ -10721,7 +10722,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-hide",
@@ -10764,7 +10765,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-influence",
@@ -10807,7 +10808,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-magic",
@@ -10850,7 +10851,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-ready",
@@ -10893,7 +10894,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-search",
@@ -10936,7 +10937,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-study",
@@ -10979,7 +10980,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-utilize",
@@ -11022,7 +11023,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-opportunity-attack",
@@ -11065,7 +11066,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-grapple",
@@ -11106,7 +11107,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-shove-push",
@@ -11150,7 +11151,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "acao-basica-regras-de-combate-shove-topple",
@@ -11191,7 +11192,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-cleave",
@@ -11234,7 +11235,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-graze",
@@ -11275,7 +11276,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-nick",
@@ -11316,7 +11317,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-push",
@@ -11359,7 +11360,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-sap",
@@ -11402,7 +11403,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-slow",
@@ -11443,7 +11444,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-topple",
@@ -11486,7 +11487,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "maestria-arma-weapon-mastery-vex",
@@ -11529,7 +11530,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-alert",
@@ -11572,7 +11573,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-magic-initiate",
@@ -11615,7 +11616,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-savage-attacker",
@@ -11656,7 +11657,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-skilled",
@@ -11699,7 +11700,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-archery",
@@ -11740,7 +11741,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-defense",
@@ -11781,7 +11782,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-great-weapon-fighting",
@@ -11824,7 +11825,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "talento-feats-two-weapon-fighting",
@@ -11865,7 +11866,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dragonborn-draconic-ancestry",
@@ -11908,7 +11909,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dragonborn-breath-weapon",
@@ -11949,7 +11950,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dragonborn-damage-resistance",
@@ -11990,7 +11991,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dragonborn-darkvision",
@@ -12032,7 +12033,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dwarf-darkvision",
@@ -12074,7 +12075,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dwarf-dwarven-resilience",
@@ -12115,7 +12116,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dwarf-dwarven-toughness",
@@ -12157,7 +12158,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-dwarf-stonecunning",
@@ -12200,7 +12201,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-elf-darkvision",
@@ -12242,7 +12243,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-elf-elven-lineage",
@@ -12283,7 +12284,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-elf-fey-ancestry",
@@ -12324,7 +12325,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-elf-keen-senses",
@@ -12366,7 +12367,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-elf-trance",
@@ -12409,7 +12410,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-gnome-darkvision",
@@ -12451,7 +12452,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-gnome-gnomish-cunning",
@@ -12492,7 +12493,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-gnome-gnomish-lineage",
@@ -12535,7 +12536,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-goliath-giant-ancestry",
@@ -12576,7 +12577,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-goliath-powerful-build",
@@ -12619,7 +12620,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-halfling-brave",
@@ -12660,7 +12661,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-halfling-halfling-nimbleness",
@@ -12703,7 +12704,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-halfling-luck",
@@ -12744,7 +12745,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-halfling-naturally-stealthy",
@@ -12787,7 +12788,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-human-resourceful",
@@ -12830,7 +12831,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-human-skillful",
@@ -12871,7 +12872,7 @@
       ],
       "lacuna_atual": "Representável por sentidos, proficiências ou modificadores declarativos da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-human-versatile",
@@ -12912,7 +12913,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-orc-adrenaline-rush",
@@ -12953,7 +12954,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-orc-darkvision",
@@ -12995,7 +12996,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-orc-relentless-endurance",
@@ -13036,7 +13037,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-tiefling-darkvision",
@@ -13078,7 +13079,7 @@
       ],
       "lacuna_atual": "Representável diretamente nos dados e modificadores da ficha.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-tiefling-fiendish-legacy",
@@ -13119,7 +13120,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "traco-especie-tiefling-otherworldly-presence",
@@ -13162,7 +13163,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-careful-spell",
@@ -13205,7 +13206,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-distant-spell",
@@ -13248,7 +13249,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-empowered-spell",
@@ -13289,7 +13290,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-extended-spell",
@@ -13332,7 +13333,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-heightened-spell",
@@ -13375,7 +13376,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-quickened-spell",
@@ -13418,7 +13419,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-seeking-spell",
@@ -13461,7 +13462,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-subtle-spell",
@@ -13504,7 +13505,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-transmuted-spell",
@@ -13547,7 +13548,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "metamagia-sorcerer-twinned-spell",
@@ -13590,7 +13591,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-agonizing-blast",
@@ -13633,7 +13634,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-armor-of-shadows",
@@ -13674,7 +13675,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-devil-s-sight",
@@ -13717,7 +13718,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-eldritch-mind",
@@ -13760,7 +13761,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-eldritch-spear",
@@ -13803,7 +13804,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-fiendish-vigor",
@@ -13844,7 +13845,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-lessons-of-the-first-ones",
@@ -13887,7 +13888,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-mask-of-many-faces",
@@ -13930,7 +13931,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-misty-visions",
@@ -13973,7 +13974,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-otherworldly-leap",
@@ -14016,7 +14017,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-pact-of-the-blade",
@@ -14059,7 +14060,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-pact-of-the-chain",
@@ -14102,7 +14103,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-pact-of-the-tome",
@@ -14145,7 +14146,7 @@
       "modulos_necessarios": [
         "M14-adjudicacao-estruturada"
       ],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     },
     {
       "id": "invocacao-warlock-repelling-blast",
@@ -14186,7 +14187,7 @@
       ],
       "lacuna_atual": "Os módulos atuais cobrem o fluxo principal; falta apenas cadastrar e validar a definição.",
       "modulos_necessarios": [],
-      "avaliado_na_versao": "0.8.7"
+      "avaliado_na_versao": "0.8.10"
     }
   ]
 }

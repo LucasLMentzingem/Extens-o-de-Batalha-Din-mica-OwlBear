@@ -680,3 +680,18 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Validação visual: `work/gaveta-composicao-v089.png` e `work/saraivada-area-v089.png`.
 - Smoke test pelo cliente padrão: `work/playwright-v089-smoke/shot-0.png`.
 
+### Versão 0.8.10: Gaveta de Composição reutilizável
+
+- [x] Extrair a Gaveta como o submódulo **M04.1**, com contrato declarativo no catálogo e no schema das fichas.
+- [x] Manter a Torrente de Golpes de Loteria com duas instâncias independentes de ataque ou cura.
+- [x] Aplicar a Gaveta à Explosão Elemental de Nikki Lauda, reunindo sete tipos de dano em uma única habilidade visível.
+- [x] Aplicar a Gaveta ao Golpe Certeiro de Dragoberto, permitindo escolher arco ou cimitarra e dano normal ou radiante.
+- [x] Preservar o custo único da habilidade e validar modo, quantidade, limite, alcance e alvo de cada instância.
+- [x] Limitar a área visível da gaveta a duas colunas por três linhas e ativar rolagem vertical quando houver mais opções.
+- [x] Documentar usos atuais, casos que não pertencem à Gaveta e extensões futuras para salva, efeito, teleporte e invocação.
+- [x] Atualizar o mapeamento do nível 3: Golpe Certeiro tornou-se portável; Explosão Elemental ainda depende de dados explosivos M09/M13.
+
+- Testes do motor: 161 aprovados.
+- Validação visual: `work/gaveta-nikki-v0810.png` e `work/gaveta-dragoberto-v0810.png`.
+- Smoke test pelo cliente padrão: `work/web-game-v0810/shot-0.png`, sem erros de console.
+

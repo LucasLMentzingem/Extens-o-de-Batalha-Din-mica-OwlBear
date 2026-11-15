@@ -1,8 +1,8 @@
-import {detalhes} from './ficha-view.mjs?v=0.8.9';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.9';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.9';
-import {pronto} from './bridge.mjs?v=0.8.9';
-import {canalHud} from './hud-controller.mjs?v=0.8.9';
+import {detalhes} from './ficha-view.mjs?v=0.8.10';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel} from './engine.mjs?v=0.8.10';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.10';
+import {pronto} from './bridge.mjs?v=0.8.10';
+import {canalHud} from './hud-controller.mjs?v=0.8.10';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -102,7 +102,7 @@ function render(){
     const desfazer=p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled'):'';
     const cartao=cartaoAcao(o,ficha)||'<section class="carta-acao"><header><h2>'+esc(p.titulo??'Ação')+'</h2><small>'+esc(p.donoAcao??atorAcao?.nome??'Participante')+'</small></header></section>';
     const controles=p.rolagem?'<small class="observador-acao">Rolagem em andamento · esta ação permanece visível para a mesa.</small>':p.somenteLeitura?'<small class="observador-acao">Acompanhando a ação de '+esc(p.donoAcao??atorAcao?.nome??'outro participante')+'.</small>':desfazer+executar+btn('cancelar','Cancelar');
-    const composicao=p.composicao?'<section class="resumo-composicao"><header><strong>Golpes escolhidos</strong><small>Selecionado agora: '+esc(p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo)?.nome??'—')+'</small></header>'+(p.composicao.instancias.length?p.composicao.instancias.map(x=>'<div><b>'+x.ordem+'</b><span>'+esc(x.modoNome)+'</span><small>→ '+esc(x.alvoNome)+'</small></div>').join(''):'<p>Escolha o modo na gaveta e clique no alvo do primeiro golpe.</p>')+'</section>':'';
+    const composicao=p.composicao?'<section class="resumo-composicao"><header><strong>Composição escolhida</strong><small>Selecionado agora: '+esc(p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo)?.nome??'—')+'</small></header>'+(p.composicao.instancias.length?p.composicao.instancias.map(x=>'<div><b>'+x.ordem+'</b><span>'+esc(x.modoNome)+'</span><small>→ '+esc(x.alvoNome)+'</small></div>').join(''):'<p>Escolha o modo na gaveta e clique no alvo da primeira instância.</p>')+'</section>':'';
     html='<section class="painel-acao-shell '+(p.composicao?'com-composicao ':'')+(p.composicao?.gavetaAberta===false?'gaveta-recolhida':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div>'+controles+'</div></div></section></section>';
   }else if(parte==='reacao'&&s.reacaoPendente){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);

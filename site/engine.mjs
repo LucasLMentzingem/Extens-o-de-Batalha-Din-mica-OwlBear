@@ -1,5 +1,5 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.9';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.9';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.10';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem} from './catalog.mjs?v=0.8.10';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -196,11 +196,13 @@ function corrigirMagiasRevisao(f){
   // #13 Nomes das ações como no Livro do Jogador 2024 em português.
   const RENOMEAR=[[/^Disparada\b/,'Correr'],[/^Estudar\b/,'Analisar'],[/^Utilizar\b/,'Usar Objeto'],[/^Esconder-se\b/,'Esconder'],[/^Agarrar(?= \|)/,'Imobilizar']];
   // #15 Explosão Elemental: o conjurador escolhe o tipo (ácido, frio, fogo, raio, veneno, psíquico ou trovejante).
-  const explosao=f.opcoes?.find(o=>!o.varianteDe&&o.automacao?.elemento==='elemental'&&/explosao elemental/.test(textoNormal(o.nome)));
+  const explosao=f.opcoes?.find(o=>!o.varianteDe&&o.automacao?.tipo==='ataque'&&/explosao elemental/.test(textoNormal(o.nome)));
   if(explosao){
     const tipos=[['acido','ácido'],['frio','frio'],['fogo','fogo'],['raio','raio'],['veneno','veneno'],['psiquico','psíquico'],['trovejante','trovejante']];
-    explosao.automacao.elemento='fogo';explosao.nome=explosao.nome.replace(/Explosão Elemental/,'Explosão Elemental (fogo)');
+    explosao.automacao.elemento='fogo';if(!/explosão elemental \(fogo\)/i.test(explosao.nome))explosao.nome=explosao.nome.replace(/Explosão Elemental/,'Explosão Elemental (fogo)');
     for(const [id,nomeTipo] of tipos.filter(([id])=>id!=='fogo'))if(!f.opcoes.some(o=>o.id===explosao.id+'-'+id)){const v=structuredClone(explosao);v.id=explosao.id+'-'+id;v.varianteDe=explosao.id;v.automacao.elemento=id;v.nome=explosao.nome.replace('(fogo)','('+nomeTipo+')');f.opcoes.push(v);}
+    explosao.composicao={quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'fogo',modos:tipos.map(([id,nomeTipo])=>({id,nome:nomeTipo[0].toUpperCase()+nomeTipo.slice(1),descricao:'Explosão Elemental com dano '+nomeTipo+'.',tipo:'ataque',automacao:{...structuredClone(explosao.automacao),elemento:id}}))};
+    for(const variante of f.opcoes.filter(o=>o!==explosao&&(/explosao elemental/.test(textoNormal(o.nome))||o.varianteDe===explosao.id)))variante.somenteComposicao=true;
   }
   for(const o of f.opcoes??[])for(const [de,para] of RENOMEAR)if(typeof o.nome==='string'&&de.test(o.nome))o.nome=o.nome.replace(de,para);
   // #29 Inspiração Heroica (Humano · Engenhoso): 1 por descanso longo; rerrola um d20 logo depois de ver o resultado.
@@ -474,6 +476,7 @@ export function validar(f) {
       for(const m of modos){
         exigir(idOK(m.id)&&nomeOK(m.nome)&&['ataque','cura'].includes(m.tipo)&&m.automacao?.tipo===m.tipo,'Modo de composição inválido em '+o.id);
         exigir(m.limitePorUso===undefined||inteiro(m.limitePorUso,1,c.quantidadeMaxima),'Limite de modo inválido em '+o.id);
+        exigir(m.umaVezPorTurno===undefined||idOK(m.umaVezPorTurno),'Limite por turno do modo inválido em '+o.id);
         if(m.tipo==='ataque')exigir(inteiro(m.automacao.bonus,-20,40)&&formulaDanoValida(m.automacao.dano)&&Number.isFinite(m.automacao.alcanceM),'Ataque composto inválido em '+o.id);
         if(m.tipo==='cura')exigir(formulaDanoValida(m.automacao.formula)&&Number.isFinite(m.automacao.alcanceM),'Cura composta inválida em '+o.id);
       }
@@ -1701,11 +1704,11 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           exigir(distancia(a,p)<=modo.automacao.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
           if(modo.tipo==='cura'){
             const cura=(await resultado(modo.automacao.formula,{tipo:'cura',titulo:'Cura '+(i+1)+' · '+modo.nome,alvo:p.nome})).total,aplicado=curarAtor(p,cura);
-            a.usosTurno['mao-de-cura-torrente']=true;msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': '+aplicado+' PV';continue;
+            if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': '+aplicado+' PV';continue;
           }
           const r=modo.automacao,defesa=caAtual(p),ra=restricoesAtivas(a),rp=restricoesAtivas(p),vantagem=c.modo==='vantagem'||ra.vantagemAtaques||rp.vantagemAtaquesContra||rp.caido,desvantagem=c.modo==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra;
           const modoDado=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem',modoAnterior=c.modo;c.modo=modoDado;
-          const rr=await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Golpe '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
+          const rr=await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Instância '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
           const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
           a.eventosTurno.ataques.push(evento);msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
           if(!acertou){msg+=' • errou';continue;}

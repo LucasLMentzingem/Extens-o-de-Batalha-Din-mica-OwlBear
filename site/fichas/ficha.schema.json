@@ -664,6 +664,33 @@
           },
           "required": []
         },
+        "composicao": {
+          "type": "object",
+          "description": "Plano executado pela Gaveta de Composição. Cada instância escolhe um modo e um alvo; o custo da habilidade é pago somente uma vez.",
+          "properties": {
+            "quantidadeMinima": {"type": "integer", "minimum": 1, "maximum": 64},
+            "quantidadeMaxima": {"type": "integer", "minimum": 1, "maximum": 64},
+            "modoPadrao": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+            "modos": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+                  "nome": {"type": "string"},
+                  "descricao": {"type": "string"},
+                  "tipo": {"enum": ["ataque", "cura"]},
+                  "limitePorUso": {"type": "integer", "minimum": 1, "maximum": 64},
+                  "umaVezPorTurno": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$"},
+                  "automacao": {"type": "object"}
+                },
+                "required": ["id", "nome", "tipo", "automacao"]
+              }
+            }
+          },
+          "required": ["quantidadeMinima", "quantidadeMaxima", "modoPadrao", "modos"]
+        },
         "etapas": {
           "type": "array",
           "items": {

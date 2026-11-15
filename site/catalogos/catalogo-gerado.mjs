@@ -5141,7 +5141,7 @@ export default {
     },
     {
       "id": "habilidade.truque-explosao-elemental-fogo-ataque-5-classe",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
         "categoria": "magia",
@@ -5160,6 +5160,104 @@ export default {
           "dano": "1d8",
           "elemento": "fogo",
           "alcanceM": 18
+        },
+        "composicao": {
+          "quantidadeMinima": 1,
+          "quantidadeMaxima": 1,
+          "modoPadrao": "fogo",
+          "modos": [
+            {
+              "id": "acido",
+              "nome": "Ácido",
+              "descricao": "Explosão Elemental com dano ácido.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "acido",
+                "alcanceM": 18
+              }
+            },
+            {
+              "id": "frio",
+              "nome": "Frio",
+              "descricao": "Explosão Elemental com dano gélido.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "frio",
+                "alcanceM": 18
+              }
+            },
+            {
+              "id": "fogo",
+              "nome": "Fogo",
+              "descricao": "Explosão Elemental com dano ígneo.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "fogo",
+                "alcanceM": 18
+              }
+            },
+            {
+              "id": "raio",
+              "nome": "Raio",
+              "descricao": "Explosão Elemental com dano elétrico.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "raio",
+                "alcanceM": 18
+              }
+            },
+            {
+              "id": "veneno",
+              "nome": "Veneno",
+              "descricao": "Explosão Elemental com dano venenoso.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "veneno",
+                "alcanceM": 18
+              }
+            },
+            {
+              "id": "psiquico",
+              "nome": "Psíquico",
+              "descricao": "Explosão Elemental com dano psíquico.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "psiquico",
+                "alcanceM": 18
+              }
+            },
+            {
+              "id": "trovejante",
+              "nome": "Trovejante",
+              "descricao": "Explosão Elemental com dano trovejante.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "trovejante",
+                "alcanceM": 18
+              }
+            }
+          ]
         }
       }
     },
@@ -5290,7 +5388,7 @@ export default {
     },
     {
       "id": "habilidade.truque-golpe-certeiro",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Truque | Golpe Certeiro",
         "categoria": "magia",
@@ -5303,13 +5401,92 @@ export default {
         ],
         "automacao": {
           "tipo": "ataque",
-          "bonus": 4,
+          "bonus": 6,
           "dano": "1d8+2",
           "elemento": "radiante",
-          "alcanceM": 1.5
+          "alcanceM": 18,
+          "tags": [
+            "arma",
+            "distancia"
+          ]
         },
         "circuloBase": 0,
-        "semArquearia": true
+        "semArquearia": true,
+        "composicao": {
+          "quantidadeMinima": 1,
+          "quantidadeMaxima": 1,
+          "modoPadrao": "arco-radiante",
+          "modos": [
+            {
+              "id": "arco-radiante",
+              "nome": "Arco · radiante",
+              "descricao": "Ataque com arco longo, usando SAB e convertendo o dano para radiante.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 6,
+                "dano": "1d8+2",
+                "elemento": "radiante",
+                "alcanceM": 18,
+                "tags": [
+                  "arma",
+                  "distancia"
+                ]
+              }
+            },
+            {
+              "id": "arco-perfurante",
+              "nome": "Arco · perfurante",
+              "descricao": "Ataque com arco longo, usando SAB e mantendo o dano perfurante da arma.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 6,
+                "dano": "1d8+2",
+                "elemento": "perfurante",
+                "alcanceM": 18,
+                "tags": [
+                  "arma",
+                  "distancia"
+                ]
+              }
+            },
+            {
+              "id": "cimitarra-radiante",
+              "nome": "Cimitarra · radiante",
+              "descricao": "Ataque com cimitarra, usando SAB e convertendo o dano para radiante.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 4,
+                "dano": "1d6+2",
+                "elemento": "radiante",
+                "alcanceM": 1.5,
+                "tags": [
+                  "arma",
+                  "corpo-a-corpo"
+                ]
+              }
+            },
+            {
+              "id": "cimitarra-cortante",
+              "nome": "Cimitarra · cortante",
+              "descricao": "Ataque com cimitarra, usando SAB e mantendo o dano cortante da arma.",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 4,
+                "dano": "1d6+2",
+                "elemento": "cortante",
+                "alcanceM": 1.5,
+                "tags": [
+                  "arma",
+                  "corpo-a-corpo"
+                ]
+              }
+            }
+          ]
+        }
       }
     },
     {

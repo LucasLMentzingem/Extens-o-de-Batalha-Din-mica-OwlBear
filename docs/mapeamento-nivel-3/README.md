@@ -1,6 +1,6 @@
 # Mapeamento de regras até o nível 3
 
-Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.7. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
+Este catálogo compara as opções oficiais disponíveis até o nível 3 com os módulos da extensão na versão 0.8.10. O objetivo é transformar a cobertura completa do nível 3 em uma meta verificável, antes de avançar para os níveis 5, 7 e 10.
 
 A proposta de implementação está em `PRE-ARQUITETURA-MODULOS.md`; o fechamento prático das sete fichas atuais é acompanhado em `../TESTES-SETE-FICHAS-NIVEL-3.md`.
 
@@ -24,8 +24,8 @@ Foram classificados **320 itens**:
 
 | Estado | Quantidade | Significado |
 |---|---:|---|
-| `PORTAVEL` | 127 | Os módulos fundamentais existem; ainda pode faltar cadastrar e testar a definição. |
-| `PARCIAL` | 92 | O fluxo principal funciona, mas alguma escolha, consequência ou regra secundária ainda é manual. |
+| `PORTAVEL` | 128 | Os módulos fundamentais existem; ainda pode faltar cadastrar e testar a definição. |
+| `PARCIAL` | 91 | O fluxo principal funciona, mas alguma escolha, consequência ou regra secundária ainda é manual. |
 | `ASSISTIDO` | 85 | A ficha pode apresentar e gastar a opção, mas o mestre resolve sua consequência. |
 | `NOVO_MODULO` | 16 | Falta uma capacidade reutilizável essencial no motor. |
 
@@ -80,6 +80,8 @@ Foram definidos 16 módulos genéricos, ordenados por dependência. A especifica
 ## Módulos já reconhecidos
 
 O motor atual já possui blocos reutilizáveis para ataque contra CA, dano tipado, crítico, salvaguarda por alvo, dano reduzido ou anulado, cura e PV temporários, buffs e condições, concentração, recursos e descansos, preparação de magias, reações, projéteis multialvo, teleporte, deslocamento forçado e áreas em círculo, quadrado, linha e cone. Todo alcance ofensivo é limitado pelo sistema a 18 metros e as distâncias são euclidianas contínuas.
+
+O submódulo [M04.1 — Gaveta de Composição](../MODULO-GAVETA-COMPOSICAO.md) também permite montar instâncias de uma habilidade antes de executá-la. Ele está aplicado à Torrente de Golpes de Loteria, à escolha elemental de Nikki Lauda e às combinações de arma e dano do Golpe Certeiro de Dragoberto. O catálogo considera Golpe Certeiro portável; Explosão Elemental continua parcial apenas porque seus dados explosivos ainda exigem M09 e M13.
 
 ## Arquivos e reprodução
 
