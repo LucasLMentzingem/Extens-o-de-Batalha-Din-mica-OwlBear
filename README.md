@@ -142,6 +142,12 @@ Os ataques de arma disponíveis são derivados dos equipamentos ativos. O catál
 
 ## Verificação
 
+### Duplicação de NPCs no Owlbear
+
+Ao duplicar um token CHARACTER vinculado a um NPC, o mestre recebe automaticamente uma nova ficha independente, nomeada com sufixo `(2)`, `(3)` e assim por diante. A cópia preserva os equipamentos e escolhas da ficha, começa com PV e recursos iniciais e não herda efeitos temporários nem dono. Durante um combate já iniciado, fica fora da iniciativa até o mestre incluí-la. Tokens de jogadores não geram novas fichas automaticamente.
+
+O vínculo de origem é marcado nos metadados do token pela extensão. Cópias feitas antes dessa marcação ou cuja origem tenha sido removida precisam de vínculo manual. A sincronização usa IDs únicos e ignora eventos que alteram somente a posição, evitando duplicações repetidas e trabalho por quadro durante movimentos.
+
 Execute `node --test combate.test.mjs`. Os testes usam as fichas distribuídas. Cobrem vínculo, permissões, edição atômica da ficha, inventário, equipamento dinâmico, preparação de magias, ativação de passivas, intervenção do mestre, duas instâncias de soldado, transição de turno, ação, dano e crítico, área, metros, recurso de reação, descanso e importação até o nível 10. Um erro do Dice+ descarta a resolução pendente. Uma revisão antiga do turno é recusada.
 
 No navegador foram exercitados um encontro local até a rodada 2, recarga do progresso e um mestre e um jogador com transporte e dados do Owlbear simulados. A validação final requer uma sala real com Dice+ habilitado para conferir hospedagem das peças, entrega dos resultados e visibilidade de rolagens. A extensão usa o SDK Owlbear 3.1.0 distribuído com sua licença em `site/vendor`.

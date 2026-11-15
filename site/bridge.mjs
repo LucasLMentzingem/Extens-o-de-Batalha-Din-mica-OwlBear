@@ -1,7 +1,8 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.21';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.21';
-import {compactarEstado} from './catalog.mjs?v=0.8.21';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio} from './engine.mjs?v=0.8.22';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.22';
+import {compactarEstado} from './catalog.mjs?v=0.8.22';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.22';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -195,10 +196,33 @@ export async function host(){
     const dados=JSON.stringify(v), seq=crypto.randomUUID();
     for(let i=0;i<dados.length;i+=7000)await OBR.broadcast.sendMessage(canais.view,{seq,i,final:i+7000>=dados.length,parte:dados.slice(i,i+7000)},{destination:'REMOTE'});
   }
+  async function sincronizarNpcs(){
+    const {key,s}=await carregar();
+    const [itens,dpi]=await Promise.all([OBR.scene.items.getItems(),OBR.scene.grid.getDpi()]);
+    const {novos,alteracoes}=sincronizarCopiasNpc(s,itens,dpi);
+    if(novos.length){
+      s.historico.unshift(novos.length+' cópia(s) de NPC vinculada(s) automaticamente.');
+      persistir(key,s);
+    }
+    if(alteracoes.length){
+      const porToken=new Map(alteracoes.map(a=>[a.tokenId,a]));
+      await OBR.scene.items.updateItems([...porToken.keys()],items=>{
+        for(const item of items){
+          const ajuste=porToken.get(item.id);
+          item.metadata??={};
+          if(ajuste.marcador)item.metadata[chaveFichaNpc]=ajuste.marcador;
+          else delete item.metadata[chaveFichaNpc];
+          if(ajuste.nome)item.name=ajuste.nome;
+          if(ajuste.liberar!==undefined){item.locked=ajuste.liberar;delete item.metadata[chaveBloqueioNpc];}
+        }
+      });
+    }
+    return s;
+  }
   async function executar(c,u,reply){
     try{
       const {key,s}=await carregar();
-      if(c.tipo==='sync'){await mostrar(s);return;}
+      if(c.tipo==='sync'){await mostrar(await sincronizarNpcs());await reply({});return;}
       const tokens=await getTokens(), dpi=await OBR.scene.grid.getDpi();
       if(c.tipo==='criarPeca'){
         const a=s.atores.find(x=>x.id===c.ator);
@@ -210,7 +234,7 @@ export async function host(){
           .name(a.nome).layer('CHARACTER').position({x:Math.round(pos.x/dpi+s.atores.indexOf(a))*dpi,y:Math.round(pos.y/dpi)*dpi}).build();
         await OBR.scene.items.addItems([token]);
         a.token=token.id;a.x=token.position.x/dpi;a.y=token.position.y/dpi;s.rev++;
-        persistir(key,s);await mostrar(s);await reply({});return;
+        persistir(key,s);await mostrar(await sincronizarNpcs());await reply({});return;
       }
       if(c.tipo==='iniciar' && s.atores.filter(a=>a.emCombate!==false).some(a=>!tokens.some(t=>t.id===a.token)))throw Error('Antes de iniciar, crie ou vincule um token para cada participante do combate.');
       if(c.tipo==='vincular' && s.fase!=='preparo' && s.atores.find(a=>a.id===c.ator)?.token!==c.token)throw Error('Troque a peça na preparação. O controlador pode ser alterado em combate.');
@@ -256,7 +280,9 @@ export async function host(){
       }
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*dpi,y:a.y*dpi};}});
-      persistir(key,next);await mostrar(next);await reply({});
+      persistir(key,next);
+      const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
+      await mostrar(estadoMostrar);await reply({});
     }catch(e){await reply({erro:e.message});}
   }
   ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando)serial(()=>executar(e.data.comando,eu,r=>ch.postMessage({...r,resposta:e.data.req})));};
@@ -269,12 +295,24 @@ export async function host(){
     const p=pedidos.get(e.data?.pedido),jogador=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
     if(p&&jogador?.id===p.destino)p.responder(e.data);
   });
-  const sync=()=>serial(async()=>{if(await OBR.scene.isReady())await mostrar((await carregar()).s);});
+  const sync=()=>serial(async()=>{if(await OBR.scene.isReady())await mostrar(await sincronizarNpcs());});
+  let assinaturaItens='',sincronizacaoAgendada=false;
+  OBR.scene.items.onChange(itens=>{
+    const assinatura=JSON.stringify(itens.filter(i=>i.type==='IMAGE'&&i.layer==='CHARACTER').map(i=>[i.id,i.metadata?.[chaveFichaNpc]]).sort((a,b)=>a[0].localeCompare(b[0])));
+    if(assinatura===assinaturaItens)return;
+    assinaturaItens=assinatura;
+    if(sincronizacaoAgendada)return;
+    sincronizacaoAgendada=true;
+    requestAnimationFrame(()=>serial(async()=>{
+      sincronizacaoAgendada=false;
+      if(await OBR.scene.isReady())await mostrar(await sincronizarNpcs());
+    }));
+  });
   OBR.party.onChange(sync);OBR.scene.onReadyChange(ready=>{if(ready)sync();else ch.postMessage({vista:novo(),info:{...eu,modo:'sem cena',players:[],tokens:[]}});});
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.21',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.22',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   sync();
 }

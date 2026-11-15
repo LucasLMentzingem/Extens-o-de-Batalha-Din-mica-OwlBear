@@ -135,3 +135,6 @@ O estado da mesa guarda PV, saldos, equipamento, vínculos e efeitos. A ficha de
 O motor disponibiliza a ação comum Saquear automaticamente, a partir de `habilidade.saquear` no catálogo. Ela usa uma ação em combate e seleciona um adversário a 0 PV a até 1,5 m. O saque oferece os itens reais do inventário do alvo, incluindo equipamentos. Preencha o inventário dos NPCs para definir o que os jogadores poderão obter.
 
 O motor valida os IDs e quantidades enviados e transfere os itens entre as fichas, respeitando carga e mantendo as definições compartilhadas. Equipamentos transferidos chegam desequipados. PO seguem a regra de peso zero. Sessões de saque pertencem ao estado da mesa e são revalidadas ao confirmar.
+# Duplicação de NPCs vinculados
+
+Desde 0.8.22, duplicar no Owlbear um token CHARACTER vinculado a uma ficha `tipo: "npc"` cria um ator independente. A ficha de origem fornece equipamentos e escolhas; PV, recursos e efeitos começam em seus estados iniciais. Não é necessário criar um novo ID de definição da ficha: cada ator recebe seu próprio ID de instância. Jogadores não são clonados. Em combate, a nova instância aguarda inclusão manual na iniciativa. A extensão mantém nos metadados do token a referência de origem; não remova esse marcador ao duplicar.

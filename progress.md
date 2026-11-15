@@ -802,3 +802,11 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Validação visual: `work/livro-raca-v0811.png` e `work/rodape-raca-passivas-v0811.png`.
 - Smoke test pelo cliente padrão: `work/web-game-v0811/shot-0.png`, sem erros de console.
 
+# 0.8.22 — Cópias independentes de NPCs
+
+- Duplicação de tokens vinculados cria atores independentes automaticamente, com numeração e metadados idempotentes.
+- Equipamentos e escolhas preservados; PV e recursos iniciais, sem efeitos temporários ou dono; entrada em combate permanece manual quando já iniciado.
+- Eventos de movimento filtrados; atualizações reunidas por quadro e serializadas no host do mestre.
+- Corrigida a confirmação de sucesso do comando sync, evitando timeout após carregamento bem-sucedido.
+- Validação: 176 testes do motor e integração headless do bridge com SDK simulado (cópia, repetição, movimento e sync). Validação em sala real ainda necessária.
+

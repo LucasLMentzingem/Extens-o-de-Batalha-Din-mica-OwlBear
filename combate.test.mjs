@@ -6,6 +6,7 @@ import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normaliza
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
 import {quantidadeMoedaValida} from './site/engine.mjs';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './site/npc-duplicates.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
 import {catalogoCentral,compactarFicha,compactarEstado,resolverCatalogoLoja} from './site/catalog.mjs';
@@ -827,6 +828,41 @@ test('grupos fixos acrescentam fichas independentes sem alterar participantes ou
  assert.deepEqual(s,snapshot);
  await assert.rejects(aplicar(s,{tipo:'adicionarGrupo',rev:s.rev,fichas:reino},player,dadoLocal),/Somente o mestre/);
  for(const a of s.atores)assert.doesNotThrow(()=>validar(compactarFicha(a.ficha)));
+});
+test('tokens duplicados de NPC recebem ficha própria de forma idempotente',()=>{
+ const s=novo(),a=adicionar(s,soldado);a.token='original';a.pv=3;
+ const original={id:'original',type:'IMAGE',layer:'CHARACTER',position:{x:0,y:0},metadata:{}};
+ const aplicarMarcadores=alteracoes=>alteracoes.forEach(p=>{
+  const t=tokens.find(i=>i.id===p.tokenId);
+  if(p.marcador)t.metadata[chaveFichaNpc]=p.marcador;else delete t.metadata[chaveFichaNpc];
+ });
+ const tokens=[original];
+ const inicial=sincronizarCopiasNpc(s,tokens,100);assert.equal(inicial.novos.length,0);aplicarMarcadores(inicial.alteracoes);
+ const copia={...structuredClone(original),id:'copia',position:{x:250,y:100}};tokens.push(copia);
+ const r=sincronizarCopiasNpc(s,tokens,100);assert.equal(r.novos.length,1);aplicarMarcadores(r.alteracoes);
+ const b=s.atores.find(x=>x.token==='copia');
+ assert.notEqual(a.id,b.id);assert.equal(b.nome,a.nome+' (2)');assert.equal(b.pv,b.ficha.pvMaximos);assert.equal(b.dono,null);
+ assert.equal(b.x,2.5);assert.equal(b.y,1);assert.equal(b.emCombate,true);
+ b.ficha.inventario.itens.pop();assert.notEqual(a.ficha.inventario.itens.length,b.ficha.inventario.itens.length);
+ b.pv=1;assert.equal(a.pv,3);
+ assert.equal(sincronizarCopiasNpc(s,tokens,100).novos.length,0);
+ const neta={...structuredClone(copia),id:'neta'};tokens.push(neta);
+ assert.equal(sincronizarCopiasNpc(s,tokens,100).novos.length,1);
+ assert.equal(s.atores.find(x=>x.token==='neta').nome,a.nome+' (3)');
+});
+test('duplicação preserva PCs e mantém novos NPCs fora da iniciativa durante o combate',()=>{
+ const s=novo(),npc=adicionar(s,soldado),pj=adicionar(s,nikki);
+ npc.token='npc';pj.token='pj';s.fase='turnos';s.ordem=[npc.id,pj.id];s.vez=0;s.rodada=1;
+ const tokens=[
+  {id:'novo-npc',type:'IMAGE',layer:'CHARACTER',position:{x:100,y:200},locked:true,metadata:{[chaveFichaNpc]:{atorId:npc.id,tokenId:'npc'},[chaveBloqueioNpc]:false}},
+  {id:'novo-pj',type:'IMAGE',layer:'CHARACTER',position:{x:0,y:0},metadata:{[chaveFichaNpc]:{atorId:pj.id,tokenId:'pj'}}}
+ ];
+ const r=sincronizarCopiasNpc(s,tokens,100);
+ assert.equal(r.novos.length,1);
+ const b=s.atores.find(a=>a.token==='novo-npc');
+ assert.equal(b.emCombate,false);assert.equal(b.init,null);assert.deepEqual(s.ordem,[npc.id,pj.id]);
+ assert.equal(r.alteracoes.find(p=>p.tokenId==='novo-npc').liberar,false);
+ assert.ok(!s.atores.some(a=>a.token==='novo-pj'));
 });
 test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recursos',async()=>{
  let s=novo(),d=adicionar(s,fichasJogadores.find(f=>f.id==='draven-thorne')),g=adicionar(s,soldado,'Alvo');
