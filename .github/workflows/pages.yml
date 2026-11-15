@@ -37,6 +37,7 @@ jobs:
             const url=new URL(obj[key],process.env.BASE+'/');obj[key]=url.pathname+url.search;
           }
           fs.writeFileSync(p,JSON.stringify(m,null,2));
+          fs.writeFileSync('site/manifest-recuperacao.json',JSON.stringify(m,null,2));
           JS
       - uses: actions/upload-pages-artifact@v3
         with:
