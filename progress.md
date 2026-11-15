@@ -1,5 +1,11 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — republicação 0.8.191
+
+- Republicação expressamente solicitada pelo responsável para renovar o cache da extensão no Owlbear.
+- Mesma implementação da 0.8.19, com manifesto e referências de arquivos atualizados para 0.8.191.
+- Exceção de versionamento registrada em VERSIONING.md e no validador.
+
 ## 2026-11-15 — diagnóstico de carregamento 0.8.19
 
 - Sync passa a aguardar confirmação e expor falhas de carregamento em vez de deixar o painel em Conectando.

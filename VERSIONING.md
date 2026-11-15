@@ -2,6 +2,8 @@
 
 A linha de desenvolvimento está travada em `0.8.x`.
 
+Em 15/11/2026, o responsável solicitou explicitamente a republicação `0.8.191` para renovar o cache do Owlbear. Essa versão é uma exceção autorizada e contém a mesma correção funcional da `0.8.19`.
+
 - Apenas o último número pode avançar: `0.8.3`, `0.8.4`, …, `0.8.99`.
 - Não publicar `0.9.0`, `1.0.0` ou alterar `0.8` sem pedido explícito do responsável pelo projeto.
 - Cada publicação deve atualizar `site/manifest.json` e todos os parâmetros de cache `?v=` usados pelo site.
