@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — consolidação do progresso após 0.8.22
+
+- Atualizado `docs/ESTADO-DO-PROJETO.md` com entregas 0.8.16–0.8.22, 176 testes do motor e limites da validação simulada.
+- Criado `docs/MODULOS-PENDENTES.md`: dez contratos parciais, seis sem módulo geral, issues de regressão #4/#63/#64/#65 e dependências das sete fichas.
+- Registrados os avanços reais do M04 e a infraestrutura de cópias do M06, sem declarar os módulos completos nem reclassificar sem auditoria as 320 entradas.
+- Documentação apenas: não muda a versão da extensão nem retoma o desenvolvimento pausado do M04.
+
 ## 2026-11-15 — grupos fixos de fichas 0.8.21
 
 - Botões antigos de cenários substituídos por Aventureiros (sete fichas) e Soldados do Reino (Soldado 3, Comandante 4, Mago 3 e Arqueiro 3).

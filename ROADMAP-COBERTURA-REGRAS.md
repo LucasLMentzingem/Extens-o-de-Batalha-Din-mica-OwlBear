@@ -8,6 +8,8 @@ Meta atual. Abrange as 12 classes, subclasses do SRD, 9 espécies, talentos, mae
 
 Referência: [mapeamento de nível 3](docs/mapeamento-nivel-3/README.md).
 
+A situação consolidada na 0.8.22, com módulos, regressões abertas e dependências das sete fichas, está em [Módulos pendentes](docs/MODULOS-PENDENTES.md). Os módulos não devem ser considerados fechados apenas porque uma parte já funciona.
+
 ## Etapa 2 — cobertura até o nível 5
 
 Começa apenas depois dos critérios da Etapa 1. Acrescenta progressões e magias até o nível 5, incluindo Ataque Extra e traços de espécie que surgem no nível 5.

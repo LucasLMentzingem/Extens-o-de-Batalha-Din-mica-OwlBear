@@ -2,6 +2,8 @@
 
 Estado: reavaliado na versão 0.8.13; proposta para leitura e aprovação. Nenhum contrato parcial ou ausente deve ser considerado estável antes da revisão do mestre.
 
+Atualização de acompanhamento na **0.8.22**: consulte [a consolidação de módulos pendentes](../MODULOS-PENDENTES.md). O documento abaixo conserva a proposta e o diagnóstico original; M04 já recebeu círculo/custos derivados e sequência Ágil, e a duplicação de NPCs fornece infraestrutura de instâncias para M06, sem completar o módulo de invocações. A travessia de alcance por um único movimento continua pendente na issue #64.
+
 Referências de regras: [SRD 5.2.1](https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf), [Equipment — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/equipment), [Rules Glossary — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/rules-glossary) e [Playing the Game — Basic Rules 2024](https://www.dndbeyond.com/sources/dnd/br-2024/playing-the-game).
 
 ## Objetivo
