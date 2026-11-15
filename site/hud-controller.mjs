@@ -1,13 +1,13 @@
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.34';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.34';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.34';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.34';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.34';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.34';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.35';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.35';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.35';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.35';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.35';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.35';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.34',import.meta.url);
+const url=new URL('./hud.html?v=0.8.35',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -286,6 +286,7 @@ export async function iniciarHud(){
     if(!controla(a))return;
     await cancelar();
     const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),duplicadaDisponivel=Boolean(base&&metamagiaDuplicada(a,base)),magiaDuplicada=duplicadaDisponivel&&d.magiaDuplicada===true;
+    const ilusaoDisponivel=Boolean(base?.automacao?.ilusao),ilusaoCausaDano=ilusaoDisponivel&&d.ilusaoCausaDano===true; // Força Fantasmagórica
     let o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
     const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estado,a):null;
     if(rule?.usarArmaAnterior){
@@ -298,7 +299,7 @@ export async function iniciarHud(){
     if(d.tipo==='usar'&&!o)return;
     const foraCombate=d.tipo==='usar'&&(estado.fase==='preparo'||a.emCombate===false);
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
-    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {}),...(magiaDuplicada?{magiaDuplicada:true}:{})};
+    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {}),...(magiaDuplicada?{magiaDuplicada:true}:{}),...(ilusaoCausaDano?{ilusaoCausaDano:true}:{})};
     let escolha=null;
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['invocar','peca'].includes(rule?.tipo))escolha='area'; // M06: escolher o ponto onde a entidade/peça aparece
@@ -308,7 +309,7 @@ export async function iniciarHud(){
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
-    if(circulos.length>1||duplicadaDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{})};
+    if(circulos.length>1||duplicadaDisponivel||ilusaoDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{}),...(ilusaoDisponivel?{ilusaoDisponivel:true,ilusaoCausaDano}:{})};
     if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
       pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
@@ -532,11 +533,15 @@ export async function iniciarHud(){
     }
     else if(d.tipo==='alterarCirculo'&&pendente?.compositor){
       const circulo=Number(d.valor);if(pendente.rolagem||!pendente.compositor.circulos.includes(circulo))return;
-      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:circulo,magiaDuplicada:pendente.cmd.magiaDuplicada===true});
+      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:circulo,magiaDuplicada:pendente.cmd.magiaDuplicada===true,ilusaoCausaDano:pendente.cmd.ilusaoCausaDano===true});
     }
     else if(d.tipo==='alternarMagiaDuplicada'&&pendente?.compositor?.duplicadaDisponivel){
       if(pendente.rolagem)return;
-      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:pendente.cmd.circuloUsado,magiaDuplicada:pendente.cmd.magiaDuplicada!==true});
+      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:pendente.cmd.circuloUsado,magiaDuplicada:pendente.cmd.magiaDuplicada!==true,ilusaoCausaDano:pendente.cmd.ilusaoCausaDano===true});
+    }
+    else if(d.tipo==='alternarIlusaoDano'&&pendente?.compositor?.ilusaoDisponivel){
+      if(pendente.rolagem)return;
+      await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:pendente.cmd.circuloUsado,magiaDuplicada:pendente.cmd.magiaDuplicada===true,ilusaoCausaDano:pendente.cmd.ilusaoCausaDano!==true});
     }
     else if(d.tipo==='selecionarModoComposicao'&&pendente?.composicao){
       const modo=pendente.composicao.modos.find(m=>m.id===d.id);if(!modo)return;

@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.34';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.34';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.34';
-import {pronto} from './bridge.mjs?v=0.8.34';
-import {canalHud} from './hud-controller.mjs?v=0.8.34';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.35';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.35';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.35';
+import {pronto} from './bridge.mjs?v=0.8.35';
+import {canalHud} from './hud-controller.mjs?v=0.8.35';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -104,9 +104,10 @@ function gavetaComposicao(p){
   const gaveta=c??editor,recolhida=gaveta.gavetaAberta===false,usos=c?Object.fromEntries(c.modos.map(m=>[m.id,c.instancias.filter(x=>x.modoId===m.id).length])):{};
   const circulos=editor?.circulos?.length?'<section class="circulos-compositor"><strong>Círculo</strong><div>'+editor.circulos.map(n=>btn('alterarCirculo',n+'º','data-valor="'+n+'" aria-pressed="'+(editor.circuloAtivo===n)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Conjurar usando espaço de '+n+'º círculo"')).join('')+'</div></section>':'';
   const duplicada=editor?.duplicadaDisponivel?'<section class="metamagia-compositor"><strong>Metamagia</strong><div>'+btn('alternarMagiaDuplicada','Magia Duplicada <small>+1 círculo efetivo · 1 Feitiçaria</small>','aria-pressed="'+(editor.magiaDuplicada===true)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Aumenta em um o círculo efetivo, mantendo o espaço escolhido, e concede o alvo adicional da magia. Custa 1 Ponto de Feitiçaria."')+'</div></section>':'';
+  const ilusao=editor?.ilusaoDisponivel?'<section class="metamagia-compositor"><strong>Ilusão</strong><div>'+btn('alternarIlusaoDano','Ilusão causa dano <small>2d8 psíquico · 1x por turno</small>','aria-pressed="'+(editor.ilusaoCausaDano===true)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Marque se a ilusão descrita pode ferir o alvo (o mestre arbitra). Se o alvo falhar, você ganha Força Fantasmagórica · Dano, sem custo, uma vez em cada turno seu."')+'</div></section>':'';
   const modos=c?c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,indice=c.instancias.length+1,anterior=c.instancias.at(-1),foraDaOrdem=Boolean(m.ordem&&m.ordem!==indice||m.requerModoAnterior&&anterior?.modoId!==m.requerModoAnterior),contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado||foraDaOrdem?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
   const contador=c?c.instancias.length+'/'+c.quantidadeMaxima:(editor?.circuloAtivo+'º');
-  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+duplicada+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
+  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+duplicada+ilusao+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
 }
 function render(){
   if(!v)return;

@@ -184,8 +184,16 @@
         "categoria": "acao",
         "origemTipo": "comum",
         "descricao": "Abra os pertences de um inimigo derrotado a até 1,5 m. Selecione itens e quantidades e confirme respeitando sua capacidade de carga.",
-        "custo": [{"tipo": "acao", "quantidade": 1}],
-        "automacao": {"tipo": "saque", "alcanceM": 1.5}
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "saque",
+          "alcanceM": 1.5
+        }
       }
     },
     {
@@ -406,7 +414,7 @@
     },
     {
       "id": "habilidade.1-disfarcar-se",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Disfarçar-se",
         "categoria": "magia",
@@ -417,7 +425,34 @@
             "quantidade": 1
           }
         ],
-        "circuloBase": 1
+        "circuloBase": 1,
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 0,
+          "efeito": {
+            "nome": "Disfarçado",
+            "tipo": "buff",
+            "marcador": true,
+            "descricao": "Marcador interpretativo: aparência alterada por Disfarçar-se. Investigação contra CD 13 revela a ilusão. Não altera testes nem a arte do token.",
+            "duracao": {
+              "turnos": 600,
+              "expira": "inicio_origem"
+            },
+            "opcoesConcedidas": [
+              {
+                "id": "encerrar",
+                "nome": "Encerrar Disfarçar-se | sem ação",
+                "categoria": "acao",
+                "descricao": "Encerra o disfarce antes de 1 hora.",
+                "custo": [],
+                "automacao": {
+                  "tipo": "encerrar_efeito",
+                  "alcanceM": 0
+                }
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -472,7 +507,7 @@
     },
     {
       "id": "habilidade.1-encontrar-familiar",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "1º | Encontrar Familiar",
         "categoria": "magia",
@@ -546,7 +581,8 @@
                   "nome": "Entidade invocada",
                   "descricao": "Forma única provisória (moeda com T). CA 11, PV 1, voo 18 m. Não ataca. Some a 0 PV; o conjurador pode dispensá-lo."
                 }
-              ]
+              ],
+              "tipoCriatura": "fada"
             }
           }
         }
@@ -1178,7 +1214,10 @@
           "elemento": "perfurante",
           "critico": false,
           "requisitos": {
-            "tagsAtaque": ["arma", "distancia"]
+            "tagsAtaque": [
+              "arma",
+              "distancia"
+            ]
           },
           "salvaArea": {
             "atributo": "des",
@@ -1394,11 +1433,11 @@
     },
     {
       "id": "habilidade.2-forca-fantasmagorica",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "2º | Força Fantasmagórica",
         "categoria": "magia",
-        "descricao": "Ação · 18 m, salvaguarda de INT CD 13, ilusão que o alvo acredita ser real, concentração; silenciosa. Até 1 min. Quando a ilusão pode logicamente ferir o alvo, pode causar [2d8] psíquico por turno.",
+        "descricao": "Ação · 18 m, salvaguarda de INT CD 13, ilusão que o alvo acredita ser real, concentração; silenciosa. Até 1 min. Token público da ilusão no alvo. No Compositor, marque Ilusão causa dano se a ilusão puder ferir: na falha, você ganha Força Fantasmagórica · Dano [2d8] psíquico, uma vez em cada turno seu, sem custo. O alvo pode usar Estudar (Investigação contra a CD) para encerrar a ilusão.",
         "custo": [
           {
             "tipo": "acao",
@@ -1411,7 +1450,37 @@
           }
         ],
         "circuloBase": 2,
-        "concentracao": true
+        "concentracao": true,
+        "automacao": {
+          "tipo": "salva",
+          "atributo": "int",
+          "cd": 13,
+          "alcanceM": 18,
+          "ilusao": {
+            "peca": {
+              "nome": "Força Fantasmagórica",
+              "tamanhoM": 1.5
+            },
+            "dano": "2d8",
+            "elemento": "psiquico"
+          },
+          "efeitoFalha": {
+            "nome": "Força Fantasmagórica",
+            "marcador": true,
+            "descricao": "Acredita que a ilusão é real. Use Estudar (ação) para um teste de Inteligência (Investigação) contra a CD da magia; no sucesso, a ilusão termina.",
+            "turnos": 10,
+            "expira": "inicio_origem",
+            "escape": {
+              "atributo": "int",
+              "pericia": "Investigação",
+              "nomeAcao": "Estudar",
+              "encerraOrigem": true,
+              "textoSucesso": "percebeu a ilusão",
+              "textoFalha": "continua acreditando na ilusão",
+              "descricaoSucesso": "No sucesso, percebe a ilusão e a magia termina."
+            }
+          }
+        }
       }
     },
     {
@@ -1957,8 +2026,17 @@
         "nome": "Ajudar · Estabilizar",
         "categoria": "acao",
         "descricao": "Faça um teste de Sabedoria (Medicina) CD 10 para estabilizar uma criatura inconsciente a 0 PV a até 1,5 m.",
-        "custo": [{"tipo": "acao", "quantidade": 1}],
-        "automacao": {"tipo": "estabilizar", "alcanceM": 1.5, "testeMedicina": true}
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "estabilizar",
+          "alcanceM": 1.5,
+          "testeMedicina": true
+        }
       }
     },
     {
@@ -2441,10 +2519,20 @@
     },
     {
       "id": "habilidade.combate-com-armas-grandes",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Combate com Armas Grandes",
-        "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. A regra está registrada para a próxima etapa de automação de resultados individuais."
+        "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. Automático: o ajuste aparece no histórico do ataque.",
+        "facesMinimasDano": {
+          "minimo": 3,
+          "requisitos": {
+            "tagsAtaque": [
+              "arma",
+              "corpo_a_corpo"
+            ],
+            "duasMaos": true
+          }
+        }
       }
     },
     {
@@ -3007,7 +3095,7 @@
       "definicao": {
         "nome": "Espada grande +5 | ação",
         "categoria": "acao",
-        "descricao": "Duas mãos · 1,5 m · cortante. Garantido: 3 de dano se errar. Para Combate com Armas Grandes, leia cada 1 ou 2 de dano como 3. Atacante Selvagem: 1x/turno, role os dados de dano da arma duas vezes e escolha o maior total.\nNormal [1d20+5]\nDano [2d6+3] · Crítico [3d6+3]",
+        "descricao": "Duas mãos · 1,5 m · cortante. Garantido: 3 de dano se errar. Combate com Armas Grandes: 1 ou 2 nos dados da arma contam como 3 (automático). Atacante Selvagem: 1x/turno, role os dados de dano da arma duas vezes e escolha o maior total.\nNormal [1d20+5]\nDano [2d6+3] · Crítico [3d6+3]",
         "custo": [
           {
             "tipo": "acao",
@@ -4088,7 +4176,7 @@
     },
     {
       "id": "habilidade.mente-desperta",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Mente Desperta",
         "categoria": "bonus",
@@ -4098,7 +4186,35 @@
             "tipo": "bonus",
             "quantidade": 1
           }
-        ]
+        ],
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 9,
+          "efeito": {
+            "nome": "Mente Desperta",
+            "tipo": "buff",
+            "marcador": true,
+            "tambemNoConjurador": true,
+            "descricao": "Marcador interpretativo: vínculo telepático por 3 minutos. O mestre arbitra comunicação e distância.",
+            "duracao": {
+              "turnos": 30,
+              "expira": "inicio_origem"
+            },
+            "opcoesConcedidasConjurador": [
+              {
+                "id": "encerrar",
+                "nome": "Encerrar Mente Desperta | sem ação",
+                "categoria": "acao",
+                "descricao": "Encerra o vínculo telepático e remove os dois marcadores.",
+                "custo": [],
+                "automacao": {
+                  "tipo": "encerrar_efeito",
+                  "alcanceM": 0
+                }
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -5476,49 +5592,91 @@
               "nome": "Ácido",
               "descricao": "Explosão Elemental com dano ácido.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "acido", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "acido",
+                "alcanceM": 18
+              }
             },
             {
               "id": "frio",
               "nome": "Frio",
               "descricao": "Explosão Elemental com dano gélido.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "frio", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "frio",
+                "alcanceM": 18
+              }
             },
             {
               "id": "fogo",
               "nome": "Fogo",
               "descricao": "Explosão Elemental com dano ígneo.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "fogo", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "fogo",
+                "alcanceM": 18
+              }
             },
             {
               "id": "raio",
               "nome": "Raio",
               "descricao": "Explosão Elemental com dano elétrico.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "raio", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "raio",
+                "alcanceM": 18
+              }
             },
             {
               "id": "veneno",
               "nome": "Veneno",
               "descricao": "Explosão Elemental com dano venenoso.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "veneno", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "veneno",
+                "alcanceM": 18
+              }
             },
             {
               "id": "psiquico",
               "nome": "Psíquico",
               "descricao": "Explosão Elemental com dano psíquico.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "psiquico", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "psiquico",
+                "alcanceM": 18
+              }
             },
             {
               "id": "trovejante",
               "nome": "Trovejante",
               "descricao": "Explosão Elemental com dano trovejante.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 5, "dano": "1d8", "elemento": "trovejante", "alcanceM": 18}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8",
+                "elemento": "trovejante",
+                "alcanceM": 18
+              }
             }
           ]
         }
@@ -5688,7 +5846,10 @@
           "dano": "1d8+2",
           "elemento": "radiante",
           "alcanceM": 18,
-          "tags": ["arma", "distancia"]
+          "tags": [
+            "arma",
+            "distancia"
+          ]
         },
         "circuloBase": 0,
         "semArquearia": true,
@@ -5702,28 +5863,68 @@
               "nome": "Arco · radiante",
               "descricao": "Ataque com arco longo, usando SAB e convertendo o dano para radiante.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 6, "dano": "1d8+2", "elemento": "radiante", "alcanceM": 18, "tags": ["arma", "distancia"]}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 6,
+                "dano": "1d8+2",
+                "elemento": "radiante",
+                "alcanceM": 18,
+                "tags": [
+                  "arma",
+                  "distancia"
+                ]
+              }
             },
             {
               "id": "arco-perfurante",
               "nome": "Arco · perfurante",
               "descricao": "Ataque com arco longo, usando SAB e mantendo o dano perfurante da arma.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 6, "dano": "1d8+2", "elemento": "perfurante", "alcanceM": 18, "tags": ["arma", "distancia"]}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 6,
+                "dano": "1d8+2",
+                "elemento": "perfurante",
+                "alcanceM": 18,
+                "tags": [
+                  "arma",
+                  "distancia"
+                ]
+              }
             },
             {
               "id": "cimitarra-radiante",
               "nome": "Cimitarra · radiante",
               "descricao": "Ataque com cimitarra, usando SAB e convertendo o dano para radiante.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 4, "dano": "1d6+2", "elemento": "radiante", "alcanceM": 1.5, "tags": ["arma", "corpo-a-corpo"]}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 4,
+                "dano": "1d6+2",
+                "elemento": "radiante",
+                "alcanceM": 1.5,
+                "tags": [
+                  "arma",
+                  "corpo-a-corpo"
+                ]
+              }
             },
             {
               "id": "cimitarra-cortante",
               "nome": "Cimitarra · cortante",
               "descricao": "Ataque com cimitarra, usando SAB e mantendo o dano cortante da arma.",
               "tipo": "ataque",
-              "automacao": {"tipo": "ataque", "bonus": 4, "dano": "1d6+2", "elemento": "cortante", "alcanceM": 1.5, "tags": ["arma", "corpo-a-corpo"]}
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 4,
+                "dano": "1d6+2",
+                "elemento": "cortante",
+                "alcanceM": 1.5,
+                "tags": [
+                  "arma",
+                  "corpo-a-corpo"
+                ]
+              }
             }
           ]
         }
@@ -5757,7 +5958,7 @@
     },
     {
       "id": "habilidade.truque-maos-magicas",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Mãos Mágicas",
         "categoria": "magia",
@@ -5822,7 +6023,8 @@
                   "nome": "Entidade invocada",
                   "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
                 }
-              ]
+              ],
+              "tipoCriatura": "objeto"
             }
           }
         }
@@ -5830,7 +6032,7 @@
     },
     {
       "id": "habilidade.truque-maos-magicas-utilidade-classe",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Truque | Mãos Mágicas · utilidade · classe",
         "categoria": "magia",
@@ -5896,7 +6098,8 @@
                   "nome": "Entidade invocada",
                   "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
                 }
-              ]
+              ],
+              "tipoCriatura": "objeto"
             }
           }
         }
