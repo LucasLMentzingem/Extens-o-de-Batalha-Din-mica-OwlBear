@@ -1,6 +1,6 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.29';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.29';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.29';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.30';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.30';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.30';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -1328,6 +1328,8 @@ export function facesMaximas(r,lados){
 }
 // M06 (#45): entidades vinculadas. A invocação guarda origem, controlador, duração e concentração.
 // Encerrar remove o ator do encontro e da ordem; o token sem ator é apagado pelo mestre (bridge).
+// Quem rola pelo personagem: o dono de um PJ ou de uma entidade invocada controlável; senão o mestre.
+export const controladorAtor=p=>(p?.ficha?.tipo==='pj'||p?.invocacao?.controlavel)&&p.dono?p.dono:'GM';
 export function encerrarInvocacao(s,ent,motivo=''){
   if(!ent?.invocacao)return false;
   const atualId=atual(s)?.id,eraAtual=atualId===ent.id,indice=s.vez;
@@ -1390,7 +1392,7 @@ export async function aplicar(s,c,u,rolar) {
     atualizarMagias(p.ficha);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};sincronizarConcessoesItens(p);
   }
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
-  const controladorDe=p=>p?.ficha.tipo==='pj'&&p.dono?p.dono:'GM';
+  const controladorDe=controladorAtor;
   const soma=(n)=>n>0?'+'+n:n<0?String(n):'';
   const formulaD20=(bonus=0,p=null,penalidade=null,modoForcado=c.modo)=>{
     const xs=c.dadosAjuste??[];exigir(dadosExtrasValidos(xs),'Dados extras inválidos.');
@@ -1919,7 +1921,7 @@ export async function aplicar(s,c,u,rolar) {
           for(const custo of plano.custos){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;bag[key]-=custo.quantidade;}
           reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;nomeReacao=o.nome;redirecionar=o.automacao.redirecionar??null;
         }
-        const controlador=origem.ficha.tipo==='pj'&&origem.dono?origem.dono:'GM';
+        const controlador=controladorAtor(origem);
         const rolagem=await resultado(pend.formula,{tipo:'dano',titulo:'Dano · '+pend.nome,critico:pend.critico,alvo:alvo.nome,destinoId:controlador,roladorNome:origem.nome,tipoDano:pend.elemento,parcelasDano:[{tipo:pend.elemento,tags:pend.tags??[]}],alvoDano:resumoAlvoDano(alvo),ajustesDano:reducao?[{id:'reacao-reducao',nome:nomeReacao,operacao:'reducao_fixa',valor:reducao,aplicacoes:'uma'}]:[]});
         const bruto=rolagem.total,relatorio=rolagem.relatoriosDano?.[0],restante=Math.max(0,bruto-reducao),dano=await aplicarDanoNoAtor(alvo,restante,pend.elemento,{critico:pend.critico,origem,relatorio});
         msg=alvo.nome+' respondeu com '+nomeReacao+' • dano '+bruto+' − redução '+reducao+' = '+dano;
@@ -1949,7 +1951,7 @@ export async function aplicar(s,c,u,rolar) {
             msg+=' e causou '+r.dano+r.textos.map(x=>' • '+x).join('');}
         }else{
           const escolhas=rule.atributos??[rule.atributo],atributo=escolhas.reduce((melhor,k)=>{const bonus=alvo.ficha.salvaguardas?.[k]??mod(alvo.ficha.atributos[k]);return !melhor||bonus>melhor.bonus?{k,bonus}:melhor;},null);
-          const controlador=alvo.ficha.tipo==='pj'&&alvo.dono?alvo.dono:'GM',falhaAutomatica=restricoesAtivas(alvo).falhaSalvas?.includes(atributo.k);
+          const controlador=controladorAtor(alvo),falhaAutomatica=restricoesAtivas(alvo).falhaSalvas?.includes(atributo.k);
           const rr=falhaAutomatica?{total:0}:await rolarD20(atributo.bonus,alvo,{tipo:'salvaguarda',atributo:atributo.k,titulo:'Reação · '+o.nome+' · '+alvo.nome,alvo:alvo.nome,cd:rule.cd,destinoId:controlador,roladorNome:alvo.nome});
           const sucesso=!falhaAutomatica&&rr.total>=rule.cd;msg=a.nome+' reagiu com '+o.nome+' • '+alvo.nome+(sucesso?' passou':' falhou')+' na salvaguarda';
           if(rule.dano&&(!sucesso||rule.metade)){const ajustes=sucesso&&rule.metade?[{id:'salva-metade',nome:'Salvaguarda bem-sucedida',operacao:'multiplicador',fator:.5}]:[],rolagem=await resultado(rule.dano,{tipo:'dano',titulo:'Dano · '+o.nome,alvo:alvo.nome,tipoDano:rule.elemento,parcelasDano:[{tipo:rule.elemento,tags:['magia']}],alvoDano:resumoAlvoDano(alvo),ajustesDano:ajustes}),total=rolagem.total,bruto=sucesso?Math.floor(total/2):total;
@@ -2414,7 +2416,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if(rule.tipo==='salva'){
         const cd=rule.cd+Math.max(0,...efeitos.map(e=>e.bonusCD)),resultadosSalva=new Array(afetados.length),grupos=new Map();
         for(let i=0;i<afetados.length;i++){
-          const p=afetados[i],controlador=p.ficha.tipo==='pj'&&p.dono?p.dono:'GM';
+          const p=afetados[i],controlador=controladorAtor(p);
           if(!grupos.has(controlador))grupos.set(controlador,[]);grupos.get(controlador).push({p,i});
         }
         const rerrolagensMagia=rerrolagensDano(a,o),metaRerrolagensMagia=rerrolagensMagia.map(metaRerrolagem);
