@@ -6,6 +6,8 @@ Em 15/11/2026, o responsável solicitou explicitamente a republicação `0.8.191
 
 A publicação gera também `manifest-recuperacao.json`, com o mesmo conteúdo do manifesto principal. Esse endereço alternativo permite tentar uma nova instalação quando o endereço original retorna uma versão em cache.
 
+A `0.8.192` dá sequência à instalação de recuperação `0.8.191` e corrige a falha monetária reproduzida com o backup da mesa.
+
 - Apenas o último número pode avançar: `0.8.3`, `0.8.4`, …, `0.8.99`.
 - Não publicar `0.9.0`, `1.0.0` ou alterar `0.8` sem pedido explícito do responsável pelo projeto.
 - Cada publicação deve atualizar `site/manifest.json` e todos os parâmetros de cache `?v=` usados pelo site.

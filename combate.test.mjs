@@ -5,6 +5,7 @@ import {novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvM
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
+import {quantidadeMoedaValida} from './site/engine.mjs';
 import {visibilidadeRolagem} from './site/roll-visibility.mjs';
 import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './site/action-preview.mjs';
 import {catalogoCentral,compactarFicha,compactarEstado,resolverCatalogoLoja} from './site/catalog.mjs';
@@ -853,6 +854,36 @@ test('inventário legado separa armas, prioriza o melhor acerto e ocupa uma mão
  const a={ficha:f},pesoAntes=pesoInventario(a);
  moedas.quantidade=999999;
  assert.equal(pesoInventario(a),pesoAntes,'a quantidade de PO não altera a carga');
+});
+test('PO com duas casas decimais reabrem após compras sem falha de precisão binária',()=>{
+ for(const quantidade of [9604.3,0.29,19.99,999999.99]){
+  assert.equal(quantidadeMoedaValida(quantidade),true);
+ }
+ for(const quantidade of [0.001,1.999,NaN,Infinity])assert.equal(quantidadeMoedaValida(quantidade),false);
+ const f=structuredClone(nikki);
+ const moedas=f.inventario.itens.find(i=>i.tipo==='moeda');
+ moedas.quantidade=9604.3;
+ const a={ficha:f},salva=compactarFicha(f),reaberta=validar(salva);
+ assert.equal(reaberta.inventario.itens.find(i=>i.id===moedas.id).quantidade,9604.3);
+ assert.equal(saldoMoedasPc({ficha:reaberta}),960430);
+ assert.equal(pesoInventario({ficha:reaberta}),pesoInventario(a));
+ for(const quantidade of [0.29,19.99,9604.3]){
+  moedas.quantidade=quantidade;assert.doesNotThrow(()=>validar(compactarFicha(f)));
+ }
+ moedas.quantidade=1.999;assert.throws(()=>validar(compactarFicha(f)),/Quantidade ou peso/);
+});
+test('descontos de 1 a 30 por cento nas duas lojas conservam valores inteiros em cobre e saldos válidos',()=>{
+ for(const loja of catalogoCentral().lojas){
+  for(const item of resolverCatalogoLoja(loja).itens){
+   for(let desconto=1;desconto<=30;desconto++){
+    const preco=precoCompraPc(item,desconto),saldo=(100000000-preco)/100;
+    assert.ok(Number.isSafeInteger(preco)&&preco>0,item.nome);
+    assert.ok(quantidadeMoedaValida(saldo),item.nome+' desconto '+desconto);
+   }
+  }
+ }
+ const item={preco:{valor:0.9,moeda:'po'}};
+ assert.equal(precoVendaPc(item),63,'70% de 90 cobres são exatamente 63 cobres');
 });
 test('escudo do soldado ocupa a mão fraca e altera a CA ao ser guardado',async()=>{
  const m=mesa(),escudo=m.b.ficha.inventario.itens.find(i=>i.nome==='Escudo');

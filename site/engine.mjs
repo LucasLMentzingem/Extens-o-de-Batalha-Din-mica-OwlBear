@@ -1,8 +1,9 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.191';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.191';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.192';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,definicaoHabilidade} from './catalog.mjs?v=0.8.192';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
+export const quantidadeMoedaValida=valor=>Number.isFinite(valor)&&Math.abs(valor-Math.round(valor*100)/100)<1e-10;
 export const avancosMesa=[['10min','10 Min',600],['1min','1 Min',60],['30seg','30 Seg',30],['1t','1T',6],['5t','5T',30],['10t','10T',60]];
 export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
 export const periciasPadrao = {
@@ -569,7 +570,7 @@ export function validar(f) {
   lista(out.inventario.itens,'Inventário');
   for(const item of out.inventario.itens){
     exigir(nomeOK(item.nome)&&['equipamento','consumivel','etc','moeda'].includes(item.tipo),'Item inválido em '+item.id);
-    const quantidadeValida=item.tipo==='moeda'?Number.isFinite(item.quantidade)&&item.quantidade>0&&item.quantidade<=999999&&Number.isInteger(item.quantidade*100):inteiro(item.quantidade,1,999999);
+    const quantidadeValida=item.tipo==='moeda'?quantidadeMoedaValida(item.quantidade)&&item.quantidade>0&&item.quantidade<=999999:inteiro(item.quantidade,1,999999);
     exigir(quantidadeValida&&Number.isFinite(item.pesoKg)&&item.pesoKg>=0,'Quantidade ou peso inválido em '+item.id);
     exigir(precoEmPc(item)>0,'Preço inválido em '+item.id);
     if(item.tipo==='equipamento')exigir(slotsEquipamento.includes(item.slotEquipamento)||item.slotEquipamento==='acessorio','Slot de equipamento inválido em '+item.id);
@@ -843,7 +844,7 @@ export function precoEmPc(item){
 export const saldoMoedasPc=a=>(a?.ficha?.inventario?.itens??[]).filter(i=>i.tipo==='moeda').reduce((n,i)=>n+Math.round((Number(i.quantidade)||0)*(Number(i.valorMoedaPc)||VALOR_MOEDA_PC[i.moeda]||100)),0);
 export const saldoMoedasPo=a=>saldoMoedasPc(a)/100;
 export const precoCompraPc=(item,descontoPct)=>Math.max(1,Math.ceil(precoEmPc(item)*(100-descontoPct)/100));
-export const precoVendaPc=item=>Math.max(1,Math.floor(precoEmPc(item)*.7));
+export const precoVendaPc=item=>Math.max(1,Math.floor(precoEmPc(item)*70/100));
 export function normalizarComercio(s){
   s.comercio??={lojas:{}};s.comercio.lojas??={};s.comercio.trocas??=[];
   for(const loja of lojasCatalogo()){
@@ -1263,7 +1264,7 @@ export async function aplicar(s,c,u,rolar) {
       const transferencias=c.itens.map(entrada=>{
         const item=alvo.ficha.inventario.itens.find(i=>i.id===entrada.itemId);
         exigir(item&&Number.isFinite(entrada.quantidade)&&entrada.quantidade>0&&entrada.quantidade<=item.quantidade,'Quantidade indisponível. Confira os pertences atuais.');
-        exigir(item.tipo==='moeda'?Number.isInteger(entrada.quantidade*100):Number.isInteger(entrada.quantidade),'Quantidade inválida.');
+        exigir(item.tipo==='moeda'?quantidadeMoedaValida(entrada.quantidade):Number.isInteger(entrada.quantidade),'Quantidade inválida.');
         return {item,quantidade:entrada.quantidade};
       });
       const copias=transferencias.map(({item,quantidade})=>{

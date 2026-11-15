@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.191';
-import {itensSaque,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.191';
-import {resumoItem} from './ficha-view.mjs?v=0.8.191';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.192';
+import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.192';
+import {resumoItem} from './ficha-view.mjs?v=0.8.192';
 const root=document.querySelector('#saque'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const atorId=new URLSearchParams(location.search).get('ator');
@@ -40,7 +40,7 @@ function render(){
 root.addEventListener('input',e=>{
  const id=e.target.dataset.quantidade;if(!id)return;
  const item=itensSaque(s,ator()).find(i=>i.id===id),q=Number(e.target.value);
- if(!item||!Number.isFinite(q)||q<0||q>item.quantidade||!(item.tipo==='moeda'?Number.isInteger(q*100):Number.isInteger(q))){e.target.setCustomValidity('Quantidade inválida');atualizarResumo();return;}
+ if(!item||!Number.isFinite(q)||q<0||q>item.quantidade||!(item.tipo==='moeda'?quantidadeMoedaValida(q):Number.isInteger(q))){e.target.setCustomValidity('Quantidade inválida');atualizarResumo();return;}
  e.target.setCustomValidity('');q?quantidades.set(id,q):quantidades.delete(id);
  e.target.closest('article').classList.toggle('selecionada',q>0);
  atualizarResumo();

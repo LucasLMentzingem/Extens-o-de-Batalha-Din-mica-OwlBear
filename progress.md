@@ -1,5 +1,13 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-15 — recuperação do saldo da Skimi 0.8.192
+
+- Causa reproduzida no backup fornecido: 9604.3 PO multiplicados por 100 resultam em 960429.9999999999. A validação exigia inteiro exato e bloqueava a hidratação da sala.
+- Validação monetária passa a tolerar o erro de representação binária ao conferir duas casas decimais. Valores com terceira casa decimal continuam rejeitados. A mesma regra vale para a seleção de PO no saque.
+- Descontos de 1% a 30% em todos os itens das duas lojas foram testados para preços em cobre inteiro e saldos com até duas casas em PO. Venda a 70% usa uma razão inteira para evitar arredondamento incorreto de um cobre.
+- Todas as 11 fichas do backup foram validadas, e a mesa abriu no simulador com inventário e saldo da Skimi preservados.
+- Backup e teste com dados pessoais permanecem fora do Git.
+
 ## 2026-11-15 — republicação 0.8.191
 
 - Republicação expressamente solicitada pelo responsável para renovar o cache da extensão no Owlbear.
