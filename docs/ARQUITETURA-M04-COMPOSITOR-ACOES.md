@@ -1,6 +1,6 @@
 # M04 — Arquitetura do Compositor de Ações
 
-Estado atualizado na 0.8.15. Desenvolvimento pausado a pedido do responsável após a entrega da 0.8.13. Círculo dinâmico, custos derivados e a primeira sequência seriada (Ágil de Zurich) estão operacionais. Reservas condicionais e integrações completas continuam pendentes. O fix de HUD estende o limite de altura expandida a todas as instâncias, com ajuste ao conteúdo e recolhimento durante rolagens.
+Estado atualizado na 0.8.26. Retomado para fechar as sete fichas de nível 3, depois da pausa registrada na 0.8.13. Círculo dinâmico, custos derivados e a primeira sequência seriada (Ágil de Zurich) estão operacionais. Reservas condicionais e integrações completas continuam pendentes. O fix de HUD estende o limite de altura expandida a todas as instâncias, com ajuste ao conteúdo e recolhimento durante rolagens.
 
 O M04 é o orquestrador transacional das ações. Ele monta um plano, recebe escolhas, calcula custos, valida tudo e executa etapas em série. Escolhas pertencem ao M03, escalonamento ao M15, gatilhos ao M02, modificadores de rolagem ao M09 e efeitos persistentes ao M01.
 
@@ -161,14 +161,20 @@ Smites entram depois do acerto; metamagias podem entrar ao montar ou na rolagem;
 - No ataque individual, assim que o ataque com arma cumprir o gatilho, mostrar um círculo de 1,5 m centrado no primeiro alvo e destacar os alvos elegíveis para o ataque extra. A seleção funciona mesmo com a gaveta fechada.
 - Na Gaveta de Composição, ao selecionar o primeiro alvo de um ataque elegível, mostrar a mesma prévia e oferecer a seleção antecipada do segundo alvo. Executar o segundo ataque somente depois de o primeiro ocorrer e o gatilho ser validado.
 - Os dois fluxos usam as mesmas regras: mesma arma, alvo diferente, dentro de 1,5 m do primeiro alvo e do alcance da arma, ainda não atacado naquele turno. O ataque inicial pode errar. Compartilhar o limite de uma vez no próprio turno, sem custo adicional de ação.
+- **Implementado na 0.8.26.** Cada ataque de arma com Ação recebe a etapa opcional `destruidor-de-hordas` na Gaveta (`composicao.opcional`): com uma só instância, o ataque segue o fluxo simples. A etapa usa a automação da instância anterior e a mesma chave `umaVezPorTurno` do botão avulso. `ofertaDestruidorDeHordas` e `alvosElegiveisDestruidor` alimentam a prévia no HUD.
 
 ## Mão de Dolo e Desarme
 
 - **Manobras do Mestre da Batalha:** permitir somente uma manobra e um Dado de Superioridade por ataque. A HUD usa seleção exclusiva e o motor valida o limite, inclusive em ataques compostos. Ataque Ameaçador, Ataque Prostrador e Ataque de Desarme só se aplicam após o acerto. Se a gaveta permitir preparar uma manobra, a marcação é uma preferência e não gasta dado se o ataque errar.
 
-- **Mão de Dolo:** oferecer após acertar um golpe desarmado e também permitir preparar na Gaveta de Composição. A seleção antecipada só é executada se o golpe cumprir o gatilho e consome 1 Foco quando aplicada.
+- **Mão de Dolo:** oferecer após acertar um golpe desarmado e também permitir preparar na Gaveta de Composição. A seleção antecipada só é executada se o golpe cumprir o gatilho e consome 1 Foco quando aplicada. **0.8.26:** modo `soco-mao-de-dolo` com `preparar`, que chega ao ajuste como `preSelecionado`.
 - **Ataque de Desarme:** se o alvo falhar na salvaguarda, retirar a arma do slot e mantê-la no inventário dele. Para voltar a empunhá-la em combate, o alvo gasta uma ação para equipar. Criar uma peça no chão e permitir sua coleta fica para a evolução do inventário no mapa.
 - Se o alvo empunhar duas armas diferentes, sortear automaticamente após a falha: 60% para a mão principal e 40% para a mão fraca. Uma arma única, inclusive uma arma empunhada com duas mãos, não exige sorteio.
+
+## Metamagias (0.8.26)
+
+- **Magia Potencializada:** rerrolagem `modo: "dados"` com `limiteDados: 3`. O resultado mostra os dados mantidos (exceto d20); o jogador escolhe até três, o Dice+ rola só esses dados e `aplicarRerrolagemParcial` recalcula grupo, instância e total. Custa 1 ponto uma vez por rolagem.
+- **Magia Duplicada:** opção `metamagiaAoConjurar: "duplicada"`, fora do rodapé. Na Gaveta, aparece somente para magias que ganham alvo ao subir de círculo. Soma 1 ao círculo efetivo, preserva o espaço escolhido e acrescenta 1 Ponto de Feitiçaria à barra de custos.
 
 ## Validação e transação
 

@@ -1,8 +1,8 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.25';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.25';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.25';
-import {pronto} from './bridge.mjs?v=0.8.25';
-import {canalHud} from './hud-controller.mjs?v=0.8.25';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.26';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.26';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.26';
+import {pronto} from './bridge.mjs?v=0.8.26';
+import {canalHud} from './hud-controller.mjs?v=0.8.26';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -59,7 +59,15 @@ function categoriaHud(f,o){
   if(comuns.some(n=>texto.startsWith(n))||o.categoria!=='magia'&&o.automacao?.tipo==='ataque')return 'Comum';
   return 'Classe';
 }
-let v,filtro='Comum',recursoAtivo=null,bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null,iniciativaAberta=false,iniciativasSelecionadas=new Set();
+let v,filtro='Comum',recursoAtivo=null,bus,ultimoPedido=null,adicionaisAtivos=new Set(),rerrolagemAtiva=null,dadosEscolhidos=[],iniciativaAberta=false,iniciativasSelecionadas=new Set();
+// #60 Magia Potencializada: escolha de até N dados mantidos (exceto d20) antes de rerrolar.
+function seletorDadosRerrolagem(r,opcao){
+  if(opcao?.modo!=='dados')return btn('rerrolarDado','Rerrolar','class="ouro"');
+  const dados=(r.grupos??[]).flatMap((g,grupo)=>String(g.diceType).toLowerCase()==='d20'?[]:(g.dice??[]).flatMap((d,indice)=>d.kept===false?[]:[{grupo,indice,tipo:g.diceType,valor:d.value}]));
+  const limite=opcao.limiteDados??3,marcado=x=>dadosEscolhidos.some(y=>y.grupo===x.grupo&&y.indice===x.indice);
+  if(!dados.length)return '<small>O Dice+ não informou os dados individuais desta rolagem.</small>';
+  return '<div class="dados-rerrolagem"><small>Escolha até '+limite+' dado(s) · '+dadosEscolhidos.length+'/'+limite+'</small><div>'+dados.map(x=>btn('alternarDadoRerrolagem',esc(x.tipo)+': <b>'+esc(x.valor)+'</b>','data-grupo="'+x.grupo+'" data-indice="'+x.indice+'" aria-pressed="'+marcado(x)+'" '+(!marcado(x)&&dadosEscolhidos.length>=limite?'disabled':''))).join('')+'</div>'+btn('rerrolarDado','Rerrolar '+dadosEscolhidos.length+' dado(s)','class="ouro" '+(dadosEscolhidos.length?'':'disabled'))+'</div>';
+}
 const dadosExtras=valor=>String(valor??'').split(/[+,\s]+/).map(x=>x.trim()).filter(Boolean);
 const modoFormula=valor=>/^2d\d+kh1/i.test(valor)?'vantagem':/^2d\d+kl1/i.test(valor)?'desvantagem':'normal';
 function ajustarModo(valor,modo){
@@ -95,14 +103,15 @@ function gavetaComposicao(p){
   const c=p.composicao,editor=p.compositor;if(!c&&!editor)return '';
   const gaveta=c??editor,recolhida=gaveta.gavetaAberta===false,usos=c?Object.fromEntries(c.modos.map(m=>[m.id,c.instancias.filter(x=>x.modoId===m.id).length])):{};
   const circulos=editor?.circulos?.length?'<section class="circulos-compositor"><strong>Círculo</strong><div>'+editor.circulos.map(n=>btn('alterarCirculo',n+'º','data-valor="'+n+'" aria-pressed="'+(editor.circuloAtivo===n)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Conjurar usando espaço de '+n+'º círculo"')).join('')+'</div></section>':'';
+  const duplicada=editor?.duplicadaDisponivel?'<section class="metamagia-compositor"><strong>Metamagia</strong><div>'+btn('alternarMagiaDuplicada','Magia Duplicada <small>+1 círculo efetivo · 1 Feitiçaria</small>','aria-pressed="'+(editor.magiaDuplicada===true)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Aumenta em um o círculo efetivo, mantendo o espaço escolhido, e concede o alvo adicional da magia. Custa 1 Ponto de Feitiçaria."')+'</div></section>':'';
   const modos=c?c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,indice=c.instancias.length+1,anterior=c.instancias.at(-1),foraDaOrdem=Boolean(m.ordem&&m.ordem!==indice||m.requerModoAnterior&&anterior?.modoId!==m.requerModoAnterior),contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao','<b>'+esc(m.nome)+'</b>'+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado||foraDaOrdem?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
   const contador=c?c.instancias.length+'/'+c.quantidadeMaxima:(editor?.circuloAtivo+'º');
-  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
+  return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+duplicada+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
 }
 function render(){
   if(!v)return;
   const {estado:s,eu,ocupado,pendente:p}=v;
-  if(v.pedidoDado?.pedido!==ultimoPedido){ultimoPedido=v.pedidoDado?.pedido??null;rerrolagemAtiva=null;}
+  if(v.pedidoDado?.pedido!==ultimoPedido){ultimoPedido=v.pedidoDado?.pedido??null;rerrolagemAtiva=null;dadosEscolhidos=[];}
   adicionaisAtivos=new Set(v.pedidoDado?.recursosAtivos??[]);
   const ativo=s.ordem[s.vez],a=s.atores.find(a=>a.id===v.atorId),gm=eu.role==='GM';
   const meus=s.atores.filter(x=>gm||x.dono===eu.id);
@@ -153,7 +162,7 @@ function render(){
       const lote=r.resultados?.length?r.resultados:null,extras=(m.adicionaisAtivos??[]).map(id=>m.adicionais?.find(x=>x.id===id)).filter(Boolean);
       const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??'de dano')+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
       const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id)).filter(x=>!x.somenteFalha||!Number.isFinite(m.cd)||d.total<m.cd);
-      const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" '+(editavel?'':'disabled ')+'data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva&&editavel?btn('rerrolarDado','Rerrolar','class="ouro"'):'')+'</div>':'';
+      const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',esc(x.nome),'data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" '+(editavel?'':'disabled ')+'data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva&&editavel?seletorDadosRerrolagem(r,rerrolagens.find(x=>x.id===rerrolagemAtiva)):'')+'</div>':'';
       const alternativas=r.alternativasDano?.length?'<div class="alternativas-dano"><small>'+esc(r.modificadorDano?.nome??'Duas rolagens')+'</small>'+r.alternativasDano.map((x,i)=>'<span class="'+(x.total===Math.max(...r.alternativasDano.map(y=>y.total))?'escolhida':'')+'">Rolagem '+(i+1)+': <b>'+esc(x.resumo||x.total)+'</b></span>').join('')+'<strong>Maior resultado aplicado</strong></div>':'';
       const relatorio=resultadoDano(r.relatoriosDano);
       html='<section class="prompt rolagem resultado-dado"><strong>'+esc(m.titulo||'Resultado da rolagem')+'</strong><small>'+esc([m.alvo&&'Alvo: '+m.alvo,m.cd&&'CD '+m.cd].filter(Boolean).join(' · '))+'</small>'+observador+conteudo+alternativas+relatorio+(d.status?'<b class="estado '+classe+'">'+esc(d.status)+'</b>':'')+painelRerrolagem+(editavel?'<div>'+btn('continuarDado','Continuar','class="ouro"')+'</div>':'')+'</section>';
@@ -282,7 +291,7 @@ function mostrarDica(e){
 root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
-  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
+  const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','alternarDadoRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
   if(controleDado&&v.pedidoDado?.podeEditar===false)return;
   if(v.ocupado&&!controleDado)return;
   if(tipo==='alternarMesa'){
@@ -319,8 +328,9 @@ root.onclick=e=>{
     document.querySelectorAll('[data-cmd="modoDadoLote"][data-index="'+indice+'"]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));campo.focus();return;
   }
   if(tipo==='alternarAdicional'){bus.postMessage({tipo:'alternarAdicional',id});return;}
-  if(tipo==='escolherRerrolagem'){rerrolagemAtiva=rerrolagemAtiva===id?null:id;render();return;}
-  if(tipo==='rerrolarDado'){if(!rerrolagemAtiva)return;bus.postMessage({tipo,rerrolagem:rerrolagemAtiva});rerrolagemAtiva=null;return;}
+  if(tipo==='escolherRerrolagem'){rerrolagemAtiva=rerrolagemAtiva===id?null:id;dadosEscolhidos=[];render();return;}
+  if(tipo==='alternarDadoRerrolagem'){const x={grupo:Number(b.dataset.grupo),indice:Number(b.dataset.indice)},i=dadosEscolhidos.findIndex(y=>y.grupo===x.grupo&&y.indice===x.indice);if(i>=0)dadosEscolhidos.splice(i,1);else dadosEscolhidos.push(x);render();return;}
+  if(tipo==='rerrolarDado'){if(!rerrolagemAtiva)return;bus.postMessage({tipo,rerrolagem:rerrolagemAtiva,...(dadosEscolhidos.length?{dados:[...dadosEscolhidos]}:{})});rerrolagemAtiva=null;dadosEscolhidos=[];return;}
   if(tipo==='filtro'){filtro=id;recursoAtivo=null;render();return;}
   if(tipo==='recurso'){recursoAtivo=recursoAtivo===id?null:id;if(recursoAtivo)filtro='Comum';render();return;}
   if(tipo==='selecionarIniciativa'){iniciativasSelecionadas.has(id)?iniciativasSelecionadas.delete(id):iniciativasSelecionadas.add(id);render();return;}

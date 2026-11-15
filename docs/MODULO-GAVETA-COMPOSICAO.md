@@ -73,9 +73,11 @@ A arquitetura completa está em [M04 — Arquitetura do Compositor de Ações](A
 
 | Ficha | Habilidade | Composição |
 |---|---|---|
-| Loteria | Torrente de Golpes | Dois golpes; um pode ser substituído por Mão de Cura |
+| Loteria | Torrente de Golpes | Dois golpes; um pode ser substituído por Mão de Cura e um pode vir com Mão de Dolo preparada |
 | Nikki Lauda | Explosão Elemental | Uma instância; escolha entre sete tipos de dano |
 | Dragoberto | Golpe Certeiro | Uma instância; escolha arma e dano normal ou radiante |
+| Dragoberto e Zurich | Ataques de arma com Destruidor de Hordas ativo | Etapa opcional após o ataque com a mesma arma |
+| Nikki e conjuradores | Magias que ganham alvo por círculo | Metamagia Duplicada junto ao seletor de círculo |
 
 Hannah Montana, Skimi e Zurich não possuem atualmente uma habilidade preparada que precise desse fluxo. As escolhas multi-alvo continuam no seletor de alvos. Manobras após acerto, Saraivada de Espinhos e efeitos semelhantes continuam no ajuste de dano, pois a decisão acontece somente depois de confirmar o acerto.
 
