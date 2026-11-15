@@ -2199,3 +2199,102 @@ test('#56 #62 Presa do Caçador: escolha aberta ao fim do descanso, confirmada p
  s=await aplicar(reaberta,{rev:reaberta.rev,tipo:'descanso',periodo:'longo'},gm,dadoLocal);assert.ok(s.atores[0].escolhasDescanso.length);
  const reaberta2=JSON.parse(JSON.stringify(compactarEstado(s)));for(const a of reaberta2.atores)a.ficha=validar(a.ficha);assert.ok(reaberta2.atores[0].escolhasDescanso.length,'a pendência sobrevive à reabertura');
 });
+
+// ===== M05 — zonas persistentes (issue #44) e trajetória com zonas (M08, issue #47) =====
+import {trechoNaZona,primeiroContato,terrenoDificilDasZonas,entradasNaTrajetoria,pontoNaZona} from './site/zonas.mjs';
+import {normalizarZonas,encerrarConcentracao as encerrarConcM05} from './site/engine.mjs';
+const zonaQuadrada=(x,y,lado=6,extra={})=>({id:'z-'+x+'-'+y,nome:'Teste',centro:{x,y},geometria:{forma:'quadrado',tamanhoM:lado},terrenoDificil:true,afetaConjurador:false,origemAtorId:'dono',...extra});
+async function cenaEmaranhar({distancia=9}={}){
+  let s=novo();const z=adicionar(s,await fichaRev('zurich')),alvo=adicionar(s,await fichaRev('soldado'),'Soldado I'),fora=adicionar(s,await fichaRev('soldado'),'Soldado II');
+  z.dono='p';z.x=0;z.y=0;alvo.x=distancia;alvo.y=0;fora.x=distancia;fora.y=8;
+  s.fase='turnos';s.rodada=1;s.vez=0;s.ordem=[z.id,alvo.id,fora.id];
+  for(const x of s.atores){x.init=10;x.acao=1;x.bonus=1;x.reacao=1;x.metros=9;}
+  const emaranhar=opRev(z,'emaranhar');
+  return {s,z,alvo,fora,emaranhar};
+}
+const conjurar=async(m,{salva=2,ponto}={})=>aplicar(m.s,{rev:m.s.rev,tipo:'usar',ator:m.z.id,opcao:m.emaranhar.id,ponto:ponto??{x:m.alvo.x,y:m.alvo.y}},player,roladorSala({salva}).rolar);
+
+test('M05 geometria: trecho contínuo, travessia completa, primeiro contato e zonas sobrepostas',()=>{
+  const q=zonaQuadrada(5,0,4);
+  assert.deepEqual(trechoNaZona(q,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.3,0.7],'começa e termina fora, mas atravessa');
+  assert.equal(trechoNaZona(q,{x:0,y:5},{x:10,y:5}),null,'passa ao lado');
+  const circ={id:'c',centro:{x:5,y:0},geometria:{forma:'circulo',raioM:1},afetaConjurador:true};
+  assert.deepEqual(trechoNaZona(circ,{x:0,y:0},{x:10,y:0}).map(t=>+t.toFixed(3)),[0.4,0.6]);
+  const contato=primeiroContato([circ,q],{x:0,y:0},{x:10,y:0},{id:'outro'});assert.equal(contato.zona.id,q.id);assert.equal(+contato.ponto.x.toFixed(3),3);
+  assert.equal(primeiroContato([q],{x:0,y:0},{x:10,y:0},{id:'dono'}),null,'a zona não é hostil para quem conjurou');
+  assert.equal(+terrenoDificilDasZonas([q,zonaQuadrada(6,0,4,{id:'z2'})],{x:0,y:0},{x:10,y:0},{id:'outro'}).toFixed(3),5,'sobreposição de 3..8 conta uma vez');
+  assert.deepEqual(entradasNaTrajetoria([q],{x:5,y:0},{x:10,y:0},{id:'outro'}),[],'quem já estava dentro não "entra"');
+  assert.ok(pontoNaZona(q,{x:7,y:2})&&!pontoNaZona(q,{x:7.1,y:0}));
+});
+
+test('M05 Emaranhar: conjuração cria uma zona pública, prende quem falha e poupa o conjurador',async()=>{
+  const m=await cenaEmaranhar();
+  const s=await conjurar(m);
+  assert.equal(s.zonas.length,1);const z=s.zonas[0];
+  assert.deepEqual({nome:z.nome,forma:z.geometria.forma,lado:z.geometria.tamanhoM,centro:z.centro,origem:z.origemAtorId,turnos:z.duracao.restante,terreno:z.terrenoDificil},
+    {nome:'Emaranhar',forma:'quadrado',lado:6,centro:{x:9,y:0},origem:m.z.id,turnos:10,terreno:true});
+  assert.equal(z.concentracaoId,s.atores[0].concentracaoAtiva.id,'zona vinculada à concentração');
+  assert.ok(temCondicao(s.atores[1],'contido'),'alvo na área falhou e ficou Contido');
+  assert.ok(!temCondicao(s.atores[2],'contido'),'quem estava fora da área não é afetado');
+  assert.ok(publico(s).zonas.some(x=>x.id===z.id),'a zona vai para a visão pública de todos');
+  // Conjurador dentro da própria área não faz salvaguarda
+  const m2=await cenaEmaranhar({distancia:3});m2.z.x=3;m2.z.y=1;const r=roladorSala({salva:2});
+  const s2=await aplicar(m2.s,{rev:m2.s.rev,tipo:'usar',ator:m2.z.id,opcao:m2.emaranhar.id,ponto:{x:3,y:0}},player,r.rolar);
+  assert.ok(!temCondicao(s2.atores[0],'contido'));assert.equal(r.formulas.filter(x=>x.meta.tipo==='salvaguarda').length,1);
+});
+
+test('M05 Emaranhar: atravessar a área custa o trecho em dobro e não pede nova salvaguarda; prévia vermelha só para quem é afetado',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  // Soldado II atravessa a área de fora a fora (entra em y=3 e sai em y=-3)
+  s.vez=2;const sold=s.atores[2];sold.x=9;sold.y=5;sold.metros=30;
+  const r=roladorSala();
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:sold.id,x:9,y:-5},gm,r.rolar);
+  assert.equal(s.atores[2].y,-5);assert.equal(+s.atores[2].metros.toFixed(3),30-10-6,'10 m andados + 6 m extras dentro da área');
+  assert.ok(!r.formulas.some(x=>x.meta.tipo==='salvaguarda'),'Emaranhar não pede salvaguarda ao entrar');
+  assert.ok(!temCondicao(s.atores[2],'contido'));
+  const contato=primeiroContato(s.zonas,{x:9,y:5},{x:9,y:-5},s.atores[2]);assert.equal(+contato.ponto.y.toFixed(3),3,'vermelho a partir de y=3');
+  assert.equal(primeiroContato(s.zonas,{x:0,y:0},{x:12,y:0},s.atores[0]),null,'para Zurich a área não é hostil');
+  // Zurich anda dentro da própria área sem custo extra
+  s.vez=0;s.atores[0].metros=9;s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:m.z.id,x:7,y:0},player,r.rolar);assert.equal(s.atores[0].metros,2);
+});
+
+test('M05 Emaranhar: soltar-se usa a Ação e Atletismo contra a CD; fim da concentração limpa área e Contido',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  s.vez=1;const preso=s.atores[1],soltar=opcoesDisponiveis(preso).find(o=>o.automacao?.tipo==='escapar');
+  assert.ok(soltar,'a condição concede a opção de se soltar');assert.equal(preso.metros,9);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:preso.id,opcao:soltar.id},gm,roladorSala({d20:2}).rolar);
+  assert.ok(temCondicao(s.atores[1],'contido'),'falhou no teste');assert.equal(s.atores[1].acao,0);
+  s.atores[1].acao=1;const r=roladorSala({d20:15});
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:preso.id,opcao:soltar.id},gm,r.rolar);
+  assert.equal(r.formulas[0].meta.cd,12);assert.ok(!temCondicao(s.atores[1],'contido'),'se soltou');assert.equal(s.zonas.length,1,'a área continua');
+  // Encerrar a concentração (nova magia de concentração) remove a área e quem ainda estiver Contido
+  const m2=await cenaEmaranhar();let t=await conjurar(m2);assert.ok(temCondicao(t.atores[1],'contido'));
+  const zurich=t.atores[0];encerrarConcM05(t,zurich,'teste');
+  assert.equal(t.zonas.length,0);assert.ok(!temCondicao(t.atores[1],'contido'));
+});
+
+test('M05 Emaranhar: expira em 10 rodadas no combate e no avanço de tempo do mestre',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  for(let rodada=0;rodada<10;rodada++)for(const ator of [...s.ordem]){const atualId=atual(s).id;s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:atualId,confirmado:true},gm,roladorSala({salva:2}).rolar);}
+  assert.equal(s.zonas.length,0,'terminou no início do 11º turno de Zurich');assert.ok(!s.atores[0].concentracaoAtiva);assert.ok(!temCondicao(s.atores[1],'contido'));
+  // Fora de combate: o avanço de tempo do mestre conta a duração da área
+  const m2=await cenaEmaranhar();let t=await conjurar(m2);
+  t=await aplicar(t,{rev:t.rev,tipo:'encerrar'},gm,()=>0);assert.equal(t.zonas.length,1,'a área continua depois do combate');
+  const passos=t.zonas[0].duracao.restante;
+  for(let i=0;i<passos-1;i++)t=await aplicar(t,{rev:t.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+  assert.equal(t.zonas.length,1);t=await aplicar(t,{rev:t.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);
+  assert.equal(t.zonas.length,0,'expirou pelo relógio do mestre');assert.ok(!t.atores[0].concentracaoAtiva);
+});
+
+test('M05 várias zonas, gatilhos genéricos de entrada e restauração idempotente após reabrir a cena',async()=>{
+  const m=await cenaEmaranhar();let s=await conjurar(m);
+  // segunda zona genérica com gatilho de entrada (salvaguarda + dano), para validar o contrato do módulo
+  s.zonas.push({id:'fogo',nome:'Chamas',origemAtorId:'npc',centro:{x:0,y:-10},geometria:{forma:'circulo',raioM:2},cd:13,afetaConjurador:true,gatilhos:[{evento:'entrada',salva:{atributo:'des'},dano:'2d6',elemento:'fogo',umaVezPorTurno:true}]});
+  s.vez=2;const sold=s.atores[2];sold.x=0;sold.y=-5;sold.metros=30;const pv=sold.pv;const r=roladorSala({salva:2,dano:7});
+  s=await aplicar(s,{rev:s.rev,tipo:'mover',ator:sold.id,x:0,y:-15},gm,r.rolar);
+  assert.ok(r.formulas.some(x=>x.meta.tipo==='salvaguarda'&&x.meta.cd===13));assert.equal(s.atores[2].pv,pv-7,'entrar na zona de chamas causa dano');
+  // restauração: JSON (como o localStorage), duplicada e com zona órfã
+  const salvo=JSON.parse(JSON.stringify(compactarEstado(s)));salvo.zonas.push(structuredClone(salvo.zonas[0]),{id:'orfa',centro:{x:0,y:0},geometria:{forma:'circulo',raioM:1},concentracaoId:'acabou'});
+  normalizarZonas(salvo);normalizarZonas(salvo);
+  assert.deepEqual(salvo.zonas.map(z=>z.id).sort(),[s.zonas[0].id,'fogo'].sort(),'uma representação por zona, sem órfãs');
+});

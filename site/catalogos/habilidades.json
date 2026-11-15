@@ -422,11 +422,11 @@
     },
     {
       "id": "habilidade.1-emaranhar-concentracao",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "1º | Emaranhar · Concentração",
         "categoria": "magia",
-        "descricao": "Ação, 27 m, quadrado de 6 m de terreno difícil por 1 min. Criaturas na área: salvaguarda de FOR CD 12 ou ficam Contidas (ataques contra elas com Vantagem). Uma ação e teste de FOR (Atletismo) CD 12 para se soltar.",
+        "descricao": "Ação, 27 m, quadrado de 6 m de terreno difícil por 1 min (concentração). As plantas não afetam quem conjura. Criaturas na área ao conjurar: salvaguarda de FOR CD 12 ou ficam Contidas até a magia acabar (ataques contra elas com Vantagem). Uma ação e teste de FOR (Atletismo) CD 12 para se soltar. Entrar ou atravessar a área depois não pede salvaguarda: custa deslocamento em dobro.",
         "custo": [
           {
             "tipo": "acao",
@@ -448,10 +448,23 @@
             "forma": "quadrado",
             "tamanhoM": 6
           },
+          "excluirConjurador": true,
+          "zona": {
+            "nome": "Emaranhar",
+            "turnos": 10,
+            "terrenoDificil": true,
+            "afetaConjurador": false,
+            "cor": "#5fae5b",
+            "gatilhos": []
+          },
           "efeitoFalha": {
             "nome": "Contido por Emaranhar",
             "condicao": "contido",
-            "turnos": 10
+            "turnos": 10,
+            "escape": {
+              "atributo": "for",
+              "pericia": "Atletismo"
+            }
           }
         },
         "concentracao": true

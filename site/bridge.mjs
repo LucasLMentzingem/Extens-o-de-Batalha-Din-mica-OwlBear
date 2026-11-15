@@ -1,5 +1,5 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.27';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis} from './engine.mjs?v=0.8.27';
 import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.27';
 import {compactarEstado} from './catalog.mjs?v=0.8.27';
 import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.27';
@@ -10,7 +10,7 @@ export const emSala=OBR.isAvailable;
 export const pronto=()=>new Promise(resolve=>OBR.onReady(resolve));
 const local=()=>new BroadcastChannel(ns+'/'+OBR.room.id);
 const hidratar=s=>{
-  normalizarComercio(s);
+  normalizarComercio(s);normalizarZonas(s);
   for(const a of s.atores??[]){
     try{a.ficha=validar(a.ficha);atualizarMagias(a.ficha);}
     catch(e){throw Error('Falha ao carregar '+(a.nome??a.ficha?.nome??a.id)+': '+e.message);}

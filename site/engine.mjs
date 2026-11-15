@@ -1,4 +1,5 @@
 import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.27';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.27';
 import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.27';
 
 export const atributos = ['for','des','con','int','sab','car'];
@@ -1173,6 +1174,7 @@ function abrirProximaReacao(s){
   }
   if(mov){
     const a=s.atores.find(x=>x.id===mov.ator),d=distancia(mov.origem,mov.destino);
+    (s.eventosZona??=[]).push({tipo:'movimento',ator:a.id,origem:{x:a.x,y:a.y},destino:{...mov.destino}});
     a.x=mov.destino.x;a.y=mov.destino.y;a.metros=Math.max(0,a.metros-(mov.custoMovimento??d));delete s.movimentoPendente;
   }
   delete s.reacaoPendente;return null;
@@ -1256,6 +1258,7 @@ export function registrar(s,t) { s.historico.unshift(t); s.historico.length=Math
 export function encerrarConcentracao(s,a,motivo=''){
   const id=a?.concentracaoAtiva?.id;if(!id)return false;
   for(const alvo of s.atores)alvo.efeitosAtivos=(alvo.efeitosAtivos??[]).filter(e=>e.concentracaoId!==id);
+  s.zonas=(s.zonas??[]).filter(z=>z.concentracaoId!==id); // M05
   if(a.bencao?.concentracaoId===id)delete a.bencao;
   const nome=a.concentracaoAtiva.nome;delete a.concentracaoAtiva;
   if(motivo)registrar(s,a.nome+' perdeu a concentração em '+nome+' • '+motivo);
@@ -1281,6 +1284,25 @@ function processarDuracoes(s,ator,evento){
     }
     alvo.efeitosAtivos=mantidos;
   }
+  // M05: zonas persistentes seguem o mesmo relógio (combate e avanço de tempo do mestre).
+  s.zonas=(s.zonas??[]).filter(z=>{
+    const d=z.duracao;if(!d)return true;
+    const momento=(d.expira??'inicio_origem').startsWith('inicio')?'inicio_turno':'fim_turno';
+    if(momento!==evento||z.origemAtorId!==ator.id)return true;
+    d.restante=(d.restante??1)-1;if(d.restante>0)return true;
+    const dono=s.atores.find(x=>x.id===z.origemAtorId);
+    if(z.concentracaoId&&dono?.concentracaoAtiva?.id===z.concentracaoId)encerrarConcentracao(s,dono,'duração de '+z.nome+' terminou');
+    else if(z.concentracaoId)for(const alvo of s.atores)alvo.efeitosAtivos=(alvo.efeitosAtivos??[]).filter(e=>e.concentracaoId!==z.concentracaoId);
+    registrar(s,'A área '+z.nome+' terminou.');return false;
+  });
+}
+// M05: restauração idempotente após recarregar a cena — uma única zona por id, só zonas válidas,
+// e nenhuma zona presa a uma concentração que já terminou.
+export function normalizarZonas(s){
+  const vistos=new Set(),concentracoes=new Set((s.atores??[]).map(a=>a.concentracaoAtiva?.id).filter(Boolean));
+  s.zonas=(Array.isArray(s.zonas)?s.zonas:[]).filter(z=>z&&typeof z.id==='string'&&z.centro&&Number.isFinite(z.centro.x)&&Number.isFinite(z.centro.y)&&z.geometria
+    &&!vistos.has(z.id)&&vistos.add(z.id)&&(!z.concentracaoId||concentracoes.has(z.concentracaoId)));
+  return s;
 }
 function restaurarEconomia(a){
   const r=restricoesAtivas(a);
@@ -1996,7 +2018,7 @@ export async function aplicar(s,c,u,rolar) {
       const foraCombate=c.tipo==='usar'&&(s.fase==='preparo'||a.emCombate===false);
       exigir(foraCombate||(s.fase==='turnos' && atual(s)?.id===a.id),'Aguarde o turno desse personagem.');
       if(c.tipo==='passar') {
-        processarDuracoes(s,a,'fim_turno');a.jaAgiuNoCombate=true;
+        processarDuracoes(s,a,'fim_turno');a.jaAgiuNoCombate=true;(s.eventosZona??=[]).push({tipo:'fim_turno',ator:a.id});
         // #18 Salvaguarda repetida no fim de cada turno do afetado (Imobilizar Pessoa, Riso Histérico): no sucesso o efeito termina.
         for(const e of (a.efeitosAtivos??[]).filter(e=>e.salvaRepetida&&a.pv>0)){
           const k=e.salvaRepetida.atributo,bonus=a.ficha.salvaguardas?.[k]??mod(a.ficha.atributos[k]);
@@ -2022,7 +2044,7 @@ export async function aplicar(s,c,u,rolar) {
           }
           const prox=atual(s);if(!prox||prox.pv>0||prox.ficha.tipo==='pj'&&prox.estadoVida!=='morto')break;pulados.push(prox.nome);
         }
-        const iniciado=atual(s);iniciarTurno(s,iniciado);
+        const iniciado=atual(s);iniciarTurno(s,iniciado);if(iniciado)(s.eventosZona??=[]).push({tipo:'inicio_turno',ator:iniciado.id});
         // #32 Dano no início do turno do afetado (Golpe Constritor).
         for(const e of (iniciado?.efeitosAtivos??[]).filter(e=>e.danoInicioTurno&&iniciado.pv>0)){
           const r=await resultado(e.danoInicioTurno.formula,{tipo:'dano',titulo:'Dano no início do turno · '+e.nome,alvo:iniciado.nome,tipoDano:e.danoInicioTurno.elemento,parcelasDano:[{tipo:e.danoInicioTurno.elemento,tags:['magia']}],alvoDano:resumoAlvoDano(iniciado)});
@@ -2040,12 +2062,13 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           a.metros-=custo;a.efeitosAtivos=a.efeitosAtivos.filter(e=>e.condicao!=='caido');levantou=a.nome+' se levantou ('+custo+' m). ';
         }
         const d=distancia(a,c),terreno=Number(c.terrenoDificilM??0);exigir(Number.isFinite(terreno)&&terreno>=0&&terreno<=d+1e-8,'Trecho de terreno difícil inválido.');
-        const ignoraTerreno=!c.terrenoDificilMagico&&itensEquipados(a).some(i=>i.ignoraTerrenoDificilNaoMagico),custoMovimento=d+(ignoraTerreno?0:terreno);exigir(custoMovimento<=a.metros+1e-8,'Deslocamento insuficiente.');
+        const terrenoZonas=terrenoDificilDasZonas(s.zonas,a,c,a); // M05/M08: trecho real dentro de zonas (mágico)
+        const ignoraTerreno=!c.terrenoDificilMagico&&itensEquipados(a).some(i=>i.ignoraTerrenoDificilNaoMagico),custoMovimento=d+(ignoraTerreno?0:terreno)+terrenoZonas;exigir(custoMovimento<=a.metros+1e-8,'Deslocamento insuficiente.');
         const ameacas=a.desengajado?[]:oportunidades(s,a,c);
         if(ameacas.length){
           s.movimentoPendente={ator:a.id,origem:{x:a.x,y:a.y},destino:{x:c.x,y:c.y},ameacas,custoMovimento};
           const reator=abrirProximaReacao(s);msg=a.nome+' iniciou um deslocamento de '+d.toFixed(2)+' m e provocou '+reator.nome+'.';
-        }else{a.x=c.x;a.y=c.y;a.metros=Math.max(0,a.metros-custoMovimento);msg=a.nome+' moveu '+d.toFixed(2)+' m'+(terreno?' (custo '+custoMovimento.toFixed(2)+' m)':'')+'.';}
+        }else{(s.eventosZona??=[]).push({tipo:'movimento',ator:a.id,origem:{x:a.x,y:a.y},destino:{x:c.x,y:c.y}});a.x=c.x;a.y=c.y;a.metros=Math.max(0,a.metros-custoMovimento);msg=a.nome+' moveu '+d.toFixed(2)+' m'+(terreno||terrenoZonas?' (custo '+custoMovimento.toFixed(2)+' m'+(terrenoZonas?', '+terrenoZonas.toFixed(2)+' m em terreno difícil de área':'')+')':'')+'.';}
         msg=levantou+msg;
         break;
       }
@@ -2096,6 +2119,14 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const d=distancia(a,c);exigir(d<=rule.alcanceM+1e-8,'Destino fora do alcance.');
         exigir(!s.atores.some(p=>p!==a&&p.pv>0&&distancia(p,c)<.25),'O destino está ocupado.');
         a.x=c.x;a.y=c.y;msg+=' • teleportou-se '+d.toFixed(2)+' m';break;
+      }
+      if(rule.tipo==='escapar'){ // M05: ação para se soltar (Emaranhar: FOR/Atletismo contra a CD da magia)
+        const e=(a.efeitosAtivos??[]).find(x=>x.id===o.concedidaPorEfeito&&x.escape);exigir(e,'Não há efeito do qual se soltar.');
+        const esc=e.escape,bonus=esc.pericia?bonusPericia(a.ficha,esc.pericia):mod(a.ficha.atributos[esc.atributo??'for']);
+        const r=await rolarD20(bonus,a,{tipo:'teste',titulo:'Soltar-se · '+e.nome+' · '+(esc.pericia??String(esc.atributo).toUpperCase()),cd:esc.cd});
+        if(r.total>=esc.cd){a.efeitosAtivos=a.efeitosAtivos.filter(x=>x!==e);msg+=' • se soltou ('+r.total+' contra CD '+esc.cd+')';}
+        else msg+=' • continua preso ('+r.total+' contra CD '+esc.cd+')';
+        break;
       }
       if(rule.tipo==='economia'){validarRequisitosUso(s,a,o,null);
         for(const k of ['acao','bonus','reacao'])if(rule.adicionar?.[k])a[k]+=rule.adicionar[k];
@@ -2190,6 +2221,17 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
       const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&!((rule.excluirConjurador||['cone','linha'].includes(rule.area?.forma))&&x===a)); // #22 cone e linha partem de quem usa e não o atingem
       validarRequisitosUso(s,a,o,afetados[0]);
+      // M05 #44: a magia deixa uma zona persistente com identidade, origem, geometria, duração e concentração.
+      if(rule.zona&&temArea){
+        const area=rule.area??{forma:'circulo',raioM:rule.raioM},zid=crypto.randomUUID();
+        s.zonas=(s.zonas??[]).filter(z=>!(z.opcaoId===o.id&&z.origemAtorId===a.id&&!z.concentracaoId));
+        s.zonas.push({id:zid,nome:rule.zona.nome??o.nome,opcaoId:o.id,origemAtorId:a.id,origemNome:a.nome,cor:rule.zona.cor,
+          geometria:{...structuredClone(area),...(areaDirecional?{origem:{x:a.x,y:a.y}}:{})},centro:{x:centro.x,y:centro.y},
+          duracao:{restante:rule.zona.turnos??10,expira:'inicio_origem'},concentracaoId:concentracaoId??undefined,
+          terrenoDificil:rule.zona.terrenoDificil===true,afetaConjurador:rule.zona.afetaConjurador!==false,
+          gatilhos:structuredClone(rule.zona.gatilhos??[]),cd:rule.cd,criadaRodada:s.rodada});
+        msg+=' • área '+(rule.zona.nome??o.nome)+' ativa';
+      }
       const deslocarForcado=p=>{
         const regra=rule.deslocamentoForcado;if(!regra)return false;
         const origemVetor=temArea?(['cone','linha'].includes(rule.area?.forma)?a:centro):a,destino=destinoDeslocamento(origemVetor,p,regra.distanciaM);
@@ -2306,7 +2348,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           if(danoBase!==null){const bruto=r.sucesso?(rule.metade?Math.floor(danoBase/2):0):danoBase,indice=resultadosSalva.filter(x=>!x.sucesso||rule.metade).indexOf(r),valor=await aplicarDanoNoAtor(r.p,bruto,rule.elemento,{origem:a,relatorio:temArea?null:relatoriosDiretos[indice]});msg+=' • '+r.p.nome+' perdeu '+valor+' PV';}
           if(!r.sucesso)deslocarForcado(r.p);
           if(!r.sucesso&&rule.efeitoFalha){
-            const efeito={id:o.id,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,danoInicioTurno:rule.efeitoFalha.danoInicioTurno,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
+            const efeito={id:o.id,escape:rule.efeitoFalha.escape?{...rule.efeitoFalha.escape,cd}:undefined,opcoesConcedidas:rule.efeitoFalha.escape?[{id:'soltar-se',nome:'Soltar-se · '+rule.efeitoFalha.nome+' | ação',categoria:'acao',descricao:'Use a ação para um teste de '+(rule.efeitoFalha.escape.pericia??'atributo')+' contra CD '+cd+'. No sucesso, deixa de estar preso.',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'escapar'}}]:undefined,nome:rule.efeitoFalha.nome,tipo:'condicao',condicao:rule.efeitoFalha.condicao,restricoes:rule.efeitoFalha.restricoes,turnos:rule.efeitoFalha.turnos,duracao:{restante:rule.efeitoFalha.turnos,expira:rule.efeitoFalha.expira??'inicio_alvo'},origemAtorId:a.id,concentracaoId:concentracaoId??undefined,penalidadeProximaSalva:rule.efeitoFalha.penalidadeProximaSalva,danoInicioTurno:rule.efeitoFalha.danoInicioTurno,salvaRepetida:rule.efeitoFalha.salvaRepetida?{...rule.efeitoFalha.salvaRepetida,cd}:undefined};
             r.p.efeitosAtivos=(r.p.efeitosAtivos??[]).filter(e=>e.id!==o.id);r.p.efeitosAtivos.push(efeito);
             if(rule.efeitoFalha.consomeReacao)r.p.reacao=0;msg+=' • efeito: '+efeito.nome;
             if(restricoesAtivas(r.p).semAcoes)encerrarConcentracao(s,r.p,'incapacitado');
@@ -2376,6 +2418,23 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       delete p.salvaguardaMortePendente;
     }
   }
+  // M05: gatilhos de entrada e de início/fim de turno nas zonas, resolvidos pelo mestre (autoridade única).
+  for(const ev of (s.eventosZona??[]).splice(0)){
+    const p=s.atores.find(x=>x.id===ev.ator);if(!p||p.pv<=0)continue;
+    const zonas=ev.tipo==='movimento'?entradasNaTrajetoria(s.zonas,ev.origem,ev.destino,p).map(z=>[z,'entrada'])
+      :(s.zonas??[]).filter(z=>pontoNaZona(z,p)&&(z.afetaConjurador!==false||z.origemAtorId!==p.id)).map(z=>[z,ev.tipo]);
+    for(const [z,quando] of zonas)for(const g of (z.gatilhos??[]).filter(g=>g.evento===quando)){
+      if(g.umaVezPorTurno){z.usosTurno??={};const chave=p.id+'@'+s.rodada+'-'+s.vez;if(z.usosTurno[chave])continue;z.usosTurno[chave]=true;}
+      let falhou=true;
+      if(g.salva){const k=g.salva.atributo,cdZ=g.salva.cd??z.cd,bonus=p.ficha.salvaguardas?.[k]??mod(p.ficha.atributos[k]);
+        const rr=restricoesAtivas(p).falhaSalvas?.includes(k)?{total:0}:await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:k,titulo:'Salvaguarda · '+z.nome+' · '+p.nome,alvo:p.nome,cd:cdZ});
+        falhou=rr.total<cdZ;msg+=' • '+p.nome+(falhou?' falhou':' passou')+' na salvaguarda de '+z.nome;}
+      if(g.dano&&(falhou||g.metade)){const r=await resultado(g.dano,{tipo:'dano',titulo:'Dano · '+z.nome,alvo:p.nome,tipoDano:g.elemento,parcelasDano:[{tipo:g.elemento,tags:['magia','area']}],alvoDano:resumoAlvoDano(p)});
+        const valor=falhou?r.total:Math.floor(r.total/2);msg+=' • '+p.nome+' sofreu '+await aplicarDanoNoAtor(p,valor,g.elemento,{origem:s.atores.find(x=>x.id===z.origemAtorId)})+' de '+z.nome;}
+      if(g.efeito&&falhou){const e={...structuredClone(g.efeito),id:z.id+'-'+p.id,origemAtorId:z.origemAtorId,concentracaoId:z.concentracaoId};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==e.id);p.efeitosAtivos.push(e);msg+=' • efeito: '+e.nome;}
+    }
+  }
+  delete s.eventosZona;
   for(const p of s.atores)sincronizarConcessoesItens(p);
   registrar(s,(gm && a?.ficha.tipo==='pj' && c.confirmado?'Mestre por '+a.nome+' — ':'')+msg);s.rev++;return s;
 }
