@@ -1,4 +1,5 @@
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.36';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.37';
+import {arteItem} from './item-art.mjs?v=0.8.37';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -33,7 +34,7 @@ function inventarioFicha(a,podeEditar,lojas=[],gm=false,trocasPermitidas=true,tr
   const inv=inventarioNormalizado(a.ficha),itens=inv.itens,equipados=Object.fromEntries(itens.filter(i=>i.equipado).flatMap(i=>slotsOcupadosItem(i).map(slot=>[slot,i])));
   const po=saldoMoedasPo({...a,ficha:{...a.ficha,inventario:inv}}),poTexto=po.toLocaleString('pt-BR',{minimumFractionDigits:Number.isInteger(po)?0:2,maximumFractionDigits:2});
   const atorInventario={...a,ficha:{...a.ficha,inventario:inv}},carregados=itens.filter(i=>!i.equipado),totalCelulas=Math.max(25,Math.ceil(carregados.length/5)*5),peso=pesoInventario(atorInventario),capacidade=capacidadeCargaAtual(atorInventario),percentual=Math.min(100,100*peso/capacidade);
-  const icone=i=>'<b>'+(i.icone?'<img src="'+esc(i.icone)+'" alt="">':esc(i.nome.slice(0,2).toUpperCase()))+'</b>';
+  const icone=i=>arteItem(i);
   const info=(i,comparar=true)=>{const equivalente=comparar&&i.slotEquipamento?(i.slotEquipamento==='acessorio'?(equipados.acessorio_1??equipados.acessorio_2):equipados[i.slotEquipamento]):null;return resumoItem(i,a.ficha)+(equivalente&&equivalente!==i?'\n\nEQUIPADO NO MESMO SLOT\n'+resumoItem(equivalente,a.ficha):'');};
   const slots=slotsEquipamento.map(slot=>{const i=equipados[slot],dupla=i&&slotsOcupadosItem(i).length===2;return '<article class="slot-equipamento '+(i?'ocupado ':'')+(dupla?'duas-maos':'')+'"><small>'+nomesSlots[slot]+'</small>'+(i?'<button type="button" class="icone-item" data-item-id="'+esc(i.id)+'" data-item-slot="'+slot+'" data-item-local="equipado" data-info="'+esc(info(i,false))+'">'+icone(i)+'<span>'+esc(i.nome)+(dupla?' · 2 mãos':'')+'</span></button>':'<div class="slot-vazio">+</div>')+'</article>';}).join('');
   const celulas=Array.from({length:totalCelulas},(_,n)=>{const i=carregados[n];if(!i)return '<div class="celula-item vazia" aria-hidden="true"></div>';return '<button type="button" class="celula-item" data-item-id="'+esc(i.id)+'" data-item-local="inventario" data-info="'+esc(info(i))+'">'+icone(i)+(i.quantidade>1?'<em>'+i.quantidade+'</em>':'')+'<span>'+esc(i.nome)+'</span></button>';}).join('');

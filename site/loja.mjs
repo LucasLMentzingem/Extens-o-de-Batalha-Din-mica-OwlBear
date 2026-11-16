@@ -1,13 +1,15 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.36';
-import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.36';
-import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.36';
-import {resumoItem} from './ficha-view.mjs?v=0.8.36';
-import {publicarCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.36';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.37';
+import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.37';
+import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.37';
+import {resumoItem} from './ficha-view.mjs?v=0.8.37';
+import {publicarCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.37';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.37';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let s,info,api,atorId,lojaId,aba='loja',selecionado=null,ocupado=false;
 const sessaoCatalogo=crypto.randomUUID();
+const exameItem=criarExameItem();
 function sincronizarCatalogo(){
   if(ator()&&s?.fase==='preparo'&&lojasAtivas(s).some(x=>x.id===lojaId)){
     publicarCatalogo(sessaoCatalogo,atorId,lojaId);
@@ -25,7 +27,7 @@ function comparar(item,a){
   return equipado?'COMPARAR COM EQUIPADO\n'+resumoItem(equipado,a.ficha):'Nenhum item equivalente equipado.';
 }
 function cartao(item,preco,id,classe=''){
-  return '<button type="button" class="item-loja '+esc(classe)+'" data-item="'+esc(id)+'"><b>'+esc(iniciais(item.nome))+'</b><span>'+esc(item.nome)+'</span><em>'+esc(fmt(preco))+'</em></button>';
+  return '<button type="button" class="item-loja '+esc(classe)+'" data-item="'+esc(id)+'">'+arteItem(item)+'<span>'+esc(item.nome)+'</span><em>'+esc(fmt(preco))+'</em></button>';
 }
 function render(){
   const root=$('loja'),a=ator(),ativas=s?lojasAtivas(s):[];
@@ -43,7 +45,7 @@ function abrirMenu(id){
   const a=ator(),loja=resolverLoja(lojaId),estado=s.comercio.lojas[lojaId];let item,preco,tipo;
   if(aba==='loja'){item=loja.itens.find(i=>i.catalogoRef===id);preco=precoCompraPc(item,estado.descontoPct);tipo='comprar';}
   else{const r=recomprasDaLoja(s,lojaId,a.id).find(x=>x.id===id);if(!r)return;item=resolverInstanciaItem(r.instancia);preco=r.precoPc;tipo='recomprar';}
-  selecionado={id,tipo,item,preco};$('menuTitulo').textContent=item.nome;$('menuDescricao').textContent=resumoItem(item,a.ficha);$('menuComparacao').textContent=comparar(item,a);$('menuAcoes').innerHTML='<button data-cancelar>Cancelar</button><button class="primario" data-confirmar>'+(tipo==='comprar'?'Comprar':'Recomprar')+' por '+fmt(preco)+'</button>';$('menu').showModal();
+  selecionado={id,tipo,item,preco};$('menuTitulo').textContent=item.nome;$('menuArte').innerHTML=arteItem(item,'item-arte-menu');$('menuDescricao').textContent=resumoItem(item,a.ficha);$('menuComparacao').textContent=comparar(item,a);$('menuAcoes').innerHTML='<button data-cancelar>Cancelar</button><button type="button" data-examinar>Examinar 500×500</button><button class="primario" data-confirmar>'+(tipo==='comprar'?'Comprar':'Recomprar')+' por '+fmt(preco)+'</button>';$('menu').showModal();
 }
 async function confirmar(){
   if(!selecionado||ocupado)return;ocupado=true;$('aviso').textContent='Processando…';
@@ -53,5 +55,5 @@ function view(estado,dados){s=estado;info=dados;const params=new URLSearchParams
 
 $('loja').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.aba){aba=b.dataset.aba;return render();}if(b.hasAttribute('data-fechar'))return fechar();if(b.dataset.item)return abrirMenu(b.dataset.item);};
 $('loja').oncontextmenu=e=>{const b=e.target.closest('[data-item]');if(b){e.preventDefault();abrirMenu(b.dataset.item);}};
-$('menu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-cancelar'))$('menu').close();if(b.hasAttribute('data-confirmar'))confirmar();};
+$('menu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-cancelar'))$('menu').close();if(b.hasAttribute('data-examinar')&&selecionado){$('menu').close();exameItem.abrir(selecionado.item);}if(b.hasAttribute('data-confirmar'))confirmar();};
 try{api=await (emSala?sala:demo)(view);await api.notify();}catch(e){$('loja').innerHTML='<div class="estado-loja">'+esc(e.message)+'</div>';}

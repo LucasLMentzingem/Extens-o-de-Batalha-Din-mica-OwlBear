@@ -1,8 +1,10 @@
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.36';
-import {saldoMoedasPo} from './engine.mjs?v=0.8.36';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.37';
+import {saldoMoedasPo} from './engine.mjs?v=0.8.37';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.37';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);let trocaId=params.get('troca'),atorId=params.get('ator'),s,info,api,ocupado=false,encerrada=false;
+const exameItem=criarExameItem();
 const fmt=n=>(Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2});
 function fechar(){if(emSala)return OBR.popover.close(ns+'/troca').catch(()=>{});parent.postMessage({fecharTroca:true},'*');}
 const troca=()=>s?.comercio?.trocas?.find(t=>t.id===trocaId);
@@ -15,7 +17,7 @@ function escolherLado(t){
 }
 function cardOferta(entrada,dono,propria,status){
   const item=dono.ficha.inventario?.itens.find(i=>i.id===entrada.itemId),nome=item?.nome??'Item indisponível';
-  return '<button type="button" class="item-oferta" data-remover-item="'+esc(entrada.itemId)+'" '+(!propria||status!=='ofertas'?'disabled':'')+' title="'+esc(propria&&status==='ofertas'?'Clique com o botão direito ou aqui para retirar da oferta':item?.descricao??nome)+'"><b>'+esc(iniciais(nome))+'</b><span>'+esc(nome)+'</span><em>'+entrada.quantidade+'</em></button>';
+  return '<button type="button" class="item-oferta" data-remover-item="'+esc(entrada.itemId)+'" '+(!propria||status!=='ofertas'?'disabled':'')+' title="'+esc(propria&&status==='ofertas'?'Clique para retirar da oferta · botão direito para examinar':item?.descricao??nome)+'">'+arteItem(item??{nome})+'<span>'+esc(nome)+'</span><em>'+entrada.quantidade+'</em></button>';
 }
 function blocoOferta(t,id,propria){
   const dono=ator(id),oferta=t.ofertas?.[id]??{itens:[],poPc:0},cards=oferta.itens.map(x=>cardOferta(x,dono,propria,t.status)).join('');
@@ -44,6 +46,6 @@ async function tarefa(fn){if(ocupado)return;ocupado=true;$('aviso').textContent=
 async function oferecerPo(){const t=troca(),atual=t.ofertas?.[atorId]?.poPc??0,dlg=$('poDialog');$('poQuantidade').max=String(saldoMoedasPo(ator(atorId)));$('poQuantidade').value=String(atual/100);dlg.returnValue='nao';const ok=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});if(ok)await enviar('definirPoTroca',{quantidadePc:Math.round(Number($('poQuantidade').value)*100)});}
 function view(estado,dados){s=estado;info=dados;if(!trocaId){const candidato=estado.comercio?.trocas?.find(t=>[t.solicitante,t.destinatario].some(id=>podeControlar(ator(id))));trocaId=candidato?.id;}render();}
 $('troca').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-fechar'))return fechar();if(b.dataset.responder)return tarefa(()=>enviar('responderTroca',{aceitar:b.dataset.responder==='true'}));if(b.hasAttribute('data-cancelar'))return tarefa(()=>enviar('cancelarTroca'));if(b.hasAttribute('data-oferecer-po'))return tarefa(oferecerPo);if(b.hasAttribute('data-confirmar-itens'))return tarefa(()=>enviar('confirmarItensTroca'));if(b.hasAttribute('data-confirmar-final'))return tarefa(()=>enviar('confirmarTroca'));if(b.dataset.removerItem)return tarefa(()=>enviar('removerOfertaTroca',{itemId:b.dataset.removerItem}));};
-$('troca').oncontextmenu=e=>{const b=e.target.closest('[data-remover-item]');if(b&&!b.disabled){e.preventDefault();tarefa(()=>enviar('removerOfertaTroca',{itemId:b.dataset.removerItem}));}};
+$('troca').oncontextmenu=e=>{const b=e.target.closest('[data-remover-item]');if(!b)return;const id=b.dataset.removerItem,transacao=troca(),item=[ator(transacao?.solicitante),ator(transacao?.destinatario)].filter(Boolean).flatMap(a=>a.ficha.inventario?.itens??[]).find(i=>i.id===id);if(item){e.preventDefault();exameItem.abrir(item);}};
 $('troca').onchange=e=>{if(e.target.id==='ladoAtor'){atorId=e.target.value;render();}};
 try{api=await (emSala?sala:demo)(view);await api.notify();}catch(e){$('troca').innerHTML='<div class="estado-troca">'+esc(e.message)+'</div>';}

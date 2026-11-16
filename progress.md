@@ -824,3 +824,11 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - Corrigida a confirmação de sucesso do comando sync, evitando timeout após carregamento bem-sucedido.
 - Validação: 176 testes do motor e integração headless do bridge com SDK simulado (cópia, repetição, movimento e sync). Validação em sala real ainda necessária.
 
+# 0.8.37 — Arte em camadas para itens
+
+- [x] Gerar 97 recortes únicos de itens em WebP com canal alfa, 500 × 500 px, cobrindo 120 referências do catálogo.
+- [x] Criar molduras SVG por elemento e raridade e assinatura visual separada da La Arte.
+- [x] Exibir composições no inventário, loja, troca e saque; adicionar **Examinar 500×500** com diálogo fechável.
+- [x] Manter a Adaga do Último Rito fiel à lore: origem sagrada profanada e glifo de sangue permanente na lâmina.
+- [x] Documentar o padrão de arte e o fluxo de contribuição em `docs/ARTE-ITENS.md`.
+

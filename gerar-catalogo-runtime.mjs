@@ -3,6 +3,7 @@ import {readFile,writeFile,readdir} from 'node:fs/promises';
 const raiz=new URL('./',import.meta.url),pasta=new URL('./site/catalogos/',raiz),destino=new URL('catalogo-gerado.mjs',pasta);
 const ler=async nome=>JSON.parse(await readFile(new URL(nome,pasta),'utf8'));
 const habilidades=await ler('habilidades.json'),itens=await ler('itens.json');
+const icones=JSON.parse(await readFile(new URL('./site/catalogos/icones-itens.json',raiz),'utf8'));
 const {default:lojaLaArte,variantesLaArte}=await import('./site/catalogo-la-arte.mjs');
 const idValido=id=>typeof id==='string'&&/^[a-z0-9][a-z0-9.-]+$/.test(id);
 function validarLista(lista,tipo){
@@ -22,6 +23,15 @@ for(const variante of variantesLaArte){
   itens.itens.push({id:'item.la-arte.'+variante.id,revisao:1,definicao:mesclar(base.definicao,variante.ajustes)});
 }
 validarLista(itens.itens,'itens expandidos');
+for(const item of itens.itens){
+  const icone=icones[item.id];if(!icone)throw Error('Ícone ausente no catálogo: '+item.id);
+  item.definicao.icone=icone;
+  const danoExtra=item.definicao.danoExtraAoAcertar?.elemento;
+  const dano=item.definicao.modelosAcoes?.find(m=>m.tipoDano)?.tipoDano;
+  const elemento=String(danoExtra??dano??'neutro').toLowerCase();
+  item.definicao.iconeElemento=({gelo:'frio',relampago:'raio',relâmpago:'raio',necrótico:'necrotico'})[elemento]??elemento;
+  if(item.id.startsWith('item.la-arte.'))item.definicao.marcaLaArte=true;
+}
 const moedas=new Set(['pc','pp','pe','po','pl']);
 for(const entrada of itens.itens){
   const p=entrada.definicao.preco;

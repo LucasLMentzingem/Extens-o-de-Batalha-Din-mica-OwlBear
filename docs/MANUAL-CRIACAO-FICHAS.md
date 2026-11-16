@@ -9,6 +9,7 @@ Este guia orienta colaboradores e agentes a produzir fichas importáveis na Mesa
 | `site/fichas/ficha.schema.json` | Estrutura dos campos aceitos |
 | `site/catalogos/habilidades.json` | IDs e definições compartilhadas de habilidades e passivas |
 | `site/catalogos/itens.json` | IDs e definições compartilhadas de itens |
+| `site/catalogos/icones-itens.json` e `docs/ARTE-ITENS.md` | Ícones reutilizáveis e composição visual dos itens |
 | `site/engine.mjs` | Validação e execução das regras |
 | `site/conteudo-configurado.json` | Relação exibida em Conteúdo configurado |
 | `docs/mapeamento-nivel-3/` | Cobertura e módulos pendentes para o nível 3 |
@@ -185,5 +186,7 @@ A Adaga do Último Rito custa 350 PO, pesa 0,5 kg e revende por 245 PO. Seus ata
 O Colar da Última Palavra custa 1.857,15 PO, pesa 0,1 kg e revende por 1.300 PO. Equipado no slot de colar, concede Falar com os Mortos com um uso recuperado ao amanhecer. A habilidade registra o uso e cobra uma Ação em combate e o recurso do item. A conversa é resolvida pelo mestre. O item concede a conjuração sem custo de espaço de magia.
 
 O mestre usa **Registrar amanhecer** em Controle do mestre → Ferramentas da mesa, com confirmação. A operação recupera os itens com evento `amanhecer`, incluindo itens guardados e vendidos que estão na recompra. Descansos recuperam apenas os recursos associados a seus eventos.
+
+Os ícones dos itens vêm do catálogo compartilhado. Não inclua arte duplicada em cada ficha; a composição visual usa um recorte transparente e molduras comuns ao catálogo. Veja `docs/ARTE-ITENS.md` para o contrato visual e como contribuir com novos ícones.
 
 A instância de inventário pode persistir `saldosRecursos`, um objeto que relaciona o ID local do recurso concedido pelo item ao saldo atual. Esse estado acompanha venda, recompra, saque e transferência. A definição compartilhada do catálogo contém o máximo, o custo e a recuperação. O motor atualiza os saldos por instância e a compactação os preserva. Duplicar um NPC cria uma cópia independente com os usos iniciais dos equipamentos.

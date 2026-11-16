@@ -1,12 +1,14 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.36';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.36';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.36';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.36';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.36';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.36';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.36';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.37';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.37';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.37';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.37';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.37';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.37';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.37';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.37';
 const $=id=>document.getElementById(id);
+const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc(n)+'</option>';
 const btn=(id,n,cls='')=>'<button data-do="'+id+'" class="'+cls+'">'+n+'</button>';
@@ -54,7 +56,7 @@ async function sincronizarSaqueVisual(){
   }
   if(saqueVisualId===saque.id)return;
   saqueVisualId=saque.id;
-  const url=new URL('./saque.html?v=0.8.36',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.37',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
     await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -337,7 +339,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.36',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.37',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -348,7 +350,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.36',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.37',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -514,8 +516,8 @@ $('app').oncontextmenu=e=>{
  if(item){
    e.preventDefault();const a=s.atores.find(x=>x.id===escolhido),gm=info.role==='GM'&&!testar,pode=gm||(a?.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));if(!pode)return;
    const i=a.ficha.inventario?.itens.find(x=>x.id===item.dataset.itemId);if(!i)return;itemContexto=i.id;itemContextoSlot=item.dataset.itemSlot??null;
-   $('itemMenuTitulo').textContent=i.nome;$('itemMenuDescricao').textContent=i.descricao||'Sem descrição adicional.';
-   let acoes='<button type="button" data-item-fechar>Cancelar</button>';
+   $('itemMenuTitulo').textContent=i.nome;$('itemMenuArte').innerHTML=arteItem(i,'item-arte-menu');$('itemMenuDescricao').textContent=i.descricao||'Sem descrição adicional.';
+   let acoes='<button type="button" data-item-fechar>Cancelar</button><button type="button" data-item-examinar>Examinar 500×500</button>';
    if(i.tipo==='equipamento'&&i.equipado)acoes+='<button type="button" data-item-acao="desequipar" class="primario">Desequipar</button>';
    else if(i.tipo==='equipamento'&&i.slotEquipamento==='acessorio')acoes+='<button type="button" data-item-acao="equipar" data-item-slot="acessorio_1" class="primario">Equipar no acessório I</button><button type="button" data-item-acao="equipar" data-item-slot="acessorio_2" class="primario">Equipar no acessório II</button>';
    else if(i.tipo==='equipamento'&&i.slotEquipamento==='mao_forte'&&(i.duasMaos||/arco longo|espada grande/i.test(i.nome)))acoes+='<button type="button" data-item-acao="equipar" data-item-slot="mao_forte" class="primario">Equipar nas duas mãos</button>';
@@ -536,7 +538,7 @@ $('app').oncontextmenu=e=>{
  const atributo=e.target.closest('[data-save]');if(atributo){e.preventDefault();return tarefa(()=>rolarTeste('salvaguardas',atributo.dataset.save));}if(e.target.closest('[data-do="usar"]')){e.preventDefault();$('rolagem').closest('details').open=true;$('rolagem').focus();}};
 $('app').onpointerover=e=>{const alvo=e.target.closest('[data-info]');if(!alvo)return;dicaLivro.textContent=alvo.dataset.info;dicaLivro.hidden=false;const r=alvo.getBoundingClientRect(),w=Math.min(360,innerWidth-16);dicaLivro.style.width=w+'px';const direita=r.right+8,esquerda=r.left-w-8;dicaLivro.style.left=Math.max(8,Math.min(innerWidth-w-8,direita+w<=innerWidth?direita:esquerda))+'px';dicaLivro.style.top=Math.max(8,Math.min(innerHeight-dicaLivro.offsetHeight-8,r.top))+'px';};
 $('app').onpointerout=e=>{const alvo=e.target.closest('[data-info]');if(alvo&&!alvo.contains(e.relatedTarget))dicaLivro.hidden=true;};
-$('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
+$('itemMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-item-fechar'))return $('itemMenu').close();if(b.hasAttribute('data-item-examinar')){const a=s.atores.find(x=>x.id===escolhido),i=a?.ficha.inventario?.itens.find(x=>x.id===itemContexto);$('itemMenu').close();if(i)exameItem.abrir(i);return;}if(b.dataset.itemAcao)tarefa(()=>alterarItem(b.dataset.itemAcao,b.dataset.itemSlot));};
 $('habilidadeMenu').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-habilidade-fechar'))return $('habilidadeMenu').close();if(b.dataset.habilidadeAcao)tarefa(()=>alterarHabilidade(b.dataset.habilidadeAcao));};
 window.addEventListener('message',e=>{if(e.data?.fecharLoja){limparCatalogo();lojaLocalAtor=null;render();}if(e.data?.fecharTroca){trocaLocalId=null;trocaLocalAtor=null;render();}});
 function falhaConexao(e){
@@ -567,7 +569,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.36');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.37');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();

@@ -6539,7 +6539,9 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "descricao": "Arco curto da guarda. Alcance limitado a 18 m pela regra da mesa. Controle de munição assistido."
+        "descricao": "Arco curto da guarda. Alcance limitado a 18 m pela regra da mesa. Controle de munição assistido.",
+        "icone": "assets/itens/item-reino-arco-curto.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6570,7 +6572,9 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "descricao": "Espada longa da guarda."
+        "descricao": "Espada longa da guarda.",
+        "icone": "assets/itens/item-reino-espada-longa.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -6590,7 +6594,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-20-flechas-e-aljava.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -6631,7 +6637,9 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6679,7 +6687,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6727,7 +6737,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6775,7 +6787,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6820,7 +6834,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6868,7 +6884,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6916,7 +6934,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-adaga.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -6936,7 +6956,9 @@ export default {
           "valor": 2,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-aljava-com-20-flechas.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -6953,7 +6975,9 @@ export default {
         "pesoKg": 0.02,
         "slotEquipamento": "acessorio",
         "descricao": "Adorno de metal sem efeito mecânico.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-anel-simples-de-oficina.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -6990,7 +7014,9 @@ export default {
             "municao": "victor-flechas-20"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-arco-longo.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7031,7 +7057,9 @@ export default {
           "valor": 50,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-arco-longo.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7072,7 +7100,9 @@ export default {
           "valor": 50,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-arco-longo.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7098,7 +7128,9 @@ export default {
           "valor": 45,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-armadura-couro-batido.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7125,7 +7157,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-armadura-de-couro.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7152,7 +7186,9 @@ export default {
           "valor": 45,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-armadura-de-couro-batido.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7181,7 +7217,9 @@ export default {
           "furtividade": "desvantagem"
         },
         "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-armadura-de-placas.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7220,7 +7258,9 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-azagaia.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7266,7 +7306,9 @@ export default {
           "valor": 5,
           "moeda": "pp"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-azagaia.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7309,7 +7351,9 @@ export default {
           "valor": 5,
           "moeda": "pp"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-azagaia.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7326,7 +7370,9 @@ export default {
         "pesoKg": 1,
         "slotEquipamento": "botas",
         "descricao": "Calçado de viagem.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-botas-de-marcha-par.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7354,7 +7400,9 @@ export default {
           "valor": 50,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-camisa-de-malha.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7379,7 +7427,9 @@ export default {
           "limiteAtributo": 2
         },
         "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-camisao-de-malha.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7396,7 +7446,9 @@ export default {
         "pesoKg": 1,
         "slotEquipamento": "capa",
         "descricao": "Protege a roupa da poeira e do tempo.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-capa-de-viagem.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7429,7 +7481,9 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-cimitarra.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -7468,7 +7522,9 @@ export default {
           "valor": 25,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-cimitarra.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -7507,7 +7563,9 @@ export default {
           "valor": 25,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-cimitarra.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -7524,7 +7582,9 @@ export default {
         "pesoKg": 0.1,
         "slotEquipamento": "colar",
         "descricao": "Adorno de metal sem efeito mecânico.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-colar-simples-de-oficina.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7541,7 +7601,9 @@ export default {
         "pesoKg": 5,
         "empilhavel": true,
         "descricao": "Corrente metálica reutilizável para prender ou amarrar.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-corrente-3-m.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7570,7 +7632,9 @@ export default {
           "furtividade": "desvantagem"
         },
         "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-cota-de-malha.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7596,7 +7660,9 @@ export default {
           "valor": 75,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-cota-de-malha.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7620,7 +7686,9 @@ export default {
           "atributo": "des"
         },
         "descricao": "Armadura leve. CA 12 + DES.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-couro-batido.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7643,7 +7711,9 @@ export default {
           "classe": "escudo"
         },
         "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-escudo.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7670,7 +7740,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-escudo.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7703,7 +7775,9 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-espada-curta.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7742,7 +7816,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-espada-curta.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7782,7 +7858,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-espada-curta.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -7816,7 +7894,9 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-espada-grande.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -7855,7 +7935,9 @@ export default {
           "valor": 50,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-espada-grande.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -7875,7 +7957,9 @@ export default {
           "valor": 20,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-fantasia-e-roupas-finas.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7895,7 +7979,9 @@ export default {
           "valor": 1,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-ferramentas-de-entalhador.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7912,7 +7998,9 @@ export default {
         "pesoKg": 4,
         "empilhavel": false,
         "descricao": "Kit para moldar, fabricar e reparar peças de metal.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-ferramentas-de-ferreiro.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7929,7 +8017,9 @@ export default {
         "pesoKg": 0.5,
         "empilhavel": true,
         "descricao": "Munição para 20 disparos com arco.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-flechas-20.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7949,7 +8039,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-foco-arcano-cristal.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -7969,7 +8061,9 @@ export default {
           "valor": 1,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-foco-druidico-ramo-de-visco.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8001,7 +8095,9 @@ export default {
             "tipoDano": "cortante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-foice.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -8039,7 +8135,9 @@ export default {
           "valor": 1,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-foice.webp",
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -8059,7 +8157,9 @@ export default {
           "valor": 40,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-kit-de-artista.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8079,7 +8179,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-kit-de-aventureiro.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8099,7 +8201,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-kit-de-aventureiro.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8119,7 +8223,9 @@ export default {
           "valor": 12,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-kit-de-explorador-de-masmorras.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8139,7 +8245,9 @@ export default {
           "valor": 15,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-kit-de-falsificacao.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8180,7 +8288,9 @@ export default {
             "tipoDano": "perfurante"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-lanca.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -8229,7 +8339,9 @@ export default {
           "valor": 1,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-lanca.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -8278,7 +8390,9 @@ export default {
           "valor": 1,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-lanca.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -8326,7 +8440,9 @@ export default {
           "valor": 1,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-lanca.webp",
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -8346,7 +8462,9 @@ export default {
           "valor": 25,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-livro-das-sombras.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8366,7 +8484,9 @@ export default {
           "valor": 65,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-livro-de-ocultismo-e-kit-de-estudioso.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8383,7 +8503,9 @@ export default {
         "pesoKg": 0.25,
         "slotEquipamento": "acessorio",
         "descricao": "Protegem as mãos durante o treino.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-luvas-de-treino-par.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8414,7 +8536,9 @@ export default {
             "tipoDano": "contundente"
           }
         ],
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-mangual.webp",
+        "iconeElemento": "contundente"
       }
     },
     {
@@ -8451,7 +8575,9 @@ export default {
           "valor": 10,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-mangual.webp",
+        "iconeElemento": "contundente"
       }
     },
     {
@@ -8473,7 +8599,9 @@ export default {
         },
         "moeda": "po",
         "valorMoedaPc": 100,
-        "negociavel": false
+        "negociavel": false,
+        "icone": "assets/itens/item-moedas-11-po.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8495,7 +8623,9 @@ export default {
         },
         "moeda": "po",
         "valorMoedaPc": 100,
-        "negociavel": false
+        "negociavel": false,
+        "icone": "assets/itens/item-moedas-19-po.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8517,7 +8647,9 @@ export default {
         },
         "moeda": "po",
         "valorMoedaPc": 100,
-        "negociavel": false
+        "negociavel": false,
+        "icone": "assets/itens/item-moedas-28-po.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8539,7 +8671,9 @@ export default {
         },
         "moeda": "po",
         "valorMoedaPc": 100,
-        "negociavel": false
+        "negociavel": false,
+        "icone": "assets/itens/item-moedas-30-po.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8561,7 +8695,9 @@ export default {
         },
         "moeda": "po",
         "valorMoedaPc": 100,
-        "negociavel": false
+        "negociavel": false,
+        "icone": "assets/itens/item-moedas-4-po.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8583,7 +8719,9 @@ export default {
         },
         "moeda": "po",
         "valorMoedaPc": 100,
-        "negociavel": false
+        "negociavel": false,
+        "icone": "assets/itens/item-moedas-7-po.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8605,7 +8743,9 @@ export default {
         "slotEquipamento": null,
         "duasMaos": false,
         "leve": false,
-        "modificadores": {}
+        "modificadores": {},
+        "icone": "assets/itens/item-moedas-de-ouro.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8625,7 +8765,9 @@ export default {
           "valor": 20,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-orbe-foco-arcano.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8645,7 +8787,9 @@ export default {
           "valor": 12,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-pacote-de-explorador-de-masmorras.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8667,7 +8811,9 @@ export default {
           "condicao": "quando a alavanca puder ajudar"
         },
         "descricao": "Concede vantagem em testes de FOR quando puder ser usado como alavanca.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-pe-de-cabra.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8691,7 +8837,9 @@ export default {
           "atributo": "des"
         },
         "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana.",
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-veste-simples.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8711,7 +8859,9 @@ export default {
           "valor": 30,
           "moeda": "po"
         },
-        "negociavel": true
+        "negociavel": true,
+        "icone": "assets/itens/item-violino.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8759,7 +8909,9 @@ export default {
           "formula": "1",
           "elemento": "necrotico",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-adaga-do-ultimo-rito.webp",
+        "iconeElemento": "necrotico"
       }
     },
     {
@@ -8812,7 +8964,9 @@ export default {
               }
             ]
           }
-        ]
+        ],
+        "icone": "assets/itens/item-colar-da-ultima-palavra.webp",
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -8854,7 +9008,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-azagaia-mais-1.webp",
+        "iconeElemento": "perfurante",
+        "marcaLaArte": true
       }
     },
     {
@@ -8889,7 +9046,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-foice-mais-1.webp",
+        "iconeElemento": "cortante",
+        "marcaLaArte": true
       }
     },
     {
@@ -8933,7 +9093,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-lanca-mais-1.webp",
+        "iconeElemento": "perfurante",
+        "marcaLaArte": true
       }
     },
     {
@@ -8977,7 +9140,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-adaga-mais-1.webp",
+        "iconeElemento": "perfurante",
+        "marcaLaArte": true
       }
     },
     {
@@ -9013,7 +9179,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-espada-curta-mais-1.webp",
+        "iconeElemento": "perfurante",
+        "marcaLaArte": true
       }
     },
     {
@@ -9047,7 +9216,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-mangual-mais-1.webp",
+        "iconeElemento": "contundente",
+        "marcaLaArte": true
       }
     },
     {
@@ -9083,7 +9255,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-cimitarra-mais-1.webp",
+        "iconeElemento": "cortante",
+        "marcaLaArte": true
       }
     },
     {
@@ -9123,7 +9298,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-arco-longo-mais-1.webp",
+        "iconeElemento": "perfurante",
+        "marcaLaArte": true
       }
     },
     {
@@ -9160,7 +9338,10 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "bonusMagico": 1,
-        "bonusDano": 1
+        "bonusDano": 1,
+        "icone": "assets/itens/item-la-arte-espada-grande-mais-1.webp",
+        "iconeElemento": "cortante",
+        "marcaLaArte": true
       }
     },
     {
@@ -9188,7 +9369,10 @@ export default {
         "raridade": "incomum",
         "modificadores": {
           "capacidadeCargaKg": 14
-        }
+        },
+        "icone": "assets/itens/item-la-arte-veste-bolsos-oficina.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9252,7 +9436,10 @@ export default {
               "formula": "1d6"
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-veste-ultimo-folego.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9280,7 +9467,10 @@ export default {
         "raridade": "incomum",
         "modificadores": {
           "furtividade": 1
-        }
+        },
+        "icone": "assets/itens/item-la-arte-couro-passo-macio.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9306,7 +9496,10 @@ export default {
         },
         "descricao": "Armadura média, CA 14 + DES (máximo +2).",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "icone": "assets/itens/item-la-arte-camisao-malha-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9336,7 +9529,10 @@ export default {
         },
         "descricao": "Armadura pesada, CA 17; FOR 13; desvantagem em Furtividade.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "icone": "assets/itens/item-la-arte-cota-malha-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9366,7 +9562,10 @@ export default {
         },
         "descricao": "Armadura pesada, CA 19; FOR 15; desvantagem em Furtividade.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "icone": "assets/itens/item-la-arte-placas-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9390,7 +9589,10 @@ export default {
         },
         "descricao": "Empunhado na mão fraca. Concede +3 à CA.",
         "negociavel": true,
-        "raridade": "incomum"
+        "raridade": "incomum",
+        "icone": "assets/itens/item-la-arte-escudo-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9434,7 +9636,10 @@ export default {
               "cd": 15
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-anel-mao-firme.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9509,7 +9714,10 @@ export default {
               }
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-colar-folego-docas.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9530,7 +9738,10 @@ export default {
         "raridade": "incomum",
         "modificadores": {
           "iniciativa": 1
-        }
+        },
+        "icone": "assets/itens/item-la-arte-colar-vigia.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9587,7 +9798,10 @@ export default {
               "adicionarDeslocamentoM": 3
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-capa-mensageiro.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9610,7 +9824,10 @@ export default {
           "semArmadura": {
             "ca": 1
           }
-        }
+        },
+        "icone": "assets/itens/item-la-arte-luvas-guarda-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9634,7 +9851,10 @@ export default {
             "ataqueDesarmado": 1,
             "danoDesarmado": 1
           }
-        }
+        },
+        "icone": "assets/itens/item-la-arte-luva-boxeador-das-ruas-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9653,7 +9873,10 @@ export default {
         "descricao": "Ignore o custo extra de terreno difícil não mágico.",
         "negociavel": true,
         "raridade": "incomum",
-        "ignoraTerrenoDificilNaoMagico": true
+        "ignoraTerrenoDificilNaoMagico": true,
+        "icone": "assets/itens/item-la-arte-botas-passo-livre-mais-1.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -9700,7 +9923,10 @@ export default {
           "formula": "1d4",
           "elemento": "raio",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-azagaia-para-raios-mais-2.webp",
+        "iconeElemento": "raio",
+        "marcaLaArte": true
       }
     },
     {
@@ -9740,7 +9966,10 @@ export default {
           "formula": "1d4",
           "elemento": "frio",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-foice-geada-mais-2.webp",
+        "iconeElemento": "frio",
+        "marcaLaArte": true
       }
     },
     {
@@ -9789,7 +10018,10 @@ export default {
           "formula": "1d4",
           "elemento": "contundente",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-lanca-abalo-mais-2.webp",
+        "iconeElemento": "contundente",
+        "marcaLaArte": true
       }
     },
     {
@@ -9838,7 +10070,10 @@ export default {
           "formula": "1d4",
           "elemento": "fogo",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-adaga-brasa-mais-2.webp",
+        "iconeElemento": "fogo",
+        "marcaLaArte": true
       }
     },
     {
@@ -9879,7 +10114,10 @@ export default {
           "formula": "1d4",
           "elemento": "frio",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-espada-curta-escarcha-mais-2.webp",
+        "iconeElemento": "frio",
+        "marcaLaArte": true
       }
     },
     {
@@ -9918,7 +10156,10 @@ export default {
           "formula": "1d4",
           "elemento": "contundente",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-mangual-basalto-mais-2.webp",
+        "iconeElemento": "contundente",
+        "marcaLaArte": true
       }
     },
     {
@@ -9959,7 +10200,10 @@ export default {
           "formula": "1d4",
           "elemento": "fogo",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-cimitarra-fornalha-mais-2.webp",
+        "iconeElemento": "fogo",
+        "marcaLaArte": true
       }
     },
     {
@@ -10004,7 +10248,10 @@ export default {
           "formula": "1d4",
           "elemento": "raio",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-arco-longo-tempestade-mais-2.webp",
+        "iconeElemento": "raio",
+        "marcaLaArte": true
       }
     },
     {
@@ -10046,7 +10293,10 @@ export default {
           "formula": "1d4",
           "elemento": "contundente",
           "critico": false
-        }
+        },
+        "icone": "assets/itens/item-la-arte-espada-grande-falha-mais-2.webp",
+        "iconeElemento": "contundente",
+        "marcaLaArte": true
       }
     },
     {
@@ -10109,7 +10359,10 @@ export default {
               "alcanceM": 9
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-veste-passo-nebuloso.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10174,7 +10427,10 @@ export default {
               "somenteFalha": true
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-veste-trama-serena.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10257,7 +10513,10 @@ export default {
               }
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-couro-sombra-curta.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10283,7 +10542,10 @@ export default {
         },
         "descricao": "Armadura média, CA 15 + DES (máximo +2).",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "icone": "assets/itens/item-la-arte-camisao-malha-mais-2.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10313,7 +10575,10 @@ export default {
         },
         "descricao": "Armadura pesada, CA 18; FOR 13; desvantagem em Furtividade.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "icone": "assets/itens/item-la-arte-cota-malha-mais-2.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10343,7 +10608,10 @@ export default {
         },
         "descricao": "Armadura pesada, CA 20; FOR 15; desvantagem em Furtividade.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "icone": "assets/itens/item-la-arte-placas-mais-2.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10367,7 +10635,10 @@ export default {
         },
         "descricao": "Empunhado na mão fraca. Concede +4 à CA.",
         "negociavel": true,
-        "raridade": "raro"
+        "raridade": "raro",
+        "icone": "assets/itens/item-la-arte-escudo-mais-2.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10424,7 +10695,10 @@ export default {
               "somenteFalha": true
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-anel-segunda-chance.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10492,7 +10766,10 @@ export default {
               "formula": "2d8+2"
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-colar-socorrista.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10521,7 +10798,10 @@ export default {
             "ca": 1,
             "ataqueDesarmado": 1
           }
-        }
+        },
+        "icone": "assets/itens/item-la-arte-luvas-dragao-ascendente-mais-2.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     },
     {
@@ -10578,7 +10858,10 @@ export default {
               "desengajar": true
             }
           }
-        ]
+        ],
+        "icone": "assets/itens/item-la-arte-botas-escapistas-mais-2.webp",
+        "iconeElemento": "neutro",
+        "marcaLaArte": true
       }
     }
   ],

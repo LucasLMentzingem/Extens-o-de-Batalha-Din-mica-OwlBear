@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<defs>
+  <radialGradient id="bg" cx="50%" cy="35%" r="75%"><stop stop-color="#a9d9f2" stop-opacity=".30"/><stop offset=".52" stop-color="#315c78" stop-opacity=".56"/><stop offset="1" stop-color="#11131a" stop-opacity=".98"/></radialGradient>
+  <linearGradient id="edge" x2="1" y2="1"><stop stop-color="#b9a476"/><stop offset=".5" stop-color="#a9d9f2"/><stop offset="1" stop-color="#b9a476"/></linearGradient>
+  <radialGradient id="glow"><stop stop-color="#a9d9f2" stop-opacity=".24"/><stop offset="1" stop-color="#a9d9f2" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="500" height="500" rx="34" fill="url(#bg)"/>
+<circle cx="250" cy="215" r="190" fill="url(#glow)"/>
+<path d="M20 115 Q250 15 480 115 M20 385 Q250 485 480 385" fill="none" stroke="#a9d9f2" stroke-opacity=".20" stroke-width="2"/>
+<text x="250" y="265" text-anchor="middle" dominant-baseline="middle" fill="#a9d9f2" fill-opacity=".13" font-size="154" font-family="serif">❄</text>
+<rect x="10" y="10" width="480" height="480" rx="31" fill="none" stroke="url(#edge)" stroke-width="2"/>
+<rect x="22" y="22" width="456" height="456" rx="24" fill="none" stroke="#a9d9f2" stroke-opacity=".48" stroke-width="1.4"/>
+<g fill="none" stroke="#b9a476" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></g>
+<path d="M115 28 H385 M115 472 H385" stroke="#b9a476" stroke-opacity=".52" stroke-width="1"/>
+</svg>
