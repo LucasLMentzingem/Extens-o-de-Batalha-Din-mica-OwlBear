@@ -832,3 +832,8 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Manter a Adaga do Último Rito fiel à lore: origem sagrada profanada e glifo de sangue permanente na lâmina.
 - [x] Documentar o padrão de arte e o fluxo de contribuição em `docs/ARTE-ITENS.md`.
 
+# 0.8.38 — Centralizar ícones do inventário
+
+- [x] Corrigir o dimensionamento dos botões com `box-sizing: border-box` para a arte centralizar dentro dos slots e células.
+- [x] Manter inalterado o diálogo de exame ampliado.
+
