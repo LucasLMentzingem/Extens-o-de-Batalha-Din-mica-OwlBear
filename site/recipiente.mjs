@@ -1,5 +1,5 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,pronto,sala} from './bridge.mjs?v=0.8.44';
+import {ns,pronto,sala} from './bridge.mjs?v=0.8.45';
 const root=document.querySelector('#painel'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let s,info,api,tokenId,ocupado=false;

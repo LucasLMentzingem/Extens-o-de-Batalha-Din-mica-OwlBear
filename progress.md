@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-17 — 0.8.45 local: recuperação de ficha inválida
+
+- Reprodução adicional: uma ficha antiga inválida bloqueava carregamento, conexão e exclusão de todas as fichas; o reenvio ocultava o erro real do controlador.
+- Isolamento com original preservado e backup bruto automático, seção exclusiva do mestre para baixar/excluir registros isolados, limpeza de vínculo ao excluir e erros detalhados de conexão.
+- Arquitetura do botão de reset e contrato de geração/backup/dupla confirmação em `docs/RECUPERACAO-E-RESET-DA-MESA.md`. Reset destrutivo não implementado e não executado.
+- Sem publicação; artes continuam pausadas. A causa exata da mesa do usuário ainda depende de conferir os dados/erros reais.
+
 ## 2026-11-17 — publicação 0.8.44
 
 - Recuperação de conexão na entrada, consultas de estado fora da fila de rolagens e remontagem de mensagens intercaladas. Ações não são reenviadas.

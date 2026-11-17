@@ -1,11 +1,12 @@
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.44';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.45';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.44';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.44';
-import {compactarEstado} from './catalog.mjs?v=0.8.44';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.44';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.44';
-import {consultarComReenvio,receptorDeEstado} from './room-sync.mjs?v=0.8.44';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.45';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.45';
+import {compactarEstado} from './catalog.mjs?v=0.8.45';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.45';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.45';
+import {consultarComReenvio,receptorDeEstado} from './room-sync.mjs?v=0.8.45';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.45';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -265,7 +266,13 @@ export async function host(){
       id=id||crypto.randomUUID();await OBR.scene.setMetadata({[chaveCena]:id,[autoridade]:eu.id});
     }
     const key=ns+'/'+OBR.room.id+'/'+id;
-    const s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo());
+    const bruto=localStorage.getItem(key);
+    const recuperado=recuperarEstado(JSON.parse(bruto||'null')??novo()),s=recuperado.estado;
+    if(recuperado.novas.length){
+      // Falhar a cópia impede gravar qualquer migração parcial.
+      localStorage.setItem(key+'/backup-recuperacao/'+Date.now(),bruto);
+      persistir(key,s);
+    }
     if(cenaCalibrada!==id){await configurarEscalaCena(OBR.scene.grid);cenaCalibrada=id;}
     if(migrarEscalaCena(s))persistir(key,s);
     return {key,s};
@@ -315,10 +322,21 @@ export async function host(){
     }
     return s;
   }
+  async function limparVinculoToken(token){
+    if(!token||!(await OBR.scene.items.getItems([token])).some(i=>i.id===token))return;
+    await OBR.scene.items.updateItems([token],items=>{for(const i of items){if(i.metadata){delete i.metadata[chaveFichaNpc];if(typeof i.metadata[chaveBloqueioNpc]==='boolean')i.locked=i.metadata[chaveBloqueioNpc];delete i.metadata[chaveBloqueioNpc];}}});
+  }
   async function executar(c,u,reply){
     try{
       const {key,s}=await carregar();
       if(c.tipo==='sync'){await mostrar(await sincronizarNpcs());await reply({});return;}
+      if(c.tipo==='excluirFichaIsolada'){
+        const registro=excluirFichaIsolada(s,c.registroId,u,c);
+        persistir(key,s);
+        const token=registro.original?.token;
+        await limparVinculoToken(token);
+        await mostrar(s);await reply({});return;
+      }
       const tokens=await getTokens(), dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);
       let propNovo=null;
       if(c.tipo==='criarRecipiente'){
@@ -406,6 +424,10 @@ export async function host(){
       await sincronizarTokensInvocacao(next,pixelsMetro); // M06
       await sincronizarTokensRecipientes(next,pixelsMetro);
       persistir(key,next);
+      if(c.tipo==='remover'){
+        const token=s.atores.find(a=>a.id===c.ator)?.token;
+        await limparVinculoToken(token);
+      }
       const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
       await mostrar(estadoMostrar);await reply({});
     }catch(e){await reply({erro:e.message});}
@@ -484,10 +506,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.44',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.45',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.44',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.45',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }
@@ -511,7 +533,7 @@ export async function sala(onView){
     const req=crypto.randomUUID();
     return new Promise((resolve,reject)=>{
       const timer=setTimeout(()=>{espera.delete(req);reject(Error(c.tipo==='sync'?'Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.':'Sem confirmação do mestre. Atualize antes de repetir.'));},c.tipo==='sync'?10000:60000);
-      espera.set(req,err=>{clearTimeout(timer);err?reject(Error(err)):resolve();});
+      espera.set(req,err=>{clearTimeout(timer);if(err){const e=Error(err);e.controladorRespondeu=true;reject(e);}else resolve();});
       Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
     });
   };

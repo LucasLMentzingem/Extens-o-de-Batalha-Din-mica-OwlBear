@@ -3,7 +3,7 @@ export function consultarComReenvio(enviar,{intervalo=2000,limite=30000}={}){
   return new Promise((resolve,reject)=>{
     let terminou=false;
     const finalizar=erro=>{if(terminou)return;terminou=true;clearInterval(reenvio);clearTimeout(prazo);erro?reject(erro):resolve();};
-    const tentar=()=>{Promise.resolve().then(enviar).then(()=>finalizar(),()=>{});};
+    const tentar=()=>{Promise.resolve().then(enviar).then(()=>finalizar(),erro=>{if(erro?.controladorRespondeu)finalizar(erro);});};
     const reenvio=setInterval(tentar,intervalo);
     const prazo=setTimeout(()=>finalizar(Error('Sem resposta do controlador da sala. Mantenha o mestre conectado com a cena aberta e tente reconectar.')),limite);
     tentar();

@@ -1,6 +1,6 @@
-import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.44';
-import {definicaoHabilidade} from './catalog.mjs?v=0.8.44';
-import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.44';
+import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.45';
+import {definicaoHabilidade} from './catalog.mjs?v=0.8.45';
+import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.45';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normal=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const slug=x=>normal(x).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');

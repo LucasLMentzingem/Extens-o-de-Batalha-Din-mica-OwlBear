@@ -1,14 +1,14 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.44';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.45';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.44';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.44';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.44';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.44';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.44';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.44';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.44';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.44';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.44';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.45';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.45';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.45';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.45';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.45';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.45';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.45';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.45';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.45';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -58,7 +58,7 @@ async function sincronizarSaqueVisual(){
   }
   if(saqueVisualId===saque.id)return;
   saqueVisualId=saque.id;
-  const url=new URL('./saque.html?v=0.8.44',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.45',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
     await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -119,7 +119,8 @@ function renderControleFichasMestre(){
   }).join('');
   // #12 Durante o combate o mestre também pode adicionar reforços (entram com iniciativa rolada).
   const importar='<div class="importar-fichas">'+renderGruposFichas()+'<div class="campos"><label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label><label>Importar pasta como grupo<input id="pasta-fichas" type="file" webkitdirectory multiple accept=".json,application/json"></label></div><p class="muted">O nome da pasta será o nome do grupo. Até 50 fichas JSON, incluindo subpastas.</p>'+(s.fase==='preparo'?'':'<p class="muted">Reforços rolam iniciativa ao entrar no combate.</p>')+'</div>';
-  return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
+  const recuperacao=(s.quarentenaFichas??[]).length?'<section class="fichas-recuperacao"><h3>Fichas em recuperação</h3><p>Estas fichas não passaram na validação. Seus originais foram preservados; exporte antes de corrigir e importar novamente.</p>'+s.quarentenaFichas.map(r=>'<article class="linha-vinculo"><div><strong>'+esc(r.nome)+'</strong><p>'+esc(r.erro)+'</p></div><button data-exportar-isolada="'+esc(r.id)+'">Baixar original</button><button class="perigo" data-excluir-isolada="'+esc(r.id)+'">Excluir ficha isolada</button></article>').join('')+'</section>':'';
+  return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+recuperacao+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
 }
 function renderFichaRecipiente(r){
  if(!r)return '';const gm=info.role==='GM',slots=r.itens?.length??r.ocupados??0;
@@ -354,7 +355,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.44',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.45',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -365,7 +366,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.44',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.45',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -501,6 +502,8 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.usarSelecaoVinculo)return tarefa(()=>usarSelecaoNoVinculo(b.dataset.usarSelecaoVinculo));
  if(b.dataset.salvarVinculo)return tarefa(()=>salvarVinculoAtor(b.dataset.salvarVinculo));
  if(b.dataset.excluirFicha)return tarefa(async()=>{const id=b.dataset.excluirFicha,p=s.atores.find(x=>x.id===id);if(!p)return;if(!await confirma('Excluir '+p.nome+' do encontro?','A ficha será retirada do encontro, mas o arquivo JSON original continuará disponível.'))return;escolhido=id;await enviar('remover');if(escolhido===id)escolhido=null;aviso(p.nome+' foi excluído do encontro.');});
+ if(b.dataset.exportarIsolada){const r=s.quarentenaFichas?.find(x=>x.id===b.dataset.exportarIsolada);if(!r||info.role!=='GM')return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.original,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='ficha-em-recuperacao-'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
+ if(b.dataset.excluirIsolada)return tarefa(async()=>{if(info.role!=='GM')throw Error('Somente o mestre.');const r=s.quarentenaFichas?.find(x=>x.id===b.dataset.excluirIsolada);if(!r)return;if(!await confirma('Excluir '+r.nome+' da recuperação?','O registro isolado será removido. O backup automático da mesa será preservado.'))return;if(!await confirma('Confirmar exclusão da ficha isolada?','Esta ação não apaga o token manual do mapa.'))return;await enviar('excluirFichaIsolada',{registroId:r.id,confirmado:true,confirmacaoFinal:true});});
  if(b.hasAttribute('data-vincular-selecionado'))return tarefa(async()=>{const id=$('ficha-token-selecionado')?.value,token=info.tokens.find(t=>t.id===tokenSelecionado);if(!id||!token)throw Error('Selecione um token e uma ficha.');await salvarVinculoAtor(id,{token:token.id,dono:$('dono-token-selecionado')?.value});});
  if(b.dataset.verFicha){recipienteSelecionadoId=null;escolhido=b.dataset.verFicha;secao='ficha';npcsAbertos=true;acao=null;alvos=[];return render();}
  if(b.dataset.combate){escolhido=b.dataset.combate;return tarefa(async()=>{const p=s.atores.find(x=>x.id===escolhido);if(await confirma((p.emCombate===false?'Adicionar ':'Retirar ')+p.nome+'?',p.emCombate===false?'A ficha entrará na lista de combate.':'A ficha e o token continuarão vinculados.'))await enviar('alternarCombate');});}
@@ -595,7 +598,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.44');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.45');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);
