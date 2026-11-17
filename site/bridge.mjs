@@ -1,11 +1,11 @@
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.44';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.45';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.44';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.44';
-import {compactarEstado} from './catalog.mjs?v=0.8.44';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.44';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.44';
-import {consultarComReenvio,receptorDeEstado} from './room-sync.mjs?v=0.8.44';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.45';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.45';
+import {compactarEstado} from './catalog.mjs?v=0.8.45';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.45';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.45';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast} from './room-sync.mjs?v=0.8.45';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -270,7 +270,7 @@ export async function host(){
     if(migrarEscalaCena(s))persistir(key,s);
     return {key,s};
   }
-  async function mostrar(s,consulta=false){
+  async function mostrar(s,consulta=false,{remoto=true}={}){
     if(!consulta)clearTimeout(timerReacao);
     if(!consulta&&s.reacaoPendente){
       const id=s.reacaoPendente.id,espera=Math.max(0,s.reacaoPendente.terminaEm-Date.now());
@@ -281,6 +281,7 @@ export async function host(){
     }
     const [players,tokens]=await Promise.all([OBR.party.getPlayers(),getTokens()]);
     ch.postMessage({vista:s,info:{...eu,modo:'sala',players,tokens}});
+    if(!remoto)return; // consulta do próprio mestre: a vista local basta
     const v=publico(s);
     // Ocultar atores vinculados a tokens invisíveis também no histórico, que é textual.
     const ocultos=s.atores.filter(a=>a.token&&!tokens.some(t=>t.id===a.token && t.visible));
@@ -289,8 +290,9 @@ export async function host(){
       v.atores=v.atores.filter(a=>!ids.has(a.id));v.ordem=v.ordem.filter(id=>!ids.has(id));v.vez=v.ordem.indexOf(ativo);v.historico=[];
     }
     const dados=JSON.stringify(v), seq=crypto.randomUUID();
-    // 2000 caracteres continuam abaixo de 16KB mesmo com UTF-8 e escapes JSON.
-    for(let i=0;i<dados.length;i+=2000)await OBR.broadcast.sendMessage(canais.view,{seq,i,final:i+2000>=dados.length,parte:dados.slice(i,i+2000)},{destination:'REMOTE'});
+    // Partes medidas em bytes (UTF-8 + escapes JSON) abaixo do limite de 16 KB do broadcast.
+    const partes=fatiarParaBroadcast(dados);
+    for(const [n,{i,parte}] of partes.entries())await OBR.broadcast.sendMessage(canais.view,{seq,i,final:n===partes.length-1,parte},{destination:'REMOTE'});
   }
   async function sincronizarNpcs(){
     const {key,s}=await carregar();
@@ -410,11 +412,24 @@ export async function host(){
       await mostrar(estadoMostrar);await reply({});
     }catch(e){await reply({erro:e.message});}
   }
-  async function responderSync(reply){
-    try{const {s}=await carregar();await mostrar(s,true);await reply({});}
+  // Várias consultas seguidas (reenvios, mais de um jogador entrando) reaproveitam a mesma transmissão
+  // da vista em vez de retransmitir a mesa inteira para todos a cada pedido.
+  let difusao=null;
+  async function responderSync(reply,{remoto=true}={}){
+    try{
+      const {s}=await carregar();
+      if(!remoto){await mostrar(s,true,{remoto:false});await reply({});return;}
+      const d=difusao;
+      if(!(d&&d.rev===s.rev&&(d.emCurso||Date.now()-d.fim<3000))){
+        const nova={rev:s.rev,emCurso:true,fim:0};
+        nova.promessa=mostrar(s,true).finally(()=>{nova.emCurso=false;nova.fim=Date.now();});
+        difusao=nova;
+      }
+      await difusao.promessa;await reply({});
+    }
     catch(e){await reply({erro:e.message});}
   }
-  ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando){const reply=r=>ch.postMessage({...r,resposta:e.data.req});if(e.data.comando.tipo==='sync')responderSync(reply).catch(console.error);else serial(()=>executar(e.data.comando,eu,reply));}};
+  ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando){const reply=r=>ch.postMessage({...r,resposta:e.data.req});if(e.data.comando.tipo==='sync')responderSync(reply,{remoto:false}).catch(console.error);else serial(()=>executar(e.data.comando,eu,reply));}};
   OBR.broadcast.onMessage(canais.cmd,e=>{
     const receber=async()=>{
     const u=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
@@ -484,10 +499,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.44',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.45',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.44',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.45',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }
@@ -510,7 +525,7 @@ export async function sala(onView){
   const enviar=async c=>{
     const req=crypto.randomUUID();
     return new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>{espera.delete(req);reject(Error(c.tipo==='sync'?'Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.':'Sem confirmação do mestre. Atualize antes de repetir.'));},c.tipo==='sync'?10000:60000);
+      const timer=setTimeout(()=>{espera.delete(req);reject(Error(c.tipo==='sync'?'Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.':'Sem confirmação do mestre. Atualize antes de repetir.'));},c.tipo==='sync'?15000:60000);
       espera.set(req,err=>{clearTimeout(timer);err?reject(Error(err)):resolve();});
       Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
     });
