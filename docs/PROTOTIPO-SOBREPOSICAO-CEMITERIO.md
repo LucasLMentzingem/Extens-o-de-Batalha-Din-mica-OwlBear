@@ -18,7 +18,7 @@ Sem concessão automática de controle ao jogador: NPCs ficam sob controle do me
 
 `conteudo/aventura-no-cemiterio/` contém somente 11 JSONs de fichas formato 2. Importar essa pasta como grupo. Os mesmos arquivos estão na pasta da aventura, dentro de `Grupo-importavel/aventura no cemiterio`. O modelo adicional Zumbi reanimado apoia o protótipo. Não há itens finais nos inventários iniciais. Arquivos-base e tokens da aventura foram preservados; não foram gerados tokens novos.
 
-Itens novos: `item.adaga-sagrada-purificada-mais-2`, `item.adaga-sagrada-profanada-mais-2`, `item.agua-benta-da-purificacao`, `item.corda-15-m`. As duas adagas concedem +1 ao ataque e 1d4 elemental separado (dobrado no crítico), sem bônus fixo ao dano perfurante e sem o +1 necrótico inicial. O +2 é apenas parte do nome. Preço de 1500 PO, raridade rara e revenda padrão de 1050 PO são propostas; peso de 0,5 kg preserva a arma. O colar permanece 1857,15 PO / revenda 1300 PO.
+Itens novos: `item.adaga-sagrada-purificada-mais-2`, `item.adaga-sagrada-profanada-mais-2`, `item.agua-benta-da-purificacao`, `item.corda-15-m`. As duas adagas concedem +1 ao ataque e 1d4 elemental separado (dobrado no crítico), sem bônus fixo ao dano perfurante e sem o +1 necrótico inicial. O +2 é apenas parte do nome. Preço-base de 1.800 PO e revenda padrão de 1.260 PO por adaga, próximos dos 1.300 PO de revenda do colar; raridade rara; peso de 0,5 kg preserva a arma. O colar permanece 1857,15 PO / revenda 1300 PO.
 
 O mestre confirma o desfecho da adaga em Controle de fichas. A operação troca a definição conservando ID, posse e equipamento da instância. Purificação exige confirmação do altar original e consome uma dose de missão selecionada, inclusive de outro portador. Profanação exige confirmação narrativa das 100 mortes; o motor não detecta inocência ou elegibilidade. Os resultados são exclusivos.
 
@@ -50,3 +50,7 @@ A reanimação usa `Tokens/Drow-e-goblins/Goblin-Zumbi.png` para o goblin marcad
 A troca conserva a peça e vínculos. A imagem, DPI, offset e escala anteriores ficam no backup da camada e nos metadados do token; remover a camada restaura esses campos e preserva a posição atual. Segunda morte mantém a imagem de morto-vivo. Camadas salvas na 0.8.53 também recebem a arte ao sincronizar. Erros do SDK são repetidos sem reanimar novamente nem consumir outro espaço.
 
 340 testes aprovados na 0.8.54, com SDK simulado e 154 execuções de ataque cruzadas entre os sete aventureiros e as 11 fichas novas. Validação em sala real permanece pendente.
+
+## Adagas — 0.8.55
+
+As duas alternativas finais usam o mesmo desenho da Adaga do Último Rito (profanada inicial): guarda, cabo, pomo e silhueta preservados. Purificada: lâmina limpa com brilho sagrado; profanada: metal vermelho-sangue e runas vermelhas reforçadas. Preço-base 1.800 PO e revenda de 1.260 PO cada, comparados aos 1.300 PO do colar. A adaga inicial permanece em 350 PO / revenda 245 PO.

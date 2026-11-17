@@ -1,6 +1,12 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.54**, linha travada em 0.8.x até 0.8.99.
+Revisão de 17 de novembro de 2026, versão **0.8.55**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.55
+
+- Revenda das duas adagas finais ajustada para 1.260 PO cada (preço-base 1.800 PO), perto dos 1.300 PO do colar. A inicial mantém revenda 245 PO.
+- Artes finais refeitas a partir da adaga inicial, mantendo guarda, cabo, pomo e silhueta; variações sagrada e vermelho-sangue. PNGs transparentes com caminhos novos para renovar cache.
+- 340 testes aprovados e valores de revenda conferidos no motor.
 
 ## Entrega — 0.8.54
 

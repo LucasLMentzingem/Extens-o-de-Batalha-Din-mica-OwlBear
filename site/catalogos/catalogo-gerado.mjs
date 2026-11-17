@@ -10635,7 +10635,7 @@ export default {
     },
     {
       "id": "item.adaga-sagrada-purificada-mais-2",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Adaga sagrada purificada +2",
         "tipo": "equipamento",
@@ -10649,13 +10649,13 @@ export default {
           "arremessavel"
         ],
         "preco": {
-          "valor": 1500,
+          "valor": 1800,
           "moeda": "po"
         },
         "pesoKg": 0.5,
         "slotEquipamento": "mao_forte",
         "leve": true,
-        "descricao": "Resultado alternativo autoral da missão. O +2 pertence ao nome: bônus real +1 no ataque, sem bônus plano ao dano da arma. Cada acerto e arremesso soma 1d4 radiante separado; participa do crítico. Substitui integralmente a adaga inicial e seu +1 necrótico. Preço e raridade propostos.",
+        "descricao": "Resultado alternativo autoral da missão. O +2 pertence ao nome: bônus real +1 no ataque, sem bônus plano ao dano da arma. Cada acerto e arremesso soma 1d4 radiante separado; participa do crítico. Substitui integralmente a adaga inicial e seu +1 necrótico. Preço-base 1.800 PO; revenda padrão 1.260 PO.",
         "modelosAcoes": [
           {
             "modo": "corpo_a_corpo",
@@ -10679,7 +10679,7 @@ export default {
           "elemento": "radiante",
           "critico": true
         },
-        "icone": "assets/itens/item-adaga-sagrada-purificada-mais-2.png",
+        "icone": "assets/itens/item-adaga-sagrada-purificada-mais-2-v2.png",
         "modificadores": {
           "ataque": 1
         },
@@ -10688,7 +10688,7 @@ export default {
     },
     {
       "id": "item.adaga-sagrada-profanada-mais-2",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Adaga sagrada profanada +2",
         "tipo": "equipamento",
@@ -10702,13 +10702,13 @@ export default {
           "arremessavel"
         ],
         "preco": {
-          "valor": 1500,
+          "valor": 1800,
           "moeda": "po"
         },
         "pesoKg": 0.5,
         "slotEquipamento": "mao_forte",
         "leve": true,
-        "descricao": "Resultado alternativo autoral da missão. O +2 pertence ao nome: bônus real +1 no ataque, sem bônus plano ao dano da arma. Cada acerto e arremesso soma 1d4 necrotico separado; participa do crítico. Substitui integralmente a adaga inicial e seu +1 necrótico. Preço e raridade propostos.",
+        "descricao": "Resultado alternativo autoral da missão. O +2 pertence ao nome: bônus real +1 no ataque, sem bônus plano ao dano da arma. Cada acerto e arremesso soma 1d4 necrotico separado; participa do crítico. Substitui integralmente a adaga inicial e seu +1 necrótico. Preço-base 1.800 PO; revenda padrão 1.260 PO.",
         "modelosAcoes": [
           {
             "modo": "corpo_a_corpo",
@@ -10732,7 +10732,7 @@ export default {
           "elemento": "necrotico",
           "critico": true
         },
-        "icone": "assets/itens/item-adaga-sagrada-profanada-mais-2.png",
+        "icone": "assets/itens/item-adaga-sagrada-profanada-mais-2-v2.png",
         "modificadores": {
           "ataque": 1
         },

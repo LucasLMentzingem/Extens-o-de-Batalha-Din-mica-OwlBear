@@ -1,6 +1,6 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.54**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.54.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.55**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.55.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 ## Aventura no cemitério e reanimação
 

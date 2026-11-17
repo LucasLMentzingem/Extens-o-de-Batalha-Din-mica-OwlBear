@@ -1,0 +1,26 @@
+{
+  "ferramenta": "imagegen integrada",
+  "referencia": "site/assets/itens/item-adaga-do-ultimo-rito.webp",
+  "registros": [
+    {
+      "id": "purificada",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-a7954148-629b-4170-9eda-03a86d0ace62.png",
+      "prompt": "Use case: precise-object-edit. Edit target: the provided existing fantasy inventory dagger. Preserve the EXACT identity and design: single short broad pointed blade with its asymmetric contour near the guard, crescent/curled crossguard, quatrefoil inlays in the guard and pommel, brown burgundy wrapped leather grip, original proportions, diagonal tip bottom-left and pommel top-right. Do not redesign or substitute the dagger. Remove the blood-red profane rune stains and dark corrosion from the blade. Keep the original blade engravings and metal shape, make the blade clean silver and add a restrained sacred golden-white radiant glow along its cutting edges. The brass fittings remain the original worn brass, the leather grip remains the same brown burgundy leather. Isolated complete single dagger on a genuinely transparent alpha background. No person, no second weapon, no UI, no frame, no captions or numbers. Detailed painterly fantasy inventory rendering matching the reference. Keep generous transparent margins.",
+      "referencia": "D:\\Documents\\Codex\\2026-11-09\\os-ogros-de-dnd-s-o\\work\\publicacao-owlbear\\site\\assets\\itens\\item-adaga-do-ultimo-rito.webp",
+      "arteId": "item.adaga-sagrada-purificada-mais-2",
+      "destino": "assets/itens/item-adaga-sagrada-purificada-mais-2-v2.png",
+      "precoBasePo": 1800,
+      "revendaPo": 1260
+    },
+    {
+      "id": "profanada",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-68ca695b-fd49-450a-8523-5894c0798e93.png",
+      "prompt": "Use case: precise-object-edit. Edit target: the provided existing fantasy inventory dagger. Preserve the EXACT identity and design: single short broad pointed blade with its asymmetric contour near the guard, crescent/curled crossguard, quatrefoil inlays in the guard and pommel, brown burgundy wrapped leather grip, original proportions, diagonal tip bottom-left and pommel top-right. Do not redesign or substitute the dagger. Change the blade metal to deep blood-red steel with a subtle crimson necrotic sheen and slightly stronger red engraved runes. Keep the exact original engravings layout, blade shape and brass fittings, the brown burgundy leather grip and all decoration. The change must look like the same existing dagger empowered with necrotic magic. Isolated complete single dagger on a genuinely transparent alpha background. No person, no second weapon, no UI, no frame, no captions or numbers. Detailed painterly fantasy inventory rendering matching the reference. Keep generous transparent margins.",
+      "referencia": "D:\\Documents\\Codex\\2026-11-09\\os-ogros-de-dnd-s-o\\work\\publicacao-owlbear\\site\\assets\\itens\\item-adaga-do-ultimo-rito.webp",
+      "arteId": "item.adaga-sagrada-profanada-mais-2",
+      "destino": "assets/itens/item-adaga-sagrada-profanada-mais-2-v2.png",
+      "precoBasePo": 1800,
+      "revendaPo": 1260
+    }
+  ]
+}
