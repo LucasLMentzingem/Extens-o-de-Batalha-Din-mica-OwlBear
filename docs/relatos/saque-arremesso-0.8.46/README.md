@@ -41,3 +41,16 @@ Registro para investigação e implementação posterior. As imagens são relato
 3. Reorganizar o saque e a ação contextual de depósito; implementar seleção de mão para equipar ou substituir.
 4. Corrigir a arte e verificar saque de baú e item no chão, com pilhas, peso, alcance e custos em e fora de combate.
 5. Verificar jogadores e mestre em uma sala real. A ordenação local de golpes desarmados permanece separada desta investigação.
+
+## Avanços locais após o relato (17/11/2026)
+
+- Issues públicas: #75 (arte) e #76 (este relato). Documentos e prints publicados no commit `291205c`.
+- Mão fraca passa a oferecer ataque normal que custa ação; ataque adicional Leve/Ágil conserva suas regras. Fora de combate, ataques gerados por equipamentos não exigem histórico de ataque do turno.
+- Imagem e área de seleção do loot são enviadas juntas ao SDK; criação parcial anterior é reparável. Retentativas usam espera progressiva, até cinco tentativas, e mostram o erro recebido sem o sufixo `undefined`. A causa da falha original na sala ainda não foi confirmada.
+- Itens no chão (inclusive arremessados) e suas áreas de seleção usam ATTACHMENT; baús continuam em PROP. Peças existentes são migradas na sincronização. Referência do SDK: https://docs.owlbear.rodeo/extensions/reference/items/item/
+- Corrigida a regra móvel de CSS que escondia o span da imagem da célula. Teste de navegador verifica imagem carregada e visível.
+- Saque mostra apenas a grade da origem; depósito é oferecido no botão direito da ficha, com quantidade e sessão mantida aberta.
+- Botão direito no saque oferece mão compatível; substituição conserva equipamento anterior na mochila. Equipar de pilha retira uma unidade.
+- Golpes desarmados ordenados após armas e antes de Saquear.
+
+Validação local: 280 testes automatizados passaram; navegador sem interface verificou saque com painel fechado, imagem visível, seleção da mão fraca e camada superior, além de falha transitória simulada do SDK seguida de recuperação sem repetir ataque. Versão e catálogo válidos. Falta validar na sala real os sintomas intermitentes e o fluxo de depósito entre janelas. Código mantido local para o próximo pacote; manifesto público segue 0.8.46.

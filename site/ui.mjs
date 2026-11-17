@@ -320,10 +320,23 @@ async function abrirAdicionarPoMestre(){
   if(!aceitou)return;
   await enviar('gmAdicionarPo',{quantidade:Number($('gmPoQuantidade').value)});aviso('PO adicionadas ao inventário.');
 }
+async function pedirQuantidade(titulo,maximo,moeda=false){
+  const dlg=$('quantidadeTroca');$('quantidadeTrocaTitulo').textContent=titulo;$('quantidadeTrocaDetalhe').textContent='Disponível: '+maximo;
+  const input=$('trocaQuantidade');input.min=moeda?'0.01':'1';input.max=String(maximo);input.step=moeda?'0.01':'1';input.value='1';dlg.returnValue='nao';
+  const ok=await new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});return ok?Number(input.value):null;
+}
 async function alterarItem(operacao,slot){
   const a=s.atores.find(x=>x.id===escolhido);if(!a||!itemContexto)return;
   const item=a.ficha.inventario?.itens.find(x=>x.id===itemContexto);if(!item)return;
   const gm=info.role==='GM'&&!testar,confirmado=gm&&a.ficha.tipo==='pj';
+  if(operacao==='depositar'){
+    const sessao=a.saqueAberto,r=s.recipientes?.find(r=>r.id===sessao?.origem?.id);
+    if(!r?.permiteDeposito||sessao?.origem?.tipo!=='caixa')throw Error('Abra um recipiente para depositar.');
+    const quantidade=item.quantidade>1?Number(await pedirQuantidade('Colocar no '+r.nome,item.quantidade,item.tipo==='moeda')):1;
+    if(!quantidade)return;
+    await enviar('confirmarSaque',{saqueId:sessao.id,itens:[],depositos:[{itemId:item.id,quantidade}],depositarSomente:true,confirmado});
+    $('itemMenu').close();return;
+  }
   if(operacao==='excluir')return excluirItemMestre(a,item);
   if(operacao==='soltar'){
     await enviar('soltarItem',{itemId:item.id,quantidade:Number(slot)||1,confirmado});
@@ -550,6 +563,8 @@ $('app').oncontextmenu=e=>{
    else if(i.tipo==='equipamento')acoes+='<button type="button" data-item-acao="equipar" class="primario">Equipar</button>';
    else if(i.tipo==='consumivel')acoes+='<button type="button" data-item-acao="usar" class="primario">Usar</button>';
    else acoes+='<small>Este item não possui uma ação contextual.</small>';
+   const recipienteAberto=s.recipientes?.find(r=>r.id===a.saqueAberto?.origem?.id&&r.permiteDeposito);
+   if(recipienteAberto&&a.saqueAberto?.origem?.tipo==='caixa'&&!i.equipado&&i.negociavel!==false)acoes+='<button type="button" data-item-acao="depositar">Colocar no '+esc(recipienteAberto.nome)+'</button>';
    const loja=lojaSelecionada(a.id);lojaDaVenda=loja?.id??null;
    if(s.fase==='preparo'&&loja&&i.tipo!=='moeda'&&i.negociavel!==false&&!i.equipado){const unitario=precoVendaPc(i),q=Math.floor(i.quantidade??1);acoes+='<button type="button" data-item-acao="vender" data-item-slot="1">Vender 1 por '+(unitario/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</button>';if(q>1)acoes+='<button type="button" data-item-acao="vender" data-item-slot="'+q+'">Vender '+q+' por '+(unitario*q/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO</button>';}
    const troca=trocaDoAtor(s,a.id);

@@ -10,3 +10,7 @@
 .grade-inventario.grade-saque{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem}
 .grade-saque .celula-item{min-height:86px;box-sizing:border-box}.grade-saque .celula-item.selecionada{border-color:#e1bc79;box-shadow:inset 0 0 0 2px #b68a47}.grade-saque .item-arte{width:56px;height:56px;margin:auto}
 .detalhe-transferencia{display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px;border-bottom:1px solid #63556a}.detalhe-transferencia strong{flex:1;font-size:12px}.detalhe-transferencia label{font-size:11px}.detalhe-transferencia input{width:80px}.detalhe-transferencia button{font-size:11px;padding:5px}
+
+/* A regra móvel da ficha oculta spans; a arte da célula deve continuar visível. */
+.grade-saque .celula-item>.item-arte{display:inline-block;flex-shrink:0}
+.grade-saque .celula-item>span:last-child:not(.item-arte){display:block;white-space:normal}

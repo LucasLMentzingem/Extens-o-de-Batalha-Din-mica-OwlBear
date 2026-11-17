@@ -716,9 +716,9 @@ export function bonusPrevistoArma(f,item,modelo){
   const atributo=atributoAtaqueArma(f,item,m),prof=proficienteComArma(f,item)?Number(f.proficiencia??(2+Math.floor(((f.classes??[]).reduce((n,c)=>n+c.nivel,0)-1)/4))):0;
   return mod(f.atributos[atributo])+prof+bonusEstiloArma(f,item,m)+(Number(item.bonusMagico)||0)+(Number(item.modificadores?.ataque)||0);
 }
-function ataqueGeradoArma(a,item,modelo,indice){
+function ataqueGeradoArma(a,item,modelo,indice,ataqueNormal=false){
   const f=a.ficha,d=definicoesArmas[chaveArma(item)]??item,atributo=atributoAtaqueArma(f,item,modelo),proficiente=proficienteComArma(f,item);
-  const bonus=bonusPrevistoArma(f,item,modelo),secundaria=item.equipadoSlot==='mao_fraca'&&!armaDuasMaos(item),modDano=secundaria&&!f.proficienciasEquipamento?.estiloDuasArmas?0:mod(f.atributos[atributo]);
+  const bonus=bonusPrevistoArma(f,item,modelo),secundaria=!ataqueNormal&&item.equipadoSlot==='mao_fraca'&&!armaDuasMaos(item),modDano=secundaria&&!f.proficienciasEquipamento?.estiloDuasArmas?0:mod(f.atributos[atributo]);
   const duasMaos=armaDuasMaos(item)||d.propriedades?.includes('versatil')&&!itensEquipados(a).some(i=>i!==item&&ocupaSlot(i,'mao_fraca'));
   const dadoBase=duasMaos&&modelo.danoDuasMaos?modelo.danoDuasMaos:modelo.dano,dado=dadoMinimoMonge(f,item,dadoBase);
   const dano=formulaComBonus(dado,modDano+(Number(item.bonusDano)||0)+(Number(item.modificadores?.dano)||0));
@@ -739,6 +739,13 @@ function ataqueGeradoArma(a,item,modelo,indice){
 }
 export function ataquesEquipados(a){
   const ataques=itensEquipados(a).filter(i=>chaveArma(i)).flatMap(item=>(item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).map((m,n)=>ataqueGeradoArma(a,item,m,n)));
+  // A mão fraca também pode ser usada no ataque normal que custa uma ação.
+  // O ataque adicional Leve/Ágil conserva seus requisitos e custo próprios.
+  for(const item of itensEquipados(a).filter(i=>chaveArma(i)&&i.equipadoSlot==='mao_fraca'&&!armaDuasMaos(i))){
+    for(const [n,modelo] of (item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).entries()){
+      const normal=ataqueGeradoArma(a,item,modelo,n,true);normal.id+='-acao';ataques.push(normal);
+    }
+  }
   // M04: Ágil transforma o ataque da segunda arma Leve em uma etapa opcional
   // da mesma Ação Atacar. A opção calculada continua existindo para o motor e
   // para migrações, mas deixa de competir como botão separado no rodapé/livro.
@@ -937,9 +944,16 @@ function adicionarItemRecipiente(r,item){
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a),{comum=false}={}){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
-  return opcoes.filter(o=>!o.ocultarListas&&!o.metamagiaAoConjurar).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
+  const golpeDesarmado=opcao=>{
+    const regras=[opcao.automacao,...(opcao.automacao?.ataques??[]),...(opcao.composicao?.modos??[]).map(m=>m.automacao)];
+    return regras.some(regra=>regra?.tipo==='ataque'&&tagsAtaque(opcao,regra).includes('desarmado'));
+  };
+  return opcoes.filter(o=>!o.ocultarListas&&!o.metamagiaAoConjurar).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem),desarmado:golpeDesarmado(opcao)})).sort((x,y)=>{
     const ax=Boolean(x.opcao.geradaPorItem&&x.opcao.automacao?.tipo==='ataque'),ay=Boolean(y.opcao.geradaPorItem&&y.opcao.automacao?.tipo==='ataque');
-    if(ax!==ay)return ax?-1:1;
+    const armaArmadaX=ax&&!x.desarmado,armaArmadaY=ay&&!y.desarmado;
+    if(armaArmadaX!==armaArmadaY)return armaArmadaX?-1:1;
+    if(x.desarmado!==y.desarmado)return x.desarmado?-1:1;
+    if(armaArmadaX&&armaArmadaY)return x.item.slot-y.item.slot||x.item.indice-y.item.indice||Number(Boolean(x.opcao.requisitosUso?.aposAtaque))-Number(Boolean(y.opcao.requisitosUso?.aposAtaque))||Number(Boolean(x.opcao.automacao.arremesso))-Number(Boolean(y.opcao.automacao.arremesso))||x.indice-y.indice;
     if(!ax){
       if(comum){
         const ordem=['saquear','desengajar','correr','ajudar','esconder','empurrar','derrubar'];
@@ -949,7 +963,7 @@ export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a),{comum=false}=
       }
       const assistida=Number(!x.opcao.automacao)-Number(!y.opcao.automacao);return assistida||x.indice-y.indice;
     }
-    return x.item.slot-y.item.slot||x.item.indice-y.item.indice||Number(Boolean(x.opcao.automacao.arremesso))-Number(Boolean(y.opcao.automacao.arremesso))||x.indice-y.indice;
+    return x.indice-y.indice;
   }).map(x=>x.opcao);
 }
 export const opcaoPorId=(a,id)=>{
@@ -1208,6 +1222,7 @@ export function escolhasDeDescanso(a,periodo){
 }
 function validarRequisitosUso(s,a,o,alvo){
   const r=o.requisitosUso;if(!r)return;
+  if(s.fase==='preparo'&&o.geradaPorItem&&o.automacao?.tipo==='ataque')return;
   const ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[],anterior=[...(r.aposAcerto?acertos:ataques)].at(-1);
   if(r.aposAtaque)exigir(ataques.length>0,'Use esta habilidade somente depois de realizar um ataque neste turno.');
   if(r.aposAcerto)exigir(acertos.length>0,'Use esta habilidade somente depois de acertar um ataque neste turno.');
@@ -1756,7 +1771,7 @@ export async function aplicar(s,c,u,rolar) {
       let equipamentoDireto=null;
       if(c.equiparItemId){
         const indice=transferencias.findIndex(x=>x.item.id===c.equiparItemId),transferencia=transferencias[indice];
-        exigir(transferencia&&transferencia.quantidade===transferencia.item.quantidade&&transferencia.item.tipo==='equipamento','Para equipar direto, selecione uma unidade completa de equipamento.');
+        exigir(transferencia&&transferencia.quantidade===1&&transferencia.item.tipo==='equipamento','Para equipar direto, selecione uma unidade de equipamento.');
         const item=transferencia.item;let slot=c.equiparSlot??item.slotEquipamento;
         if(slot==='acessorio')slot=!a.ficha.inventario.itens.some(i=>i.equipado&&i.equipadoSlot==='acessorio_1')?'acessorio_1':'acessorio_2';
         const armaUmaMao=item.slotEquipamento==='mao_forte'&&!armaDuasMaos(item);
@@ -1803,7 +1818,7 @@ export async function aplicar(s,c,u,rolar) {
         if(quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==item);else item.quantidade-=quantidade;
         adicionarItemRecipiente(recipiente,copia);
       }
-      delete a.saqueAberto;
+      if(!(c.depositarSomente&&copias.length===0&&devolver.length&&recipiente?.permiteDeposito))delete a.saqueAberto;
       if(recipiente){recipiente.revisao++;if(recipiente.removerAoEsvaziar&&!recipiente.itens.length)s.recipientes=s.recipientes.filter(x=>x!==recipiente);}
       msg=a.nome+' saqueou '+(alvo?.nome??recipiente.nome)+' • '+copias.map(i=>i.quantidade+'× '+i.nome).join(', ')+(equipamentoDireto?' • equipou '+copias.find(i=>i.equipado)?.nome:'');break;
     }

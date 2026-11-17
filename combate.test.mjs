@@ -671,7 +671,7 @@ test('ataque que falha também confirma o custo da ação',async()=>{
 
 test('armas arremessáveis recebem ações próprias e desvantagem após o alcance normal',async()=>{
  const m=mesa(),variantes=opcoesDisponiveis(m.a).filter(o=>o.geradaPorItem&&o.automacao.arremesso);
- assert.equal(variantes.length,2);assert.deepEqual(variantes.map(o=>o.automacao.alcanceNormalM),[6,6]);assert.ok(variantes.every(o=>o.automacao.alcanceM===18));
+ assert.equal(variantes.length,3);assert.deepEqual(variantes.map(o=>o.automacao.alcanceNormalM),[6,6,6]);assert.ok(variantes.every(o=>o.automacao.alcanceM===18));
  await m.iniciar();m.s.atores[1].x=10;const adaga=variantes[0],formulas=[];
  const s=await aplicar(m.s,{tipo:'usar',rev:m.s.rev,ator:m.a.id,opcao:adaga.id,alvo:m.b.id},player,async f=>{formulas.push(f);return {total:9,natural:4,formula:f,resumo:'4+5=9'};});
  assert.equal(formulas[0],'2d20kl1+4');assert.equal(s.atores[0].acao,0);assert.match(s.historico[0],/errou/);
@@ -1137,7 +1137,7 @@ test('migração de encontro antigo religa ataques às armas e oculta a lança g
  atualizarMagias(f);
  const visiveis=opcoesDisponiveis(m.a).map(o=>o.nome);
  assert.ok(visiveis.some(n=>n.startsWith('Adaga +4')));
- assert.equal(visiveis.filter(n=>n.startsWith('Adaga')).length,4);
+ assert.equal(visiveis.filter(n=>n.startsWith('Adaga')).length,6);
  assert.equal(visiveis.some(n=>n.startsWith('Lança +2')),false);
 });
 test('HUD lógica oferece apenas magias preparadas, sempre preparadas e truques',()=>{
@@ -1481,7 +1481,7 @@ test('rodapé começa pelas armas equipadas e mantém cada arremesso logo depois
  const m=mesa(),ordenadas=ordenarOpcoesRodape(m.a),armas=ordenadas.slice(0,4),itens=new Map(m.a.ficha.inventario.itens.map(i=>[i.id,i]));
  assert.ok(armas.every(o=>o.geradaPorItem));assert.deepEqual(armas.map(o=>itens.get(o.origemItem).equipadoSlot),['mao_forte','mao_forte','mao_fraca','mao_fraca']);assert.deepEqual(armas.map(o=>Boolean(o.automacao.arremesso)),[false,true,false,true]);
  const s=novo(),zurichAtor=adicionar(s,fichasJogadores.find(x=>x.id==='zurich')),primeiras=ordenarOpcoesRodape(zurichAtor).filter(o=>o.geradaPorItem).slice(0,3),itensZurich=new Map(zurichAtor.ficha.inventario.itens.map(i=>[i.id,i]));
- assert.deepEqual(primeiras.map(o=>itensZurich.get(o.origemItem).equipadoSlot),['mao_forte','arma_distancia'],'a arma Ágil da mão fraca fica dentro do compositor da principal');
+ assert.deepEqual(primeiras.map(o=>itensZurich.get(o.origemItem).equipadoSlot),['mao_forte','mao_fraca','arma_distancia'],'a mão fraca permite ataque normal; o extra Ágil permanece no compositor');
 });
 test('o mesmo item recalcula acerto, dano e proficiência para o novo portador',()=>{
  const s=novo(),d=adicionar(s,fichasJogadores.find(x=>x.id==='draven-thorne')),n=adicionar(s,nikki),espada=structuredClone(d.ficha.inventario.itens.find(i=>i.tipoArma==='espada_grande'));

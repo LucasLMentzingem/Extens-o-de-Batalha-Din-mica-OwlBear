@@ -82,3 +82,24 @@ test('Ágil conserva a alternativa corpo a corpo e oferece arremesso sem substit
  const o=opcoesDisponiveis(a).find(o=>o.origemItem===principal.id&&o.composicao);assert.ok(o);
  const extras=o.composicao.modos.slice(1);assert.equal(extras[0].automacao.arremesso,false);assert.ok(extras.some(m=>m.automacao.arremesso));assert.ok(extras.every(m=>m.origemItem==='adaga-extra'));assert.equal(o.composicao.quantidadeMaxima,2);
 });
+
+test('mão fraca: ataque normal arremessado usa ação sem pré-requisito em combate e fora dele',async()=>{
+ for(const combate of [false,true]){
+  const m=await mesa();const alvo=adicionar(m.s,JSON.parse(await readFile(new URL('./site/fichas/soldado.json',import.meta.url))));alvo.x=1;alvo.y=0;
+  const o=opcoesDisponiveis(m.a).find(o=>o.geradaPorItem&&o.id.endsWith('-acao')&&o.automacao.arremesso);assert.ok(o);assert.equal(o.requisitosUso,undefined);
+  if(combate){m.s.fase='turnos';m.s.ordem=[m.a.id,alvo.id];m.s.vez=0;m.a.acao=1;}
+  await m.run('usar',{opcao:o.id,alvo:alvo.id},player);assert.ok(m.s.recipientes.some(r=>r.tipo==='chao'&&r.itens.some(i=>i.id===o.origemItem)));
+  if(combate)assert.equal(m.a.acao,0);
+ }
+});
+test('depósito contextual mantém sessão e equipar retira apenas uma unidade da pilha',async()=>{
+ const m=await mesa(),item=m.a.ficha.inventario.itens.find(i=>i.tipo==='equipamento'&&!i.equipado);assert.ok(item);
+ item.quantidade=2;item.empilhavel=true;
+ await m.run('abrirSaqueRecipiente',{recipienteId:m.r.id},player);const saqueId=m.a.saqueAberto.id;
+ await m.run('confirmarSaque',{saqueId,itens:[],depositos:[{itemId:item.id,quantidade:2}],depositarSomente:true},player);
+ assert.equal(m.a.saqueAberto.id,saqueId);assert.equal(m.r.itens[0].quantidade,2);
+ // Mesmo fora de combate, equipar deve manter o item anterior na mochila.
+ const loot=m.r.itens[0];loot.slotEquipamento='mao_forte';loot.duasMaos=false;
+ await m.run('confirmarSaque',{saqueId,itens:[{itemId:loot.id,quantidade:1}],equiparItemId:loot.id,equiparSlot:'mao_fraca'},player);
+ assert.equal(m.r.itens[0].quantidade,1);assert.equal(m.a.ficha.inventario.itens.filter(i=>i.equipado&&i.equipadoSlot==='mao_fraca').length,1);
+});

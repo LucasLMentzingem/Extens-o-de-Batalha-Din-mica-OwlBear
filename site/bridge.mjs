@@ -223,7 +223,7 @@ async function sincronizarTokensRecipientes(s,pixelsMetro){
   const orfaos=itens.filter(i=>i.metadata?.[ns+'/recipiente']&&!s.recipientes?.some(r=>r.id===i.metadata[ns+'/recipiente'])).map(i=>i.id);
   if(orfaos.length)await OBR.scene.items.deleteItems(orfaos);
   for(const r of s.recipientes??[]){
-    const id=r.tokenId??(prefixoRecipiente+r.id),existente=itens.find(i=>i.id===id),primeiro=r.itens?.[0];
+    const id=r.tokenId??(prefixoRecipiente+r.id),existente=itens.find(i=>i.id===id),primeiro=r.itens?.[0],camada=r.tipo==='chao'?'ATTACHMENT':'PROP';
     const hitExistente=itens.find(i=>i.id===id+'-selecao');
     const atual=hitExistente??existente;if(atual)r.posicaoM={x:atual.position.x/pixelsMetro,y:atual.position.y/pixelsMetro};
     const caminho=r.tipo==='caixa'?'assets/props/bau-madeira-saque-75graus.webp':(primeiro?.icone??'assets/props/loot-no-chao.svg');
@@ -231,23 +231,26 @@ async function sincronizarTokensRecipientes(s,pixelsMetro){
     if(!existente){
       const pixels=r.tipo==='caixa'?1536:500,altura=r.tipo==='caixa'?1024:500,metros=r.tipo==='caixa'?1.5:1;
       const token=buildImage({url,mime:/\.svg(?:\?|$)/i.test(url)?'image/svg+xml':/\.webp(?:\?|$)/i.test(url)?'image/webp':'image/png',width:pixels,height:altura},{dpi:pixels*1.5/metros,offset:{x:pixels/2,y:altura/2}})
-        .id(id).name(r.nome).layer('PROP').metadata({[ns+'/recipiente']:r.id}).position({x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro}).build();
-      await OBR.scene.items.addItems([token]);
-    }else await OBR.scene.items.updateItems([id],xs=>{for(const item of xs){item.position={x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro};item.name=r.nome;item.metadata??={};item.metadata[ns+'/recipiente']=r.id;}});
+        .id(id).name(r.nome).layer(camada).metadata({[ns+'/recipiente']:r.id}).position({x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro}).build();
+      const hitId=id+'-selecao',pontos=pontosInteracaoRecipiente(r,pixelsMetro,token,pixelsMetro*1.5);
+      const area=buildCurve().id(hitId).name(r.nome).layer(camada).visible(token.visible!==false).position(token.position).rotation(token.rotation??0).points(pontos).tension(0).closed(true).fillColor('#d9bf89').fillOpacity(.01).strokeOpacity(0).strokeWidth(0).metadata({[ns+'/recipiente']:r.id,[chaveSelecaoRecipiente]:true}).build();
+      token.disableHit=true;token.attachedTo=hitId;token.disableAttachmentBehavior=r.tipo==='chao'?['SCALE']:[];
+      await OBR.scene.items.addItems(hitExistente?[token]:[token,area]);r.tokenId=id;continue;
+    }else await OBR.scene.items.updateItems([id],xs=>{for(const item of xs){if(r.tipo==='chao')item.layer=camada;item.position={x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro};item.name=r.nome;item.metadata??={};item.metadata[ns+'/recipiente']=r.id;}});
     r.tokenId=id;
     // Migra loot minúsculo e dimensões antigas sem alterar props convertidas pelo GM.
     if(!hitExistente)await OBR.scene.items.updateItems([id],xs=>{for(const i of xs){
       if(r.tipo==='chao'){i.image.width=500;i.image.height=500;i.grid={dpi:750,offset:{x:250,y:250}};i.scale={x:1,y:1};}
       else if(i.image.url.includes('bau-madeira-saque-75graus')){i.image.width=1536;i.image.height=1024;i.grid={dpi:1536,offset:{x:768,y:512}};}
     }});
-    const [imagem]=await OBR.scene.items.getItems([id]),hitId=idSelecaoRecipiente(r);
+    const imagem=existente,hitId=idSelecaoRecipiente(r);
     if(!hitExistente){
       const pontos=pontosInteracaoRecipiente(r,pixelsMetro,imagem,pixelsMetro*1.5);
-      const area=buildCurve().id(hitId).name(r.nome).layer('PROP').visible(imagem.visible!==false).position(imagem.position).rotation(imagem.rotation??0).points(pontos).closed(true).fillColor('#d9bf89').fillOpacity(.01).strokeOpacity(0).strokeWidth(0).metadata({[ns+'/recipiente']:r.id,[chaveSelecaoRecipiente]:true}).build();
+      const area=buildCurve().id(hitId).name(r.nome).layer(camada).visible(imagem.visible!==false).position(imagem.position).rotation(imagem.rotation??0).points(pontos).tension(0).closed(true).fillColor('#d9bf89').fillOpacity(.01).strokeOpacity(0).strokeWidth(0).metadata({[ns+'/recipiente']:r.id,[chaveSelecaoRecipiente]:true}).build();
       await OBR.scene.items.addItems([area]);
     }
     await OBR.scene.items.updateItems([id],xs=>{for(const i of xs){i.disableHit=true;i.attachedTo=hitId;i.disableAttachmentBehavior=r.tipo==='chao'?['SCALE']:[];}});
-    if(hitExistente)await OBR.scene.items.updateItems([hitId],xs=>{for(const i of xs){i.name=r.nome;if(r.tipo==='chao')i.scale={x:1,y:1};}});
+    if(hitExistente)await OBR.scene.items.updateItems([hitId],xs=>{for(const i of xs){i.name=r.nome;if(r.tipo==='chao'){i.layer=camada;i.scale={x:1,y:1};}}});
   }
 }
 export async function host(){
@@ -430,9 +433,13 @@ export async function host(){
       // Uma falha visual do SDK não pode desfazer um ataque já resolvido nem devolver a arma à mão.
       if(erroProps){
         console.error('Sincronização de peças pendente:',erroProps);
-        OBR.notification.show('Ação salva. Falha ao desenhar peças no mapa; tentando novamente. '+erroProps.message,'WARNING').catch(()=>{});
+        OBR.notification.show('Ação salva. Falha ao desenhar peças no mapa; tentando novamente. '+(erroProps?.message??(typeof erroProps==='string'?erroProps:JSON.stringify(erroProps))??'Erro do SDK sem detalhes'),'WARNING').catch(()=>{});
         clearTimeout(timerProps);
-        timerProps=setTimeout(()=>serial(async()=>{try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);persistir(key,s);await mostrar(s);}catch(e){console.error('Peças ainda pendentes:',e);}}),1500);
+        let tentativas=0;
+        const reparar=()=>{timerProps=setTimeout(()=>serial(async()=>{
+          try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);persistir(key,s);await mostrar(s);}
+          catch(e){console.error('Peças ainda pendentes (tentativa '+(tentativas+1)+'):',e);if(++tentativas<5)reparar();else OBR.notification.show('Não foi possível desenhar o loot. Os itens estão salvos; tente reconectar para sincronizar o mapa.','WARNING').catch(()=>{});}
+        }),Math.min(10000,1500*2**tentativas));};reparar();
       }
       if(c.tipo==='remover'){
         const token=s.atores.find(a=>a.id===c.ator)?.token;
