@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {novo,adicionar,aplicar,itensSaque,pesoInventario,publico,opcoesDisponiveis} from './site/engine.mjs';
-import {compactarEstado} from './site/catalog.mjs';
+import {novo,adicionar,aplicar,itensSaque,pesoInventario,publico,opcoesDisponiveis,ordenarOpcoesRodape} from './site/engine.mjs';
+import {compactarEstado,resolverInstanciaItem} from './site/catalog.mjs';
 import {pontosInteracaoRecipiente,pontoNoRecipiente} from './site/loot-geometry.mjs';
 const gm={id:'gm',role:'GM'},player={id:'p',role:'PLAYER'};
 async function mesa(){let s=novo();const a=adicionar(s,JSON.parse(await readFile(new URL('./site/fichas/nikki.json',import.meta.url))));a.dono='p';a.x=0;a.y=0;
@@ -60,4 +60,25 @@ test('arremesso acerta ou erra e cria exatamente uma arma física no chão',asyn
  const o=opcoesDisponiveis(m.a).find(o=>o.geradaPorItem&&o.automacao?.arremesso),arma=m.a.ficha.inventario.itens.find(i=>i.id===o.origemItem);
  await m.run('usar',{opcao:o.id,alvo:b.id},gm,()=>face);const chao=m.s.recipientes.filter(r=>r.tipo==='chao');assert.equal(chao.length,1);assert.equal(chao[0].itens[0].id,arma.id);assert.ok(!m.a.ficha.inventario.itens.some(i=>i.id===arma.id));assert.equal(chao[0].posicaoM.x,3);
  }
+});
+test('arremesso em composição também retira arma equipada e cria loot em acerto ou erro',async()=>{
+ for(const face of [1,20]){
+  const m=await mesa(),b=adicionar(m.s,JSON.parse(await readFile(new URL('./site/fichas/soldado.json',import.meta.url))));b.x=1;b.y=0;
+  const o=opcoesDisponiveis(m.a).find(o=>o.automacao?.arremesso),item=m.a.ficha.inventario.itens.find(i=>i.id===o.origemItem);
+  m.a.ficha.opcoes.push({id:'sequencia-fisica',nome:'Sequência física',categoria:'acao',custo:[],automacao:structuredClone(o.automacao),origemItem:item.id,composicao:{quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'arremessar',modos:[{id:'arremessar',nome:'Arremessar',tipo:'ataque',origemItem:item.id,origemOpcaoId:o.id,automacao:structuredClone(o.automacao)}]}});
+  await m.run('usar',{opcao:'sequencia-fisica',composicao:[{modoId:'arremessar',alvoId:b.id}]},gm,()=>face);
+  assert.ok(!m.a.ficha.inventario.itens.some(i=>i.id===item.id));const loot=m.s.recipientes.filter(r=>r.tipo==='chao');assert.equal(loot.length,1);assert.equal(loot[0].itens[0].id,item.id);assert.equal(loot[0].posicaoM.x,1);
+ }
+});
+test('filtro Comum prioriza armas e ações solicitadas, preservando a ordem dos demais',async()=>{
+ const m=await mesa();const opcoes=['Restante B','Empurrar','Ajudar','Derrubar','Restante A','Esconder-se','Correr','Desengajar','Saquear'].map((nome,i)=>({id:'teste-'+i,nome,custo:[],categoria:'acao',automacao:{tipo:'especial'}}));
+ const arma=opcoesDisponiveis(m.a).find(o=>o.geradaPorItem&&o.automacao?.tipo==='ataque');
+ const ordenadas=ordenarOpcoesRodape(m.a,[...opcoes,arma],{comum:true});assert.equal(ordenadas[0].id,arma.id);assert.deepEqual(ordenadas.slice(1).map(o=>o.nome),['Saquear','Desengajar','Correr','Ajudar','Esconder-se','Empurrar','Derrubar','Restante B','Restante A']);
+});
+test('Ágil conserva a alternativa corpo a corpo e oferece arremesso sem substituir o modo anterior',async()=>{
+ const s=novo(),a=adicionar(s,JSON.parse(await readFile(new URL('./site/fichas/zurich.json',import.meta.url))));
+ const principal=a.ficha.inventario.itens.find(i=>i.equipadoSlot==='mao_forte');for(const i of a.ficha.inventario.itens)if(i.equipadoSlot==='mao_fraca')i.equipado=false;
+ a.ficha.inventario.itens.push(resolverInstanciaItem({id:'adaga-extra',ref:'item.adaga-do-ultimo-rito',equipado:true,equipadoSlot:'mao_fraca'}));
+ const o=opcoesDisponiveis(a).find(o=>o.origemItem===principal.id&&o.composicao);assert.ok(o);
+ const extras=o.composicao.modos.slice(1);assert.equal(extras[0].automacao.arremesso,false);assert.ok(extras.some(m=>m.automacao.arremesso));assert.ok(extras.every(m=>m.origemItem==='adaga-extra'));assert.equal(o.composicao.quantidadeMaxima,2);
 });

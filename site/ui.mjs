@@ -9,6 +9,7 @@ import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.46';
 import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.46';
 import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.46';
 import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.46';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.46';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -57,15 +58,14 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  saqueVisualId=saque.id;
   const url=new URL('./saque.html?v=0.8.46',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
-    const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
-    await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+    if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
     const painel=document.createElement('aside');painel.id='saque-local';painel.className='loja-local';
     const frame=document.createElement('iframe');frame.src=url.href;frame.title='Saquear';painel.append(frame);document.body.append(painel);
   }
+  saqueVisualId=saque.id;
 }
 function lojaSelecionada(atorId){
   const catalogo=catalogoAberto(atorId);
@@ -93,7 +93,7 @@ function view(estado,i){
   const id=solicitacaoFicha??s.atores.find(a=>tokenSelecionado&&a.token===tokenSelecionado)?.id;
   if(id){const p=s.atores.find(a=>a.id===id&&(i.role==='GM'||a.dono===i.id));if(p)escolhido=p.id;}
   solicitacaoFicha=null;
-  const a=s.atores.find(x=>x.id===escolhido)??s.atores.find(x=>x.saqueAberto&&(i.role==='GM'||x.dono===i.id));
+  const a=s.atores.find(x=>x.saqueAberto&&(i.role==='GM'||x.dono===i.id))??s.atores.find(x=>x.id===escolhido);
   if(a?.saqueAberto&&saqueVisualId!==a.saqueAberto.id){escolhido=a.id;secao='ficha';paginaFicha='inventario';}
   render();
   queueMicrotask(()=>sincronizarSaqueVisual().catch(e=>aviso(e.message)));
@@ -360,14 +360,11 @@ async function abrirLojas(atorId){
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
   if(!trocaId||!atorId||s.fase!=='preparo')return;
-  trocaLocalId=trocaId;trocaLocalAtor=atorId;
-  if(info.modo==='ensaio'){render();return;}
+  if(info.modo==='ensaio'){trocaLocalId=trocaId;trocaLocalAtor=atorId;render();return;}
   if(abrindoTroca)return;abrindoTroca=true;
   try{
-    const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
-    await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.46',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
-    await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+    if(!await abrirJanelaInventario('troca',atorId,trocaId))return;
+    trocaLocalId=trocaId;trocaLocalAtor=atorId;
   }finally{abrindoTroca=false;}
 }
 async function sincronizarTrocaVisual(){

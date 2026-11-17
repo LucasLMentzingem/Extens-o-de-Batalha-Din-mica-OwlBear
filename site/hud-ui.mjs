@@ -197,7 +197,7 @@ function render(){
     const reserva='style="--efeitos-reserva:0px"';
     if(v.compacto){html='<section class="dock compacta" '+reserva+'><div class="dock-corpo"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside></div></section>';root.innerHTML=html;return;}
     const turno=ativo===a.id;
-    const ops=ordenarOpcoesRodape(a);
+    const ops=ordenarOpcoesRodape(a,undefined,{comum:filtro==='Comum'});
     const opcoesGratuitas=ops.filter(o=>o.usoGratuito);
     if(filtro==='Usos gratuitos'&&!opcoesGratuitas.length)filtro='Comum';
     const foraCombate=s.fase==='preparo'||a.emCombate===false,pericias=!recursoAtivo&&filtro==='Perícias',salvas=!recursoAtivo&&filtro==='Salva guarda',raca=!recursoAtivo&&filtro==='Raça',passivas=!recursoAtivo&&filtro==='Passivas',gratuitos=!recursoAtivo&&filtro==='Usos gratuitos';

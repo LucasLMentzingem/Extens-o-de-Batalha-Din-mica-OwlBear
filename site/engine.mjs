@@ -747,7 +747,8 @@ export function ataquesEquipados(a){
     const principal=ataques.find(o=>o.origemItem===itemPrincipal&&o.automacao?.tipo==='ataque'&&!o.automacao.arremesso&&o.custo?.some(c=>c.tipo==='acao'));
     if(!principal)continue;
     const modoPrincipal='ataque-principal-'+principal.id,modoExtra='ataque-extra-'+extra.id;
-    principal.composicao={tipo:'sequencia',quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:modoPrincipal,modos:[
+    if(principal.composicao){principal.composicao.modos.push({id:modoExtra,origemItem:extra.origemItem,geradaPorItem:true,nome:extra.nome.replace(/\s*\|.*$/,''),descricao:'Alternativa de ataque extra com a segunda arma.',tipo:'ataque',ordem:2,requerModoAnterior:modoPrincipal,limitePorUso:1,umaVezPorTurno:'maestria-agil',origemOpcaoId:extra.id,automacao:structuredClone(extra.automacao)});}
+    else principal.composicao={tipo:'sequencia',quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:modoPrincipal,modos:[
       {id:modoPrincipal,origemItem:principal.origemItem,geradaPorItem:true,nome:principal.nome.replace(/\s*\|.*$/,''),descricao:'Primeiro ataque da Ação Atacar.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:principal.id,automacao:structuredClone(principal.automacao)},
       {id:modoExtra,origemItem:extra.origemItem,geradaPorItem:true,nome:extra.nome.replace(/\s*\|.*$/,''),descricao:'Ataque extra da propriedade Leve com Ágil; não gasta Ação Bônus.',tipo:'ataque',ordem:2,requerModoAnterior:modoPrincipal,limitePorUso:1,umaVezPorTurno:'maestria-agil',origemOpcaoId:extra.id,automacao:structuredClone(extra.automacao)}
     ]};
@@ -914,6 +915,14 @@ function criarLootNoChao(s,item,posicaoM,nome){
   const r=novoRecipiente(s,{tipo:'chao',nome:nome??copia.nome, posicaoM,itens:[copia]});
   return r;
 }
+function largarArmaArremessada(s,a,itemId,alvo){
+  const item=a.ficha.inventario.itens.find(i=>i.id===itemId&&i.equipado);
+  exigir(item&&item.tipo==='equipamento','A arma arremessada precisa estar equipada.');
+  const copia=structuredClone(item);copia.quantidade=1;copia.equipado=false;delete copia.equipadoSlot;
+  if(item.quantidade>1){item.quantidade--;copia.id=crypto.randomUUID();}else a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);
+  criarLootNoChao(s,copia,{x:alvo.x,y:alvo.y},item.nome);
+  return ' • '+item.nome+' caiu aos pés de '+alvo.nome;
+}
 function slotsUsados(itens=[]){return itens.length;}
 function empilhamentoCompativel(a,b){
   if(!a?.empilhavel||!b?.empilhavel||a.catalogoRef!==b.catalogoRef||a.tipo!==b.tipo||a.equipado||b.equipado)return false;
@@ -926,13 +935,20 @@ function adicionarItemRecipiente(r,item){
   r.itens.push(item);return item;
 }
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
-export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
+export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a),{comum=false}={}){
   const prioridadeSlot={mao_forte:0,mao_fraca:1,arma_distancia:2},itens=new Map((a?.ficha?.inventario?.itens??[]).map((item,indice)=>[item.id,{slot:prioridadeSlot[item.equipadoSlot]??3,indice}]));
   return opcoes.filter(o=>!o.ocultarListas&&!o.metamagiaAoConjurar).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem)})).sort((x,y)=>{
-    const assistida=Number(!x.opcao.automacao)-Number(!y.opcao.automacao);
-    if(assistida)return assistida;
     const ax=Boolean(x.opcao.geradaPorItem&&x.opcao.automacao?.tipo==='ataque'),ay=Boolean(y.opcao.geradaPorItem&&y.opcao.automacao?.tipo==='ataque');
-    if(ax!==ay)return ax?-1:1;if(!ax)return x.indice-y.indice;
+    if(ax!==ay)return ax?-1:1;
+    if(!ax){
+      if(comum){
+        const ordem=['saquear','desengajar','correr','ajudar','esconder','empurrar','derrubar'];
+        const prioridade=o=>{const nome=slug(o.nome.split('|')[0].trim());const chave=nome==='esconder-se'?'esconder':nome==='disparada'?'correr':nome;const n=ordem.indexOf(chave);return n<0?99:n;};
+        const d=prioridade(x.opcao)-prioridade(y.opcao);if(d)return d;
+        return Number(!x.opcao.automacao)-Number(!y.opcao.automacao)||x.indice-y.indice;
+      }
+      const assistida=Number(!x.opcao.automacao)-Number(!y.opcao.automacao);return assistida||x.indice-y.indice;
+    }
     return x.item.slot-y.item.slot||x.item.indice-y.item.indice||Number(Boolean(x.opcao.automacao.arremesso))-Number(Boolean(y.opcao.automacao.arremesso))||x.indice-y.indice;
   }).map(x=>x.opcao);
 }
@@ -2526,6 +2542,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
             if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': '+aplicado+' PV';continue;
           }
           const r=automacaoModo,defesa=caAtual(p),rp=restricoesAtivas(p);
+          const fonteArremesso=r.arremesso?(modo.origemItem??ataquesEquipados(a).find(x=>x.id===modo.origemOpcaoId)?.origemItem??o.origemItem):null;
+          if(r.arremesso)exigir(a.ficha.inventario.itens.some(item=>item.id===fonteArremesso&&item.equipado),'A arma arremessada precisa estar equipada.');
           const origensBloqueadas=(a.efeitosAtivos??[]).filter(e=>(e.condicao==='enfeiticado'||e.restricoes?.naoAtacarOrigem)&&e.origemAtorId).map(e=>e.origemAtorId);
           exigir(!origensBloqueadas.includes(p.id),'Enfeitiçado: não pode atacar a origem do efeito.');
           const modoDado=modoDoAtaque(s,a,p,r,{modoPedido:c.modo,efeitosOrigem:efeitos}),modoAnterior=c.modo;c.modo=modoDado;
@@ -2533,13 +2551,14 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:modo.origemOpcaoId??o.id,planoOpcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
           if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;
           a.eventosTurno.ataques.push(evento);msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
-          if(!acertou){msg+=' • errou';if(r.danoAoErrar&&face!==1){const parcelasErro=[{valor:r.danoAoErrar,tipo:r.elemento,tags:tagsAtaque({...o,nome:modo.nome},r)}],danoErro=await aplicarDanoNoAtor(p,r.danoAoErrar,r.elemento,{origem:a,parcelas:parcelasErro});msg+=' • Garantido: '+p.nome+' sofreu '+danoErro;}continue;}
+          if(!acertou){msg+=' • errou';if(r.arremesso)msg+=largarArmaArremessada(s,a,fonteArremesso,p);if(r.danoAoErrar&&face!==1){const parcelasErro=[{valor:r.danoAoErrar,tipo:r.elemento,tags:tagsAtaque({...o,nome:modo.nome},r)}],danoErro=await aplicarDanoNoAtor(p,r.danoAoErrar,r.elemento,{origem:a,parcelas:parcelasErro});msg+=' • Garantido: '+p.nome+' sofreu '+danoErro;}continue;}
           a.eventosTurno.acertos.push(evento);
           if(r.efeitoAcerto){p.efeitosAtivos=[...(p.efeitosAtivos??[]).filter(e=>e.id!==modo.id+'-acerto'),{...structuredClone(r.efeitoAcerto),id:modo.id+'-acerto',origemAtorId:a.id}];if(r.efeitoAcerto.zerarReacao)p.reacao=0;}
           const origemModo=modo.destruidorDeHordas?def.modos.find(m=>m.id===entradas[i-1]?.modoId):modo;
           const armaModo=ataquesEquipados(a).find(x=>x.id===origemModo?.origemOpcaoId);
           const critico=face===20||(rp.criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),ataqueInstancia={...o,nome:modo.nome,automacao:r,origemItem:armaModo?.origemItem??o.origemItem},formula=critico?formulaCritica(r.dano):r.dano,tags=tagsAtaque(ataqueInstancia,r);
           const adicionais=opcoesDepoisDoAcerto(a,ataqueInstancia,p,s),rerrolagens=rerrolagensDano(a,ataqueInstancia),modificadorDano=modificadorDanoAntesDaRolagem(a,ataqueInstancia);
+          if(r.arremesso)msg+=largarArmaArremessada(s,a,fonteArremesso,p);
           const metaAdicionais=adicionais.map(g=>{const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];return {id:g.id,nome:g.nome,...metaVisualHabilidade(g),formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags,custo:g.custo??[],automatico:g.automatico===true,...((modo.preparar??[]).includes(g.id)?{preSelecionado:true}:{}),descricao:g.descricao??'',...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};});
           const metaRerrolagens=rerrolagens.map(metaRerrolagem);
           const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
@@ -2592,10 +2611,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       const soltarArremesso=p=>{
         if(!armaArremessada)return;
-        const item=a.ficha.inventario.itens.find(i=>i.id===armaArremessada.id);exigir(item,'A arma arremessada já foi removida do inventário.');
-        const copia=structuredClone(item);copia.quantidade=1;copia.equipado=false;delete copia.equipadoSlot;
-        if(item.quantidade>1){item.quantidade--;copia.id=crypto.randomUUID();}else a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);
-        criarLootNoChao(s,copia,{x:p.x,y:p.y},item.nome);msg+=' • '+item.nome+' caiu aos pés de '+p.nome;
+        msg+=largarArmaArremessada(s,a,armaArremessada.id,p);
         armaArremessada=null;
       };
       if(rule.tiposCriatura&&!temArea)exigir(afetados.every(x=>rule.tiposCriatura.includes(tipoCriatura(x))),'Esta magia só afeta criaturas do tipo '+rule.tiposCriatura.join(' ou ')+'.'); // #22 cone e linha partem de quem usa e não o atingem

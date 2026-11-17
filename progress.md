@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-17 — interações de inventário na 0.8.46 local
+
+- Arremesso composto transfere arma ao chão; Ágil conserva escolhas corpo a corpo/arremesso; falha visual do SDK não reverte ataque já resolvido e recebe tentativa de sincronização.
+- Saque e solicitação recebida de troca abrem pelo background, mesmo sem painel da ficha; janelas só são marcadas abertas após confirmação da API.
+- Ordem do Comum: armas, Saquear, Desengajar, Correr, Ajudar, Esconder-se, Empurrar, Derrubar, demais.
+- Detalhes e evidências em `docs/FIX-INTERACOES-INVENTARIO-0.8.46.md`. Sem publicação; artes pausadas.
+
 ## 2026-11-17 — integração 0.8.46 local
 
 - Integrado `origin/main`/PR #74 (`832c72d`), preservando a correção de conexão 0.8.45 do contribuidor, confirmada funcional pelo responsável.

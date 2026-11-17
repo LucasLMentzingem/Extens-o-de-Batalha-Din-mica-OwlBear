@@ -252,7 +252,7 @@ async function sincronizarTokensRecipientes(s,pixelsMetro){
 }
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
-  const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada;const pedidos=new Map();
+  const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada,timerProps;const pedidos=new Map();
   const serial=fn=>{fila=fila.then(fn).catch(e=>console.error(e));};
   async function carregar(){
     if(!await OBR.scene.isReady())throw Error('Abra uma cena primeiro.');
@@ -423,9 +423,17 @@ export async function host(){
       }
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*pixelsMetro,y:a.y*pixelsMetro};}});
-      await sincronizarTokensInvocacao(next,pixelsMetro); // M06
-      await sincronizarTokensRecipientes(next,pixelsMetro);
+      let erroProps;
+      try{await sincronizarTokensInvocacao(next,pixelsMetro);await sincronizarTokensRecipientes(next,pixelsMetro);}
+      catch(e){erroProps=e;}
       persistir(key,next);
+      // Uma falha visual do SDK não pode desfazer um ataque já resolvido nem devolver a arma à mão.
+      if(erroProps){
+        console.error('Sincronização de peças pendente:',erroProps);
+        OBR.notification.show('Ação salva. Falha ao desenhar peças no mapa; tentando novamente. '+erroProps.message,'WARNING').catch(()=>{});
+        clearTimeout(timerProps);
+        timerProps=setTimeout(()=>serial(async()=>{try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);persistir(key,s);await mostrar(s);}catch(e){console.error('Peças ainda pendentes:',e);}}),1500);
+      }
       if(c.tipo==='remover'){
         const token=s.atores.find(a=>a.id===c.ator)?.token;
         await limparVinculoToken(token);

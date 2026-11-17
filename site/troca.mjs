@@ -1,3 +1,4 @@
+import OBR from './vendor/sdk.mjs';
 import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.46';
 import {saldoMoedasPo} from './engine.mjs?v=0.8.46';
 import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.46';

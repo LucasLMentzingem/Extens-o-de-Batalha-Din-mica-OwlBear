@@ -8,6 +8,7 @@ import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v
 import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.46';
 import {bonusPericia,mod} from './engine.mjs?v=0.8.46';
 import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.46';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.46';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
 const url=new URL('./hud.html?v=0.8.46',import.meta.url);
@@ -57,6 +58,7 @@ export async function iniciarHud(){
   const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado'];
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
+  let saqueAbertoVisual=null,trocaAbertaVisual=null;
   let alturaConteudoAcao=590;
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
   let marcas=[],marcasPublicas=[],tokens=[],fila=Promise.resolve(),ferramentaDoTurno;
@@ -485,6 +487,19 @@ export async function iniciarHud(){
       }
     }
     tokens=await OBR.scene.items.getItems([...atores().map(a=>a.token),...(estado.recipientes??[]).flatMap(r=>[r.tokenId,idSelecaoRecipiente(r)])].filter(Boolean));
+    // O background permanece vivo mesmo quando o painel da ficha está fechado.
+    const saque=atores().find(a=>a.saqueAberto&&controla(a));
+    if(saque&&saque.saqueAberto.id!==saqueAbertoVisual){
+      try{
+        localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:saque.id,quando:Date.now(),pagina:'inventario'}));
+        await OBR.action.open();if(await abrirJanelaInventario('saque',saque.id,saque.saqueAberto.id))saqueAbertoVisual=saque.saqueAberto.id;
+      }catch(e){console.warn('Abrir saque:',e);await OBR.notification.show('Não foi possível abrir o saque: '+e.message,'ERROR');}
+    }else if(!saque)saqueAbertoVisual=null;
+    const oferta=trocaParaUsuario(s,i,atorId);
+    if(oferta&&oferta.troca.id+'/'+oferta.ator.id!==trocaAbertaVisual){
+      try{if(await abrirJanelaInventario('troca',oferta.ator.id,oferta.troca.id))trocaAbertaVisual=oferta.troca.id+'/'+oferta.ator.id;}
+      catch(e){console.warn('Abrir troca:',e);await OBR.notification.show('Não foi possível abrir a troca: '+e.message,'ERROR');}
+    }else if(!oferta&&trocaAbertaVisual){await OBR.popover.close(ns+'/troca').catch(()=>{});trocaAbertaVisual=null;}
     await layout();transmitir();
   }
   async function mensagem(d){
