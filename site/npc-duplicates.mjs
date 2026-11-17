@@ -24,6 +24,7 @@ export function sincronizarCopiasNpc(estado,itens,pixelsMetro){
         const ficha=compactarFicha(origem.ficha);
         for(const item of ficha.inventario?.itens??[])delete item.saldosRecursos;
         ator=adicionar(estado,ficha,base+' ('+indice+')');
+        if(origem.grupoFicha)ator.grupoFicha=structuredClone(origem.grupoFicha);
         ator.token=token.id;ator.dono=null;
         ator.x=token.position.x/pixelsMetro;ator.y=token.position.y/pixelsMetro;
         ator.emCombate=estado.fase==='preparo';

@@ -190,3 +190,7 @@ O mestre usa **Registrar amanhecer** em Controle do mestre → Ferramentas da me
 Os ícones dos itens vêm do catálogo compartilhado. Não inclua arte duplicada em cada ficha; a composição visual usa um recorte transparente e molduras comuns ao catálogo. Veja `docs/ARTE-ITENS.md` para o contrato visual e como contribuir com novos ícones.
 
 A instância de inventário pode persistir `saldosRecursos`, um objeto que relaciona o ID local do recurso concedido pelo item ao saldo atual. Esse estado acompanha venda, recompra, saque e transferência. A definição compartilhada do catálogo contém o máximo, o custo e a recuperação. O motor atualiza os saldos por instância e a compactação os preserva. Duplicar um NPC cria uma cópia independente com os usos iniciais dos equipamentos.
+
+### Grupos no Controle do Mestre
+
+As fichas importadas por pasta conservam o grupo na instância do encontro, inclusive ao copiar NPCs. Nas listas recolhíveis de combate e vínculos, personagens de jogador ficam em Aventureiros primeiro; NPCs ficam no grupo importado. O nome da pasta continua definindo o nome desse grupo. [Organização do painel](CONTROLE-MESTRE-PAGINAS.md).

@@ -1,3 +1,4 @@
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.50';
 import {celulaInventario} from './inventory-cell.mjs?v=0.8.50';
 import OBR from './vendor/sdk.mjs';
 import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.50';
@@ -25,6 +26,12 @@ function confirma(t,d,comPvp=false){
 let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,bausAbertos=false,recipienteSelecionadoId=null,paginaRecipiente='ficha',paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null,trocaLocalId=null,trocaLocalAtor=null,trocaSolicitadaPor=null,abrindoTroca=false;
 let lojaDaVenda=null;
 let gruposFichas=[];
+let paginaMestre='combate';
+const gruposMestreAbertos=new Set();
+const gruposAtores=atores=>agruparAtoresMestre(atores,[...gruposFichas,...(s.gruposFichas??[])]);
+function renderListaMestre(atores,pagina,linha){
+ return gruposAtores(atores).map(g=>{const chave=pagina+'/'+g.id;return '<details class="grupo-mestre" data-grupo-mestre="'+esc(chave)+'" '+(gruposMestreAbertos.has(chave)?'open':'')+'><summary><strong>'+esc(g.nome)+'</strong><span>'+g.atores.length+' personagem(ns)</span></summary><div class="conteudo-grupo-mestre">'+g.atores.map(linha).join('')+'</div></details>';}).join('');
+}
 const gruposAbertos=new Set();
 function renderGruposFichas(){
   const grupos = [...gruposFichas, ...(s.gruposFichas??[])];
@@ -46,7 +53,7 @@ async function adicionarDoGrupo(grupoId,indice){
     if(!r.ok)throw Error('Falha ao carregar '+f.nome);
     return validar(await r.json());
   }));
-  await enviar('adicionarGrupo',{fichas});
+  await enviar('adicionarGrupo',{fichas,origemGrupo:{id:grupo.id,nome:grupo.nome}});
   aviso(fichas.length+' ficha(s) adicionada(s). Vincule os tokens e jogadores desejados.');
 }
 let saqueVisualId=null;
@@ -112,11 +119,11 @@ function renderControleFichasMestre(){
   const candidatasToken=tokenAtual?s.atores.filter(a=>!a.token||a===atorDoToken):[];
   const fichaToken=candidatasToken.find(a=>a.id===escolhido)??atorDoToken??candidatasToken[0];
   const resumoToken=tokenAtual?'<div class="token-selecionado"><div><small>TOKEN SELECIONADO NO MAPA</small><h3>'+esc(tokenAtual.name||tokenAtual.id)+'</h3><p>'+(atorDoToken?'Vinculado atualmente a '+esc(atorDoToken.nome)+'.':'Ainda não possui ficha vinculada.')+'</p></div>'+(candidatasToken.length?'<label>Ficha<select id="ficha-token-selecionado">'+candidatasToken.map(a=>opt(a.id,a.nome,a===fichaToken)).join('')+'</select></label>'+opcoesDono(fichaToken,'dono-token-selecionado')+'<button type="button" class="primario" data-vincular-selecionado>Vincular ao token selecionado</button>':'<p class="muted">Todas as fichas carregadas já possuem token.</p>')+'</div>':'<div class="token-selecionado vazio"><div><small>TOKEN SELECIONADO NO MAPA</small><h3>Nenhum token selecionado</h3><p>Selecione uma peça da camada Personagem para configurá-la aqui.</p></div></div>';
-  const linhas=s.atores.map(a=>{
+  const linhas=renderListaMestre(s.atores,'fichas',a=>{
     const tokens=tokensDisponiveis(a),tokenAusente=a.token&&!info.tokens.some(t=>t.id===a.token);
     const seletor='<label>Token<select id="token-vinculo-'+esc(a.id)+'">'+opt('','Sem token',!a.token)+(tokenAusente?opt(a.token,'Token indisponível',true):'')+tokens.map(t=>opt(t.id,t.name||t.id,t.id===a.token)).join('')+'</select></label>';
     return '<article class="linha-vinculo '+(a.id===escolhido?'selecionada':'')+'"><div><strong>'+esc(a.nome)+'</strong><small>'+(a.ficha.tipo==='pj'?'PERSONAGEM':'NPC')+' · '+(a.token?'token vinculado':'sem token')+'</small></div>'+seletor+opcoesDono(a)+'<div class="acoes-vinculo"><button type="button" data-usar-selecao-vinculo="'+esc(a.id)+'">Usar seleção</button><button type="button" class="primario" data-salvar-vinculo="'+esc(a.id)+'">Salvar vínculo</button><button type="button" data-ver-ficha="'+esc(a.id)+'">Abrir ficha</button><button type="button" class="perigo" data-excluir-ficha="'+esc(a.id)+'" '+(s.fase==='preparo'?'':'disabled title="Pare o combate para excluir a ficha"')+'>Excluir ficha</button></div></article>';
-  }).join('');
+  });
   // #12 Durante o combate o mestre também pode adicionar reforços (entram com iniciativa rolada).
   const importar='<div class="importar-fichas">'+renderGruposFichas()+'<div class="campos"><label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label><label>Importar pasta como grupo<input id="pasta-fichas" type="file" webkitdirectory multiple accept=".json,application/json"></label></div><p class="muted">O nome da pasta será o nome do grupo. Até 50 fichas JSON, incluindo subpastas.</p>'+(s.fase==='preparo'?'':'<p class="muted">Reforços rolam iniciativa ao entrar no combate.</p>')+'</div>';
   const recuperacao=(s.quarentenaFichas??[]).length?'<section class="fichas-recuperacao"><h3>Fichas em recuperação</h3><p>Estas fichas não passaram na validação. Seus originais foram preservados; exporte antes de corrigir e importar novamente.</p>'+s.quarentenaFichas.map(r=>'<article class="linha-vinculo"><div><strong>'+esc(r.nome)+'</strong><p>'+esc(r.erro)+'</p></div><button data-exportar-isolada="'+esc(r.id)+'">Baixar original</button><button class="perigo" data-excluir-isolada="'+esc(r.id)+'">Excluir ficha isolada</button></article>').join('')+'</section>':'';
@@ -150,18 +157,23 @@ function render(){
   if(info.modo==='ensaio') h+='<div class="linha">'+btn('teste',testar?'Voltar ao mestre':'Testar como jogador')+'</div>';
   if(catalogando){h+=renderCatalogo();$('app').innerHTML=h;return;}
   if(mestre){
+    h+='<nav class="paginas paginas-mestre" aria-label="Páginas do Controle do Mestre">'+[['combate','1 · Controle do combate'],['fichas','2 · Controle de fichas'],['lojas','3 · Lojas'],['restante','4 · Restante']].map(([id,nome])=>'<button type="button" data-pagina-mestre="'+id+'" class="'+(paginaMestre===id?'ativa':'')+'" aria-pressed="'+(paginaMestre===id)+'">'+nome+'</button>').join('')+'</nav>';
+    if(paginaMestre==='combate'){
     const emCombate=s.atores.filter(x=>x.emCombate!==false);
     h+='<section class="controle-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle do combate</h2><p>'+(s.fase==='preparo'?'Combate parado':s.fase==='iniciativa'?'Aguardando iniciativas':'Rodada '+s.rodada+' · turno de '+esc(ativo?.nome??'—'))+'</p></div><div>'+(s.fase==='preparo'?btn('iniciar','Iniciar combate','primario'):btn('encerrar','Parar combate','perigo'))+'</div></div>';
     if(s.fase!=='preparo'){
       h+='<div class="ordem">'+(s.ordem.length?s.ordem:emCombate.map(x=>x.id)).map((id,i)=>{const p=s.atores.find(x=>x.id===id);return '<span class="'+(id===ativo?.id?'vez':'')+'">'+(s.fase==='turnos'&&i>0?'<button type="button" data-subir="'+esc(id)+'" title="Subir na ordem (empate)">▲</button> ':'')+esc(p.nome)+' · '+(p.init??'…')+'</span>';}).join('')+'</div>';
       if(s.fase==='iniciativa'){
         const pendentes=emCombate.filter(x=>x.init===null);
-        h+='<div class="iniciativas-mestre"><strong>Rolagem conjunta</strong><p>Marque jogadores e NPCs para lançar um d20 por ficha simultaneamente.</p><div>'+pendentes.map(p=>'<label><input type="checkbox" data-iniciativa-id="'+esc(p.id)+'" checked><span>'+esc(p.nome)+'</span><small>'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</small></label>').join('')+'</div>'+btn('iniciativas','Rolar iniciativas selecionadas','primario')+'</div>';
+        h+='<div class="iniciativas-mestre"><strong>Rolagem conjunta</strong><p>Marque jogadores e NPCs para lançar um d20 por ficha simultaneamente.</p><div>'+renderListaMestre(pendentes,'iniciativa',p=>'<label><input type="checkbox" data-iniciativa-id="'+esc(p.id)+'" checked><span>'+esc(p.nome)+'</span><small>'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</small></label>')+'</div>'+btn('iniciativas','Rolar iniciativas selecionadas','primario')+'</div>';
       }
     }
-    h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+s.atores.map(p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-configurar-vinculo="'+esc(p.id)+'">Configurar</button><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>').join('')+'</div>';
+    h+='<div class="lista-combate"><div class="linha-combate cabecalho-lista"><span>Participante</span><span>Tipo</span><span>Iniciativa</span><span>Estado</span><span>Controles</span></div>'+renderListaMestre(s.atores,'combate',p=>'<div class="linha-combate '+(p.emCombate===false?'fora-combate':'')+'"><strong>'+esc(p.nome)+'</strong><span class="etiqueta '+p.ficha.tipo+'">'+(p.ficha.tipo==='pj'?'Jogador':'NPC')+'</span><span>'+(p.init??'—')+'</span><span>'+(p.emCombate===false?'Fora do combate':p.pv<=0?'Inconsciente':'Em combate · '+p.pv+'/'+pvMaximosAtuais(p)+' PV')+'</span><span class="acoes-linha"><button data-configurar-vinculo="'+esc(p.id)+'">Configurar</button><button data-ver-ficha="'+esc(p.id)+'">Ver ficha</button><button data-combate="'+esc(p.id)+'">'+(p.emCombate===false?'Adicionar':'Retirar')+'</button></span></div>')+'</div>';
     if(!s.atores.length)h+='<p class="estado-vazio">Nenhuma ficha carregada. Importe um JSON para preparar o encontro.</p>';
-    h+='</section>'+renderControleFichasMestre()+renderControleLojas()+'<section class="atalhos-mestre"><h3>Caixas e loot</h3><p>Cria um baú de 12 espaços no centro da visão atual do mestre.</p>'+btn('criarRecipiente','Criar baú','primario')+'</section>'+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+avancosMesa.map(([id,nome])=>btn('tempo-'+id,nome)).join('')+btn('curto','Descanso curto')+btn('longo','Descanso longo')+btn('amanhecer','Registrar amanhecer')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
+    h+='</section>';
+    }else if(paginaMestre==='fichas')h+=renderControleFichasMestre();
+    else if(paginaMestre==='lojas')h+=renderControleLojas();
+    else h+='<section class="atalhos-mestre"><h3>Caixas e loot</h3><p>Cria um baú de 12 espaços no centro da visão atual do mestre.</p>'+btn('criarRecipiente','Criar baú','primario')+'</section>'+(s.fase==='preparo'?'<section class="atalhos-mestre"><h3>Ferramentas da mesa</h3><div class="campos">'+avancosMesa.map(([id,nome])=>btn('tempo-'+id,nome)).join('')+btn('curto','Descanso curto')+btn('longo','Descanso longo')+btn('amanhecer','Registrar amanhecer')+'</div></section>':'')+'<section><h3>Histórico</h3><ol class="historico">'+s.historico.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></section>';
     $('app').innerHTML=h;return;
   }
   h+='<div class="colunas '+(mestre?'gestao':'folha')+'"><section><h2>'+(mestre?'Participantes':'Personagens')+'</h2>';
@@ -498,6 +510,7 @@ async function executar(k){
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
 $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.adicionarGrupo)return tarefa(()=>adicionarDoGrupo(b.dataset.adicionarGrupo));
+ if(b.dataset.paginaMestre){if(info.role!=='GM'||testar)return;paginaMestre=b.dataset.paginaMestre;return render();}
  if(b.hasAttribute('data-adicionar-unidade'))return tarefa(()=>adicionarDoGrupo(b.dataset.grupoOrigem,Number(b.dataset.adicionarUnidade)));
  if(b.dataset.escolhaDescanso)return tarefa(()=>enviar('escolherAposDescanso',{escolhaId:b.dataset.escolhaDescanso,opcaoId:b.dataset.opcaoDescanso,confirmado:info.role==='GM'&&!testar}));
  if(b.dataset.fichaAba){paginaFicha=b.dataset.fichaAba;return render();}
@@ -508,7 +521,7 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.hasAttribute('data-gm-adicionar-po'))return tarefa(abrirAdicionarPoMestre);
  if(b.hasAttribute('data-fechar-loja-local')){limparCatalogo();lojaLocalAtor=null;return render();}
  if(b.dataset.lojaSalvar)return tarefa(()=>enviar('configurarLoja',{lojaId:b.dataset.lojaSalvar,ativa:document.querySelector('[data-loja-ativa="'+CSS.escape(b.dataset.lojaSalvar)+'"]')?.checked??false,descontoPct:Number(document.querySelector('[data-loja-desconto="'+CSS.escape(b.dataset.lojaSalvar)+'"]')?.value)}));
- if(b.dataset.configurarVinculo){escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}
+ if(b.dataset.configurarVinculo){secao='gm';paginaMestre='fichas';escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;const grupo=gruposAtores([p].filter(Boolean))[0];if(grupo)gruposMestreAbertos.add('fichas/'+grupo.id);render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}
  if(b.dataset.usarSelecaoVinculo)return tarefa(()=>usarSelecaoNoVinculo(b.dataset.usarSelecaoVinculo));
  if(b.dataset.salvarVinculo)return tarefa(()=>salvarVinculoAtor(b.dataset.salvarVinculo));
  if(b.dataset.excluirFicha)return tarefa(async()=>{const id=b.dataset.excluirFicha,p=s.atores.find(x=>x.id===id);if(!p)return;if(!await confirma('Excluir '+p.nome+' do encontro?','A ficha será retirada do encontro, mas o arquivo JSON original continuará disponível.'))return;escolhido=id;await enviar('remover');if(escolhido===id)escolhido=null;aviso(p.nome+' foi excluído do encontro.');});
@@ -606,6 +619,7 @@ $('backupMesa').onclick=async()=>{
   }catch(e){$('statusBackup').textContent=e.message;}
 };
 $('app').addEventListener('toggle',e=>{
+ const grupo=e.target.dataset?.grupoMestre;if(grupo)e.target.open?gruposMestreAbertos.add(grupo):gruposMestreAbertos.delete(grupo);
  const id=e.target.dataset?.grupoLista;
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);

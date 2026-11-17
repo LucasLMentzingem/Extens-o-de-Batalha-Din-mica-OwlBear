@@ -1884,10 +1884,11 @@ export async function aplicar(s,c,u,rolar) {
       break;
     }
     case 'adicionarGrupo': {
-      let selecionadas = c.fichas;
+      let selecionadas = c.fichas,origemGrupo=c.origemGrupo;
+      if(origemGrupo)exigir(idOK(origemGrupo.id)&&nomeOK(origemGrupo.nome),'Grupo de origem inválido.');
       if (c.grupoId) {
         const grupo = s.gruposFichas?.find(g => g.id===c.grupoId);
-        exigir(grupo,'Grupo indisponível.');
+        exigir(grupo,'Grupo indisponível.');origemGrupo={id:grupo.id,nome:grupo.nome};
         if (c.indice!==undefined) {
           exigir(Number.isInteger(c.indice)&&c.indice>=0&&c.indice<grupo.fichas.length,'Ficha indisponível neste grupo.');
           selecionadas = [grupo.fichas[c.indice]];
@@ -1896,7 +1897,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(Array.isArray(selecionadas)&&selecionadas.length>0&&selecionadas.length<=LIMITE_FICHAS_GRUPO,'Selecione de uma a cinquenta fichas.');
       const fichas=selecionadas.map(validar);
       for(const ficha of fichas){
-        const novo=adicionar(s,ficha,ficha.nome);
+        const novo=adicionar(s,ficha,ficha.nome);if(origemGrupo)novo.grupoFicha=structuredClone(origemGrupo);
         if(s.fase==='turnos')await inserirReforco(s,novo,resultado,formulaD20);
       }
       msg=fichas.length+' ficha(s) adicionada(s) ao encontro.';break;

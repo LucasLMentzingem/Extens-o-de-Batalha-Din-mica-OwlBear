@@ -2,6 +2,10 @@
 
 Revisão de 17 de novembro de 2026, versão **0.8.50**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
 
+## Próxima entrega local — organização do mestre
+
+Quatro páginas internas e listas recolhíveis por grupo nas páginas de combate e fichas; Aventureiros sempre primeiro. Origem do grupo persistida inclusive para NPCs duplicados. 305 testes passaram. [Detalhes](CONTROLE-MESTRE-PAGINAS.md). Ainda não publicado.
+
 ## Ajuste de interface — 0.8.50
 
 - Cancelar/concluir a própria atividade deixa a tela sem seleção automática do histórico. Recolher a barra também limpa a inspeção antiga.
