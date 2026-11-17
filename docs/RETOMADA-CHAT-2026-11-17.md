@@ -2,7 +2,11 @@
 
 Atualizado em 17/11/2026. Este documento transfere o contexto do chat longo para um novo chat.
 
-## Continuação atual — 0.8.56
+## Continuação atual — 0.8.57
+
+O mestre pode excluir fichas/modelos antigos e grupos importados pela mesma lista de Adicionar unidade, sem afetar unidades em cena ou JSONs. 390 testes aprovados; captura de teste local com SDK simulado registra a exclusão e o uso posterior de Animar Mortos, com troca do token e sobreposição preservando original/loot. Veja `docs/RELEASE-0.8.57.md`. Nenhuma sala real foi alterada neste ensaio.
+
+## Continuação anterior — 0.8.56
 
 Drow e Padre Quevedo receberam habilidades protótipo integradas ao motor e à HUD. Animar Mortos agora seleciona o corpo pela skill, exige um minuto e preserva a sobreposição/token/loot. Consulte `docs/RELEASE-0.8.56.md` e `docs/PROTOTIPOS-HABILIDADES-CEMITERIO.md`. Zumbis da aventura e reanimados: radiante ×2, necrótico ×¼. 384 testes e ensaio de HUD com SDK simulado. Fichas individuais e grupo ZIP atualizados. O fix de Sopro de Dragão e decisões das adagas continuam preservados.
 

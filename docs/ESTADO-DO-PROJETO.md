@@ -1,6 +1,12 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.56**, linha travada em 0.8.x até 0.8.99.
+Revisão de 17 de novembro de 2026, versão **0.8.57**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.57
+
+- Excluir ficha individual e grupo inteiro na lista de grupos importados, com confirmação e validação de revisão/identidade. Último modelo remove o grupo vazio.
+- Exclusão apenas da biblioteca: unidades em cena, tokens, loot e JSONs originais preservados. Grupos embutidos continuam disponíveis.
+- 390 testes; ensaio visual em Chromium com SDK simulado: exclusão seguida de Animar Mortos pela HUD e conclusão pelo botão 1 Min. Token Zumbigoblin e sobreposição 15 PV/CA 8 confirmados; imagem de evidência entregue. Não testado em sala real.
 
 ## Entrega — 0.8.56
 

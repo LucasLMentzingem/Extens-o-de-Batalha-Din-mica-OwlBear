@@ -1,17 +1,17 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.56';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.56';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.56';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.57';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.57';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.57';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.56';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.56';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.56';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.56';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.56';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.56';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.56';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.56';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.56';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.56';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.57';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.57';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.57';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.57';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.57';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.57';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.57';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.57';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.57';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.57';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -36,8 +36,19 @@ function renderListaMestre(atores,pagina,linha){
 const gruposAbertos=new Set();
 function renderGruposFichas(){
   const grupos = [...gruposFichas, ...(s.gruposFichas??[])];
-  return '<div class="grupos-fichas">'+grupos.map(g=>'<details data-grupo-lista="'+esc(g.id)+'" '+(gruposAbertos.has(g.id)?'open':'')+'><summary>'+esc(g.nome)+' <small>'+g.fichas.length+' fichas</small></summary><div class="linha-grupo">'+
-    '<button type="button" data-adicionar-grupo="'+esc(g.id)+'" class="primario">Adicionar grupo inteiro</button></div><div class="lista-grupo">'+g.fichas.map((f,indice)=>'<div><span>'+esc(f.nome)+'</span><button type="button" data-grupo-origem="'+esc(g.id)+'" data-adicionar-unidade="'+indice+'">Adicionar unidade</button></div>').join('')+'</div></details>').join('')+'</div>';
+  const podeExcluir=info.role==='GM'&&!testar;
+  return '<div class="grupos-fichas">'+grupos.map(g=>{const importado=podeExcluir&&s.gruposFichas?.some(x=>x.id===g.id);return '<details data-grupo-lista="'+esc(g.id)+'" '+(gruposAbertos.has(g.id)?'open':'')+'><summary>'+esc(g.nome)+' <small>'+g.fichas.length+' fichas</small></summary><div class="linha-grupo">'+
+    (importado?'<button type="button" data-excluir-grupo-fichas="'+esc(g.id)+'" class="perigo">Excluir grupo</button>':'')+'<button type="button" data-adicionar-grupo="'+esc(g.id)+'" class="primario">Adicionar grupo inteiro</button></div><div class="lista-grupo">'+g.fichas.map((f,indice)=>'<div><span>'+esc(f.nome)+'</span><div class="acoes-ficha-grupo"><button type="button" data-grupo-origem="'+esc(g.id)+'" data-adicionar-unidade="'+indice+'">Adicionar unidade</button>'+(importado?'<button type="button" data-excluir-ficha-grupo="'+indice+'" data-grupo-origem="'+esc(g.id)+'" class="perigo" aria-label="Excluir '+esc(f.nome)+' do grupo">Excluir ficha</button>':'')+'</div></div>').join('')+'</div></details>';}).join('')+'</div>';
+}
+async function excluirDoGrupo(grupoId,indice){
+  if(info.role!=='GM'||testar)throw Error('Somente o mestre.');
+  const grupo=s.gruposFichas?.find(g=>g.id===grupoId);if(!grupo)throw Error('Grupo importado indisponível.');
+  const ficha=indice===undefined?null:grupo.fichas[indice];if(indice!==undefined&&!ficha)throw Error('Ficha indisponível neste grupo.');
+  const rev=s.rev,ultima=Boolean(ficha&&grupo.fichas.length===1);
+  const detalhe=(ficha?'Remove esta ficha da lista de modelos.':'Remove as '+grupo.fichas.length+' fichas desta lista.')+(ultima?' O grupo ficará vazio e também será removido.':'')+' Personagens já adicionados à cena e arquivos JSON originais serão preservados.';
+  if(!await confirma(ficha?'Excluir '+ficha.nome+' do grupo?':'Excluir o grupo '+grupo.nome+'?',detalhe))return;
+  await enviar(ficha?'excluirFichaGrupo':'excluirGrupoFichas',{grupoId,indice,fichaId:ficha?.id,rev,confirmado:true});
+  aviso(ficha?ficha.nome+' excluído da lista do grupo.':'Grupo '+grupo.nome+' excluído da lista.');
 }
 async function adicionarDoGrupo(grupoId,indice){
   const importado=s.gruposFichas?.find(g=>g.id===grupoId);
@@ -66,7 +77,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.56',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.57',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -387,7 +398,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.56',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.57',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -524,6 +535,8 @@ async function executar(k){
 }
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
 $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
+ if(b.hasAttribute('data-excluir-ficha-grupo'))return tarefa(()=>excluirDoGrupo(b.dataset.grupoOrigem,Number(b.dataset.excluirFichaGrupo)));
+ if(b.dataset.excluirGrupoFichas)return tarefa(()=>excluirDoGrupo(b.dataset.excluirGrupoFichas));
  if(b.dataset.adicionarGrupo)return tarefa(()=>adicionarDoGrupo(b.dataset.adicionarGrupo));
  if(b.dataset.paginaMestre){if(info.role!=='GM'||testar)return;paginaMestre=b.dataset.paginaMestre;return render();}
  if(b.hasAttribute('data-adicionar-unidade'))return tarefa(()=>adicionarDoGrupo(b.dataset.grupoOrigem,Number(b.dataset.adicionarUnidade)));
@@ -641,7 +654,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.56');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.57');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

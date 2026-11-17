@@ -1,9 +1,9 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.56';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.56';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.56';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.57';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.57';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.57';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.56';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.56';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.57';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.57';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -1786,7 +1786,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['removerSobreposicaoFicha','reanimarCorpo','transformarAdagaMissao','exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['removerSobreposicaoFicha','reanimarCorpo','transformarAdagaMissao','exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','excluirFichaGrupo','excluirGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1991,6 +1991,21 @@ export async function aplicar(s,c,u,rolar) {
       s.gruposFichas.push({id:'pasta-'+crypto.randomUUID(),nome:c.nome.trim(),fichas});
       msg='Grupo '+c.nome.trim()+' importado com '+fichas.length+' ficha(s).';
       break;
+    }
+    case 'excluirFichaGrupo': {
+      exigir(c.confirmado===true,'Confirme a exclusão da ficha do grupo.');
+      const grupo=s.gruposFichas?.find(g=>g.id===c.grupoId);
+      exigir(grupo,'Grupo importado indisponível.');
+      exigir(Number.isInteger(c.indice)&&c.indice>=0&&c.indice<grupo.fichas.length,'Ficha indisponível neste grupo.');
+      const ficha=grupo.fichas[c.indice];exigir(c.fichaId===ficha.id,'A ficha do grupo mudou. Confira a lista.');
+      grupo.fichas.splice(c.indice,1);
+      if(!grupo.fichas.length)s.gruposFichas=s.gruposFichas.filter(g=>g.id!==grupo.id);
+      msg=ficha.nome+' excluído da biblioteca do grupo '+grupo.nome+'.'+(!grupo.fichas.length?' Grupo vazio removido.':'');break;
+    }
+    case 'excluirGrupoFichas': {
+      exigir(c.confirmado===true,'Confirme a exclusão do grupo importado.');
+      const grupo=s.gruposFichas?.find(g=>g.id===c.grupoId);exigir(grupo,'Grupo importado indisponível.');
+      s.gruposFichas=s.gruposFichas.filter(g=>g.id!==grupo.id);msg='Grupo '+grupo.nome+' excluído da biblioteca com '+grupo.fichas.length+' ficha(s).';break;
     }
     case 'adicionarGrupo': {
       let selecionadas = c.fichas,origemGrupo=c.origemGrupo;
