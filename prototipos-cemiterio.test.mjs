@@ -18,20 +18,19 @@ test('os dois personagens têm todas as opções com automação e marca explíc
     const f=validar(fonte(n));for(const o of f.opcoes){assert.ok(o.automacao,o.id);assert.equal(o.prototipo,true,o.id);assert.notEqual(o.resolucaoAssistida,true,o.id);}
   }
 });
-test('Animar Mortos pela skill aceita NPC a PV negativo, espera 60 s, cobra uma vez e preserva original/loot/token',async()=>{
+test('Animar Mortos transforma imediatamente NPC a PV negativo, cobra uma vez e preserva original/loot/token',async()=>{
   const {s,a,p}=mesa();p.pv=-3;p.estadoVida='morto';p.token='corpo';const ids=p.ficha.inventario.itens.map(i=>i.id);
-  let n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.equal(ator(n,a).rec['espaco-3'],3);assert.ok(ator(n,a).conjuracaoLonga);assert.equal(ator(n,p).pv,-3);
-  n=await comando(n,'avancarTempo',{passo:'30seg'});assert.equal(ator(n,a).conjuracaoLonga.restanteSegundos,30);
-  n=await comando(n,'avancarTempo',{passo:'30seg'});assert.equal(ator(n,a).rec['espaco-3'],2);assert.ok(!ator(n,a).conjuracaoLonga);assert.ok(!ator(n,a).concentracaoAtiva);
-  const z=ator(n,p);assert.equal(z.ficha.id,'cemiterio-zumbi-reanimado');assert.equal(z.token,'corpo');assert.deepEqual(z.ficha.inventario.itens.map(i=>i.id),ids);assert.equal(z.sobreposicaoFicha.estadoOriginal.pv,-3);assert.equal(s.atores[1].pv,-3);
+  let n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.equal(ator(n,a).rec['espaco-3'],2);assert.ok(!ator(n,a).conjuracaoLonga);assert.ok(!ator(n,a).concentracaoAtiva);
+  const z=ator(n,p);assert.equal(z.ficha.id,'cemiterio-zumbi-reanimado');assert.equal(z.pv,15);assert.equal(z.token,'corpo');assert.deepEqual(z.ficha.inventario.itens.map(i=>i.id),ids);assert.equal(z.sobreposicaoFicha.estadoOriginal.pv,-3);assert.equal(s.atores[1].pv,-3);
   n=await comando(n,'avancarTempo',{passo:'1min'});assert.equal(ator(n,a).rec['espaco-3'],2);
 });
-test('Animar Mortos na skill gera Zumbigoblin e persiste a conjuração entre recargas',async()=>{
+
+test('Animar Mortos gera Zumbigoblin no mesmo comando e conserva a sobreposição após recarga',async()=>{
   const {s,a,p}=mesa('drow-necromante-6','goblin-1');p.pv=0;p.estadoVida='morto';
-  let n=await usar(s,a,'animar-mortos',{alvo:p.id});n=JSON.parse(JSON.stringify(compactarEstado(n)));for(const x of n.atores)x.ficha=validar(x.ficha);
-  n=await comando(n,'avancarTempo',{passo:'1min'});assert.equal(ator(n,p).ficha.id,'cemiterio-zumbigoblin');
-  assert.ok(!JSON.stringify(publico(n)).includes('fichaOriginal'));
+  let n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.equal(ator(n,p).ficha.id,'cemiterio-zumbigoblin');n=JSON.parse(JSON.stringify(compactarEstado(n)));for(const x of n.atores)x.ficha=validar(x.ficha);
+  assert.equal(ator(n,p).ficha.id,'cemiterio-zumbigoblin');assert.equal(ator(n,a).rec['espaco-3'],2);assert.ok(!JSON.stringify(publico(n)).includes('fichaOriginal'));
 });
+
 test('alvos vivos, feras, PJs inconscientes, cadáver grande e espaço vazio são rejeitados sem mutação',async()=>{
   for(const modo of ['vivo','fera','pj','grande','espaco','longe']){
     const {s,a,p}=mesa();p.pv=0;p.estadoVida='morto';
@@ -39,20 +38,23 @@ test('alvos vivos, feras, PJs inconscientes, cadáver grande e espaço vazio sã
     const antes=JSON.stringify(s);await assert.rejects(()=>usar(s,a,'animar-mortos',{alvo:p.id}));assert.equal(JSON.stringify(s),antes);
   }
 });
-test('interrupção, alvo levantado ou movido antes da conclusão não gastam o espaço',async()=>{
-  for(const modo of ['interromper','levantar','mover']){
-    const {s,a,p}=mesa();p.pv=0;p.estadoVida='morto';let n=await usar(s,a,'animar-mortos',{alvo:p.id});
-    if(modo==='interromper')n=await comando(n,'encerrarConcentracao',{ator:a.id});if(modo==='levantar')ator(n,p).pv=1;if(modo==='mover')ator(n,p).x=9;
-    n=await comando(n,'avancarTempo',{passo:'1min'});assert.ok(!ator(n,p).sobreposicaoFicha);assert.equal(ator(n,a).rec['espaco-3'],3);assert.ok(!ator(n,a).conjuracaoLonga);
-  }
+test('Animar Mortos imediato preserva outra concentração e não cria conjuração pendente',async()=>{
+  const {s,a,p}=mesa();p.pv=0;p.estadoVida='morto';a.concentracaoAtiva={id:'outra',opcao:'outra',nome:'Outra magia'};a.efeitosAtivos=[{id:'outra',nome:'Outra magia',concentracaoId:'outra'}];
+  const n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.equal(ator(n,a).concentracaoAtiva.id,'outra');assert.ok(ator(n,a).efeitosAtivos.some(e=>e.id==='outra'));assert.ok(!ator(n,a).conjuracaoLonga);assert.ok(ator(n,p).sobreposicaoFicha);
 });
-test('conjuração em combate ocupa dez ações e não permite conjurar outra habilidade no meio',async()=>{
+
+test('Animar Mortos em combate transforma no próprio uso e consome somente uma ação e um espaço',async()=>{
   const {s,a,p}=mesa('drow-necromante-6','goblin-1');p.pv=0;p.estadoVida='morto';turnos(s,a,p);
-  let n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.equal(ator(n,a).acao,0);await assert.rejects(()=>usar(n,a,'vitalidade-falsa'));
-  // Corpo a 0 PV é pulado pela iniciativa, voltando diretamente ao conjurador.
-  for(let i=0;i<9;i++){n=await comando(n,'passar',{ator:a.id});assert.ok(!ator(n,p).sobreposicaoFicha);assert.equal(ator(n,a).acao,0);}
-  n=await comando(n,'passar',{ator:a.id});assert.equal(ator(n,a).rec['espaco-3'],2);assert.ok(ator(n,p).sobreposicaoFicha);
+  const n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.equal(ator(n,a).acao,0);assert.equal(ator(n,a).bonus,1);assert.equal(ator(n,a).reacao,1);assert.equal(ator(n,a).rec['espaco-3'],2);assert.ok(ator(n,p).sobreposicaoFicha);assert.equal(ator(n,p).acao,0);assert.equal(n.vez,0);assert.equal(n.rodada,1);
+  const antes=JSON.stringify(n);await assert.rejects(()=>usar(n,a,'animar-mortos',{alvo:p.id}));assert.equal(JSON.stringify(n),antes);
 });
+
+test('conjuração antiga de Animar Mortos é descartada sem custo extra e permite uso imediato',async()=>{
+  const {s,a,p}=mesa();p.pv=0;p.estadoVida='morto';const o=structuredClone(a.ficha.opcoes.find(o=>o.id==='animar-mortos'));o.automacao.tempoSegundos=60;
+  a.conjuracaoLonga={opcao:o,comando:{alvo:p.id},concentracaoId:'legado',restanteSegundos:30};a.concentracaoAtiva={id:'legado',opcao:o.id,nome:o.nome};a.efeitosAtivos=[{id:'legado',nome:'Conjurando Animar Mortos',conjuracaoLonga:true,concentracaoId:'legado'}];
+  const n=await usar(s,a,'animar-mortos',{alvo:p.id});assert.ok(ator(n,p).sobreposicaoFicha);assert.equal(ator(n,a).rec['espaco-3'],2);assert.ok(!ator(n,a).conjuracaoLonga);assert.ok(!ator(n,a).concentracaoAtiva);assert.ok(!ator(n,a).efeitosAtivos.length);
+});
+
 test('Raio de Gelo reduz movimento e expira no início do próximo turno da origem',async()=>{
   const {s,a,p}=mesa();turnos(s,a,p);let n=await usar(s,a,'raio-de-gelo',{alvo:p.id});assert.equal(deslocamentoMaximo(ator(n,p)),6);
   n=await comando(n,'passar',{ator:a.id});assert.equal(deslocamentoMaximo(ator(n,p)),6);n=await comando(n,'passar',{ator:p.id});assert.equal(deslocamentoMaximo(ator(n,p)),9);

@@ -191,8 +191,8 @@
       "descricao": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Tradução, resumos e notas autorais adicionados."
     },
     {
-      "nome": "Habilidades protótipo · 0.8.56",
-      "descricao": "Magias e habilidades integradas à seleção de alvos, recursos e efeitos do motor. Limites do protótipo indicados em cada habilidade. Conjurações longas concluem ao avançar tempo ou manter a ação por todos os turnos exigidos. Atualize a extensão antes de importar."
+      "nome": "Habilidades protótipo · 0.8.58",
+      "descricao": "Magias e habilidades integradas ao motor. Animar Mortos transforma imediatamente o corpo selecionado ao executar, com uma ação em combate e um espaço, sem aguardar um minuto. Limites assistidos indicados nas habilidades. Atualize a extensão antes de importar."
     }
   ],
   "sentidos": "Visão no escuro 36 m; Percepção passiva 14.",

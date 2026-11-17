@@ -1,6 +1,12 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.57**, linha travada em 0.8.x até 0.8.99.
+Revisão de 17 de novembro de 2026, versão **0.8.58**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.58
+
+- Animar Mortos transforma imediatamente ao executar, sem minuto de espera ou concentração. Uma ação em combate e um espaço; mantém outra concentração. Painel do mestre segue o mesmo fluxo.
+- Temporizadores antigos descartados sem custo extra; Prece conserva dez minutos. Token, sobreposição, loot, defesas dos zumbis e Sopro de Dragão preservados.
+- 391 testes e confirmação visual do uso imediato pela HUD com SDK simulado.
 
 ## Entrega — 0.8.57
 

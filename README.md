@@ -1,6 +1,6 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.57**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.57.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.58**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.58.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 Na lista de grupos importados, o mestre pode **Excluir ficha** individualmente ou **Excluir grupo**, com confirmação. As unidades já adicionadas ao encontro e os arquivos JSON originais são preservados.
 
@@ -8,7 +8,7 @@ Na lista de grupos importados, o mestre pode **Excluir ficha** individualmente o
 
 [Baixar grupo importável](https://lucaslmentzingem.github.io/Extens-o-de-Batalha-Din-mica-OwlBear/downloads/aventura-no-cemiterio.zip). Extraia e importe a pasta “aventura no cemiterio” em Controle de fichas. São 11 fichas, incluindo padre, necromante, mímico e crocodilo. O protótipo permite ao mestre reanimar corpos com uma sobreposição que resguarda a ficha original e conserva o loot restante. O token recebe automaticamente a imagem de Zumbi ou Zumbigoblin, com tamanho de uma célula; remover a sobreposição restaura a imagem e escala anteriores. [Funcionamento e limites](docs/PROTOTIPO-SOBREPOSICAO-CEMITERIO.md).
 
-As habilidades do drow e do padre estão em **Conteúdo configurado → Protótipos de habilidades**. Animar Mortos agora seleciona o corpo pela própria skill e conclui após um minuto; Prece de Cura usa dez minutos. [Automações, testes e limites](docs/PROTOTIPOS-HABILIDADES-CEMITERIO.md).
+As habilidades do drow e do padre estão em **Conteúdo configurado → Protótipos de habilidades**. Animar Mortos seleciona o corpo pela própria skill e o transforma imediatamente ao executar; Prece de Cura usa dez minutos. [Automações, testes e limites](docs/PROTOTIPOS-HABILIDADES-CEMITERIO.md).
 
 Os quatro modelos de zumbi da aventura e as camadas reanimadas têm fraqueza a radiante (×2) e resistência alta a necrótico (×¼).
 

@@ -1,15 +1,15 @@
 # Habilidades protótipo — Drow e Padre Quevedo
 
-Versão 0.8.56, 17/11/2026. As definições estão no catálogo central e aparecem em **Conteúdo configurado → Protótipos de habilidades**, separadas por personagem. São protótipos das mecânicas ainda não generalizadas para todas as classes; as fichas mantêm seus atributos, equipamentos, espaços e preparação documentados.
+Versão 0.8.58, 17/11/2026. As definições estão no catálogo central e aparecem em **Conteúdo configurado → Protótipos de habilidades**, separadas por personagem. São protótipos das mecânicas ainda não generalizadas para todas as classes; as fichas mantêm seus atributos, equipamentos, espaços e preparação documentados.
 
 ## Como usar Animar Mortos
 
 1. Selecione o drow e a habilidade **Animar Mortos** na HUD.
 2. Clique no token de **Personagem** que tenha uma ficha vinculada. O corpo precisa ser um humanoide Pequeno/Médio morto com **0 PV ou menos**, ou um goblin marcado da aventura. Um PJ inconsciente a 0 PV não é um cadáver elegível.
-3. Execute para iniciar a conjuração. Fora de combate, use **Avançar tempo → 1 Min**. Em combate, mantenha a conjuração por dez ações: o sistema reserva a ação a cada turno enquanto a concentração durar.
-4. Na conclusão, o sistema revalida o corpo/alcance e cobra um espaço do círculo escolhido. Aplica a sobreposição de Zumbi ou Zumbigoblin e a sincronização existente troca a imagem do mesmo token, com uma célula de 1,5 m.
+3. Execute: o corpo é transformado imediatamente, sem Avançar tempo ou espera de um minuto. Consome uma ação em combate e um espaço do círculo escolhido. Não inicia nem interrompe a concentração de outra magia.
+4. A sobreposição de Zumbi ou Zumbigoblin e a imagem são aplicadas na mesma peça, com uma célula de 1,5 m.
 
-Interromper a concentração ou invalidar o alvo cancela sem gastar espaço. Não há reanimação instantânea ao clicar. O protótipo cria **um corpo por conjuração**, inclusive em círculo superior. Ordens, componentes sem custo, esqueletos, manutenção do controle e limite de 24 horas continuam assistidos. O controle do mestre para confirmar um minuto já cumprido continua disponível como alternativa; não use os dois fluxos para a mesma conjuração.
+Esta é uma regra autoral solicitada para a aventura na 0.8.58. Alvos inválidos não gastam recursos. Um corpo por uso, inclusive em círculo superior. Ordens, componentes sem custo, esqueletos, manutenção e controle de 24 horas continuam assistidos. O painel Reanimar corpo do mestre usa o mesmo fluxo imediato e os mesmos custos. Conjurações antigas pendentes são descartadas sem gastar espaço; execute novamente para aplicar a transformação.
 
 A ficha original fica resguardada. Os pertences restantes continuam sendo a única fonte de loot, inclusive após a segunda morte. Não reaparecem itens já saqueados. Remover a sobreposição restaura a ficha e o visual originais, preservando os pertences atuais; não ressuscita a pessoa.
 
@@ -30,7 +30,7 @@ Regra autoral solicitada: Goblin Zumbi/Zumbigoblin, Zumbi reanimado, Zumbi padr�
 | Passo Nebuloso | Destino, alcance, ocupação e custo de bônus/espaço. |
 | Raio do Enfraquecimento | CON CD 15, efeito de sucesso/falha, FOR com desvantagem, −1d8 em rolagens de dano, repetição de salvaguarda e concentração. |
 | Toque Vampírico | Ataque, dano necrótico com defesas, cura de metade do dano recebido, inclusive absorvido por PV temporários; ação de repetição sem novo espaço durante a concentração. Reações defensivas não antecipam dano ou cura. |
-| Animar Mortos | Seleção do corpo, conjuração longa, custo na conclusão e sobreposição descritos acima. |
+| Animar Mortos | Seleção do corpo, transformação imediata, custo único e sobreposição descritos acima. |
 
 O drow continua sendo o NPC autoral de Inteligência nível 6, com 38 PV, ataque mágico +7, CD 15 e espaços 4/3/3. Não foi convertido em Bruxo de Pacto. A vantagem da herança élfica contra Enfeitiçado está integrada às salvaguardas; sono, transe e visão continuam como traços narrativos.
 
@@ -62,12 +62,12 @@ Consentimento, visão, componentes comuns sem custo e condições narrativas nã
 
 ## Dados e atualização
 
-As duas fichas formato 2 referenciam o catálogo publicado em 0.8.56. Recarregue a extensão antes de importar. Concessões antigas com os identificadores centrais destes personagens são atualizadas na hidratação, preservando preparo e recursos da ficha. Importar um JSON cria uma nova instância; não duplica nem substitui automaticamente uma ficha já em cena.
+As duas fichas formato 2 referenciam o catálogo central; Animar Mortos exige a extensão 0.8.58 ou posterior. Recarregue a extensão antes de importar. Concessões antigas com os identificadores centrais destes personagens são atualizadas na hidratação, preservando preparo e recursos da ficha. Importar um JSON cria uma nova instância; não duplica nem substitui automaticamente uma ficha já em cena.
 
 Para componentes locais: diamante pode ser reconhecido pelo nome e `preco: {valor: 300, moeda: "po"}` (ou `valorPo`); a marca `componenteMagico: "diamante"` também é aceita. Proteção aceita água benta comum pelo nome, pó de prata e ferro, ou `componenteMagico: "protecao"`. Maldições removíveis usam `maldicao: true`; magias dissipáveis registram `magia` e `circuloMagia`. Efeitos externos precisam ser arbitrados pelo mestre.
 
 ## Verificação
 
-44 testes novos cobrem alvos válidos/inválidos, concentração longa, recarga, persistência, custo único, cura bloqueada, duração, Escudo/Mísseis com vários alvos, vampirismo/resistência/imunidade, escolhas do padre e migração. A suíte completa tem **384 testes**. O fluxo da HUD foi executado em Chromium com SDK simulado: token CHARACTER morto, conclusão de um minuto, troca de token, Restauração e Orientação; sem erros de página. Não houve teste numa sala real do Owlbear.
+A suíte completa tem **391 testes**, incluindo transformação no mesmo comando, ação/espaço únicos, preservação de outra concentração e migração de temporizador antigo. Prece de Cura conserva os dez minutos de conjuração. Ensaio de HUD com SDK simulado: corpo selecionado e transformado imediatamente ao clicar Executar, com imagem/tamanho e ficha/loot verificados. Não houve teste numa sala real do Owlbear.
 
 Referências de regras consultadas: [magias 2024](https://www.dndbeyond.com/sources/dnd/br-2024/spell-descriptions), [Clérigo 2024](https://www.dndbeyond.com/sources/dnd/br-2024/character-classes), [Raio do Enfraquecimento](https://www.dndbeyond.com/spells/2618926-ray-of-enfeeblement). As exceções autorais da aventura continuam explícitas.

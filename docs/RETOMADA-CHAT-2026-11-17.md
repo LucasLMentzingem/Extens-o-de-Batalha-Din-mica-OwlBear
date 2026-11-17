@@ -2,7 +2,11 @@
 
 Atualizado em 17/11/2026. Este documento transfere o contexto do chat longo para um novo chat.
 
-## Continuação atual — 0.8.57
+## Continuação atual — 0.8.58
+
+Por pedido explícito do usuário, Animar Mortos é imediato ao executar: ação em combate e espaço, sem espera nem concentração; preserva a ficha original, loot e troca do token. Não usar Avançar tempo para esta magia. Prece continua em dez minutos. 391 testes e ensaio de HUD com SDK simulado, com imagem atualizada. Consulte `docs/RELEASE-0.8.58.md`.
+
+## Continuação anterior — 0.8.57
 
 O mestre pode excluir fichas/modelos antigos e grupos importados pela mesma lista de Adicionar unidade, sem afetar unidades em cena ou JSONs. 390 testes aprovados; captura de teste local com SDK simulado registra a exclusão e o uso posterior de Animar Mortos, com troca do token e sobreposição preservando original/loot. Veja `docs/RELEASE-0.8.57.md`. Nenhuma sala real foi alterada neste ensaio.
 

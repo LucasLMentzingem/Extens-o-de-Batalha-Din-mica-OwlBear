@@ -1,17 +1,17 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.57';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.57';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.57';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.58';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.58';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.58';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.57';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.57';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.57';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.57';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.57';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.57';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.57';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.57';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.57';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.57';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.58';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.58';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.58';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.58';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.58';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.58';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.58';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.58';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.58';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.58';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -77,7 +77,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.57',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.58',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -140,7 +140,7 @@ function renderControleFichasMestre(){
   const importar='<div class="importar-fichas">'+renderGruposFichas()+'<div class="campos"><label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label><label>Importar pasta como grupo<input id="pasta-fichas" type="file" webkitdirectory multiple accept=".json,application/json"></label></div><p class="muted">O nome da pasta será o nome do grupo. Até 50 fichas JSON, incluindo subpastas.</p>'+(s.fase==='preparo'?'':'<p class="muted">Reforços rolam iniciativa ao entrar no combate.</p>')+'</div>';
   const corpos=s.atores.filter(a=>modeloReanimacao(a)),conjuradores=s.atores.filter(a=>a.pv>0&&a.ficha.opcoes.some(o=>o.reanimacao));
   const restaurar=s.atores.filter(a=>a.sobreposicaoFicha).map(a=>'<p>'+esc(a.nome)+' · original resguardada: '+esc(a.sobreposicaoFicha.nomeOriginal)+' <button data-exportar-original="'+esc(a.id)+'">Baixar ficha original</button> <button data-remover-sobreposicao="'+esc(a.id)+'">Remover sobreposição</button></p>').join('');
-  const reanimar=corpos.length&&conjuradores.length?'<section><h3>Reanimar corpo · protótipo</h3><p>Depois de um minuto completo de conjuração, confirme os componentes. Cobra um espaço de 3º círculo e mantém os pertences restantes do corpo. Controle e ordens são assistidos.</p><label>Corpo<select id="reanimar-corpo">'+corpos.map(a=>opt(a.id,a.nome)).join('')+'</select></label><label>Conjurador<select id="reanimar-conjurador">'+conjuradores.map(a=>opt(a.id,a.nome)).join('')+'</select></label><button data-do="reanimar-corpo">Confirmar reanimação</button></section>':'';
+  const reanimar=corpos.length&&conjuradores.length?'<section><h3>Reanimar corpo · protótipo</h3><p>Transforma imediatamente o corpo escolhido. Consome ação em combate e um espaço de 3º círculo, mantendo os pertences restantes. Controle, ordens e componentes são assistidos.</p><label>Corpo<select id="reanimar-corpo">'+corpos.map(a=>opt(a.id,a.nome)).join('')+'</select></label><label>Conjurador<select id="reanimar-conjurador">'+conjuradores.map(a=>opt(a.id,a.nome)).join('')+'</select></label><button data-do="reanimar-corpo">Confirmar reanimação</button></section>':'';
   const adagas=s.atores.flatMap(a=>a.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.adaga-do-ultimo-rito').map(i=>({a,i}))),aguas=s.atores.flatMap(a=>a.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.agua-benta-da-purificacao'&&i.quantidade>0).map(i=>({a,i})));
   const rito=adagas.length?'<section><h3>Desfecho da adaga · mestre</h3><p>Confirme a elegibilidade narrativa. Purificação exige o altar original e consome uma dose. Profanação exige as mortes elegíveis verificadas pelo mestre.</p><select id="rito-adaga">'+adagas.map(({a,i})=>opt(a.id+'|'+i.id,a.nome+' · '+i.nome)).join('')+'</select><select id="rito-resultado">'+opt('purificada','Purificada')+opt('profanada','Profanada')+'</select><select id="rito-agua">'+opt('','Sem dose')+aguas.map(({a,i})=>opt(a.id+'|'+i.id,a.nome+' · Água benta')).join('')+'</select><button data-do="rito-adaga">Confirmar desfecho da missão</button></section>':'';
   const recuperacao=(s.quarentenaFichas??[]).length?'<section class="fichas-recuperacao"><h3>Fichas em recuperação</h3><p>Estas fichas não passaram na validação. Seus originais foram preservados; exporte antes de corrigir e importar novamente.</p>'+s.quarentenaFichas.map(r=>'<article class="linha-vinculo"><div><strong>'+esc(r.nome)+'</strong><p>'+esc(r.erro)+'</p></div><button data-exportar-isolada="'+esc(r.id)+'">Baixar original</button><button class="perigo" data-excluir-isolada="'+esc(r.id)+'">Excluir ficha isolada</button></article>').join('')+'</section>':'';
@@ -398,7 +398,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.57',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.58',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -486,7 +486,7 @@ async function executar(k){
   if(['curto','longo'].includes(k)){const atores=s.atores.filter(x=>(x.ficha.tipo==='pj'||x.ficha.descansoNpc===true)&&x.emCombate!==false).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação aos jogadores e NPCs com descanso habilitado presentes no encontro ('+atores.length+').'))await enviar('descanso',{periodo:k,atores});return;}
   if(k==='reanimar-corpo'){
     const ator=$('reanimar-corpo').value,conjuradorId=$('reanimar-conjurador').value;
-    if(await confirma('Reanimar este corpo?','Confirmo que o conjurador concluiu um minuto de conjuração, está a até 3 m e possui os componentes. Será consumido um espaço de 3º círculo.'))await enviar('reanimarCorpo',{ator,conjuradorId,confirmado:true,minutoConcluido:true});return;
+    if(await confirma('Reanimar este corpo?','O corpo será transformado imediatamente. O conjurador deve estar a até 3 m e possuir os componentes. Consome uma ação em combate e um espaço de 3º círculo.'))await enviar('reanimarCorpo',{ator,conjuradorId,confirmado:true});return;
   }
   if(k==='rito-adaga'){
     const [ator,itemId]=$('rito-adaga').value.split('|'),resultado=$('rito-resultado').value,[aguaAtorId,aguaItemId]=$('rito-agua').value.split('|');
@@ -654,7 +654,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.57');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.58');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

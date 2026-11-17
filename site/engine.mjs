@@ -1,9 +1,9 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.57';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.57';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.57';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.58';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.58';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.58';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.57';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.57';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.58';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.58';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -64,6 +64,7 @@ function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
 export function atualizarMagias(f){
+  for(const o of f.opcoes??[])if(o.automacao?.tipo==='prototipo'&&o.automacao.modo==='animar'){delete o.automacao.tempoSegundos;delete o.concentracao;}
   if(['cemiterio-zumbigoblin','cemiterio-zumbi-reanimado','zumbi-padrao-3','seu-furtado-zumbi-4'].includes(f.id)){
     const ref='habilidade.cemiterio.defesas-cadavericas';f.passivas??=[];
     if(!f.passivas.some(p=>p?.catalogoRef===ref))f.passivas.push({...definicaoHabilidade(ref),id:'defesas-cadavericas',catalogoRef:ref,ativa:true});
@@ -1613,6 +1614,11 @@ export async function aplicar(s,c,u,rolar) {
   s.filaReacoes??=[];s.recipientes??=[];normalizarComercio(s);
   for(const p of s.atores){
     atualizarMagias(p.ficha);sincronizarAuxilio(p);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};sincronizarConcessoesItens(p);
+    if(p.conjuracaoLonga?.opcao.automacao?.modo==='animar'){
+      const antiga=p.conjuracaoLonga;
+      if(p.concentracaoAtiva?.id===antiga.concentracaoId)encerrarConcentracao(s,p);
+      else{delete p.conjuracaoLonga;p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>!e.conjuracaoLonga);}
+    }
   }
   const abencoado=p=>s.atores.some(x=>x.pv>0&&x.bencao?.alvos.includes(p.id));
   const controladorDe=controladorAtor;
@@ -1805,17 +1811,12 @@ export async function aplicar(s,c,u,rolar) {
     case 'reanimarCorpo': {
       const origem=s.atores.find(x=>x.id===c.conjuradorId);
       exigir(a&&origem&&a!==origem&&origem.pv>0,'Escolha o corpo e um conjurador consciente.');
-      exigir(c.confirmado===true&&c.minutoConcluido===true,'O mestre deve confirmar um minuto completo de conjuração e os componentes.');
+      exigir(c.confirmado===true,'Confirme a reanimação e os componentes.');
       exigir(!s.reacaoPendente&&!s.resolucaoPendente&&!trocaDoAtor(s,a.id),'Conclua reações, resoluções e trocas antes de sobrepor a ficha.');
       exigir(distancia(a,origem)<=3+1e-8,'O corpo está a mais de 3 m.');
       const magia=origem.ficha.opcoes.find(o=>o.reanimacao===true);
       exigir(magia&&opcaoPreparada(origem.ficha,magia),'O conjurador não tem Animar Mortos preparado.');
-      const circulo=Number(c.circulo??3);
-      exigir(inteiro(circulo,3,9)&&(origem.rec['espaco-'+circulo]??0)>=1,'Espaço de 3º círculo ou superior indisponível.');
-      const nome=a.nome;
-      sobreporMortoVivo(s,a,origem,{validar,compactarFicha,encerrarConcentracao});
-      origem.rec['espaco-'+circulo]--;
-      msg=origem.nome+' reanimou '+nome+' como '+a.ficha.nome+'. Loot restante e token preservados; controle de 24 horas e ordens assistidos.';break;
+      return aplicar(s,{tipo:'usar',rev:s.rev,ator:origem.id,opcao:magia.id,alvo:a.id,circuloUsado:Number(c.circulo??3),confirmado:true},u,rolar);
     }
     case 'transformarAdagaMissao': {
       const i=a?.ficha.inventario.itens.find(i=>i.id===c.itemId);

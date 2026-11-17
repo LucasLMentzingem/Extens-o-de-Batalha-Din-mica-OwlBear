@@ -7401,13 +7401,13 @@ export default {
     },
     {
       "id": "habilidade.cemiterio.necromante-animar-mortos",
-      "revisao": 3,
+      "revisao": 4,
       "definicao": {
         "nome": "Animar Mortos",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 3,
-        "descricao": "Protótipo · selecione no mapa um humanoide Pequeno/Médio morto com 0 PV ou menos; goblin marcado da aventura vira Zumbigoblin. PJs precisam estar mortos, não apenas inconscientes. Conjuração de 1 minuto: exige concentração e a ação a cada turno; fora de combate use Avançar tempo. O espaço é consumido apenas na conclusão. Sobrepõe a ficha, troca o token e preserva inventário/loot original. Controle por 24 h, ordens, ossos/esqueletos e manutenção de controle ainda são assistidos. V,S,M: sangue, carne e pó de osso conferidos pela mesa. Não é ritual nem ressurreição.",
+        "descricao": "Protótipo · regra da aventura: transformação imediata ao executar. Selecione no mapa um humanoide Pequeno/Médio morto com 0 PV ou menos; goblin marcado vira Zumbigoblin. PJs precisam estar mortos, não apenas inconscientes. Consome uma ação e um espaço de 3º círculo ou superior (ação somente em combate). Sem espera, avanço de tempo ou concentração de conjuração. Sobrepõe a ficha, troca o token na mesma peça e preserva ficha/loot originais. Um corpo por uso. Componentes, ordens, esqueletos, manutenção e controle de 24 horas são assistidos.",
         "custo": [
           {
             "tipo": "acao",
@@ -7423,8 +7423,7 @@ export default {
         "automacao": {
           "tipo": "prototipo",
           "modo": "animar",
-          "alcanceM": 3,
-          "tempoSegundos": 60
+          "alcanceM": 3
         },
         "prototipo": true
       }

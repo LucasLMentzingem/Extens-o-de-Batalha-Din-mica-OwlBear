@@ -1,12 +1,12 @@
 # Protótipo — sobreposição de ficha e aventura no cemitério
 
-Integrado em 0.8.53; atualizado para 0.8.56 em 17/11/2026. As habilidades atuais dos dois conjuradores estão em [Protótipos de habilidades](PROTOTIPOS-HABILIDADES-CEMITERIO.md). Os registros de automação 0.8.53 abaixo são históricos.
+Integrado em 0.8.53; atualizado para 0.8.58 em 17/11/2026. As habilidades atuais dos dois conjuradores estão em [Protótipos de habilidades](PROTOTIPOS-HABILIDADES-CEMITERIO.md). Os registros de automação 0.8.53 abaixo são históricos.
 
 ## Sobreposição de reanimação
 
-Na 0.8.56, selecione Animar Mortos na HUD do drow e clique no corpo elegível (token de Personagem com ficha vinculada, humanoide Pequeno/Médio morto a 0 PV ou menos, ou goblin marcado). Inicie a conjuração; fora de combate avance um minuto, em combate mantenha dez ações. Exige concentração, cobra o espaço somente ao concluir e aplica a sobreposição/token automaticamente. Um corpo por conjuração, inclusive em círculo superior. Componentes, ordens e controle por 24 horas são assistidos.
+Na 0.8.58, selecione Animar Mortos na HUD do drow e clique no corpo elegível (token de Personagem com ficha vinculada, humanoide Pequeno/Médio morto a 0 PV ou menos, ou goblin marcado). Ao executar, transforma imediatamente e cobra uma ação em combate e um espaço do círculo escolhido. Não exige concentração nem avanço do tempo. Um corpo por uso, inclusive em círculo superior. Componentes, ordens e controle por 24 horas continuam assistidos.
 
-O painel **Reanimar corpo** no Controle do mestre continua como alternativa para confirmar um minuto já concluído e componentes, cobrando o espaço e aplicando a camada. Não usar os dois fluxos para a mesma conjuração.
+O painel Reanimar corpo do mestre usa o mesmo fluxo imediato da habilidade, com os mesmos custos e validações. A espera de um minuto das versões anteriores foi removida por regra autoral da aventura.
 
 Um humanoide morto recebe a camada de Zumbi (15 PV, CA 8, Pancada +3, 1d8+1). Os dois goblins marcados da aventura recebem Zumbigoblin (15 PV, CA 8), preservando a origem Feérica como exceção autoral. O zumbi autoral nível 3 de 32 PV do cemitério continua sendo outro modelo.
 

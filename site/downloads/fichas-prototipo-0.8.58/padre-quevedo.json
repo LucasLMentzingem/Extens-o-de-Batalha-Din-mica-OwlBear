@@ -1,0 +1,293 @@
+{
+  "versaoFormato": 2,
+  "id": "padre-quevedo",
+  "nome": "Padre Quevedo",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "clerigo",
+      "nivel": 5,
+      "subclasse": "Domínio da Vida"
+    }
+  ],
+  "especie": "Humano",
+  "tipoCriatura": "humanoide",
+  "atributos": {
+    "for": 10,
+    "des": 14,
+    "con": 14,
+    "int": 12,
+    "sab": 18,
+    "car": 8
+  },
+  "salvaguardas": {
+    "for": 0,
+    "des": 2,
+    "con": 2,
+    "int": 1,
+    "sab": 7,
+    "car": 2
+  },
+  "pvMaximos": 38,
+  "caBase": 10,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "proficiencia": 3,
+  "pericias": {
+    "Religião": 8,
+    "Medicina": 7,
+    "Intuição": 7
+  },
+  "recursos": [
+    {
+      "id": "espaco-1",
+      "nome": "Espaços de 1º círculo",
+      "maximo": 4,
+      "saldoInicial": 4,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-2",
+      "nome": "Espaços de 2º círculo",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-3",
+      "nome": "Espaços de 3º círculo",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "canalizar-divindade",
+      "nome": "Canalizar Divindade",
+      "maximo": 2,
+      "saldoInicial": 2,
+      "recuperacao": [
+        {
+          "evento": "descanso_curto",
+          "modo": "recuperar",
+          "quantidade": 1
+        },
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "concessoes": [
+    {
+      "id": "orientacao",
+      "ref": "habilidade.cemiterio.quevedo-orientacao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "chama-sagrada",
+      "ref": "habilidade.cemiterio.quevedo-chama-sagrada",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "poupar",
+      "ref": "habilidade.cemiterio.quevedo-poupar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "taumaturgia",
+      "ref": "habilidade.cemiterio.quevedo-taumaturgia",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "luz",
+      "ref": "habilidade.cemiterio.quevedo-luz",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "palavra-curativa",
+      "ref": "habilidade.cemiterio.quevedo-palavra-curativa",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "escudo-fe",
+      "ref": "habilidade.cemiterio.quevedo-escudo-fe",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "santuario",
+      "ref": "habilidade.cemiterio.quevedo-santuario",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "detectar",
+      "ref": "habilidade.cemiterio.quevedo-detectar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "protecao",
+      "ref": "habilidade.cemiterio.quevedo-protecao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "prece",
+      "ref": "habilidade.cemiterio.quevedo-prece",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "acalmar",
+      "ref": "habilidade.cemiterio.quevedo-acalmar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "dissipar",
+      "ref": "habilidade.cemiterio.quevedo-dissipar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "remover",
+      "ref": "habilidade.cemiterio.quevedo-remover",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "auxilio",
+      "ref": "habilidade.cemiterio.quevedo-auxilio",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "bencao",
+      "ref": "habilidade.cemiterio.quevedo-bencao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "curar",
+      "ref": "habilidade.cemiterio.quevedo-curar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "restauracao",
+      "ref": "habilidade.cemiterio.quevedo-restauracao",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "palavra-massa",
+      "ref": "habilidade.cemiterio.quevedo-palavra-massa",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "revivificar",
+      "ref": "habilidade.cemiterio.quevedo-revivificar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "preservar",
+      "ref": "habilidade.cemiterio.quevedo-preservar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "centelha",
+      "ref": "habilidade.cemiterio.quevedo-centelha",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "centelha-dano",
+      "ref": "habilidade.cemiterio.quevedo-centelha-dano",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "expulsar",
+      "ref": "habilidade.cemiterio.quevedo-expulsar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "discipulo",
+      "ref": "habilidade.cemiterio.quevedo-discipulo",
+      "tipo": "passiva"
+    }
+  ],
+  "preparacao": {
+    "vagas": 9,
+    "preparadas": [
+      "palavra-curativa",
+      "escudo-fe",
+      "santuario",
+      "detectar",
+      "protecao",
+      "prece",
+      "acalmar",
+      "dissipar",
+      "remover"
+    ],
+    "semprePreparadas": [
+      "auxilio",
+      "bencao",
+      "curar",
+      "restauracao",
+      "palavra-massa",
+      "revivificar"
+    ]
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": [
+      {
+        "id": "quevedo-escamas",
+        "ref": "item.armadura-de-escamas",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "quevedo-escudo",
+        "ref": "item.escudo",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_fraca"
+      },
+      {
+        "id": "quevedo-dose-purificacao",
+        "ref": "item.agua-benta-da-purificacao",
+        "quantidade": 1
+      }
+    ]
+  },
+  "notas": [
+    {
+      "nome": "NPC básico",
+      "descricao": "Ordem Divina Taumaturgo: Religião +8 e quinto truque; nove magias preparadas, seis do domínio. Sem talento de origem inventado. CA 18 com escamas e escudo. Nenhum diamante para Revivificar."
+    },
+    {
+      "nome": "Habilidades protótipo · 0.8.56",
+      "descricao": "Magias e habilidades integradas à seleção de alvos, recursos e efeitos do motor. Limites do protótipo indicados em cada habilidade. Conjurações longas concluem ao avançar tempo ou manter a ação por todos os turnos exigidos. Atualize a extensão antes de importar."
+    }
+  ],
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples"
+    ],
+    "armaduras": [
+      "leve",
+      "media",
+      "escudo"
+    ],
+    "maestrias": []
+  },
+  "descansoNpc": true
+}

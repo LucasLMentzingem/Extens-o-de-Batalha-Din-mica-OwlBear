@@ -25,9 +25,9 @@ test('humanoide morto recebe sobreposição zumbi, vivo, fera, feérico comum e 
   const {s,origem,alvo}=mesa('irineu-ladino-3');const n=await reanimar(s,origem,alvo);assert.equal(n.atores[1].ficha.id,'cemiterio-zumbi-reanimado');
   for(const mudar of [a=>{a.pv=1;},a=>{a.ficha.tipoCriatura='fera';},a=>{a.ficha.tipoCriatura='feerico';},a=>{a.ficha.tipo='pj';a.estadoVida='inconsciente';}]){const c=structuredClone(s);mudar(c.atores[1]);await assert.rejects(()=>reanimar(c,c.atores[0],c.atores[1]));}
 });
-test('reanimação exige mestre, minuto, espaço, alcance; rejeita segunda camada sem cobrar novamente',async()=>{
+test('reanimação exige mestre, confirmação, espaço e alcance; rejeita segunda camada sem cobrar novamente',async()=>{
   const {s,origem,alvo}=mesa();await assert.rejects(()=>aplicar(s,{rev:s.rev,tipo:'reanimarCorpo',ator:alvo.id,conjuradorId:origem.id,confirmado:true,minutoConcluido:true},{id:'p',role:'PLAYER'},rolar),/mestre/);
-  await assert.rejects(()=>reanimar(s,origem,alvo,{minutoConcluido:false}));const sem=structuredClone(s);sem.atores[0].rec['espaco-3']=0;await assert.rejects(()=>reanimar(sem,origem,alvo));const longe=structuredClone(s);longe.atores[1].y=3.1;await assert.rejects(()=>reanimar(longe,origem,alvo));
+  await assert.rejects(()=>reanimar(s,origem,alvo,{confirmado:false}));const sem=structuredClone(s);sem.atores[0].rec['espaco-3']=0;await assert.rejects(()=>reanimar(sem,origem,alvo));const longe=structuredClone(s);longe.atores[1].y=3.1;await assert.rejects(()=>reanimar(longe,origem,alvo));
   const n=await reanimar(s,origem,alvo);n.atores[1].pv=0;await assert.rejects(()=>reanimar(n,n.atores[0],n.atores[1]));assert.equal(n.atores[0].rec['espaco-3'],2);
 });
 test('saque depois da segunda morte transfere o loot original sem duplicar instância',async()=>{
