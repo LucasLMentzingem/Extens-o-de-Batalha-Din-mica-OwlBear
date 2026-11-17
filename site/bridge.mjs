@@ -1,3 +1,4 @@
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.47';
 import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.47';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
 import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.47';
@@ -218,44 +219,10 @@ async function getTokens(){
   return (await OBR.scene.items.getItems()).filter(x=>x.type==='IMAGE' && x.layer==='CHARACTER').map(x=>({id:x.id,name:x.name,x:x.position.x,y:x.position.y,visible:x.visible}));
 }
 const prefixoRecipiente='laarte-recipiente-';
-async function sincronizarTokensRecipientes(s,pixelsMetro){
-  const itens=await OBR.scene.items.getItems();
-  const orfaos=itens.filter(i=>i.metadata?.[ns+'/recipiente']&&!s.recipientes?.some(r=>r.id===i.metadata[ns+'/recipiente'])).map(i=>i.id);
-  if(orfaos.length)await OBR.scene.items.deleteItems(orfaos);
-  for(const r of s.recipientes??[]){
-    const id=r.tokenId??(prefixoRecipiente+r.id),existente=itens.find(i=>i.id===id),primeiro=r.itens?.[0],camada=r.tipo==='chao'?'ATTACHMENT':'PROP';
-    const hitExistente=itens.find(i=>i.id===id+'-selecao');
-    const atual=hitExistente??existente;if(atual)r.posicaoM={x:atual.position.x/pixelsMetro,y:atual.position.y/pixelsMetro};
-    const caminho=r.tipo==='caixa'?'assets/props/bau-madeira-saque-75graus.webp':(primeiro?.icone??'assets/props/loot-no-chao.svg');
-    const url=/^(?:https?:|data:|blob:)/.test(caminho)?caminho:new URL('./'+caminho.replace(/^\.\//,''),location.href).href;
-    if(!existente){
-      const pixels=r.tipo==='caixa'?1536:500,altura=r.tipo==='caixa'?1024:500,metros=r.tipo==='caixa'?1.5:1;
-      const token=buildImage({url,mime:/\.svg(?:\?|$)/i.test(url)?'image/svg+xml':/\.webp(?:\?|$)/i.test(url)?'image/webp':'image/png',width:pixels,height:altura},{dpi:pixels*1.5/metros,offset:{x:pixels/2,y:altura/2}})
-        .id(id).name(r.nome).layer(camada).metadata({[ns+'/recipiente']:r.id}).position({x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro}).build();
-      const hitId=id+'-selecao',pontos=pontosInteracaoRecipiente(r,pixelsMetro,token,pixelsMetro*1.5);
-      const area=buildCurve().id(hitId).name(r.nome).layer(camada).visible(token.visible!==false).position(token.position).rotation(token.rotation??0).points(pontos).tension(0).closed(true).fillColor('#d9bf89').fillOpacity(.01).strokeOpacity(0).strokeWidth(0).metadata({[ns+'/recipiente']:r.id,[chaveSelecaoRecipiente]:true}).build();
-      token.disableHit=true;token.attachedTo=hitId;token.disableAttachmentBehavior=r.tipo==='chao'?['SCALE']:[];
-      await OBR.scene.items.addItems(hitExistente?[token]:[token,area]);r.tokenId=id;continue;
-    }else await OBR.scene.items.updateItems([id],xs=>{for(const item of xs){if(r.tipo==='chao')item.layer=camada;item.position={x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro};item.name=r.nome;item.metadata??={};item.metadata[ns+'/recipiente']=r.id;}});
-    r.tokenId=id;
-    // Migra loot minúsculo e dimensões antigas sem alterar props convertidas pelo GM.
-    if(!hitExistente)await OBR.scene.items.updateItems([id],xs=>{for(const i of xs){
-      if(r.tipo==='chao'){i.image.width=500;i.image.height=500;i.grid={dpi:750,offset:{x:250,y:250}};i.scale={x:1,y:1};}
-      else if(i.image.url.includes('bau-madeira-saque-75graus')){i.image.width=1536;i.image.height=1024;i.grid={dpi:1536,offset:{x:768,y:512}};}
-    }});
-    const imagem=existente,hitId=idSelecaoRecipiente(r);
-    if(!hitExistente){
-      const pontos=pontosInteracaoRecipiente(r,pixelsMetro,imagem,pixelsMetro*1.5);
-      const area=buildCurve().id(hitId).name(r.nome).layer(camada).visible(imagem.visible!==false).position(imagem.position).rotation(imagem.rotation??0).points(pontos).tension(0).closed(true).fillColor('#d9bf89').fillOpacity(.01).strokeOpacity(0).strokeWidth(0).metadata({[ns+'/recipiente']:r.id,[chaveSelecaoRecipiente]:true}).build();
-      await OBR.scene.items.addItems([area]);
-    }
-    await OBR.scene.items.updateItems([id],xs=>{for(const i of xs){i.disableHit=true;i.attachedTo=hitId;i.disableAttachmentBehavior=r.tipo==='chao'?['SCALE']:[];}});
-    if(hitExistente)await OBR.scene.items.updateItems([hitId],xs=>{for(const i of xs){i.name=r.nome;if(r.tipo==='chao'){i.layer=camada;i.scale={x:1,y:1};}}});
-  }
-}
+const sincronizarTokensRecipientes=criarSincronizadorRecipientes({items:OBR.scene.items,buildImage,buildCurve,baseUrl:location.href});
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
-  const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada,timerProps;const pedidos=new Map();
+  const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada,timerProps,pausaPropsAte=0,ultimoAvisoProps=0;const pedidos=new Map();
   const serial=fn=>{fila=fila.then(fn).catch(e=>console.error(e));};
   async function carregar(){
     if(!await OBR.scene.isReady())throw Error('Abra uma cena primeiro.');
@@ -427,19 +394,20 @@ export async function host(){
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*pixelsMetro,y:a.y*pixelsMetro};}});
       let erroProps;
-      try{await sincronizarTokensInvocacao(next,pixelsMetro);await sincronizarTokensRecipientes(next,pixelsMetro);}
+      try{if(Date.now()>=pausaPropsAte){await sincronizarTokensInvocacao(next,pixelsMetro);await sincronizarTokensRecipientes(next,pixelsMetro);}}
       catch(e){erroProps=e;}
       persistir(key,next);
       // Uma falha visual do SDK não pode desfazer um ataque já resolvido nem devolver a arma à mão.
-      if(erroProps){
+      if(erroProps&&!timerProps){
         console.error('Sincronização de peças pendente:',erroProps);
-        OBR.notification.show('Ação salva. Falha ao desenhar peças no mapa; tentando novamente. '+(erroProps?.message??(typeof erroProps==='string'?erroProps:JSON.stringify(erroProps))??'Erro do SDK sem detalhes'),'WARNING').catch(()=>{});
-        clearTimeout(timerProps);
+        const rate=JSON.stringify(erroProps).includes('RateLimitHit'),espera=rate?15000:1500;
+        pausaPropsAte=Date.now()+espera;
+        if(Date.now()-ultimoAvisoProps>60000){ultimoAvisoProps=Date.now();OBR.notification.show('Itens salvos. Sincronizando peças do mapa em segundo plano.','WARNING').catch(()=>{});}
         let tentativas=0;
         const reparar=()=>{timerProps=setTimeout(()=>serial(async()=>{
-          try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);persistir(key,s);await mostrar(s);}
-          catch(e){console.error('Peças ainda pendentes (tentativa '+(tentativas+1)+'):',e);if(++tentativas<5)reparar();else OBR.notification.show('Não foi possível desenhar o loot. Os itens estão salvos; tente reconectar para sincronizar o mapa.','WARNING').catch(()=>{});}
-        }),Math.min(10000,1500*2**tentativas));};reparar();
+          try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);persistir(key,s);await mostrar(s);timerProps=null;pausaPropsAte=0;}
+          catch(e){console.error('Peças ainda pendentes:',e);if(++tentativas<5){pausaPropsAte=Date.now()+Math.min(60000,espera*2**tentativas);reparar();}else{timerProps=null;pausaPropsAte=Date.now()+60000;}}
+        }),Math.max(0,pausaPropsAte-Date.now()));};reparar();
       }
       if(c.tipo==='remover'){
         const token=s.atores.find(a=>a.id===c.ator)?.token;
@@ -485,7 +453,7 @@ export async function host(){
     const {key,s}=await carregar(),[itens,dpi]=await Promise.all([OBR.scene.items.getItems(),OBR.scene.grid.getDpi()]),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
     for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===idSelecaoRecipiente(r))??itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
     if(mudou)persistir(key,s);
-    await sincronizarTokensRecipientes(s,pixelsMetro);
+    if(Date.now()>=pausaPropsAte)await sincronizarTokensRecipientes(s,pixelsMetro);
     await mostrar(await sincronizarNpcs());
   }});
   let assinaturaItens='',sincronizacaoAgendada=false,itensRecipienteNaCena=null;
@@ -509,7 +477,7 @@ export async function host(){
         s.historico.unshift('Recipiente excluído da mesa: '+excluidos.map(r=>r.nome).join(', ')+'. O conteúdo também foi removido permanentemente.');
         const dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);
         persistir(key,s);
-        await sincronizarTokensRecipientes(s,pixelsMetro); // remove a imagem ou hitbox que ainda restou
+        if(Date.now()>=pausaPropsAte)await sincronizarTokensRecipientes(s,pixelsMetro); // remove a imagem ou hitbox que ainda restou
         await mostrar(await sincronizarNpcs());
       });
       return;
@@ -527,7 +495,7 @@ export async function host(){
         const {key,s}=await carregar(),dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
         for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===idSelecaoRecipiente(r))??itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
         if(mudou)persistir(key,s);
-        await sincronizarTokensRecipientes(s,pixelsMetro);
+        if(Date.now()>=pausaPropsAte)await sincronizarTokensRecipientes(s,pixelsMetro);
         await mostrar(await sincronizarNpcs());
       }
     }));

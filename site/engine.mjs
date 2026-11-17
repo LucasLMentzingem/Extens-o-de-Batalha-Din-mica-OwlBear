@@ -718,7 +718,7 @@ export function bonusPrevistoArma(f,item,modelo){
 }
 function ataqueGeradoArma(a,item,modelo,indice,ataqueNormal=false){
   const f=a.ficha,d=definicoesArmas[chaveArma(item)]??item,atributo=atributoAtaqueArma(f,item,modelo),proficiente=proficienteComArma(f,item);
-  const bonus=bonusPrevistoArma(f,item,modelo),secundaria=!ataqueNormal&&item.equipadoSlot==='mao_fraca'&&!armaDuasMaos(item),modDano=secundaria&&!f.proficienciasEquipamento?.estiloDuasArmas?0:mod(f.atributos[atributo]);
+  const bonus=bonusPrevistoArma(f,item,modelo),secundaria=!ataqueNormal&&item.equipadoSlot==='mao_fraca'&&!armaDuasMaos(item)&&(d.propriedades??[]).includes('leve'),modDano=secundaria&&!f.proficienciasEquipamento?.estiloDuasArmas?0:mod(f.atributos[atributo]);
   const duasMaos=armaDuasMaos(item)||d.propriedades?.includes('versatil')&&!itensEquipados(a).some(i=>i!==item&&ocupaSlot(i,'mao_fraca'));
   const dadoBase=duasMaos&&modelo.danoDuasMaos?modelo.danoDuasMaos:modelo.dano,dado=dadoMinimoMonge(f,item,dadoBase);
   const dano=formulaComBonus(dado,modDano+(Number(item.bonusDano)||0)+(Number(item.modificadores?.dano)||0));
@@ -741,7 +741,7 @@ export function ataquesEquipados(a){
   const ataques=itensEquipados(a).filter(i=>chaveArma(i)).flatMap(item=>(item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).map((m,n)=>ataqueGeradoArma(a,item,m,n)));
   // A mão fraca também pode ser usada no ataque normal que custa uma ação.
   // O ataque adicional Leve/Ágil conserva seus requisitos e custo próprios.
-  for(const item of itensEquipados(a).filter(i=>chaveArma(i)&&i.equipadoSlot==='mao_fraca'&&!armaDuasMaos(i))){
+  for(const item of itensEquipados(a).filter(i=>chaveArma(i)&&i.equipadoSlot==='mao_fraca'&&!armaDuasMaos(i)&&(definicoesArmas[chaveArma(i)]?.propriedades??i.propriedades??[]).includes('leve'))){
     for(const [n,modelo] of (item.modelosAcoes??definicoesArmas[chaveArma(item)]?.modelosAcoes??[]).entries()){
       const normal=ataqueGeradoArma(a,item,modelo,n,true);normal.id+='-acao';ataques.push(normal);
     }
@@ -760,6 +760,11 @@ export function ataquesEquipados(a){
       {id:modoExtra,origemItem:extra.origemItem,geradaPorItem:true,nome:extra.nome.replace(/\s*\|.*$/,''),descricao:'Ataque extra da propriedade Leve com Ágil; não gasta Ação Bônus.',tipo:'ataque',ordem:2,requerModoAnterior:modoPrincipal,limitePorUso:1,umaVezPorTurno:'maestria-agil',origemOpcaoId:extra.id,automacao:structuredClone(extra.automacao)}
     ]};
     extra.ocultarListas=true;
+  }
+  for(const extra of ataques.filter(o=>o.requisitosUso?.aposAtaque&&!o.requisitosUso?.umaVezPorTurno)){
+    const normal=ataques.find(o=>o.id===extra.id+'-acao');if(!normal)continue;
+    const anterior=(a.eventosTurno?.ataques??[]).at(-1),podeExtra=a.bonus>0&&['arma','leve'].every(t=>anterior?.tags?.includes(t));
+    extra.ocultarListas=!podeExtra;normal.ocultarListas=podeExtra;
   }
   return ataques;
 }

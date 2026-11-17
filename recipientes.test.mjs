@@ -103,3 +103,22 @@ test('depósito contextual mantém sessão e equipar retira apenas uma unidade d
  await m.run('confirmarSaque',{saqueId,itens:[{itemId:loot.id,quantidade:1}],equiparItemId:loot.id,equiparSlot:'mao_fraca'},player);
  assert.equal(m.r.itens[0].quantidade,1);assert.equal(m.a.ficha.inventario.itens.filter(i=>i.equipado&&i.equipadoSlot==='mao_fraca').length,1);
 });
+
+test('rodapé não duplica mão fraca: alterna ataque normal e adicional conforme o histórico',async()=>{
+ const m=await mesa();
+ // Sem Ágil para testar o ataque extra que usa a ação bônus.
+ m.a.ficha.proficienciasEquipamento.maestrias=[];
+ for(const atacou of [false,true]){
+  m.a.eventosTurno={ataques:atacou?[{tags:['arma','leve']}]:[]};m.a.bonus=1;
+  const lista=ordenarOpcoesRodape(m.a,undefined,{comum:true}).filter(o=>o.geradaPorItem&&m.a.ficha.inventario.itens.find(i=>i.id===o.origemItem)?.equipadoSlot==='mao_fraca');
+  assert.equal(lista.length,2);assert.deepEqual(lista.map(o=>Boolean(o.automacao.arremesso)),[false,true]);
+  assert.ok(lista.every(o=>Boolean(o.requisitosUso?.aposAtaque)===atacou));
+ }
+});
+
+test('azagaia na mão fraca gera só ataque normal e arremesso, sem extra de arma Leve',async()=>{
+ const m=await mesa(),i=m.a.ficha.inventario.itens.find(i=>i.equipadoSlot==='mao_fraca');assert.ok(i);
+ i.tipoArma='azagaia';i.propriedades=['arremessavel'];delete i.modelosAcoes;
+ const lista=ordenarOpcoesRodape(m.a).filter(o=>o.origemItem===i.id);
+ assert.equal(lista.length,2);assert.ok(lista.every(o=>!o.requisitosUso?.aposAtaque));assert.ok(lista.every(o=>o.custo.some(c=>c.tipo==='acao')));
+});

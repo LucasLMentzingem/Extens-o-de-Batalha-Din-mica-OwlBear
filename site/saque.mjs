@@ -55,13 +55,13 @@ root.addEventListener('contextmenu',e=>{const b=e.target.closest('[data-item]');
  menu.innerHTML='<h2>'+esc(item.nome)+'</h2>'+arteItem(item)+'<footer><button data-exame>Examinar</button><button data-fechar>Fechar</button></footer>';
  if(item.tipo==='equipamento'){
  const slots=item.slotEquipamento==='mao_forte'&&!item.duasMaos?['mao_forte','mao_fraca']:item.slotEquipamento==='acessorio'?['acessorio_1','acessorio_2']:[item.slotEquipamento];
- for(const slot of slots){const b=document.createElement('button');b.textContent='Pegar e equipar · '+({mao_forte:'mão forte',mao_fraca:'mão fraca',acessorio_1:'acessório I',acessorio_2:'acessório II'}[slot]??slot);b.onclick=()=>{equiparItemId=item.id;equiparSlot=slot;quantidades.set(item.id,1);menu.close();render();};menu.querySelector('footer').prepend(b);}
+ for(const slot of slots){const b=document.createElement('button');b.textContent='Pegar e equipar · '+({mao_forte:'mão forte',mao_fraca:'mão fraca',acessorio_1:'acessório I',acessorio_2:'acessório II'}[slot]??slot);b.onclick=()=>{if(ocupado)return;quantidades.clear();depositos.clear();equiparItemId=item.id;equiparSlot=slot;quantidades.set(item.id,1);menu.close();render();root.querySelector('#confirmarSaque').click();};menu.querySelector('footer').prepend(b);}
  }
  menu.querySelector('[data-exame]').onclick=()=>{menu.close();exameItem.abrir(item)};menu.querySelector('[data-fechar]').onclick=()=>menu.close();menu.showModal();
  }});
 root.addEventListener('click',async e=>{
  const b=e.target.closest('button');if(!b||ocupado)return;
- if(b.dataset.equipar){const item=itensOrigem().find(i=>i.id===b.dataset.equipar);if(!item)return;equiparItemId=equiparItemId===item.id?null:item.id;if(equiparItemId){equiparSlot=item.slotEquipamento;quantidades.set(item.id,1);}else quantidades.delete(item.id);render();return;}
+ if(b.dataset.equipar){const item=itensOrigem().find(i=>i.id===b.dataset.equipar);if(!item)return;equiparItemId=equiparItemId===item.id?null:item.id;if(equiparItemId){equiparSlot=item.slotEquipamento;quantidades.set(item.id,1);}else quantidades.delete(item.id);render();if(equiparItemId)root.querySelector('#confirmarSaque').click();return;}
  if(b.dataset.item){const id=b.dataset.item,source=b.dataset.fonte,list=source==='proprio'?itensProprios():itensOrigem(),item=list.find(i=>i.id===id),map=source==='proprio'?depositos:quantidades;if(!item||source==='proprio'&&item.equipado)return;if(map.has(id)){map.delete(id);if(equiparItemId===id)equiparItemId=null;}else map.set(id,item.quantidade);render();return;}
  if(!['confirmarSaque','cancelarSaque'].includes(b.id))return;
  ocupado=true;atualizarResumo();
