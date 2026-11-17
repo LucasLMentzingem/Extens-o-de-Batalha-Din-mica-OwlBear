@@ -1,6 +1,14 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.50**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+Revisão de 17 de novembro de 2026, versão **0.8.51**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+
+## Entrega — 0.8.51
+
+- Publicada a organização por fichas das artes de habilidades. Loteria (Monge) e Draven estão completos no mapa visual: não têm arte pendente de geração.
+- 44 artes individuais novas cobrem as habilidades exclusivas dessas fichas e as ações/perícias compartilhadas entre elas; cada arte é transparente, 500×500 e registrada uma única vez no catálogo central.
+- A lista global ainda mostra 80 artes pendentes para as demais fichas; Nikki, Zurich, Skimi, Dragoberto e Hannah continuam na fila por personagem.
+- Inclui a organização paginada/recolhível do Controle do Mestre e os ajustes de histórico de atividades e visibilidade de PV feitos nesta branch.
+- A publicação automática executa a suíte de integração configurada no GitHub Actions. O mapa atualizado está em `docs/arte/habilidades-sete-fichas.json`.
 
 ## Ajuste local — histórico e PV de inimigos
 
