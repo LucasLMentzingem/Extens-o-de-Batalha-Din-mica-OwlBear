@@ -1,5 +1,6 @@
-import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.43';
-import {definicaoHabilidade} from './catalog.mjs?v=0.8.43';
+import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.44';
+import {definicaoHabilidade} from './catalog.mjs?v=0.8.44';
+import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.44';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normal=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const slug=x=>normal(x).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -11,23 +12,28 @@ export function visualHabilidade(h={},f={}){
   const base=h.catalogoRef?definicaoHabilidade(h.catalogoRef):null;
   if(base)h={...base,...h,visual:{...base.visual,...h.visual}};
   const v=h.visual??{},origem=normal(h.origemTipo??h.origemConcessao?.tipo??h.filtroHud),nome=String(h.nome??'Habilidade');
-  const arma=Boolean(h.origemItem&&(h.automacao?.tipo==='ataque'||h.geradaPorItem)),item=(f.inventario?.itens??[]).find(i=>i.id===h.origemItem);
-  const familia=arma?'comum':['comum','raca','classe'].includes(v.familia)?v.familia:origem==='raca'?'raca':origem==='classe'?'classe':'comum';
-  const desarmado=!arma&&(h.automacao?.tags?.includes('desarmado')||/golpe desarmado|soco/i.test(nome));
-  const nomeNormal=normal(nome.replace(/^(?:Truque|\d+º)\s*\|\s*/,'').split(/\s*[|·—]\s*/)[0]);
-  const artePorNome=/saraivada de espinhos/.test(nomeNormal)?'magia.saraivada-de-espinhos':/misseis magicos/.test(nomeNormal)?'magia.misseis-magicos':/raio de fogo/.test(nomeNormal)?'magia.raio-de-fogo':/torrente de golpes/.test(nomeNormal)?'monge.torrente-de-golpes':null;
-  const arteId=v.arteId??(desarmado?'comum.soco':artePorNome??h.catalogoRef??h.id??'habilidade.'+slug(nome.split(/[|·—]/)[0]));
-  const tema=temasHabilidades[familia],registro=artesHabilidades[arteId]??(arteId.startsWith('pericia.')?artesHabilidades['pericia.geral']:artesHabilidades['familia.'+familia])??{};
-  const arquivo=arquivoSeguro(arma?(item?.icone??v.arquivo):(v.arquivo??registro.arquivo));
-  const textoCurto=v.textoCurto??nome.replace(/^(Truque|\d+º)\s*\|\s*/,'').split(/\s*[|·—]\s*/)[0];
+  const deItem=Boolean(h.origemItem),item=(f.inventario?.itens??[]).find(i=>i.id===h.origemItem);
+  const classe=origem==='classe'||h.categoria==='magia'||(f.classes??[]).some(c=>normal(c.id)===normal(h.origem)&&h.origem);
+  const familia=deItem?'comum':['comum','raca','classe'].includes(v.familia)?v.familia:origem==='raca'?'raca':origem==='comum'?'comum':classe?'classe':'comum';
+  const arteId=v.arteId??(artesHabilidades[h.catalogoRef]?h.catalogoRef:identidadeArteHabilidade(h));
+  // Origem define somente fundo/moldura. Nunca emprestar a arte de outra habilidade.
+  const tema=temasHabilidades[familia],registro=artesHabilidades[arteId]??{};
+  // A prévia pública identifica a fonte para não confundir fallback do item com override da skill.
+  const arquivoHabilidade=(v.fonteArte==='item'?null:arquivoSeguro(v.arquivo))??arquivoSeguro(registro.arquivo);
+  const arquivoItem=deItem?(arquivoSeguro(item?.icone)??(v.fonteArte==='item'?arquivoSeguro(v.arquivo):null)):null;
+  const arquivo=arquivoHabilidade??arquivoItem,fonteArte=arquivoHabilidade?'habilidade':arquivoItem?'item':null;
+  const textoCurto=v.textoCurto??nomeConceitoArte(h);
   const variante=v.variante??(h.automacao?.arremesso?'Arremesso':h.nome?.includes('duas mãos')?'2 mãos':item?.equipadoSlot==='mao_fraca'?'Mão fraca':'');
   const varianteImagem=h.automacao?.arremesso?arquivoSeguro(artesHabilidades['variante.arremesso']?.arquivo):null;
-  return {arteId,familia,arquivo,fundo:arquivoSeguro(tema.fundo),moldura:arquivoSeguro(tema.moldura),layout:v.layout==='texto'?'texto':'ilustracao',textoCurto,alt:registro.alt??nome,variante,varianteImagem};
+  return {arteId,familia,arquivo,fonteArte,fundo:arquivoSeguro(tema.fundo),moldura:arquivoSeguro(tema.moldura),layout:v.layout==='texto'?'texto':'ilustracao',textoCurto,alt:registro.alt??nome,variante,varianteImagem};
+}
+export function opcaoConsumoItem(item){
+  return {id:'consumir-'+item.id,nome:item.nome+' ×'+item.quantidade,categoria:'item',origemItem:item.id,geradaPorItem:true,descricao:item.descricao??'',custo:[{tipo:'acao',quantidade:1}],...(item.visual?{visual:structuredClone(item.visual)}:{})};
 }
 export function testeVisual(grupo,chave,bonus){
   const salva=grupo==='salvaguardas',nome=salva?'Salva de '+(nomesAtributos[chave]??chave):chave;
   const arteId=(salva?'salvaguarda.':'pericia.')+slug(chave);
-  return {id:arteId,nome,origemTipo:'comum',visual:{arteId,familia:'comum',layout:'texto',textoCurto:nome},bonusVisual:bonus};
+  return {id:arteId,nome,origemTipo:'comum',visual:{arteId,familia:'comum',layout:'texto',textoCurto:salva?(nomesAtributos[chave]??chave):nome},bonusVisual:bonus};
 }
 export function arteHabilidade(h={},f={},classe=''){
   const v=visualHabilidade(h,f),img=(src,cls)=>src?'<img class="'+cls+'" src="'+esc(src)+'" alt="" loading="lazy" decoding="async" width="500" height="500" draggable="false">':'';

@@ -1,12 +1,13 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.43';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.43';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.43';
-import {pronto} from './bridge.mjs?v=0.8.43';
-import {canalHud} from './hud-controller.mjs?v=0.8.43';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.43';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.44';
+import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.44';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.44';
+import {pronto} from './bridge.mjs?v=0.8.44';
+import {canalHud} from './hud-controller.mjs?v=0.8.44';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.44';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
+let nomesSkillsVisiveis=localStorage.getItem('la-arte/nomes-skills')!=='0';
 function controlesMesa(s,fora){
   if(confirmacaoMesa?.rev!==s.rev)confirmacaoMesa=null;
   if(confirmacaoMesa){
@@ -250,7 +251,7 @@ function render(){
         const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratuitos?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
         return btn('usar',arteHabilidade(o,a.ficha),'data-id="'+esc(o.id)+'" '+(o.circuloUsado?'data-circulo="'+o.circuloUsado+'" ':'')+'data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       };
-    const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',arteHabilidade({nome:i.nome+' ×'+i.quantidade,origemItem:i.id,geradaPorItem:true},a.ficha),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
+    const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',arteHabilidade(opcaoConsumoItem(i),a.ficha),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
     const passivasRaciais=(a.ficha.passivas??[]).filter(x=>habilidadeRacial(a.ficha,x)),passivasGerais=(a.ficha.passivas??[]).filter(x=>!habilidadeRacial(a.ficha,x));
     const botaoPassiva=x=>btn('passiva',arteHabilidade({...x,nome:nomePassiva(x)},a.ficha),'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"');
     const conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a,nome);return btn('teste',arteHabilidade(testeVisual('pericias',nome,bonus),a.ficha),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus atual: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
@@ -260,8 +261,8 @@ function render(){
     const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Raça',nomeRaca(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
     const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
     html='<section class="dock" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+btn('ficha','Ficha')+'</header>'+
-      '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud"><label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
-      '<div class="centro-hud"><div class="grade" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
+      '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud">'+btn('alternarNomesSkills','Aa','class="alternar-nomes-skills" aria-label="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' textos das habilidades" title="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' textos das habilidades" aria-pressed="'+nomesSkillsVisiveis+'"')+'<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
+      '<div class="centro-hud"><div class="grade '+(nomesSkillsVisiveis?'':'sem-nomes-skills')+'" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
       '<div class="filtros-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</div>'+(!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+'</article></div></section>';
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
@@ -294,6 +295,11 @@ root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=oc
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
   const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','alternarDadoRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
+  if(tipo==='alternarNomesSkills'){
+    nomesSkillsVisiveis=!nomesSkillsVisiveis;
+    localStorage.setItem('la-arte/nomes-skills',nomesSkillsVisiveis?'1':'0');
+    render();return;
+  }
   if(controleDado&&v.pedidoDado?.podeEditar===false)return;
   if(v.ocupado&&!controleDado)return;
   if(tipo==='alternarMesa'){

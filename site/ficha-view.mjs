@@ -1,6 +1,7 @@
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.43';
-import {arteItem} from './item-art.mjs?v=0.8.43';
-import {arteHabilidade} from './ability-art.mjs?v=0.8.43';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.44';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.44';
+import {arteItem} from './item-art.mjs?v=0.8.44';
+import {arteHabilidade} from './ability-art.mjs?v=0.8.44';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -38,7 +39,7 @@ function inventarioFicha(a,podeEditar,lojas=[],gm=false,trocasPermitidas=true,tr
   const icone=i=>arteItem(i);
   const info=(i,comparar=true)=>{const equivalente=comparar&&i.slotEquipamento?(i.slotEquipamento==='acessorio'?(equipados.acessorio_1??equipados.acessorio_2):equipados[i.slotEquipamento]):null;return resumoItem(i,a.ficha)+(equivalente&&equivalente!==i?'\n\nEQUIPADO NO MESMO SLOT\n'+resumoItem(equivalente,a.ficha):'');};
   const slots=slotsEquipamento.map(slot=>{const i=equipados[slot],dupla=i&&slotsOcupadosItem(i).length===2;return '<article class="slot-equipamento '+(i?'ocupado ':'')+(dupla?'duas-maos':'')+'"><small>'+nomesSlots[slot]+'</small>'+(i?'<button type="button" class="icone-item" data-item-id="'+esc(i.id)+'" data-item-slot="'+slot+'" data-item-local="equipado" data-info="'+esc(info(i,false))+'">'+icone(i)+'<span>'+esc(i.nome)+(dupla?' · 2 mãos':'')+'</span></button>':'<div class="slot-vazio">+</div>')+'</article>';}).join('');
-  const celulas=Array.from({length:totalCelulas},(_,n)=>{const i=carregados[n];if(!i)return '<div class="celula-item vazia" aria-hidden="true"></div>';return '<button type="button" class="celula-item" data-item-id="'+esc(i.id)+'" data-item-local="inventario" data-info="'+esc(info(i))+'">'+icone(i)+(i.quantidade>1?'<em>'+i.quantidade+'</em>':'')+'<span>'+esc(i.nome)+'</span></button>';}).join('');
+  const celulas=Array.from({length:totalCelulas},(_,n)=>{const i=carregados[n];return celulaInventario(i,{atributos:i?'data-item-id="'+esc(i.id)+'" data-item-local="inventario"':'',descricao:i?info(i):''});}).join('');
   const acessoLoja=lojas.length&&podeEditar?'<button type="button" class="botao-loja" data-abrir-lojas title="Abrir lojas ativas">🏪<em>'+lojas.length+'</em></button>':'';
   const controleTroca=podeEditar?'<div class="controles-troca"><small>TROCA ENTRE PERSONAGENS</small><button type="button" data-iniciar-troca '+(trocasPermitidas?'':'disabled title="Trocas ficam bloqueadas durante o combate"')+'>'+(trocaAtiva?'Abrir troca':'Trocar item')+'</button></div>':'';
   const controlesGm=gm?'<div class="controles-inventario-gm"><small>CONTROLES DO MESTRE</small><button type="button" data-gm-adicionar-item>Adicionar item</button><button type="button" data-gm-adicionar-po>Adicionar PO</button></div>':'';

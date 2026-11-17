@@ -7,3 +7,6 @@
 .resumo-saque{position:sticky;bottom:0;background:#202c2a;padding:12px;border:1px solid #9a8053;border-radius:8px;margin-top:10px}
 .resumo-saque progress{width:100%}.resumo-saque footer{display:flex;gap:8px;margin-top:8px}.excesso{color:#ed9b90}
 @media(max-width:520px){.grade-saque{grid-template-columns:repeat(3,minmax(0,1fr))}.entrada-saque.vaga{min-height:112px}}
+.grade-inventario.grade-saque{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem}
+.grade-saque .celula-item{min-height:86px;box-sizing:border-box}.grade-saque .celula-item.selecionada{border-color:#e1bc79;box-shadow:inset 0 0 0 2px #b68a47}.grade-saque .item-arte{width:56px;height:56px;margin:auto}
+.detalhe-transferencia{display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px;border-bottom:1px solid #63556a}.detalhe-transferencia strong{flex:1;font-size:12px}.detalhe-transferencia label{font-size:11px}.detalhe-transferencia input{width:80px}.detalhe-transferencia button{font-size:11px;padding:5px}

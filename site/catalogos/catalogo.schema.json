@@ -24,6 +24,7 @@
       "type": "object",
       "properties": {
         "arteId": {"type": "string", "minLength": 1},
+        "arquivo": {"type": "string", "pattern": "^(\\.?/?assets/|https://)"},
         "familia": {"enum": ["origem", "comum", "raca", "classe"]},
         "layout": {"enum": ["ilustracao", "texto"]},
         "textoCurto": {"type": "string", "minLength": 1}

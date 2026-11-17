@@ -1,11 +1,8 @@
 // Registro central de artes 500 × 500. Não copiar imagens para as fichas.
 const pasta='assets/habilidades/';
 export const artesHabilidades=Object.freeze({
-  'familia.comum':{arquivo:pasta+'comum-generico.png',alt:'Emblema de combate comum'},
-  'familia.raca':{arquivo:pasta+'raca-generico.png',alt:'Emblema de herança racial'},
-  'familia.classe':{arquivo:pasta+'classe-generico.png',alt:'Emblema de domínio de classe'},
   'comum.soco':{arquivo:pasta+'comum-soco.png',alt:'Punho pronto para um golpe desarmado'},
-  'pericia.geral':{arquivo:pasta+'comum-pericia.png',alt:'Lupa, diário e pena representando um teste de perícia'},
+  'pericia.investigacao':{arquivo:pasta+'comum-pericia.png',alt:'Lupa, diário e pena representando Investigação'},
   'magia.saraivada-de-espinhos':{arquivo:pasta+'magia-saraivada-espinhos.png',alt:'Rajada de espinhos mágicos em leque'},
   'magia.misseis-magicos':{arquivo:pasta+'magia-misseis-magicos.png',alt:'Três dardos mágicos em trajetórias paralelas'},
   'magia.raio-de-fogo':{arquivo:pasta+'magia-raio-fogo.png',alt:'Projétil mágico de fogo'},

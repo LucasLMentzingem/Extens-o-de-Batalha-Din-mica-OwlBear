@@ -1,13 +1,14 @@
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.44';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.43';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.43';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.43';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.43';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.43';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.43';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.43';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.43';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.43';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.44';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.44';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.44';
+import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.44';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.44';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.44';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.44';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.44';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.44';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -57,7 +58,7 @@ async function sincronizarSaqueVisual(){
   }
   if(saqueVisualId===saque.id)return;
   saqueVisualId=saque.id;
-  const url=new URL('./saque.html?v=0.8.43',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.44',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     const largura=await OBR.viewport.getWidth(),altura=await OBR.viewport.getHeight(),w=Math.min(560,largura-16);
     await OBR.popover.open({id:ns+'/saque',url:url.href,width:w,height:Math.min(720,altura-32),hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
@@ -123,7 +124,7 @@ function renderControleFichasMestre(){
 function renderFichaRecipiente(r){
  if(!r)return '';const gm=info.role==='GM',slots=r.itens?.length??r.ocupados??0;
  const abas='<nav class="paginas">'+btn('recipiente-pagina-ficha','Ficha',paginaRecipiente==='ficha'?'ativa':'')+btn('recipiente-pagina-inventario','Inventário',paginaRecipiente==='inventario'?'ativa':'')+'</nav>';
- if(paginaRecipiente==='inventario')return '<section class="ficha-recipiente"><h3>'+esc(r.nome)+'</h3>'+abas+'<p>'+slots+' / '+r.capacidadeSlots+' espaços</p>'+'<div class="grade-inventario grade-recipiente">'+Array.from({length:r.capacidadeSlots},(_,n)=>{const i=r.itens?.[n];return i?'<article class="celula-item">'+arteItem(i)+'<span>'+esc(i.nome)+' × '+i.quantidade+'</span><button data-excluir-item-recipiente="'+esc(i.id)+'">Excluir</button></article>':'<span class="celula-item vazia" aria-label="Espaço vazio"></span>';}).join('')+'</div>'+'<label>Item<select id="recipiente-item">'+itensCatalogo().filter(i=>i.definicao?.tipo!=='moeda').map(i=>opt(i.id,i.definicao.nome)).join('')+'</select></label><div class="campos"><label>Quantidade<input id="recipiente-quantidade" type="number" min="1" value="1"></label>'+btn('recipiente-adicionar-item','Adicionar item')+'</div><div class="campos"><label>PO<input id="recipiente-po" type="number" min="1" value="1"></label>'+btn('recipiente-adicionar-po','Adicionar PO')+'</div></section>';
+ if(paginaRecipiente==='inventario')return '<section class="ficha-recipiente"><h3>'+esc(r.nome)+'</h3>'+abas+'<p>'+slots+' / '+r.capacidadeSlots+' espaços</p>'+'<div class="grade-inventario grade-recipiente">'+Array.from({length:r.capacidadeSlots},(_,n)=>{const i=r.itens?.[n];return i?'<article class="entrada-recipiente">'+celulaInventario(i,{atributos:'data-item-recipiente="'+esc(i.id)+'"'})+'<button data-excluir-item-recipiente="'+esc(i.id)+'">Excluir</button></article>':celulaInventario(null);}).join('')+'</div>'+'<label>Item<select id="recipiente-item">'+itensCatalogo().filter(i=>i.definicao?.tipo!=='moeda').map(i=>opt(i.id,i.definicao.nome)).join('')+'</select></label><div class="campos"><label>Quantidade<input id="recipiente-quantidade" type="number" min="1" value="1"></label>'+btn('recipiente-adicionar-item','Adicionar item')+'</div><div class="campos"><label>PO<input id="recipiente-po" type="number" min="1" value="1"></label>'+btn('recipiente-adicionar-po','Adicionar PO')+'</div></section>';
  return '<section class="ficha-recipiente"><h3>'+esc(r.nome)+'</h3>'+abas+'<label>Nome<input id="recipiente-nome" value="'+esc(r.nome)+'" maxlength="80"></label><div class="campos"><label>Slots<input id="recipiente-slots" type="number" min="'+slots+'" max="200" value="'+r.capacidadeSlots+'"></label><label class="interruptor"><input id="recipiente-trancado" type="checkbox" '+(r.trancado?'checked':'')+'><span>Trancado</span></label></div><p>'+slots+' / '+r.capacidadeSlots+' ocupados</p>'+btn('recipiente-salvar','Salvar alterações','primario')+'</section>';
 }
 function renderControleLojas(){
@@ -353,7 +354,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.43',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.44',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -364,7 +365,7 @@ async function abrirTroca(trocaId,atorId){
   try{
     const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(680,Math.max(460,largura*.44)),h=Math.min(820,Math.max(560,altura-32)),id=ns+'/troca';
     await OBR.popover.close(id).catch(()=>{});
-    const url=new URL('./troca.html?v=0.8.43',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
+    const url=new URL('./troca.html?v=0.8.44',location.href);url.searchParams.set('troca',trocaId);url.searchParams.set('ator',atorId);
     await OBR.popover.open({id,url:url.href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
   }finally{abrindoTroca=false;}
 }
@@ -521,6 +522,8 @@ $('app').onchange=e=>{if(e.target.id==='acao'){acao=e.target.value;alvos=[];rend
  }
  if(e.target.id==='arquivo'){const f=e.target.files[0];if(f)tarefa(async()=>{const j=validar(JSON.parse((await f.text()).replace(/^\uFEFF/,'')));await enviar('adicionar',{ficha:j});aviso(j.nome+' adicionado. Escolha o token e salve o vínculo.');});}};
 $('app').oncontextmenu=e=>{
+ const ba=e.target.closest('[data-item-recipiente]');if(ba){e.preventDefault();const item=s.recipientes?.find(r=>r.id===recipienteSelecionadoId)?.itens?.find(i=>i.id===ba.dataset.itemRecipiente);if(item)exameItem.abrir(item);return;}
+
  const habilidade=e.target.closest('[data-habilidade-id]');
  if(habilidade){
    e.preventDefault();const a=s.atores.find(x=>x.id===escolhido),gm=info.role==='GM'&&!testar,pode=gm||(a?.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id));if(!pode)return;
@@ -592,10 +595,10 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.43');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.44');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
- catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);await api.notify();
+ catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);
  if(emSala){
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
    function pedido(raw){if(!raw)return;const d=JSON.parse(raw);if(Date.now()-d.quando>30000)return;

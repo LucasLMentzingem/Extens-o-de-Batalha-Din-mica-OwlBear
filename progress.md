@@ -1,5 +1,15 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-17 — publicação 0.8.44
+
+- Recuperação de conexão na entrada, consultas de estado fora da fila de rolagens e remontagem de mensagens intercaladas. Ações não são reenviadas.
+- Seleção de baús acompanha a imagem; itens no chão e arremessados usam círculo de 1 m. Exclusão nativa remove também o registro do recipiente, seu conteúdo e a peça auxiliar de seleção.
+- Saquear pela habilidade, menu incorporado de configurações dos baús e células de inventário compartilhadas.
+- Centralização dos recortes e regra única para habilidades de itens: tema Comum, arte própria da skill com prioridade e imagem do item como alternativa.
+- Botão de nomes e identidades de arte próprias. A coleção nova de imagens está em geração/revisão e não integra esta publicação; a lista registra o trabalho pendente.
+- 266 testes passaram. Conexão em duas sessões e inventários conferidos com SDK simulado; conferência em sala real continua necessária.
+
+
 ## 2026-11-15 — versão 0.8.23
 
 - Salvaguardas contra a morte na abertura do turno em combate e ao avançar 1T fora de combate. Cura restaura consciência e Ajudar possibilita estabilizar com Medicina CD 10.
@@ -851,4 +861,32 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Validar 258 testes, catálogo, cache e fluxos de interface em navegador headless.
 - [ ] Sessão multiplayer real; ampliar artes exclusivas e comparação rica no saque, sincronização durável e isolamento das sessões por destinatário.
 - Relatório: `docs/REVISAO-0.8.43.md`. Próximo trabalho começa pelas limitações registradas nesse relatório; não confundir cobertura visual por emblema com arte exclusiva por habilidade.
+
+# 0.8.44 — Correção da identidade visual (local)
+
+- Cada habilidade distinta exige sua própria arte; fundo e moldura são compartilhados por seção. Emblemas genéricos e a perícia genérica foram retirados do registro ativo.
+- Lista gerada em `docs/arte/HABILIDADES-A-GERAR.md` e JSON adjacente: 165 artes pendentes, 12 identidades existentes e 20 variantes que reutilizam itens. Regenerar com `node scripts/listar-artes-habilidades.mjs` após mudanças nas fichas.
+- Botão Aa à esquerda de Linhas alterna nomes no grid e persiste a preferência local. A tarja atrás dos nomes foi removida mesmo no modo com texto. Balões e nomes acessíveis permanecem completos.
+- Salvaguardas mostram somente o atributo no ícone; opções físicas do compositor preservam a imagem da arma.
+- Validação: 259 testes, catálogo e versão; teste headless do botão, preferência local, texto transparente e fluxo de ataque/dano.
+- Nenhuma imagem nova foi gerada nesta correção. A versão permanece local, sem publicação.
+
+## Correção de baús e saque — plano de arte congelado
+
+- Seleção retangular de baús e circular de 1 m para loot, com correção de escala e dimensões declaradas das imagens.
+- Saquear na HUD seleciona props e usa o mesmo fluxo da habilidade; configurações de baú ficam no embed do menu contextual GM.
+- Célula de inventário compartilhada entre ficha, recipiente e saque; quantidades/ações separadas da grade.
+- 261 testes aprovados e fluxo completo da lança caída testado em navegador com SDK simulado. Validação visual em sala real pendente.
+- Ponto de retomada e detalhes em `docs/FIX-BAUS-E-SAQUE.md`. Não gerar novas imagens nem atualizar a lista de artes até nova instrução.
+
+## Centralização e arte de habilidades dos itens — local
+
+- Corrigida a cascata CSS que aplicava 100% ao recorte com margem de 8%, deslocando-o. Dimensões das camadas agora são explícitas e simétricas.
+- Opções de itens usam tema Comum; arte própria configurada da habilidade prevalece, com imagem do item como alternativa. A resolução é compartilhada no grid, balão, instância e prévia pública.
+- Consumíveis abrem a instância antes de confirmar o gasto. Teste headless confirmou centralização, precedência da arte, as três apresentações e consumo após Executar.
+- Plano/lista de imagens permanece congelado; nenhuma nova arte gerada e nenhuma publicação feita nesta correção.
+
+# Recuperação da conexão na entrada — 0.8.44 local
+
+Corrigida sincronização inicial: reenvio de consultas, leitura fora da fila de ações/rolagens, montagem de vistas intercaladas, recuperação da HUD após timeout e instalação do painel sem interromper os observadores. Ações não são reenviadas. Evidências: 266 testes passaram; duas sessões simuladas conectam com controlador atrasado e durante ajuste de ataque pendente. Detalhes em `docs/FIX-CONEXAO-ENTRADA.md`. Ainda não publicado. Geração de artes pausada para priorizar o relato de conexão.
 

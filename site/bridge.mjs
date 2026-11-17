@@ -1,9 +1,11 @@
-import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.43';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.43';
-import {compactarEstado} from './catalog.mjs?v=0.8.43';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.43';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.43';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.44';
+import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.44';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.44';
+import {compactarEstado} from './catalog.mjs?v=0.8.44';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.44';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.44';
+import {consultarComReenvio,receptorDeEstado} from './room-sync.mjs?v=0.8.44';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -221,15 +223,30 @@ async function sincronizarTokensRecipientes(s,pixelsMetro){
   if(orfaos.length)await OBR.scene.items.deleteItems(orfaos);
   for(const r of s.recipientes??[]){
     const id=r.tokenId??(prefixoRecipiente+r.id),existente=itens.find(i=>i.id===id),primeiro=r.itens?.[0];
+    const hitExistente=itens.find(i=>i.id===id+'-selecao');
+    const atual=hitExistente??existente;if(atual)r.posicaoM={x:atual.position.x/pixelsMetro,y:atual.position.y/pixelsMetro};
     const caminho=r.tipo==='caixa'?'assets/props/bau-madeira-saque-75graus.webp':(primeiro?.icone??'assets/props/loot-no-chao.svg');
     const url=/^(?:https?:|data:|blob:)/.test(caminho)?caminho:new URL('./'+caminho.replace(/^\.\//,''),location.href).href;
     if(!existente){
-      const pixels=r.tipo==='caixa'?500:256,metros=r.tipo==='caixa'?.9:.6;
-      const token=buildImage({url,mime:/\.svg(?:\?|$)/i.test(url)?'image/svg+xml':/\.webp(?:\?|$)/i.test(url)?'image/webp':'image/png',width:pixels,height:pixels},{dpi:pixels/metros,offset:{x:pixels/2,y:pixels/2}})
+      const pixels=r.tipo==='caixa'?1536:500,altura=r.tipo==='caixa'?1024:500,metros=r.tipo==='caixa'?1.5:1;
+      const token=buildImage({url,mime:/\.svg(?:\?|$)/i.test(url)?'image/svg+xml':/\.webp(?:\?|$)/i.test(url)?'image/webp':'image/png',width:pixels,height:altura},{dpi:pixels*1.5/metros,offset:{x:pixels/2,y:altura/2}})
         .id(id).name(r.nome).layer('PROP').metadata({[ns+'/recipiente']:r.id}).position({x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro}).build();
       await OBR.scene.items.addItems([token]);
     }else await OBR.scene.items.updateItems([id],xs=>{for(const item of xs){item.position={x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro};item.name=r.nome;item.metadata??={};item.metadata[ns+'/recipiente']=r.id;}});
     r.tokenId=id;
+    // Migra loot minúsculo e dimensões antigas sem alterar props convertidas pelo GM.
+    if(!hitExistente)await OBR.scene.items.updateItems([id],xs=>{for(const i of xs){
+      if(r.tipo==='chao'){i.image.width=500;i.image.height=500;i.grid={dpi:750,offset:{x:250,y:250}};i.scale={x:1,y:1};}
+      else if(i.image.url.includes('bau-madeira-saque-75graus')){i.image.width=1536;i.image.height=1024;i.grid={dpi:1536,offset:{x:768,y:512}};}
+    }});
+    const [imagem]=await OBR.scene.items.getItems([id]),hitId=idSelecaoRecipiente(r);
+    if(!hitExistente){
+      const pontos=pontosInteracaoRecipiente(r,pixelsMetro,imagem,pixelsMetro*1.5);
+      const area=buildCurve().id(hitId).name(r.nome).layer('PROP').visible(imagem.visible!==false).position(imagem.position).rotation(imagem.rotation??0).points(pontos).closed(true).fillColor('#d9bf89').fillOpacity(.01).strokeOpacity(0).strokeWidth(0).metadata({[ns+'/recipiente']:r.id,[chaveSelecaoRecipiente]:true}).build();
+      await OBR.scene.items.addItems([area]);
+    }
+    await OBR.scene.items.updateItems([id],xs=>{for(const i of xs){i.disableHit=true;i.attachedTo=hitId;i.disableAttachmentBehavior=r.tipo==='chao'?['SCALE']:[];}});
+    if(hitExistente)await OBR.scene.items.updateItems([hitId],xs=>{for(const i of xs){i.name=r.nome;if(r.tipo==='chao')i.scale={x:1,y:1};}});
   }
 }
 export async function host(){
@@ -253,9 +270,9 @@ export async function host(){
     if(migrarEscalaCena(s))persistir(key,s);
     return {key,s};
   }
-  async function mostrar(s){
-    clearTimeout(timerReacao);
-    if(s.reacaoPendente){
+  async function mostrar(s,consulta=false){
+    if(!consulta)clearTimeout(timerReacao);
+    if(!consulta&&s.reacaoPendente){
       const id=s.reacaoPendente.id,espera=Math.max(0,s.reacaoPendente.terminaEm-Date.now());
       timerReacao=setTimeout(()=>serial(async()=>{
         const atual=await carregar(),p=atual.s.reacaoPendente;
@@ -272,7 +289,8 @@ export async function host(){
       v.atores=v.atores.filter(a=>!ids.has(a.id));v.ordem=v.ordem.filter(id=>!ids.has(id));v.vez=v.ordem.indexOf(ativo);v.historico=[];
     }
     const dados=JSON.stringify(v), seq=crypto.randomUUID();
-    for(let i=0;i<dados.length;i+=7000)await OBR.broadcast.sendMessage(canais.view,{seq,i,final:i+7000>=dados.length,parte:dados.slice(i,i+7000)},{destination:'REMOTE'});
+    // 2000 caracteres continuam abaixo de 16KB mesmo com UTF-8 e escapes JSON.
+    for(let i=0;i<dados.length;i+=2000)await OBR.broadcast.sendMessage(canais.view,{seq,i,final:i+2000>=dados.length,parte:dados.slice(i,i+2000)},{destination:'REMOTE'});
   }
   async function sincronizarNpcs(){
     const {key,s}=await carregar();
@@ -314,13 +332,13 @@ export async function host(){
           c.posicaoM={x:centro.x/pixelsMetro,y:centro.y/pixelsMetro};propNovo={tokenId:c.tokenId,posicao:{x:centro.x,y:centro.y}};
         }
       }
-      if(['abrirSaqueRecipiente','confirmarSaque'].includes(c.tipo)){
+      if((['abrirSaqueRecipiente','confirmarSaque'].includes(c.tipo)||c.tipo==='usar'&&c.opcao==='saquear'&&c.recipienteId)){
         const ator=s.atores.find(a=>a.id===c.ator),origem=ator?.saqueAberto?.origem;
-        const recipiente=c.tipo==='abrirSaqueRecipiente'?s.recipientes?.find(r=>r.id===c.recipienteId):origem&&origem.tipo!=='personagem'?s.recipientes?.find(r=>r.id===origem.id):null;
+        const recipiente=c.tipo!=='confirmarSaque'?s.recipientes?.find(r=>r.id===c.recipienteId):origem&&origem.tipo!=='personagem'?s.recipientes?.find(r=>r.id===origem.id):null;
         if(recipiente){
-        const [prop]=await OBR.scene.items.getItems([recipiente.tokenId]);
+        const props=await OBR.scene.items.getItems([recipiente.tokenId,idSelecaoRecipiente(recipiente)]),prop=props.find(i=>i.id===idSelecaoRecipiente(recipiente))??props[0];
         if(!recipiente||!prop)throw Error('Esta peça não está configurada como recipiente.');
-        if(u.role!=='GM'&&prop.visible===false)throw Error('Este recipiente não está visível.');
+        if(u.role!=='GM'&&props.some(p=>p.visible===false))throw Error('Este recipiente não está visível.');
         recipiente.posicaoM={x:prop.position.x/pixelsMetro,y:prop.position.y/pixelsMetro};
         }
       }
@@ -392,28 +410,61 @@ export async function host(){
       await mostrar(estadoMostrar);await reply({});
     }catch(e){await reply({erro:e.message});}
   }
-  ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando)serial(()=>executar(e.data.comando,eu,r=>ch.postMessage({...r,resposta:e.data.req})));};
-  OBR.broadcast.onMessage(canais.cmd,e=>serial(async()=>{
+  async function responderSync(reply){
+    try{const {s}=await carregar();await mostrar(s,true);await reply({});}
+    catch(e){await reply({erro:e.message});}
+  }
+  ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando){const reply=r=>ch.postMessage({...r,resposta:e.data.req});if(e.data.comando.tipo==='sync')responderSync(reply).catch(console.error);else serial(()=>executar(e.data.comando,eu,reply));}};
+  OBR.broadcast.onMessage(canais.cmd,e=>{
+    const receber=async()=>{
     const u=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
     if(!u||u.role!=='PLAYER')return;
-    await executar(e.data.comando,u,r=>OBR.broadcast.sendMessage(ns+'/resposta',{...r,resposta:e.data.req},{destination:'REMOTE'}));
-  }));
+    const reply=r=>OBR.broadcast.sendMessage(ns+'/resposta',{...r,resposta:e.data.req},{destination:'REMOTE'});
+    if(e.data.comando?.tipo==='sync')await responderSync(reply);
+    else serial(()=>executar(e.data.comando,u,reply));
+    };
+    receber().catch(console.error);
+  });
   OBR.broadcast.onMessage(canais.rollReply,async e=>{
     const p=pedidos.get(e.data?.pedido),jogador=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
     if(p&&jogador?.id===p.destino)p.responder(e.data);
   });
   const sync=()=>serial(async()=>{if(await OBR.scene.isReady()){
     const {key,s}=await carregar(),[itens,dpi]=await Promise.all([OBR.scene.items.getItems(),OBR.scene.grid.getDpi()]),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
-    for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
+    for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===idSelecaoRecipiente(r))??itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
     if(mudou)persistir(key,s);
     await sincronizarTokensRecipientes(s,pixelsMetro);
     await mostrar(await sincronizarNpcs());
   }});
-  let assinaturaItens='',sincronizacaoAgendada=false;
+  let assinaturaItens='',sincronizacaoAgendada=false,itensRecipienteNaCena=null;
   OBR.scene.items.onChange(itens=>{
+    const chaveRecipiente=ns+'/recipiente';
+    const recipientesAtuais=new Map(itens.filter(i=>i.metadata?.[chaveRecipiente]).map(i=>[i.id,i.metadata[chaveRecipiente]]));
+    const removidosNaCena=itensRecipienteNaCena===null?[]:[...itensRecipienteNaCena].filter(([id])=>!recipientesAtuais.has(id));
+    itensRecipienteNaCena=recipientesAtuais;
+    if(removidosNaCena.length){
+      assinaturaItens='';
+      serial(async()=>{
+        if(!await OBR.scene.isReady())return;
+        const {key,s}=await carregar(),ids=new Set(removidosNaCena.map(([,id])=>id));
+        const excluidos=(s.recipientes??[]).filter(r=>ids.has(r.id));
+        if(!excluidos.length)return; // exclusão iniciada pelo próprio sistema já foi persistida
+        s.recipientes=s.recipientes.filter(r=>!ids.has(r.id));
+        for(const ator of s.atores??[]){
+          if(ator.saqueAberto&&ids.has(ator.saqueAberto.origem?.id))delete ator.saqueAberto;
+        }
+        s.rev=(s.rev??0)+1;
+        s.historico.unshift('Recipiente excluído da mesa: '+excluidos.map(r=>r.nome).join(', ')+'. O conteúdo também foi removido permanentemente.');
+        const dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);
+        persistir(key,s);
+        await sincronizarTokensRecipientes(s,pixelsMetro); // remove a imagem ou hitbox que ainda restou
+        await mostrar(await sincronizarNpcs());
+      });
+      return;
+    }
     // A posição de props é lida ao abrir o recipiente e ao carregar a cena;
     // não sincronizar a cada quadro de arraste evita gravações/redesenhos contínuos.
-    const assinatura=JSON.stringify(itens.filter(i=>i.type==='IMAGE'&&(i.layer==='CHARACTER'||i.metadata?.[ns+'/recipiente'])).map(i=>[i.id,i.metadata?.[chaveFichaNpc],i.metadata?.[ns+'/recipiente']]).sort((a,b)=>a[0].localeCompare(b[0])));
+    const assinatura=JSON.stringify(itens.filter(i=>(i.type==='IMAGE'&&i.layer==='CHARACTER')||i.metadata?.[chaveRecipiente]).map(i=>[i.id,i.metadata?.[chaveFichaNpc],i.metadata?.[chaveRecipiente]]).sort((a,b)=>a[0].localeCompare(b[0])));
     if(assinatura===assinaturaItens)return;
     assinaturaItens=assinatura;
     if(sincronizacaoAgendada)return;
@@ -422,45 +473,37 @@ export async function host(){
       sincronizacaoAgendada=false;
       if(await OBR.scene.isReady()){
         const {key,s}=await carregar(),dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
-        for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
+        for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===idSelecaoRecipiente(r))??itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
         if(mudou)persistir(key,s);
         await sincronizarTokensRecipientes(s,pixelsMetro);
         await mostrar(await sincronizarNpcs());
       }
     }));
   });
-  OBR.party.onChange(sync);OBR.scene.onReadyChange(ready=>{if(ready)sync();else ch.postMessage({vista:novo(),info:{...eu,modo:'sem cena',players:[],tokens:[]}});});
+  OBR.party.onChange(sync);OBR.scene.onReadyChange(ready=>{if(ready)sync();else{itensRecipienteNaCena=null;assinaturaItens='';ch.postMessage({vista:novo(),info:{...eu,modo:'sem cena',players:[],tokens:[]}});}});
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.43',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.44',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  const abrirRecipiente=async(ctx)=>{
-    const tokenId=ctx.items?.[0]?.id;if(!tokenId)return;
-    const largura=Math.min(420,await OBR.viewport.getWidth()-24),url=new URL('./recipiente.html?v=0.8.43',location.href);url.searchParams.set('tokenId',tokenId);
-    await OBR.popover.open({id:ns+'/recipiente',url:url.href,width:largura,height:560,hidePaper:true,disableClickAway:false,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,await OBR.viewport.getWidth()-largura-12),top:64},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
-  };
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · transformar em recipiente / configurar',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],onClick:abrirRecipiente});
-  await OBR.contextMenu.create({id:ns+'/saquear-recipiente',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · saquear',filter:{roles:['GM','PLAYER'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],onClick:abrirRecipiente});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.44',location.href).href,height:300},onClick:()=>{}});
+
   sync();
 }
 export async function sala(onView){
   await pronto();const eu=await identidade();const ch=local(),espera=new Map();
   function receber(d){if(!d.resposta)return;const cb=espera.get(d.resposta);if(cb){espera.delete(d.resposta);cb(d.erro);}}
-  let pacote;
+  const montarEstado=receptorDeEstado();let ultimaRev=-1,recebeuVista=false;
   const mestre=async e=>(await OBR.party.getPlayers()).some(p=>p.role==='GM'&&p.connectionId===e.connectionId);
   let fila=Promise.resolve();
-  if(eu.role==='GM')ch.onmessage=e=>{receber(e.data);if(e.data.vista)onView(e.data.vista,e.data.info);};
+  if(eu.role==='GM')ch.onmessage=e=>{receber(e.data);if(e.data.vista){recebeuVista=true;onView(e.data.vista,e.data.info);}};
   else{
     OBR.broadcast.onMessage(ns+'/resposta',async e=>{if(await mestre(e))receber(e.data);});
     OBR.broadcast.onMessage(canais.view,e=>{fila=fila.then(async()=>{
       if(!await mestre(e))return;
-      const {seq,i,final,parte}=e.data;
-      if(i===0)pacote={seq,texto:''};
-      if(pacote?.seq!==seq||pacote.texto.length!==i)return;
-      pacote.texto+=parte;
-      if(final){onView(JSON.parse(pacote.texto),{...eu,modo:'sala',players:[],tokens:[]});pacote=null;}
+      const estado=montarEstado(e.data);
+      if(estado&&(estado.rev??0)>=ultimaRev){ultimaRev=estado.rev??0;recebeuVista=true;onView(estado,{...eu,modo:'sala',players:[],tokens:[]});}
     }).catch(console.error);});
   }
   const send=(comando,req)=>eu.role==='GM'?ch.postMessage({comando,req}):OBR.broadcast.sendMessage(canais.cmd,{comando,req},{destination:'REMOTE'});
@@ -472,7 +515,11 @@ export async function sala(onView){
       Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
     });
   };
-  return {notify:()=>enviar({tipo:'sync'}),enviar,observarSelecao:fn=>OBR.player.onChange(p=>fn(p.selection?.[0])),selecionado:async()=>(await OBR.player.getSelection())?.[0]};
+  let syncEmCurso;
+  const notify=()=>syncEmCurso??(syncEmCurso=consultarComReenvio(async()=>{await enviar({tipo:'sync'});if(!recebeuVista)throw Error('Aguardando os dados da mesa.');}).finally(()=>{syncEmCurso=null;}));
+  OBR.party.onChange(()=>{notify().catch(console.warn);});
+  OBR.scene.onReadyChange(ready=>{ultimaRev=-1;recebeuVista=false;if(ready)notify().catch(console.warn);});
+  return {notify,enviar,observarSelecao:fn=>OBR.player.onChange(p=>fn(p.selection?.[0])),selecionado:async()=>(await OBR.player.getSelection())?.[0]};
 }
 
 export async function interfaceRolagens(onEvent){

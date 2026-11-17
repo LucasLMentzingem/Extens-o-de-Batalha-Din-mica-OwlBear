@@ -1,6 +1,6 @@
 # Ícones de habilidades — arquitetura e artes
 
-Estado: conjunto base de artes integrado à entrega 0.8.43. Consulte [Revisão 0.8.43](REVISAO-0.8.43.md) para os testes e os limites de cobertura. A biblioteca usa emblemas de origem nas habilidades sem arte exclusiva.
+Estado: correção local 0.8.44. Cada habilidade tem identidade e arte própria. Somente fundo e moldura são compartilhados pela seção. A lista regenerável está em [Artes a gerar](arte/HABILIDADES-A-GERAR.md).
 
 ## Estrutura entregue
 
@@ -11,7 +11,7 @@ Estado: conjunto base de artes integrado à entrega 0.8.43. Consulte [Revisão 0
 - Prévia compartilhada inclui os metadados visuais resolvidos, preservando a imagem da arma para espectadores sem enviar o inventário inteiro.
 - `ability-art.test.mjs`: cobertura de origem, arma, observador, soco, testes, metadados, escape e renderização sem mutar as sete fichas.
 - `site/assets/habilidades/`: 16 fontes transparentes de 500 × 500. Inclui três emblemas de origem, soco, perícias, seis salvaguardas, símbolo de arremesso e artes próprias para Saraivada de Espinhos, Mísseis Mágicos, Raio de Fogo e Torrente de Golpes; seis fundos/molduras SVG formam as famílias Comum, Raça e Classe.
-- Habilidades sem ilustração exclusiva usam o emblema da família. Ataques arremessáveis conservam a arte da arma e exibem o símbolo de voo sobreposto.
+- Habilidades sem ilustração própria ficam pendentes e mostram somente o nome sobre o tema, sem usar emblemas de origem como ilustração. Ataques arremessáveis conservam a arte da arma e exibem o símbolo de voo sobreposto.
 
 ## Como ampliar a coleção de artes
 
@@ -83,7 +83,7 @@ Na instância, custos continuam refletindo composição/círculo e reaparecem na
 - Fundo ilustra a atividade da perícia; contraste reduzido atrás do texto. O título é o foco principal.
 - Nome completo fica em texto real, com quebra controlada e tamanho mínimo legível; não truncar nomes importantes nem confiar somente no balão.
 - Moldura Comum em todos os testes. Bônus numérico separado do nome, calculado pela ficha.
-- Seis artes-base de salvaguarda, uma por atributo, com título explícito (por exemplo, “Salva de Destreza”) e bônus da ficha. No balão/instância, usar “Salvaguarda de Destreza”.
+- Seis artes-base de salvaguarda, uma por atributo, com título explícito (por exemplo, “Destreza”) e bônus da ficha. No balão/instância, usar “Salvaguarda de Destreza”.
 - Perícias longas usam até três linhas no quadrado; fonte e margens são definidas pelo componente e validadas no tamanho real do rodapé.
 
 ## Estados e variantes
@@ -98,7 +98,7 @@ Ataques corpo a corpo, arremesso e mão secundária reutilizam a arte da arma co
 - Molduras/fundos em SVG com viewBox 500 × 500, seguindo o padrão atual dos itens.
 - Manifesto central associa IDs estáveis a caminhos; não armazenar base64 nas fichas ou no estado da sala.
 - Carregamento sob demanda, dimensões fixas e cache; não baixar todos os arquivos ao iniciar o HUD.
-- Placeholder Comum e nome legível enquanto carrega ou em falha. Nenhuma habilidade perde funcionalidade por falta de imagem.
+- Sem arte, fundo/moldura da seção e nome legível enquanto carrega ou em falha; nenhuma ilustração genérica é substituta de arte própria. Nenhuma habilidade perde funcionalidade por falta de imagem.
 
 ## Ordem de execução proposta
 
@@ -111,6 +111,28 @@ Ataques corpo a corpo, arremesso e mão secundária reutilizam a arte da arma co
 
 ## Pontos a fechar no desenho
 
-- Manter o nome curto visível em todas as habilidades, além da imagem, como recomendado; perícias e salvaguardas têm sempre texto em destaque.
+- No rodapé, o botão Aa à esquerda de Linhas mostra/oculta os nomes. A preferência é local por usuário e persiste ao recarregar. Nenhum texto tem tarja de fundo; o modo sem nomes conserva contadores, custos e estados. Balões, Livro e instância continuam com os nomes para consulta.
 - As três famílias são compartilhadas entre classes e raças; ícones da própria habilidade distinguem o conteúdo. Variações exclusivas por classe/raça podem ser adicionadas depois.
 - Exame ampliado de habilidade pode reutilizar o padrão de itens se solicitado; não é requisito desta proposta.
+
+## Regra corrigida em 0.8.44
+
+- Arte ausente é uma pendência real. Nunca apontar habilidades diferentes para a mesma arte apenas por pertencerem à mesma seção. Os três emblemas genéricos foram retirados do registro ativo, e a arte de Investigação deixou de ser aplicada a outras perícias.
+- A mesma habilidade presente em fichas diferentes ou conjurada em outro círculo mantém sua identidade. Habilidades distintas como Mão de Cura, Mão de Dolo, Torrente e manobras têm IDs próprios. Custos, origem, acerto e proficiência não determinam uma nova imagem por si só.
+- Armas usam o recorte do equipamento real; arremesso sobrepõe seu símbolo. Modos físicos da composição preservam os metadados do equipamento.
+- `site/ability-art-id.mjs` define identidades sem depender de UUIDs de instância. `scripts/listar-artes-habilidades.mjs` usa o mesmo resolvedor que a interface para gerar Markdown e JSON. Não há caminhos para imagens futuras que ainda não existem.
+- A coleção individual ainda precisa ser gerada: veja a lista completa com nomes, descrições, IDs, referências, famílias e fichas no JSON.
+
+## Imagens de itens na barra de habilidades
+
+Todas as opções com `origemItem` usam fundo e moldura Comum, incluindo habilidades concedidas por equipamento que não são ataques. A ilustração segue esta ordem:
+
+1. Arte própria da habilidade, configurada em `visual.arteId` no registro central ou em `visual.arquivo` para um arquivo existente.
+2. Imagem `icone` da instância do item, quando a habilidade ainda não possui arte própria.
+3. Nome sobre fundo/moldura Comum se nenhuma das duas imagens estiver disponível.
+
+Grid, balão e instância usam o mesmo resolvedor. A prévia pública guarda a origem da ilustração (`fonteArte`) para não confundir a imagem provisória do item com uma substituição explicitamente configurada na habilidade. Esse metadado é de apresentação, não uma cópia de definição na ficha.
+
+Consumíveis usam a mesma representação no grid e abrem uma instância para confirmar o uso antes de reduzir a quantidade. As habilidades realmente concedidas por um equipamento conservam seus próprios custos e automações; a regra visual não troca sua mecânica.
+
+No inventário, o recorte é limitado a 84% com margem de 8% simétrica. Seletores específicos das camadas impedem que estilos gerais de imagens das células o expandam para 100%, deslocando o centro. O exame ampliado mantém a mesma composição.

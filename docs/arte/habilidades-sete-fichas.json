@@ -1,0 +1,4665 @@
+{
+  "formato": 1,
+  "escopo": "Sete fichas: opções calculadas, passivas, anexos, equipamentos e testes rápidos",
+  "regra": "Cada habilidade distinta tem arte própria; a mesma habilidade em fichas, custos e círculos diferentes mantém sua identidade. Somente fundo e moldura são compartilhados por seção. Armas usam a arte do item e arremesso acrescenta símbolo separado.",
+  "resumo": {
+    "habilidades": 177,
+    "gerar": 165,
+    "disponiveis": 12,
+    "variantesDeItens": 20
+  },
+  "habilidades": [
+    {
+      "arteId": "habilidade.acalmar-emocoes",
+      "nome": "Acalmar Emoções",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.2-acalmar-emocoes-salva-de-car-concentracao-aberrante"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Acalmar Emoções · salva de CAR · concentração · aberrante"
+      ],
+      "descricao": "Ação · 18 m · Esfera de 6 m de raio · Concentração até 1 min. Cada humanoide na área rola CAR, CD 13 (14 com Inata). Na falha, escolha por alvo: imunidade a enfeitiçado e amedrontado (suprime essas condições existentes), ou indiferença diante de criaturas que ele hostiliza. A indiferença termina se ele sofrer dano ou vir aliados sofrerem dano."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-acido",
+      "nome": "Ácido",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Ácido"
+      ],
+      "descricao": "Explosão Elemental com dano ácido."
+    },
+    {
+      "arteId": "pericia.acrobacia",
+      "nome": "Acrobacia",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Acrobacia"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.acudir-os-moribundos",
+      "nome": "Acudir os Moribundos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.truque-acudir-os-moribundos-iniciado"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Acudir os Moribundos · Iniciado"
+      ],
+      "descricao": "Ação, 4,5 m: uma criatura com 0 PV que não esteja morta fica Estável."
+    },
+    {
+      "arteId": "habilidade.ajudar",
+      "nome": "Ajudar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.ajudar-acao",
+        "habilidade.ajudar-estabilizar"
+      ],
+      "locais": [
+        "opcao",
+        "opcao/automacao/entidade/ficha/opcoes"
+      ],
+      "nomes": [
+        "Ajudar | ação",
+        "Ajudar · Estabilizar"
+      ],
+      "descricao": "Auxilie um teste com uma proficiência sua aplicável ou distraia um inimigo a até 1,5 m. Neste último caso, o próximo ataque de um aliado contra ele antes do início do seu próximo turno tem vantagem."
+    },
+    {
+      "arteId": "habilidade.amizade",
+      "nome": "Amizade",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.truque-amizade"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Amizade"
+      ],
+      "descricao": "Ação · enfeitiça 1 criatura a 3 m por 1 minuto, salvaguarda de SAB CD 13, concentração, silenciosa."
+    },
+    {
+      "arteId": "habilidade.analisar",
+      "nome": "Analisar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.analisar-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Analisar | ação"
+      ],
+      "descricao": "Analise uma pista ou recorde conhecimento. Use a perícia de INT indicada pelo mestre."
+    },
+    {
+      "arteId": "pericia.arcanismo",
+      "nome": "Arcanismo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Arcanismo"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.arco-perfurante",
+      "nome": "Arco · perfurante",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Arco · perfurante"
+      ],
+      "descricao": "Ataque com arco longo, usando SAB e mantendo o dano perfurante da arma."
+    },
+    {
+      "arteId": "habilidade.arco-radiante",
+      "nome": "Arco · radiante",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Arco · radiante"
+      ],
+      "descricao": "Ataque com arco longo, usando SAB e convertendo o dano para radiante."
+    },
+    {
+      "arteId": "habilidade.armadura-arcana",
+      "nome": "Armadura Arcana",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.1-armadura-arcana-defesa-classe"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Armadura Arcana · defesa · classe"
+      ],
+      "descricao": "Ação · Toque · 8 h. Criatura voluntária sem armadura recebe CA 13 + DES. Em Nikki, CA 15. Ao conjurar, marque o gasto e a hora de término."
+    },
+    {
+      "arteId": "habilidade.arquearia",
+      "nome": "Arquearia",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich",
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.passiva-arquearia-fd6881b8",
+        "habilidade.passiva-arquearia"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Arquearia"
+      ],
+      "descricao": "+2 nas jogadas de ataque com armas à distância (já incluído no Arco Longo)."
+    },
+    {
+      "arteId": "habilidade.arrombar",
+      "nome": "Arrombar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.2-arrombar"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Arrombar"
+      ],
+      "descricao": "Ação, 18 m: abre uma fechadura, tranca, cadeado ou corrente (ou suprime Tranca Arcana por 10 min). Faz um barulho alto ouvido a até 90 m."
+    },
+    {
+      "arteId": "habilidade.arte-druidica",
+      "nome": "Arte Druídica",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Zurich",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.truque-arte-druidica-elfo"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Arte Druídica · Elfo"
+      ],
+      "descricao": "Pequenos efeitos da natureza: prever o tempo, fazer uma flor desabrochar, efeitos sensoriais inofensivos, acender ou apagar uma chama pequena."
+    },
+    {
+      "arteId": "habilidade.artes-marciais",
+      "nome": "Artes Marciais",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passiva-artes-marciais"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Artes Marciais"
+      ],
+      "descricao": "Desarmado ou só com armas de Monge, sem armadura nem escudo: soco extra como Ação Bônus; dado d6 nos socos e armas de Monge; pode usar DES em vez de FOR no acerto, no dano e na CD de Empurrar/Imobilizar."
+    },
+    {
+      "arteId": "habilidade.assassino-de-colossos",
+      "nome": "Assassino de Colossos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich",
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.assassino-de-colossos-bc0fae68",
+        "habilidade.assassino-de-colossos"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Assassino de Colossos"
+      ],
+      "descricao": "Uma vez por turno, ao acertar com arma uma criatura que já está abaixo dos PV máximos: +[1d8] de dano. Pode trocar por Destruidor de Hordas ao fim de um descanso curto ou longo."
+    },
+    {
+      "arteId": "habilidade.astucia-magica",
+      "nome": "Astúcia Mágica",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.astucia-magica"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Astúcia Mágica"
+      ],
+      "descricao": "Fora de combate · 1 minuto. Recupere 1 Espaço de Magia de Pacto. Uso único por descanso longo."
+    },
+    {
+      "arteId": "habilidade.atacante-selvagem",
+      "nome": "Atacante Selvagem",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.atacante-selvagem"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Atacante Selvagem"
+      ],
+      "descricao": "Talento de origem. No primeiro acerto com arma de cada turno, os dados de dano da arma são rolados duas vezes e o maior resultado é aplicado. Modificadores fixos e dados adicionais são somados uma única vez."
+    },
+    {
+      "arteId": "habilidade.ataque-ameacador",
+      "nome": "Ataque Ameaçador",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.ataque-ameacador"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ataque Ameaçador"
+      ],
+      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade: some 1d8 ao dano e o alvo faz salvaguarda de SAB. Se falhar, fica Amedrontado até o fim do seu próximo turno."
+    },
+    {
+      "arteId": "habilidade.ataque-de-desarme",
+      "nome": "Ataque de Desarme",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.ataque-de-desarme"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ataque de Desarme"
+      ],
+      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade: some 1d8 ao dano e o alvo faz salvaguarda de FOR. Se falhar, larga a arma empunhada, que vai para o inventário; reequipar em combate gasta uma ação. Com duas armas diferentes, 60% a principal e 40% a da mão fraca."
+    },
+    {
+      "arteId": "habilidade.ataque-de-oportunidade",
+      "nome": "Ataque de oportunidade",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.ataque-de-oportunidade-reacao-9e4677f8",
+        "habilidade.ataque-de-oportunidade-reacao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ataque de oportunidade | reação"
+      ],
+      "descricao": "Quando um inimigo que você vê sai do seu alcance usando movimento, ação, ação bônus ou reação, faça um ataque corpo a corpo imediatamente antes de ele sair. Use a caixa da arma ou do golpe desarmado."
+    },
+    {
+      "arteId": "habilidade.ataque-de-sopro-cone",
+      "nome": "Ataque de Sopro · cone",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.ataque-de-sopro-cone"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ataque de Sopro · cone"
+      ],
+      "descricao": "Substitui o ataque da ação Atacar. Cone de 4,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica."
+    },
+    {
+      "arteId": "habilidade.ataque-de-sopro-linha",
+      "nome": "Ataque de Sopro · linha",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.ataque-de-sopro-linha"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ataque de Sopro · linha"
+      ],
+      "descricao": "Substitui o ataque da ação Atacar. Linha de 9 m por 1,5 m; salvaguarda de DES CD 11. Causa 1d10 de dano de raio, ou metade no sucesso. Gasta 1 dos 2 usos da herança dracônica."
+    },
+    {
+      "arteId": "habilidade.ataque-prostrador",
+      "nome": "Ataque Prostrador",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.ataque-prostrador"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ataque Prostrador"
+      ],
+      "descricao": "Ao acertar com arma, gaste um Dado de Superioridade: some 1d8 ao dano e o alvo Grande ou menor faz salvaguarda de FOR. Se falhar, fica Caído."
+    },
+    {
+      "arteId": "pericia.atletismo",
+      "nome": "Atletismo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Atletismo"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "pericia.atuacao",
+      "nome": "Atuação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.pericia-atuacao-1",
+        "habilidade.pericia-atuacao-0",
+        "habilidade.pericia-atuacao-5"
+      ],
+      "locais": [
+        "teste rapido",
+        "opcao"
+      ],
+      "nomes": [
+        "Atuação",
+        "Perícia | Atuação -1",
+        "Perícia | Atuação +0",
+        "Perícia | Atuação +5"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.bracos-de-hadar",
+      "nome": "Braços de Hadar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.1-bracos-de-hadar-salva-de-for-aberrante"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Braços de Hadar · salva de FOR · aberrante"
+      ],
+      "descricao": "Ação · Emanação de 3 m · Cada alvo rola FOR, CD 13 (14 com Inata). Falha: dano necrótico e perde reações até o início do próximo turno dele. Sucesso: metade do dano.\n1º [2d6] · 2º [3d6]"
+    },
+    {
+      "arteId": "salvaguarda.car",
+      "nome": "Carisma",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/salvaguarda-car.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "salvaguarda"
+      ],
+      "nomes": [
+        "Salva de Carisma"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.cimitarra",
+      "nome": "Cimitarra",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Cimitarra · radiante",
+        "Cimitarra · cortante"
+      ],
+      "descricao": "Ataque com cimitarra, usando SAB e convertendo o dano para radiante."
+    },
+    {
+      "arteId": "habilidade.combate-com-armas-grandes",
+      "nome": "Combate com Armas Grandes",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.combate-com-armas-grandes"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Combate com Armas Grandes"
+      ],
+      "descricao": "Estilo de Luta. Ao causar dano com uma arma corpo a corpo empunhada com duas mãos, resultados 1 ou 2 nos dados de dano da arma contam como 3. Automático: o ajuste aparece no histórico do ataque."
+    },
+    {
+      "arteId": "habilidade.compreender-idiomas",
+      "nome": "Compreender Idiomas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.1-compreender-idiomas"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Compreender Idiomas"
+      ],
+      "descricao": "Ritual · 10 minutos adicionais · pessoal · 1 h. Compreenda o sentido literal de idiomas falados e, por toque, escritos. Não gasta Espaço de Magia de Pacto."
+    },
+    {
+      "arteId": "habilidade.concentracao-e-feiticaria-inata",
+      "nome": "concentração e Feitiçaria Inata",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.passivas-concentracao-e-feiticaria-inata"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passivas | concentração e Feitiçaria Inata"
+      ],
+      "descricao": "Mantenha uma só concentração por vez. Ao sofrer dano, use a salvaguarda de CON em Actions. Feitiçaria Inata melhora as magias de Feiticeiro. As recebidas somente pelo legado Infernal usam seus valores normais."
+    },
+    {
+      "arteId": "habilidade.concentracao-e-turno",
+      "nome": "Concentração e turno",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.concentracao-e-turno"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Concentração e turno"
+      ],
+      "descricao": "Você mantém apenas uma magia de concentração por vez. Marca do Predador, Golpe Constritor, Escudo da Fé e Proteção contra Lâminas competem por concentração. Turno normal: movimento, uma ação e uma ação bônus quando uma habilidade permitir. Sem Ataque Extra de nível 5."
+    },
+    {
+      "arteId": "habilidade.conhecimento-do-cacador",
+      "nome": "Conhecimento do Caçador",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.passiva-conhecimento-do-cacador"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Conhecimento do Caçador"
+      ],
+      "descricao": "Enquanto uma criatura está sob sua Marca do Predador, você conhece suas imunidades, resistências e vulnerabilidades, se houver."
+    },
+    {
+      "arteId": "salvaguarda.con",
+      "nome": "Constituição",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/salvaguarda-con.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "salvaguarda"
+      ],
+      "nomes": [
+        "Salva de Constituição"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.correr",
+      "nome": "Correr",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.correr-acao",
+        "habilidade.correr-acao-d586be15",
+        "habilidade.correr-acao-94089e4f"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Correr | ação"
+      ],
+      "descricao": "Ganhe movimento adicional igual ao seu deslocamento atual. Com 9 m, pode percorrer até 18 m neste turno."
+    },
+    {
+      "arteId": "habilidade.curar-ferimentos",
+      "nome": "Curar Ferimentos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich",
+        "Dragoberto",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-curar-ferimentos-bb7ae130",
+        "habilidade.1-curar-ferimentos",
+        "habilidade.1-curar-ferimentos-77c1a63d"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Curar Ferimentos"
+      ],
+      "descricao": "Ação, toque: cura [2d8+2] PV. +2d8 por círculo acima."
+    },
+    {
+      "arteId": "habilidade.defesa-paciente",
+      "nome": "Defesa Paciente",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.defesa-paciente",
+        "habilidade.defesa-paciente-foco"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Defesa Paciente",
+        "Defesa Paciente · Foco"
+      ],
+      "descricao": "Ação Bônus: Desengajar de graça. Com 1 Foco: Desengajar e Esquivar."
+    },
+    {
+      "arteId": "habilidade.defesa-sem-armadura",
+      "nome": "Defesa sem Armadura",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passiva-defesa-sem-armadura"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Defesa sem Armadura"
+      ],
+      "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB = 14."
+    },
+    {
+      "arteId": "habilidade.defesas-e-sentidos",
+      "nome": "Defesas e sentidos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.passiva-defesas-e-sentidos"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Defesas e sentidos"
+      ],
+      "descricao": "Testes de resistência: FOR +5, DES +1, CON +4, INT +0, SAB +1, CAR -1. Ponto fraco: testes de SAB (medo, encantamento). Percepção passiva 13; Intuição passiva 13. Sem resistências ou imunidades a dano. Vantagem para se soltar de Imobilizado (Porte Poderoso)."
+    },
+    {
+      "arteId": "habilidade.defletir-ataques",
+      "nome": "Defletir Ataques",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.defletir-ataques"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Defletir Ataques"
+      ],
+      "descricao": "Ao ser atingido por ataque com dano contundente, cortante ou perfurante: reduz o dano em [1d10+6]. Se reduzir a 0, pode gastar 1 Foco para redirecionar: alvo a 1,5 m (corpo a corpo) ou 18 m (distância), salvaguarda de DES CD 11 ou sofre [2d6+3] do mesmo tipo."
+    },
+    {
+      "arteId": "habilidade.derrubar",
+      "nome": "Derrubar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.derrubar-acao",
+        "habilidade.derrubar-acao-59771004",
+        "habilidade.derrubar-acao-45835654",
+        "habilidade.derrubar-acao-570eb64f"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Derrubar | ação"
+      ],
+      "descricao": "Tente derrubar uma criatura a até 1,5 m. A resolução completa da condição Caído permanece assistida pelo mestre."
+    },
+    {
+      "arteId": "habilidade.desengajar",
+      "nome": "Desengajar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.desengajar-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Desengajar | ação"
+      ],
+      "descricao": "Seu movimento deixa de provocar ataques de oportunidade pelo restante deste turno."
+    },
+    {
+      "arteId": "habilidade.despedacar",
+      "nome": "Despedaçar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.2-despedacar-salva-de-con-classe"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Despedaçar · salva de CON · classe"
+      ],
+      "descricao": "Ação · 18 m · Esfera de 3 m de raio. Cada alvo rola CON, CD 13 (14 com Inata). Constructos rolam com desvantagem. Dano [3d8] trovejante, metade no sucesso."
+    },
+    {
+      "arteId": "salvaguarda.des",
+      "nome": "Destreza",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/salvaguarda-des.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "salvaguarda"
+      ],
+      "nomes": [
+        "Salva de Destreza"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.destruidor-de-hordas",
+      "nome": "Destruidor de Hordas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich",
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.destruidor-de-hordas",
+        "habilidade.habilitado-destruidor-de-hordas"
+      ],
+      "locais": [
+        "opcao",
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Destruidor de Hordas",
+        "(Habilitado) Destruidor de Hordas"
+      ],
+      "descricao": "Uma vez por turno, ao atacar com arma, faz outro ataque com a mesma arma contra criatura diferente a até 1,5 m do alvo original. Ativar no lugar do Assassino de Colossos após um descanso."
+    },
+    {
+      "arteId": "habilidade.detectar-magia",
+      "nome": "Detectar Magia",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-detectar-magia-ritual-concentracao-classe",
+        "habilidade.1-detectar-magia-ritual-concentracao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Detectar Magia · ritual · concentração · classe",
+        "1º | Detectar Magia · Ritual, Concentração"
+      ],
+      "descricao": "Ação · Pessoal · Concentração até 10 min · Detecta magia em 9 m. Como ritual, acrescente 10 min à conjuração e preserve o espaço."
+    },
+    {
+      "arteId": "habilidade.detectar-pensamentos",
+      "nome": "Detectar Pensamentos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.2-detectar-pensamentos-sondagem-concentracao-aberrante",
+        "habilidade.2-detectar-pensamentos"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Detectar Pensamentos · sondagem · concentração · aberrante",
+        "2º | Detectar Pensamentos"
+      ],
+      "descricao": "Ação · Pessoal · Concentração até 1 min. Detecte pensamentos em 9 m ou leia pensamentos superficiais. Para sondar mais fundo, use a ação Usar Magia em turno posterior. O alvo rola SAB, CD 13 (14 com Inata). No sucesso, a magia termina. Ao ser sondado, o alvo percebe a intrusão."
+    },
+    {
+      "arteId": "habilidade.disfarcar-se",
+      "nome": "Disfarçar-se",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.1-disfarcar-se"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Disfarçar-se"
+      ],
+      "descricao": "Ação · pessoal · 1 h. Pela Máscara de Muitas Faces, conjure à vontade sem espaço. Muda rosto, corpo e roupas; quem tocar sente o corpo real e a voz não muda. Teste de Investigação contra CD 13 revela a ilusão. Silenciosa."
+    },
+    {
+      "arteId": "habilidade.elfo-silvestre",
+      "nome": "Elfo Silvestre",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Zurich",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.passiva-elfo-silvestre"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Elfo Silvestre"
+      ],
+      "descricao": "Visão no Escuro 18 m. Ancestralidade Feérica: Vantagem em salvaguardas contra ficar Enfeitiçado. Transe: descanso longo em 4 h, sem dormir; magia não o faz dormir. Sentidos Aguçados: Percepção. Truque Arte Druídica.  Passos Largos usa o saldo no topo."
+    },
+    {
+      "arteId": "habilidade.emaranhar",
+      "nome": "Emaranhar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.1-emaranhar-concentracao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Emaranhar · Concentração"
+      ],
+      "descricao": "Ação, 27 m, quadrado de 6 m de terreno difícil por 1 min (concentração). As plantas não afetam quem conjura. Criaturas na área ao conjurar: salvaguarda de FOR CD 12 ou ficam Contidas até a magia acabar (ataques contra elas com Vantagem). Uma ação e teste de FOR (Atletismo) CD 12 para se soltar. Entrar ou atravessar a área depois não pede salvaguarda: custa deslocamento em dobro."
+    },
+    {
+      "arteId": "habilidade.empurrar",
+      "nome": "Empurrar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.empurrar-acao",
+        "habilidade.empurrar-acao-c1f6bba8",
+        "habilidade.empurrar-acao-63b33b98",
+        "habilidade.empurrar-acao-710fd437"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Empurrar | ação"
+      ],
+      "descricao": "Escolha uma criatura a até 1,5 m. Ela usa a melhor salvaguarda entre FOR e DES contra CD 10. Em uma falha, é empurrada 1,5 m diretamente para longe de você."
+    },
+    {
+      "arteId": "habilidade.encerrar-disfarcar-se",
+      "nome": "Encerrar Disfarçar-se",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/automacao/efeito/opcoesConcedidas"
+      ],
+      "nomes": [
+        "Encerrar Disfarçar-se | sem ação"
+      ],
+      "descricao": "Encerra o disfarce antes de 1 hora."
+    },
+    {
+      "arteId": "habilidade.encerrar-mente-desperta",
+      "nome": "Encerrar Mente Desperta",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/automacao/efeito/opcoesConcedidasConjurador"
+      ],
+      "nomes": [
+        "Encerrar Mente Desperta | sem ação"
+      ],
+      "descricao": "Encerra o vínculo telepático e remove os dois marcadores."
+    },
+    {
+      "arteId": "habilidade.encontrar-familiar",
+      "nome": "Encontrar Familiar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.1-encontrar-familiar"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Encontrar Familiar"
+      ],
+      "descricao": "Ritual · 1 h + 10 min · 3 m. Consome componentes de 10 PO, mas não gasta Espaço de Magia de Pacto. Invoca familiar. Ação bônus para usar os sentidos dele."
+    },
+    {
+      "arteId": "habilidade.enfeiticar-pessoa",
+      "nome": "Enfeitiçar Pessoa",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-enfeiticar-pessoa",
+        "habilidade.1-enfeiticar-pessoa-glamour-sempre"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Enfeitiçar Pessoa",
+        "1º | Enfeitiçar Pessoa · Glamour, sempre"
+      ],
+      "descricao": "Ação · 9 m, salvaguarda de SAB CD 13, 1 alvo no 1º círculo e +1 alvo por círculo acima, 1 hora, sem concentração; o alvo sabe que foi enfeitiçado quando acaba; silenciosa."
+    },
+    {
+      "arteId": "pericia.enganacao",
+      "nome": "Enganação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.pericia-enganacao-1",
+        "habilidade.pericia-enganacao-0",
+        "habilidade.pericia-enganacao-5",
+        "habilidade.pericia-enganacao-4"
+      ],
+      "locais": [
+        "teste rapido",
+        "opcao"
+      ],
+      "nomes": [
+        "Enganação",
+        "Perícia | Enganação -1",
+        "Perícia | Enganação +0",
+        "Perícia | Enganação +5",
+        "Perícia | Enganação +4"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.entregar-magia-de-toque",
+      "nome": "Entregar magia de toque",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/automacao/entidade/ficha/opcoes"
+      ],
+      "nomes": [
+        "Entregar magia de toque | reação"
+      ],
+      "descricao": "Quando o conjurador conjura uma magia de toque, o familiar a 30 m pode entregá-la usando a própria reação. Resolução assistida."
+    },
+    {
+      "arteId": "habilidade.esconder",
+      "nome": "Esconder",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.esconder-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Esconder | ação"
+      ],
+      "descricao": "Com cobertura adequada ou em área muito obscurecida, fora da linha de visão dos inimigos, faça Furtividade contra CD 15. Use a caixa da perícia."
+    },
+    {
+      "arteId": "habilidade.escudo-da-fe",
+      "nome": "Escudo da Fé",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.1-escudo-da-fe"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Escudo da Fé"
+      ],
+      "descricao": "Magia informada como Iniciado em Magia. ação bônus; 18 m; V,S,M (pergaminho de oração); concentração até 10 minutos. Alvo recebe +2 CA. Confirmar origem e recursos antes de usar."
+    },
+    {
+      "arteId": "habilidade.especialista",
+      "nome": "Especialista",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.passiva-especialista"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Especialista"
+      ],
+      "descricao": "Especialização em Investigação (+4) e Persuasão (+7)."
+    },
+    {
+      "arteId": "habilidade.esquivar",
+      "nome": "Esquivar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.esquivar-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Esquivar | ação"
+      ],
+      "descricao": "Até seu próximo turno, ataques de quem você vê têm desvantagem contra você e suas salvaguardas de DES têm vantagem. Perde o benefício se ficar incapacitado ou com deslocamento zero."
+    },
+    {
+      "arteId": "habilidade.explorador-habil",
+      "nome": "Explorador Hábil",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.passiva-explorador-habil"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Explorador Hábil"
+      ],
+      "descricao": "Especialização em Percepção (+6). Dois idiomas extras: Élfico e Silvestre (Silvestre depende do mestre; alternativa Anão)."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-fogo",
+      "nome": "Explosão Elemental (fogo)",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.truque-explosao-elemental-fogo-ataque-5-classe"
+      ],
+      "locais": [
+        "opcao",
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Truque | Explosão Elemental (fogo) · ataque +5 · classe",
+        "Fogo"
+      ],
+      "descricao": "Ação · 18 m · Ácido, elétrico, gélido, ígneo, psíquico, trovejante ou venenoso. Para cada 8 no dano, role mais um d8 do mesmo tipo, até 3 dados extras.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]"
+    },
+    {
+      "arteId": "habilidade.fala-telepatica",
+      "nome": "Fala Telepática",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.fala-telepatica-acao-bonus"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Fala Telepática | ação bônus"
+      ],
+      "descricao": "Ação Bônus: liga a mente a uma criatura visível a até 9 m. Conversam mentalmente por 3 minutos, a até 4,5 km, num idioma que ambos conheçam. Sem limite de usos."
+    },
+    {
+      "arteId": "habilidade.falar-com-animais",
+      "nome": "Falar com Animais",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-falar-com-animais-ritual-ad0805c7",
+        "habilidade.1-falar-com-animais-ritual"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Falar com Animais · Ritual"
+      ],
+      "descricao": "Ação ou ritual (+10 min), 10 min: entende e conversa com feras. Informações sobre a área, perigos e o que viram recentemente."
+    },
+    {
+      "arteId": "habilidade.feiticaria-inata",
+      "nome": "Feitiçaria Inata",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.feiticaria-inata"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Feitiçaria Inata"
+      ],
+      "descricao": "Uma ação bônus e um uso. Durante 1 minuto, as magias de Feiticeiro recebem +1 de CD e seus ataques mágicos têm vantagem."
+    },
+    {
+      "arteId": "habilidade.fogo-das-fadas",
+      "nome": "Fogo das Fadas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-fogo-das-fadas-concentracao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Fogo das Fadas · Concentração"
+      ],
+      "descricao": "Ação, 18 m, cubo de 6 m, até 1 min. Salvaguarda de DES CD 13: quem falhar emite luz, não pode ficar Invisível, e jogadas de ataque contra ele têm Vantagem."
+    },
+    {
+      "arteId": "habilidade.fonte-de-magia-criar-espaco-de-1-2-pontos",
+      "nome": "Fonte de Magia · criar espaço de 1º (2 pontos)",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.fonte-de-magia-criar-espaco-de-1-2-pontos-acao-bonus"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Fonte de Magia · criar espaço de 1º (2 pontos) | ação bônus"
+      ],
+      "descricao": "Gaste 2 Pontos de Feitiçaria para recuperar um espaço de magia de 1º círculo."
+    },
+    {
+      "arteId": "habilidade.fonte-de-magia-criar-espaco-de-2-3-pontos",
+      "nome": "Fonte de Magia · criar espaço de 2º (3 pontos)",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.fonte-de-magia-criar-espaco-de-2-3-pontos-acao-bonus"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Fonte de Magia · criar espaço de 2º (3 pontos) | ação bônus"
+      ],
+      "descricao": "Gaste 3 Pontos de Feitiçaria para recuperar um espaço de magia de 2º círculo."
+    },
+    {
+      "arteId": "habilidade.fonte-de-magia-espaco-de-1-vira-1-ponto",
+      "nome": "Fonte de Magia · espaço de 1º vira 1 ponto",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.fonte-de-magia-espaco-de-1-vira-1-ponto"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Fonte de Magia · espaço de 1º vira 1 ponto"
+      ],
+      "descricao": "Gaste um espaço de magia de 1º círculo para ganhar 1 Ponto de Feitiçaria (sem ação)."
+    },
+    {
+      "arteId": "habilidade.fonte-de-magia-espaco-de-2-vira-2-pontos",
+      "nome": "Fonte de Magia · espaço de 2º vira 2 pontos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.fonte-de-magia-espaco-de-2-vira-2-pontos"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Fonte de Magia · espaço de 2º vira 2 pontos"
+      ],
+      "descricao": "Gaste um espaço de magia de 2º círculo para ganhar 2 Pontos de Feitiçaria (sem ação)."
+    },
+    {
+      "arteId": "salvaguarda.for",
+      "nome": "Força",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/salvaguarda-for.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "salvaguarda"
+      ],
+      "nomes": [
+        "Salva de Força"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.forca-fantasmagorica",
+      "nome": "Força Fantasmagórica",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.2-forca-fantasmagorica"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Força Fantasmagórica"
+      ],
+      "descricao": "Ação · 18 m, salvaguarda de INT CD 13, ilusão que o alvo acredita ser real, concentração; silenciosa. Até 1 min. Token público da ilusão no alvo. No Compositor, marque Ilusão causa dano se a ilusão puder ferir: na falha, você ganha Força Fantasmagórica · Dano [2d8] psíquico, uma vez em cada turno seu, sem custo. O alvo pode usar Estudar (Investigação contra a CD) para encerrar a ilusão."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-frio",
+      "nome": "Frio",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Frio"
+      ],
+      "descricao": "Explosão Elemental com dano frio."
+    },
+    {
+      "arteId": "pericia.furtividade",
+      "nome": "Furtividade",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Furtividade"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.gastar-dado-de-vida",
+      "nome": "Gastar Dado de Vida",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.gastar-dado-de-vida-6a02b00a",
+        "habilidade.gastar-dado-de-vida-3ef4dd2b",
+        "habilidade.gastar-dado-de-vida-4ebce3c7",
+        "habilidade.gastar-dado-de-vida",
+        "habilidade.gastar-dado-de-vida-ccd1d931"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Gastar Dado de Vida"
+      ],
+      "descricao": "Durante um descanso curto, gaste um Dado de Vida: role 1d6 e some seu modificador de Constituição para recuperar Pontos de Vida."
+    },
+    {
+      "arteId": "habilidade.golpe-mao-de-dolo",
+      "nome": "Golpe + Mão de Dolo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Golpe + Mão de Dolo"
+      ],
+      "descricao": "Mão de Dolo já marcada: só se aplica se o golpe acertar e ainda estiver disponível no turno; então gasta 1 Foco."
+    },
+    {
+      "arteId": "habilidade.golpe-certeiro",
+      "nome": "Golpe Certeiro",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.truque-golpe-certeiro"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Golpe Certeiro"
+      ],
+      "descricao": "Ação Usar Magia · SAB · dano da arma ou radiante. Escolha uma arma.\nArco longo (45/180 m)\nNormal [1d20+6]\nDano [1d8+2] · Crítico [2d8+2]\nCimitarra (1,5 m)\nNormal [1d20+4]\nDano [1d6+2] · Crítico [2d6+2]"
+    },
+    {
+      "arteId": "habilidade.golpe-constritor",
+      "nome": "Golpe Constritor",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.1-golpe-constritor"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Golpe Constritor"
+      ],
+      "descricao": "Ação bônus imediatamente após acertar com arma; V; concentração até 1 minuto. Alvo faz resistência de FOR CD 12, com vantagem se Grande ou maior. Falha: Contido; sofre [1d6] perfurante no início dos turnos. Alvo ou criatura ao alcance pode usar ação e teste de Atletismo CD 12 para encerrar. Gasta 1 espaço."
+    },
+    {
+      "arteId": "comum.soco",
+      "nome": "Golpe desarmado",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/comum-soco.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.golpe-desarmado-2-acao-b2dd2173",
+        "habilidade.golpe-desarmado-5-acao",
+        "habilidade.golpe-desarmado-3-acao",
+        "habilidade.golpe-desarmado-1-acao",
+        "habilidade.golpe-desarmado-2-acao",
+        "habilidade.soco-5-acao-ou-acao-bonus",
+        "habilidade.soco-golpe-desarmado-5-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Golpe desarmado +2 | ação",
+        "Golpe desarmado +5 | ação",
+        "Golpe desarmado +3 | ação",
+        "Golpe desarmado +1 | ação",
+        "Soco +5 | ação ou ação bônus",
+        "Soco (Golpe Desarmado) +5 | ação"
+      ],
+      "descricao": "Corpo a corpo 1,5 m · Normal [1d20+2]\nDano contundente 1. O crítico também causa 1, pois o dano é fixo."
+    },
+    {
+      "arteId": "habilidade.golpe-normal",
+      "nome": "Golpe normal",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Golpe normal"
+      ],
+      "descricao": "Golpe desarmado sem adicionais preparados."
+    },
+    {
+      "arteId": "habilidade.habilidoso",
+      "nome": "Habilidoso",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.passiva-habilidoso"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Habilidoso"
+      ],
+      "descricao": "Proficiência em Persuasão, Atuação e Intuição."
+    },
+    {
+      "arteId": "habilidade.heranca-draconica",
+      "nome": "Herança dracônica",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.passiva-heranca-draconica"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Herança dracônica"
+      ],
+      "descricao": "Resistência a dano elétrico e visão no escuro 18 m. Voo Dracônico só é adquirido no nível 5; não disponível nesta ficha de nível 3."
+    },
+    {
+      "arteId": "pericia.historia",
+      "nome": "História",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "História"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.humano",
+      "nome": "Humano",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.passiva-humano"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Humano"
+      ],
+      "descricao": "Engenhoso: ganha Inspiração Heroica a cada Descanso Longo (rerrola 1 dado). Habilidoso: proficiência em Percepção. Versátil: talento de origem Sortudo. Tamanho Médio; deslocamento 9 m."
+    },
+    {
+      "arteId": "habilidade.ilusao-menor",
+      "nome": "Ilusão Menor",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.truque-ilusao-menor"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Ilusão Menor"
+      ],
+      "descricao": "Ação, 9 m, 1 min: cria um som ou uma imagem parada que cabe num cubo de 1,5 m. Teste de Investigação contra CD 13 revela a ilusão. Imagem: peça visual estática (moeda com T), sem ficha nem iniciativa, removida ao fim de 1 minuto. Som: interpretativo."
+    },
+    {
+      "arteId": "habilidade.imobilizar",
+      "nome": "Imobilizar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.imobilizar-acao",
+        "habilidade.imobilizar-acao-d0f3976a",
+        "habilidade.imobilizar-acao-bcba07a4",
+        "habilidade.imobilizar-acao-5132c5b7"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Imobilizar | ação"
+      ],
+      "descricao": "Tente agarrar uma criatura a até 1,5 m usando uma mão livre. A resolução completa da condição Agarrado permanece assistida pelo mestre."
+    },
+    {
+      "arteId": "habilidade.imobilizar-pessoa",
+      "nome": "Imobilizar Pessoa",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.2-imobilizar-pessoa"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Imobilizar Pessoa"
+      ],
+      "descricao": "Ação · 18 m, salvaguarda de SAB CD 13, paralisa um humanoide, concentração 1 min (repete a salvaguarda a cada turno); silenciosa."
+    },
+    {
+      "arteId": "habilidade.implementos-de-misericordia",
+      "nome": "Implementos de Misericórdia",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passiva-implementos-de-misericordia"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Implementos de Misericórdia"
+      ],
+      "descricao": "Proficiência em Intuição, Medicina e Kit de Herbalismo."
+    },
+    {
+      "arteId": "habilidade.influenciar",
+      "nome": "Influenciar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.influenciar-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Influenciar | ação"
+      ],
+      "descricao": "Declare o que quer que a criatura faça. Se houver teste, use a perícia indicada pelo mestre, como Persuasão."
+    },
+    {
+      "arteId": "habilidade.iniciado-em-magia-druida",
+      "nome": "Iniciado em Magia (Druida)",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.passiva-iniciado-em-magia-druida"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Iniciado em Magia (Druida)"
+      ],
+      "descricao": "Usa Sabedoria. Truques: Orientação e Acudir os Moribundos. Palavra Curativa: 1x grátis por descanso longo (controle 1/1) e também com espaços de magia."
+    },
+    {
+      "arteId": "habilidade.inspiracao-de-bardo",
+      "nome": "Inspiração de Bardo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.inspiracao-de-bardo"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Inspiração de Bardo"
+      ],
+      "descricao": "Concede 1d6 a uma criatura a até 18 m."
+    },
+    {
+      "arteId": "habilidade.inspiracao-heroica",
+      "nome": "Inspiração Heroica",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.inspiracao-heroica"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Inspiração Heroica"
+      ],
+      "descricao": "Depois de ver um d20, gaste a Inspiração Heroica para rerrolá-lo e use o novo resultado."
+    },
+    {
+      "arteId": "salvaguarda.int",
+      "nome": "Inteligência",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/salvaguarda-int.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "salvaguarda"
+      ],
+      "nomes": [
+        "Salva de Inteligência"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "pericia.intimidacao",
+      "nome": "Intimidação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.pericia-intimidacao-1-a38216c7",
+        "habilidade.pericia-intimidacao-0",
+        "habilidade.pericia-intimidacao-5",
+        "habilidade.pericia-intimidacao-1",
+        "habilidade.pericia-intimidacao-4"
+      ],
+      "locais": [
+        "teste rapido",
+        "opcao"
+      ],
+      "nomes": [
+        "Intimidação",
+        "Perícia | Intimidação +1",
+        "Perícia | Intimidação +0",
+        "Perícia | Intimidação +5",
+        "Perícia | Intimidação -1",
+        "Perícia | Intimidação +4"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "pericia.intuicao",
+      "nome": "Intuição",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Intuição"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "pericia.investigacao",
+      "nome": "Investigação",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/comum-pericia.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.pericia-investigacao-0",
+        "habilidade.pericia-investigacao-1",
+        "habilidade.pericia-investigacao-3",
+        "habilidade.pericia-investigacao-4"
+      ],
+      "locais": [
+        "teste rapido",
+        "opcao"
+      ],
+      "nomes": [
+        "Investigação",
+        "Perícia | Investigação +0",
+        "Perícia | Investigação -1",
+        "Perícia | Investigação +3",
+        "Perícia | Investigação +4"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.invisibilidade",
+      "nome": "Invisibilidade",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.2-invisibilidade"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Invisibilidade"
+      ],
+      "descricao": "Ação · toque, concentração até 1 h, acaba ao atacar, causar dano ou conjurar; silenciosa."
+    },
+    {
+      "arteId": "pericia.lidar-com-animais",
+      "nome": "Lidar com Animais",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Lidar com Animais"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.maestria-em-arma",
+      "nome": "Maestria em Arma",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.passiva-maestria-em-arma"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Maestria em Arma"
+      ],
+      "descricao": "Ativas: Arco Longo (Lentidão) e Cimitarra (Ágil). Pode trocar os tipos a cada descanso longo."
+    },
+    {
+      "arteId": "habilidade.magia-duplicada",
+      "nome": "Magia Duplicada",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.magia-duplicada-ao-conjurar"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Magia Duplicada | ao conjurar"
+      ],
+      "descricao": "Na Gaveta de Composição, antes de conjurar, gaste 1 Ponto de Feitiçaria para aumentar em um o círculo efetivo de uma magia que ganhe um alvo adicional ao subir de círculo. O espaço escolhido é mantido."
+    },
+    {
+      "arteId": "habilidade.magia-potencializada",
+      "nome": "Magia Potencializada",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.magia-potencializada-ao-rolar-dano"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Magia Potencializada | ao rolar dano"
+      ],
+      "descricao": "Gaste 1 ponto e escolha até 3 dados do dano da magia para rerrolar. Use os novos resultados. Pode combinar com outra Metamagia."
+    },
+    {
+      "arteId": "habilidade.magias-psiquicas",
+      "nome": "Magias Psíquicas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.passiva-magias-psiquicas"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Magias Psíquicas"
+      ],
+      "descricao": "Magias de Encantamento e Ilusão de Bruxo saem sem palavras nem gestos (silenciosas): ninguém percebe que você está conjurando. Pode trocar o tipo de dano das magias de Bruxo para psíquico."
+    },
+    {
+      "arteId": "habilidade.manipular-objeto",
+      "nome": "Manipular objeto",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe",
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/automacao/entidade/ficha/opcoes"
+      ],
+      "nomes": [
+        "Manipular objeto | ação"
+      ],
+      "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos."
+    },
+    {
+      "arteId": "habilidade.manobras",
+      "nome": "Manobras",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.manobras"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Manobras"
+      ],
+      "descricao": "Prostrar: teste de FOR ou Caído (Grande ou menor). Ataque Ameaçador: teste de SAB ou Amedrontado até o fim do próximo turno do Draven. Desarme: teste de FOR ou larga um objeto à escolha do Draven. Todas usadas após acertar."
+    },
+    {
+      "arteId": "habilidade.manto-de-inspiracao",
+      "nome": "Manto de Inspiração",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.manto-de-inspiracao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Manto de Inspiração"
+      ],
+      "descricao": "Ação Bônus, gasta 1 Inspiração de Bardo: role [1d6]; até 3 criaturas a 18 m (mod. de CAR) ganham PV temporários iguais ao dobro do resultado e podem usar a Reação para se mover até o Deslocamento sem provocar Ataques de Oportunidade."
+    },
+    {
+      "arteId": "habilidade.mao-de-cura",
+      "nome": "Mão de Cura",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.mao-de-cura"
+      ],
+      "locais": [
+        "opcao/composicao/modos",
+        "opcao"
+      ],
+      "nomes": [
+        "Mão de Cura"
+      ],
+      "descricao": "Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional."
+    },
+    {
+      "arteId": "habilidade.mao-de-dolo",
+      "nome": "Mão de Dolo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.mao-de-dolo",
+        "habilidade.mao-de-dolo-golpe-da-torrente"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Mão de Dolo",
+        "Mão de Dolo · golpe da Torrente"
+      ],
+      "descricao": "Uma vez por turno, ao acertar um soco e causar dano, gaste 1 Foco: +[1d6+1] necrótico, sem salvaguarda."
+    },
+    {
+      "arteId": "habilidade.maos-magicas",
+      "nome": "Mãos Mágicas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.truque-maos-magicas-utilidade-classe",
+        "habilidade.truque-maos-magicas"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Mãos Mágicas · utilidade · classe",
+        "Truque | Mãos Mágicas"
+      ],
+      "descricao": "Ação, mão espectral a até 9 m por 1 minuto. Manipula objetos de até 5 kg; não ataca."
+    },
+    {
+      "arteId": "habilidade.marca-do-predador",
+      "nome": "Marca do Predador",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich",
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.1-marca-do-predador-sempre-concentracao",
+        "habilidade.1-marca-do-predador"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Marca do Predador · sempre, Concentração",
+        "1º | Marca do Predador"
+      ],
+      "descricao": "Ação Bônus, 27 m, até 1 h: +[1d6] energético por acerto no alvo. Se o alvo cair, pode mudar a marca para outro com Ação Bônus. 2x grátis por descanso longo."
+    },
+    {
+      "arteId": "habilidade.mascara-de-muitas-faces",
+      "nome": "Máscara de Muitas Faces",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.passiva-mascara-de-muitas-faces"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Máscara de Muitas Faces"
+      ],
+      "descricao": "Disfarçar-se pode ser conjurada à vontade e sem gastar Espaço de Magia de Pacto."
+    },
+    {
+      "arteId": "pericia.medicina",
+      "nome": "Medicina",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Medicina"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.mensagem",
+      "nome": "Mensagem",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.truque-mensagem"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Mensagem"
+      ],
+      "descricao": "Ação · sussurro a até 36 m que só o alvo ouve e pode responder."
+    },
+    {
+      "arteId": "habilidade.mente-desperta",
+      "nome": "Mente Desperta",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.mente-desperta",
+        "habilidade.passiva-mente-desperta"
+      ],
+      "locais": [
+        "opcao",
+        "passiva"
+      ],
+      "nomes": [
+        "Mente Desperta",
+        "Passiva | Mente Desperta"
+      ],
+      "descricao": "Ação bônus · 9 m. Escolha uma criatura que você vê. Vocês podem conversar por telepatia por 3 minutos, mesmo sem compartilhar idioma; a comunicação persiste a até cerca de 5 km. Resolução assistida pelo mestre."
+    },
+    {
+      "arteId": "habilidade.mente-tatica",
+      "nome": "Mente Tática",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.mente-tatica"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Mente Tática"
+      ],
+      "descricao": "Ao falhar em um teste de atributo, pode gastar um uso de Recuperar Fôlego para somar 1d10. Se o teste continuar falhando, o uso não é gasto. Por enquanto, esta decisão é assistida pelo mestre."
+    },
+    {
+      "arteId": "habilidade.metabolismo-incomum",
+      "nome": "Metabolismo Incomum",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.metabolismo-incomum"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Metabolismo Incomum"
+      ],
+      "descricao": "Ao rolar iniciativa, recupere todo o Foco e 1d6+3 PV."
+    },
+    {
+      "arteId": "magia.misseis-magicos",
+      "nome": "Mísseis Mágicos",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/magia-misseis-magicos.png",
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.1-misseis-magicos-acerto-automatico-classe"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Mísseis Mágicos · acerto automático · classe"
+      ],
+      "descricao": "Ação · 18 m · Distribua 3 dardos entre criaturas visíveis. Dano por dardo [1d4+1] energético. Com espaço de 2º, distribua 4 dardos."
+    },
+    {
+      "arteId": "habilidade.movimento-sem-armadura",
+      "nome": "Movimento sem Armadura",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passiva-movimento-sem-armadura"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Movimento sem Armadura"
+      ],
+      "descricao": "+3 m de deslocamento sem armadura e sem escudo (total 12 m)."
+    },
+    {
+      "arteId": "habilidade.musico",
+      "nome": "Músico",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.passiva-musico"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Músico"
+      ],
+      "descricao": "Durante um descanso curto ou longo, você pode tocar um instrumento para conceder Inspiração Heroica a aliados, até um número igual ao seu bônus de proficiência. Resolução assistida pelo mestre."
+    },
+    {
+      "arteId": "pericia.natureza",
+      "nome": "Natureza",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Natureza"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.nota-de-importacao",
+      "nome": "Nota de importação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.nota-de-importacao",
+        "habilidade.nota-de-importacao-4b12f846"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Nota de importação"
+      ],
+      "descricao": "Ficha montada pelas escolhas desta conversa, conferidas no Livro do Jogador 2024 em português. Magias na lista própria (Z039). O dono do token deve ser atribuído no Forge depois de importar."
+    },
+    {
+      "arteId": "habilidade.orientacao",
+      "nome": "Orientação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.truque-orientacao-iniciado-concentracao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Orientação · Iniciado, Concentração"
+      ],
+      "descricao": "Ação, toque, 1 min: o alvo soma [1d4] nos testes de uma perícia escolhida."
+    },
+    {
+      "arteId": "habilidade.pacto-do-tomo",
+      "nome": "Pacto do Tomo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.passiva-pacto-do-tomo"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Pacto do Tomo"
+      ],
+      "descricao": "O Livro das Sombras concede Amizade, Taumaturgia e Mensagem, além dos rituais Encontrar Familiar e Compreender Idiomas, e serve como foco de conjuração."
+    },
+    {
+      "arteId": "habilidade.palavra-curativa",
+      "nome": "Palavra Curativa",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-palavra-curativa-iniciado",
+        "habilidade.1-palavra-curativa"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Palavra Curativa · Iniciado",
+        "1º | Palavra Curativa"
+      ],
+      "descricao": "Ação Bônus, 18 m: cura [2d4+2] PV. 1x grátis por descanso longo; depois com espaço de magia. +2d4 por círculo acima."
+    },
+    {
+      "arteId": "habilidade.passo-do-vento",
+      "nome": "Passo do Vento",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passo-do-vento",
+        "habilidade.passo-do-vento-foco"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Passo do Vento",
+        "Passo do Vento · Foco"
+      ],
+      "descricao": "Ação Bônus: Correr de graça. Com 1 Foco: Desengajar e Correr, e salto dobrado no turno."
+    },
+    {
+      "arteId": "habilidade.passo-nebuloso",
+      "nome": "Passo Nebuloso",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "magia.passo-nebuloso"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Passo Nebuloso · recompensa de aventura"
+      ],
+      "descricao": "Ação bônus. Teleporte-se para um espaço desocupado que você possa ver a até 9 m."
+    },
+    {
+      "arteId": "habilidade.passos-largos",
+      "nome": "Passos Largos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Zurich",
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.1-passos-largos-elfo-0cb98763",
+        "habilidade.1-passos-largos-elfo"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Passos Largos · Elfo"
+      ],
+      "descricao": "Ação, toque, 1 h: +3 m de Deslocamento. 1x grátis por descanso longo; também na lista do Guardião."
+    },
+    {
+      "arteId": "habilidade.pau-pra-toda-obra",
+      "nome": "Pau pra Toda Obra",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.passiva-pau-pra-toda-obra"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Pau pra Toda Obra"
+      ],
+      "descricao": "Some +1 aos testes de atributo que usam uma perícia em que você não é proficiente e que ainda não incluem proficiência."
+    },
+    {
+      "arteId": "pericia.percepcao",
+      "nome": "Percepção",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Percepção"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.pericias-e-idiomas",
+      "nome": "Perícias e idiomas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.passiva-pericias-e-idiomas"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Perícias e idiomas"
+      ],
+      "descricao": "Atletismo +5, Acrobacia +3, Intuição +3, Percepção +3, Intimidação +1. Ferramentas: kit de jogo (dados), Ferramentas de Ferreiro. Idiomas: Comum, Gigante, Anão."
+    },
+    {
+      "arteId": "pericia.persuasao",
+      "nome": "Persuasão",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Persuasão"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.pico-de-adrenalina",
+      "nome": "Pico de Adrenalina",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.pico-de-adrenalina"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Pico de Adrenalina"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.ponto-de-sorte",
+      "nome": "Ponto de Sorte",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.ponto-de-sorte"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Ponto de Sorte"
+      ],
+      "descricao": "Depois de ver um d20, pode rerrolá-lo."
+    },
+    {
+      "arteId": "habilidade.preparacao-e-origem",
+      "nome": "preparação e origem",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.passivas-preparacao-e-origem"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passivas | preparação e origem"
+      ],
+      "descricao": "Ao ganhar nível de Feiticeiro, pode trocar uma magia da sua seleção por outra elegível. Magias de origem aberrante e Repreensão Diabólica ficam sempre preparadas. Raio de Fogo e Taumaturgia vêm do legado Infernal."
+    },
+    {
+      "arteId": "habilidade.preparar",
+      "nome": "Preparar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.preparar-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Preparar | ação"
+      ],
+      "descricao": "Escolha um gatilho perceptível e uma ação ou movimento. Use sua reação logo após o gatilho, antes do seu próximo turno. Preparar uma magia de uma ação exige conjurá-la agora e manter concentração."
+    },
+    {
+      "arteId": "habilidade.presa-do-cacador",
+      "nome": "Presa do Caçador",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.presa-do-cacador"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Presa do Caçador"
+      ],
+      "descricao": "Escolha Assassino de Colossos OU Destruidor de Hordas; pode trocar após descanso curto ou longo. O texto recebido descreve ambas, mas não define a escolhida. Não usar ambas simultaneamente."
+    },
+    {
+      "arteId": "pericia.prestidigitacao",
+      "nome": "Prestidigitação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.pericia-prestidigitacao-1",
+        "habilidade.pericia-prestidigitacao-3",
+        "habilidade.pericia-prestidigitacao-4",
+        "habilidade.pericia-prestidigitacao-3-caaf49e7"
+      ],
+      "locais": [
+        "teste rapido",
+        "opcao"
+      ],
+      "nomes": [
+        "Prestidigitação",
+        "Perícia | Prestidigitação +1",
+        "Perícia | Prestidigitação +3",
+        "Perícia | Prestidigitação +4"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.procurar",
+      "nome": "Procurar",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.procurar-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Procurar | ação"
+      ],
+      "descricao": "Examine os arredores. O mestre indica a perícia de SAB, como Percepção para localizar uma criatura escondida."
+    },
+    {
+      "arteId": "habilidade.proficiencias",
+      "nome": "Proficiências",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich",
+        "Skimi",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passiva-proficiencias-28692ed5",
+        "habilidade.passiva-proficiencias-5e4e4adb",
+        "habilidade.passiva-proficiencias",
+        "habilidade.passiva-proficiencias-e0356484"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Proficiências"
+      ],
+      "descricao": "Armas simples e marciais; armaduras leves, médias e escudos. Ferramentas de Cartógrafo. Perícias: Furtividade, Sobrevivência (Guia); Percepção (Elfo); Intuição, Lidar com Animais, Atletismo (Guardião). Salvaguardas: FOR e DES."
+    },
+    {
+      "arteId": "habilidade.proficiencias-e-explorador-habil",
+      "nome": "Proficiências e Explorador Hábil",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.passiva-proficiencias-e-explorador-habil"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Proficiências e Explorador Hábil"
+      ],
+      "descricao": "Armas simples e marciais; armaduras leves e médias; escudos; ferramentas de cartógrafo. Resistências proficientes: FOR e DES. Explorador Hábil concede uma especialização e dois idiomas adicionais. O texto marca duas especializações: mantidas para revisão do mestre."
+    },
+    {
+      "arteId": "habilidade.protecao-contra-laminas",
+      "nome": "Proteção Contra Lâminas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Dragoberto"
+      ],
+      "referencias": [
+        "habilidade.truque-protecao-contra-laminas-concentracao-classe",
+        "habilidade.truque-protecao-contra-laminas"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Proteção Contra Lâminas · concentração · classe",
+        "Truque | Proteção contra Lâminas"
+      ],
+      "descricao": "Ação · Pessoal · Concentração até 1 min. Quem atacar você subtrai [1d4] da jogada de ataque."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-psiquico",
+      "nome": "Psíquico",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Psíquico"
+      ],
+      "descricao": "Explosão Elemental com dano psíquico."
+    },
+    {
+      "arteId": "habilidade.queda-suave",
+      "nome": "Queda Suave",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.1-queda-suave-reacao-classe"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Queda Suave · reação · classe"
+      ],
+      "descricao": "Quando você ou uma criatura a até 18 m cai, escolha até 5 criaturas em queda nesse alcance. Por até 1 min, descem 18 m por rodada e, se pousarem antes do fim, aterrissam sem dano de queda."
+    },
+    {
+      "arteId": "habilidade.queimadura-de-fogo",
+      "nome": "Queimadura de Fogo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.queimadura-de-fogo"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Queimadura de Fogo"
+      ],
+      "descricao": "Herança do Gigante de Fogo. Depois de acertar uma jogada de ataque e causar dano, gaste 1 uso para somar 1d10 de dano de fogo ao mesmo alvo. Usos iguais ao bônus de proficiência; recupera no descanso longo."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-raio",
+      "nome": "Raio",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Raio"
+      ],
+      "descricao": "Explosão Elemental com dano raio."
+    },
+    {
+      "arteId": "magia.raio-de-fogo",
+      "nome": "Raio de Fogo",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/magia-raio-fogo.png",
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.truque-raio-de-fogo-ataque-5-infernal"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Raio de Fogo · ataque +5 · infernal"
+      ],
+      "descricao": "Ação · 18 m · Ígneo · Criatura ou objeto.\nNormal [1d20+5]\nDano [1d10] · Crítico [2d10]"
+    },
+    {
+      "arteId": "habilidade.rajada-agonizante",
+      "nome": "Rajada Agonizante",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.passiva-rajada-agonizante"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Rajada Agonizante"
+      ],
+      "descricao": "Soma o modificador de Carisma (+3) ao dano da Rajada Mística."
+    },
+    {
+      "arteId": "habilidade.rajada-mistica",
+      "nome": "Rajada Mística",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.truque-rajada-mistica"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Rajada Mística"
+      ],
+      "descricao": "Ação · 36 m · energético ou psíquico. Rajada Agonizante incluída.\nNormal [1d20+5]\nDano [1d10+3] · Crítico [2d10+3]"
+    },
+    {
+      "arteId": "habilidade.recuperar-folego",
+      "nome": "Recuperar Fôlego",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.recuperar-folego"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Recuperar Fôlego"
+      ],
+      "descricao": "Recupere 1d10+3 PV."
+    },
+    {
+      "arteId": "habilidade.reflexos",
+      "nome": "Reflexos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.2-reflexos-glamour-sempre"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Reflexos · Glamour, sempre"
+      ],
+      "descricao": "Ação, 1 min, sem Concentração: 3 cópias ilusórias suas. Quando um ataque o atingiria, ele pode atingir uma das cópias, que some. Ilusão: ativa a Magia Fascinante."
+    },
+    {
+      "arteId": "pericia.religiao",
+      "nome": "Religião",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Religião"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.repreensao-diabolica",
+      "nome": "Repreensão Diabólica",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.1-repreensao-diabolica-reacao-salva-de-des-infernal"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Repreensão Diabólica · reação · salva de DES · infernal"
+      ],
+      "descricao": "Ao sofrer dano de uma criatura visível a até 18 m, ela rola DES, CD 13. Falha: dano ígneo. Sucesso: metade. Um uso gratuito de 1º por descanso longo ou gaste espaço.\n1º [2d10] · 2º [3d10]"
+    },
+    {
+      "arteId": "habilidade.riso-histerico-de-tasha",
+      "nome": "Riso Histérico de Tasha",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.1-riso-histerico-de-tasha"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Riso Histérico de Tasha"
+      ],
+      "descricao": "Ação · 9 m · concentração até 1 min. Um alvo no 1º círculo e +1 alvo por círculo acima rolam SAB CD 13. Na falha, ficam caídos e incapacitados, rindo. Repetem a salvaguarda ao fim de cada turno e ao sofrer dano (com vantagem nesse último caso)."
+    },
+    {
+      "arteId": "salvaguarda.sab",
+      "nome": "Sabedoria",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/salvaguarda-sab.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "salvaguarda"
+      ],
+      "nomes": [
+        "Salva de Sabedoria"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.saquear",
+      "nome": "Saquear",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.saquear"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Saquear"
+      ],
+      "descricao": "Abra os pertences de um inimigo derrotado a até 1,5 m. Selecione itens e quantidades e confirme respeitando sua capacidade de carga."
+    },
+    {
+      "arteId": "magia.saraivada-de-espinhos",
+      "nome": "Saraivada de Espinhos",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/magia-saraivada-espinhos.png",
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [
+        "habilidade.1-saraivada-de-espinhos"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Saraivada de Espinhos"
+      ],
+      "descricao": "Ação Bônus logo após acertar com arma à distância: alvo e criaturas a 1,5 m dele fazem salvaguarda de DES CD 12; [1d10] perfurante, metade se passar. +1d10 por círculo acima."
+    },
+    {
+      "arteId": "habilidade.sentidos-e-defesas",
+      "nome": "sentidos e defesas",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.passivas-sentidos-e-defesas"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passivas | sentidos e defesas"
+      ],
+      "descricao": "Visão no escuro 18 m · Percepção passiva 13 · Resistência a dano ígneo."
+    },
+    {
+      "arteId": "pericia.sobrevivencia",
+      "nome": "Sobrevivência",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "teste rapido"
+      ],
+      "nomes": [
+        "Sobrevivência"
+      ],
+      "descricao": ""
+    },
+    {
+      "arteId": "habilidade.soco-mao-de-dolo",
+      "nome": "Soco + Mão de Dolo",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Soco + Mão de Dolo"
+      ],
+      "descricao": "Golpe da Torrente com Mão de Dolo já marcada. Só se aplica se o golpe acertar e Mão de Dolo ainda estiver disponível no turno; então gasta 1 Foco."
+    },
+    {
+      "arteId": "habilidade.soco-normal",
+      "nome": "Soco normal",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Soco normal"
+      ],
+      "descricao": "Ataque desarmado da Torrente de Golpes."
+    },
+    {
+      "arteId": "habilidade.sopro-de-dragao",
+      "nome": "Sopro de Dragão",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.2-sopro-de-dragao-salva-de-des-concentracao-classe"
+      ],
+      "locais": [
+        "opcao",
+        "opcao/automacao/efeito/opcoesConcedidas"
+      ],
+      "nomes": [
+        "2º | Sopro de Dragão · salva de DES · concentração · classe",
+        "Sopro de Dragão · ácido",
+        "Sopro de Dragão · elétrico",
+        "Sopro de Dragão · gélido",
+        "Sopro de Dragão · ígneo",
+        "Sopro de Dragão · venenoso"
+      ],
+      "descricao": "Ação bônus · Toque · Concentração até 1 min. O beneficiário pode usar a ação Usar Magia para soprar um cone de 4,5 m. Cada alvo rola DES, CD 13 (14 com Inata). Dano [3d6], metade no sucesso. Escolha ácido, elétrico, gélido, ígneo ou venenoso ao conjurar."
+    },
+    {
+      "arteId": "habilidade.sugestao",
+      "nome": "Sugestão",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.2-sugestao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "2º | Sugestão"
+      ],
+      "descricao": "Ação · 9 m, salvaguarda de SAB CD 13, ordem razoável de até 25 palavras, concentração até 8 h; silenciosa."
+    },
+    {
+      "arteId": "habilidade.surto-de-acao",
+      "nome": "Surto de Ação",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [
+        "habilidade.surto-de-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Surto de Ação"
+      ],
+      "descricao": "Receba uma ação adicional neste turno."
+    },
+    {
+      "arteId": "habilidade.sussurros-dissonantes",
+      "nome": "Sussurros Dissonantes",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.1-sussurros-dissonantes-salva-de-sab-aberrante",
+        "habilidade.1-sussurros-dissonantes"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "1º | Sussurros Dissonantes · salva de SAB · aberrante",
+        "1º | Sussurros Dissonantes"
+      ],
+      "descricao": "Ação · 18 m · Alvo rola SAB, CD 13 (14 com Inata). Falha: dano psíquico e usa a reação disponível para se afastar pela rota mais segura. Sucesso: metade do dano.\n1º [3d6] · 2º [4d6]"
+    },
+    {
+      "arteId": "habilidade.talho-mental",
+      "nome": "Talho Mental",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.truque-talho-mental-salva-de-int-aberrante"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Talho Mental · salva de INT · aberrante"
+      ],
+      "descricao": "Ação · 18 m · Alvo rola INT, CD 13 (14 com Inata). Falha: dano [1d6] psíquico e subtrai [1d4] da próxima salvaguarda antes do fim do seu próximo turno. Sucesso: sem efeito."
+    },
+    {
+      "arteId": "habilidade.taumaturgia",
+      "nome": "Taumaturgia",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca",
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Skimi"
+      ],
+      "referencias": [
+        "habilidade.truque-taumaturgia-utilidade-infernal",
+        "habilidade.truque-taumaturgia"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Taumaturgia · utilidade · infernal",
+        "Truque | Taumaturgia"
+      ],
+      "descricao": "Ação, pequenos prodígios por até 1 minuto: voz amplificada, chamas que tremulam, tremores leves, olhos alterados."
+    },
+    {
+      "arteId": "habilidade.toque-chocante",
+      "nome": "Toque Chocante",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.truque-toque-chocante-ataque-5-classe"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Toque Chocante · ataque +5 · classe"
+      ],
+      "descricao": "Ação · Toque · Elétrico. Se acertar, o alvo perde ataques de oportunidade até o início do próximo turno dele.\nNormal [1d20+5]\nDano [1d8] · Crítico [2d8]"
+    },
+    {
+      "arteId": "monge.torrente-de-golpes",
+      "nome": "Torrente de Golpes",
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/monge-torrente-golpes.png",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.torrente-de-golpes-5-acao-bonus-1-foco"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Torrente de Golpes +5 | ação bônus · 1 Foco"
+      ],
+      "descricao": "Dois socos separados. Use estes botões uma vez para cada soco. Pode trocar um deles por Mão de Cura.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]"
+    },
+    {
+      "arteId": "habilidade.treinamentos",
+      "nome": "treinamentos",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [
+        "habilidade.passivas-treinamentos"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passivas | treinamentos"
+      ],
+      "descricao": "Armas simples; sem armaduras. Kit de Falsificação. Habilidoso (Charlatão): Percepção, Intuição e Furtividade. Classe: Persuasão e Intimidação. Antecedente: Enganação e Prestidigitação. Salvaguardas proficientes: CON e CAR."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-trovejante",
+      "nome": "Trovejante",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Trovejante"
+      ],
+      "descricao": "Explosão Elemental com dano trovejante."
+    },
+    {
+      "arteId": "habilidade.usar-magia",
+      "nome": "Usar Magia",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.usar-magia-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Usar Magia | ação"
+      ],
+      "descricao": "Escolha na Spell List uma magia com tempo de conjuração de uma ação ou ative um efeito que peça esta ação."
+    },
+    {
+      "arteId": "habilidade.usar-objeto",
+      "nome": "Usar Objeto",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda",
+        "Draven Thorne",
+        "Zurich",
+        "Skimi",
+        "Dragoberto",
+        "Hannah Montana",
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.usar-objeto-acao"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Usar Objeto | ação"
+      ],
+      "descricao": "Manipule um objeto que exija uma ação."
+    },
+    {
+      "arteId": "habilidade.valentao-de-taverna",
+      "nome": "Valentão de Taverna",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.valentao-de-taverna-empurrar-1-5-m",
+        "habilidade.passiva-valentao-de-taverna"
+      ],
+      "locais": [
+        "opcao",
+        "passiva"
+      ],
+      "nomes": [
+        "Valentão de Taverna · empurrar 1,5 m",
+        "Passiva | Valentão de Taverna"
+      ],
+      "descricao": "Uma vez por turno, depois de acertar um golpe desarmado com a ação Atacar, empurre o alvo 1,5 m."
+    },
+    {
+      "arteId": "habilidade.explosao-elemental-veneno",
+      "nome": "Veneno",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Veneno"
+      ],
+      "descricao": "Explosão Elemental com dano veneno."
+    },
+    {
+      "arteId": "habilidade.visao-no-escuro",
+      "nome": "Visão no Escuro",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "raca"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [
+        "habilidade.passiva-visao-no-escuro"
+      ],
+      "locais": [
+        "passiva"
+      ],
+      "nomes": [
+        "Passiva | Visão no Escuro"
+      ],
+      "descricao": "36 m."
+    },
+    {
+      "arteId": "habilidade.zombaria-perversa",
+      "nome": "Zombaria Perversa",
+      "status": "gerar",
+      "arquivo": null,
+      "familias": [
+        "classe"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [
+        "habilidade.truque-zombaria-perversa"
+      ],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Truque | Zombaria Perversa"
+      ],
+      "descricao": "Ação, 18 m. Salvaguarda de SAB CD 13: [1d6] psíquico e o alvo tem Desvantagem na próxima jogada de ataque antes do fim do turno dele. No sucesso, sem efeito."
+    }
+  ],
+  "itensReutilizados": [
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga +4 | ação"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d4+2 perfurante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga · arremesso +4 | ação"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d4+2 perfurante.",
+      "variante": "Arremesso"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga +4 | ação bônus"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d4 perfurante.",
+      "variante": "Mão fraca"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Nikki Lauda"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga · arremesso +4 | ação bônus"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d4 perfurante.",
+      "variante": "Arremesso"
+    },
+    {
+      "arteId": "habilidade.espada-grande",
+      "nome": "Espada Grande",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-espada-grande.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Draven Thorne"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Espada Grande +5 | ação"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo FOR · proficiente · maestria Garantido · dano 2d6+3 cortante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.arco-longo",
+      "nome": "Arco Longo",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-arco-longo.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Arco Longo · distância +7 | ação"
+      ],
+      "descricao": "Ataque à distância · Atributo DES · proficiente · maestria · dano 1d8+3 perfurante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.cimitarra",
+      "nome": "Cimitarra",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-cimitarra.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao",
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Cimitarra +5 | ação",
+        "Cimitarra +5"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · maestria · dano 1d6+3 cortante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.espada-curta",
+      "nome": "Espada Curta",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-espada-curta.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Zurich"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao/composicao/modos",
+        "opcao"
+      ],
+      "nomes": [
+        "Espada Curta +5",
+        "Espada Curta +5 | na ação Atacar · Ágil"
+      ],
+      "descricao": "Ataque extra da propriedade Leve com Ágil; não gasta Ação Bônus.",
+      "variante": "Mão fraca"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga +4 | ação"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d4+2 perfurante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga · arremesso +4 | ação"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d4+2 perfurante.",
+      "variante": "Arremesso"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga +4 | ação bônus"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d4 perfurante.",
+      "variante": "Mão fraca"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Skimi"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga · arremesso +4 | ação bônus"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d4 perfurante.",
+      "variante": "Arremesso"
+    },
+    {
+      "arteId": "habilidade.cimitarra",
+      "nome": "Cimitarra",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-cimitarra.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao",
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Cimitarra +5 | ação",
+        "Cimitarra +5"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · maestria Ágil · dano 1d6+3 cortante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.arco-longo",
+      "nome": "Arco longo",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-arco-longo.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Dragoberto"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao",
+        "opcao/composicao/modos"
+      ],
+      "nomes": [
+        "Arco longo · distância +7 | ação",
+        "Arco longo · distância +7"
+      ],
+      "descricao": "Ataque à distância · Atributo DES · proficiente · maestria Lentidão · dano 1d8+3 perfurante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga +4 | ação"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d4+2 perfurante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga · arremesso +4 | ação"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d4+2 perfurante.",
+      "variante": "Arremesso"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga +4 | ação bônus"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d4 perfurante.",
+      "variante": "Mão fraca"
+    },
+    {
+      "arteId": "habilidade.adaga",
+      "nome": "Adaga",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-adaga.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Hannah Montana"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Adaga · arremesso +4 | ação bônus"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d4 perfurante.",
+      "variante": "Arremesso"
+    },
+    {
+      "arteId": "habilidade.lanca",
+      "nome": "Lança",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-lanca.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Lança +5 | ação"
+      ],
+      "descricao": "Ataque corpo a corpo · Atributo DES · proficiente · sem maestria · dano 1d8+3 perfurante.",
+      "variante": ""
+    },
+    {
+      "arteId": "habilidade.lanca",
+      "nome": "Lança",
+      "status": "reutilizar_item",
+      "arquivo": "assets/itens/item-lanca.webp",
+      "familias": [
+        "comum"
+      ],
+      "fichas": [
+        "Loteria"
+      ],
+      "referencias": [],
+      "locais": [
+        "opcao"
+      ],
+      "nomes": [
+        "Lança · arremesso +5 | ação"
+      ],
+      "descricao": "Arremesso · Atributo DES · proficiente · sem maestria · dano 1d6+3 perfurante.",
+      "variante": "Arremesso"
+    }
+  ]
+}

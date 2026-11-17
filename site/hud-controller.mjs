@@ -1,15 +1,16 @@
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.43';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.43';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.43';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.43';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.43';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.43';
-import {visualHabilidade,testeVisual} from './ability-art.mjs?v=0.8.43';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.43';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.44';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.44';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.44';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.44';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.44';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.44';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.44';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.44';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.44';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.43',import.meta.url);
+const url=new URL('./hud.html?v=0.8.44',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -312,7 +313,7 @@ export async function iniciarHud(){
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(circulos.length>1||duplicadaDisponivel||ilusaoDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{}),...(ilusaoDisponivel?{ilusaoDisponivel:true,ilusaoCausaDano}:{})};
-    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
+    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,categoria:o.categoria,origem:o.origem,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
       pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
@@ -344,7 +345,7 @@ export async function iniciarHud(){
   }
   async function sincronizarTokens(items){
     if(!estado)return;
-    const ids=new Set(atores().map(a=>a.token).filter(Boolean)),antes=new Map(tokens.map(t=>[t.id,t.position]));
+    const ids=new Set([...atores().map(a=>a.token),...(estado.recipientes??[]).flatMap(r=>[r.tokenId,idSelecaoRecipiente(r)])].filter(Boolean)),antes=new Map(tokens.map(t=>[t.id,t.position]));
     const proximos=items.filter(t=>ids.has(t.id)),mudou=proximos.some(t=>{const p=antes.get(t.id);return !p||p.x!==t.position.x||p.y!==t.position.y;});
     tokens=proximos;if(!mudou)return;
     const p=pendente,a=ator();
@@ -373,6 +374,21 @@ export async function iniciarHud(){
   async function escolher(evento){
     const p=pendente;if(!p?.escolha||ocupado)return;
     let ponto=evento.pointerPosition;
+    if(p.rule?.tipo==='saque'){
+      const r=(estado.recipientes??[]).find(r=>{
+        const imagem=tokens.find(t=>t.id===r.tokenId),hit=tokens.find(t=>t.id===idSelecaoRecipiente(r));
+        return Boolean(imagem||hit)&&imagem?.visible!==false&&hit?.visible!==false&&(evento.target?.id===r.tokenId||evento.target?.id===idSelecaoRecipiente(r)||pontoNoRecipiente(ponto,r,pixelsMetro,imagem,hit));
+      });
+      if(r){
+        if(r.trancado)throw Error('O recipiente está trancado.');
+        const t=tokens.find(t=>t.id===idSelecaoRecipiente(r))??tokens.find(t=>t.id===r.tokenId),centro=t?.position??{x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro};
+        const d=Math.hypot(centro.x-p.origem.x,centro.y-p.origem.y)/pixelsMetro;
+        if(d>1.5+1e-8)throw Error('O recipiente está a mais de 1,5 m.');
+        delete p.cmd.alvo;p.cmd.recipienteId=r.id;p.cmd.tokenId=r.tokenId;p.pronto=true;p.detalhe=r.nome+' · '+medida(d);p.ponto=centro;
+        await desenhar([circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),circulo(centro,pixelsMetro/2,'#79cfb1')]);await layout();transmitir();return;
+      }
+      delete p.cmd.recipienteId;delete p.cmd.tokenId;
+    }
     let alvo;
     if(p.escolha==='alvo'||p.escolha==='lista'){
       alvo=atores().find(a=>a.token===evento.target?.id);
@@ -468,7 +484,7 @@ export async function iniciarHud(){
         ferramentaDoTurno=null;
       }
     }
-    if(atores().length)tokens=await OBR.scene.items.getItems(atores().map(a=>a.token).filter(Boolean));
+    tokens=await OBR.scene.items.getItems([...atores().map(a=>a.token),...(estado.recipientes??[]).flatMap(r=>[r.tokenId,idSelecaoRecipiente(r)])].filter(Boolean));
     await layout();transmitir();
   }
   async function mensagem(d){
@@ -594,7 +610,9 @@ export async function iniciarHud(){
       ocupado=true;transmitir();try{await api.enviar({tipo:'encerrarConcentracao',ator:a.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
     }else if(d.tipo==='usarItem'){
       const a=ator(),item=a?.ficha.inventario?.itens.find(i=>i.id===d.itemId&&i.tipo==='consumivel'&&i.quantidade>0);if(!controla(a)||!item)return;
-      ocupado=true;transmitir();try{await api.enviar({tipo:'inventario',ator:a.id,operacao:'usar',itemId:item.id,rev:estado.rev,confirmado:eu.role==='GM'&&a.ficha.tipo==='pj'});}finally{ocupado=false;}
+      await cancelar();const opcao=opcaoConsumoItem(item);
+      pendente={publicId:crypto.randomUUID(),cmd:{tipo:'inventario',ator:a.id,operacao:'usar',itemId:item.id,rev:estado.rev},opcaoPublica:opcao,rev:estado.rev,escolha:null,titulo:item.nome,pronto:true,rolagem:false,custos:custosPrevia(a,opcao),substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'Usar item · '+a.nome};
+      await publicarPrevia();
     }else if(['iniciar','encerrar','avancarTempo','descanso'].includes(d.tipo)){
       if(eu.role!=='GM'||d.rev!==estado.rev)return;
       ocupado=true;transmitir();
@@ -693,9 +711,9 @@ export async function iniciarHud(){
   // Remove instâncias que possam ter sobrevivido ao recarregamento do
   // background antes da primeira sincronização com o encontro.
   await Promise.all(partesHud.map(parte=>OBR.popover.close(ns+'/hud/'+parte).catch(()=>{})));
-  await api.notify();
-  await OBR.broadcast.sendMessage(canalPrevia,{tipo:'solicitar'},{destination:'REMOTE'}).catch(()=>{});
   let verificando=false;
-  setInterval(()=>{if(verificando)return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}finally{verificando=false;}});},1200);
+  setInterval(()=>{if(verificando)return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}catch(e){console.warn('Aguardando conexão com o mestre:',e.message);}finally{verificando=false;}});},1200);
+  // A recuperação deve continuar instalada mesmo quando o mestre chega depois.
+  api.notify().then(()=>OBR.broadcast.sendMessage(canalPrevia,{tipo:'solicitar'},{destination:'REMOTE'})).catch(e=>console.warn('Aguardando conexão com o mestre:',e.message));
 }
 

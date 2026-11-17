@@ -1,6 +1,6 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.43';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.43';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.43';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.44';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.44';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.44';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -239,7 +239,7 @@ function corrigirMagiasRevisao(f){
     const tipos=[['acido','ácido'],['frio','frio'],['fogo','fogo'],['raio','raio'],['veneno','veneno'],['psiquico','psíquico'],['trovejante','trovejante']];
     explosao.automacao.elemento='fogo';if(!/explosão elemental \(fogo\)/i.test(explosao.nome))explosao.nome=explosao.nome.replace(/Explosão Elemental/,'Explosão Elemental (fogo)');
     for(const [id,nomeTipo] of tipos.filter(([id])=>id!=='fogo'))if(!f.opcoes.some(o=>o.id===explosao.id+'-'+id)){const v=structuredClone(explosao);v.id=explosao.id+'-'+id;v.varianteDe=explosao.id;v.automacao.elemento=id;v.nome=explosao.nome.replace('(fogo)','('+nomeTipo+')');f.opcoes.push(v);}
-    explosao.composicao={quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'fogo',modos:tipos.map(([id,nomeTipo])=>({id,nome:nomeTipo[0].toUpperCase()+nomeTipo.slice(1),descricao:'Explosão Elemental com dano '+nomeTipo+'.',tipo:'ataque',automacao:{...structuredClone(explosao.automacao),elemento:id}}))};
+    explosao.composicao={quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'fogo',modos:tipos.map(([id,nomeTipo])=>({id,contextoVisual:'Explosão Elemental',nome:nomeTipo[0].toUpperCase()+nomeTipo.slice(1),descricao:'Explosão Elemental com dano '+nomeTipo+'.',tipo:'ataque',automacao:{...structuredClone(explosao.automacao),elemento:id}}))};
     for(const variante of f.opcoes.filter(o=>o!==explosao&&(/explosao elemental/.test(textoNormal(o.nome))||o.varianteDe===explosao.id)))variante.somenteComposicao=true;
   }
   for(const o of f.opcoes??[])for(const [de,para] of RENOMEAR)if(typeof o.nome==='string'&&de.test(o.nome))o.nome=o.nome.replace(de,para);
@@ -748,8 +748,8 @@ export function ataquesEquipados(a){
     if(!principal)continue;
     const modoPrincipal='ataque-principal-'+principal.id,modoExtra='ataque-extra-'+extra.id;
     principal.composicao={tipo:'sequencia',quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:modoPrincipal,modos:[
-      {id:modoPrincipal,nome:principal.nome.replace(/\s*\|.*$/,''),descricao:'Primeiro ataque da Ação Atacar.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:principal.id,automacao:structuredClone(principal.automacao)},
-      {id:modoExtra,nome:extra.nome.replace(/\s*\|.*$/,''),descricao:'Ataque extra da propriedade Leve com Ágil; não gasta Ação Bônus.',tipo:'ataque',ordem:2,requerModoAnterior:modoPrincipal,limitePorUso:1,umaVezPorTurno:'maestria-agil',origemOpcaoId:extra.id,automacao:structuredClone(extra.automacao)}
+      {id:modoPrincipal,origemItem:principal.origemItem,geradaPorItem:true,nome:principal.nome.replace(/\s*\|.*$/,''),descricao:'Primeiro ataque da Ação Atacar.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:principal.id,automacao:structuredClone(principal.automacao)},
+      {id:modoExtra,origemItem:extra.origemItem,geradaPorItem:true,nome:extra.nome.replace(/\s*\|.*$/,''),descricao:'Ataque extra da propriedade Leve com Ágil; não gasta Ação Bônus.',tipo:'ataque',ordem:2,requerModoAnterior:modoPrincipal,limitePorUso:1,umaVezPorTurno:'maestria-agil',origemOpcaoId:extra.id,automacao:structuredClone(extra.automacao)}
     ]};
     extra.ocultarListas=true;
   }
@@ -866,7 +866,7 @@ function anexarDestruidorNaComposicao(a,lista){
     if(o.composicao){o.composicao.modos.push(modo);o.composicao.quantidadeMaxima+=1;continue;}
     const principal='ataque-principal-'+o.id;
     o.composicao={tipo:'sequencia',opcional:true,quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:principal,modos:[
-      {id:principal,nome:o.nome.replace(/\s*\|.*$/,''),descricao:'Ataque com a arma.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:o.id,automacao:structuredClone(o.automacao)},modo]};
+      {id:principal,origemItem:o.origemItem,geradaPorItem:true,nome:o.nome.replace(/\s*\|.*$/,''),descricao:'Ataque com a arma.',tipo:'ataque',ordem:1,limitePorUso:1,origemOpcaoId:o.id,automacao:structuredClone(o.automacao)},modo]};
   }
 }
 // Valida a etapa do Destruidor de Hordas dentro da composição; devolve a automação da arma usada.
@@ -1299,7 +1299,10 @@ function custosDisponiveis(a,o,modo='automatico'){
   const plano=planoCustoOpcao(a,o,modo);return Boolean(plano&&plano.custos.every(c=>(c.tipo==='recurso'?a.rec?.[c.id]:a[c.tipo])>=c.quantidade));
 }
 function validarPlanoAntesDoCusto(s,a,o,rule,c){
-  if(rule?.tipo==='saque')alvoSaque(s,a,c.alvo);
+  if(rule?.tipo==='saque'){
+    if(c.recipienteId){const r=recipientePorId(s,c.recipienteId);exigir(r,'Recipiente indisponível.');exigir(!r.trancado,'O recipiente está trancado.');exigir(distancia(a,r.posicaoM)<=1.5+1e-8,'O recipiente está a mais de 1,5 m.');}
+    else alvoSaque(s,a,c.alvo);
+  }
   if(o.composicao){
     const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):(c.alvo?[{modoId:def.modoPadrao,alvoId:c.alvo}]:[])),contagens={};
     exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
@@ -1676,6 +1679,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(c.tipoRecipiente==='caixa','Tipo de recipiente inválido.');
       exigir(!c.tokenId||!s.recipientes.some(r=>r.tokenId===c.tokenId),'Esta imagem já possui um recipiente.');
       const r=novoRecipiente(s,{tipo:'caixa',nome:c.nome??'Baú de madeira',tokenId:c.tokenId,posicaoM:c.posicaoM,capacidadeSlots:c.capacidadeSlots});
+      r.trancado=c.trancado===true;
       msg='Mestre colocou '+r.nome+' na cena.';break;
     }
     case 'recipienteAdicionarItem': {
@@ -2420,7 +2424,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if((o.categoria==='magia'||rule?.tipo==='ataque'||rule?.dano)&&(a.efeitosAtivos??[]).some(e=>e.encerraAoAgir)){a.efeitosAtivos=a.efeitosAtivos.filter(e=>!e.encerraAoAgir);msg+=' • deixou de estar Invisível';} // #14
       const concentracaoId=o.concentracao?iniciarConcentracao(s,a,o):null;
       if(rule?.tipo==='saque'){
-        a.saqueAberto={id:crypto.randomUUID(),alvoId:c.alvo,origem:{tipo:'personagem',id:c.alvo}};
+        const r=c.recipienteId?recipientePorId(s,c.recipienteId):null;
+        a.saqueAberto=r?{id:crypto.randomUUID(),nome:r.nome,origem:{tipo:r.tipo,id:r.id},itens:structuredClone(r.itens)}:{id:crypto.randomUUID(),alvoId:c.alvo,origem:{tipo:'personagem',id:c.alvo}};
         msg+=' • escolha os pertences para levar.';break;
       }
       if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}

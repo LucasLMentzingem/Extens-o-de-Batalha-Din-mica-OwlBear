@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {novo,adicionar,aplicar,itensSaque,pesoInventario,publico,opcoesDisponiveis} from './site/engine.mjs';
 import {compactarEstado} from './site/catalog.mjs';
+import {pontosInteracaoRecipiente,pontoNoRecipiente} from './site/loot-geometry.mjs';
 const gm={id:'gm',role:'GM'},player={id:'p',role:'PLAYER'};
 async function mesa(){let s=novo();const a=adicionar(s,JSON.parse(await readFile(new URL('./site/fichas/nikki.json',import.meta.url))));a.dono='p';a.x=0;a.y=0;
  const run=async(tipo,extra={},u=gm,dado=()=>1)=>{s=await aplicar(s,{tipo,ator:a.id,rev:s.rev,confirmado:true,...extra},u,dado);return s;};
@@ -16,6 +17,27 @@ test('baú: autorização, tranca revalidada, capacidade e persistência',async(
  const antes=JSON.stringify(m.s);await assert.rejects(()=>m.run('confirmarSaque',{saqueId:id,itens:[]},player),/trancado/);assert.equal(JSON.stringify(m.s),antes);
  await assert.rejects(()=>m.run('abrirSaqueRecipiente',{recipienteId:m.r.id},player),/trancado/);
  assert.equal(compactarEstado(m.s).recipientes[0].trancado,true);
+});
+test('Saquear seleciona baú e chão pela mesma habilidade, valida antes de cobrar e não duplica ação',async()=>{
+ const m=await mesa();m.s.fase='turnos';m.s.ordem=[m.a.id];m.s.vez=0;m.a.acao=1;
+ await m.run('recipienteAdicionarPo',{recipienteId:m.r.id,quantidade:5});
+ await m.run('configurarRecipiente',{recipienteId:m.r.id,nome:'Baú',capacidadeSlots:2,trancado:true});
+ await assert.rejects(()=>m.run('usar',{opcao:'saquear',recipienteId:m.r.id},player),/trancado/);assert.equal(m.a.acao,1);
+ await m.run('configurarRecipiente',{recipienteId:m.r.id,nome:'Baú',capacidadeSlots:2,trancado:false});
+ await m.run('usar',{opcao:'saquear',recipienteId:m.r.id},player);assert.equal(m.a.acao,0);assert.equal(m.a.saqueAberto.origem.tipo,'caixa');
+ await m.run('confirmarSaque',{saqueId:m.a.saqueAberto.id,itens:[{itemId:m.r.itens[0].id,quantidade:5}]},player);assert.equal(m.a.acao,0);
+ m.s.fase='preparo';const i=m.a.ficha.inventario.itens.find(i=>i.tipo!=='moeda');await m.run('soltarItem',{itemId:i.id,quantidade:1},player);
+ const chao=m.s.recipientes.find(r=>r.tipo==='chao');await m.run('usar',{opcao:'saquear',recipienteId:chao.id},player);assert.equal(m.a.saqueAberto.origem.tipo,'chao');
+ await m.run('confirmarSaque',{saqueId:m.a.saqueAberto.id,itens:[{itemId:chao.itens[0].id,quantidade:1}]},player);assert.ok(!m.s.recipientes.some(r=>r.id===chao.id));
+});
+test('hitbox de loot é círculo de um metro e baú acompanha dimensões, offset e rotação da prop',()=>{
+ const r={tipo:'chao',posicaoM:{x:0,y:0}};
+ for(const px of [50,100,200]){
+   const pontos=pontosInteracaoRecipiente(r,px);assert.equal(pontos.length,48);assert.ok(pontos.every(p=>Math.abs(Math.hypot(p.x,p.y)-px/2)<1e-6));
+   assert.ok(pontoNoRecipiente({x:px*.49,y:0},r,px));assert.ok(!pontoNoRecipiente({x:px*.4,y:px*.4},r,px));
+ }
+ const caixa={tipo:'caixa',posicaoM:{x:0,y:0}},imagem={image:{width:1500,height:1000},grid:{dpi:1500,offset:{x:750,y:500}},scale:{x:1,y:1},position:{x:0,y:0},rotation:90};
+ const p=pontosInteracaoRecipiente(caixa,100,imagem,150);assert.deepEqual(p,[{x:-75,y:-50},{x:75,y:-50},{x:75,y:50},{x:-75,y:50}]);assert.ok(pontoNoRecipiente({x:49,y:74},caixa,100,imagem));assert.ok(!pontoNoRecipiente({x:60,y:0},caixa,100,imagem));
 });
 test('baú: depósito parcial calcula só a quantidade restante e mantém identidades distintas',async()=>{
  const m=await mesa();m.a.ficha.inventario.itens.push({id:'pilha',nome:'Pedras',tipo:'etc',quantidade:10,pesoKg:1});
