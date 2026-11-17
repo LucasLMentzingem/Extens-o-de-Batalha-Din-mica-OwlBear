@@ -36,3 +36,11 @@ Prévia de cada participante tem sua própria coleção de marcas. Não há envi
 - A seta para abrir permanece disponível sem seleção/histórico. Com instância fica à esquerda dela; sem instância fica junto à borda direita. A barra aberta possui seta na sua borda esquerda para recolher à direita. O brilho de atividade permanece.
 - Instâncias e miniaturas dos balões não sobrepõem nomes às imagens. Pós-acerto e rerrolagens exibem o nome fora da imagem, abaixo dela; ajuste de rolagem tem mais espaço.
 - 302 testes automatizados aprovados. Navegador com SDK simulado confirmou Fechar, ausência de Executar/Cancelar no histórico, retorno à barra, seta na borda, rascunhos preservados e nome pós-acerto abaixo do ícone. Falta validação na sala real. Integrado à publicação 0.8.50.
+
+## Ajuste local após 0.8.50 — execuções e PV
+
+A lista visual inclui somente ações que começaram a execução ou foram concluídas. Preparar/selecionar permanece como prévia de trabalho e não entra na barra histórica. Cancelar ou falhar remove a atividade e impede que atualizações atrasadas da mesma identidade a recriem. A própria preparação pode ser pausada pela barra e retomada ao recolhê-la, sem ser registrada como execução.
+
+A projeção de rolagem para jogadores retira PV anterior/restante/máximo e excesso dos inimigos NPCs, inclusive nos relatórios aninhados e no ajuste. A quantidade de dano e suas parcelas continuam disponíveis. O GM recebe o relatório completo; o dado original de resolução não é alterado. As fichas de PJs conservam a política de PV público já usada pela mesa.
+
+308 testes passaram e a interface com SDK simulado confirmou cancelamento sem histórico e resultado de dano nas visões de jogador/GM. Ainda local, sem nova publicação.

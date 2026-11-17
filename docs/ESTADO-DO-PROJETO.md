@@ -2,6 +2,10 @@
 
 Revisão de 17 de novembro de 2026, versão **0.8.50**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
 
+## Ajuste local — histórico e PV de inimigos
+
+Resultados de dano ocultam saldos de PV dos NPCs para jogadores e mantêm os dados completos para GM. Somente execuções entram na barra histórica; cancelar remove a atividade e descarta atualizações atrasadas. 308 testes passaram, incluindo interface com SDK simulado. Ainda não publicado.
+
 ## Próxima entrega local — organização do mestre
 
 Quatro páginas internas e listas recolhíveis por grupo nas páginas de combate e fichas; Aventureiros sempre primeiro. Origem do grupo persistida inclusive para NPCs duplicados. 305 testes passaram. [Detalhes](CONTROLE-MESTRE-PAGINAS.md). Ainda não publicado.

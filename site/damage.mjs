@@ -54,7 +54,7 @@ export function defesasDanoDoAtor(a){
   }
   return saida;
 }
-export function resumoAlvoDano(a){return {id:a.id,nome:a.nome,pv:Math.max(0,Number(a.pv)||0),pvTemporarios:Math.max(0,Number(a.pvTemporarios)||0),pvMaximos:Math.max(0,Number(a.ficha?.pvMaximos)||0),defesas:defesasDanoDoAtor(a)};}
+export function resumoAlvoDano(a){return {id:a.id,nome:a.nome,pvPublico:a.ficha?.tipo==='pj',pv:Math.max(0,Number(a.pv)||0),pvTemporarios:Math.max(0,Number(a.pvTemporarios)||0),pvMaximos:Math.max(0,Number(a.ficha?.pvMaximos)||0),defesas:defesasDanoDoAtor(a)};}
 export function defesaAplica(defesa,parcela){
   const f=defesa.filtro??{},tags=new Set(parcela.tags??[]),tipo=normalizarTipoDano(parcela.tipo);
   if(f.tiposExcluidos?.includes(tipo)||f.tagsExcluidas?.some(x=>tags.has(x)))return false;

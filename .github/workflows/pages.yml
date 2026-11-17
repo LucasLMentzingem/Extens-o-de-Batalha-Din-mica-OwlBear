@@ -23,7 +23,7 @@ jobs:
           node-version: 22
       - run: node validar-versao.mjs
       - run: node gerar-catalogo-runtime.mjs --check
-      - run: node --test combate.test.mjs ability-art.test.mjs recipientes.test.mjs loot-sync.test.mjs activity-feed.test.mjs monk-composition.test.mjs initiative-choices.test.mjs master-groups.test.mjs room-sync.test.mjs state-recovery.test.mjs
+      - run: node --test combate.test.mjs ability-art.test.mjs recipientes.test.mjs loot-sync.test.mjs activity-feed.test.mjs monk-composition.test.mjs initiative-choices.test.mjs master-groups.test.mjs damage-visibility.test.mjs room-sync.test.mjs state-recovery.test.mjs
       - uses: actions/configure-pages@v5
         id: pages
       - name: Gerar caminhos do manifesto para o endereço publicado

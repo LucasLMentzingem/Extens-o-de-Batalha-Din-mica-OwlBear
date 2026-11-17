@@ -1,5 +1,14 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {AtividadesMesa} from './site/activity-feed.mjs';
 const acao=(id,atorId=id)=>({id,atorId,titulo:'Skill '+id,opcaoPublica:{nome:'Skill '+id}});
+
+test('histórico inclui somente execuções e elimina canceladas inclusive atualizações atrasadas',()=>{
+ const f=new AtividadesMesa();f.acao(acao('previa'));assert.equal(f.vista().length,0);
+ f.acao({...acao('previa'),rolagem:true});assert.equal(f.vista().length,1);
+ f.concluir('previa','Cancelada');assert.equal(f.lista.has('previa'),false);assert.equal(f.vista().length,0);
+ f.dado({atividadeId:'previa',pedido:'atrasado',tipo:'resultado',resultado:{total:8}});f.acao(acao('previa'));assert.equal(f.vista().length,0);
+ f.acao(acao('sem-dado'));f.concluir('sem-dado');assert.equal(f.vista()[0].id,'sem-dado');
+ f.acao(acao('pausada'),{propria:true});f.fecharVisual();assert.ok(!f.vista().some(a=>a.id==='pausada'));f.recolherBarra();assert.equal(f.atual('eu').id,'pausada');
+});
 test('atividades simultâneas não se substituem; própria tem prioridade e modo anterior é restaurado',()=>{
  const f=new AtividadesMesa();f.acao(acao('a'));f.acao(acao('b'));assert.equal(f.atual('eu'),null);f.selecionar('b',true);
  f.acao(acao('minha'),{propria:true});assert.equal(f.atual('eu').id,'minha');f.acao(acao('c'));assert.equal(f.atual('eu').id,'minha');
