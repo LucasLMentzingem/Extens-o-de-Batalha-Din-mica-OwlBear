@@ -4,8 +4,8 @@
   "regra": "Cada habilidade distinta tem arte própria; a mesma habilidade em fichas, custos e círculos diferentes mantém sua identidade. Somente fundo e moldura são compartilhados por seção. Armas usam a arte do item e arremesso acrescenta símbolo separado.",
   "resumo": {
     "habilidades": 173,
-    "gerar": 80,
-    "disponiveis": 93,
+    "gerar": 41,
+    "disponiveis": 132,
     "variantesDeItens": 20
   },
   "habilidades": [
@@ -1039,8 +1039,8 @@
     {
       "arteId": "habilidade.despedacar",
       "nome": "Despedaçar",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-despedacar.png",
       "familias": [
         "classe"
       ],
@@ -1113,8 +1113,8 @@
     {
       "arteId": "habilidade.detectar-magia",
       "nome": "Detectar Magia",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-detectar-magia.png",
       "familias": [
         "classe"
       ],
@@ -1138,8 +1138,8 @@
     {
       "arteId": "habilidade.detectar-pensamentos",
       "nome": "Detectar Pensamentos",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-detectar-pensamentos.png",
       "familias": [
         "classe"
       ],
@@ -1163,8 +1163,8 @@
     {
       "arteId": "habilidade.disfarcar-se",
       "nome": "Disfarçar-se",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-disfarcar-se.png",
       "familias": [
         "classe"
       ],
@@ -1261,8 +1261,8 @@
     {
       "arteId": "habilidade.encerrar-disfarcar-se",
       "nome": "Encerrar Disfarçar-se",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-encerrar-disfarcar-se.png",
       "familias": [
         "comum"
       ],
@@ -1301,8 +1301,8 @@
     {
       "arteId": "habilidade.encontrar-familiar",
       "nome": "Encontrar Familiar",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-encontrar-familiar.png",
       "familias": [
         "classe"
       ],
@@ -1323,8 +1323,8 @@
     {
       "arteId": "habilidade.enfeiticar-pessoa",
       "nome": "Enfeitiçar Pessoa",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-enfeiticar-pessoa.png",
       "familias": [
         "classe"
       ],
@@ -1384,8 +1384,8 @@
     {
       "arteId": "habilidade.entregar-magia-de-toque",
       "nome": "Entregar magia de toque",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-entregar-magia-de-toque.png",
       "familias": [
         "comum"
       ],
@@ -1526,8 +1526,8 @@
     {
       "arteId": "habilidade.explosao-elemental-fogo",
       "nome": "Explosão Elemental (fogo)",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explosao-elemental-fogo.png",
       "familias": [
         "classe"
       ],
@@ -1550,8 +1550,8 @@
     {
       "arteId": "habilidade.fala-telepatica",
       "nome": "Fala Telepática",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-fala-telepatica.png",
       "familias": [
         "comum"
       ],
@@ -1596,8 +1596,8 @@
     {
       "arteId": "habilidade.feiticaria-inata",
       "nome": "Feitiçaria Inata",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-feiticaria-inata.png",
       "familias": [
         "comum"
       ],
@@ -1640,8 +1640,8 @@
     {
       "arteId": "habilidade.fonte-de-magia-criar-espaco-de-1-2-pontos",
       "nome": "Fonte de Magia · criar espaço de 1º (2 pontos)",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-fonte-magia-criar-espaco-1.png",
       "familias": [
         "comum"
       ],
@@ -1662,8 +1662,8 @@
     {
       "arteId": "habilidade.fonte-de-magia-criar-espaco-de-2-3-pontos",
       "nome": "Fonte de Magia · criar espaço de 2º (3 pontos)",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-fonte-magia-criar-espaco-2.png",
       "familias": [
         "comum"
       ],
@@ -1684,8 +1684,8 @@
     {
       "arteId": "habilidade.fonte-de-magia-espaco-de-1-vira-1-ponto",
       "nome": "Fonte de Magia · espaço de 1º vira 1 ponto",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-fonte-magia-espaco-1-ponto.png",
       "familias": [
         "comum"
       ],
@@ -1706,8 +1706,8 @@
     {
       "arteId": "habilidade.fonte-de-magia-espaco-de-2-vira-2-pontos",
       "nome": "Fonte de Magia · espaço de 2º vira 2 pontos",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-fonte-magia-espaco-2-pontos.png",
       "familias": [
         "comum"
       ],
@@ -1754,8 +1754,8 @@
     {
       "arteId": "habilidade.forca-fantasmagorica",
       "nome": "Força Fantasmagórica",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-forca-fantasmagorica.png",
       "familias": [
         "classe"
       ],
@@ -1776,8 +1776,8 @@
     {
       "arteId": "habilidade.explosao-elemental-frio",
       "nome": "Frio",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explosao-elemental-frio.png",
       "familias": [
         "classe"
       ],
@@ -1940,8 +1940,8 @@
     {
       "arteId": "habilidade.habilidoso",
       "nome": "Habilidoso",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-habilidoso.png",
       "familias": [
         "comum"
       ],
@@ -2010,8 +2010,8 @@
     {
       "arteId": "habilidade.humano",
       "nome": "Humano",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-humano.png",
       "familias": [
         "raca"
       ],
@@ -2419,8 +2419,8 @@
     {
       "arteId": "habilidade.magia-duplicada",
       "nome": "Magia Duplicada",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-magia-duplicada.png",
       "familias": [
         "comum"
       ],
@@ -2441,8 +2441,8 @@
     {
       "arteId": "habilidade.magia-potencializada",
       "nome": "Magia Potencializada",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-magia-potencializada.png",
       "familias": [
         "comum"
       ],
@@ -2485,8 +2485,8 @@
     {
       "arteId": "habilidade.manipular-objeto",
       "nome": "Manipular objeto",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-manipular-objeto.png",
       "familias": [
         "classe",
         "comum"
@@ -2598,8 +2598,8 @@
     {
       "arteId": "habilidade.maos-magicas",
       "nome": "Mãos Mágicas",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-maos-magicas.png",
       "familias": [
         "classe"
       ],
@@ -2997,8 +2997,8 @@
     {
       "arteId": "habilidade.passo-nebuloso",
       "nome": "Passo Nebuloso",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-passo-nebuloso.png",
       "familias": [
         "classe"
       ],
@@ -3183,8 +3183,8 @@
     {
       "arteId": "habilidade.preparacao-e-origem",
       "nome": "preparação e origem",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-preparacao-e-origem.png",
       "familias": [
         "comum"
       ],
@@ -3368,8 +3368,8 @@
     {
       "arteId": "habilidade.protecao-contra-laminas",
       "nome": "Proteção Contra Lâminas",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-protecao-contra-laminas.png",
       "familias": [
         "classe"
       ],
@@ -3393,8 +3393,8 @@
     {
       "arteId": "habilidade.explosao-elemental-psiquico",
       "nome": "Psíquico",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explosao-elemental-psiquico.png",
       "familias": [
         "classe"
       ],
@@ -3413,8 +3413,8 @@
     {
       "arteId": "habilidade.queda-suave",
       "nome": "Queda Suave",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-queda-suave.png",
       "familias": [
         "classe"
       ],
@@ -3457,8 +3457,8 @@
     {
       "arteId": "habilidade.explosao-elemental-raio",
       "nome": "Raio",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explosao-elemental-raio.png",
       "familias": [
         "classe"
       ],
@@ -3613,8 +3613,8 @@
     {
       "arteId": "habilidade.repreensao-diabolica",
       "nome": "Repreensão Diabólica",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-repreensao-diabolica.png",
       "familias": [
         "raca"
       ],
@@ -3733,8 +3733,8 @@
     {
       "arteId": "habilidade.sentidos-e-defesas",
       "nome": "sentidos e defesas",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-sentidos-e-defesas.png",
       "familias": [
         "raca"
       ],
@@ -3781,8 +3781,8 @@
     {
       "arteId": "habilidade.sopro-de-dragao",
       "nome": "Sopro de Dragão",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-sopro-de-dragao.png",
       "familias": [
         "classe"
       ],
@@ -3794,7 +3794,8 @@
       ],
       "locais": [
         "opcao",
-        "opcao/automacao/efeito/opcoesConcedidas"
+        "opcao/composicao/modos",
+        "opcao/composicao/modos/automacao/efeito/opcoesConcedidas"
       ],
       "nomes": [
         "2º | Sopro de Dragão · salva de DES · concentração · classe",
@@ -3853,8 +3854,8 @@
     {
       "arteId": "habilidade.sussurros-dissonantes",
       "nome": "Sussurros Dissonantes",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-sussurros-dissonantes.png",
       "familias": [
         "classe"
       ],
@@ -3878,8 +3879,8 @@
     {
       "arteId": "habilidade.talho-mental",
       "nome": "Talho Mental",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-talho-mental.png",
       "familias": [
         "classe"
       ],
@@ -3900,8 +3901,8 @@
     {
       "arteId": "habilidade.taumaturgia",
       "nome": "Taumaturgia",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-taumaturgia.png",
       "familias": [
         "raca",
         "classe"
@@ -3926,8 +3927,8 @@
     {
       "arteId": "habilidade.toque-chocante",
       "nome": "Toque Chocante",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-toque-chocante.png",
       "familias": [
         "classe"
       ],
@@ -3970,8 +3971,8 @@
     {
       "arteId": "habilidade.treinamentos",
       "nome": "treinamentos",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-treinamentos.png",
       "familias": [
         "comum"
       ],
@@ -3992,8 +3993,8 @@
     {
       "arteId": "habilidade.explosao-elemental-trovejante",
       "nome": "Trovejante",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explosao-elemental-trovejante.png",
       "familias": [
         "classe"
       ],
@@ -4093,8 +4094,8 @@
     {
       "arteId": "habilidade.explosao-elemental-veneno",
       "nome": "Veneno",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explosao-elemental-veneno.png",
       "familias": [
         "classe"
       ],

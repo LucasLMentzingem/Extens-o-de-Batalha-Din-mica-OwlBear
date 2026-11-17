@@ -1,6 +1,6 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.51**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.51.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.52**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.52.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 ## Lojas e comércio
 

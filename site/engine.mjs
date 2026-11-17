@@ -1,6 +1,6 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.51';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.51';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.51';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.52';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.52';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.52';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -47,6 +47,16 @@ const soprosDeDragao=()=>[
   custo:[{tipo:'acao',quantidade:1}],
   automacao:{tipo:'salva',atributo:'des',cd:13,dano:'3d6',metade:true,elemento,alcanceM:4.5,origemArea:'conjurador',excluirConjurador:true,area:{forma:'cone',comprimentoM:4.5,larguraM:4.5}}
 }));
+function configurarSoproDragao(o){
+  const opcoes=soprosDeDragao();
+  o.concentracao=true;
+  o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Sopro de Dragão',tipo:'buff',duracao:{turnos:10,expira:'inicio_origem'}}};
+  o.composicao={tipo:'efeito',quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'fogo',modos:opcoes.map(sopro=>({
+    id:sopro.automacao.elemento,nome:sopro.nome,contextoVisual:'Sopro de Dragão',tipo:'efeito',
+    descricao:'Escolha este elemento para toda a duração. O beneficiário poderá soprar com 1 Ação, sem outro espaço.',
+    automacao:{...structuredClone(o.automacao),efeito:{...structuredClone(o.automacao.efeito),elemento:sopro.automacao.elemento,descricao:sopro.descricao,opcoesConcedidas:[sopro]}}
+  }))};
+}
 function lista(xs, label) {
   exigir(Array.isArray(xs) && xs.every(x => x && idOK(x.id)) && new Set(xs.map(x=>x.id)).size===xs.length, label+' contém IDs inválidos ou repetidos.');
 }
@@ -110,6 +120,7 @@ export function atualizarMagias(f){
       o.foraCombate=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Armadura Arcana',tipo:'buff',descricao:'A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.',removeEm:'descanso_longo',caMinima:13,requisitos:{semArmadura:true},modificadores:{}}};
       if(f.id==='nikki'&&[13,15].includes(f.caBase))f.caBase=12; // #9 sem armadura: 10 + DESif(f.id==='nikki'&&f.armaduraEquipada===undefined)f.armaduraEquipada=false;
     }
+    if(nome==='sopro de dragao')configurarSoproDragao(o);
     if(o.automacao)continue;
     const circulo=o.circuloBase??1;
     if(nome==='misseis magicos'){
@@ -533,12 +544,13 @@ export function validar(f) {
       exigir(c.custosPorModo===undefined||typeof c.custosPorModo==='boolean','Plano de custo da composição inválido em '+o.id);
       exigir(inteiro(c.quantidadeMinima,1,64)&&inteiro(c.quantidadeMaxima,c.quantidadeMinima,64)&&Array.isArray(modos)&&modos.length>=2&&new Set(modos.map(m=>m.id)).size===modos.length&&modos.some(m=>m.id===c.modoPadrao),'Composição inválida em '+o.id);
       for(const m of modos){
-        exigir(idOK(m.id)&&nomeOK(m.nome)&&['ataque','cura'].includes(m.tipo)&&m.automacao?.tipo===m.tipo,'Modo de composição inválido em '+o.id);
+        exigir(idOK(m.id)&&nomeOK(m.nome)&&['ataque','cura','efeito'].includes(m.tipo)&&m.automacao?.tipo===m.tipo,'Modo de composição inválido em '+o.id);
         exigir(m.ateOrdem===undefined||inteiro(m.ateOrdem,1,c.quantidadeMaxima),'Etapa máxima do modo inválida em '+o.id);
         exigir(m.custo===undefined||Array.isArray(m.custo)&&m.custo.every(v=>['acao','bonus','reacao','recurso'].includes(v.tipo)&&inteiro(v.quantidade,1,999)&&(v.tipo!=='recurso'||f.recursos.some(r=>r.id===v.id))),'Custo do modo inválido em '+o.id);
         exigir(m.limitePorUso===undefined||inteiro(m.limitePorUso,1,c.quantidadeMaxima),'Limite de modo inválido em '+o.id);
         exigir(m.umaVezPorTurno===undefined||idOK(m.umaVezPorTurno),'Limite por turno do modo inválido em '+o.id);
         if(m.tipo==='ataque')exigir(inteiro(m.automacao.bonus,-20,40)&&formulaDanoValida(m.automacao.dano)&&Number.isFinite(m.automacao.alcanceM),'Ataque composto inválido em '+o.id);
+        if(m.tipo==='efeito')exigir(c.tipo==='efeito'&&c.quantidadeMaxima===1&&Number.isFinite(m.automacao.alcanceM)&&m.automacao.efeito,'Efeito composto inválido em '+o.id);
         if(m.tipo==='cura')exigir(formulaDanoValida(m.automacao.formula)&&Number.isFinite(m.automacao.alcanceM),'Cura composta inválida em '+o.id);
       }
     }
@@ -806,12 +818,18 @@ export function opcaoDisponivel(a,o){
 }
 function opcoesConcedidasPorEfeitos(a){
   const usadas=new Set();
-  return (a?.efeitosAtivos??[]).flatMap(efeito=>(efeito.opcoesConcedidas??[]).flatMap(opcao=>{
+  return (a?.efeitosAtivos??[]).flatMap(efeito=>{
+    const sopro=slug(efeito.nome)==='sopro-de-dragao';
+    // Buffs legados tinham cinco opções: preservar uma só, fixando o elemento salvo ou a primeira variante.
+    const opcoes=sopro?(efeito.opcoesConcedidas??[]).filter((o,i)=>efeito.elemento?o.automacao?.elemento===efeito.elemento:i===0):(efeito.opcoesConcedidas??[]);
+    return opcoes.flatMap(opcao=>{
     const id='efeito-'+slug(efeito.id)+'-'+slug(opcao.id);
     if(usadas.has(id))return [];
     usadas.add(id);
-    return [{...structuredClone(opcao),id,concedidaPorEfeito:efeito.id}];
-  }));
+    const copia={...structuredClone(opcao),id,concedidaPorEfeito:efeito.id};
+    if(sopro){copia.filtroHud=efeito.origemAtorId===a.id?'Classe':'Comum';copia.origemTipo=efeito.origemAtorId===a.id?'classe':'comum';copia.aposOpcaoId=efeito.origemAtorId===a.id?efeito.id.slice(0,-a.id.length-1):undefined;copia.usoGratuito={enquantoEfeito:true};}
+    return [copia];
+  });});
 }
 function sincronizarConcessoesItens(a){
   if(!a?.ficha)return a;
@@ -959,7 +977,7 @@ export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a),{comum=false}=
     const regras=[opcao.automacao,...(opcao.automacao?.ataques??[]),...(opcao.composicao?.modos??[]).map(m=>m.automacao)];
     return regras.some(regra=>regra?.tipo==='ataque'&&tagsAtaque(opcao,regra).includes('desarmado'));
   };
-  return opcoes.filter(o=>!o.ocultarListas&&!o.metamagiaAoConjurar).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem),desarmado:golpeDesarmado(opcao)})).sort((x,y)=>{
+  const ordenadas=opcoes.filter(o=>!o.ocultarListas&&!o.metamagiaAoConjurar).map((opcao,indice)=>({opcao,indice,item:itens.get(opcao.origemItem),desarmado:golpeDesarmado(opcao)})).sort((x,y)=>{
     const ax=Boolean(x.opcao.geradaPorItem&&x.opcao.automacao?.tipo==='ataque'),ay=Boolean(y.opcao.geradaPorItem&&y.opcao.automacao?.tipo==='ataque');
     const armaArmadaX=ax&&!x.desarmado,armaArmadaY=ay&&!y.desarmado;
     if(armaArmadaX!==armaArmadaY)return armaArmadaX?-1:1;
@@ -976,6 +994,8 @@ export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a),{comum=false}=
     }
     return x.indice-y.indice;
   }).map(x=>x.opcao);
+  for(const o of ordenadas.filter(x=>x.aposOpcaoId)){const origem=ordenadas.find(x=>x.id===o.aposOpcaoId);if(origem){ordenadas.splice(ordenadas.indexOf(o),1);ordenadas.splice(ordenadas.indexOf(origem)+1,0,o);}}
+  return ordenadas;
 }
 export const opcaoPorId=(a,id)=>{
   const calculada=opcoesCalculadas(a).find(o=>o.id===id);if(calculada)return calculada;
@@ -1321,9 +1341,10 @@ function abrirProximaReacao(s){
 }
 function custosGratuitos(o){
   const g=o?.usoGratuito;if(!g)return null;
+  if(g.enquantoEfeito)return structuredClone(o.custo??[]);
   return [...(o.custo??[]).filter(c=>c.tipo!=='recurso'),{tipo:'recurso',id:g.recursoId,quantidade:g.quantidade??1}];
 }
-export const usoGratuitoDisponivel=(a,o)=>Boolean(o?.usoGratuito&&(a?.rec?.[o.usoGratuito.recursoId]??0)>=(o.usoGratuito.quantidade??1));
+export const usoGratuitoDisponivel=(a,o)=>Boolean(o?.usoGratuito&&(o.usoGratuito.enquantoEfeito||(a?.rec?.[o.usoGratuito.recursoId]??0)>=(o.usoGratuito.quantidade??1)));
 export function planoCustoOpcao(a,o,modo='automatico',entradas){
   const def=o?.composicao,base=def?.custosPorModo?[]:structuredClone(o?.custo??[]);
   const selecionadas=entradas?.length?entradas:def?.custosPorModo?[{modoId:(a?.bonus??0)>0?'soco-bonus':'soco-acao'}]:[];
@@ -2467,6 +2488,16 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       exigir(c.tipo==='usar','Comando desconhecido.');
       const oBase=opcaoDeclarada;exigir(oBase,'Opção desconhecida.');exigir(opcaoDisponivel(a,oBase),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
       let o=derivarOpcaoCirculo(a,oBase,c.circuloUsado,{magiaDuplicada:c.magiaDuplicada===true});
+      if(o.composicao?.tipo==='efeito'){
+        const entradas=c.composicao;
+        exigir(Array.isArray(entradas)&&entradas.length===1,'Escolha um elemento e um beneficiário no compositor.');
+        const entrada=entradas[0],modo=o.composicao.modos.find(m=>m.id===entrada.modoId);
+        exigir(modo&&s.atores.some(x=>x.id===entrada.alvoId),'Elemento ou beneficiário inválido.');
+        o={...structuredClone(o),automacao:structuredClone(modo.automacao)};delete o.composicao;
+        const dados=3+Math.max(0,(o.circuloUsado??o.circuloBase??2)-2);
+        for(const concedida of o.automacao.efeito.opcoesConcedidas??[]){concedida.automacao.dano=dados+'d6';concedida.descricao=concedida.descricao.replace(/3d6/g,dados+'d6');}
+        c={...c,alvo:entrada.alvoId,alvos:undefined,composicao:undefined};
+      }
       // Composição opcional (arma + Destruidor de Hordas): com uma única instância, segue o ataque simples.
       if(o.composicao?.opcional&&!(Array.isArray(c.composicao)&&c.composicao.length>1)){
         const unica=Array.isArray(c.composicao)?c.composicao[0]:null;

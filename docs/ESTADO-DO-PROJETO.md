@@ -1,6 +1,14 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.51**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+Revisão de 17 de novembro de 2026, versão **0.8.52**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+
+## Entrega — 0.8.52
+
+- Sopro de Dragão usa composição de efeito: escolher um único elemento e beneficiário na conjuração. O sopro concedido mantém o elemento, CD da origem, concentração e duração de dez rodadas/60 segundos; círculos superiores acrescentam 1d6 por círculo.
+- Em si mesmo, a opção concedida fica imediatamente após a magia na Classe. Em outro beneficiário, fica em Comum. Ambos também mostram a opção em Usos gratuitos, cobrando uma Ação por sopro e nenhum novo espaço.
+- Buffs antigos sem elemento salvo são limitados à primeira variante existente (ácido no catálogo antigo); para escolher outro elemento é preciso conjurar novamente.
+- Incluídas as 31 artes concluídas de Nikki, oito artes recuperadas de Skimi e o novo Saquear com bolsa em destaque. Loteria, Draven e Nikki estão completos no mapa visual; 41 artes globais continuam pendentes.
+- 310 testes automatizados aprovados. Validação na sala real permanece pendente.
 
 ## Entrega — 0.8.51
 

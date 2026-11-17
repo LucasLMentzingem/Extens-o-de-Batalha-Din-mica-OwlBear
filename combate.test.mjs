@@ -906,9 +906,9 @@ test('Sopro de Dragão concede cones ancorados, exclui o usuário e conserva a C
  const m=mesa(),inata=m.a.ficha.opcoes.find(o=>o.automacao?.tipo==='efeito_conjuracao'),sopro=m.a.ficha.opcoes.find(o=>/Sopro de Dragão/.test(o.nome));
  assert.equal(sopro.automacao.tipo,'efeito');assert.equal(sopro.concentracao,true);
  await m.go('usar',{ator:m.a.id,opcao:inata.id,confirmado:true},gm);
- await m.go('usar',{ator:m.a.id,opcao:sopro.id,alvo:m.b.id,confirmado:true},gm);
+ await m.go('usar',{ator:m.a.id,opcao:sopro.id,composicao:[{modoId:'fogo',alvoId:m.b.id}],confirmado:true},gm);
  const beneficiario=m.s.atores[1],cones=opcoesDisponiveis(beneficiario).filter(o=>o.concedidaPorEfeito);
- assert.equal(cones.length,5);assert.deepEqual(new Set(cones.map(o=>o.automacao.elemento)),new Set(['acido','raio','frio','fogo','veneno']));
+ assert.equal(cones.length,1);assert.equal(cones[0].automacao.elemento,'fogo');assert.equal(cones[0].filtroHud,'Comum');assert.equal(cones[0].usoGratuito.enquantoEfeito,true);
  assert.ok(cones.every(o=>o.automacao.area.forma==='cone'&&o.automacao.origemArea==='conjurador'&&o.automacao.excluirConjurador&&o.automacao.cd===14));
  m.s.atores[0].x=-3;m.s.atores[1].x=0;m.s.atores[2].x=3;m.s.atores.forEach(a=>a.y=0);
  const fogo=cones.find(o=>o.automacao.elemento==='fogo'),pvBeneficiario=beneficiario.pv,pvAlvo=m.s.atores[2].pv;
@@ -918,6 +918,28 @@ test('Sopro de Dragão concede cones ancorados, exclui o usuário e conserva a C
  await m.go('encerrarConcentracao',{ator:m.a.id,confirmado:true},gm);
  assert.equal(opcoesDisponiveis(m.s.atores[1]).some(o=>o.concedidaPorEfeito),false);
 });
+test('Sopro de Dragão: escolha obrigatória, uso gratuito com ação, ordem e expiração',async()=>{
+ const m=mesa(),sopro=m.a.ficha.opcoes.find(o=>/Sopro de Dragão/.test(o.nome)),antes=structuredClone(m.s);
+ await assert.rejects(m.go('usar',{ator:m.a.id,opcao:sopro.id,alvo:m.a.id,confirmado:true},gm),/Escolha um elemento/);
+ assert.deepEqual(m.s,antes);
+ await m.go('usar',{ator:m.a.id,opcao:sopro.id,composicao:[{modoId:'frio',alvoId:m.a.id}],confirmado:true},gm);
+ const a=m.s.atores[0],concedida=opcoesDisponiveis(a).find(o=>o.concedidaPorEfeito);
+ assert.equal(concedida.automacao.elemento,'frio');assert.equal(concedida.filtroHud,'Classe');
+ assert.equal(usoGratuitoDisponivel(a,concedida),true);
+ assert.deepEqual(planoCustoOpcao(a,concedida,'gratuito').custos,[{tipo:'acao',quantidade:1}]);
+ const ordenadas=ordenarOpcoesRodape(a);
+ const ids=ordenadas.map(o=>o.id);assert.equal(ids.indexOf(concedida.id),ids.indexOf(sopro.id)+1);
+ await m.go('avancarTempo',{passo:'5t'});assert.ok(opcoesDisponiveis(m.s.atores[0]).some(o=>o.concedidaPorEfeito));
+ await m.go('avancarTempo',{passo:'5t'});assert.equal(opcoesDisponiveis(m.s.atores[0]).some(o=>o.concedidaPorEfeito),false);
+});
+
+test('Sopro de Dragão: círculo superior escala apenas o sopro escolhido',async()=>{
+ const m=mesa();m.a.ficha.recursos.push({id:'espaco-3',nome:'Espaços de 3º',maximo:1,recupera:'longo'});m.a.rec['espaco-3']=1;
+ const o=m.a.ficha.opcoes.find(o=>/Sopro de Dragão/.test(o.nome));
+ await m.go('usar',{ator:m.a.id,opcao:o.id,circuloUsado:3,composicao:[{modoId:'raio',alvoId:m.b.id}],confirmado:true},gm);
+ const lista=opcoesDisponiveis(m.s.atores[1]).filter(o=>o.concedidaPorEfeito);assert.equal(lista.length,1);assert.equal(lista[0].automacao.dano,'4d6');assert.equal(lista[0].automacao.elemento,'raio');
+});
+
 test('as sete fichas de jogadores carregam juntas com recursos e automações próprias',async()=>{
  for(const f of fichasJogadores)validar(f);
  let s=novo();s=await aplicar(s,{tipo:'grupoTeste',rev:s.rev,fichas:fichasJogadores,ensaio:true},gm,async()=>1);

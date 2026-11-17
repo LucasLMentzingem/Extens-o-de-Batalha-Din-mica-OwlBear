@@ -15,6 +15,8 @@ Estado: correção local 0.8.44. Cada habilidade tem identidade e arte própria.
 
 ## Como ampliar a coleção de artes
 
+Referência de aparência das fichas: Nikki Lauda e Skimi são homens; Hannah Montana é mulher. Habilidades compartilhadas conservam uma arte por identidade. Saquear destaca uma bolsa aberta com uma mão retirando um objeto. Evitar tema ou marca Owlbear nas ilustrações.
+
 1. Salvar cada recorte aprovado em `site/assets/habilidades/`, com fonte 500 × 500 transparente e derivado de exibição quando adequado.
 2. Em `artesHabilidades`, registrar o ID estável com `{arquivo, autoria, alt}`. Pode usar diretamente o `catalogoRef` da habilidade como ID; não é necessário editar fichas.
 3. Para compartilhar um recorte entre várias definições, colocar `visual.arteId` no catálogo central. `visual.familia` só precisa existir para exceção; a origem é resolvida automaticamente.

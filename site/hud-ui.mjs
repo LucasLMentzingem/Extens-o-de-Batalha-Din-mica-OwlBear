@@ -1,9 +1,9 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.51';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.51';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.51';
-import {pronto} from './bridge.mjs?v=0.8.51';
-import {canalHud} from './hud-controller.mjs?v=0.8.51';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.51';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.52';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.52';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.52';
+import {pronto} from './bridge.mjs?v=0.8.52';
+import {canalHud} from './hud-controller.mjs?v=0.8.52';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.52';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -264,7 +264,7 @@ function render(){
           custoIndisponivel?'Recurso insuficiente':
           requisitoIndisponivel?'Requisito de turno ainda não cumprido':'';
         const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
-        const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratuitos?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
+        const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?.enquantoEfeito?'Disponível enquanto Sopro de Dragão durar · custa 1 Ação; sem novo espaço':g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratuitos?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
         return btn('usar',arteHabilidade(o,a.ficha),'data-id="'+esc(o.id)+'" '+(o.circuloUsado?'data-circulo="'+o.circuloUsado+'" ':'')+'data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       };
     const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',arteHabilidade(opcaoConsumoItem(i),a.ficha),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
