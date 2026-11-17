@@ -837,3 +837,9 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Corrigir o dimensionamento dos botões com `box-sizing: border-box` para a arte centralizar dentro dos slots e células.
 - [x] Manter inalterado o diálogo de exame ampliado.
 
+# 0.8.39 — Assinatura gravada na arte dos itens La Arte
+
+- [x] Integrar “La Arte” diretamente nas superfícies dos 43 itens próprios: gravação no metal, relevo no couro ou bordado no tecido.
+- [x] Dar às armas elementais gemas ou veios discretos da cor do elemento, integrados ao item.
+- [x] Remover a plaqueta externa sobreposta à moldura; o recorte continua transparente e reutilizável.
+

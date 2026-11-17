@@ -21,7 +21,6 @@ export function arteItem(item={},classe=''){
   return '<span class="item-arte '+esc(classe)+' '+elemento+' '+raridade+'" role="img" aria-label="'+esc(nome)+'">'+
     '<img class="item-arte-moldura" src="'+moldura+'" alt="" draggable="false">'+
     '<img class="item-arte-recorte" src="'+esc(src)+'" alt="" draggable="false">'+
-    (item.marcaLaArte?'<img class="item-arte-marca" src="assets/itens/molduras/marca-la-arte.svg" alt="La Arte" draggable="false">':'')+
     '</span>';
 }
 

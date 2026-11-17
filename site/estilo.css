@@ -53,9 +53,8 @@ button,select,input,.pessoa{background:#292532;border-color:#564d61}.pessoa[aria
 .escolhas-descanso{display:grid;gap:.5rem;margin:.6rem 0;padding:.7rem;border:1px solid #a77e55;border-radius:8px;background:#2a2430}.escolhas-descanso>strong{color:#e3b977}.escolhas-descanso>div{display:grid;gap:.35rem}.escolhas-descanso>div>div{display:flex;gap:.4rem;flex-wrap:wrap}.escolhas-descanso button[aria-pressed=true]{border-color:#f0ad58}.escolhas-descanso small{color:#a99caf}
 /* Ícones de item em camadas: moldura temática + recorte transparente da arte. */
 .item-arte{position:relative;isolation:isolate;display:block;overflow:hidden;aspect-ratio:1/1;width:100%;min-width:0;background:transparent;border-radius:7px}
-.item-arte-moldura,.item-arte-recorte,.item-arte-marca{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
+.item-arte-moldura,.item-arte-recorte{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
 .item-arte-recorte{inset:8%;width:84%;height:84%;filter:drop-shadow(0 2px 3px #08070bb3)}
-.item-arte-marca{inset:0;width:100%;height:100%}
 .item-arte-vazio{display:grid;place-items:center;background:#332c39;border:1px solid #8a7354;color:#f1d38e}
 .icone-item .item-arte{height:58px;width:58px;margin:auto}
 .celula-item .item-arte{height:58px;width:58px;margin:auto}

@@ -30,7 +30,6 @@ for(const item of itens.itens){
   const dano=item.definicao.modelosAcoes?.find(m=>m.tipoDano)?.tipoDano;
   const elemento=String(danoExtra??dano??'neutro').toLowerCase();
   item.definicao.iconeElemento=({gelo:'frio',relampago:'raio',relâmpago:'raio',necrótico:'necrotico'})[elemento]??elemento;
-  if(item.id.startsWith('item.la-arte.'))item.definicao.marcaLaArte=true;
 }
 const moedas=new Set(['pc','pp','pe','po','pl']);
 for(const entrada of itens.itens){

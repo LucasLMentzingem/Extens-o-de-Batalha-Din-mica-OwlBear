@@ -9010,8 +9010,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-azagaia-mais-1.webp",
-        "iconeElemento": "perfurante",
-        "marcaLaArte": true
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -9048,8 +9047,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-foice-mais-1.webp",
-        "iconeElemento": "cortante",
-        "marcaLaArte": true
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -9095,8 +9093,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-lanca-mais-1.webp",
-        "iconeElemento": "perfurante",
-        "marcaLaArte": true
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -9142,8 +9139,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-adaga-mais-1.webp",
-        "iconeElemento": "perfurante",
-        "marcaLaArte": true
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -9181,8 +9177,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-espada-curta-mais-1.webp",
-        "iconeElemento": "perfurante",
-        "marcaLaArte": true
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -9218,8 +9213,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-mangual-mais-1.webp",
-        "iconeElemento": "contundente",
-        "marcaLaArte": true
+        "iconeElemento": "contundente"
       }
     },
     {
@@ -9257,8 +9251,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-cimitarra-mais-1.webp",
-        "iconeElemento": "cortante",
-        "marcaLaArte": true
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -9300,8 +9293,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-arco-longo-mais-1.webp",
-        "iconeElemento": "perfurante",
-        "marcaLaArte": true
+        "iconeElemento": "perfurante"
       }
     },
     {
@@ -9340,8 +9332,7 @@ export default {
         "bonusMagico": 1,
         "bonusDano": 1,
         "icone": "assets/itens/item-la-arte-espada-grande-mais-1.webp",
-        "iconeElemento": "cortante",
-        "marcaLaArte": true
+        "iconeElemento": "cortante"
       }
     },
     {
@@ -9371,8 +9362,7 @@ export default {
           "capacidadeCargaKg": 14
         },
         "icone": "assets/itens/item-la-arte-veste-bolsos-oficina.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9438,8 +9428,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-veste-ultimo-folego.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9469,8 +9458,7 @@ export default {
           "furtividade": 1
         },
         "icone": "assets/itens/item-la-arte-couro-passo-macio.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9498,8 +9486,7 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "icone": "assets/itens/item-la-arte-camisao-malha-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9531,8 +9518,7 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "icone": "assets/itens/item-la-arte-cota-malha-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9564,8 +9550,7 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "icone": "assets/itens/item-la-arte-placas-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9591,8 +9576,7 @@ export default {
         "negociavel": true,
         "raridade": "incomum",
         "icone": "assets/itens/item-la-arte-escudo-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9638,8 +9622,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-anel-mao-firme.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9716,8 +9699,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-colar-folego-docas.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9740,8 +9722,7 @@ export default {
           "iniciativa": 1
         },
         "icone": "assets/itens/item-la-arte-colar-vigia.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9800,8 +9781,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-capa-mensageiro.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9826,8 +9806,7 @@ export default {
           }
         },
         "icone": "assets/itens/item-la-arte-luvas-guarda-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9853,8 +9832,7 @@ export default {
           }
         },
         "icone": "assets/itens/item-la-arte-luva-boxeador-das-ruas-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9875,8 +9853,7 @@ export default {
         "raridade": "incomum",
         "ignoraTerrenoDificilNaoMagico": true,
         "icone": "assets/itens/item-la-arte-botas-passo-livre-mais-1.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -9925,8 +9902,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-azagaia-para-raios-mais-2.webp",
-        "iconeElemento": "raio",
-        "marcaLaArte": true
+        "iconeElemento": "raio"
       }
     },
     {
@@ -9968,8 +9944,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-foice-geada-mais-2.webp",
-        "iconeElemento": "frio",
-        "marcaLaArte": true
+        "iconeElemento": "frio"
       }
     },
     {
@@ -10020,8 +9995,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-lanca-abalo-mais-2.webp",
-        "iconeElemento": "contundente",
-        "marcaLaArte": true
+        "iconeElemento": "contundente"
       }
     },
     {
@@ -10072,8 +10046,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-adaga-brasa-mais-2.webp",
-        "iconeElemento": "fogo",
-        "marcaLaArte": true
+        "iconeElemento": "fogo"
       }
     },
     {
@@ -10116,8 +10089,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-espada-curta-escarcha-mais-2.webp",
-        "iconeElemento": "frio",
-        "marcaLaArte": true
+        "iconeElemento": "frio"
       }
     },
     {
@@ -10158,8 +10130,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-mangual-basalto-mais-2.webp",
-        "iconeElemento": "contundente",
-        "marcaLaArte": true
+        "iconeElemento": "contundente"
       }
     },
     {
@@ -10202,8 +10173,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-cimitarra-fornalha-mais-2.webp",
-        "iconeElemento": "fogo",
-        "marcaLaArte": true
+        "iconeElemento": "fogo"
       }
     },
     {
@@ -10250,8 +10220,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-arco-longo-tempestade-mais-2.webp",
-        "iconeElemento": "raio",
-        "marcaLaArte": true
+        "iconeElemento": "raio"
       }
     },
     {
@@ -10295,8 +10264,7 @@ export default {
           "critico": false
         },
         "icone": "assets/itens/item-la-arte-espada-grande-falha-mais-2.webp",
-        "iconeElemento": "contundente",
-        "marcaLaArte": true
+        "iconeElemento": "contundente"
       }
     },
     {
@@ -10361,8 +10329,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-veste-passo-nebuloso.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10429,8 +10396,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-veste-trama-serena.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10515,8 +10481,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-couro-sombra-curta.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10544,8 +10509,7 @@ export default {
         "negociavel": true,
         "raridade": "raro",
         "icone": "assets/itens/item-la-arte-camisao-malha-mais-2.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10577,8 +10541,7 @@ export default {
         "negociavel": true,
         "raridade": "raro",
         "icone": "assets/itens/item-la-arte-cota-malha-mais-2.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10610,8 +10573,7 @@ export default {
         "negociavel": true,
         "raridade": "raro",
         "icone": "assets/itens/item-la-arte-placas-mais-2.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10637,8 +10599,7 @@ export default {
         "negociavel": true,
         "raridade": "raro",
         "icone": "assets/itens/item-la-arte-escudo-mais-2.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10697,8 +10658,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-anel-segunda-chance.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10768,8 +10728,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-colar-socorrista.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10800,8 +10759,7 @@ export default {
           }
         },
         "icone": "assets/itens/item-la-arte-luvas-dragao-ascendente-mais-2.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     },
     {
@@ -10860,8 +10818,7 @@ export default {
           }
         ],
         "icone": "assets/itens/item-la-arte-botas-escapistas-mais-2.webp",
-        "iconeElemento": "neutro",
-        "marcaLaArte": true
+        "iconeElemento": "neutro"
       }
     }
   ],

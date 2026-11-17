@@ -1,8 +1,8 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.38';
-import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.38';
-import {resumoItem} from './ficha-view.mjs?v=0.8.38';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.38';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.39';
+import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.39';
+import {resumoItem} from './ficha-view.mjs?v=0.8.39';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.39';
 const root=document.querySelector('#saque'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const atorId=new URLSearchParams(location.search).get('ator');
