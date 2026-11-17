@@ -1,8 +1,12 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.58**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.58.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.59**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.59.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 Na lista de grupos importados, o mestre pode **Excluir ficha** individualmente ou **Excluir grupo**, com confirmação. As unidades já adicionadas ao encontro e os arquivos JSON originais são preservados.
+
+## Alvo de treino
+
+O grupo **Treino** oferece Saco de Pancadas com **CA 1 e 500 PV**, sem resistências. Adicione a unidade, abra sua ficha e use **Criar token desta ficha**: a peça recebe o PNG próprio com fundo transparente e uma célula, sem moldura de moeda. [Ficha e token](https://lucaslmentzingem.github.io/Extens-o-de-Batalha-Din-mica-OwlBear/downloads/saco-de-pancadas.zip).
 
 ## Aventura no cemitério e reanimação
 

@@ -1,14 +1,15 @@
-import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.58';
-import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.58';
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.58';
+import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.59';
+import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.59';
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.59';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.59';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.58';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.58';
-import {compactarEstado} from './catalog.mjs?v=0.8.58';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.58';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.58';
-import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast} from './room-sync.mjs?v=0.8.58';
-import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.58';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.59';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.59';
+import {compactarEstado} from './catalog.mjs?v=0.8.59';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.59';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.59';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast} from './room-sync.mjs?v=0.8.59';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.59';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -340,10 +341,9 @@ export async function host(){
       if(c.tipo==='criarPeca'){
         const a=s.atores.find(x=>x.id===c.ator);
         if(u.role!=='GM'||c.rev!==s.rev||s.fase!=='preparo'||!a||a.token)throw Error('Escolha uma ficha sem vínculo na preparação.');
-        const guarda=a.ficha.id==='soldado',lado=guarda?1254:64;
-        const asset=guarda?'./fichas/soldado.png':'./icone.svg';
+        const visual=visualTokenFicha(a.ficha),lado=visual.largura;
         const pos=await OBR.viewport.inverseTransformPoint({x:await OBR.viewport.getWidth()/2,y:await OBR.viewport.getHeight()/2});
-        const token=buildImage({url:new URL(asset,location.href).href,mime:guarda?'image/png':'image/svg+xml',width:lado,height:lado},{dpi:lado,offset:{x:lado/2,y:lado/2}})
+        const token=buildImage({url:new URL(visual.arquivo,location.href).href,mime:visual.mime,width:visual.largura,height:visual.altura},{dpi:lado,offset:{x:lado/2,y:visual.altura/2}})
           .name(a.nome).layer('CHARACTER').position({x:Math.round(pos.x/dpi+s.atores.indexOf(a))*dpi,y:Math.round(pos.y/dpi)*dpi}).build();
         await OBR.scene.items.addItems([token]);
         a.token=token.id;a.x=token.position.x/pixelsMetro;a.y=token.position.y/pixelsMetro;s.rev++;
@@ -516,10 +516,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.58',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.59',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.58',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.59',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }

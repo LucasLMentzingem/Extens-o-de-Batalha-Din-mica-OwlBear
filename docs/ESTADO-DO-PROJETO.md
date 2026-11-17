@@ -1,6 +1,12 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.58**, linha travada em 0.8.x até 0.8.99.
+Revisão de 17 de novembro de 2026, versão **0.8.59**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.59
+
+- Novo grupo Treino com Saco de Pancadas: CA 1, 500 PV, sem resistências, imunidades, ataques ou loot. Objeto, sem elegibilidade para Animar Mortos.
+- Token de couro com transparência, sem moldura de moeda; Criar token desta ficha usa o PNG próprio com uma célula de 1,5 m. Arte e fallback anteriores preservados.
+- Ficha/PNG/prompt/ZIP entregues. 394 testes e fluxo de criação em navegador com SDK simulado; não testado em sala real.
 
 ## Entrega — 0.8.58
 

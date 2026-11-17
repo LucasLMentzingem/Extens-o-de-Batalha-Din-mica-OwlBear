@@ -1,9 +1,9 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.58';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.58';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.58';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.59';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.59';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.59';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.58';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.58';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.59';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.59';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;

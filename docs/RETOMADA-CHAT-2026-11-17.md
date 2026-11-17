@@ -2,7 +2,11 @@
 
 Atualizado em 17/11/2026. Este documento transfere o contexto do chat longo para um novo chat.
 
-## Continuação atual — 0.8.58
+## Continuação atual — 0.8.59
+
+Criado o grupo Treino com saco de pancadas CA 1 / 500 PV e token PNG transparente sem moeda. Criar token desta ficha usa a arte própria (uma célula). Pacote e prompt entregues. 394 testes e fluxo de criação via navegador/SDK simulado. Veja `docs/RELEASE-0.8.59.md`.
+
+## Continuação anterior — 0.8.58
 
 Por pedido explícito do usuário, Animar Mortos é imediato ao executar: ação em combate e espaço, sem espera nem concentração; preserva a ficha original, loot e troca do token. Não usar Avançar tempo para esta magia. Prece continua em dez minutos. 391 testes e ensaio de HUD com SDK simulado, com imagem atualizada. Consulte `docs/RELEASE-0.8.58.md`.
 

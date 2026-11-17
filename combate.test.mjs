@@ -990,7 +990,7 @@ test('grupo importado persiste como modelo privado e permite adicionar unidades 
 });
 test('grupos fixos acrescentam fichas independentes sem alterar participantes ou criar vínculos',async()=>{
  const grupos=JSON.parse(await readFile(new URL('./site/grupos-fichas.json',import.meta.url))).grupos;
- assert.deepEqual(grupos.map(g=>g.id),['aventureiros','soldados-do-reino']);
+ assert.deepEqual(grupos.map(g=>g.id),['aventureiros','soldados-do-reino','treino']);
  assert.equal(grupos[0].fichas.length,7);
  const reino=await Promise.all(grupos[1].fichas.map(f=>fichaFonte(f.id)));
  let s=novo();const existente=adicionar(s,nikki);existente.pv=7;existente.dono='p';existente.token='token-existente';

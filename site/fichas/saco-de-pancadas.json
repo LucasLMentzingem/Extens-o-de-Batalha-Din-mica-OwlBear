@@ -1,0 +1,29 @@
+{
+  "versaoFormato": 2,
+  "id": "saco-de-pancadas",
+  "nome": "Saco de Pancadas",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [{"id": "npc-autoral", "nivel": 1}],
+  "especie": "Objeto de treino",
+  "tipoCriatura": "objeto",
+  "tamanho": "medio",
+  "atributos": {"for": 10, "des": 10, "con": 10, "int": 10, "sab": 10, "car": 10},
+  "salvaguardas": {"for": 0, "des": 0, "con": 0, "int": 0, "sab": 0, "car": 0},
+  "pvMaximos": 500,
+  "caBase": 1,
+  "deslocamentosM": {"andar": 0},
+  "proficiencia": 2,
+  "pericias": {},
+  "recursos": [],
+  "concessoes": [],
+  "preparacao": {"vagas": 0, "preparadas": [], "semprePreparadas": []},
+  "inventario": {"capacidadeCargaKg": 100, "itens": []},
+  "resistencias": [],
+  "imunidades": [],
+  "vulnerabilidades": [],
+  "notas": [
+    {"nome": "Alvo de treino", "descricao": "CA 1 e 500 PV. Alvo autoral para testar ataques e medir dano; sem resistências, imunidades, vulnerabilidades, ataques próprios ou deslocamento. Não é um humanoide nem um cadáver elegível para Animar Mortos."},
+    {"nome": "Token próprio", "descricao": "Saco de couro com fundo transparente, sem moldura de moeda. Adicione pelo grupo Treino e use Criar token desta ficha para criar a peça na camada Personagem, com uma célula de 1,5 m. Também é possível importar o PNG e vincular manualmente."}
+  ]
+}
