@@ -46,6 +46,11 @@
       "id": "fortitude",
       "ref": "habilidade.cemiterio.fortitude-morto-vivo",
       "tipo": "passiva"
+    },
+    {
+      "id": "defesas-cadavericas",
+      "ref": "habilidade.cemiterio.defesas-cadavericas",
+      "tipo": "passiva"
     }
   ],
   "preparacao": {
@@ -61,6 +66,10 @@
     {
       "nome": "Modelo de reanimação",
       "descricao": "Zumbi padrão de referência SRD 5.2.1: 15 PV, CA 8, Pancada +3 1d8+1. Não é o zumbi autoral nível 3 de 32 PV."
+    },
+    {
+      "nome": "Defesas autorais · 0.8.56",
+      "descricao": "Regra da aventura: fraqueza a radiante (dano ×2) e resistência alta a necrótico (recebe ¼, redução de 75%). As demais imunidades, atributos e ataques permanecem."
     }
   ],
   "tamanho": "medio",

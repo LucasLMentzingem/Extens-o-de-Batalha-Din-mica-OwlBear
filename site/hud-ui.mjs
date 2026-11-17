@@ -1,9 +1,9 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.55';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.55';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.55';
-import {pronto} from './bridge.mjs?v=0.8.55';
-import {canalHud} from './hud-controller.mjs?v=0.8.55';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.55';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.56';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.56';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.56';
+import {pronto} from './bridge.mjs?v=0.8.56';
+import {canalHud} from './hud-controller.mjs?v=0.8.56';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.56';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -161,9 +161,10 @@ function render(){
     const desfazer=p.lista?btn('desfazer','Desfazer',p.quantidade?'':'disabled'):'';
     const cartao=cartaoAcao(o,ficha,p)||'<section class="carta-acao"><header><h2>'+esc(p.titulo??'Ação')+'</h2>'+barraCustos(p,'custos-cabecalho')+'<small>'+esc(p.donoAcao??atorAcao?.nome??'Participante')+'</small></header></section>';
     const controles=p.somenteLeitura?btn('fecharAtividade','Fechar'):p.rolagem?'<small class="observador-acao">Rolagem em andamento · esta ação permanece visível para a mesa.</small>':desfazer+executar+btn('cancelar','Cancelar');
+    const escolhas=!(p.somenteLeitura||p.rolagem)?(o?.automacao?.escolhas??[]).map(e=>'<label>'+esc(e.nome)+'<select data-prototipo-parametro="'+esc(e.id)+'">'+e.valores.map(v=>'<option value="'+esc(v.id)+'" '+((p.parametros?.[e.id]??e.valores[0].id)===v.id?'selected':'')+'>'+esc(v.nome)+'</option>').join('')+'</select></label>').join(''):'';
     const composicao=p.composicao?'<section class="resumo-composicao"><header><strong>Composição escolhida</strong><small>Selecionado agora: '+esc(p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo)?.nome??'—')+'</small></header>'+(p.composicao.instancias.length?p.composicao.instancias.map(x=>'<div><b>'+x.ordem+'</b><span>'+esc(x.modoNome)+'</span><small>→ '+esc(x.alvoNome)+'</small></div>').join(''):'<p>Escolha o modo na gaveta e clique no alvo da primeira instância.</p>')+'</section>':'';
     const temCompositor=p.composicao||p.compositor,gaveta=p.composicao??p.compositor;
-    html='<section class="painel-acao-shell '+(temCompositor?'com-composicao ':'')+(gaveta?.gavetaAberta===false?'gaveta-recolhida ':'')+(p.rolagem?'em-rolagem':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div class="linha-execucao">'+barraCustos(p,'custos-execucao')+'<div>'+controles+'</div></div></div></section></section>';
+    html='<section class="painel-acao-shell '+(temCompositor?'com-composicao ':'')+(gaveta?.gavetaAberta===false?'gaveta-recolhida ':'')+(p.rolagem?'em-rolagem':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+escolhas+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div class="linha-execucao">'+barraCustos(p,'custos-execucao')+'<div>'+controles+'</div></div></div></section></section>';
   }else if(parte==='reacao'&&v.reacaoIniciativa){
     const rp=v.reacaoIniciativa,reator=s.atores.find(x=>x.id===rp.reator),opcoes=reator?opcoesDisponiveis(reator).filter(o=>rp.opcoes.includes(o.id)):[];
     html='<section class="prompt reacao"><strong>Ao rolar iniciativa · '+esc(reator?.nome)+'</strong><small>'+esc(rp.descricao)+'</small><small>Sem limite de tempo. Resolva esta escolha antes de agir.</small><div class="escolhas-reacao">'+btn('responderIniciativa','Não usar','data-id="" '+(ocupado?'disabled':''))+opcoes.map(o=>btn('responderIniciativa',arteHabilidade(o,reator.ficha),'data-id="'+esc(o.id)+'" class="ouro" '+(ocupado?'disabled ':'')+'data-info="'+esc(detalhes(o,reator.ficha))+'"')).join('')+'</div></section>';
@@ -378,13 +379,14 @@ root.onclick=e=>{
   if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
   const reacao=tipo==='resolverReacao';
   bus.postMessage({tipo,id,pendenciaId:tipo==='responderIniciativa'?v.reacaoIniciativa?.id:undefined,pedido:controleDado?v.pedidoDado?.pedido:undefined,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
-    rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
+    parametros:Object.fromEntries([...document.querySelectorAll('[data-prototipo-parametro]')].map(e=>[e.dataset.prototipoParametro,e.value])),rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});
 };
 function salvarRascunhoDado(){if(!v?.pedidoDado||v.pedidoDado.podeEditar===false)return;bus.postMessage({tipo:'rascunhoDado',pedido:v.pedidoDado.pedido,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value)});}
 root.oninput=e=>{if(e.target.matches('#formulaDado,[data-formula-lote]'))salvarRascunhoDado();};
 root.onchange=e=>{
+  if(e.target.dataset.prototipoParametro)bus.postMessage({tipo:'parametroPrototipo',id:e.target.dataset.prototipoParametro,valor:e.target.value});
   if(e.target.id==='linhas')bus.postMessage({tipo:'linhas',valor:e.target.value});
   if(e.target.id==='pvp-mesa'&&confirmacaoMesa)confirmacaoMesa.pvp=e.target.checked;
 };

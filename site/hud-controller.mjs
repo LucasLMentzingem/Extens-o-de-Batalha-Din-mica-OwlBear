@@ -1,18 +1,18 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.55';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.56';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.55';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.55';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.55';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.55';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.55';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.55';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.55';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.55';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.55';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.55';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.56';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.56';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.56';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.56';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.56';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.56';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.56';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.56';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.56';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.56';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.55',import.meta.url);
+const url=new URL('./hud.html?v=0.8.56',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -121,7 +121,7 @@ export async function iniciarHud(){
     return {id:p.publicId??p.id,atorId:a?.id??p.atorId,titulo:p.titulo,detalhe:p.detalhe,pronto:p.pronto,
       opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?{...structuredClone(o),visual:visualHabilidade(o,a?.ficha??p.fichaPublica??{})}:null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
-      alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
+      alvos:p.cmd?.alvos??p.alvos??[],parametros:structuredClone(p.cmd?.parametros??p.parametros??{}),composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
       saldosComposicao:{acao:a?.acao??0,bonus:a?.bonus??0,reacao:a?.reacao??0,...(a?.rec??{})},foraCombate:estado?.fase==='preparo'||a?.emCombate===false,custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura:somenteLeitura||p.somenteLeitura===true};
   }
   function transmitir(){
@@ -341,12 +341,13 @@ export async function iniciarHud(){
     let escolha=null;
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['invocar','peca'].includes(rule?.tipo))escolha='area'; // M06: escolher o ponto onde a entidade/peça aparece
-    else if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado','saque'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
+    else if(['ataque','salva','efeito','cura','pv_temporario','estabilizar','conceder_dado','saque','prototipo'].includes(rule?.tipo))escolha=(rule.raioM||rule.area)?(rule.origemArea==='conjurador'&&!['cone','linha'].includes(rule.area?.forma)?null:'area'):'alvo';
+    if(rule?.pessoal)escolha=null;
     if(multi(o)){escolha='lista';cmd.alvos=[];}
     if(o?.composicao){escolha='lista';cmd.alvos=[];cmd.composicao=[];}
     const titulo=o?.nome??({passar:'Finalizar turno',mover:'Mover',iniciativa:'Rolar iniciativa'})[d.tipo];
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
-      substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
+      substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:rule?.tempoSegundos?'Conjuração de '+(rule.tempoSegundos/60)+' min: selecione o corpo/beneficiários e inicie; depois avance o tempo ou mantenha a ação nos turnos.':reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(circulos.length>1||duplicadaDisponivel||ilusaoDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{}),...(ilusaoDisponivel?{ilusaoDisponivel:true,ilusaoCausaDano}:{})};
     if(o?.composicao)pendente.composicao={gavetaAberta:true,custosPorModo:o.composicao.custosPorModo,modoPadrao:o.composicao.modoPadrao,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,categoria:o.categoria,origem:o.origem,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,custo:structuredClone(m.custo??[]),ateOrdem:m.ateOrdem,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
@@ -612,6 +613,10 @@ export async function iniciarHud(){
       if(pendente.composicao)pendente.composicao.gavetaAberta=!gavetaAberta;
       if(pendente.compositor)pendente.compositor.gavetaAberta=!gavetaAberta;
     }
+    else if(d.tipo==='parametroPrototipo'&&pendente&&!pendente.rolagem){
+      const campo=pendente.rule?.escolhas?.find(e=>e.id===d.id);if(!campo?.valores.some(v=>v.id===d.valor))return;
+      (pendente.cmd.parametros??={})[d.id]=d.valor;await publicarPrevia();transmitir();
+    }
     else if(d.tipo==='alterarCirculo'&&pendente?.compositor){
       const circulo=Number(d.valor);if(pendente.rolagem||!pendente.compositor.circulos.includes(circulo))return;
       await preparar({tipo:'usar',opcao:pendente.cmd.opcao,modoCusto:pendente.cmd.modoCusto,circuloUsado:circulo,magiaDuplicada:pendente.cmd.magiaDuplicada===true,ilusaoCausaDano:pendente.cmd.ilusaoCausaDano===true});
@@ -645,7 +650,7 @@ export async function iniciarHud(){
     else if(d.tipo==='cancelar')await cancelar();
     else if(d.tipo==='confirmar'){
       if(!pendente?.pronto||pendente.rev!==estado.rev||d.rev!==estado.rev)return;
-      const cmd={...pendente.cmd,atividadeId:pendente.publicId,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]};
+      const cmd={...pendente.cmd,parametros:{...pendente.cmd.parametros,...d.parametros},atividadeId:pendente.publicId,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]};
       pendente.rolagem=true;ocupado=true;await publicarPrevia();await layout();transmitir();
       let terminou=false;
       try{

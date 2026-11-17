@@ -1,6 +1,14 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.55**, linha travada em 0.8.x até 0.8.99.
+Revisão de 17 de novembro de 2026, versão **0.8.56**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.56
+
+- Drow e Padre Quevedo com habilidades identificadas como protótipos no catálogo visível; seleção de alvos/escolhas, custos, efeitos e concentração integrados.
+- Animar Mortos pela própria skill: corpo humanoide a 0 PV ou menos, um minuto de conjuração, slot na conclusão, sobreposição/token/loot preservados. Goblin marcado vira Zumbigoblin.
+- Escudo preventivo, efeitos dos raios e toque, Enfraquecimento, vampirismo, Auxílio, Restauração, Prece, Santuário, Dissipar e demais habilidades descritos em [Funcionamento e limites](PROTOTIPOS-HABILIDADES-CEMITERIO.md).
+- Zumbis: radiante ×2 e necrótico ×¼, inclusive nas camadas e em fichas já importadas; imunidade a veneno preservada.
+- 384 testes e fluxo de HUD com SDK simulado; duas fichas e ZIPs atualizados. Sopro de Dragão e adagas preservados.
 
 ## Entrega — 0.8.55
 

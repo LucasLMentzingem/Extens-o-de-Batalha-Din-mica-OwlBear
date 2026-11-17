@@ -40,7 +40,7 @@ test('cura de Vida escala e aplica bônus uma vez; cura real e Bênção debitam
   const curar=p.ficha.opcoes.find(x=>x.id==='curar');assert.equal(derivarOpcaoCirculo(p,curar,1).automacao.formula,'2d8+7');assert.equal(derivarOpcaoCirculo(p,curar,3).automacao.formula,'6d8+9');
   let n=await cmd(s,'usar',{ator:p.id,opcao:'curar',alvo:p.id,circulo:1});assert.ok(n.atores[0].pv>=10);assert.equal(n.atores[0].rec['espaco-1'],3);
   n=await cmd(n,'usar',{ator:p.id,opcao:'bencao',alvos:[p.id]});assert.equal(n.atores[0].rec['espaco-1'],2);assert.ok(n.atores[0].bencao);
-  n=await cmd(n,'usar',{ator:p.id,opcao:'preservar',assistido:true});assert.equal(n.atores[0].rec['canalizar-divindade'],1);
+  n=await cmd(n,'usar',{ator:p.id,opcao:'preservar',alvos:[p.id]});assert.equal(n.atores[0].rec['canalizar-divindade'],1);
 });
 test('transformação de adaga mantém posse e ID, não acumula antigo dano e consome dose só no altar',async()=>{
   const s=novo(),a=adicionar(s,validar(fonte('seu-furtado-zumbi-4'))),p=adicionar(s,validar(fonte('padre-quevedo'))),i=a.ficha.inventario.itens.find(x=>x.catalogoRef==='item.adaga-do-ultimo-rito'),agua=p.ficha.inventario.itens.find(x=>x.catalogoRef==='item.agua-benta-da-purificacao');
@@ -77,14 +77,14 @@ test('Bênção termina ao trocar de concentração; Escudo da Fé modifica CA e
   for(let i=0;i<10;i++)n=await cmd(n,'avancarTempo',{passo:'1min'});assert.equal(caAtual(n.atores[1]),ca);
 });
 
-test('opções assistidas consomem os recursos, não aplicam cura/dano fictício e recusam saldo insuficiente',async()=>{
+test('protótipos exigem alvos/componentes antes de consumir recursos; assistido não contorna a validação',async()=>{
   for(const [opcao,recurso] of [['preservar','canalizar-divindade'],['expulsar','canalizar-divindade'],['centelha-dano','canalizar-divindade'],['palavra-massa','espaco-3'],['revivificar','espaco-3']]){
-    const s=novo(),p=adicionar(s,validar(fonte('padre-quevedo')));p.pv=7;const n=await cmd(s,'usar',{ator:p.id,opcao,assistido:true});assert.equal(n.atores[0].rec[recurso],p.rec[recurso]-1);assert.equal(n.atores[0].pv,7);n.atores[0].rec[recurso]=0;await assert.rejects(()=>cmd(n,'usar',{ator:p.id,opcao,assistido:true}));
+    const s=novo(),p=adicionar(s,validar(fonte('padre-quevedo')));p.pv=7;const antes=JSON.stringify(s);await assert.rejects(()=>cmd(s,'usar',{ator:p.id,opcao,assistido:true}));assert.equal(JSON.stringify(s),antes);
   }
 });
 
-test('magias assistidas de concentração também encerram a Bênção anterior',async()=>{
-  for(const opcao of ['detectar','protecao','acalmar']){const s=novo(),p=adicionar(s,validar(fonte('padre-quevedo')));let n=await cmd(s,'usar',{ator:p.id,opcao:'bencao',alvos:[p.id]});n=await cmd(n,'usar',{ator:p.id,opcao,assistido:true});assert.ok(!n.atores[0].bencao);assert.ok(n.atores[0].concentracaoAtiva);}
+test('protótipos de concentração também encerram a Bênção anterior',async()=>{
+  for(const opcao of ['detectar','protecao','acalmar']){const s=novo(),p=adicionar(s,validar(fonte('padre-quevedo')));p.ficha.inventario.itens.push({id:'agua-teste',nome:'Água Benta',quantidade:1});let n=await cmd(s,'usar',{ator:p.id,opcao:'bencao',alvos:[p.id]});n=await aplicar(n,{rev:n.rev,tipo:'usar',ator:p.id,opcao,alvo:p.id,alvos:opcao==='acalmar'?[p.id]:undefined},gm,()=>1);assert.ok(!n.atores[0].bencao);assert.ok(n.atores[0].concentracaoAtiva);}
 });
 
 test('Chama Sagrada usa CD 15, causa radiante na falha e zero no sucesso',async()=>{

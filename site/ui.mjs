@@ -1,17 +1,17 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.55';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.55';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.55';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.56';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.56';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.56';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.55';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.55';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.55';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.55';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.55';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.55';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.55';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.55';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.55';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.55';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.56';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.56';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.56';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.56';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.56';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.56';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.56';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.56';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.56';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.56';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -66,7 +66,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.55',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.56',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -204,11 +204,12 @@ function render(){
       const ops=opcoesDisponiveis(a).filter(x=>!x.ocultarListas&&(x.automacao || (gm && !(x.custo??[]).some(y=>y.tipo==='reacao'))));
       const o=ops.find(x=>x.id===acao)??ops[0];acao=o?.id;
       h+='<div class="painel"><h3>Turno de '+esc(a.nome)+'</h3><label>Ação ou magia<select id="acao">'+ops.map(x=>opt(x.id,x.nome+(x.automacao?'':' · assistida'),x===o)).join('')+'</select></label>';
+      h+=(o?.automacao?.escolhas??[]).map(e=>'<label>'+esc(e.nome)+'<select data-prototipo-parametro="'+esc(e.id)+'">'+e.valores.map(v=>'<option value="'+esc(v.id)+'">'+esc(v.nome)+'</option>').join('')+'</select></label>').join('');
       const targets=s.atores.filter(x=>x!==a).concat(a);const target=targets.find(x=>x.id===alvo)??targets[0];alvo=target.id;
       if(multi(o)){
         h+='<div class="campos"><label>Alvo<select id="alvo">'+targets.map(x=>opt(x.id,x.nome,x===target)).join('')+'</select></label>'+btn('marcar','Adicionar alvo')+btn('desfazer','Desfazer')+'</div><p>'+alvos.length+'/'+o.selecao.max+' · '+alvos.map(id=>esc(s.atores.find(x=>x.id===id)?.nome)).join(', ')+'</p>';
       }else if(o?.automacao?.raioM)h+='<div class="campos">'+coord('cx','Centro X',target.x)+coord('cy','Centro Y',target.y)+'</div>';
-      else if(['salva','ataque','efeito'].includes(o?.automacao?.tipo))h+='<div class="campos"><label>Alvo<select id="alvo">'+targets.map(x=>opt(x.id,x.nome,x===target)).join('')+'</select></label></div>';
+      else if(['salva','ataque','efeito','prototipo'].includes(o?.automacao?.tipo))h+='<div class="campos"><label>Alvo<select id="alvo">'+targets.map(x=>opt(x.id,x.nome,x===target)).join('')+'</select></label></div>';
       h+='<details><summary>Mapa tático · 1,5 m por célula</summary><div class="campos"><label>Clique no mapa para<select id="mapModo">'+(o?.automacao?.raioM?opt('centro','Marcar centro da área'):opt('alvo','Escolher alvo'))+opt('mover','Marcar destino de movimento')+'</select></label><small id="medida"></small></div><div class="tabuleiro" id="tabuleiro"></div></details><details><summary>Opções da rolagem</summary><div class="campos"><select id="rolagem"><option>normal</option><option>vantagem</option><option>desvantagem</option></select>'+coord('ajuste','Ajuste ao d20',0)+'</div></details>';
       if(o)h+=btn('usar','Executar','primario');h+='</div><details><summary>Deslocar em metros</summary><div class="campos">'+coord('x','Destino X',a.x)+coord('y','Destino Y',a.y)+btn('mover','Conferir trajeto')+'</div></details>'+btn('passar','Finalizar turno');
     }
@@ -266,7 +267,7 @@ function renderCatalogo(){
   const grupos=(titulo,xs,rotulo='habilidades')=>'<section class="grupo-catalogo"><h2>'+esc(titulo)+'</h2>'+xs.map(x=>'<details><summary><span>'+esc(x.nome)+(x.nivelMax?' · até o nível '+x.nivelMax:'')+'</span><b>'+x[rotulo].length+'</b></summary>'+lista(x[rotulo])+'</details>').join('')+'</section>';
   const eq=catalogo.sistemaEquipamentos,linhasEq=eq?[{nome:'Alcance máximo',status:eq.alcanceMaximoM+' m'},{nome:'Ataques visíveis',status:eq.ataquesVisiveis},{nome:'Cálculo de armas',status:eq.calculoArmas},{nome:'Dano de armas',status:eq.danoArmas},{nome:'Portabilidade',status:eq.portabilidade},{nome:'Armaduras',status:eq.classesArmadura.join(', ')},{nome:'Propriedades',status:eq.propriedadesArmas.join(', ')}]:[];
   return '<section class="cabecalho-catalogo"><small>VISÃO DO SISTEMA</small><h2>Conteúdo configurado</h2><p>Esta página é gerada do catálogo central e das concessões das fichas. As seções começam retraídas e distinguem automações de resoluções assistidas pelo mestre.</p></section>'+
-    grupos('Classes',catalogo.classes)+grupos('Raças',catalogo.racas)+
+    grupos('Classes',catalogo.classes)+grupos('Raças',catalogo.racas)+grupos('Protótipos de habilidades',catalogo.prototipos??[])+
     '<section class="grupo-catalogo"><h2>Bibliotecas</h2>'+(eq?'<details><summary><span>Sistema de equipamentos</span><b>'+linhasEq.length+'</b></summary>'+lista(linhasEq)+'</details>':'')+'<details><summary><span>Ações e habilidades comuns</span><b>'+catalogo.comuns.length+'</b></summary>'+lista(catalogo.comuns)+'</details><details><summary><span>Itens registrados</span><b>'+catalogo.itens.length+'</b></summary>'+lista(catalogo.itens)+'</details><details><summary><span>Módulos do motor</span><b>'+catalogo.modulos.length+'</b></summary>'+lista(catalogo.modulos)+'</details></section>';
 }
 function coord(id,label,value){return '<label>'+label+'<input type="number" step="any" class="curto" id="'+id+'" value="'+Number(value)+'"></label>';}
@@ -386,7 +387,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.55',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.56',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -517,7 +518,7 @@ async function executar(k){
   if(!await confirma(substitui?'Agir por '+a.nome+' como mestre?':({usar:o?.nome,mover:'Executar deslocamento?',iniciativa:'Rolar iniciativa?',passar:'Finalizar turno?'})[k],detalhe))return;
   if(s.rev!==rev)throw Error('O encontro mudou. Confira a ação.');
   const args={confirmado:substitui};
-  if(k==='usar')Object.assign(args,{opcao:acao,alvo:multi(o)?undefined:alvo,alvos:multi(o)?[...alvos]:undefined,ponto:{x:num('cx'),y:num('cy')},ajuste:num('ajuste'),modo:$('rolagem').value,assistido:!o.automacao});
+  if(k==='usar')Object.assign(args,{parametros:Object.fromEntries([...document.querySelectorAll('[data-prototipo-parametro]')].map(e=>[e.dataset.prototipoParametro,e.value])),opcao:acao,alvo:multi(o)?undefined:alvo,alvos:multi(o)?[...alvos]:undefined,ponto:{x:num('cx'),y:num('cy')},ajuste:num('ajuste'),modo:$('rolagem').value,assistido:!o.automacao});
   if(k==='mover')Object.assign(args,{x:num('x'),y:num('y')});
   await enviar(k,args);
 }
@@ -640,7 +641,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.55');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.56');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

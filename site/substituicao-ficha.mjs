@@ -1,4 +1,4 @@
-import {modelosReanimacao} from './modelos/reanimacao.mjs?v=0.8.55';
+import {modelosReanimacao} from './modelos/reanimacao.mjs?v=0.8.56';
 
 const normalizar=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export function modeloReanimacao(ator){
@@ -25,7 +25,7 @@ export function sobreporMortoVivo(s,alvo,conjurador,{validar,compactarFicha,ence
     if(a.saqueAberto?.origem?.id===alvo.id||a.saqueAberto?.alvoId===alvo.id)delete a.saqueAberto;
   }
   s.filaReacoes=(s.filaReacoes??[]).filter(r=>r.reator!==alvo.id&&r.alvo!==alvo.id);
-  for(const k of ['efeitosAtivos','concentracaoAtiva','bencao','modificadoresRolagem','saqueAberto','reacaoIniciativa','escolhasDescanso','invocacao','jaAgiuNoCombate','reforcoAdiantado'])delete alvo[k];
+  for(const k of ['efeitosAtivos','auxilioRegistrado','concentracaoAtiva','bencao','modificadoresRolagem','saqueAberto','reacaoIniciativa','escolhasDescanso','invocacao','jaAgiuNoCombate','reforcoAdiantado'])delete alvo[k];
   alvo.sobreposicaoFicha={tipo:'reanimacao',modelo,conjuradorId:conjurador.id,nomeOriginal:alvo.nome,fichaOriginal:original,estadoOriginal,inventarioCompartilhado:true,controleAssistido:true};
   alvo.ficha=ficha;alvo.nome=(modelo==='zumbigoblin'?'Zumbigoblin':'Zumbi')+' · '+alvo.nome;
   alvo.pv=ficha.pvMaximos;alvo.pvTemporarios=0;alvo.estadoVida='consciente';alvo.salvaguardasMorte={sucessos:0,falhas:0};

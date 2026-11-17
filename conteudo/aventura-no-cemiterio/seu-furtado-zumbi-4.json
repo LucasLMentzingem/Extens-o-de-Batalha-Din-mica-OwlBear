@@ -70,6 +70,11 @@
       "id": "tenacidade-morta",
       "tipo": "passiva",
       "ref": "habilidade.cemiterio.seu-furtado-zumbi-4-tenacidade-morta"
+    },
+    {
+      "id": "defesas-cadavericas",
+      "ref": "habilidade.cemiterio.defesas-cadavericas",
+      "tipo": "passiva"
     }
   ],
   "preparacao": {
@@ -104,6 +109,10 @@
     {
       "nome": "Ajustar ao despertar",
       "descricao": "Começa com colar e adaga. Se os aventureiros retiraram um item antes da animação, transfira-o ao portador: não crie uma segunda cópia. Não usa Falar com os Mortos enquanto zumbi."
+    },
+    {
+      "nome": "Defesas autorais · 0.8.56",
+      "descricao": "Regra da aventura: fraqueza a radiante (dano ×2) e resistência alta a necrótico (recebe ¼, redução de 75%). As demais imunidades, atributos e ataques permanecem."
     }
   ],
   "proficienciasEquipamento": {

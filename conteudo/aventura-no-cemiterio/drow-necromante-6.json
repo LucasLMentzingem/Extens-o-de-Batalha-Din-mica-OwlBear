@@ -168,7 +168,7 @@
     },
     {
       "nome": "Conjuração e concentração",
-      "descricao": "INT 18: ataque mágico +7; CD 15. Espaços 4/3/3, recuperados em descanso longo. Gaste no máximo um espaço por turno. Uma concentração por vez; ao sofrer dano, CON [1d20+2], CD 10 ou metade do dano (maior valor; máximo CD 30). Efeitos e recursos são manuais."
+      "descricao": "INT 18: ataque mágico +7; CD 15. Espaços 4/3/3, recuperados em descanso longo. Gaste no máximo um espaço por turno. Uma concentração por vez; ao sofrer dano, CON [1d20+2], CD 10 ou metade do dano (maior valor; máximo CD 30). Custos, concentração e efeitos mecânicos dos protótipos são automatizados conforme a descrição de cada habilidade."
     },
     {
       "nome": "Herança élfica — seleção do NPC",
@@ -189,6 +189,10 @@
     {
       "nome": "Fonte e licença",
       "descricao": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Tradução, resumos e notas autorais adicionados."
+    },
+    {
+      "nome": "Habilidades protótipo · 0.8.56",
+      "descricao": "Magias e habilidades integradas à seleção de alvos, recursos e efeitos do motor. Limites do protótipo indicados em cada habilidade. Conjurações longas concluem ao avançar tempo ou manter a ação por todos os turnos exigidos. Atualize a extensão antes de importar."
     }
   ],
   "sentidos": "Visão no escuro 36 m; Percepção passiva 14.",
@@ -200,5 +204,8 @@
     "armaduras": [],
     "maestrias": []
   },
-  "descansoNpc": true
+  "descansoNpc": true,
+  "vantagemSalvasContra": [
+    "enfeiticado"
+  ]
 }

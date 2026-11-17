@@ -9,7 +9,7 @@ const semAcento=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
 const nomesComuns=['agarrar','derrubar','empurrar','desengajar','disparada','esquivar','ajudar','esconder-se','preparar','procurar','estudar','influenciar','utilizar','usar magia','golpe desarmado','ataque de oportunidade'];
 const comum=o=>nomesComuns.some(n=>semAcento(o.nome).startsWith(n));
 const configurada=o=>Boolean(o.automacao||o.gatilho);
-const habilidade=o=>({nome:o.nome,status:configurada(o)?'Automatizada':'Assistida pelo mestre'});
+const habilidade=o=>({nome:o.nome,status:o.prototipo?'Protótipo · limites na descrição':configurada(o)?'Automatizada':'Assistida pelo mestre'});
 const unicos=xs=>[...new Map(xs.map(x=>[semAcento(x.nome),x])).values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
 
 const classes=new Map();
@@ -43,6 +43,7 @@ const sistemaEquipamentos={status:'Configurado',alcanceMaximoM:18,
   classesArmadura:['sem_armadura (veste)','leve','media','pesada','escudo'],
   propriedadesArmas:['corpo_a_corpo','distancia','acuidade','leve','pesada','versatil','duas_maos','arremessavel','municao'],
   portabilidade:'O item guarda suas próprias classificações, peso, dados, dano, alcance e efeitos; proficiência, atributo, maestria, ataque e dano final são derivados da ficha que o equipa.'};
-const catalogo={versaoFormato:2,versaoCatalogo:central.versaoCatalogo,resumo:{classes:classes.size,racas:racas.size,habilidades:central.habilidades.length,comuns:comuns.length,itens:itens.length},sistemaEquipamentos,classes:[...classes.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),racas:[...racas.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),comuns,itens,modulos};
+const prototipos=[['necromante','Drow necromante'],['quevedo','Padre Quevedo']].map(([id,nome])=>({id,nome,habilidades:unicos(central.habilidades.filter(h=>h.id.startsWith('habilidade.cemiterio.'+id+'-')&&h.definicao.prototipo).map(h=>habilidade(h.definicao)))}));
+const catalogo={versaoFormato:2,versaoCatalogo:central.versaoCatalogo,resumo:{classes:classes.size,racas:racas.size,habilidades:central.habilidades.length,comuns:comuns.length,itens:itens.length},sistemaEquipamentos,classes:[...classes.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),racas:[...racas.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')),prototipos,comuns,itens,modulos};
 await writeFile('./site/conteudo-configurado.json',JSON.stringify(catalogo,null,2)+'\n');
 console.log('Catálogo:',catalogo.resumo);

@@ -2,7 +2,11 @@
 
 Atualizado em 17/11/2026. Este documento transfere o contexto do chat longo para um novo chat.
 
-## Publicação da continuação — 0.8.53
+## Continuação atual — 0.8.56
+
+Drow e Padre Quevedo receberam habilidades protótipo integradas ao motor e à HUD. Animar Mortos agora seleciona o corpo pela skill, exige um minuto e preserva a sobreposição/token/loot. Consulte `docs/RELEASE-0.8.56.md` e `docs/PROTOTIPOS-HABILIDADES-CEMITERIO.md`. Zumbis da aventura e reanimados: radiante ×2, necrótico ×¼. 384 testes e ensaio de HUD com SDK simulado. Fichas individuais e grupo ZIP atualizados. O fix de Sopro de Dragão e decisões das adagas continuam preservados.
+
+## Publicação histórica da continuação — 0.8.53
 
 As artes e o protótipo da aventura no cemitério foram integrados à versão 0.8.53. Consulte `docs/RELEASE-0.8.53.md` e `docs/PROTOTIPO-SOBREPOSICAO-CEMITERIO.md`. Os apontamentos abaixo são históricos.
 

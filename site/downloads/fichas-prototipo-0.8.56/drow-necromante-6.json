@@ -1,0 +1,211 @@
+{
+  "versaoFormato": 2,
+  "id": "drow-necromante-6",
+  "nome": "Drow necromante — Nv6",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "necromante-autoral",
+      "nivel": 6
+    }
+  ],
+  "especie": "Drow",
+  "tipoCriatura": "humanoide",
+  "atributos": {
+    "for": 8,
+    "des": 14,
+    "con": 14,
+    "int": 18,
+    "sab": 12,
+    "car": 10
+  },
+  "salvaguardas": {
+    "for": -1,
+    "des": 2,
+    "con": 2,
+    "int": 7,
+    "sab": 4,
+    "car": 0
+  },
+  "pvMaximos": 38,
+  "caBase": 12,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "proficiencia": 3,
+  "pericias": {
+    "Arcanismo": 7,
+    "Investigação": 7,
+    "Religião": 7,
+    "Percepção": 4
+  },
+  "recursos": [
+    {
+      "id": "espaco-1",
+      "nome": "Espaços de 1º círculo",
+      "maximo": 4,
+      "saldoInicial": 4,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-2",
+      "nome": "Espaços de 2º círculo",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    },
+    {
+      "id": "espaco-3",
+      "nome": "Espaços de 3º círculo",
+      "maximo": 3,
+      "saldoInicial": 3,
+      "recuperacao": [
+        {
+          "evento": "descanso_longo",
+          "modo": "completar"
+        }
+      ]
+    }
+  ],
+  "concessoes": [
+    {
+      "id": "raio-de-gelo",
+      "ref": "habilidade.cemiterio.necromante-raio-de-gelo",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "toque-arrepiante",
+      "ref": "habilidade.cemiterio.necromante-toque-arrepiante",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "armadura-arcana",
+      "ref": "habilidade.cemiterio.necromante-armadura-arcana",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "escudo-arcano",
+      "ref": "habilidade.cemiterio.necromante-escudo-arcano",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "raio-de-doenca",
+      "ref": "habilidade.cemiterio.necromante-raio-de-doenca",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "vitalidade-falsa",
+      "ref": "habilidade.cemiterio.necromante-vitalidade-falsa",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "passo-nebuloso",
+      "ref": "habilidade.cemiterio.necromante-passo-nebuloso",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "raio-do-enfraquecimento",
+      "ref": "habilidade.cemiterio.necromante-raio-do-enfraquecimento",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "toque-vampirico",
+      "ref": "habilidade.cemiterio.necromante-toque-vampirico",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "animar-mortos",
+      "ref": "habilidade.cemiterio.necromante-animar-mortos",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "heranca-elfica",
+      "ref": "habilidade.cemiterio.drow-heranca-elfica",
+      "tipo": "passiva"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": [
+      "armadura-arcana",
+      "escudo-arcano",
+      "raio-de-doenca",
+      "vitalidade-falsa",
+      "passo-nebuloso",
+      "raio-do-enfraquecimento",
+      "toque-vampirico",
+      "animar-mortos"
+    ]
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": [
+      {
+        "id": "drow-adaga",
+        "ref": "item.adaga",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_forte"
+      }
+    ]
+  },
+  "notas": [
+    {
+      "nome": "Resumo — NPC CASEIRO",
+      "descricao": "Conjurador simplificado de nível 6, tema necromante. Não é uma ficha completa de PJ nem a subclasse Escola de Necromancia de 2014. Sem ND ou XP atribuídos: nível 6 não significa ND 6. PV 38 (6+5×4+6×2); CA 12 sem magia; iniciativa [1d20+2]. Proficiência +3."
+    },
+    {
+      "nome": "Conjuração e concentração",
+      "descricao": "INT 18: ataque mágico +7; CD 15. Espaços 4/3/3, recuperados em descanso longo. Gaste no máximo um espaço por turno. Uma concentração por vez; ao sofrer dano, CON [1d20+2], CD 10 ou metade do dano (maior valor; máximo CD 30). Custos, concentração e efeitos mecânicos dos protótipos são automatizados conforme a descrição de cada habilidade."
+    },
+    {
+      "nome": "Herança élfica — seleção do NPC",
+      "descricao": "Vantagem contra Enfeitiçado. Não precisa dormir; magia não o faz dormir. Transe de 4 horas para descanso longo. Visão no escuro não atravessa Escuridão mágica. Este NPC simplificado não inclui todas as opções de classe e linhagem."
+    },
+    {
+      "nome": "Adaga — AÇÃO",
+      "descricao": "Um ataque [1d20+5], corpo a corpo 1,5 m ou arremesso 6/18 m. Dano [1d4+2] perfurante."
+    },
+    {
+      "nome": "Estado inicial",
+      "descricao": "PV 38/38; PV temporários 0; CA 12; espaços completos. Nenhuma magia previamente lançada e nenhum morto-vivo extra no encontro. Se preparar Armadura Arcana, desconte um espaço e mude CA para 15."
+    },
+    {
+      "nome": "Tática — sugestão",
+      "descricao": "Fica atrás dos goblins. Usa Raio do Enfraquecimento contra um atacante forte ou Raio de Doença para pressionar. Toque Vampírico é alternativa de concentração em combate próximo. Passo Nebuloso permite recuar, seguido de truque como ação."
+    },
+    {
+      "nome": "Fonte e licença",
+      "descricao": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Tradução, resumos e notas autorais adicionados."
+    },
+    {
+      "nome": "Habilidades protótipo · 0.8.56",
+      "descricao": "Magias e habilidades integradas à seleção de alvos, recursos e efeitos do motor. Limites do protótipo indicados em cada habilidade. Conjurações longas concluem ao avançar tempo ou manter a ação por todos os turnos exigidos. Atualize a extensão antes de importar."
+    }
+  ],
+  "sentidos": "Visão no escuro 36 m; Percepção passiva 14.",
+  "idiomas": "Comum, Élfico, Subcomum (seleção narrativa)",
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples"
+    ],
+    "armaduras": [],
+    "maestrias": []
+  },
+  "descansoNpc": true,
+  "vantagemSalvasContra": [
+    "enfeiticado"
+  ]
+}

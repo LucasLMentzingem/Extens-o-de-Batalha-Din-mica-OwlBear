@@ -46,6 +46,11 @@
       "id": "fortitude",
       "ref": "habilidade.cemiterio.fortitude-morto-vivo",
       "tipo": "passiva"
+    },
+    {
+      "id": "defesas-cadavericas",
+      "ref": "habilidade.cemiterio.defesas-cadavericas",
+      "tipo": "passiva"
     }
   ],
   "preparacao": {
@@ -61,6 +66,10 @@
     {
       "nome": "Adaptação",
       "descricao": "PV 15 e tamanho Pequeno autorais; ND de referência 1/4. Substitui Fuga Ágil, perícias e ataques vivos; nenhum equipamento fornece CA ao corpo reanimado. Controle e Fortitude assistidos."
+    },
+    {
+      "nome": "Defesas autorais · 0.8.56",
+      "descricao": "Regra da aventura: fraqueza a radiante (dano ×2) e resistência alta a necrótico (recebe ¼, redução de 75%). As demais imunidades, atributos e ataques permanecem."
     }
   ],
   "tamanho": "pequeno",

@@ -4,7 +4,7 @@
   "resumo": {
     "classes": 6,
     "racas": 6,
-    "habilidades": 326,
+    "habilidades": 327,
     "comuns": 17,
     "itens": 102
   },
@@ -988,6 +988,160 @@
         {
           "nome": "Truque | Taumaturgia · utilidade · infernal",
           "status": "Automatizada"
+        }
+      ]
+    }
+  ],
+  "prototipos": [
+    {
+      "id": "necromante",
+      "nome": "Drow necromante",
+      "habilidades": [
+        {
+          "nome": "Animar Mortos",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Armadura Arcana",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Escudo Arcano",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Passo Nebuloso",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Raio de Doença",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Raio de Gelo",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Raio do Enfraquecimento",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Toque Arrepiante",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Toque Vampírico",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Vitalidade Falsa",
+          "status": "Protótipo · limites na descrição"
+        }
+      ]
+    },
+    {
+      "id": "quevedo",
+      "nome": "Padre Quevedo",
+      "habilidades": [
+        {
+          "nome": "Acalmar Emoções",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Auxílio",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Bênção",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Centelha Divina · cura",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Centelha Divina · dano",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Chama Sagrada",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Curar Ferimentos",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Detectar Magia",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Discípulo da Vida",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Dissipar Magia",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Escudo da Fé",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Expulsar Mortos-vivos / Abrasar",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Luz",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Orientação",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Palavra Curativa",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Palavra Curativa em Massa",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Poupar os Moribundos",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Prece de Cura",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Preservar a Vida",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Proteção contra o Bem e o Mal",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Remover Maldição",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Restauração Menor",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Revivificar",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Santuário",
+          "status": "Protótipo · limites na descrição"
+        },
+        {
+          "nome": "Taumaturgia",
+          "status": "Protótipo · limites na descrição"
         }
       ]
     }

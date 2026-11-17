@@ -272,6 +272,10 @@
     {
       "nome": "NPC básico",
       "descricao": "Ordem Divina Taumaturgo: Religião +8 e quinto truque; nove magias preparadas, seis do domínio. Sem talento de origem inventado. CA 18 com escamas e escudo. Nenhum diamante para Revivificar."
+    },
+    {
+      "nome": "Habilidades protótipo · 0.8.56",
+      "descricao": "Magias e habilidades integradas à seleção de alvos, recursos e efeitos do motor. Limites do protótipo indicados em cada habilidade. Conjurações longas concluem ao avançar tempo ou manter a ação por todos os turnos exigidos. Atualize a extensão antes de importar."
     }
   ],
   "proficienciasEquipamento": {

@@ -1,10 +1,12 @@
 # Protótipo — sobreposição de ficha e aventura no cemitério
 
-Integrado à publicação 0.8.53 em 17/11/2026.
+Integrado em 0.8.53; atualizado para 0.8.56 em 17/11/2026. As habilidades atuais dos dois conjuradores estão em [Protótipos de habilidades](PROTOTIPOS-HABILIDADES-CEMITERIO.md). Os registros de automação 0.8.53 abaixo são históricos.
 
 ## Sobreposição de reanimação
 
-No Controle do mestre → Controle de fichas, o painel **Reanimar corpo** aparece quando há um corpo elegível e um conjurador com Animar Mortos. Escolha os dois e confirme que um minuto foi concluído e que os componentes estão disponíveis. O comando cobra um espaço de 3º círculo, exige distância euclidiana de até 3 m e é exclusivo do mestre. O motor também aceita círculos superiores pelo comando, sempre com um corpo por confirmação; o painel básico oferece o 3º. Tempo de conjuração, componentes, ordens e controle de 24 horas são assistidos, sem temporizador automático.
+Na 0.8.56, selecione Animar Mortos na HUD do drow e clique no corpo elegível (token de Personagem com ficha vinculada, humanoide Pequeno/Médio morto a 0 PV ou menos, ou goblin marcado). Inicie a conjuração; fora de combate avance um minuto, em combate mantenha dez ações. Exige concentração, cobra o espaço somente ao concluir e aplica a sobreposição/token automaticamente. Um corpo por conjuração, inclusive em círculo superior. Componentes, ordens e controle por 24 horas são assistidos.
+
+O painel **Reanimar corpo** no Controle do mestre continua como alternativa para confirmar um minuto já concluído e componentes, cobrando o espaço e aplicando a camada. Não usar os dois fluxos para a mesma conjuração.
 
 Um humanoide morto recebe a camada de Zumbi (15 PV, CA 8, Pancada +3, 1d8+1). Os dois goblins marcados da aventura recebem Zumbigoblin (15 PV, CA 8), preservando a origem Feérica como exceção autoral. O zumbi autoral nível 3 de 32 PV do cemitério continua sendo outro modelo.
 
@@ -14,6 +16,10 @@ Os pertences ficam desequipados durante a camada: armadura, escudo e armas antig
 
 Sem concessão automática de controle ao jogador: NPCs ficam sob controle do mestre. Efeitos e concentração do corpo anterior são encerrados, sessões de saque abertas são invalidadas e a camada não pode ser aplicada outra vez ao mesmo corpo enquanto estiver ativa. Em turnos, o reanimado aguarda sua próxima vez para receber economia de ações. Remover a camada não recupera efeitos já encerrados.
 
+## Defesas dos zumbis — 0.8.56
+
+Regra autoral: Goblin Zumbi/Zumbigoblin, Zumbi reanimado, Zumbi padrão nível 3 e Seu Furtado recebem dano radiante dobrado e um quarto de dano necrótico (75% de redução), mantendo imunidade a veneno. A mesma passiva central atualiza as fichas já importadas e as camadas novas sem duplicação.
+
 ## Grupo e itens
 
 `conteudo/aventura-no-cemiterio/` contém somente 11 JSONs de fichas formato 2. Importar essa pasta como grupo. Os mesmos arquivos estão na pasta da aventura, dentro de `Grupo-importavel/aventura no cemiterio`. O modelo adicional Zumbi reanimado apoia o protótipo. Não há itens finais nos inventários iniciais. Arquivos-base e tokens da aventura foram preservados; não foram gerados tokens novos.
@@ -22,7 +28,7 @@ Itens novos: `item.adaga-sagrada-purificada-mais-2`, `item.adaga-sagrada-profana
 
 O mestre confirma o desfecho da adaga em Controle de fichas. A operação troca a definição conservando ID, posse e equipamento da instância. Purificação exige confirmação do altar original e consome uma dose de missão selecionada, inclusive de outro portador. Profanação exige confirmação narrativa das 100 mortes; o motor não detecta inocência ou elegibilidade. Os resultados são exclusivos.
 
-## Automação e limites das fichas
+## Automação e limites das fichas — registro histórico 0.8.53
 
 - Irineu conserva atributos, perícias, habilidades e escolhas. A adaga agora usa a entrada central com arremesso. CA final equipada é 14 pelo couro 11+DES 3; a base técnica foi normalizada para 10. O campo antigo `caBase:13` não representava a defesa final com o couro. Sem talentos de origem adicionais.
 - Drow é NPC autoral de INT, não Bruxo de Pacto: 38 PV, CA 12/15 com Armadura Arcana, ataque +7, CD 15, espaços 4/3/3. Conserva as dez magias originais. Raio de Gelo e Toque Arrepiante automatizam ataque/dano; redução de velocidade e bloqueio de cura são assistidos. Raio de Doença automatiza ataque/veneno; Armadura Arcana, Vitalidade Falsa e Passo Nebuloso usam automações existentes. Escudo Arcano, Raio do Enfraquecimento e Toque Vampírico são assistidos com seus custos; a repetição de Toque Vampírico sem novo espaço exige arbitragem do mestre.

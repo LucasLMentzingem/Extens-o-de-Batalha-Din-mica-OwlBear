@@ -7098,13 +7098,13 @@
     },
     {
       "id": "habilidade.cemiterio.necromante-raio-de-gelo",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Raio de Gelo",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 0,
-        "descricao": "V,S; 18 m. Ataque à distância [1d20+7]; [2d8] frio. Reduz deslocamento em 3 m até o início do próximo turno do drow.",
+        "descricao": "Protótipo · V,S; 18 m. Ataque à distância [1d20+7]; [2d8] frio. Reduz deslocamento em 3 m até o início do próximo turno do drow.",
         "custo": [
           {
             "tipo": "acao",
@@ -7116,19 +7116,33 @@
           "bonus": 7,
           "dano": "2d8",
           "elemento": "frio",
-          "alcanceM": 18
-        }
+          "alcanceM": 18,
+          "atributoConjuracao": "int",
+          "efeitoAcerto": {
+            "nome": "Raio de Gelo · lentidão",
+            "tipo": "debuff",
+            "modificadores": {
+              "deslocamentoM": -3
+            },
+            "duracao": {
+              "turnos": 1,
+              "restante": 1,
+              "expira": "inicio_origem"
+            }
+          }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-toque-arrepiante",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Toque Arrepiante",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 0,
-        "descricao": "V,S; toque. Ataque mágico corpo a corpo [1d20+7]; [2d10] necrótico. Alvo não recupera PV até o fim do próximo turno do drow. Versão 2024: não é ataque à distância.",
+        "descricao": "Protótipo · V,S; toque. Ataque mágico corpo a corpo [1d20+7]; [2d10] necrótico. Alvo não recupera PV até o fim do próximo turno do drow. Versão 2024: não é ataque à distância.",
         "custo": [
           {
             "tipo": "acao",
@@ -7140,19 +7154,31 @@
           "bonus": 7,
           "dano": "2d10",
           "elemento": "necrotico",
-          "alcanceM": 1.5
-        }
+          "alcanceM": 1.5,
+          "atributoConjuracao": "int",
+          "efeitoAcerto": {
+            "nome": "Toque Arrepiante · cura bloqueada",
+            "tipo": "debuff",
+            "bloqueiaCura": true,
+            "duracao": {
+              "turnos": 2,
+              "restante": 2,
+              "expira": "fim_origem"
+            }
+          }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-armadura-arcana",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Armadura Arcana",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 1,
-        "descricao": "V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração.",
+        "descricao": "Protótipo · V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração.",
         "custo": [
           {
             "tipo": "acao",
@@ -7171,25 +7197,29 @@
             "nome": "Armadura Arcana",
             "tipo": "buff",
             "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
-            "removeEm": "descanso_longo",
             "caMinima": 13,
             "requisitos": {
               "semArmadura": true
             },
-            "modificadores": {}
+            "modificadores": {},
+            "duracao": {
+              "turnos": 4800,
+              "expira": "inicio_origem"
+            }
           }
-        }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-escudo-arcano",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Escudo Arcano",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 1,
-        "descricao": "V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana.",
+        "descricao": "Protótipo · V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana. Protótipo: responde na janela automática de reação ao ataque ou aos Mísseis Mágicos. Se não houver espaço de 1º, o protótipo usa o menor círculo disponível.",
         "custo": [
           {
             "tipo": "reacao",
@@ -7201,18 +7231,22 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "gatilho": "ser_atingido",
+        "automacao": {
+          "tipo": "escudo_arcano"
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-raio-de-doenca",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Raio de Doença",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 1,
-        "descricao": "V,S; 18 m. Ataque à distância [1d20+7]. Acerto: [2d8] veneno e Envenenado até o fim do próximo turno do drow. Sem resistência adicional. +1d8 por círculo acima do 1º.",
+        "descricao": "Protótipo · V,S; 18 m. Ataque à distância [1d20+7]. Acerto: [2d8] veneno e Envenenado até o fim do próximo turno do drow. Sem resistência adicional. +1d8 por círculo acima do 1º.",
         "custo": [
           {
             "tipo": "acao",
@@ -7235,15 +7269,17 @@
             "tipo": "condicao",
             "condicao": "envenenado",
             "duracao": {
-              "turnos": 1,
+              "turnos": 2,
               "expira": "fim_origem"
             }
-          }
+          },
+          "atributoConjuracao": "int"
         },
         "escalaCirculo": {
           "danoDadosPorCirculo": 1,
           "facesDano": 8
-        }
+        },
+        "prototipo": true
       }
     },
     {
@@ -7254,7 +7290,7 @@
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 1,
-        "descricao": "V,S,M (álcool); pessoal. Recebe [2d4+4] PV temporários; +5 por círculo acima do 1º. PV temporários não se somam entre si nem curam; registre em campo próprio.",
+        "descricao": "Protótipo · V,S,M (álcool); pessoal. Recebe [2d4+4] PV temporários; +5 por círculo acima do 1º. PV temporários não se somam entre si nem curam; registre em campo próprio.",
         "custo": [
           {
             "tipo": "acao",
@@ -7273,7 +7309,8 @@
         },
         "escalaCirculo": {
           "pvTemporariosPorCirculo": 5
-        }
+        },
+        "prototipo": true
       }
     },
     {
@@ -7284,7 +7321,7 @@
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 2,
-        "descricao": "V. Teleporte até 9 m para espaço desocupado que veja. Sem concentração. Pode usar truque com a ação; não gastar segundo espaço nesse turno.",
+        "descricao": "Protótipo · V. Teleporte até 9 m para espaço desocupado que veja. Sem concentração. Pode usar truque com a ação; não gastar segundo espaço nesse turno.",
         "custo": [
           {
             "tipo": "bonus",
@@ -7299,18 +7336,19 @@
         "automacao": {
           "tipo": "teleporte",
           "alcanceM": 9
-        }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-raio-do-enfraquecimento",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Raio do Enfraquecimento",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 2,
-        "descricao": "V,S; 18 m; concentração até 1 minuto. CON CD 15. Sucesso: desvantagem no próximo ataque até o início do próximo turno do drow. Falha: desvantagem em testes d20 de FOR e subtrai [1d8] de todas as rolagens de dano. Repete CON CD 15 ao fim de cada turno, encerrando com sucesso.",
+        "descricao": "Protótipo · V,S; 18 m; concentração até 1 minuto. CON CD 15. Sucesso: desvantagem no próximo ataque até o início do próximo turno do drow. Falha: desvantagem em testes d20 de FOR e subtrai [1d8] de todas as rolagens de dano. Repete CON CD 15 ao fim de cada turno, encerrando com sucesso.",
         "custo": [
           {
             "tipo": "acao",
@@ -7322,18 +7360,24 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "enfraquecer",
+          "alcanceM": 18
+        },
+        "prototipo": true,
+        "concentracao": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-toque-vampirico",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Toque Vampírico",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 3,
-        "descricao": "V,S; pessoal; concentração até 1 minuto. Ataque mágico corpo a corpo [1d20+7] contra criatura ao alcance; [3d6] necrótico. Recupera metade do dano necrótico efetivamente causado, arredondada para baixo. Nos turnos seguintes, repete o ataque com ação Mágica, sem novo espaço.",
+        "descricao": "Protótipo · V,S; pessoal; concentração até 1 minuto. Ataque mágico corpo a corpo [1d20+7] contra criatura ao alcance; [3d6] necrótico. Recupera metade do dano necrótico efetivamente causado, arredondada para baixo. Nos turnos seguintes, repete o ataque com ação Mágica, sem novo espaço.",
         "custo": [
           {
             "tipo": "acao",
@@ -7345,18 +7389,24 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "vampirico",
+          "alcanceM": 1.5
+        },
+        "prototipo": true,
+        "concentracao": true
       }
     },
     {
       "id": "habilidade.cemiterio.necromante-animar-mortos",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Animar Mortos",
         "categoria": "magia",
         "origem": "necromante-autoral",
         "circuloBase": 3,
-        "descricao": "V,S,M (sangue, carne e pó de osso); 3 m. Anima ossos ou cadáver de Humanoide Pequeno/Médio como esqueleto ou zumbi. Controle por 24 horas; ação bônus comanda mortos-vivos criados pela magia a até 18 m. Sem ordem, Esquiva e evita perigo; ordem geral persiste até ser cumprida. Nova conjuração antes das 24 horas mantém controle de até 4 mortos-vivos, em vez de criar outro. Não é ritual, não é uma ação, não traz a pessoa de volta à vida. Goblins Feéricos não são alvos válidos. Não há mortos-vivos pré-incluídos no grupo. Nesta aventura, o goblin marcado é exceção autoral válida. Protótipo: o mestre confirma um minuto concluído em Controle de fichas > Reanimar corpo; ali o espaço é debitado e uma sobreposição aplicada sobre a ficha original resguardada. Não declarar esta opção separadamente.",
+        "descricao": "Protótipo · selecione no mapa um humanoide Pequeno/Médio morto com 0 PV ou menos; goblin marcado da aventura vira Zumbigoblin. PJs precisam estar mortos, não apenas inconscientes. Conjuração de 1 minuto: exige concentração e a ação a cada turno; fora de combate use Avançar tempo. O espaço é consumido apenas na conclusão. Sobrepõe a ficha, troca o token e preserva inventário/loot original. Controle por 24 h, ordens, ossos/esqueletos e manutenção de controle ainda são assistidos. V,S,M: sangue, carne e pó de osso conferidos pela mesa. Não é ritual nem ressurreição.",
         "custo": [
           {
             "tipo": "acao",
@@ -7369,7 +7419,13 @@
           }
         ],
         "reanimacao": true,
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "animar",
+          "alcanceM": 3,
+          "tempoSegundos": 60
+        },
+        "prototipo": true
       }
     },
     {
@@ -7385,14 +7441,14 @@
     },
     {
       "id": "habilidade.cemiterio.quevedo-orientacao",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Orientação",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 0,
-        "descricao": "Toque, concentração até 1 minuto; adiciona 1d4 a testes da perícia escolhida. Perícia assistida.",
+        "descricao": "Protótipo · toque, concentração 1 minuto. Escolha uma perícia; o alvo pode acrescentar 1d4 aos testes daquela perícia durante a duração. Não concede bônus a outras perícias ou salvaguardas.",
         "custo": [
           {
             "tipo": "acao",
@@ -7409,9 +7465,90 @@
               "teste"
             ],
             "removeAoUsar": false
-          }
+          },
+          "escolhas": [
+            {
+              "id": "pericia",
+              "nome": "Perícia",
+              "valores": [
+                {
+                  "id": "Acrobacia",
+                  "nome": "Acrobacia"
+                },
+                {
+                  "id": "Lidar com Animais",
+                  "nome": "Lidar com Animais"
+                },
+                {
+                  "id": "Arcanismo",
+                  "nome": "Arcanismo"
+                },
+                {
+                  "id": "Atletismo",
+                  "nome": "Atletismo"
+                },
+                {
+                  "id": "Atuação",
+                  "nome": "Atuação"
+                },
+                {
+                  "id": "Enganação",
+                  "nome": "Enganação"
+                },
+                {
+                  "id": "Furtividade",
+                  "nome": "Furtividade"
+                },
+                {
+                  "id": "História",
+                  "nome": "História"
+                },
+                {
+                  "id": "Intimidação",
+                  "nome": "Intimidação"
+                },
+                {
+                  "id": "Intuição",
+                  "nome": "Intuição"
+                },
+                {
+                  "id": "Investigação",
+                  "nome": "Investigação"
+                },
+                {
+                  "id": "Medicina",
+                  "nome": "Medicina"
+                },
+                {
+                  "id": "Natureza",
+                  "nome": "Natureza"
+                },
+                {
+                  "id": "Percepção",
+                  "nome": "Percepção"
+                },
+                {
+                  "id": "Persuasão",
+                  "nome": "Persuasão"
+                },
+                {
+                  "id": "Prestidigitação",
+                  "nome": "Prestidigitação"
+                },
+                {
+                  "id": "Religião",
+                  "nome": "Religião"
+                },
+                {
+                  "id": "Sobrevivência",
+                  "nome": "Sobrevivência"
+                }
+              ]
+            }
+          ]
         },
-        "concentracao": true
+        "concentracao": true,
+        "prototipo": true
       }
     },
     {
@@ -7423,7 +7560,7 @@
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 0,
-        "descricao": "DES CD 15; 2d8 radiante, sem dano no sucesso. Cobertura não ajuda; mestre verifica.",
+        "descricao": "Protótipo · DES CD 15; 2d8 radiante, sem dano no sucesso. Cobertura não ajuda; mestre verifica.",
         "custo": [
           {
             "tipo": "acao",
@@ -7438,7 +7575,8 @@
           "elemento": "radiante",
           "alcanceM": 18,
           "metade": false
-        }
+        },
+        "prototipo": true
       }
     },
     {
@@ -7450,7 +7588,7 @@
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 0,
-        "descricao": "Estabiliza uma criatura viva a 0 PV; alcance de 9 m no nível 5.",
+        "descricao": "Protótipo · Estabiliza uma criatura viva a 0 PV; alcance de 9 m no nível 5.",
         "custo": [
           {
             "tipo": "acao",
@@ -7460,45 +7598,57 @@
         "automacao": {
           "tipo": "estabilizar",
           "alcanceM": 9
-        }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-taumaturgia",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Taumaturgia",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 0,
-        "descricao": "Prodígios a até 9 m; efeitos narrativos assistidos.",
+        "descricao": "Protótipo · marcador de prodígio por 1 minuto e vantagem em Intimidação. Escolha narrativa do prodígio e interação com cenário pela mesa.",
         "custo": [
           {
             "tipo": "acao",
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "taumaturgia",
+          "alcanceM": 0,
+          "pessoal": true
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-luz",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Luz",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 0,
-        "descricao": "Toque em objeto; luz por 1 hora. Mestre configura a iluminação do objeto.",
+        "descricao": "Protótipo · toque em objeto carregado pelo alvo: marcador de Luz por 1 hora, plena 6 m e penumbra 6 m. Não configura outros plugins de iluminação; objetos hostis são arbitrados pelo mestre.",
         "custo": [
           {
             "tipo": "acao",
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "luz",
+          "alcanceM": 1.5
+        },
+        "prototipo": true
       }
     },
     {
@@ -7510,7 +7660,7 @@
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Bônus; cura 2d4+7 no 1º círculo, incluindo SAB +4 e Discípulo +3.",
+        "descricao": "Protótipo · Bônus; cura 2d4+7 no 1º círculo, incluindo SAB +4 e Discípulo +3.",
         "custo": [
           {
             "tipo": "bonus",
@@ -7531,7 +7681,8 @@
         "escalaCirculo": {
           "curaDadosPorCirculo": 2,
           "facesCura": 4
-        }
+        },
+        "prototipo": true
       }
     },
     {
@@ -7543,7 +7694,7 @@
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Bônus; concentração 10 min; +2 CA.",
+        "descricao": "Protótipo · Bônus; concentração 10 min; +2 CA.",
         "custo": [
           {
             "tipo": "bonus",
@@ -7571,19 +7722,20 @@
             }
           }
         },
-        "concentracao": true
+        "concentracao": true,
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-santuario",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Santuário",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Bônus, 9 m, 1 minuto. Atacantes precisam SAB CD 15 para atacar o protegido; término e alvos assistidos.",
+        "descricao": "Protótipo · bônus, 9 m, 1 minuto. Antes de ataques e magias nocivas que escolham o protegido, o agressor faz SAB CD 15; falha perde aquela instância. Áreas não são bloqueadas. Termina quando o protegido ataca, causa dano ou conjura magia.",
         "custo": [
           {
             "tipo": "bonus",
@@ -7595,19 +7747,24 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "santuario",
+          "alcanceM": 9
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-detectar",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Detectar Magia",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Ação ou ritual de 10 minutos; concentração 10 minutos; detecção assistida. Este botão consome espaço; ritual é narrativo.",
+        "descricao": "Protótipo · Ação ou ritual de 10 minutos; concentração 10 minutos; detecção assistida. Este botão consome espaço; ritual é narrativo.",
         "custo": [
           {
             "tipo": "acao",
@@ -7620,19 +7777,25 @@
           }
         ],
         "concentracao": true,
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "detectar",
+          "alcanceM": 0,
+          "pessoal": true
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-protecao",
-      "revisao": 2,
+      "revisao": 4,
       "definicao": {
         "nome": "Proteção contra o Bem e o Mal",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Toque; concentração 10 minutos; proteção e componentes consumíveis assistidos.",
+        "descricao": "Protótipo · toque, concentração 10 minutos. Aberrações, celestiais, elementais, feéricos, infernais e mortos-vivos atacam com desvantagem; protege contra novos encantos, medo e possessão originados deles. Consome água benta comum ou item componenteMagico: protecao. Água benta de missão não é selecionada. Repetir salvaguardas contra efeitos preexistentes e possessões narrativas exige arbitragem.",
         "custo": [
           {
             "tipo": "acao",
@@ -7645,19 +7808,24 @@
           }
         ],
         "concentracao": true,
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "protecao",
+          "alcanceM": 1.5
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-prece",
-      "revisao": 1,
+      "revisao": 4,
       "definicao": {
         "nome": "Prece de Cura",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 2,
-        "descricao": "Conjuração de 10 minutos; até cinco criaturas recebem descanso curto e 2d8+8 de cura, incluindo Discípulo. Elegibilidade e cura assistidas; mestre aguarda os 10 minutos antes de declarar.",
+        "descricao": "Protótipo · escolha até cinco criaturas a 9 m. Conjuração de 10 minutos, fora de combate, com concentração. Ao avançar tempo e concluir: descanso curto, 2d8+4 de cura (Discípulo incluído; sem somar SAB), +1d8 e +1 fixo por círculo superior. Cada beneficiário só recebe novamente após descanso longo. Gastar Dados de Vida do descanso permanece uma escolha da mesa.",
         "custo": [
           {
             "tipo": "acao",
@@ -7672,19 +7840,32 @@
         "requisitosUso": {
           "somenteForaCombate": true
         },
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "prece",
+          "alcanceM": 9,
+          "tempoSegundos": 600
+        },
+        "prototipo": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 5,
+          "repetirAlvo": false,
+          "alcanceM": 9
+        }
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-acalmar",
-      "revisao": 2,
+      "revisao": 5,
       "definicao": {
         "nome": "Acalmar Emoções",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 2,
-        "descricao": "Concentração 1 min; CAR CD 15; supressão de medo/encanto ou indiferença; alvos e efeitos assistidos.",
+        "descricao": "Protótipo · escolha humanoides dentro de uma esfera de raio 6 m a até 18 m; CAR CD 15, concentração 1 minuto. Escolha suprimir medo/encanto (condições originais retornam ao terminar) ou indiferença. Escolha espacial, consentimento em falhar e hostilidade contra aliados são conferidos pela mesa.",
         "custo": [
           {
             "tipo": "acao",
@@ -7697,19 +7878,47 @@
           }
         ],
         "concentracao": true,
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "acalmar",
+          "alcanceM": 18,
+          "escolhas": [
+            {
+              "id": "modo",
+              "nome": "Efeito",
+              "valores": [
+                {
+                  "id": "supressao",
+                  "nome": "Suprimir medo e encanto"
+                },
+                {
+                  "id": "indiferenca",
+                  "nome": "Indiferença (hostilidade assistida)"
+                }
+              ]
+            }
+          ]
+        },
+        "prototipo": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 50,
+          "repetirAlvo": false,
+          "alcanceM": 18
+        }
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-dissipar",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Dissipar Magia",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 3,
-        "descricao": "Termina magias de até 3º; para maiores teste de SAB +4 CD 10+nível. Mestre resolve.",
+        "descricao": "Protótipo · alvo a 18 m (limite do sistema). Encerra efeitos de magia cadastrados até o círculo usado; para cada magia superior, SAB +4 contra CD 10 + círculo. Auras, objetos e efeitos externos sem metadados são assistidos.",
         "custo": [
           {
             "tipo": "acao",
@@ -7721,19 +7930,24 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "dissipar",
+          "alcanceM": 18
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-remover",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Remover Maldição",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 3,
-        "descricao": "Toque; remove maldições conforme elegibilidade; não resolve automaticamente o rito da adaga.",
+        "descricao": "Protótipo · toque, encerra efeitos marcados maldicao: true. Vínculo de item amaldiçoado e regras especiais são assistidos. Não altera a adaga da missão nem substitui seu rito.",
         "custo": [
           {
             "tipo": "acao",
@@ -7745,19 +7959,24 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "remover",
+          "alcanceM": 1.5
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-auxilio",
-      "revisao": 1,
+      "revisao": 4,
       "definicao": {
         "nome": "Auxílio",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 2,
-        "descricao": "Até três criaturas recebem +5 PV máximos/atuais por 8 horas; +5 por círculo superior. Ajustes assistidos.",
+        "descricao": "Protótipo · até três criaturas a 9 m recebem +5 PV máximos e atuais por 8 horas; +5 por círculo acima do 2º, sem acumular com outro Auxílio.",
         "custo": [
           {
             "tipo": "acao",
@@ -7769,7 +7988,19 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "auxilio",
+          "alcanceM": 9
+        },
+        "prototipo": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 3,
+          "repetirAlvo": false,
+          "alcanceM": 9
+        }
       }
     },
     {
@@ -7781,7 +8012,7 @@
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Até três alvos a 9 m, concentração 1 minuto: +1d4 em ataques e salvaguardas.",
+        "descricao": "Protótipo · Até três alvos a 9 m, concentração 1 minuto: +1d4 em ataques e salvaguardas.",
         "custo": [
           {
             "tipo": "acao",
@@ -7805,7 +8036,8 @@
           "max": 3,
           "repetirAlvo": false,
           "alcanceM": 9
-        }
+        },
+        "prototipo": true
       }
     },
     {
@@ -7817,7 +8049,7 @@
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 1,
-        "descricao": "Toque; cura 2d8+7 no 1º círculo, incluindo SAB +4 e Discípulo +3.",
+        "descricao": "Protótipo · Toque; cura 2d8+7 no 1º círculo, incluindo SAB +4 e Discípulo +3.",
         "custo": [
           {
             "tipo": "acao",
@@ -7838,19 +8070,20 @@
         "escalaCirculo": {
           "curaDadosPorCirculo": 2,
           "facesCura": 8
-        }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-restauracao",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Restauração Menor",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 2,
-        "descricao": "Bônus, toque; encerra Cego, Surdo, Paralisado ou Envenenado. Remoção assistida.",
+        "descricao": "Protótipo · bônus, toque; escolha Cego, Surdo, Paralisado ou Envenenado. Remove do alvo os efeitos cadastrados com aquela condição.",
         "custo": [
           {
             "tipo": "bonus",
@@ -7862,19 +8095,48 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "restauracao",
+          "alcanceM": 1.5,
+          "escolhas": [
+            {
+              "id": "condicao",
+              "nome": "Condição",
+              "valores": [
+                {
+                  "id": "cego",
+                  "nome": "Cego"
+                },
+                {
+                  "id": "surdo",
+                  "nome": "Surdo"
+                },
+                {
+                  "id": "paralisado",
+                  "nome": "Paralisado"
+                },
+                {
+                  "id": "envenenado",
+                  "nome": "Envenenado"
+                }
+              ]
+            }
+          ]
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-palavra-massa",
-      "revisao": 1,
+      "revisao": 4,
       "definicao": {
         "nome": "Palavra Curativa em Massa",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 3,
-        "descricao": "Bônus; até seis criaturas a 18 m; cura 2d4+9 (SAB +4, Discípulo +5). Cura e alvos assistidos.",
+        "descricao": "Protótipo · bônus, até seis criaturas a 18 m. Cura 2d4+9 no 3º círculo (SAB +4, Discípulo +5); +1d4 e +1 fixo por círculo superior.",
         "custo": [
           {
             "tipo": "bonus",
@@ -7886,19 +8148,36 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "cura",
+          "formula": "2d4+4",
+          "alcanceM": 18
+        },
+        "discipuloVida": true,
+        "escalaCirculo": {
+          "curaDadosPorCirculo": 1,
+          "facesCura": 4
+        },
+        "prototipo": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 6,
+          "repetirAlvo": false,
+          "alcanceM": 18
+        }
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-revivificar",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Revivificar",
         "categoria": "magia",
         "origem": "clerigo",
         "origemTipo": "classe",
         "circuloBase": 3,
-        "descricao": "Toque em morto há até 1 minuto, retorna com 1 PV; exige diamantes consumidos de 300 PO. Mestre verifica morte, tempo, corpo e remove os diamantes antes de declarar. Nenhum diamante inicial ou uso gratuito.",
+        "descricao": "Protótipo · toque. Confirme morte há até 1 minuto, corpo apto e sem morte por velhice. Consome uma unidade de diamante cadastrado de valor ≥300 PO e o espaço, volta com 1 PV. O padre não começa com diamante; sem componente, rejeita sem custo.",
         "custo": [
           {
             "tipo": "acao",
@@ -7910,15 +8189,36 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "revivificar",
+          "alcanceM": 1.5,
+          "escolhas": [
+            {
+              "id": "morteRecente",
+              "nome": "Elegibilidade do corpo",
+              "valores": [
+                {
+                  "id": "nao",
+                  "nome": "Não confirmada"
+                },
+                {
+                  "id": "sim",
+                  "nome": "Confirmo: morto há até 1 min, corpo apto, sem velhice"
+                }
+              ]
+            }
+          ]
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-preservar",
-      "revisao": 1,
+      "revisao": 4,
       "definicao": {
         "nome": "Preservar a Vida",
-        "descricao": "Distribua 25 PV entre criaturas a até 9 m, até metade do máximo de cada uma; assistido.",
+        "descricao": "Protótipo · escolha criaturas a 9 m na ordem de prioridade. Distribui 25 PV, preenchendo cada uma até metade do máximo antes da próxima, sem gastar saldo em cura impedida; uma utilização de Canalizar Divindade.",
         "categoria": "acao",
         "custo": [
           {
@@ -7931,7 +8231,19 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "preservar",
+          "alcanceM": 9
+        },
+        "prototipo": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 50,
+          "repetirAlvo": false,
+          "alcanceM": 9
+        }
       }
     },
     {
@@ -7939,7 +8251,7 @@
       "revisao": 1,
       "definicao": {
         "nome": "Centelha Divina · cura",
-        "descricao": "Uma criatura a até 9 m recupera 1d8+4 PV. Não aplica Discípulo.",
+        "descricao": "Protótipo · Uma criatura a até 9 m recupera 1d8+4 PV. Não aplica Discípulo.",
         "categoria": "acao",
         "custo": [
           {
@@ -7956,15 +8268,16 @@
           "tipo": "cura",
           "formula": "1d8+4",
           "alcanceM": 9
-        }
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-centelha-dano",
-      "revisao": 1,
+      "revisao": 3,
       "definicao": {
         "nome": "Centelha Divina · dano",
-        "descricao": "CON CD 15; 1d8+4 radiante ou necrótico, metade no sucesso; escolha e efeito assistidos.",
+        "descricao": "Protótipo · escolha radiante ou necrótico e uma criatura a 9 m. CON CD 15; 1d8+4 de dano, metade no sucesso. Uma utilização de Canalizar Divindade.",
         "categoria": "acao",
         "custo": [
           {
@@ -7977,15 +8290,36 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "centelha",
+          "alcanceM": 9,
+          "escolhas": [
+            {
+              "id": "elemento",
+              "nome": "Tipo de dano",
+              "valores": [
+                {
+                  "id": "radiante",
+                  "nome": "Radiante"
+                },
+                {
+                  "id": "necrotico",
+                  "nome": "Necrótico"
+                }
+              ]
+            }
+          ]
+        },
+        "prototipo": true
       }
     },
     {
       "id": "habilidade.cemiterio.quevedo-expulsar",
-      "revisao": 1,
+      "revisao": 4,
       "definicao": {
         "nome": "Expulsar Mortos-vivos / Abrasar",
-        "descricao": "Cada morto-vivo escolhido a 9 m faz SAB CD 15; falha: amedrontado/incapacitado 1 minuto e pode sofrer 4d8 radiante de Abrasar. Mestre resolve alvos, fuga e término; uma única utilização.",
+        "descricao": "Protótipo · escolha mortos-vivos a 9 m; SAB CD 15. Falha: amedrontado e incapacitado por até 1 minuto, encerrando com dano posterior. Abrasar opcional causa 4d8 radiante antes de aplicar a expulsão e não a encerra. Fuga é decidida pela mesa. Uma utilização de Canalizar Divindade.",
         "categoria": "acao",
         "custo": [
           {
@@ -7998,7 +8332,35 @@
             "quantidade": 1
           }
         ],
-        "resolucaoAssistida": true
+        "automacao": {
+          "tipo": "prototipo",
+          "modo": "expulsar",
+          "alcanceM": 9,
+          "escolhas": [
+            {
+              "id": "abrasar",
+              "nome": "Abrasar",
+              "valores": [
+                {
+                  "id": "sim",
+                  "nome": "Aplicar 4d8 radiante"
+                },
+                {
+                  "id": "nao",
+                  "nome": "Somente expulsar"
+                }
+              ]
+            }
+          ]
+        },
+        "prototipo": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 50,
+          "repetirAlvo": false,
+          "alcanceM": 9
+        }
       }
     },
     {
@@ -8006,10 +8368,11 @@
       "revisao": 1,
       "definicao": {
         "nome": "Discípulo da Vida",
-        "descricao": "Ao curar com espaço no turno da conjuração, soma 2 + nível do espaço. Curar Ferimentos e Palavra Curativa calculam uma única vez. Demais curas estão descritas com bônus para resolução assistida. Sem autocura do nível 6.",
+        "descricao": "Protótipo · Ao curar com espaço no turno da conjuração, soma 2 + nível do espaço. Curar Ferimentos e Palavra Curativa calculam uma única vez. Demais curas estão descritas com bônus para resolução assistida. Sem autocura do nível 6.",
         "categoria": "acao",
         "custo": [],
-        "resolucaoAssistida": true
+        "resolucaoAssistida": true,
+        "prototipo": true
       }
     },
     {
@@ -8168,6 +8531,47 @@
           "elemento": "perfurante",
           "alcanceM": 1.5
         }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.defesas-cadavericas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Defesas cadavéricas · regra da aventura",
+        "descricao": "Fraqueza a radiante: recebe o dobro (×2). Resistência alta a necrótico: reduz 75%, recebendo um quarto (×¼), arredondado para baixo. Não é imunidade. Regra autoral da aventura; preserva as demais defesas.",
+        "defesasDano": [
+          {
+            "id": "cadaver-resistencia-necrotico",
+            "nome": "Resistência necrótica",
+            "operacao": "resistencia",
+            "filtro": {
+              "tipos": [
+                "necrotico"
+              ]
+            }
+          },
+          {
+            "id": "cadaver-resistencia-alta-necrotico",
+            "nome": "Resistência alta necrótica · redução total de 75%",
+            "operacao": "multiplicador",
+            "fator": 0.5,
+            "filtro": {
+              "tipos": [
+                "necrotico"
+              ]
+            }
+          },
+          {
+            "id": "cadaver-fraqueza-radiante",
+            "nome": "Fraqueza radiante",
+            "operacao": "vulnerabilidade",
+            "filtro": {
+              "tipos": [
+                "radiante"
+              ]
+            }
+          }
+        ]
       }
     }
   ]
