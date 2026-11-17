@@ -102,6 +102,7 @@ test('depósito contextual mantém sessão e equipar retira apenas uma unidade d
  const loot=m.r.itens[0];loot.slotEquipamento='mao_forte';loot.duasMaos=false;
  await m.run('confirmarSaque',{saqueId,itens:[{itemId:loot.id,quantidade:1}],equiparItemId:loot.id,equiparSlot:'mao_fraca'},player);
  assert.equal(m.r.itens[0].quantidade,1);assert.equal(m.a.ficha.inventario.itens.filter(i=>i.equipado&&i.equipadoSlot==='mao_fraca').length,1);
+ assert.equal(m.a.saqueAberto.id,saqueId,'Equipar de um recipiente mantém a janela aberta');
 });
 
 test('rodapé não duplica mão fraca: alterna ataque normal e adicional conforme o histórico',async()=>{
@@ -121,4 +122,16 @@ test('azagaia na mão fraca gera só ataque normal e arremesso, sem extra de arm
  i.tipoArma='azagaia';i.propriedades=['arremessavel'];delete i.modelosAcoes;
  const lista=ordenarOpcoesRodape(m.a).filter(o=>o.origemItem===i.id);
  assert.equal(lista.length,2);assert.ok(lista.every(o=>!o.requisitosUso?.aposAtaque));assert.ok(lista.every(o=>o.custo.some(c=>c.tipo==='acao')));
+});
+
+test('pegar e equipar fecha loot único do chão e mantém baú mesmo após retirar seu último item',async()=>{
+ for(const chao of [true,false]){
+  const m=await mesa(),item=m.a.ficha.inventario.itens.find(i=>i.equipadoSlot==='mao_forte');assert.ok(item);
+  await m.run('soltarItem',{itemId:item.id,quantidade:1},player);const loot=m.s.recipientes.find(r=>r.tipo==='chao');
+  const origem=chao?loot:m.r;if(!chao){origem.itens.push(...loot.itens);m.s.recipientes=m.s.recipientes.filter(r=>r.id!==loot.id);}
+  await m.run('abrirSaqueRecipiente',{recipienteId:origem.id},player);const saqueId=m.a.saqueAberto.id;
+  await m.run('confirmarSaque',{saqueId,itens:[{itemId:origem.itens[0].id,quantidade:1}],equiparItemId:origem.itens[0].id,equiparSlot:'mao_forte'},player);
+  if(chao){assert.equal(m.a.saqueAberto,undefined);assert.ok(!m.s.recipientes.some(r=>r.id===origem.id));}
+  else{assert.equal(m.a.saqueAberto.id,saqueId);assert.equal(m.r.itens.length,0);}
+ }
 });

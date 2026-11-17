@@ -1823,7 +1823,8 @@ export async function aplicar(s,c,u,rolar) {
         if(quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==item);else item.quantidade-=quantidade;
         adicionarItemRecipiente(recipiente,copia);
       }
-      if(!(c.depositarSomente&&copias.length===0&&devolver.length&&recipiente?.permiteDeposito))delete a.saqueAberto;
+      const manterAoEquipar=Boolean(equipamentoDireto)&&(origemTipo!=='chao'||recipiente.itens.length>0);
+      if(!manterAoEquipar&&!(c.depositarSomente&&copias.length===0&&devolver.length&&recipiente?.permiteDeposito))delete a.saqueAberto;
       if(recipiente){recipiente.revisao++;if(recipiente.removerAoEsvaziar&&!recipiente.itens.length)s.recipientes=s.recipientes.filter(x=>x!==recipiente);}
       msg=a.nome+' saqueou '+(alvo?.nome??recipiente.nome)+' • '+copias.map(i=>i.quantidade+'× '+i.nome).join(', ')+(equipamentoDireto?' • equipou '+copias.find(i=>i.equipado)?.nome:'');break;
     }

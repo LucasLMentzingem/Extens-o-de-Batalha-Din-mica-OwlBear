@@ -65,7 +65,7 @@ root.addEventListener('click',async e=>{
  if(b.dataset.item){const id=b.dataset.item,source=b.dataset.fonte,list=source==='proprio'?itensProprios():itensOrigem(),item=list.find(i=>i.id===id),map=source==='proprio'?depositos:quantidades;if(!item||source==='proprio'&&item.equipado)return;if(map.has(id)){map.delete(id);if(equiparItemId===id)equiparItemId=null;}else map.set(id,item.quantidade);render();return;}
  if(!['confirmarSaque','cancelarSaque'].includes(b.id))return;
  ocupado=true;atualizarResumo();
- try{await api.enviar({tipo:b.id,ator:atorId,rev:s.rev,saqueId:sessaoId,itens:[...quantidades].map(([itemId,quantidade])=>({itemId,quantidade})),depositos:[...depositos].map(([itemId,quantidade])=>({itemId,quantidade})),equiparItemId,equiparSlot,confirmado:info.role==='GM'});}
+ try{await api.enviar({tipo:b.id,ator:atorId,rev:s.rev,saqueId:sessaoId,itens:[...quantidades].map(([itemId,quantidade])=>({itemId,quantidade})),depositos:[...depositos].map(([itemId,quantidade])=>({itemId,quantidade})),equiparItemId,equiparSlot,confirmado:info.role==='GM'});quantidades.clear();depositos.clear();equiparItemId=null;equiparSlot=null;aviso.textContent='';if(ator()?.saqueAberto)render();}
  catch(err){aviso.textContent=err.message;}
  finally{ocupado=false;if(ator()?.saqueAberto)atualizarResumo();}
 });
