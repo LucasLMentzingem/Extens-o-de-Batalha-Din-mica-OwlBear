@@ -42,3 +42,11 @@ Validação dos 11 JSONs com o motor real e referências centrais; suíte existe
 325 testes aprovados. Sete verificações adicionais cobrem recuperação dos NPCs, cura em turnos com custo e círculo exatos, troca/expiração de concentração, consumo das opções assistidas, Chama Sagrada (CD 15, sucesso/falha), Centelha sem Discípulo e estabilização sem ressurreição.
 
 Corrigidos: padre e necromante habilitados explicitamente para descanso de NPC (`descansoNpc`); o comando de descanso recupera seus recursos e o painel os inclui. NPCs comuns continuam fora. Detectar Magia e Proteção contra o Bem e o Mal agora registram concentração e encerram a anterior. A marca `resolucaoAssistida` impede que a migração por nome transforme Acalmar Emoções em uma automação antiga de CD 13. Efeitos dessas magias continuam assistidos conforme descrito.
+
+## Troca de token — 0.8.54
+
+A reanimação usa `Tokens/Drow-e-goblins/Goblin-Zumbi.png` para o goblin marcado e `Tokens/Zumbis-do-cemiterio/Zumbi-Padrao-Nv3.png` para os outros humanoides. Foram portados os PNGs existentes, sem gerar ou alterar tokens. Os dois usam uma célula de 1,5 m. A ficha mecânica continua sendo a camada escolhida; o nome do arquivo de arte Nv3 não muda os PV da camada padrão.
+
+A troca conserva a peça e vínculos. A imagem, DPI, offset e escala anteriores ficam no backup da camada e nos metadados do token; remover a camada restaura esses campos e preserva a posição atual. Segunda morte mantém a imagem de morto-vivo. Camadas salvas na 0.8.53 também recebem a arte ao sincronizar. Erros do SDK são repetidos sem reanimar novamente nem consumir outro espaço.
+
+340 testes aprovados na 0.8.54, com SDK simulado e 154 execuções de ataque cruzadas entre os sete aventureiros e as 11 fichas novas. Validação em sala real permanece pendente.

@@ -1,13 +1,14 @@
-import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.53';
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.53';
+import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.54';
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.54';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.54';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.53';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.53';
-import {compactarEstado} from './catalog.mjs?v=0.8.53';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.53';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.53';
-import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast} from './room-sync.mjs?v=0.8.53';
-import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.53';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.54';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.54';
+import {compactarEstado} from './catalog.mjs?v=0.8.54';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.54';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.54';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast} from './room-sync.mjs?v=0.8.54';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.54';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -220,6 +221,7 @@ async function getTokens(){
 }
 const prefixoRecipiente='laarte-recipiente-';
 const sincronizarTokensRecipientes=criarSincronizadorRecipientes({items:OBR.scene.items,buildImage,buildCurve,baseUrl:location.href});
+const sincronizarTokensReanimados=criarSincronizadorTokensReanimados({items:OBR.scene.items,baseUrl:location.href});
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
   const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada,timerProps,pausaPropsAte=0,ultimoAvisoProps=0;const pedidos=new Map();
@@ -292,6 +294,9 @@ export async function host(){
         }
       });
     }
+    const visualAntes=JSON.stringify(s.atores.map(a=>[a.sobreposicaoFicha?.tokenOriginal,a.restauracaoTokenPendente]));
+    if(Date.now()>=pausaPropsAte)await sincronizarTokensReanimados(s);
+    if(visualAntes!==JSON.stringify(s.atores.map(a=>[a.sobreposicaoFicha?.tokenOriginal,a.restauracaoTokenPendente])))persistir(key,s);
     return s;
   }
   async function limparVinculoToken(token){
@@ -394,7 +399,7 @@ export async function host(){
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*pixelsMetro,y:a.y*pixelsMetro};}});
       let erroProps;
-      try{if(Date.now()>=pausaPropsAte){await sincronizarTokensInvocacao(next,pixelsMetro);await sincronizarTokensRecipientes(next,pixelsMetro);}}
+      try{if(Date.now()>=pausaPropsAte){await sincronizarTokensInvocacao(next,pixelsMetro);await sincronizarTokensRecipientes(next,pixelsMetro);await sincronizarTokensReanimados(next);}}
       catch(e){erroProps=e;}
       persistir(key,next);
       // Uma falha visual do SDK não pode desfazer um ataque já resolvido nem devolver a arma à mão.
@@ -405,7 +410,7 @@ export async function host(){
         if(Date.now()-ultimoAvisoProps>60000){ultimoAvisoProps=Date.now();OBR.notification.show('Itens salvos. Sincronizando peças do mapa em segundo plano.','WARNING').catch(()=>{});}
         let tentativas=0;
         const reparar=()=>{timerProps=setTimeout(()=>serial(async()=>{
-          try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);persistir(key,s);await mostrar(s);timerProps=null;pausaPropsAte=0;}
+          try{const {key,s}=await carregar();const dpi=await OBR.scene.grid.getDpi(),px=pixelsPorMetro(dpi);await sincronizarTokensInvocacao(s,px);await sincronizarTokensRecipientes(s,px);await sincronizarTokensReanimados(s);persistir(key,s);await mostrar(s);timerProps=null;pausaPropsAte=0;}
           catch(e){console.error('Peças ainda pendentes:',e);if(++tentativas<5){pausaPropsAte=Date.now()+Math.min(60000,espera*2**tentativas);reparar();}else{timerProps=null;pausaPropsAte=Date.now()+60000;}}
         }),Math.max(0,pausaPropsAte-Date.now()));};reparar();
       }
@@ -511,10 +516,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.53',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.54',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.53',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.54',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }

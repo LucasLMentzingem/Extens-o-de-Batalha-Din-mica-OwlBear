@@ -1,4 +1,4 @@
-import {modelosReanimacao} from './modelos/reanimacao.mjs?v=0.8.53';
+import {modelosReanimacao} from './modelos/reanimacao.mjs?v=0.8.54';
 
 const normalizar=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export function modeloReanimacao(ator){
@@ -38,6 +38,7 @@ export function sobreporMortoVivo(s,alvo,conjurador,{validar,compactarFicha,ence
 
 export function removerSobreposicao(alvo,validar){
   const camada=alvo.sobreposicaoFicha;if(!camada)throw Error('Esta ficha não possui sobreposição.');
+  if(camada.tokenOriginal)alvo.restauracaoTokenPendente=structuredClone(camada.tokenOriginal);
   const ficha=validar(camada.fichaOriginal);
   ficha.inventario.itens=alvo.ficha.inventario.itens;
   alvo.ficha=ficha;alvo.nome=camada.nomeOriginal;

@@ -1,8 +1,8 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.53';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.53';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.53';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.54';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.54';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.54';
 
-import {sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.53';
+import {sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.54';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -3006,7 +3006,7 @@ export function publico(s){
     a.saqueAberto.nome=a.saqueAberto.origem?.tipo==='personagem'?s.atores.find(x=>x.id===a.saqueAberto.origem.id)?.nome:a.saqueAberto.nome;
   }
   delete v.filaReacoes;delete v.resolucaoPendente;
-  for(const a of v.atores)delete a.sobreposicaoFicha;
+  for(const a of v.atores){delete a.sobreposicaoFicha;delete a.restauracaoTokenPendente;}
   for(const a of v.atores)if(a.ficha.tipo==='npc'){
     delete a.bencao;
     a.ficha={tipo:'npc',nome:a.nome,opcoes:[]};delete a.pv;delete a.rec;

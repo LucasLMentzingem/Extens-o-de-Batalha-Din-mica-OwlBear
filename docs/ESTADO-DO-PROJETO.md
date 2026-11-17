@@ -1,6 +1,12 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.53**, linha travada em 0.8.x até 0.8.99.
+Revisão de 17 de novembro de 2026, versão **0.8.54**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.54
+
+- Reanimação troca automaticamente a imagem do token pelos PNGs fornecidos de Zumbi e Zumbigoblin, ambos com uma célula de 1,5 m.
+- Imagem, escala e alinhamento originais resguardados; remoção da camada restaura o visual, preservando posição e vínculos. Recuperação por metadata após recarga/falha do SDK.
+- 340 testes aprovados, incluindo 154 ataques cruzados entre 11 fichas novas e sete aventureiros, além de cura/Bênção e sincronização de tokens. SDK simulado; sala real ainda não validada.
 
 ## Entrega — 0.8.53
 
