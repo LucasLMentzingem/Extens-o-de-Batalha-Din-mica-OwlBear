@@ -24,13 +24,13 @@ export class AtividadesMesa{
   else if(this.selecionada===id&&!this.manualHistorico)this.selecionada=null;
   this.aparar();
  }
- alternar(){this.modo=this.modo==='barra'?'painel':'barra';if(this.propria)this.pausada=this.modo==='barra';}
+ alternar(){this.modo=this.modo==='barra'?'painel':'barra';if(this.modo==='barra'&&!this.propria){this.selecionada=null;this.manualHistorico=false;}if(this.propria)this.pausada=this.modo==='barra';}
  selecionar(id,abrir=false){if(!this.lista.has(id))return;this.selecionada=id;this.manualHistorico=!this.lista.get(id).ativa;if(abrir)this.modo='painel';if(this.propria)this.pausada=id!==this.propria||this.modo==='barra';}
  atual(destinatario){
   const obrigatoria=[...this.lista.values()].find(a=>a.rolagens.some(r=>!r.fechada&&r.destino===destinatario));
   if(obrigatoria&&!this.pausada)return obrigatoria;
   if(this.propria&&!this.pausada)return this.lista.get(this.propria);
-  return this.lista.get(this.selecionada)??[...this.lista.values()].find(a=>a.ativa)??[...this.lista.values()].at(-1);
+  return this.lista.get(this.selecionada)??null;
  }
  obrigatoria(id){return !this.pausada&&[...this.lista.values()].some(a=>a.rolagens.some(r=>!r.fechada&&r.destino===id));}
  aparar(){const finalizadas=[...this.lista.values()].filter(a=>!a.ativa);while(finalizadas.length>this.limite){const a=finalizadas.shift();if(this.selecionada===a.id)this.selecionada=null;this.lista.delete(a.id);}}

@@ -1,18 +1,18 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.49';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.50';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.49';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.49';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.49';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.49';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.49';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.49';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.49';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.49';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.49';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.49';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.50';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.50';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.50';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.50';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.50';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.50';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.50';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.50';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.50';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.50';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.49',import.meta.url);
+const url=new URL('./hud.html?v=0.8.50',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -192,7 +192,12 @@ export async function iniciarHud(){
       }
       if(atividades.lista.size){
         const aw=Math.min(680,Math.max(260,w*.36));
-        caixas.atividades=painelAtividades()?[Math.round(Math.max(6,w-aw-10)),h-98,38,42]:[Math.round(Math.max(6,w-aw-10)),h-240,aw,192];
+        if(painelAtividades()){
+          const acao=acaoAtual&&controla(atores().find(a=>a.id===acaoAtual.atorId))?caixas.acao:null;
+          const left=acao?Math.max(6,acao[0]-58):Math.round(Math.max(6,w*.8-24));
+          const top=acao?Math.max(62,acao[1]+acao[3]-52):h-98;
+          caixas.atividades=[left,top,52,52];
+        }else caixas.atividades=[Math.round(Math.max(6,w-aw-10)),h-240,aw,192];
       }
       if(acaoAtual){
         const cw=Math.min(larguraAcao,w-12),ch=alturaAcao,left=acaoLadoALado?leftAcao:Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
@@ -546,7 +551,7 @@ export async function iniciarHud(){
       pedidoDado.rascunho={formula:d.formula,formulas:d.formulas};atividades.dado(pedidoDado);return;
     }
     if(['alternarAtividades','selecionarAtividade'].includes(d.tipo)){
-      if(d.tipo==='alternarAtividades'){const aberta=painelAtividades();atividades.modo=aberta?'barra':'painel';atividades.pausada=aberta;}else atividades.selecionar(d.id,d.abrir===true);
+      if(d.tipo==='alternarAtividades')atividades.alternar();else atividades.selecionar(d.id,d.abrir===true);
       localStorage.setItem(ns+'/atividades-modo',atividades.modo);await layout();transmitir();return;
     }
     if(d.pedir){transmitir();return;}

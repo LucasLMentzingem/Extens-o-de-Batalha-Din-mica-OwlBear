@@ -1,6 +1,10 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.49**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+Revisão de 17 de novembro de 2026, versão local **0.8.50**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+
+## Ajuste local em andamento — 0.8.50
+
+A Barra de Atividades agora volta a deixar a tela sem instância quando o usuário recolhe ou cancela uma seleção antiga. O controle de recolher/abrir é uma seta grande para a esquerda: fica à esquerda da instância em foco; sem instância, recolhida, desloca-se para perto de 80% da largura da tela. A seta pulsa quando há atividades de outros participantes. Esta alteração ainda não foi publicada.
 
 ## Entrega atual
 

@@ -1,9 +1,9 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.49';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.49';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.49';
-import {pronto} from './bridge.mjs?v=0.8.49';
-import {canalHud} from './hud-controller.mjs?v=0.8.49';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.49';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.50';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.50';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.50';
+import {pronto} from './bridge.mjs?v=0.8.50';
+import {canalHud} from './hud-controller.mjs?v=0.8.50';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.50';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -127,7 +127,7 @@ function render(){
   let html='';
   if(parte==='atividades'){
     const feed=v.atividades??{lista:[]},emAndamento=feed.lista.some(x=>x.ativa&&x.id!==feed.propria);
-    const alternar=btn('alternarAtividades',feed.modo==='barra'?'▲':'▦','class="alternar-atividades '+(emAndamento?'pulsando':'')+'" aria-label="'+(feed.modo==='barra'?'Expandir atividade selecionada':'Mostrar barra de atividades')+'"');
+    const alternar=btn('alternarAtividades','◀','class="alternar-atividades '+(emAndamento?'pulsando':'')+'" aria-label="'+(feed.modo==='barra'?'Expandir atividades da mesa':'Recolher barra de atividades')+'"');
     html=feed.modo==='painel'?alternar:'<section class="historico-atividades"><header>'+alternar+'<small>Atividades da mesa</small></header><div class="trilho-atividades">'+feed.lista.slice().sort((a,b)=>(a.id===feed.propria?-1:b.id===feed.propria?1:b.ordem-a.ordem)).map(at=>{
       const ator=s.atores.find(x=>x.id===at.atorId),f=ator?.ficha??{},o=at.acao?.opcaoPublica??{id:at.id,nome:at.titulo,categoria:'acao'},resultados=at.rolagens.filter(r=>r.resultado),danos=resultados.filter(r=>['dano','dano-lote'].includes(r.meta?.tipo));
       const soma=at.aplicacao?.total??danos.reduce((n,r)=>n+(r.resultado.relatoriosDano?.length?r.resultado.relatoriosDano.reduce((m,x)=>m+x.pvPerdido,0):r.resultado.total??0),0),testes=resultados.filter(r=>!['dano','dano-lote'].includes(r.meta?.tipo));
