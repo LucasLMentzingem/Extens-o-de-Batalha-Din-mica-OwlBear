@@ -6,6 +6,8 @@ Em 15/11/2026, o responsável solicitou explicitamente a republicação `0.8.191
 
 A publicação gera também `manifest-recuperacao.json`, com o mesmo conteúdo do manifesto principal. Esse endereço alternativo permite tentar uma nova instalação quando o endereço original retorna uma versão em cache.
 
+A partir da 0.8.44, o deploy gera também um endereço novo por versão, como `manifest-0.8.44.json`, contendo o mesmo manifesto. Esse endereço é uma alternativa de instalação da versão publicada; o manifesto usual continua sendo `manifest.json`.
+
 A `0.8.192` dá sequência à instalação de recuperação `0.8.191` e corrige a falha monetária reproduzida com o backup da mesa.
 
 Após confirmar a recuperação, o responsável solicitou retorno à contagem normal em `0.8.20`, com a mesma correção da `0.8.192`. As próximas publicações seguem `0.8.21` até `0.8.99`, conforme a política original.

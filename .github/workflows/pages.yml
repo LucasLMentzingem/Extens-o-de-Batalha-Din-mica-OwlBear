@@ -39,6 +39,7 @@ jobs:
           fs.writeFileSync(p,JSON.stringify(m,null,2));
           fs.writeFileSync('site/manifest-recuperacao.json',JSON.stringify(m,null,2));
           fs.writeFileSync('site/manifest-correcao-moedas.json',JSON.stringify(m,null,2));
+          fs.writeFileSync('site/manifest-'+m.version+'.json',JSON.stringify(m,null,2));
           JS
       - uses: actions/upload-pages-artifact@v3
         with:
