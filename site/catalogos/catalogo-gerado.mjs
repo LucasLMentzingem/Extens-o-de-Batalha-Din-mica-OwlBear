@@ -5292,7 +5292,7 @@ export default {
       "definicao": {
         "nome": "Soco +5 | ação ou ação bônus",
         "categoria": "acao",
-        "descricao": "1,5 m · contundente. Artes Marciais concede um soco como ação bônus. Valentão de Taverna permite rerrolar 1 no dano e, na ação Atacar, empurrar 1,5 m uma vez por turno.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+        "descricao": "Golpe Desarmado das Artes Marciais com ação bônus. Escolha este recurso no compositor do Golpe Desarmado.",
         "custo": [
           {
             "tipo": "bonus",
@@ -5308,16 +5308,17 @@ export default {
         },
         "requisitosUso": {
           "aposAtaque": true
-        }
+        },
+        "somenteComposicao": true
       }
     },
     {
       "id": "habilidade.soco-golpe-desarmado-5-acao",
       "revisao": 1,
       "definicao": {
-        "nome": "Soco (Golpe Desarmado) +5 | ação",
+        "nome": "Golpe Desarmado +5 | ação ou ação bônus",
         "categoria": "acao",
-        "descricao": "Golpe Desarmado com a ação Atacar, usando as Artes Marciais (dado de Artes Marciais e DES).",
+        "descricao": "Golpe Desarmado com Artes Marciais. Escolha ação bônus ou ação no compositor. Pode enfileirar os dois golpes, um de cada recurso, no mesmo alvo ou em dois alvos.",
         "custo": [
           {
             "tipo": "acao",
@@ -5330,6 +5331,69 @@ export default {
           "dano": "1d6+3",
           "elemento": "contundente",
           "alcanceM": 1.5
+        },
+        "composicao": {
+          "golpeDesarmado": true,
+          "custosPorModo": true,
+          "quantidadeMinima": 1,
+          "quantidadeMaxima": 2,
+          "modoPadrao": "soco-bonus",
+          "modos": [
+            {
+              "id": "soco-bonus",
+              "visual": {
+                "arteId": "comum.soco",
+                "textoCurto": "Soco · Ação bônus"
+              },
+              "nome": "Soco com ação bônus",
+              "descricao": "Um Golpe Desarmado por 1 ação bônus. Recurso preferido quando disponível.",
+              "tipo": "ataque",
+              "limitePorUso": 1,
+              "custo": [
+                {
+                  "tipo": "bonus",
+                  "quantidade": 1
+                }
+              ],
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d6+3",
+                "elemento": "contundente",
+                "alcanceM": 1.5,
+                "tags": [
+                  "desarmado"
+                ]
+              }
+            },
+            {
+              "id": "soco-acao",
+              "visual": {
+                "arteId": "comum.soco",
+                "textoCurto": "Soco · Ação"
+              },
+              "nome": "Soco com ação",
+              "descricao": "Um Golpe Desarmado por 1 ação. Pode ser usado sozinho ou como soco extra.",
+              "tipo": "ataque",
+              "limitePorUso": 1,
+              "custo": [
+                {
+                  "tipo": "acao",
+                  "quantidade": 1
+                }
+              ],
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d6+3",
+                "elemento": "contundente",
+                "alcanceM": 1.5,
+                "tags": [
+                  "desarmado"
+                ]
+              }
+            }
+          ]
         }
       }
     },
@@ -5376,7 +5440,7 @@ export default {
       "definicao": {
         "nome": "Torrente de Golpes +5 | ação bônus · 1 Foco",
         "categoria": "acao",
-        "descricao": "Dois socos separados. Use estes botões uma vez para cada soco. Pode trocar um deles por Mão de Cura.\nNormal [1d20+5]\nDano [1d6+3] · Crítico [2d6+3]",
+        "descricao": "Dois golpes separados por 1 ação bônus e 1 Foco. Pode substituir um dos dois por Mão de Cura. Opcionalmente, adicione um terceiro soco gastando 1 ação. Mão de Dolo é oferecida apenas após acertar.",
         "custo": [
           {
             "tipo": "bonus",
@@ -5428,14 +5492,47 @@ export default {
         },
         "composicao": {
           "quantidadeMinima": 2,
-          "quantidadeMaxima": 2,
+          "quantidadeMaxima": 3,
           "modoPadrao": "soco-normal",
           "modos": [
             {
               "id": "soco-normal",
+              "visual": {
+                "arteId": "comum.soco"
+              },
               "nome": "Soco normal",
-              "descricao": "Ataque desarmado da Torrente de Golpes.",
+              "descricao": "Ataque desarmado da Torrente de Golpes; incluído no custo da habilidade.",
               "tipo": "ataque",
+              "limitePorUso": 2,
+              "ateOrdem": 2,
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d6+3",
+                "alcanceM": 1.5,
+                "elemento": "contundente",
+                "tags": [
+                  "desarmado"
+                ]
+              }
+            },
+            {
+              "id": "soco-extra-acao",
+              "visual": {
+                "arteId": "comum.soco",
+                "textoCurto": "Soco extra · +1 ação"
+              },
+              "nome": "Soco extra · +1 ação",
+              "descricao": "Depois dos dois golpes da Torrente, acrescente um Golpe Desarmado gastando 1 ação adicional.",
+              "tipo": "ataque",
+              "ordem": 3,
+              "limitePorUso": 1,
+              "custo": [
+                {
+                  "tipo": "acao",
+                  "quantidade": 1
+                }
+              ],
               "automacao": {
                 "tipo": "ataque",
                 "bonus": 5,
@@ -5453,6 +5550,7 @@ export default {
               "descricao": "Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional.",
               "tipo": "cura",
               "limitePorUso": 1,
+              "ateOrdem": 2,
               "automacao": {
                 "tipo": "cura",
                 "formula": "1d6+1",

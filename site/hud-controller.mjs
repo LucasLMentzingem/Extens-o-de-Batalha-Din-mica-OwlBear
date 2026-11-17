@@ -108,8 +108,8 @@ export async function iniciarHud(){
     const r=a?.rolagens.filter(r=>!r.fechada).at(-1)??a?.rolagens.filter(r=>r.resultado).at(-1);
     pedidoDado=painelAtividades()&&r?{...r,podeEditar:r.fechada?false:r.podeEditar,tipo:r.fechada?'resultado':r.tipo}:null;
   }
-  function custosPrevia(a,o,modo='automatico'){
-    const plano=planoCustoOpcao(a,o,modo);if(!plano)return [];
+  function custosPrevia(a,o,modo='automatico',entradas){
+    const plano=planoCustoOpcao(a,o,modo,entradas);if(!plano)return [];
     return plano.custos.map(c=>{const recurso=c.tipo==='recurso'?a?.ficha?.recursos?.find(r=>r.id===c.id):null,key=c.tipo==='recurso'?c.id:c.tipo;
       return {tipo:c.tipo,id:c.id,quantidade:c.quantidade,nome:recurso?.nome??({acao:'Ação',bonus:'Ação bônus',reacao:'Reação'})[c.tipo]??c.id,saldo:c.tipo==='recurso'?a?.rec?.[key]:a?.[key],maximo:recurso?.maximo??1};});
   }
@@ -120,7 +120,7 @@ export async function iniciarHud(){
       opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?{...structuredClone(o),visual:visualHabilidade(o,a?.ficha??p.fichaPublica??{})}:null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
       alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
-      custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
+      saldosComposicao:{acao:a?.acao??0,bonus:a?.bonus??0,reacao:a?.reacao??0,...(a?.rec??{})},foraCombate:estado?.fase==='preparo'||a?.emCombate===false,custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
   }
   function transmitir(){
     const p=acaoVisivel();
@@ -342,7 +342,7 @@ export async function iniciarHud(){
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(circulos.length>1||duplicadaDisponivel||ilusaoDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{}),...(ilusaoDisponivel?{ilusaoDisponivel:true,ilusaoCausaDano}:{})};
-    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,categoria:o.categoria,origem:o.origem,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
+    if(o?.composicao)pendente.composicao={gavetaAberta:true,custosPorModo:o.composicao.custosPorModo,modoPadrao:o.composicao.modoPadrao,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,categoria:o.categoria,origem:o.origem,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,custo:structuredClone(m.custo??[]),ateOrdem:m.ateOrdem,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
       pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
@@ -359,6 +359,7 @@ export async function iniciarHud(){
   async function atualizarLista(p){
     const ids=p.cmd.alvos;
     if(p.composicao){
+      const o=opcoesDisponiveis(ator()).find(o=>o.id===p.cmd.opcao);p.custos=custosPrevia(ator(),o,p.cmd.modoCusto,p.cmd.composicao);
       p.composicao.instancias=(p.cmd.composicao??[]).map((x,i)=>{const modo=p.composicao.modos.find(m=>m.id===x.modoId),alvo=atores().find(a=>a.id===x.alvoId);return {...x,ordem:i+1,modoNome:modo?.nome??x.modoId,alvoNome:alvo?.nome??'Alvo'};});
       p.pronto=p.composicao.instancias.length>=p.composicao.quantidadeMinima;
       p.detalhe='Componha a habilidade · '+p.composicao.instancias.length+'/'+p.composicao.quantidadeMaxima+(p.composicao.instancias.length?' · '+p.composicao.instancias.map(x=>x.ordem+'. '+x.modoNome+' → '+x.alvoNome).join(' · '):'');
@@ -442,12 +443,16 @@ export async function iniciarHud(){
         const usados=(p.cmd.composicao??[]).filter(x=>x.modoId===modo.id).length;
         if(modo.limitePorUso&&usados>=modo.limitePorUso)throw Error('O limite de '+modo.nome+' foi atingido.');
         const indice=(p.cmd.composicao?.length??0)+1,anterior=p.cmd.composicao?.at(-1);
+        if(modo.ateOrdem&&indice>modo.ateOrdem)throw Error(modo.nome+' só pode substituir um dos golpes iniciais.');
         if(modo.ordem&&modo.ordem!==indice)throw Error(modo.nome+' deve ocupar a etapa '+modo.ordem+'.');
         if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)throw Error(modo.nome+' exige a etapa anterior da composição.');
         if((p.cmd.composicao?.length??0)>=p.composicao.quantidadeMaxima)throw Error('Composição completa. Desfaça uma escolha para trocar o alvo.');
         if(modo.destruidorDeHordas){const hb=elegiveisDestruidorNaComposicao(p);if(!hb)throw Error(modo.nome+' exige um ataque com arma na etapa anterior.');if(!hb.alvos.some(x=>x.id===alvo.id))throw Error(modo.nome+': escolha uma criatura destacada, a até '+medida(hb.raioM)+' do alvo anterior e ainda não atacada.');}
+        const opcao=opcoesDisponiveis(ator()).find(o=>o.id===p.cmd.opcao),plano=planoCustoOpcao(ator(),opcao,p.cmd.modoCusto,[...p.cmd.composicao,{modoId:modo.id,alvoId:alvo.id}]);
+        const fora=estado.fase==='preparo'||ator().emCombate===false;
+        if(plano?.custos.some(c=>c.tipo==='recurso'?(ator().rec?.[c.id]??0)<c.quantidade:!fora&&(ator()[c.tipo]??0)<c.quantidade))throw Error('Saldo insuficiente para adicionar '+modo.nome+'.');
         p.cmd.alvos.push(alvo.id);p.cmd.composicao.push({modoId:modo.id,alvoId:alvo.id});
-        const proximaOrdem=p.cmd.composicao.length+1,proximo=p.composicao.modos.find(m=>(!m.ordem||m.ordem===proximaOrdem)&&(!m.requerModoAnterior||m.requerModoAnterior===modo.id)&&(!m.limitePorUso||(p.cmd.composicao??[]).filter(x=>x.modoId===m.id).length<m.limitePorUso));
+        const proximaOrdem=p.cmd.composicao.length+1,proximo=p.composicao.modos.find(m=>(!m.ordem||m.ordem===proximaOrdem)&&(!m.ateOrdem||proximaOrdem<=m.ateOrdem)&&(!m.requerModoAnterior||m.requerModoAnterior===modo.id)&&(!m.limitePorUso||(p.cmd.composicao??[]).filter(x=>x.modoId===m.id).length<m.limitePorUso));
         if(proximo)p.composicao.modoAtivo=proximo.id;
         await atualizarLista(p);return;
       }
@@ -617,13 +622,15 @@ export async function iniciarHud(){
       const modo=pendente.composicao.modos.find(m=>m.id===d.id);if(!modo)return;
       const usados=pendente.cmd.composicao.filter(x=>x.modoId===modo.id).length;if(modo.limitePorUso&&usados>=modo.limitePorUso)return;
       const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1);
+      if(modo.ateOrdem&&indice>modo.ateOrdem)return;
       if(modo.ordem&&modo.ordem!==indice)return;
       if(modo.requerModoAnterior&&anterior?.modoId!==modo.requerModoAnterior)return;
       pendente.composicao.modoAtivo=modo.id;
+      if(!pendente.cmd.composicao.length){const o=opcoesDisponiveis(ator()).find(o=>o.id===pendente.cmd.opcao);pendente.custos=custosPrevia(ator(),o,pendente.cmd.modoCusto,[{modoId:modo.id}]);}
       if(modo.destruidorDeHordas||pendente.marcasBase){const items=[circulo(pendente.origem,pendente.raio*pixelsMetro,'#e5c079'),...marcasComposicao(pendente)];pendente.marcasBase=items;await desenhar(items);}
     }
     else if(d.tipo==='desfazer'&&pendente?.escolha==='lista'){
-      pendente.cmd.alvos.pop();if(pendente.composicao){pendente.cmd.composicao.pop();const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1),proximo=pendente.composicao.modos.find(m=>(!m.ordem||m.ordem===indice)&&(!m.requerModoAnterior||m.requerModoAnterior===anterior?.modoId));if(proximo)pendente.composicao.modoAtivo=proximo.id;}await atualizarLista(pendente);
+      pendente.cmd.alvos.pop();if(pendente.composicao){pendente.cmd.composicao.pop();const indice=pendente.cmd.composicao.length+1,anterior=pendente.cmd.composicao.at(-1),proximo=pendente.composicao.modos.find(m=>(!m.ordem||m.ordem===indice)&&(!m.ateOrdem||indice<=m.ateOrdem)&&(!m.requerModoAnterior||m.requerModoAnterior===anterior?.modoId));if(proximo)pendente.composicao.modoAtivo=proximo.id;}await atualizarLista(pendente);
     }
     else if(d.tipo==='concluir'&&pendente?.escolha==='lista'){
       if(pendente.cmd.alvos.length<(pendente.composicao?.quantidadeMinima??pendente.regraLista?.min??1))return;

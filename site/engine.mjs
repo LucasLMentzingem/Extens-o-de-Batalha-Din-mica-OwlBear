@@ -274,21 +274,12 @@ function corrigirMagiasRevisao(f){
     if(/^torrente de golpes/.test(completo)){
       const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento),cura=f.opcoes.find(x=>textoNormal(x.nome)==='mao de cura'&&x.automacao?.tipo==='cura');
       const soco=structuredClone(o.automacao?.ataques?.[0]??o.automacao);
-      if(soco){delete soco.ataques;o.composicao={quantidadeMinima:2,quantidadeMaxima:2,modoPadrao:'soco-normal',modos:[
-        {id:'soco-normal',nome:'Soco normal',descricao:'Ataque desarmado da Torrente de Golpes.',tipo:'ataque',automacao:soco},
-        // #59 Mão de Dolo preparada na Gaveta: preferência aplicada só se o golpe acertar; cobra 1 Foco no ajuste de dano.
-        ...(dolo?[{id:'soco-mao-de-dolo',nome:'Soco + Mão de Dolo',descricao:'Golpe da Torrente com Mão de Dolo já marcada. Só se aplica se o golpe acertar e Mão de Dolo ainda estiver disponível no turno; então gasta 1 Foco.',tipo:'ataque',limitePorUso:1,preparar:[dolo.id],automacao:structuredClone(soco)}]:[]),
-        ...(cura?[{id:'mao-de-cura',nome:'Mão de Cura',descricao:'Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional.',tipo:'cura',limitePorUso:1,automacao:structuredClone(cura.automacao)}]:[])
+      if(soco){delete soco.ataques;o.composicao={quantidadeMinima:2,quantidadeMaxima:3,modoPadrao:'soco-normal',modos:[
+        {id:'soco-normal',visual:{arteId:'comum.soco'},nome:'Soco normal',descricao:'Ataque desarmado da Torrente de Golpes; incluído no custo da habilidade.',tipo:'ataque',limitePorUso:2,ateOrdem:2,automacao:soco},
+        {id:'soco-extra-acao',visual:{arteId:'comum.soco',textoCurto:'Soco extra · +1 ação'},nome:'Soco extra · +1 ação',descricao:'Depois dos dois golpes da Torrente, acrescente um Golpe Desarmado gastando 1 ação adicional.',tipo:'ataque',ordem:3,limitePorUso:1,custo:[{tipo:'acao',quantidade:1}],automacao:structuredClone(soco)},
+        ...(cura?[{id:'mao-de-cura',nome:'Mão de Cura',descricao:'Substitui um dos golpes e cura 1d6+1 PV sem gastar Foco adicional.',tipo:'cura',limitePorUso:1,ateOrdem:2,automacao:structuredClone(cura.automacao)}]:[])
       ]};}
       if(dolo&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente'))f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
-    }
-    // #59 Gaveta do Golpe Desarmado avulso: mesma pré-seleção de Mão de Dolo da Torrente (1 golpe por uso).
-    if(/^soco\b|golpe desarmado/.test(completo)&&!/^torrente/.test(completo)&&o.automacao?.tipo==='ataque'&&!o.automacao.ataques&&(!o.composicao||o.composicao.golpeDesarmado)){
-      const dolo=f.opcoes.find(x=>textoNormal(x.nome)==='mao de dolo'&&x.aprimoramento);
-      if(dolo){const golpe=structuredClone(o.automacao);delete golpe.ataques;golpe.tags=[...new Set([...(golpe.tags??[]),'desarmado'])];
-        o.composicao={golpeDesarmado:true,quantidadeMinima:1,quantidadeMaxima:1,modoPadrao:'golpe-normal',modos:[
-          {id:'golpe-normal',nome:'Golpe normal',descricao:'Golpe desarmado sem adicionais preparados.',tipo:'ataque',limitePorUso:1,automacao:golpe},
-          {id:'golpe-mao-de-dolo',nome:'Golpe + Mão de Dolo',descricao:'Mão de Dolo já marcada: só se aplica se o golpe acertar e ainda estiver disponível no turno; então gasta 1 Foco.',tipo:'ataque',limitePorUso:1,preparar:[dolo.id],automacao:structuredClone(golpe)}]};}
     }
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano'){o.automacao.elementos=['contundente','cortante','perfurante'];const m=/CD (\d+)[^\[]*\[([^\]]+)\]/.exec(o.descricao??'');o.automacao.redirecionar??={recurso:'pontos-de-foco',cd:Number(m?.[1])||11,dano:m?.[2]??'2d6+3'};}
     if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
@@ -335,16 +326,22 @@ function corrigirCdAtaqueDesarmado(f){
     if(typeof o.descricao==='string')o.descricao=o.descricao.replace(/CD \d+/,'CD '+cd);
   }
 }
-// #20/#34 Artes Marciais: o soco de Ação Bônus exige ter atacado no turno, e o Monge
-// também precisa do Golpe Desarmado com a Ação (ação Atacar), que não existia.
+// Decisão da mesa: um único Golpe Desarmado com modos de ação e ação bônus.
+// O compositor pode enfileirar um de cada recurso; bônus é a escolha inicial preferida.
 function corrigirArtesMarciais(f){
   if(!(f.classes??[]).some(c=>c.id==='monge')||!Array.isArray(f.opcoes))return;
   const soco=f.opcoes.find(o=>/^soco\b/i.test(o.nome??'')&&o.automacao?.tipo==='ataque'&&o.custo?.some(c=>c.tipo==='bonus'));
   if(!soco)return;
-  soco.requisitosUso={...(soco.requisitosUso??{}),aposAtaque:true};
-  if(!f.opcoes.some(o=>o.id===soco.id+'-acao'))f.opcoes.push({...structuredClone(soco),id:soco.id+'-acao',
-    nome:soco.nome.replace(/\|.*$/,'| ação').replace(/^Soco/,'Soco (Golpe Desarmado)'),custo:[{tipo:'acao',quantidade:1}],requisitosUso:undefined,
-    descricao:'Golpe Desarmado com a ação Atacar, usando as Artes Marciais (dado de Artes Marciais e DES).'});
+  soco.somenteComposicao=true;
+  let golpe=f.opcoes.find(o=>o.id===soco.id+'-acao');
+  if(!golpe){golpe={...structuredClone(soco),id:soco.id+'-acao'};f.opcoes.push(golpe);}
+  delete golpe.somenteComposicao;delete golpe.requisitosUso;
+  golpe.nome='Golpe Desarmado '+(soco.automacao.bonus>=0?'+':'')+soco.automacao.bonus+' | ação ou ação bônus';
+  golpe.custo=[{tipo:'acao',quantidade:1}];golpe.descricao='Golpe Desarmado com Artes Marciais. Escolha ação bônus ou ação no compositor. Pode enfileirar os dois golpes, um de cada recurso, no mesmo alvo ou em dois alvos.';
+  const ataque=structuredClone(golpe.automacao);delete ataque.ataques;ataque.tags=[...new Set([...(ataque.tags??[]),'desarmado'])];
+  golpe.composicao={golpeDesarmado:true,custosPorModo:true,quantidadeMinima:1,quantidadeMaxima:2,modoPadrao:'soco-bonus',modos:[
+    {id:'soco-bonus',visual:{arteId:'comum.soco',textoCurto:'Soco · Ação bônus'},nome:'Soco com ação bônus',descricao:'Um Golpe Desarmado por 1 ação bônus. Recurso preferido quando disponível.',tipo:'ataque',limitePorUso:1,custo:[{tipo:'bonus',quantidade:1}],automacao:structuredClone(ataque)},
+    {id:'soco-acao',visual:{arteId:'comum.soco',textoCurto:'Soco · Ação'},nome:'Soco com ação',descricao:'Um Golpe Desarmado por 1 ação. Pode ser usado sozinho ou como soco extra.',tipo:'ataque',limitePorUso:1,custo:[{tipo:'acao',quantidade:1}],automacao:structuredClone(ataque)}]};
 }
 // #25 Livro 2024: Dados de Vida são gastos no descanso curto e voltam todos no longo;
 // Recuperar Fôlego volta 1 uso no curto e todos no longo. Também cria a opção de
@@ -528,9 +525,12 @@ export function validar(f) {
     }
     if(o.composicao){
       const c=o.composicao,modos=c.modos??[];
+      exigir(c.custosPorModo===undefined||typeof c.custosPorModo==='boolean','Plano de custo da composição inválido em '+o.id);
       exigir(inteiro(c.quantidadeMinima,1,64)&&inteiro(c.quantidadeMaxima,c.quantidadeMinima,64)&&Array.isArray(modos)&&modos.length>=2&&new Set(modos.map(m=>m.id)).size===modos.length&&modos.some(m=>m.id===c.modoPadrao),'Composição inválida em '+o.id);
       for(const m of modos){
         exigir(idOK(m.id)&&nomeOK(m.nome)&&['ataque','cura'].includes(m.tipo)&&m.automacao?.tipo===m.tipo,'Modo de composição inválido em '+o.id);
+        exigir(m.ateOrdem===undefined||inteiro(m.ateOrdem,1,c.quantidadeMaxima),'Etapa máxima do modo inválida em '+o.id);
+        exigir(m.custo===undefined||Array.isArray(m.custo)&&m.custo.every(v=>['acao','bonus','reacao','recurso'].includes(v.tipo)&&inteiro(v.quantidade,1,999)&&(v.tipo!=='recurso'||f.recursos.some(r=>r.id===v.id))),'Custo do modo inválido em '+o.id);
         exigir(m.limitePorUso===undefined||inteiro(m.limitePorUso,1,c.quantidadeMaxima),'Limite de modo inválido em '+o.id);
         exigir(m.umaVezPorTurno===undefined||idOK(m.umaVezPorTurno),'Limite por turno do modo inválido em '+o.id);
         if(m.tipo==='ataque')exigir(inteiro(m.automacao.bonus,-20,40)&&formulaDanoValida(m.automacao.dano)&&Number.isFinite(m.automacao.alcanceM),'Ataque composto inválido em '+o.id);
@@ -837,6 +837,7 @@ export const acaoSaquear={...definicaoHabilidade('habilidade.saquear'),id:'saque
 export function opcoesCalculadas(a){
   sincronizarConcessoesItens(a);
   const lista=[...(a?.ficha?.opcoes??[]).filter(o=>!o.ataqueLegadoDeItem&&!o.somenteComposicao&&o.id!=='saquear'),structuredClone(acaoSaquear),...ataquesEquipados(a),...opcoesConcedidasPorEfeitos(a),...(a?.invocacao?[{id:'dispensar-invocacao',nome:'Dispensar | sem ação',categoria:'acao',descricao:'Encerra a entidade invocada e remove o token.',custo:[],automacao:{tipo:'dispensar'}}]:[])];
+  for(let i=0;i<lista.length;i++)if(lista[i].composicao?.custosPorModo){lista[i]=structuredClone(lista[i]);lista[i].composicao.modoPadrao=a.bonus>0?'soco-bonus':'soco-acao';}
   anexarDestruidorNaComposicao(a,lista);
   const acerto=bonusEquipamento(a,'ataqueDesarmado'),dano=bonusEquipamento(a,'danoDesarmado');
   if(!acerto&&!dano)return lista;
@@ -1318,8 +1319,12 @@ function custosGratuitos(o){
   return [...(o.custo??[]).filter(c=>c.tipo!=='recurso'),{tipo:'recurso',id:g.recursoId,quantidade:g.quantidade??1}];
 }
 export const usoGratuitoDisponivel=(a,o)=>Boolean(o?.usoGratuito&&(a?.rec?.[o.usoGratuito.recursoId]??0)>=(o.usoGratuito.quantidade??1));
-export function planoCustoOpcao(a,o,modo='automatico'){
-  const normal={custos:structuredClone(o?.custo??[]),gratuito:false,modo:'normal'},gratis=custosGratuitos(o);
+export function planoCustoOpcao(a,o,modo='automatico',entradas){
+  const def=o?.composicao,base=def?.custosPorModo?[]:structuredClone(o?.custo??[]);
+  const selecionadas=entradas?.length?entradas:def?.custosPorModo?[{modoId:(a?.bonus??0)>0?'soco-bonus':'soco-acao'}]:[];
+  for(const entrada of selecionadas){const m=def?.modos.find(m=>m.id===entrada.modoId);for(const c of m?.custo??[]){const igual=base.find(x=>x.tipo===c.tipo&&x.id===c.id);if(igual)igual.quantidade+=c.quantidade;else base.push({...c});}}
+  if(def?.custosPorModo)base.sort((x,y)=>Number(y.tipo==='bonus')-Number(x.tipo==='bonus'));
+  const normal={custos:base,gratuito:false,modo:'normal'},gratis=custosGratuitos(o);
   if(modo==='normal')return o?.somenteUsoGratuito?null:normal;
   if(modo==='gratuito')return gratis?{custos:gratis,gratuito:true,modo:'gratuito'}:null;
   return gratis&&usoGratuitoDisponivel(a,o)?{custos:gratis,gratuito:true,modo:'gratuito'}:o?.somenteUsoGratuito?null:normal;
@@ -1347,6 +1352,7 @@ function validarPlanoAntesDoCusto(s,a,o,rule,c){
       const modo=def.modos.find(m=>m.id===entrada.modoId),alvo=s.atores.find(x=>x.id===entrada.alvoId);
       exigir(modo&&alvo,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
       exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
+      exigir(!modo.ateOrdem||indice+1<=modo.ateOrdem,'Este modo só pode substituir um dos golpes iniciais.');
       exigir(!modo.ordem||modo.ordem===indice+1,'A ordem da composição de '+modo.nome+' é inválida.');
       exigir(!modo.requerModoAnterior||entradas[indice-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
       exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
@@ -2449,7 +2455,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       // #10 O jogador pode declarar uma opção assistida: gasta o custo, registra no histórico e o mestre arbitra o efeito.
       exigir(rule || c.assistido,'Opção assistida. Confirme para declarar e deixar o efeito com o mestre.');
       validarPlanoAntesDoCusto(s,a,o,rule,c);
-      const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
+      const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico',c.composicao??(o.composicao?.custosPorModo?[{modoId:o.composicao.modoPadrao}]:undefined));
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
       if(!o.naoConjura)registrarEspacoNoTurno(s,a,plano.custos); // converter espaço em pontos (Fonte de Magia) não é conjurar
       for(const custo of plano.custos){
@@ -2553,6 +2559,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const entrada=entradas[i],modo=def.modos.find(m=>m.id===entrada.modoId),p=s.atores.find(x=>x.id===entrada.alvoId);
           exigir(modo&&p,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
           exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
+          exigir(!modo.ateOrdem||i+1<=modo.ateOrdem,'Este modo só pode substituir um dos golpes iniciais.');
           exigir(!modo.ordem||modo.ordem===i+1,'A ordem da composição de '+modo.nome+' é inválida.');
           exigir(!modo.requerModoAnterior||entradas[i-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
           exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');

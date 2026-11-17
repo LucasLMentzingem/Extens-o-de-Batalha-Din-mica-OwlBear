@@ -94,7 +94,7 @@ function barraCustos(p,classe=''){
 }
 function cartaoAcao(o,f,p){
   if(!o)return '';
-  const r=o.automacao??{},s=o.selecao;
+  const r=o.automacao??{},s=p.composicao?{min:p.composicao.quantidadeMinima,max:p.composicao.quantidadeMaxima,repetirAlvo:o.selecao?.repetirAlvo??true}:o.selecao;
   const linha=(nome,valor)=>valor?'<div><dt>'+esc(nome)+'</dt><dd>'+esc(valor)+'</dd></div>':'';
   const alcance=r.arremesso?r.alcanceNormalM+'/'+r.alcanceM+' m':r.alcanceM!=null?r.alcanceM+' m':'—';
   const resistencia=r.cd?(r.atributos??[r.atributo]).map(x=>x.toUpperCase()).join(' ou ')+' · CD '+r.cd:r.tipo==='ataque'?'Ataque '+(r.bonus>=0?'+':'')+r.bonus:'—';
@@ -108,7 +108,7 @@ function gavetaComposicao(p){
   const circulos=editor?.circulos?.length?'<section class="circulos-compositor"><strong>Círculo</strong><div>'+editor.circulos.map(n=>btn('alterarCirculo',n+'º','data-valor="'+n+'" aria-pressed="'+(editor.circuloAtivo===n)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Conjurar usando espaço de '+n+'º círculo"')).join('')+'</div></section>':'';
   const duplicada=editor?.duplicadaDisponivel?'<section class="metamagia-compositor"><strong>Metamagia</strong><div>'+btn('alternarMagiaDuplicada','Magia Duplicada <small>+1 círculo efetivo · 1 Feitiçaria</small>','aria-pressed="'+(editor.magiaDuplicada===true)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Aumenta em um o círculo efetivo, mantendo o espaço escolhido, e concede o alvo adicional da magia. Custa 1 Ponto de Feitiçaria."')+'</div></section>':'';
   const ilusao=editor?.ilusaoDisponivel?'<section class="metamagia-compositor"><strong>Ilusão</strong><div>'+btn('alternarIlusaoDano','Ilusão causa dano <small>2d8 psíquico · 1x por turno</small>','aria-pressed="'+(editor.ilusaoCausaDano===true)+'" '+(p.somenteLeitura||p.rolagem?'disabled':'')+' data-info="Marque se a ilusão descrita pode ferir o alvo (o mestre arbitra). Se o alvo falhar, você ganha Força Fantasmagórica · Dano, sem custo, uma vez em cada turno seu."')+'</div></section>':'';
-  const modos=c?c.modos.map(m=>{const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,indice=c.instancias.length+1,anterior=c.instancias.at(-1),foraDaOrdem=Boolean(m.ordem&&m.ordem!==indice||m.requerModoAnterior&&anterior?.modoId!==m.requerModoAnterior),contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao',arteHabilidade(m,p.fichaPublica??{})+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado||foraDaOrdem?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
+  const modos=c?c.modos.map(m=>{const semSaldo=(m.custo??[]).some(custo=>{if(p.foraCombate&&custo.tipo!=='recurso')return false;const chave=custo.tipo==='recurso'?custo.id:custo.tipo,gasto=c.instancias.length||!c.custosPorModo?(p.custos??[]).filter(x=>(x.tipo==='recurso'?x.id:x.tipo)===chave).reduce((n,x)=>n+x.quantidade,0):0;return (p.saldosComposicao?.[chave]??0)-gasto<custo.quantidade;});const esgotado=m.limitePorUso&&usos[m.id]>=m.limitePorUso,indice=c.instancias.length+1,anterior=c.instancias.at(-1),foraDaOrdem=Boolean(m.ordem&&m.ordem!==indice||m.ateOrdem&&indice>m.ateOrdem||m.requerModoAnterior&&anterior?.modoId!==m.requerModoAnterior),contador=m.limitePorUso?'<small>'+usos[m.id]+'/'+m.limitePorUso+'</small>':'';return btn('selecionarModoComposicao',arteHabilidade(m,p.fichaPublica??{})+contador,'data-id="'+esc(m.id)+'" class="modo-composicao '+esc(m.tipo)+'" aria-pressed="'+(c.modoAtivo===m.id)+'" '+(p.somenteLeitura||p.rolagem||esgotado||foraDaOrdem||semSaldo?'disabled ':'')+'data-info="'+esc(m.descricao??m.nome)+'"');}).join(''):'';
   const contador=c?c.instancias.length+'/'+c.quantidadeMaxima:(editor?.circuloAtivo+'º');
   return '<aside class="gaveta-composicao '+(recolhida?'recolhida':'')+'"><button type="button" class="puxador-gaveta" data-cmd="alternarGavetaComposicao" '+(p.somenteLeitura?'disabled':'')+' aria-label="'+(recolhida?'Expandir':'Recolher')+' Compositor de Ações">'+(recolhida?'▶':'◀')+'</button>'+(recolhida?'<small>'+contador+'</small>':'<header><strong>Compositor</strong><small>'+contador+'</small></header>'+circulos+duplicada+ilusao+(modos?'<div class="grade-composicao">'+modos+'</div>':''))+'</aside>';
 }
@@ -235,7 +235,7 @@ function render(){
       const recurso=recursosFicha.find(r=>'recurso:'+r.id===recursoAtivo);
       if(recurso?.fonteId)return o.categoria==='magia'&&Number(o.circuloBase)===circulo&&circulosConjuracao(a,o).length>0;
       if(circulo&&circulosConjuracao(a,o).includes(circulo))return true;
-      return (o.custo??[]).some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
+      return [...(o.custo??[]),...(o.composicao?.modos??[]).flatMap(m=>m.custo??[])].some(c=>recursoAtivo.startsWith('recurso:')?c.tipo==='recurso'&&c.id===recursoAtivo.slice(8):c.tipo===recursoAtivo);
     };
     const disp=ops.filter(o=>usaRecurso(o)&&(gratuitos?Boolean(o.usoGratuito):(recursoAtivo||categoriaHud(a.ficha,o)===filtro)));
     const recuperacao=r=>(r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', ')||'Recuperação especial';

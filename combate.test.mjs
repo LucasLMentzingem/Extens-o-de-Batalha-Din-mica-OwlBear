@@ -1,3 +1,4 @@
+import {normalizarZonas as normalizarZonasCrit} from './site/engine.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -1685,14 +1686,10 @@ test('#65 vantagem e desvantagem são calculadas por instância composta como no
   assert.ok(comando.startsWith(prefixo),condicao+' na sequência');
  }
 });
-test('#34 Loteria tem Golpe Desarmado com a Ação e o soco bônus exige ataque antes',async()=>{
-  let {s,a,b}=await duelo('loteria');
-  const bonus=opcoesDisponiveis(a).find(o=>/^Soco \+/.test(o.nome)),acao=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
-  assert.ok(acao,'existe o soco com a Ação');
-  await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar),/depois de realizar um ataque/);
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:acao.id,alvo:b.id},player,roladorSala().rolar);
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,alvo:b.id},player,roladorSala().rolar);
-  assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,0);
+test('#34 Loteria tem um Golpe Desarmado que prioriza bônus e depois ação',async()=>{
+ let {s,a,b}=await duelo('loteria');const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome));assert.ok(golpe);assert.equal(opcoesDisponiveis(a).some(o=>/^Soco \+/.test(o.nome)),false);
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,alvo:b.id},player,roladorSala().rolar);assert.equal(s.atores[0].bonus,0);assert.equal(s.atores[0].acao,1);
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,alvo:b.id},player,roladorSala().rolar);assert.equal(s.atores[0].acao,0);assert.equal(s.atores[0].bonus,0);
 });
 
 test('#16 #23 #33 durações: Zombaria vale no ataque do alvo, Caído dura até levantar, Ameaçador até o próximo turno',async()=>{
@@ -1971,10 +1968,10 @@ test('as sete fichas concluem o ataque básico do turno com a arma atualmente eq
 test('#21 #34 Mão de Dolo e Mão de Cura na Torrente, Defletir redireciona e Valentão empurra',async()=>{
   let {s,a,b}=await duelo('loteria');
   // A Gaveta compõe exatamente duas instâncias: um soco e uma cura substituta.
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,alvo:b.id},player,roladorSala().rolar);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao')).id,composicao:[{modoId:'soco-acao',alvoId:b.id}]},player,roladorSala().rolar);
   s.atores[0].pv=5;const focoAntes=s.atores[0].rec['pontos-de-foco'],pvAlvo=s.atores[1].pv;
   const torrente=opRev(s.atores[0],'torrente');
-  assert.equal(torrente.composicao.quantidadeMaxima,2);assert.equal(torrente.composicao.modos.find(x=>x.id==='mao-de-cura').limitePorUso,1);
+  assert.equal(torrente.composicao.quantidadeMaxima,3);assert.equal(torrente.composicao.modos.find(x=>x.id==='mao-de-cura').limitePorUso,1);
   assert.ok(!opcoesDisponiveis(s.atores[0]).some(o=>o.id==='mao-de-cura-torrente'),'a cura antiga não pode aparecer como terceira ação');
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:torrente.id,composicao:[{modoId:'soco-normal',alvoId:b.id},{modoId:'mao-de-cura',alvoId:a.id}]},player,roladorSala({dano:4}).rolar);
   assert.equal(s.atores[1].pv,pvAlvo-4,'a cura substitui o segundo soco');assert.equal(s.atores[0].pv,9);assert.equal(s.atores[0].rec['pontos-de-foco'],focoAntes-1);assert.equal(s.atores[0].bonus,0);
@@ -2209,31 +2206,14 @@ test('#57 manobra na composição: uma por instância, custo cobrado só no acer
  assert.equal(s.atores[0].rec['dados-de-superioridade'],3,'o segundo ataque errou e não abriu manobra');
 });
 
-test('#59 Loteria prepara Mão de Dolo na Gaveta da Torrente e no golpe da Ação, com limite e Foco compartilhados',async()=>{
- let {s,a,b}=await duelo('loteria');const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
- const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo');let pedidos=[];
- const rolar=({acerta=[true,true],aceitar=true}={})=>{let n=0;return async(formula,meta)=>{
-  if(meta.tipo==='ataque')return acerta[n++]?{total:22,natural:17,formula}:{total:3,natural:2,formula};
-  pedidos.push(meta.adicionais?.find(x=>x.id===dolo.id)??null);
-  const usar=(meta.adicionais??[]).filter(x=>x.automatico||(aceitar&&x.preSelecionado));
-  return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};
- };};
- // Fora da Torrente: o golpe da Ação oferece Mão de Dolo no ajuste de dano.
- s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,alvo:b.id},player,rolar({aceitar:false}));
- assert.ok(pedidos[0],'Mão de Dolo aparece depois do acerto');assert.equal(pedidos[0].preSelecionado,undefined,'sem preparo não vem marcada');
- // Torrente com preparo: o primeiro golpe erra (sem gasto), o segundo é o preparado e acerta.
- pedidos=[];const torrente=opRev(s.atores[0],'torrente'),modo=torrente.composicao.modos.find(m=>m.id==='soco-mao-de-dolo');
- assert.ok(modo);assert.deepEqual(modo.preparar,[dolo.id]);const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
- s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:torrente.id,composicao:[{modoId:'soco-normal',alvoId:b.id},{modoId:'soco-mao-de-dolo',alvoId:b.id}]},player,rolar({acerta:[false,true]}));
- assert.equal(pedidos.length,1);assert.equal(pedidos[0].preSelecionado,true);
- assert.equal(s.atores[0].rec['pontos-de-foco'],foco-2,'1 Foco da Torrente + 1 da Mão de Dolo aplicada');assert.equal(s.atores[1].pv,pv-9);
- assert.ok(usadoNesteTurno(s,s.atores[0],dolo.id));
- await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-dolo-torrente',alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno/,'o botão avulso compartilha o limite');
- // Preparada mas o golpe erra: nada é cobrado.
- ({s,a,b}=await duelo('loteria'));s.atores[0].bonus=1;const focoErro=s.atores[0].rec['pontos-de-foco'];
- s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,alvo:b.id},player,rolar({acerta:[false]}));
- s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:opRev(s.atores[0],'torrente').id,composicao:[{modoId:'soco-mao-de-dolo',alvoId:b.id},{modoId:'soco-normal',alvoId:b.id}]},player,rolar({acerta:[false,false]}));
- assert.equal(s.atores[0].rec['pontos-de-foco'],focoErro-1,'só o custo da Torrente');assert.equal(usadoNesteTurno(s,s.atores[0],dolo.id),false);
+test('#59 Mão de Dolo só aparece após acerto e não existe nos compositores',async()=>{
+ let {s,a,b}=await duelo('loteria');const torrente=opRev(a,'torrente'),dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo');
+ assert.ok(!torrente.composicao.modos.some(m=>m.preparar?.includes(dolo.id)));let oferecidas=0;
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:torrente.id,composicao:[{modoId:'soco-normal',alvoId:b.id},{modoId:'soco-normal',alvoId:b.id}]},player,async(formula,meta)=>{
+  if(meta.tipo==='ataque')return {total:22,natural:17,formula};const extra=meta.adicionais?.find(x=>x.id===dolo.id);if(extra){oferecidas++;assert.equal(extra.preSelecionado,undefined);}
+  return {total:extra?9:4,formula,resultados:[{total:4},...(extra?[{total:5}]:[])],recursosAtivos:extra?[dolo.id]:[]};});
+ assert.equal(oferecidas,1);assert.equal(s.atores[0].rec['pontos-de-foco'],a.rec['pontos-de-foco']-2);
+ await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:'mao-de-dolo-torrente',alvo:b.id},player,roladorSala().rolar),/já foi usada neste turno/);
 });
 
 test('#60 Magia Potencializada rerrola até 3 dados escolhidos por 1 ponto e usa os novos resultados',async()=>{
@@ -2498,22 +2478,16 @@ test('M06 Ilusão Menor: peça visual estática pública, sem ficha nem iniciati
   assert.equal(s.pecas.length,1);s=await aplicar(s,{rev:s.rev,tipo:'avancarTempo',passo:'1t'},gm,()=>0);assert.equal(s.pecas.length,0,'1 minuto');
 });
 
-test('#59 Gaveta do Golpe Desarmado avulso prepara Mão de Dolo (gasta Foco só se acertar)',async()=>{
-  for(const acerta of [true,false]){
-    let {s,a,b}=await duelo('loteria');const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
-    const modo=golpe.composicao?.modos.find(m=>m.id==='golpe-mao-de-dolo');assert.ok(modo,'modo preparado na Gaveta');
-    const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo'),foco=a.rec['pontos-de-foco'],pv=b.pv,vistos=[];
-    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'golpe-mao-de-dolo',alvoId:b.id}]},player,async(formula,meta)=>{
-      if(meta.tipo==='ataque')return acerta?{total:22,natural:17,formula}:{total:3,natural:2,formula};
-      const usar=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado);vistos.push(...usar);
-      return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};});
-    if(acerta){assert.ok(vistos.some(x=>x.id===dolo.id&&x.preSelecionado));assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1);assert.equal(s.atores[1].pv,pv-9);}
-    else{assert.equal(s.atores[0].rec['pontos-de-foco'],foco,'errou: nada cobrado');}
-  }
+test('#59 golpe avulso oferece Mão de Dolo somente após acertar, sem modo preparado',async()=>{
+ for(const acerta of [true,false]){
+  let {s,a,b}=await duelo('loteria');const golpe=opRev(a,'golpe desarmado'),dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo');
+  assert.ok(golpe.composicao.modos.every(m=>!m.preparar?.includes(dolo.id)));const foco=a.rec['pontos-de-foco'];let ofertas=0;
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'soco-acao',alvoId:b.id}]},player,async(formula,meta)=>{
+   if(meta.tipo==='ataque')return {total:acerta?22:3,natural:acerta?17:2,formula};const extra=meta.adicionais?.find(x=>x.id===dolo.id);assert.ok(extra);assert.equal(extra.preSelecionado,undefined);ofertas++;
+   return {total:9,formula,resultados:[{total:4},{total:5}],recursosAtivos:[dolo.id]};});
+  assert.equal(ofertas,acerta?1:0);assert.equal(s.atores[0].rec['pontos-de-foco'],foco-(acerta?1:0));
+ }
 });
-
-// ===== Critérios de conclusão das sete fichas (#56–#62) =====
-import {normalizarZonas as normalizarZonasCrit} from './site/engine.mjs';
 
 test('critério das sete fichas: turno padrão (mover, atacar com a arma e passar) sem erro',async()=>{
   for(const id of idsJogadores){
@@ -2745,22 +2719,10 @@ test('Combate com Armas Grandes: 1 e 2 nos dados da espada grande contam como 3;
   }
 });
 
-test('#59 Soco bônus das Artes Marciais também prepara Mão de Dolo na Gaveta',async()=>{
-  let {s,a,b}=await duelo('loteria');b.pv=200;b.ficha.pvMaximos=200;
-  const bonus=opcoesDisponiveis(a).find(o=>/^Soco \+/.test(o.nome)&&o.custo?.some(c=>c.tipo==='bonus'));
-  assert.ok(bonus?.composicao?.modos.some(m=>m.id==='golpe-mao-de-dolo'),'soco bônus tem o modo Golpe + Mão de Dolo');
-  const golpe=opcoesDisponiveis(a).find(o=>/Golpe Desarmado/.test(o.nome)&&o.custo?.some(c=>c.tipo==='acao'));
-  const dolo=a.ficha.opcoes.find(o=>o.nome==='Mão de Dolo'),vistos=[];
-  const rolar=async(formula,meta)=>{
-    if(meta.tipo==='ataque')return {total:22,natural:17,formula};
-    const usar=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado);vistos.push(...usar);
-    return {total:4+usar.length*5,formula,resultados:[{total:4},...usar.map(()=>({total:5}))],recursosAtivos:usar.map(x=>x.id)};};
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'golpe-normal',alvoId:b.id}]},player,rolar);
-  const foco=s.atores[0].rec['pontos-de-foco'],pv=s.atores[1].pv;
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:bonus.id,composicao:[{modoId:'golpe-mao-de-dolo',alvoId:b.id}]},player,rolar);
-  assert.ok(vistos.some(x=>x.id===dolo.id&&x.preSelecionado),'Mão de Dolo chega marcada no dano');
-  assert.equal(s.atores[0].bonus,0,'gastou a ação bônus');
-  assert.equal(s.atores[0].rec['pontos-de-foco'],foco-1,'1 Foco da Mão de Dolo');assert.equal(s.atores[1].pv,pv-9);
+test('#59 golpe bônus pode ser escolhido sem ataque anterior e não prepara Mão de Dolo',async()=>{
+ let {s,a,b}=await duelo('loteria');const golpe=opRev(a,'golpe desarmado'),foco=a.rec['pontos-de-foco'];
+ s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:golpe.id,composicao:[{modoId:'soco-bonus',alvoId:b.id}]},player,roladorSala().rolar);
+ assert.equal(s.atores[0].bonus,0);assert.equal(s.atores[0].acao,1);assert.equal(s.atores[0].rec['pontos-de-foco'],foco);
 });
 
 test('#61 Disfarçar-se e Mente Desperta: marcadores com duração e encerramento conjunto',async()=>{
@@ -2905,7 +2867,7 @@ test('Luvas do Dragão Ascendente +2: acerto e CA sem armadura; fogo preservado 
     const caComLuva=caAtual(a);luva.equipado=false;const caSemLuva=caAtual(a);luva.equipado=true;
     assert.equal(caComLuva-caSemLuva,escudo?0:1);if(!escudo)assert.equal(caComLuva,caAntes+1);
     const metas=[];
-    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:depois.id,composicao:[{modoId:'golpe-normal',alvoId:b.id}]},player,async(f,m)=>{
+    s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:depois.id,composicao:[{modoId:'soco-acao',alvoId:b.id}]},player,async(f,m)=>{
       metas.push(m);const base=avaliarFormula(f,l=>l===20?15:3),extras=(m.adicionais??[]).filter(x=>x.automatico),resultados=[base,...extras.map(e=>avaliarFormula(e.formula,()=>3))];
       return {...base,total:resultados.reduce((n,r)=>n+r.total,0),resultados,recursosAtivos:extras.map(e=>e.id)};
     });
