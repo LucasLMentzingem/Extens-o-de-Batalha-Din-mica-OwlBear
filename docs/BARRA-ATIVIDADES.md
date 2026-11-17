@@ -29,10 +29,10 @@ Prévia de cada participante tem sua própria coleção de marcas. Não há envi
 - Navegador headless com SDK simulado: duas prévias remotas, própria ação, pausa/retomada, retorno à barra, histórico somente leitura e fórmula 1d20+7 preservada ao recolher/abrir antes de rolar e concluir. Mantido o teste de recuperação do arremesso após falha transitória do SDK.
 - Não houve teste na sala real nesta etapa. Layout e latência precisam ser conferidos no Owlbear real após uma publicação autorizada.
 
-## Ajuste local 0.8.50
+## Ajuste 0.8.50
 
 - Cancelar/concluir a própria atividade deixa a tela sem seleção automática do histórico. Recolher a barra também limpa a inspeção antiga.
 - Inspeções de GM e jogadores são somente leitura e mostram Fechar na instância e no resultado, voltando à barra. Fechar uma inspeção não cancela uma ação própria pausada.
 - A seta para abrir permanece disponível sem seleção/histórico. Com instância fica à esquerda dela; sem instância fica junto à borda direita. A barra aberta possui seta na sua borda esquerda para recolher à direita. O brilho de atividade permanece.
 - Instâncias e miniaturas dos balões não sobrepõem nomes às imagens. Pós-acerto e rerrolagens exibem o nome fora da imagem, abaixo dela; ajuste de rolagem tem mais espaço.
-- 302 testes automatizados aprovados. Navegador com SDK simulado confirmou Fechar, ausência de Executar/Cancelar no histórico, retorno à barra, seta na borda, rascunhos preservados e nome pós-acerto abaixo do ícone. Falta validação na sala real. Sem publicação nesta etapa.
+- 302 testes automatizados aprovados. Navegador com SDK simulado confirmou Fechar, ausência de Executar/Cancelar no histórico, retorno à barra, seta na borda, rascunhos preservados e nome pós-acerto abaixo do ícone. Falta validação na sala real. Integrado à publicação 0.8.50.
