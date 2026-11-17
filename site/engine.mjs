@@ -1,6 +1,6 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.39';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.39';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.39';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.43';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.43';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.43';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -657,7 +657,7 @@ export function validar(f) {
   }
   return out;
 }
-export const novo = () => {const s={rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[],filaReacoes:[]};normalizarComercio(s);return s;};
+export const novo = () => {const s={rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[],filaReacoes:[],recipientes:[]};normalizarComercio(s);return s;};
 export function adicionar(s,f,nome=f.nome) {
   const ficha=validar(f);
   const a={id:crypto.randomUUID(),nome,ficha,token:null,dono:null,emCombate:true,pv:f.pvMaximos,pvTemporarios:0,estadoVida:'consciente',salvaguardasMorte:{sucessos:0,falhas:0},rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),usosTurno:{},eventosTurno:{ataques:[],acertos:[]},x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
@@ -889,8 +889,41 @@ function alvoSaque(s,a,alvoId){
   return alvo;
 }
 export function itensSaque(s,a){
-  const alvo=s.atores.find(x=>x.id===a?.saqueAberto?.alvoId);
-  return [...(alvo?.ficha?.inventario?.itens??a?.saqueAberto?.itens??[])].sort((x,y)=>Number(Boolean(y.equipado))-Number(Boolean(x.equipado)));
+  const sessao=a?.saqueAberto;
+  if(sessao?.origem?.tipo==='personagem'){
+    const alvo=s.atores.find(x=>x.id===sessao.origem.id);
+    return [...(alvo?.ficha?.inventario?.itens??[])].sort((x,y)=>Number(Boolean(y.equipado))-Number(Boolean(x.equipado)));
+  }
+  const recipiente=s.recipientes?.find(r=>r.id===sessao?.origem?.id);
+  // O host possui a lista atual; a vista pública usa o conteúdo autorizado da sessão.
+  const itens=recipiente&&recipiente.ocupados===undefined?recipiente.itens:sessao?.itens;
+  return [...(itens??[])].sort((x,y)=>Number(Boolean(y.equipado))-Number(Boolean(x.equipado)));
+}
+const recipientePorId=(s,id)=>s.recipientes?.find(x=>x.id===id);
+const itensOrigemSaque=(s,sessao)=>sessao?.origem?.tipo==='personagem'
+  ?s.atores.find(x=>x.id===sessao.origem.id)?.ficha.inventario.itens
+  :recipientePorId(s,sessao?.origem?.id)?.itens;
+function novoRecipiente(s,{tipo='caixa',nome='Baú',tokenId=null,posicaoM={x:0,y:0},capacidadeSlots=12,itens=[]}={}){
+  const chao=tipo==='chao';
+  const id='rec-'+crypto.randomUUID();
+  const r={id,tipo:chao?'chao':'caixa',nome:String(nome||'Baú').trim().slice(0,80),tokenId:tokenId??'laarte-recipiente-'+id,posicaoM:{x:Number(posicaoM.x)||0,y:Number(posicaoM.y)||0},capacidadeSlots:chao?1:Math.max(1,Math.min(200,Math.floor(Number(capacidadeSlots)||12))),trancado:false,permiteDeposito:!chao,removerAoEsvaziar:chao,revisao:1,itens:structuredClone(itens)};
+  s.recipientes??=[];s.recipientes.push(r);return r;
+}
+function criarLootNoChao(s,item,posicaoM,nome){
+  const copia=structuredClone(item);copia.equipado=false;delete copia.equipadoSlot;
+  const r=novoRecipiente(s,{tipo:'chao',nome:nome??copia.nome, posicaoM,itens:[copia]});
+  return r;
+}
+function slotsUsados(itens=[]){return itens.length;}
+function empilhamentoCompativel(a,b){
+  if(!a?.empilhavel||!b?.empilhavel||a.catalogoRef!==b.catalogoRef||a.tipo!==b.tipo||a.equipado||b.equipado)return false;
+  const chave=i=>JSON.stringify({moeda:i.moeda??null,descricao:i.descricao??'',pesoKg:i.pesoKg??0,preco:i.preco??null,modificadores:i.modificadores??{},propriedades:i.propriedades??[],efeitos:i.efeitos??[],bonusAtaque:i.bonusAtaque??null,tipoDano:i.tipoDano??null});
+  return chave(a)===chave(b);
+}
+function adicionarItemRecipiente(r,item){
+  const igual=r.itens.find(x=>empilhamentoCompativel(x,item));
+  if(igual){igual.quantidade+=item.quantidade;return igual;}
+  r.itens.push(item);return item;
 }
 export const opcoesDisponiveis=a=>opcoesCalculadas(a).filter(o=>!o.informativa&&opcaoDisponivel(a,o));
 export function ordenarOpcoesRodape(a,opcoes=opcoesDisponiveis(a)){
@@ -1078,7 +1111,8 @@ function opcoesDepoisDoAcerto(a,o,alvo,s=null){
 function opcoesRerrolagemDano(a){return opcoesDisponiveis(a).filter(o=>o.gatilho==='apos_rolagem_dano'&&o.rerrolagem?.tipo==='dano'&&(o.custo??[]).every(c=>custoDisponivel(a,c)));}
 // #30 Magia Potencializada só vale para dano de magia.
 function rerrolagensDano(a,o){return opcoesRerrolagemDano(a).filter(g=>!g.rerrolagem.somenteMagia||o?.categoria==='magia');}
-const metaRerrolagem=g=>({id:g.id,nome:g.nome,modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,...(g.rerrolagem.modo==='dados'?{limiteDados:g.rerrolagem.limiteDados}:{}),custo:g.custo??[],descricao:g.descricao??''});
+const metaVisualHabilidade=g=>Object.fromEntries(['catalogoRef','origemTipo','origemConcessao','visual'].filter(k=>g[k]!==undefined).map(k=>[k,structuredClone(g[k])]));
+const metaRerrolagem=g=>({id:g.id,nome:g.nome,...metaVisualHabilidade(g),modo:g.rerrolagem.modo,resultados:g.rerrolagem.resultados,...(g.rerrolagem.modo==='dados'?{limiteDados:g.rerrolagem.limiteDados}:{}),custo:g.custo??[],descricao:g.descricao??''});
 // #60 Magia Potencializada: rerrola até N dados escolhidos da rolagem de dano e usa os novos resultados.
 // Função pura usada pela ponte do Dice+ e pela suíte: troca valores de dados mantidos e recalcula grupo, instância e total.
 export function dadosRerrolaveis(resultado){
@@ -1464,7 +1498,7 @@ export function modoDoAtaque(s,a,p,rule,{modoPedido='normal',efeitosOrigem=[]}={
 export async function aplicar(s,c,u,rolar) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
-  s.filaReacoes??=[];normalizarComercio(s);
+  s.filaReacoes??=[];s.recipientes??=[];normalizarComercio(s);
   for(const p of s.atores){
     atualizarMagias(p.ficha);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};sincronizarConcessoesItens(p);
   }
@@ -1494,7 +1528,7 @@ export async function aplicar(s,c,u,rolar) {
     const rerrolagens=opcoesRerrolagemD20(p)
       .filter(g=>!g.rerrolagem?.tipos?.length||g.rerrolagem.tipos.includes(meta.tipo))
       .filter(g=>!g.rerrolagem?.somenteConcentracao||meta.concentracao)
-      .filter(g=>!g.rerrolagem?.somenteFalha||Number.isFinite(meta.cd)),metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,modo:'todos',custo:g.custo??[],descricao:g.descricao??'',somenteFalha:g.rerrolagem?.somenteFalha===true}));
+      .filter(g=>!g.rerrolagem?.somenteFalha||Number.isFinite(meta.cd)),metaRerrolagens=rerrolagens.map(g=>({id:g.id,nome:g.nome,...metaVisualHabilidade(g),modo:'todos',custo:g.custo??[],descricao:g.descricao??'',somenteFalha:g.rerrolagem?.somenteFalha===true}));
     const r=await resultado(formulaD20(bonus,p,efeito?.penalidadeProximaSalva??meta.penalidade,modo),{...meta,adicionais:metaAdicionais,rotuloAdicionais:'Dados disponíveis para esta rolagem',combinarAdicionais:true,rerrolagens:metaRerrolagens});
     const ativos=Array.isArray(r.recursosAtivos)?r.recursosAtivos:[];exigir(ativos.every(id=>modificadores.some(e=>e.id===id)),'Modificador de d20 inválido.');
     if(ativos.length)p.efeitosAtivos=p.efeitosAtivos.filter(e=>!ativos.includes(e.id)||e.modificadorRolagem?.removeAoUsar===false);
@@ -1583,7 +1617,7 @@ export async function aplicar(s,c,u,rolar) {
     const adicionais=opcoesDepoisDoAcerto(a,ataqueBase,p,s),rerrolagens=rerrolagensDano(a,ataqueBase),modificadorDano=modificadorDanoAntesDaRolagem(a,ataqueBase);
     const metaAdicionais=adicionais.map(g=>{
       const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
-      return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
+      return {id:g.id,nome:g.nome,...metaVisualHabilidade(g),formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
         ...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),
         ...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};
     });
@@ -1624,39 +1658,144 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
   }
   let msg='';
   switch(c.tipo) {
+    case 'configurarRecipiente': {
+      const r=recipientePorId(s,c.recipienteId);exigir(r&&r.tipo==='caixa','Baú não encontrado.');
+      exigir(inteiro(c.capacidadeSlots,1,200),'A capacidade deve ser de 1 a 200 espaços.');
+      exigir(c.capacidadeSlots>=slotsUsados(r.itens),'Libere espaços antes de reduzir a capacidade.');
+      r.nome=String(c.nome||r.nome).trim().slice(0,80)||'Baú';r.capacidadeSlots=c.capacidadeSlots;if(typeof c.trancado==='boolean')r.trancado=c.trancado;r.revisao++;
+      msg='Mestre configurou '+r.nome+' · '+slotsUsados(r.itens)+'/'+r.capacidadeSlots+' espaços.';break;
+    }
+    case 'criarRecipiente': {
+      exigir(c.tipoRecipiente==='caixa','Tipo de recipiente inválido.');
+      exigir(!c.tokenId||!s.recipientes.some(r=>r.tokenId===c.tokenId),'Esta imagem já possui um recipiente.');
+      const r=novoRecipiente(s,{tipo:'caixa',nome:c.nome??'Baú de madeira',tokenId:c.tokenId,posicaoM:c.posicaoM,capacidadeSlots:c.capacidadeSlots});
+      msg='Mestre colocou '+r.nome+' na cena.';break;
+    }
+    case 'recipienteAdicionarItem': {
+      const r=recipientePorId(s,c.recipienteId);exigir(r&&inteiro(c.quantidade,1,9999),'Recipiente ou quantidade inválida.');
+      const item=resolverInstanciaItem({id:crypto.randomUUID(),ref:c.itemRef,quantidade:c.quantidade});
+      exigir(item&&item.tipo!=='moeda','Escolha um item do catálogo. Para PO, use o campo específico.');
+      item.equipado=false;delete item.equipadoSlot;
+      exigir(r.itens.some(x=>empilhamentoCompativel(x,item))||slotsUsados(r.itens)<r.capacidadeSlots,'A caixa está cheia.');
+      adicionarItemRecipiente(r,item);r.revisao++;
+      msg='Mestre colocou '+c.quantidade+'× '+item.nome+' em '+r.nome+'.';break;
+    }
+    case 'recipienteAdicionarPo': {
+      const r=recipientePorId(s,c.recipienteId);exigir(r&&inteiro(c.quantidade,1,9999999),'Recipiente ou quantidade de PO inválida.');
+      const moeda=resolverInstanciaItem({id:crypto.randomUUID(),ref:'item.moedas-de-ouro',quantidade:c.quantidade});
+      const existente=r.itens.find(i=>i.tipo==='moeda'&&(i.moeda??'po')==='po');
+      if(existente)existente.quantidade+=c.quantidade;else{exigir(slotsUsados(r.itens)<r.capacidadeSlots,'A caixa está cheia.');r.itens.push(moeda);}
+      r.revisao++;msg='Mestre colocou '+c.quantidade+' PO em '+r.nome+'.';break;
+    }
+    case 'recipienteExcluirItem': {
+      const r=recipientePorId(s,c.recipienteId),i=r?.itens.find(x=>x.id===c.itemId);
+      exigir(r&&i&&c.confirmado===true&&c.confirmacaoFinal===true,'Confirme a exclusão em duas etapas.');
+      r.itens=r.itens.filter(x=>x!==i);r.revisao++;msg='Mestre excluiu '+i.nome+' de '+r.nome+'.';break;
+    }
+    case 'abrirSaqueRecipiente': {
+      exigir(a&&a.pv>0,'Um personagem consciente precisa iniciar o saque.');
+      exigir(s.fase!=='turnos'||(atual(s)?.id===a.id&&a.acao>=1),'É preciso estar no seu turno e ter uma ação para saquear.');
+      const r=recipientePorId(s,c.recipienteId);exigir(r,'Este recipiente não existe mais.');
+      exigir(!r.trancado||u.role==='GM','O recipiente está trancado.');
+      exigir(distancia(a,r.posicaoM)<=1.5+1e-8,'O recipiente está a mais de 1,5 m.');
+      if(s.fase==='turnos')a.acao--;
+      a.saqueAberto={id:crypto.randomUUID(),origem:{tipo:r.tipo,id:r.id},nome:r.nome,distanciaM:1.5};
+      a.saqueAberto.itens=structuredClone(r.itens);
+      msg=a.nome+' iniciou o saque de '+r.nome+'.';break;
+    }
     case 'cancelarSaque':
       delete a.saqueAberto;msg=a.nome+' fechou o saque.';break;
     case 'confirmarSaque': {
       exigir(a.saqueAberto?.id===c.saqueId,'Abra novamente o saque.');
-      const alvo=alvoSaque(s,a,a.saqueAberto.alvoId);
-      exigir(Array.isArray(c.itens)&&c.itens.length>0&&new Set(c.itens.map(x=>x.itemId)).size===c.itens.length,'Selecione itens distintos para saquear.');
+      const sessao=a.saqueAberto,origemTipo=sessao.origem?.tipo??'personagem';
+      exigir(s.fase!=='turnos'||atual(s)?.id===a.id,'Seu turno terminou; inicie um novo saque no seu próximo turno.');
+      const alvo=origemTipo==='personagem'?alvoSaque(s,a,sessao.origem?.id??sessao.alvoId):null;
+      const recipiente=origemTipo==='personagem'?null:recipientePorId(s,sessao.origem.id);
+      exigir(origemTipo==='personagem'?Boolean(alvo):Boolean(recipiente),'A origem do saque não está disponível.');
+      exigir(!recipiente?.trancado||u.role==='GM','O recipiente foi trancado antes da confirmação.');
+      exigir(origemTipo==='personagem'||distancia(a,recipiente.posicaoM)<=1.5+1e-8,'O recipiente saiu do alcance.');
+      exigir(Array.isArray(c.itens)&&new Set(c.itens.map(x=>x.itemId)).size===c.itens.length,'Selecione itens distintos para saquear.');
+      const itensFonte=itensOrigemSaque(s,sessao)??[];
       const transferencias=c.itens.map(entrada=>{
-        const item=alvo.ficha.inventario.itens.find(i=>i.id===entrada.itemId);
+        const item=itensFonte.find(i=>i.id===entrada.itemId);
         exigir(item&&Number.isFinite(entrada.quantidade)&&entrada.quantidade>0&&entrada.quantidade<=item.quantidade,'Quantidade indisponível. Confira os pertences atuais.');
         exigir(item.tipo==='moeda'?quantidadeMoedaValida(entrada.quantidade):Number.isInteger(entrada.quantidade),'Quantidade inválida.');
         return {item,quantidade:entrada.quantidade};
       });
       const copias=transferencias.map(({item,quantidade})=>{
-        const copia=structuredClone(item);copia.id=crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
+        const copia=structuredClone(item);copia.id=origemTipo!=='personagem'&&quantidade===item.quantidade?item.id:crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
         return copia;
       });
-      const simulacao={ficha:{...a.ficha,inventario:{...a.ficha.inventario,itens:[...a.ficha.inventario.itens,...copias]}}};
-      exigir(pesoInventario(simulacao)<=capacidadeCargaAtual(a)+1e-8,'O saque ultrapassa sua capacidade de carga.');
-      transferencias.forEach(({item,quantidade})=>{
-        if(item.tipo!=='moeda')retirarQuantidadeItem(alvo,item,quantidade);
-        else if(quantidade===item.quantidade)alvo.ficha.inventario.itens=alvo.ficha.inventario.itens.filter(i=>i!==item);
-        else item.quantidade=Math.round((item.quantidade-quantidade)*100)/100;
+      let equipamentoDireto=null;
+      if(c.equiparItemId){
+        const indice=transferencias.findIndex(x=>x.item.id===c.equiparItemId),transferencia=transferencias[indice];
+        exigir(transferencia&&transferencia.quantidade===transferencia.item.quantidade&&transferencia.item.tipo==='equipamento','Para equipar direto, selecione uma unidade completa de equipamento.');
+        const item=transferencia.item;let slot=c.equiparSlot??item.slotEquipamento;
+        if(slot==='acessorio')slot=!a.ficha.inventario.itens.some(i=>i.equipado&&i.equipadoSlot==='acessorio_1')?'acessorio_1':'acessorio_2';
+        const armaUmaMao=item.slotEquipamento==='mao_forte'&&!armaDuasMaos(item);
+        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item saqueado.');
+        const exigidos=armaDuasMaos(item)&&['mao_forte','mao_fraca'].includes(slot)?['mao_forte','mao_fraca']:[slot];
+        const anteriores=a.ficha.inventario.itens.filter(i=>i.equipado&&exigidos.some(s=>ocupaSlot(i,s)));
+        exigir(s.fase!=='turnos'||!anteriores.length||a.bonus>=1,'É preciso ter uma ação bônus para substituir equipamento.');
+        copias[indice].equipado=true;copias[indice].equipadoSlot=armaDuasMaos(item)?'mao_forte':slot;
+        equipamentoDireto={anteriores};
+      }
+      const depositos=c.depositos??[];
+      exigir(Array.isArray(depositos)&&new Set(depositos.map(x=>x.itemId)).size===depositos.length,'Selecione itens distintos para depositar.');
+      exigir(!depositos.length||recipiente?.permiteDeposito,'Este recipiente não aceita depósitos.');
+      const devolver=depositos.map(entrada=>{
+        const item=a.ficha.inventario.itens.find(i=>i.id===entrada.itemId);
+        exigir(item&&!item.equipado&&item.negociavel!==false&&Number.isFinite(entrada.quantidade)&&entrada.quantidade>0&&entrada.quantidade<=item.quantidade,'Item indisponível para depósito.');
+        exigir(item.tipo==='moeda'?quantidadeMoedaValida(entrada.quantidade):Number.isInteger(entrada.quantidade),'Quantidade inválida.');
+        return {item,quantidade:entrada.quantidade};
       });
+      exigir(c.itens.length+depositos.length>0,'Selecione ao menos um item para transferir.');
+      const itensAtorSimulados=a.ficha.inventario.itens.flatMap(item=>{
+        const retirada=devolver.find(x=>x.item===item)?.quantidade??0;
+        return retirada===item.quantidade?[]:[{...structuredClone(item),quantidade:item.quantidade-retirada}];
+      });
+      if(equipamentoDireto)for(const anterior of equipamentoDireto.anteriores){const copia=itensAtorSimulados.find(i=>i.id===anterior.id);if(copia){copia.equipado=false;delete copia.equipadoSlot;}}
+      const simulacao={...a,ficha:{...a.ficha,inventario:{...a.ficha.inventario,itens:[...itensAtorSimulados,...copias]}}};
+      exigir(pesoInventario(simulacao)<=capacidadeCargaAtual(simulacao)+1e-8,'O saque ultrapassa sua capacidade de carga.');
+      if(recipiente){
+        const itensCaixaSimulados=structuredClone(recipiente.itens);
+        for(const {item,quantidade} of transferencias){const existente=itensCaixaSimulados.find(i=>i.id===item.id);if(existente){if(quantidade===existente.quantidade)itensCaixaSimulados.splice(itensCaixaSimulados.indexOf(existente),1);else existente.quantidade-=quantidade;}}
+        const caixaSimulada={itens:itensCaixaSimulados};
+        for(const {item,quantidade} of devolver){const copia=structuredClone(item);copia.quantidade=quantidade;copia.equipado=false;delete copia.equipadoSlot;adicionarItemRecipiente(caixaSimulada,copia);}
+        exigir(slotsUsados(caixaSimulada.itens)<=recipiente.capacidadeSlots,'A caixa não tem espaços suficientes para esse depósito.');
+      }
+      transferencias.forEach(({item,quantidade})=>{
+        const lista=origemTipo==='personagem'?alvo.ficha.inventario.itens:recipiente.itens;
+        if(quantidade===item.quantidade){if(origemTipo==='personagem')alvo.ficha.inventario.itens=lista.filter(i=>i!==item);else recipiente.itens=lista.filter(i=>i!==item);}
+        else item.quantidade=item.tipo==='moeda'?Math.round((item.quantidade-quantidade)*100)/100:item.quantidade-quantidade;
+      });
+      if(equipamentoDireto){if(s.fase==='turnos'&&equipamentoDireto.anteriores.length)a.bonus--;for(const anterior of equipamentoDireto.anteriores){anterior.equipado=false;delete anterior.equipadoSlot;}}
       copias.forEach(item=>adicionarItemInventario(a,item));
+      for(const {item,quantidade} of devolver){
+        const copia=structuredClone(item);copia.id=quantidade===item.quantidade?item.id:crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;delete copia.equipadoSlot;
+        if(quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==item);else item.quantidade-=quantidade;
+        adicionarItemRecipiente(recipiente,copia);
+      }
       delete a.saqueAberto;
-      msg=a.nome+' saqueou '+alvo.nome+' • '+copias.map(i=>i.quantidade+'× '+i.nome).join(', ');break;
+      if(recipiente){recipiente.revisao++;if(recipiente.removerAoEsvaziar&&!recipiente.itens.length)s.recipientes=s.recipientes.filter(x=>x!==recipiente);}
+      msg=a.nome+' saqueou '+(alvo?.nome??recipiente.nome)+' • '+copias.map(i=>i.quantidade+'× '+i.nome).join(', ')+(equipamentoDireto?' • equipou '+copias.find(i=>i.equipado)?.nome:'');break;
+    }
+    case 'soltarItem': {
+      exigir(a&&s.fase!=='iniciativa','Não é possível largar itens durante a iniciativa.');
+      exigir(s.fase!=='turnos'||atual(s)?.id===a.id,'Largue itens no seu turno.');
+      const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');
+      exigir(Number.isFinite(c.quantidade)&&c.quantidade>0&&c.quantidade<=item.quantidade&&(item.tipo==='moeda'?quantidadeMoedaValida(c.quantidade):Number.isInteger(c.quantidade)),'Quantidade inválida.');
+      if(s.fase==='turnos'&&item.equipado){exigir(a.bonus>=1,'É preciso ter uma ação bônus para largar equipamento em uso.');a.bonus--;}
+      const copia=structuredClone(item);if(c.quantidade<item.quantidade)copia.id=crypto.randomUUID();copia.quantidade=c.quantidade;copia.equipado=false;delete copia.equipadoSlot;
+      if(c.quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==item);else item.quantidade-=c.quantidade;
+      criarLootNoChao(s,copia,{x:a.x,y:a.y});msg=a.nome+' largou '+c.quantidade+'× '+item.nome+' no chão.';break;
     }
     case 'exemplo': {
       exigir(gm && s.fase==='preparo' && s.atores.length===0,'Carregue o exemplo em um encontro vazio.');
@@ -1972,7 +2111,7 @@ export async function aplicar(s,c,u,rolar) {
       const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');normalizarItemEquipamento(item);
       const emTurno=s.fase==='turnos';
       exigir(!emTurno||atual(s)?.id===a.id,'Equipamentos e itens só podem ser alterados no turno do personagem.');
-      if(emTurno){exigir(a.acao>=1,'É preciso ter uma ação disponível.');a.acao--;}
+      if(emTurno&&c.operacao==='usar'){exigir(a.acao>=1,'É preciso ter uma ação disponível.');a.acao--;}
       if(c.operacao==='equipar'){
         exigir(item.tipo==='equipamento'&&!item.equipado,'Este item não pode ser equipado agora.');
         let slot=c.slot??item.slotEquipamento;
@@ -1981,11 +2120,12 @@ export async function aplicar(s,c,u,rolar) {
         exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item.');
         const exigidos=armaDuasMaos(item)&&['mao_forte','mao_fraca'].includes(slot)?['mao_forte','mao_fraca']:[slot];
         const anteriores=a.ficha.inventario.itens.filter(i=>i.equipado&&i!==item&&exigidos.some(s=>ocupaSlot(i,s)));
+        if(emTurno&&anteriores.length){exigir(a.bonus>=1,'É preciso ter uma ação bônus para substituir equipamento.');a.bonus--;}
         for(const anterior of anteriores){anterior.equipado=false;delete anterior.equipadoSlot;}
         item.equipado=true;item.equipadoSlot=armaDuasMaos(item)?'mao_forte':slot;
         msg=a.nome+' equipou '+item.nome+(anteriores.length?' e guardou '+anteriores.map(i=>i.nome).join(' e '):'')+'.';
       }else if(c.operacao==='desequipar'){
-        exigir(item.tipo==='equipamento'&&item.equipado,'Este item não está equipado.');item.equipado=false;delete item.equipadoSlot;msg=a.nome+' desequipou '+item.nome+'.';
+        exigir(item.tipo==='equipamento'&&item.equipado,'Este item não está equipado.');if(emTurno){exigir(a.bonus>=1,'É preciso ter uma ação bônus para desequipar equipamento em combate.');a.bonus--;}item.equipado=false;delete item.equipadoSlot;msg=a.nome+' desequipou '+item.nome+'.';
       }else{
         exigir(item.tipo==='consumivel'&&item.quantidade>0,'Este item não é um consumível disponível.');item.quantidade--;if(item.quantidade===0)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);msg=a.nome+' usou '+item.nome+' (efeito assistido pelo mestre).';
       }
@@ -2280,7 +2420,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if((o.categoria==='magia'||rule?.tipo==='ataque'||rule?.dano)&&(a.efeitosAtivos??[]).some(e=>e.encerraAoAgir)){a.efeitosAtivos=a.efeitosAtivos.filter(e=>!e.encerraAoAgir);msg+=' • deixou de estar Invisível';} // #14
       const concentracaoId=o.concentracao?iniciarConcentracao(s,a,o):null;
       if(rule?.tipo==='saque'){
-        a.saqueAberto={id:crypto.randomUUID(),alvoId:c.alvo};
+        a.saqueAberto={id:crypto.randomUUID(),alvoId:c.alvo,origem:{tipo:'personagem',id:c.alvo}};
         msg+=' • escolha os pertences para levar.';break;
       }
       if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}
@@ -2395,7 +2535,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const armaModo=ataquesEquipados(a).find(x=>x.id===origemModo?.origemOpcaoId);
           const critico=face===20||(rp.criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8),ataqueInstancia={...o,nome:modo.nome,automacao:r,origemItem:armaModo?.origemItem??o.origemItem},formula=critico?formulaCritica(r.dano):r.dano,tags=tagsAtaque(ataqueInstancia,r);
           const adicionais=opcoesDepoisDoAcerto(a,ataqueInstancia,p,s),rerrolagens=rerrolagensDano(a,ataqueInstancia),modificadorDano=modificadorDanoAntesDaRolagem(a,ataqueInstancia);
-          const metaAdicionais=adicionais.map(g=>{const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags,custo:g.custo??[],automatico:g.automatico===true,...((modo.preparar??[]).includes(g.id)?{preSelecionado:true}:{}),descricao:g.descricao??'',...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};});
+          const metaAdicionais=adicionais.map(g=>{const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];return {id:g.id,nome:g.nome,...metaVisualHabilidade(g),formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags,custo:g.custo??[],automatico:g.automatico===true,...((modo.preparar??[]).includes(g.id)?{preSelecionado:true}:{}),descricao:g.descricao??'',...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};});
           const metaRerrolagens=rerrolagens.map(metaRerrolagem);
           const metaModificador=modificadorDano?{id:modificadorDano.id,nome:modificadorDano.nome,tipo:modificadorDano.modificadorDano.tipo,automatico:true,descricao:modificadorDano.descricao??''}:null;
           const rolagem=await resultado(formula,{tipo:'dano',titulo:'Dano '+(i+1)+' · '+modo.nome,critico,alvo:p.nome,tipoDano:r.elemento,parcelasDano:[{tipo:r.elemento,tags}],alvoDano:resumoAlvoDano(p),facesMinimasDano:fonteFacesMinimas(a,ataqueInstancia,r),adicionais:metaAdicionais,rerrolagens:metaRerrolagens,modificadorDano:metaModificador});
@@ -2439,6 +2579,20 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       const centro=temArea?(rule.origemArea==='conjurador'&&!areaDirecional?a:c.ponto):alvo;
       exigir(centro && Number.isFinite(centro.x)&&Number.isFinite(centro.y)&&distancia(a,centro)<=rule.alcanceM+1e-8,'Alvo ou centro fora do alcance.');
       const afetados=(escolhidos??(temArea?s.atores.filter(x=>dentroDaArea(a,centro,x,rule)):[alvo])).filter(x=>x&&(!temArea||!rule.tiposCriatura||rule.tiposCriatura.includes(tipoCriatura(x)))&&!((rule.excluirConjurador||['cone','linha'].includes(rule.area?.forma))&&x===a));
+      let armaArremessada=null;
+      if(rule.tipo==='ataque'&&rule.arremesso){
+        exigir(afetados.length===1,'Um arremesso usa uma arma física contra um alvo por vez.');
+        armaArremessada=a.ficha.inventario.itens.find(i=>i.id===o.origemItem&&i.equipado);
+        exigir(armaArremessada&&armaArremessada.tipo==='equipamento','A arma arremessada precisa estar equipada.');
+      }
+      const soltarArremesso=p=>{
+        if(!armaArremessada)return;
+        const item=a.ficha.inventario.itens.find(i=>i.id===armaArremessada.id);exigir(item,'A arma arremessada já foi removida do inventário.');
+        const copia=structuredClone(item);copia.quantidade=1;copia.equipado=false;delete copia.equipadoSlot;
+        if(item.quantidade>1){item.quantidade--;copia.id=crypto.randomUUID();}else a.ficha.inventario.itens=a.ficha.inventario.itens.filter(i=>i!==item);
+        criarLootNoChao(s,copia,{x:p.x,y:p.y},item.nome);msg+=' • '+item.nome+' caiu aos pés de '+p.nome;
+        armaArremessada=null;
+      };
       if(rule.tiposCriatura&&!temArea)exigir(afetados.every(x=>rule.tiposCriatura.includes(tipoCriatura(x))),'Esta magia só afeta criaturas do tipo '+rule.tiposCriatura.join(' ou ')+'.'); // #22 cone e linha partem de quem usa e não o atingem
       validarRequisitosUso(s,a,o,afetados[0]);
       // M05 #44: a magia deixa uma zona persistente com identidade, origem, geometria, duração e concentração.
@@ -2604,19 +2758,20 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const defesa=caAtual(p),rr=await rolarD20(rule.bonus,a,{tipo:'ataque',atributo:o.dadosEquipamento?.atributo??rule.atributoConjuracao,titulo:'Ataque · '+o.nome,alvo:p.nome,cd:defesa,penalidade:restricoesAtivas(p).penalidadeAtaquesContra});const face=rr.natural,total=rr.total;
         msg+=' • d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
         const acertou=face!==1&&(face===20||total>=defesa),evento={opcao:o.id,alvo:p.id,tags:tagsAtaque(o,rule),acertou};a.eventosTurno.ataques.push(evento);
-        if(!acertou){msg+=' • errou '+p.nome;if(rule.danoAoErrar&&face!==1){await aplicarDanoNoAtor(p,rule.danoAoErrar,rule.elemento,{origem:a});msg+=' • Garantido: '+p.nome+' sofreu '+rule.danoAoErrar;}continue;}
+        if(!acertou){msg+=' • errou '+p.nome;soltarArremesso(p);if(rule.danoAoErrar&&face!==1){await aplicarDanoNoAtor(p,rule.danoAoErrar,rule.elemento,{origem:a});msg+=' • Garantido: '+p.nome+' sofreu '+rule.danoAoErrar;}continue;}
         a.eventosTurno.acertos.push(evento);
         if(rule.efeitoAcerto)p.efeitosAtivos=[...(p.efeitosAtivos??[]).filter(e=>e.id!==o.id+'-acerto'),{...structuredClone(rule.efeitoAcerto),id:o.id+'-acerto',origemAtorId:a.id}]; // #15 Toque Chocante
         if(rule.efeitoAcerto?.zerarReacao)p.reacao=0;
         if(face===20||(restricoesAtivas(p).criticoCorpoACorpo&&distancia(a,p)<=1.5+1e-8)){critico=true;formula=formulaCritica(formula);msg+=' • crítico';}
       }
       const tagsDano=rule.tipo==='ataque'?tagsAtaque(o,rule):['magia'];
-      const extrasFixos=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p,s).filter(g=>g.automatico&&/^\d+$/.test(g.aprimoramento.dano)).map(g=>({id:g.id,nome:g.nome,formula:g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:tagsDano,automatico:true})):[];
-      if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome,extrasFixos,facesMinimasDano:fonteFacesMinimas(a,o,rule)})){msg+=' • aguardando reação de '+p.nome;continue;}
+      const extrasFixos=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p,s).filter(g=>g.automatico&&/^\d+$/.test(g.aprimoramento.dano)).map(g=>({id:g.id,nome:g.nome,...metaVisualHabilidade(g),formula:g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:tagsDano,automatico:true})):[];
       const adicionais=rule.tipo==='ataque'?opcoesDepoisDoAcerto(a,o,p,s):[],rerrolagens=rerrolagensDano(a,o),modificadorDano=rule.tipo==='ataque'?modificadorDanoAntesDaRolagem(a,o):null;
+      soltarArremesso(p);
+      if(rule.tipo==='ataque'&&abrirReacaoPreventiva(s,p,a,{formula,elemento:rule.elemento,tags:tagsDano,critico,nome:o.nome,extrasFixos,facesMinimasDano:fonteFacesMinimas(a,o,rule)})){msg+=' • aguardando reação de '+p.nome;continue;}
       const metaAdicionais=adicionais.map(g=>{
         const area=g.aprimoramento.salvaArea,atingidos=area?s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8):[];
-        return {id:g.id,nome:g.nome,formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
+        return {id:g.id,nome:g.nome,...metaVisualHabilidade(g),formula:critico&&g.aprimoramento.critico!==false?formulaCritica(g.aprimoramento.dano):g.aprimoramento.dano,elemento:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano,custo:g.custo??[],automatico:g.automatico===true,descricao:g.descricao??'',
           ...(ehManobra(g)?{grupoExclusivo:grupoManobra}:{}),
           ...(area?{previsualizacaoArea:{forma:'circulo',raioM:area.raioM,centroAtorId:p.id,centroNome:p.nome,alvos:atingidos.map(x=>({id:x.id,nome:x.nome}))}}:{})};
       });
@@ -2687,10 +2842,10 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
 export function publico(s){
   const v=structuredClone(s);
   delete v.gruposFichas;
+  for(const r of v.recipientes??[]){r.ocupados=r.itens?.length??0;r.itens=[];}
   for(const a of v.atores)if(a.saqueAberto){
-    const alvo=s.atores.find(x=>x.id===a.saqueAberto.alvoId);
     a.saqueAberto.itens=itensSaque(s,a);
-    a.saqueAberto.alvoNome=alvo?.nome;
+    a.saqueAberto.nome=a.saqueAberto.origem?.tipo==='personagem'?s.atores.find(x=>x.id===a.saqueAberto.origem.id)?.nome:a.saqueAberto.nome;
   }
   delete v.filaReacoes;delete v.resolucaoPendente;
   for(const a of v.atores)if(a.ficha.tipo==='npc'){

@@ -1,0 +1,19 @@
+.habilidade-arte{--borda:#ae946b;--fundo:#363126;position:relative;isolation:isolate;display:block;width:100%;height:100%;aspect-ratio:1;min-width:0;overflow:hidden;border-radius:4px;color:#fff5df;box-sizing:border-box}
+.habilidade-arte.raca{--borda:#8bbba3;--fundo:#233c36}.habilidade-arte.classe{--borda:#b29dce;--fundo:#362d49}
+.habilidade-fundo,.habilidade-arte>img,.habilidade-moldura{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;box-sizing:border-box}
+.habilidade-fundo{background:radial-gradient(ellipse at 40% 25%,#ffffff12,transparent 70%),var(--fundo)}
+.habilidade-arte>img{object-fit:contain}.habilidade-recorte{padding:3%}.habilidade-moldura{border:2px solid var(--borda);border-radius:inherit;box-shadow:inset 0 0 0 2px #0004}
+.habilidade-arte>img[hidden]{display:none}.habilidade-nome{position:absolute;inset:auto 2px 2px;display:block!important;width:auto!important;white-space:normal!important;font:600 9px/1.08 "Segoe UI",sans-serif!important;text-align:center;text-shadow:0 1px 2px #000,1px 0 2px #000;overflow-wrap:break-word;overflow:visible!important;color:#fff5df;background:#101016bf;border-radius:2px;padding:2px;box-sizing:border-box}
+.habilidade-arte.sem-arte .habilidade-nome,.habilidade-arte.texto .habilidade-nome{inset:3px;display:grid!important;grid-template-columns:minmax(0,1fr);align-content:center;background:#10101635;font-size:9px!important;overflow-wrap:anywhere!important;min-width:0}
+.habilidade-arte.texto .habilidade-recorte{opacity:.25}.habilidade-arte.texto:has(.habilidade-bonus) .habilidade-nome{bottom:13px}
+.habilidade-bonus{position:absolute;bottom:1px;right:3px;left:3px;font:700 10px/1 "Segoe UI",sans-serif;text-align:center;color:#a9efda}
+.habilidade-variante{position:absolute;top:2px;left:2px;right:2px;font:600 7px/1.1 "Segoe UI",sans-serif;text-align:center;background:#101016ce;color:#f9d99e;pointer-events:none}
+.habilidade-arte:has(.habilidade-variante-imagem) .habilidade-variante{top:2px;left:auto;right:2px;width:22px;height:22px;display:grid;place-items:center;border:1px solid #f2d49a;border-radius:50%;box-shadow:0 1px 4px #000b;background:#111a}
+.habilidade-variante-imagem{position:relative!important;inset:auto!important;display:block;width:18px!important;height:18px!important;object-fit:contain!important;padding:1px;box-sizing:border-box}
+.grade button:has(.habilidade-arte),.icone-habilidade:has(.habilidade-arte){padding:1px;position:relative}.icone-habilidade>.habilidade-arte{width:100%;height:100%}
+.habilidade-miniatura{float:left;width:80px!important;height:80px!important;max-width:30%;margin:0 10px 6px 0;flex-shrink:0}.habilidade-miniatura .habilidade-nome{font-size:11px!important}.habilidade-explicacao{white-space:pre-line}
+.cabecalho-arte-custos{display:flex;align-items:center;gap:10px;margin:8px 0;min-width:0;flex-wrap:wrap}.cabecalho-arte-custos>.habilidade-arte{width:112px;height:112px;flex:0 0 112px}.cabecalho-arte-custos>.custos-compositor{flex:1;min-width:80px;flex-wrap:wrap;overflow:visible}.cabecalho-arte-custos .habilidade-nome{font-size:12px!important}
+.modo-composicao>.habilidade-arte{width:100%;height:100%;min-height:0}.modo-composicao:has(.habilidade-arte){position:relative;padding:1px}.modo-composicao>small{position:absolute;bottom:1px;right:2px;background:#111;color:#fff;z-index:1}
+.recursos-rolagem button:has(.habilidade-arte),.escolhas-reacao button:has(.habilidade-arte){width:58px;height:58px;min-width:58px;padding:1px}
+.icone-habilidade.preparada:after{content:'✓';position:absolute;top:0;right:0;padding:1px 3px;border-radius:0 3px 0 4px;background:#b28835;color:#fff;z-index:2;font-size:10px}.icone-habilidade.ativa{outline:1px solid #84d9ae;outline-offset:1px}
+@media(max-width:380px){.cabecalho-arte-custos>.habilidade-arte{width:88px;height:88px;flex-basis:88px}}

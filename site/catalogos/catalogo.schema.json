@@ -16,7 +16,17 @@
       "properties": {
         "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9.-]+$"},
         "revisao": {"type": "integer", "minimum": 1},
-        "definicao": {"type": "object", "required": ["nome"]}
+        "definicao": {"type": "object", "required": ["nome"], "properties": {"visual": {"$ref": "#/$defs/visualHabilidade"}}}
+      },
+      "additionalProperties": false
+    },
+    "visualHabilidade": {
+      "type": "object",
+      "properties": {
+        "arteId": {"type": "string", "minLength": 1},
+        "familia": {"enum": ["origem", "comum", "raca", "classe"]},
+        "layout": {"enum": ["ilustracao", "texto"]},
+        "textoCurto": {"type": "string", "minLength": 1}
       },
       "additionalProperties": false
     }

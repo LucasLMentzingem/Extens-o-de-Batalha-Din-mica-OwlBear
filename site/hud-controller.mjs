@@ -1,13 +1,15 @@
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.39';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.39';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.39';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.39';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.39';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.39';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.43';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.43';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.43';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.43';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.43';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.43';
+import {visualHabilidade,testeVisual} from './ability-art.mjs?v=0.8.43';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.43';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.39',import.meta.url);
+const url=new URL('./hud.html?v=0.8.43',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -97,7 +99,7 @@ export async function iniciarHud(){
     if(!p)return null;
     const a=atores().find(x=>x.id===(p.cmd?.ator??p.atorId)),o=p.opcaoPublica??opcoesDisponiveis(a??{}).find(x=>x.id===(p.cmd?.opcao??p.opcao));
     return {id:p.publicId??p.id,atorId:a?.id??p.atorId,titulo:p.titulo,detalhe:p.detalhe,pronto:p.pronto,
-      opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?structuredClone(o):null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
+      opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?{...structuredClone(o),visual:visualHabilidade(o,a?.ficha??p.fichaPublica??{})}:null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
       alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
       custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
@@ -310,7 +312,7 @@ export async function iniciarHud(){
     pendente={publicId:crypto.randomUUID(),cmd,opcaoPublica:o,regraLista:multi(o),rev:estado.rev,escolha,rule,titulo,pronto:!escolha,rolagem:false,custos:custosPrevia(a,o,cmd.modoCusto),
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(circulos.length>1||duplicadaDisponivel||ilusaoDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{}),...(ilusaoDisponivel?{ilusaoDisponivel:true,ilusaoCausaDano}:{})};
-    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
+    if(o?.composicao)pendente.composicao={gavetaAberta:true,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
     if(escolha){
       pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
@@ -582,7 +584,9 @@ export async function iniciarHud(){
       if(d.ator){if(!atores().some(a=>a.id===d.ator&&controla(a)))return;atorId=d.ator;}
       const a=ator(),grupo=d.grupo,chave=d.chave;
       if(!controla(a)||!['pericias','salvaguardas'].includes(grupo)||typeof chave!=='string')return;
+      const bonus=grupo==='pericias'?bonusPericia(a,chave):a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);
       await cancelar();pendente={cmd:{tipo:'teste',ator:a.id,rev:estado.rev,grupo,chave},rev:estado.rev,
+        opcaoPublica:{...testeVisual(grupo,chave,bonus),categoria:'teste',descricao:'Rolagem rápida de '+a.nome+'. Bônus atual: '+(bonus>=0?'+':'')+bonus+'. Não consome ações.'},custos:[],
         escolha:null,titulo:(grupo==='pericias'?'Perícia · ':'Salvaguarda · ')+chave,pronto:true,rolagem:false,
         substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:'Rolagem rápida de '+a.nome+' · não consome ações.'};
     }else if(d.tipo==='encerrarConcentracao'){

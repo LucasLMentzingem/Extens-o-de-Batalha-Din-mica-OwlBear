@@ -1,9 +1,9 @@
 import OBR, {buildImage} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.39';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.39';
-import {compactarEstado} from './catalog.mjs?v=0.8.39';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.39';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.39';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.43';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.43';
+import {compactarEstado} from './catalog.mjs?v=0.8.43';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.43';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.43';
 export const ns='aventura-dnd.combate.v1';
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
 const chaveCena=ns+'/cena';
@@ -214,6 +214,24 @@ async function sincronizarTokensInvocacao(s,pixelsMetro){
 async function getTokens(){
   return (await OBR.scene.items.getItems()).filter(x=>x.type==='IMAGE' && x.layer==='CHARACTER').map(x=>({id:x.id,name:x.name,x:x.position.x,y:x.position.y,visible:x.visible}));
 }
+const prefixoRecipiente='laarte-recipiente-';
+async function sincronizarTokensRecipientes(s,pixelsMetro){
+  const itens=await OBR.scene.items.getItems();
+  const orfaos=itens.filter(i=>i.metadata?.[ns+'/recipiente']&&!s.recipientes?.some(r=>r.id===i.metadata[ns+'/recipiente'])).map(i=>i.id);
+  if(orfaos.length)await OBR.scene.items.deleteItems(orfaos);
+  for(const r of s.recipientes??[]){
+    const id=r.tokenId??(prefixoRecipiente+r.id),existente=itens.find(i=>i.id===id),primeiro=r.itens?.[0];
+    const caminho=r.tipo==='caixa'?'assets/props/bau-madeira-saque-75graus.webp':(primeiro?.icone??'assets/props/loot-no-chao.svg');
+    const url=/^(?:https?:|data:|blob:)/.test(caminho)?caminho:new URL('./'+caminho.replace(/^\.\//,''),location.href).href;
+    if(!existente){
+      const pixels=r.tipo==='caixa'?500:256,metros=r.tipo==='caixa'?.9:.6;
+      const token=buildImage({url,mime:/\.svg(?:\?|$)/i.test(url)?'image/svg+xml':/\.webp(?:\?|$)/i.test(url)?'image/webp':'image/png',width:pixels,height:pixels},{dpi:pixels/metros,offset:{x:pixels/2,y:pixels/2}})
+        .id(id).name(r.nome).layer('PROP').metadata({[ns+'/recipiente']:r.id}).position({x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro}).build();
+      await OBR.scene.items.addItems([token]);
+    }else await OBR.scene.items.updateItems([id],xs=>{for(const item of xs){item.position={x:r.posicaoM.x*pixelsMetro,y:r.posicaoM.y*pixelsMetro};item.name=r.nome;item.metadata??={};item.metadata[ns+'/recipiente']=r.id;}});
+    r.tokenId=id;
+  }
+}
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
   const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada;const pedidos=new Map();
@@ -284,6 +302,28 @@ export async function host(){
       const {key,s}=await carregar();
       if(c.tipo==='sync'){await mostrar(await sincronizarNpcs());await reply({});return;}
       const tokens=await getTokens(), dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);
+      let propNovo=null;
+      if(c.tipo==='criarRecipiente'){
+        if(u.role!=='GM')throw Error('Somente o mestre pode colocar baús.');
+        if(c.tokenId){
+          const [prop]=await OBR.scene.items.getItems([c.tokenId]);if(!prop||prop.type!=='IMAGE'||prop.layer!=='PROP')throw Error('Selecione uma imagem na camada de props.');
+          c={...c,posicaoM:{x:prop.position.x/pixelsMetro,y:prop.position.y/pixelsMetro}};
+        }else{
+          c={...c,tokenId:prefixoRecipiente+crypto.randomUUID()};
+          const centro=await OBR.viewport.inverseTransformPoint({x:await OBR.viewport.getWidth()/2,y:await OBR.viewport.getHeight()/2});
+          c.posicaoM={x:centro.x/pixelsMetro,y:centro.y/pixelsMetro};propNovo={tokenId:c.tokenId,posicao:{x:centro.x,y:centro.y}};
+        }
+      }
+      if(['abrirSaqueRecipiente','confirmarSaque'].includes(c.tipo)){
+        const ator=s.atores.find(a=>a.id===c.ator),origem=ator?.saqueAberto?.origem;
+        const recipiente=c.tipo==='abrirSaqueRecipiente'?s.recipientes?.find(r=>r.id===c.recipienteId):origem&&origem.tipo!=='personagem'?s.recipientes?.find(r=>r.id===origem.id):null;
+        if(recipiente){
+        const [prop]=await OBR.scene.items.getItems([recipiente.tokenId]);
+        if(!recipiente||!prop)throw Error('Esta peça não está configurada como recipiente.');
+        if(u.role!=='GM'&&prop.visible===false)throw Error('Este recipiente não está visível.');
+        recipiente.posicaoM={x:prop.position.x/pixelsMetro,y:prop.position.y/pixelsMetro};
+        }
+      }
       if(c.tipo==='criarPeca'){
         const a=s.atores.find(x=>x.id===c.ator);
         if(u.role!=='GM'||c.rev!==s.rev||s.fase!=='preparo'||!a||a.token)throw Error('Escolha uma ficha sem vínculo na preparação.');
@@ -319,6 +359,11 @@ export async function host(){
       const faseAntes=s.fase;
       const presentes=new Set([eu.id,...(await OBR.party.getPlayers()).map(p=>p.id)]);
       const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes));
+      if(propNovo){
+        const lado=500,token=buildImage({url:new URL('./assets/props/bau-madeira-saque-75graus.webp',location.href).href,mime:'image/webp',width:lado,height:lado},{dpi:lado/.9,offset:{x:lado/2,y:lado/2}})
+          .id(propNovo.tokenId).name('Baú de madeira').layer('PROP').position(propNovo.posicao).build();
+        await OBR.scene.items.addItems([token]);
+      }
       if(c.tipo==='vincular'){const a=next.atores.find(x=>x.id===c.ator),t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/pixelsMetro;a.y=t.y/pixelsMetro;}}
       if(c.tipo==='iniciar'||c.tipo==='encerrar'){
         const ids=next.atores.filter(a=>a.token&&(c.tipo==='encerrar'||a.emCombate!==false)).map(a=>a.token);
@@ -341,6 +386,7 @@ export async function host(){
       const movidos=next.atores.filter(a=>{const antes=s.atores.find(x=>x.id===a.id);return a.token&&antes&&(a.x!==antes.x||a.y!==antes.y);});
       if(movidos.length)await OBR.scene.items.updateItems(movidos.map(a=>a.token),items=>{for(const t of items){const a=movidos.find(x=>x.token===t.id);if(a)t.position={x:a.x*pixelsMetro,y:a.y*pixelsMetro};}});
       await sincronizarTokensInvocacao(next,pixelsMetro); // M06
+      await sincronizarTokensRecipientes(next,pixelsMetro);
       persistir(key,next);
       const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
       await mostrar(estadoMostrar);await reply({});
@@ -356,25 +402,47 @@ export async function host(){
     const p=pedidos.get(e.data?.pedido),jogador=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
     if(p&&jogador?.id===p.destino)p.responder(e.data);
   });
-  const sync=()=>serial(async()=>{if(await OBR.scene.isReady())await mostrar(await sincronizarNpcs());});
+  const sync=()=>serial(async()=>{if(await OBR.scene.isReady()){
+    const {key,s}=await carregar(),[itens,dpi]=await Promise.all([OBR.scene.items.getItems(),OBR.scene.grid.getDpi()]),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
+    for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
+    if(mudou)persistir(key,s);
+    await sincronizarTokensRecipientes(s,pixelsMetro);
+    await mostrar(await sincronizarNpcs());
+  }});
   let assinaturaItens='',sincronizacaoAgendada=false;
   OBR.scene.items.onChange(itens=>{
-    const assinatura=JSON.stringify(itens.filter(i=>i.type==='IMAGE'&&i.layer==='CHARACTER').map(i=>[i.id,i.metadata?.[chaveFichaNpc]]).sort((a,b)=>a[0].localeCompare(b[0])));
+    // A posição de props é lida ao abrir o recipiente e ao carregar a cena;
+    // não sincronizar a cada quadro de arraste evita gravações/redesenhos contínuos.
+    const assinatura=JSON.stringify(itens.filter(i=>i.type==='IMAGE'&&(i.layer==='CHARACTER'||i.metadata?.[ns+'/recipiente'])).map(i=>[i.id,i.metadata?.[chaveFichaNpc],i.metadata?.[ns+'/recipiente']]).sort((a,b)=>a[0].localeCompare(b[0])));
     if(assinatura===assinaturaItens)return;
     assinaturaItens=assinatura;
     if(sincronizacaoAgendada)return;
     sincronizacaoAgendada=true;
     requestAnimationFrame(()=>serial(async()=>{
       sincronizacaoAgendada=false;
-      if(await OBR.scene.isReady())await mostrar(await sincronizarNpcs());
+      if(await OBR.scene.isReady()){
+        const {key,s}=await carregar(),dpi=await OBR.scene.grid.getDpi(),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
+        for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
+        if(mudou)persistir(key,s);
+        await sincronizarTokensRecipientes(s,pixelsMetro);
+        await mostrar(await sincronizarNpcs());
+      }
     }));
   });
   OBR.party.onChange(sync);OBR.scene.onReadyChange(ready=>{if(ready)sync();else ch.postMessage({vista:novo(),info:{...eu,modo:'sem cena',players:[],tokens:[]}});});
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.39',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.43',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
+  for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
+  const abrirRecipiente=async(ctx)=>{
+    const tokenId=ctx.items?.[0]?.id;if(!tokenId)return;
+    const largura=Math.min(420,await OBR.viewport.getWidth()-24),url=new URL('./recipiente.html?v=0.8.43',location.href);url.searchParams.set('tokenId',tokenId);
+    await OBR.popover.open({id:ns+'/recipiente',url:url.href,width:largura,height:560,hidePaper:true,disableClickAway:false,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,await OBR.viewport.getWidth()-largura-12),top:64},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  };
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · transformar em recipiente / configurar',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],onClick:abrirRecipiente});
+  await OBR.contextMenu.create({id:ns+'/saquear-recipiente',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · saquear',filter:{roles:['GM','PLAYER'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],onClick:abrirRecipiente});
   sync();
 }
 export async function sala(onView){

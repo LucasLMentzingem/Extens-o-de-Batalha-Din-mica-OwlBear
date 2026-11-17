@@ -2,5 +2,8 @@
 .entrada-saque{min-width:0;background:#282230;border:1px solid #65566c;border-radius:6px;padding:5px}
 .entrada-saque.selecionada{border-color:#e1bc79}.entrada-saque button{width:100%;min-height:74px;display:grid;align-content:center;gap:4px;font-size:12px}
 .entrada-saque small{font-size:10px;color:#c9c6b6}.entrada-saque input{width:100%;box-sizing:border-box;margin-top:5px}
+.entrada-saque .equipar-loot{margin-top:5px;padding:4px;font-size:11px;color:#f1ce8b}.entrada-saque.vaga{min-height:130px;display:grid;place-items:center;border-style:dashed;background:transparent;color:#85818b;font-size:12px}
+.comparacao-loot{display:block;white-space:normal;line-height:1.35;color:#b8d9c2!important}
 .resumo-saque{position:sticky;bottom:0;background:#202c2a;padding:12px;border:1px solid #9a8053;border-radius:8px;margin-top:10px}
 .resumo-saque progress{width:100%}.resumo-saque footer{display:flex;gap:8px;margin-top:8px}.excesso{color:#ed9b90}
+@media(max-width:520px){.grade-saque{grid-template-columns:repeat(3,minmax(0,1fr))}.entrada-saque.vaga{min-height:112px}}

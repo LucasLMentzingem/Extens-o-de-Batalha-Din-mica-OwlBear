@@ -1,5 +1,6 @@
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.39';
-import {arteItem} from './item-art.mjs?v=0.8.39';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.43';
+import {arteItem} from './item-art.mjs?v=0.8.43';
+import {arteHabilidade} from './ability-art.mjs?v=0.8.43';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -43,7 +44,7 @@ function inventarioFicha(a,podeEditar,lojas=[],gm=false,trocasPermitidas=true,tr
   const controlesGm=gm?'<div class="controles-inventario-gm"><small>CONTROLES DO MESTRE</small><button type="button" data-gm-adicionar-item>Adicionar item</button><button type="button" data-gm-adicionar-po>Adicionar PO</button></div>':'';
   return '<section class="pagina-inventario"><header><div><small>INVENTÁRIO</small><h2>Equipamentos e carga</h2></div><div class="saldo-e-loja"><strong class="contador-po">◉ '+poTexto+' PO</strong>'+acessoLoja+'</div></header><h3>Equipamentos</h3><p class="muted">Clique com o botão direito para equipar ou desequipar. Em combate a troca custa 1 ação.</p><div class="slots-equipamento">'+slots+'</div><h3>Inventário</h3><div class="grade-inventario">'+celulas+'</div><div class="carga-inventario"><div><span style="width:'+percentual+'%"></span></div><strong>'+peso.toLocaleString('pt-BR',{maximumFractionDigits:2})+' / '+capacidade.toLocaleString('pt-BR')+' kg</strong></div>'+controleTroca+controlesGm+(podeEditar?'':'<p class="muted">Inventário disponível somente para consulta.</p>')+'</section>';
 }
-const habilidadeIcone=o=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa ':'')+(o.indisponivel?'indisponivel':'')+'" data-habilidade-id="'+esc(o.id??'')+'" data-habilidade-tipo="'+esc(o.tipoLivro??'opcao')+'" data-info="'+esc(o.info??o.descricao??o.nome)+'"><b>'+esc((o.nome??'?').slice(0,2).toUpperCase())+'</b><span>'+esc(o.nome??'')+'</span></button>';
+const habilidadeIcone=(o,f)=>'<button type="button" class="icone-habilidade '+(o.preparada?'preparada ':'')+(o.ativa?'ativa ':'')+(o.indisponivel?'indisponivel':'')+'" aria-label="'+esc(o.nome)+'" data-habilidade-id="'+esc(o.id??'')+'" data-habilidade-tipo="'+esc(o.tipoLivro??'opcao')+'" data-info="'+esc(o.info??o.descricao??o.nome)+'">'+arteHabilidade(o,f)+'</button>';
 export function livroHabilidades(a,pagina='classe',podeEditar=false){
   const f=a.ficha,prep=f.preparacao??{vagas:0,preparadas:[],semprePreparadas:[]},preparadas=new Set(prep.preparadas),sempre=new Set(prep.semprePreparadas);
   const opcoes=opcoesCalculadas(a).filter(o=>!o.ocultarListas);
@@ -51,7 +52,7 @@ export function livroHabilidades(a,pagina='classe',podeEditar=false){
   const comInfo=o=>({...o,info:o.tipoLivro==='passiva'?(o.nome+'\n'+(o.descricao??'')):detalhes(o,f)});
   const racial=o=>habilidadeRacial(f,o),passivasRaciais=(f.passivas??[]).filter(racial),passivasGerais=(f.passivas??[]).filter(o=>!racial(o));
   const raciaisAtivas=opcoes.filter(o=>racial(o)&&!o.varianteDe),magiasBase=opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe&&!racial(o)),reacoes=opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao')&&opcaoPreparada(f,o));
-  const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(comInfo).map(habilidadeIcone).join('')+'</div></section>':'';
+  const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(comInfo).map(o=>habilidadeIcone(o,f)).join('')+'</div></section>':'';
   const comum=o=>!racial(o)&&o.categoria!=='magia'&&(/ataque de oportunidade|golpe desarmado|soco|torrente de golpes|agarrar|imobilizar|derrubar|empurrar|disparada|correr|desengajar|esquivar|ajudar|esconder|analisar|usar objeto|procurar|preparar \| ação|estudar|influenciar|utilizar|usar magia/i.test(o.nome)||o.geradaPorItem||o.automacao?.tipo==='ataque'&&!o.origem);
   let corpo='';
   if(pagina==='reacoes')corpo=grade('Reações disponíveis',reacoes.map(o=>({...o,ativa:o.ativa!==false,indisponivel:o.ativa===false})));

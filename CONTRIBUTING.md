@@ -65,9 +65,12 @@ node gerar-catalogo-runtime.mjs
 node gerar-catalogo-configurado.mjs
 node gerar-catalogo-runtime.mjs --check
 node --test combate.test.mjs
+node --test ability-art.test.mjs recipientes.test.mjs
 ```
 
 O validador recusa IDs duplicados, referências inexistentes, recursos de uso gratuito ausentes e artefato de runtime desatualizado. O GitHub Actions executa essas verificações antes de publicar.
+
+O padrão de arte das habilidades está em [Ícones de habilidades](docs/ARQUITETURA-ICONES-DE-HABILIDADES.md). Registre arquivos em `site/catalogos/artes-habilidades.mjs`; mantenha arte transparente, fundo, moldura e símbolo de variante separados. Reutilize a imagem do item para ataques físicos. Custos e nomes continuam como texto da interface.
 
 `migrar-fichas-v2.mjs` documenta e reproduz a migração inicial das fichas históricas; não é o fluxo normal para adicionar conteúdo novo.
 

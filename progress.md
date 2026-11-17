@@ -843,3 +843,12 @@ Auditoria detalhada: `AUDITORIA-FICHAS-NIVEL-3.md`.
 - [x] Dar às armas elementais gemas ou veios discretos da cor do elemento, integrados ao item.
 - [x] Remover a plaqueta externa sobreposta à moldura; o recorte continua transparente e reutilizável.
 
+# 0.8.43 — Ícones de habilidades, baús e revisão de publicação
+
+- [x] Integrar 16 recortes 500 × 500 e temas Comum/Raça/Classe ao componente visual compartilhado; conservar armas e sobrepor símbolo de arremesso.
+- [x] Integrar baús/loot, administração do GM, slots e tranca.
+- [x] Corrigir depósito parcial, identidade de pilhas divididas, lista atual de saque, baú vazio e seleção da ficha de recipiente.
+- [x] Validar 258 testes, catálogo, cache e fluxos de interface em navegador headless.
+- [ ] Sessão multiplayer real; ampliar artes exclusivas e comparação rica no saque, sincronização durável e isolamento das sessões por destinatário.
+- Relatório: `docs/REVISAO-0.8.43.md`. Próximo trabalho começa pelas limitações registradas nesse relatório; não confundir cobertura visual por emblema com arte exclusiva por habilidade.
+
