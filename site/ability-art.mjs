@@ -45,7 +45,7 @@ export function arteHabilidade(h={},f={},classe=''){
 }
 export function preencherBalaoHabilidade(container,alvo,texto){
   container.replaceChildren();const arte=alvo?.querySelector('.habilidade-arte');
-  if(arte){const mini=arte.cloneNode(true);mini.classList.add('habilidade-miniatura');container.append(mini);}
+  if(arte){const mini=arte.cloneNode(true);mini.classList.add('habilidade-miniatura','sem-texto');container.append(mini);}
   const corpo=container.ownerDocument.createElement('span');corpo.className='habilidade-explicacao';corpo.textContent=texto??'';container.append(corpo);
 }
 // Uma URL inválida ou indisponível nunca remove o nome nem bloqueia a habilidade.

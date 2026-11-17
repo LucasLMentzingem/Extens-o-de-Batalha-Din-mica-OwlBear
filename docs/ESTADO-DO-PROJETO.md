@@ -4,7 +4,11 @@ Revisão de 17 de novembro de 2026, versão local **0.8.50**, linha travada em 0
 
 ## Ajuste local em andamento — 0.8.50
 
-A Barra de Atividades agora volta a deixar a tela sem instância quando o usuário recolhe ou cancela uma seleção antiga. O controle de recolher/abrir é uma seta grande para a esquerda: fica à esquerda da instância em foco; sem instância, recolhida, desloca-se para perto de 80% da largura da tela. A seta pulsa quando há atividades de outros participantes. Esta alteração ainda não foi publicada.
+- Cancelar/concluir a própria atividade deixa a tela sem seleção automática do histórico. Recolher a barra também limpa a inspeção antiga.
+- Inspeções de GM e jogadores são somente leitura e mostram Fechar na instância e no resultado, voltando à barra. Fechar uma inspeção não cancela uma ação própria pausada.
+- A seta para abrir permanece disponível sem seleção/histórico. Com instância fica à esquerda dela; sem instância fica junto à borda direita. A barra aberta possui seta na sua borda esquerda para recolher à direita. O brilho de atividade permanece.
+- Instâncias e miniaturas dos balões não sobrepõem nomes às imagens. Pós-acerto e rerrolagens exibem o nome fora da imagem, abaixo dela; ajuste de rolagem tem mais espaço.
+- 302 testes automatizados aprovados. Navegador com SDK simulado confirmou Fechar, ausência de Executar/Cancelar no histórico, retorno à barra, seta na borda, rascunhos preservados e nome pós-acerto abaixo do ícone. Falta validação na sala real. Sem publicação nesta etapa.
 
 ## Entrega atual
 

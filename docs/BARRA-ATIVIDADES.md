@@ -5,7 +5,7 @@ Integrada à versão 0.8.49 em 17/11/2026. Complementa a transmissão pública d
 ## Apresentação
 
 - Barra horizontal inferior direita: teste e dano acima da skill, retrato do token abaixo. Recentes à esquerda; antigas à direita; execução própria fixada à esquerda. Largura limitada e scroll horizontal.
-- Seta acima da barra troca para instância e dados selecionados. No modo expandido, botão inferior no início da região direita volta à barra e pulsa se há outras ações em andamento.
+- A seta grande à esquerda da instância abre a barra e pulsa com outras atividades em andamento; sem instância, fica junto à borda direita. A seta à esquerda da barra recolhe o histórico para a direita.
 - Clique seleciona; duplo clique abre. Ícones ativos pulsam; resultado confirmado para de rolar. Números usam carretéis locais e respeitam preferência de movimento reduzido.
 - Própria ação tem prioridade; iniciar recolhe a barra, guarda o modo anterior e o restaura ao concluir/cancelar. Pausar preserva alvos, composição e fórmula digitada. Cliques no mapa não modificam a seleção enquanto ela está pausada. Prazos do motor seguem normalmente.
 - Histórico: últimas 30 execuções concluídas, além das ativas; somente leitura. Nesta implementação o histórico dura a sessão do controlador na cena: recarregar ou trocar de cena limpa esse histórico, sem afetar o estado persistido do jogo.
@@ -28,3 +28,11 @@ Prévia de cada participante tem sua própria coleção de marcas. Não há envi
 - Regressão completa da 0.8.49: 301 testes passaram, incluindo manter baú aberto ao equipar, golpes compostos e escolhas de iniciativa.
 - Navegador headless com SDK simulado: duas prévias remotas, própria ação, pausa/retomada, retorno à barra, histórico somente leitura e fórmula 1d20+7 preservada ao recolher/abrir antes de rolar e concluir. Mantido o teste de recuperação do arremesso após falha transitória do SDK.
 - Não houve teste na sala real nesta etapa. Layout e latência precisam ser conferidos no Owlbear real após uma publicação autorizada.
+
+## Ajuste local 0.8.50
+
+- Cancelar/concluir a própria atividade deixa a tela sem seleção automática do histórico. Recolher a barra também limpa a inspeção antiga.
+- Inspeções de GM e jogadores são somente leitura e mostram Fechar na instância e no resultado, voltando à barra. Fechar uma inspeção não cancela uma ação própria pausada.
+- A seta para abrir permanece disponível sem seleção/histórico. Com instância fica à esquerda dela; sem instância fica junto à borda direita. A barra aberta possui seta na sua borda esquerda para recolher à direita. O brilho de atividade permanece.
+- Instâncias e miniaturas dos balões não sobrepõem nomes às imagens. Pós-acerto e rerrolagens exibem o nome fora da imagem, abaixo dela; ajuste de rolagem tem mais espaço.
+- 302 testes automatizados aprovados. Navegador com SDK simulado confirmou Fechar, ausência de Executar/Cancelar no histórico, retorno à barra, seta na borda, rascunhos preservados e nome pós-acerto abaixo do ícone. Falta validação na sala real. Sem publicação nesta etapa.

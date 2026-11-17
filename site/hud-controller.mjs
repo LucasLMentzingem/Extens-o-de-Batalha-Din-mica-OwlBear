@@ -122,7 +122,7 @@ export async function iniciarHud(){
       opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?{...structuredClone(o),visual:visualHabilidade(o,a?.ficha??p.fichaPublica??{})}:null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
       alvos:p.cmd?.alvos??p.alvos??[],composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
-      saldosComposicao:{acao:a?.acao??0,bonus:a?.bonus??0,reacao:a?.reacao??0,...(a?.rec??{})},foraCombate:estado?.fase==='preparo'||a?.emCombate===false,custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura};
+      saldosComposicao:{acao:a?.acao??0,bonus:a?.bonus??0,reacao:a?.reacao??0,...(a?.rec??{})},foraCombate:estado?.fase==='preparo'||a?.emCombate===false,custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura:somenteLeitura||p.somenteLeitura===true};
   }
   function transmitir(){
     const p=acaoVisivel();
@@ -190,26 +190,23 @@ export async function iniciarHud(){
         const pendentes=atores().filter(a=>a.emCombate!==false&&a.init===null&&(eu.role==='GM'||controla(a))),iw=Math.min(eu.role==='GM'?440:340,w-12),ih=Math.min(h-24,eu.role==='GM'?Math.max(148,108+Math.ceil(pendentes.length/2)*43):118);
         caixas.iniciativa=[Math.round((w-iw)/2),Math.round(Math.max(12,(h-ih)*.40)),iw,ih];
       }
-      if(atividades.lista.size){
-        const aw=Math.min(680,Math.max(260,w*.36));
-        if(painelAtividades()){
-          const acao=acaoAtual&&controla(atores().find(a=>a.id===acaoAtual.atorId))?caixas.acao:null;
-          const left=acao?Math.max(6,acao[0]-58):Math.round(Math.max(6,w*.8-24));
-          const top=acao?Math.max(62,acao[1]+acao[3]-52):h-98;
-          caixas.atividades=[left,top,52,52];
-        }else caixas.atividades=[Math.round(Math.max(6,w-aw-10)),h-240,aw,192];
-      }
       if(acaoAtual){
         const cw=Math.min(larguraAcao,w-12),ch=alturaAcao,left=acaoLadoALado?leftAcao:Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
         const top=acaoLadoALado?h-ch-48:h-ch-(ator()?(compacto?102:altura)+58:48);
         caixas.acao=[Math.round(left),Math.round(Math.max(62,top)),cw,ch];
       }
+      // O puxador permanece disponível mesmo sem histórico ou seleção.
+      const aw=Math.min(680,Math.max(260,w*.36));
+      if(painelAtividades()){
+        const acao=caixas.acao,left=acao?Math.max(6,acao[0]-58):w-62,top=acao?Math.max(62,acao[1]+acao[3]-52):h-98;
+        caixas.atividades=[Math.round(left),Math.round(top),52,52];
+      }else caixas.atividades=[Math.round(Math.max(6,w-aw-10)),h-240,aw,192];
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if((rp&&controla(reator))||escolhaIniciativa())caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado){
         const n=pedidoDado.formulas?.length??pedidoDado.resultado?.resultados?.length??1;
         const extraResultado=pedidoDado.tipo==='resultado'&&pedidoDado.meta?.rerrolagens?.length?105:0;
-        const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?115:0;
+        const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?210:0;
         const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82+extraResultado:160+n*116+extraAjuste);
         const dw=Math.min(470,w-12),centroX=caixas.acao?caixas.acao[0]+caixas.acao[2]/2:w*.75;
         const left=Math.max(6,Math.min(w-dw-6,centroX-dw/2)),top=caixas.acao?Math.max(6,caixas.acao[1]-ch-10):Math.max(62,(h-ch)/2);
@@ -550,8 +547,8 @@ export async function iniciarHud(){
       if(pedidoDado?.pedido!==d.pedido||pedidoDado.podeEditar===false)return;
       pedidoDado.rascunho={formula:d.formula,formulas:d.formulas};atividades.dado(pedidoDado);return;
     }
-    if(['alternarAtividades','selecionarAtividade'].includes(d.tipo)){
-      if(d.tipo==='alternarAtividades')atividades.alternar();else atividades.selecionar(d.id,d.abrir===true);
+    if(['alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(d.tipo)){
+      if(d.tipo==='fecharAtividade')atividades.fecharVisual();else if(d.tipo==='recolherAtividades')atividades.recolherBarra();else if(d.tipo==='alternarAtividades')atividades.alternar();else atividades.selecionar(d.id,d.abrir===true);
       localStorage.setItem(ns+'/atividades-modo',atividades.modo);await layout();transmitir();return;
     }
     if(d.pedir){transmitir();return;}
@@ -709,7 +706,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=['rascunhoDado','alternarAtividades','selecionarAtividade'].includes(e.data?.tipo)||e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const imediato=['rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(e.data?.tipo)||e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };

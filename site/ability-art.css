@@ -20,3 +20,9 @@
 .grade.sem-nomes-skills .habilidade-nome{display:none!important}
 .habilidade-arte .habilidade-nome{background:transparent!important;text-shadow:0 1px 2px #000,0 0 3px #000,1px 0 2px #000}
 .alternar-nomes-skills{min-width:28px;font-weight:700}.alternar-nomes-skills[aria-pressed="false"]{opacity:.7;text-decoration:line-through}
+
+/* Imagens de apresentação: nomes fora do recorte. */
+.habilidade-arte.sem-texto .habilidade-nome,.habilidade-arte.sem-texto .habilidade-bonus{display:none!important}
+.recursos-rolagem button:has(.nome-adicional){display:flex;flex-direction:column;align-items:center;gap:5px;width:100px;min-width:100px;height:auto;min-height:100px;padding:5px;white-space:normal}
+.recursos-rolagem button:has(.nome-adicional) .habilidade-arte{width:58px;height:58px;flex-shrink:0}
+.nome-adicional{display:block;width:100%;font-size:11px;line-height:1.25;text-align:center;overflow-wrap:anywhere;color:inherit}

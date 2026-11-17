@@ -19,11 +19,13 @@ export class AtividadesMesa{
  }
  fecharDado(pedido){for(const a of this.lista.values()){const r=a.rolagens.find(r=>r.pedido===pedido);if(!r)continue;r.fechada=true;if(!a.acao&&a.rolagens.every(r=>r.fechada)){a.ativa=false;a.estado='Concluída';}return a;}}
  concluir(id,estado='Concluída'){
-  const a=this.lista.get(id);if(!a)return;a.ativa=false;a.estado=estado;if(a.acao)a.acao.rolagem=false;
+  const a=this.lista.get(id);if(!a)return;a.ativa=false;a.estado=estado;if(a.acao)a.acao.rolagem=false;for(const r of a.rolagens)r.fechada=true;
   if(this.propria===id){this.propria=null;this.pausada=false;this.modo=this.anterior??'barra';this.anterior=null;this.selecionada=null;}
   else if(this.selecionada===id&&!this.manualHistorico)this.selecionada=null;
   this.aparar();
  }
+ fecharVisual(){this.selecionada=null;this.manualHistorico=false;this.modo='barra';this.pausada=true;}
+ recolherBarra(){this.selecionada=null;this.manualHistorico=false;this.modo='painel';this.pausada=true;}
  alternar(){this.modo=this.modo==='barra'?'painel':'barra';if(this.modo==='barra'&&!this.propria){this.selecionada=null;this.manualHistorico=false;}if(this.propria)this.pausada=this.modo==='barra';}
  selecionar(id,abrir=false){if(!this.lista.has(id))return;this.selecionada=id;this.manualHistorico=!this.lista.get(id).ativa;if(abrir)this.modo='painel';if(this.propria)this.pausada=id!==this.propria||this.modo==='barra';}
  atual(destinatario){

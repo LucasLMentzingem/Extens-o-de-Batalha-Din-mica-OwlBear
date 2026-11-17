@@ -1,10 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {AtividadesMesa} from './site/activity-feed.mjs';
 const acao=(id,atorId=id)=>({id,atorId,titulo:'Skill '+id,opcaoPublica:{nome:'Skill '+id}});
 test('atividades simultâneas não se substituem; própria tem prioridade e modo anterior é restaurado',()=>{
- const f=new AtividadesMesa();f.acao(acao('a'));f.acao(acao('b'));assert.equal(f.atual('eu').id,'a');f.selecionar('b',true);
+ const f=new AtividadesMesa();f.acao(acao('a'));f.acao(acao('b'));assert.equal(f.atual('eu'),null);f.selecionar('b',true);
  f.acao(acao('minha'),{propria:true});assert.equal(f.atual('eu').id,'minha');f.acao(acao('c'));assert.equal(f.atual('eu').id,'minha');
  f.modo='barra';f.pausada=true;f.selecionar('b',true);assert.equal(f.atual('eu').id,'b');assert.ok(f.lista.has('minha'));
- f.concluir('minha');assert.equal(f.modo,'painel');assert.equal(f.atual('eu').id,'a');
+ f.concluir('minha');assert.equal(f.modo,'painel');assert.equal(f.atual('eu'),null);
  const g=new AtividadesMesa();g.acao(acao('minha'),{propria:true});g.concluir('minha');assert.equal(g.modo,'barra');
 });
 test('histórico preserva resultados, rerrolagem substitui valor e fechar pedido não apaga ataque composto',()=>{
@@ -21,4 +21,13 @@ test('pedido dirigido ao jogador tem prioridade; observação não toma o lugar 
 test('limite do histórico não remove atividades em andamento e recentes aparecem primeiro',()=>{
  const f=new AtividadesMesa({limite:30});f.acao(acao('ativa'));for(let i=0;i<100;i++){f.acao(acao('fim'+i));f.concluir('fim'+i);}
  assert.equal(f.lista.size,31);assert.equal(f.lista.get('ativa').ativa,true);assert.equal(f.vista()[0].id,'fim99');
+});
+
+
+test('tela limpa ao cancelar, fechar histórico ou recolher, sem apagar atividade própria pausada',()=>{
+ const f=new AtividadesMesa({modo:'painel'});f.acao(acao('antiga'));f.concluir('antiga');assert.equal(f.atual('eu'),null);
+ f.selecionar('antiga',true);assert.equal(f.atual('eu').id,'antiga');f.fecharVisual();assert.equal(f.modo,'barra');assert.equal(f.atual('eu'),null);
+ f.recolherBarra();assert.equal(f.modo,'painel');assert.equal(f.atual('eu'),null);f.acao(acao('outra'));assert.equal(f.atual('eu'),null);
+ f.acao(acao('minha'),{propria:true});f.dado({atividadeId:'minha',pedido:'p',tipo:'resultado',destino:'eu',resultado:{total:9}});f.concluir('minha','Cancelada');assert.equal(f.atual('eu'),null);assert.equal(f.obrigatoria('eu'),false);
+ f.acao(acao('pausada'),{propria:true});f.fecharVisual();assert.ok(f.lista.get('pausada').ativa);f.selecionar('pausada',true);assert.equal(f.atual('eu').id,'pausada');
 });
