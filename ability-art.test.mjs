@@ -42,7 +42,7 @@ test('sete fichas renderizam sem alterar conteúdo ou persistir arte resolvida',
 test('famílias, perícias, salvaguardas e arremesso usam artes e camadas locais',async()=>{
  const c={};
  for(const familia of ['comum','raca','classe'])assert.equal(visualHabilidade({nome:'Exemplo',origemTipo:familia}).arquivo,null);
- assert.equal(visualHabilidade(testeVisual('pericias','Prestidigitação',4)).arquivo,null);
+ assert.equal(visualHabilidade(testeVisual('pericias','Prestidigitação',4)).arquivo,'assets/habilidades/pericia-prestidigitacao.png');
  assert.equal(visualHabilidade(testeVisual('pericias','Investigação',4)).arquivo,'assets/habilidades/comum-pericia.png');
  for(const chave of ['for','des','con','int','sab','car'])assert.equal(visualHabilidade(testeVisual('salvaguardas',chave,2)).arquivo,'assets/habilidades/salvaguarda-'+chave+'.png');
  const arremesso=visualHabilidade({nome:'Adaga arremesso',origemItem:'x',geradaPorItem:true,automacao:{tipo:'ataque',arremesso:true}},{inventario:{itens:[{id:'x',icone:'assets/itens/adaga.webp'}]}});
@@ -55,7 +55,7 @@ test('famílias, perícias, salvaguardas e arremesso usam artes e camadas locais
 });
 test('habilidades distintas não emprestam ilustração de origem, perícia ou soco',()=>{
  const a=visualHabilidade({nome:'Mão de Cura',origemTipo:'classe'}),b=visualHabilidade({nome:'Defesa Paciente',origemTipo:'classe'});
- assert.notEqual(a.arteId,b.arteId);assert.equal(a.fundo,b.fundo);assert.equal(a.moldura,b.moldura);assert.equal(a.arquivo,null);assert.equal(b.arquivo,null);
+ assert.notEqual(a.arteId,b.arteId);assert.equal(a.fundo,b.fundo);assert.equal(a.moldura,b.moldura);assert.equal(a.arquivo,'assets/habilidades/habilidade-mao-de-cura.png');assert.equal(b.arquivo,'assets/habilidades/habilidade-defesa-paciente.png');assert.notEqual(a.arquivo,b.arquivo);
  const torrente=visualHabilidade({nome:'Torrente de Golpes',automacao:{tags:['desarmado']}});
  assert.equal(torrente.arteId,'monge.torrente-de-golpes');assert.notEqual(torrente.arquivo,visualHabilidade({nome:'Soco'}).arquivo);
  assert.equal(visualHabilidade(testeVisual('salvaguardas','for',2)).textoCurto,'Força');
