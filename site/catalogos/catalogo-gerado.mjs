@@ -4228,11 +4228,11 @@ export default {
     },
     {
       "id": "habilidade.metabolismo-incomum",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Metabolismo Incomum",
-        "categoria": "acao",
-        "descricao": "Ao rolar iniciativa, recupere todo o Foco e 1d6+3 PV.",
+        "categoria": "reacao",
+        "descricao": "Ao rolar iniciativa, escolha recuperar todo o Foco e 1d6+3 PV. Um uso por descanso longo. Não gasta ação, ação bônus ou Reação. Ativação somente na janela de iniciativa.",
         "custo": [
           {
             "tipo": "recurso",
@@ -4249,7 +4249,9 @@ export default {
         },
         "requisitosUso": {
           "somenteAoRolarIniciativa": true
-        }
+        },
+        "gatilho": "rolar_iniciativa",
+        "origemTipo": "classe"
       }
     },
     {
@@ -4974,7 +4976,7 @@ export default {
     },
     {
       "id": "habilidade.pico-de-adrenalina",
-      "revisao": 2,
+      "revisao": 3,
       "definicao": {
         "nome": "Pico de Adrenalina",
         "origemTipo": "raca",
@@ -4994,7 +4996,8 @@ export default {
           "tipo": "economia",
           "disparada": true,
           "pvTemporarios": 2
-        }
+        },
+        "descricao": "Como ação bônus, faça Correr e receba PV temporários iguais ao bônus de proficiência (2 no nível 3). Pode usar um número de vezes igual ao bônus de proficiência; recupera todos os usos em descanso curto ou longo."
       }
     },
     {

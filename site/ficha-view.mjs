@@ -52,18 +52,18 @@ export function livroHabilidades(a,pagina='classe',podeEditar=false){
   const classeNome=f.classes.map(c=>c.nome??c.id.replace(/(^|-)(\w)/g,(_,s,l)=>(s?' ':'')+l.toUpperCase())).join(' / ');
   const comInfo=o=>({...o,info:o.tipoLivro==='passiva'?(o.nome+'\n'+(o.descricao??'')):detalhes(o,f)});
   const racial=o=>habilidadeRacial(f,o),passivasRaciais=(f.passivas??[]).filter(racial),passivasGerais=(f.passivas??[]).filter(o=>!racial(o));
-  const raciaisAtivas=opcoes.filter(o=>racial(o)&&!o.varianteDe),magiasBase=opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe&&!racial(o)),reacoes=opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao')&&opcaoPreparada(f,o));
+  const raciaisAtivas=opcoes.filter(o=>racial(o)&&!o.varianteDe),magiasBase=opcoes.filter(o=>o.categoria==='magia'&&!o.varianteDe&&!racial(o)),reacoes=opcoes.filter(o=>(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao'))&&opcaoPreparada(f,o));
   const grade=(titulo,ops,extra='')=>ops.length?'<section class="secao-habilidades"><header><h3>'+titulo+'</h3>'+extra+'</header><div>'+ops.map(comInfo).map(o=>habilidadeIcone(o,f)).join('')+'</div></section>':'';
   const comum=o=>!racial(o)&&o.categoria!=='magia'&&(/ataque de oportunidade|golpe desarmado|soco|torrente de golpes|agarrar|imobilizar|derrubar|empurrar|disparada|correr|desengajar|esquivar|ajudar|esconder|analisar|usar objeto|procurar|preparar \| ação|estudar|influenciar|utilizar|usar magia/i.test(o.nome)||o.geradaPorItem||o.automacao?.tipo==='ataque'&&!o.origem);
   let corpo='';
   if(pagina==='reacoes')corpo=grade('Reações disponíveis',reacoes.map(o=>({...o,ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   else if(pagina==='raca')corpo=grade('Habilidades raciais ativas',raciaisAtivas)+grade('Passivas raciais',passivasRaciais.map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   else if(pagina==='comum'){
-    const comuns=opcoes.filter(o=>comum(o)&&!o.custo?.some(c=>c.tipo==='reacao'));
+    const comuns=opcoes.filter(o=>comum(o)&&!(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao')));
     corpo=grade('Truques',magiasBase.filter(o=>(o.circuloBase??0)===0))+grade('Ações de arma',comuns.filter(o=>o.automacao?.tipo==='ataque').map(o=>({...o,indisponivel:!opcaoDisponivel(a,o)})))+grade('Ações comuns',comuns.filter(o=>o.automacao?.tipo!=='ataque'))+grade('Passivas',passivasGerais.map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
   }else{
-    const magias=magiasBase.filter(o=>!o.custo?.some(c=>c.tipo==='reacao'));
-    const acoes=opcoes.filter(o=>!racial(o)&&o.categoria!=='magia'&&!comum(o)&&!o.custo?.some(c=>c.tipo==='reacao'));
+    const magias=magiasBase.filter(o=>!(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao')));
+    const acoes=opcoes.filter(o=>!racial(o)&&o.categoria!=='magia'&&!comum(o)&&!(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao')));
     corpo=grade('Ações de classe',acoes)+grade('Truques',magias.filter(o=>(o.circuloBase??0)===0))+grade('Magias sempre preparadas',magias.filter(o=>(o.circuloBase??0)>0&&sempre.has(o.id)).map(o=>({...o,preparada:true})))+grade('Magias preparadas',magias.filter(o=>preparadas.has(o.id)).map(o=>({...o,preparada:true})),'<small>'+preparadas.size+'/'+prep.vagas+'</small>');
     const circulos=[...new Set(magias.map(o=>o.circuloBase??0).filter(Boolean))].sort((x,y)=>y-x);
     corpo+=circulos.map(n=>grade(n+'º círculo',magias.filter(o=>(o.circuloBase??0)===n).map(o=>({...o,preparada:preparadas.has(o.id)||sempre.has(o.id),indisponivel:!preparadas.has(o.id)&&!sempre.has(o.id)})))).join('')+grade('Habilidades de classe passivas',passivasGerais.map(o=>({...o,tipoLivro:'passiva',ativa:o.ativa!==false,indisponivel:o.ativa===false})));
@@ -97,9 +97,9 @@ export function efeitosFicha(a){
 }
 export function biblioteca(a){
   const f=a.ficha,opcoes=opcoesCalculadas(a).filter(o=>!o.ocultarListas),grupos=[
-    ['Ações',opcoes.filter(o=>o.categoria!=='magia'&&!o.custo?.some(c=>c.tipo==='reacao'))],
+    ['Ações',opcoes.filter(o=>o.categoria!=='magia'&&!(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao')))],
     ['Magias',opcoes.filter(o=>o.categoria==='magia').sort((a,b)=>(b.circuloBase??0)-(a.circuloBase??0))],
-    ['Reações',opcoes.filter(o=>o.custo?.some(c=>c.tipo==='reacao'))],
+    ['Reações',opcoes.filter(o=>(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao')))],
     ['Equipamentos',(f.inventario?.itens??f.equipamentos??[]).map(e=>({nome:e.nome??e.name,descricao:e.descricao??e.description}))],
     ['Passivas e notas',[...(f.passivas??[]),...(f.notas??[])]]
   ];

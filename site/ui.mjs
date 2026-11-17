@@ -545,7 +545,7 @@ $('app').oncontextmenu=e=>{
    let acoes='<button type="button" data-habilidade-fechar>Cancelar</button>';
    const prep=a.ficha.preparacao??{preparadas:[],semprePreparadas:[],vagas:0},preparada=prep.preparadas.includes(h.id),sempre=prep.semprePreparadas.includes(h.id);
    if(o?.categoria==='magia'&&(o.circuloBase??0)>0&&!o.varianteDe&&!sempre)acoes+='<button type="button" data-habilidade-acao="'+(preparada?'despreparar':'preparar')+'" class="primario">'+(preparada?'Despreparar':'Preparar')+'</button>';
-   else if(passiva||o?.custo?.some(c=>c.tipo==='reacao'))acoes+='<button type="button" data-habilidade-acao="'+(h.ativa===false?'ativar':'desativar')+'" class="primario">'+(h.ativa===false?'Ativar':'Desativar')+'</button>';
+   else if(passiva||o?.categoria==='reacao'||o?.custo?.some(c=>c.tipo==='reacao'))acoes+='<button type="button" data-habilidade-acao="'+(h.ativa===false?'ativar':'desativar')+'" class="primario">'+(h.ativa===false?'Ativar':'Desativar')+'</button>';
    else acoes+='<small>Esta habilidade não possui configuração contextual.</small>';
    if(s.fase!=='preparo')acoes='<button type="button" data-habilidade-fechar>Fechar</button><small>Prepare magias e altere passivas somente fora de combate.</small>';
    $('habilidadeMenuAcoes').innerHTML=acoes;$('habilidadeMenuEstado').textContent=s.fase==='preparo'?'Alterações permitidas fora de combate.':'Configuração travada durante o combate.';$('habilidadeMenu').showModal();return;

@@ -93,6 +93,8 @@ export async function iniciarHud(){
   const atores=()=>estado?.atores??[];
   const ator=()=>atores().find(a=>a.id===atorId);
   const controla=a=>a&&(eu.role==='GM'||((a.ficha.tipo==='pj'||a.invocacao?.controlavel)&&a.dono===eu.id)); // M06: quem invocou controla a entidade
+  // A escolha pertence ao jogador; o mestre assume somente sem dono conectado.
+  const escolhaIniciativa=()=>controla(atores().find(a=>a.id===estado?.reacaoPendente?.reator))?null:atores().find(a=>a.reacaoIniciativa&&controla(a)&&(a.dono===eu.id||eu.role==='GM'&&(!a.dono||!(eu.players??[]).some(p=>p.id===a.dono))))?.reacaoIniciativa;
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*pixelsMetro,y:a.y*pixelsMetro};
   const atividadeAtual=()=>atividades.atual(eu?.id);
@@ -124,7 +126,7 @@ export async function iniciarHud(){
   }
   function transmitir(){
     const p=acaoVisivel();
-    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,
+    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
       atividades:{modo:painelAtividades()?'painel':'barra',selecionada:atividadeAtual()?.id,propria:atividades.propria,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:resumoPendente(p,p===acaoPublica)}});
   }
@@ -198,7 +200,7 @@ export async function iniciarHud(){
         caixas.acao=[Math.round(left),Math.round(Math.max(62,top)),cw,ch];
       }
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
-      if(rp&&controla(reator))caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
+      if((rp&&controla(reator))||escolhaIniciativa())caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado){
         const n=pedidoDado.formulas?.length??pedidoDado.resultado?.resultados?.length??1;
         const extraResultado=pedidoDado.tipo==='resultado'&&pedidoDado.meta?.rerrolagens?.length?105:0;
@@ -320,6 +322,8 @@ export async function iniciarHud(){
     const base=opcoesDisponiveis(a).find(o=>o.id===d.opcao),circulos=circulosConjuracao(a,base),circuloUsado=d.circuloUsado??(circulos[0]??base?.circuloBase),duplicadaDisponivel=Boolean(base&&metamagiaDuplicada(a,base)),magiaDuplicada=duplicadaDisponivel&&d.magiaDuplicada===true;
     const ilusaoDisponivel=Boolean(base?.automacao?.ilusao),ilusaoCausaDano=ilusaoDisponivel&&d.ilusaoCausaDano===true; // Força Fantasmagórica
     let o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
+    if(o?.gatilho==='rolar_iniciativa')throw Error('Use esta habilidade somente na janela de Iniciativa.');
+    if(a.reacaoIniciativa)throw Error('Resolva a escolha de Iniciativa antes de agir.');
     const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estado,a):null;
     if(rule?.usarArmaAnterior){
       if(!oferta)throw Error('Faça antes um ataque com arma e confira o limite de Destruidor de Hordas.');
@@ -650,6 +654,12 @@ export async function iniciarHud(){
           await OBR.action.open();
         }
       }finally{ocupado=false;if(pendente)await cancelar(terminou?'Concluída':'Erro');}
+    }else if(d.tipo==='responderIniciativa'){
+      const rp=escolhaIniciativa(),reator=atores().find(a=>a.id===rp?.reator);
+      if(!rp||!controla(reator)||d.pendenciaId!==rp.id)return;
+      ocupado=true;transmitir();
+      try{await api.enviar({tipo:'responderIniciativa',ator:reator.id,pendenciaId:rp.id,opcao:d.id||null,rev:estado.rev,
+        confirmado:eu.role==='GM'&&reator.ficha.tipo==='pj',atividadeId:crypto.randomUUID()});}finally{ocupado=false;}
     }else if(d.tipo==='resolverReacao'){
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(!rp||!controla(reator))return;

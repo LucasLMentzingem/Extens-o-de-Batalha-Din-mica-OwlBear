@@ -282,7 +282,11 @@ function corrigirMagiasRevisao(f){
       if(dolo&&!f.opcoes.some(x=>x.id==='mao-de-dolo-torrente'))f.opcoes.push({id:'mao-de-dolo-torrente',nome:'Mão de Dolo · golpe da Torrente',categoria:'acao',descricao:'Depois de acertar um golpe desarmado (inclusive na Torrente de Golpes), gaste 1 Foco: '+dolo.aprimoramento.dano+' necrótico no alvo atingido. 1x por turno.',custo:structuredClone(dolo.custo??[]),requisitosUso:{aposAcerto:true,tagsAtaqueAnterior:['desarmado'],alvoIgualAoAnterior:true,umaVezPorTurno:dolo.id},automacao:{tipo:'dano_direto',dano:dolo.aprimoramento.dano,elemento:dolo.aprimoramento.elemento??'necrotico',alcanceM:1.5}});
     }
     if(nome==='defletir ataques'&&o.automacao?.tipo==='reduzir_dano'){o.automacao.elementos=['contundente','cortante','perfurante'];const m=/CD (\d+)[^\[]*\[([^\]]+)\]/.exec(o.descricao??'');o.automacao.redirecionar??={recurso:'pontos-de-foco',cd:Number(m?.[1])||11,dano:m?.[2]??'2d6+3'};}
-    if(nome==='metabolismo incomum'&&o.automacao)o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
+    if(nome==='metabolismo incomum'&&o.automacao){
+      const nivel=(f.classes??[]).filter(c=>c.id==='monge').reduce((n,c)=>n+c.nivel,0)||3,dado=nivel>=17?12:nivel>=11?10:nivel>=5?8:6;
+      o.categoria='reacao';o.gatilho='rolar_iniciativa';o.origemTipo='classe';o.automacao.cura='1d'+dado+'+'+nivel;o.requisitosUso={...(o.requisitosUso??{}),somenteAoRolarIniciativa:true};
+      o.descricao='Ao rolar iniciativa, escolha recuperar todo o Foco e 1d'+dado+'+'+nivel+' PV. Um uso por descanso longo. Não gasta ação, ação bônus ou Reação. Ativação somente na janela de iniciativa.';
+    }
     if(/^(pericia \||nota de importacao$|concentracao e turno$)/.test(completo))o.informativa=true; // #27 sobras da conversão: não viram botão
     if(nome==='inspiracao de bardo'&&o.automacao?.tipo==='conceder_dado')o.requisitosUso={...(o.requisitosUso??{}),alvoDiferenteDoConjurador:true}; // #31 é para outra criatura
     if(/^torrente de golpes/.test(completo)&&o.automacao?.tipo==='ataque'){for(const r of [o.automacao,...(o.automacao.ataques??[])]){r.elemento??='contundente';r.tags=[...new Set([...(r.tags??[]),'desarmado'])];}} // #21
@@ -510,6 +514,7 @@ export function validar(f) {
     if(o.gatilho==='apos_rolagem_d20')exigir(o.rerrolagem?.tipo==='d20'&&o.rerrolagem.modo==='todos','Rerrolagem de d20 inválida em '+o.id);
     if(o.gatilho==='sofrer_dano')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao&&['ataque','salva'].includes(o.automacao.tipo),'Reação ao sofrer dano inválida em '+o.id);
     if(o.gatilho==='ser_atingido')exigir(o.custo?.some(c=>c.tipo==='reacao')&&o.automacao?.tipo==='reduzir_dano','Reação preventiva inválida em '+o.id);
+    if(o.gatilho==='rolar_iniciativa')exigir(o.automacao?.tipo==='economia'&&(o.custo??[]).every(c=>c.tipo==='recurso'),'Gatilho de Iniciativa não deve gastar ações ou Reação em '+o.id);
     if(o.requisitosUso){
       const r=o.requisitosUso;
       exigir(['aposAtaque','aposAcerto','alvoDiferenteDoAnterior','alvoDiferenteDoConjurador','alvoIgualAoAnterior','somenteForaCombate','somenteAoRolarIniciativa','somenteNoProprioTurno','alvoNaoAtacadoNoTurno'].every(k=>r[k]===undefined||typeof r[k]==='boolean'),'Requisito de uso inválido em '+o.id);
@@ -1508,9 +1513,18 @@ function restaurarEconomia(a){
   a.acao=!consciente||r.semAcoes?0:1;a.bonus=!consciente||r.semAcoes||r.semBonus?0:1;a.reacao=!consciente||r.semReacao?0:1;
   a.metros=!consciente||r.imovel?0:deslocamentoMaximo(a);a.desengajado=false;a.pv=Math.min(a.pv,pvMaximosAtuais(a));a.usosTurno={};a.eventosTurno={ataques:[],acertos:[]};
 }
+export function temBeneficioNaIniciativa(a,o){
+  const r=o?.automacao;return Boolean(r?.cura&&a.pv<pvMaximosAtuais(a)||(r?.recuperarRecursos??[]).some(id=>{const max=a.ficha.recursos.find(r=>r.id===id)?.maximo??0;return (a.rec[id]??0)<max;}));
+}
+function oferecerReacaoIniciativa(a){
+  if(a.emCombate===false||a.estadoVida==='morto')return;
+  const opcoes=opcoesDisponiveis(a).filter(o=>o.gatilho==='rolar_iniciativa'&&o.ativa!==false&&custosDisponiveis(a,o)&&temBeneficioNaIniciativa(a,o));
+  if(opcoes.length)a.reacaoIniciativa={id:crypto.randomUUID(),reator:a.id,opcoes:opcoes.map(o=>o.id),descricao:'Ao rolar iniciativa: deseja usar '+opcoes.map(o=>o.nome).join(' ou ')+'? Não gasta Reação.'};
+}
 async function inserirReforco(s,a,resultado,formulaD20){
   const atualId=atual(s)?.id;
   a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,'desvantagem'),{tipo:'iniciativa',titulo:'Iniciativa de reforço · '+a.nome})).total;
+  oferecerReacaoIniciativa(a);
   const porId=new Map(s.atores.map(x=>[x.id,x]));
   const posicao=s.ordem.findIndex(id=>{
     const outro=porId.get(id);
@@ -1527,7 +1541,7 @@ function iniciarTurno(s,a){
   if(restricoesAtivas(a).semAcoes)encerrarConcentracao(s,a,'incapacitado');
 }
 function iniciarTurnos(s){
-  const participantes=ativos(s);if(!participantes.length||participantes.some(x=>x.init===null))return false;
+  const participantes=ativos(s);if(!participantes.length||participantes.some(x=>x.init===null||x.reacaoIniciativa))return false;
   s.ordem=[...participantes].sort((x,y)=>y.init-x.init||y.ficha.atributos.des-x.ficha.atributos.des).map(x=>x.id);
   s.vez=0;s.rodada=1;s.fase='turnos';participantes.forEach(restaurarEconomia);iniciarTurno(s,atual(s));return true;
 }
@@ -1708,6 +1722,7 @@ export async function aplicar(s,c,u,rolar) {
     exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
   }
+  if(a?.reacaoIniciativa&&['usar','passar','mover','inventario','soltarItem'].includes(c.tipo))throw Error('Resolva a escolha de Iniciativa antes de agir.');
   let msg='';
   switch(c.tipo) {
     case 'configurarRecipiente': {
@@ -1914,7 +1929,7 @@ export async function aplicar(s,c,u,rolar) {
         msg=a.nome+' entrou no combate.';
       }else{
         exigir(!s.reacaoPendente&&ativos(s).length>1,'Resolva a reação pendente e mantenha ao menos um participante.');
-        const atualId=atual(s)?.id,eraAtual=atualId===a.id,indice=s.vez;a.emCombate=false;a.init=null;s.ordem=s.ordem.filter(id=>id!==a.id);
+        const atualId=atual(s)?.id,eraAtual=atualId===a.id,indice=s.vez;a.emCombate=false;delete a.reacaoIniciativa;a.init=null;s.ordem=s.ordem.filter(id=>id!==a.id);
         if(s.fase==='turnos'&&s.ordem.length){
           s.vez=eraAtual?Math.min(indice,s.ordem.length-1):Math.max(0,s.ordem.indexOf(atualId));
           if(eraAtual)iniciarTurno(s,atual(s));
@@ -1955,12 +1970,13 @@ export async function aplicar(s,c,u,rolar) {
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
       {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{
-        x.init=null;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.usosPorTurno;delete x.escolhasDescanso; // escolha não feita até o combate mantém a opção atual
+        x.init=null;delete x.reacaoIniciativa;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.usosPorTurno;delete x.escolhasDescanso; // escolha não feita até o combate mantém a opção atual
         if(x.emCombate!==false)for(const r of x.ficha.recursos)if(r.recuperacao?.some(v=>v.evento==='inicio_combate'&&v.modo==='completar'))x.rec[r.id]=r.maximo;
       });msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,desvantagemArmaduraSemTreino(a,'des')?'desvantagem':'normal'),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
+      oferecerReacaoIniciativa(a);
       iniciarTurnos(s);
       break;
     case 'iniciativas': {
@@ -1971,7 +1987,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(participantes.every(x=>x&&x.emCombate!==false&&x.init===null),'Uma das iniciativas já foi resolvida ou está fora do combate.');
       const formulas=participantes.map(x=>formulaD20(bonusIniciativa(x),x,null,desvantagemArmaduraSemTreino(x,'des')?'desvantagem':'normal'));
       const resultados=await resultadoLote(formulas,{tipo:'iniciativa_lote',titulo:'Iniciativas',rotuloInstancia:'Iniciativa',unidadeResultado:'de iniciativa',descricaoLote:'Revise cada iniciativa. O Dice+ lançará todos os dados juntos.',instancias:participantes.map(x=>({titulo:x.nome,alvo:x.ficha.tipo==='pj'?'Jogador':'NPC'}))});
-      participantes.forEach((x,i)=>{x.init=resultados[i].total;});
+      participantes.forEach((x,i)=>{x.init=resultados[i].total;oferecerReacaoIniciativa(x);});
       msg='Iniciativas • '+participantes.map((x,i)=>x.nome+' '+resultados[i].total).join(' · ');
       iniciarTurnos(s);
       break;
@@ -2178,6 +2194,16 @@ export async function aplicar(s,c,u,rolar) {
       }
       a.pv=Math.min(a.pv,pvMaximosAtuais(a));a.metros=Math.min(a.metros,deslocamentoMaximo(a));break;
     }
+    case 'responderIniciativa': {
+      const pend=a.reacaoIniciativa;exigir(pend&&pend.id===c.pendenciaId&&s.fase!=='preparo'&&a.emCombate!==false,'A escolha de Iniciativa não está mais disponível.');
+      if(!c.opcao){delete a.reacaoIniciativa;if(s.fase==='iniciativa')iniciarTurnos(s);msg=a.nome+' não usou a habilidade de Iniciativa.';break;}
+      const o=opcoesDisponiveis(a).find(o=>pend.opcoes.includes(o.id)&&o.id===c.opcao&&o.gatilho==='rolar_iniciativa'&&o.ativa!==false);
+      exigir(o&&custosDisponiveis(a,o)&&temBeneficioNaIniciativa(a,o),'Habilidade de Iniciativa indisponível.');
+      const cura=o.automacao.cura?(await resultado(o.automacao.cura,{tipo:'cura',titulo:'Recuperação de PV · '+o.nome,alvo:a.nome,destinoId:controladorDe(a),roladorNome:a.nome})).total:0;
+      const plano=planoCustoOpcao(a,o);for(const custo of plano.custos){exigir(custo.tipo==='recurso','Habilidade de Iniciativa não deve gastar ações ou Reação.');a.rec[custo.id]-=custo.quantidade;}
+      for(const id of o.automacao.recuperarRecursos??[]){const recurso=a.ficha.recursos.find(r=>r.id===id);if(recurso)a.rec[id]=recurso.maximo;}
+      const recuperado=curarAtor(a,cura);delete a.reacaoIniciativa;if(s.fase==='iniciativa')iniciarTurnos(s);msg=a.nome+' usou '+o.nome+' • recuperou '+recuperado+' PV e seus recursos.';break;
+    }
     case 'resolverReacao': {
       const p=s.reacaoPendente;
       exigir(s.fase==='turnos'&&p&&p.reator===a?.id,'Esta reação não está mais disponível.');
@@ -2296,7 +2322,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'encerrar':
       delete s.reacaoPendente;delete s.movimentoPendente;delete s.resolucaoPendente;s.filaReacoes=[];
       s.pvp=false;
-      s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(restaurarEconomia);msg='Combate encerrado.';break;
+      s.fase='preparo';s.ordem=[];s.rodada=0;s.vez=0;s.atores.forEach(a=>{delete a.reacaoIniciativa;restaurarEconomia(a);});msg='Combate encerrado.';break;
     case 'avancarTempo': {
       exigir(s.fase==='preparo','Encerre o combate antes de avançar o tempo.');
       const segundos=avancosMesa.find(([id])=>id===c.passo)?.[2];
@@ -2449,6 +2475,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       exigir(o.categoria!=='magia'||armadurasSemTreino(a).length===0,'Não é possível conjurar usando armadura sem treinamento.');
       exigir(!o.requisitosUso?.somenteForaCombate||foraCombate,'Esta habilidade só pode ser usada fora de combate.');
+      exigir(o.gatilho!=='rolar_iniciativa','Use esta habilidade somente na janela de Iniciativa.');
       let rule=o.automacao;
       // #32 Destruidor de Hordas: o ataque extra usa a mesma arma do ataque anterior.
       if(rule?.usarArmaAnterior){const anterior=(a.eventosTurno?.ataques??[]).at(-1),arma=anterior&&opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);exigir(arma?.automacao?.tipo==='ataque','Faça antes um ataque com arma neste turno.');rule={...structuredClone(arma.automacao),ataques:undefined,efeitoAcerto:arma.automacao.efeitoAcerto};o={...o,origemItem:arma.origemItem};}

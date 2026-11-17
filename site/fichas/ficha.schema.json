@@ -543,6 +543,7 @@
         },
         "gatilho": {
           "enum": [
+            "rolar_iniciativa",
             "sair_alcance",
             "sofrer_dano",
             "ser_alvo",

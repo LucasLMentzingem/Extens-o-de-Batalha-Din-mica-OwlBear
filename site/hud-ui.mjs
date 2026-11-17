@@ -1,5 +1,5 @@
 import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.48';
-import {periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.48';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.48';
 import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.48';
 import {pronto} from './bridge.mjs?v=0.8.48';
 import {canalHud} from './hud-controller.mjs?v=0.8.48';
@@ -32,7 +32,7 @@ document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
 const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe||o.automacao?.arremesso?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
-const grupo=o=>o.origemItem||o.categoria==='item'?'Itens':o.custo?.some(c=>c.tipo==='reacao')?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
+const grupo=o=>o.origemItem||o.categoria==='item'?'Itens':(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao'))?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
 const normalizar=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const rotuloOperacao=o=>({resistencia:'× 1/2',imunidade:'0',vulnerabilidade:'× 2',reducao_fixa:'− dano',reducao_dado:'− dado',multiplicador:'ajuste',limiar:'limiar'}[o]??o);
 function etiquetasDefesas(alvo,parcelas){
@@ -164,6 +164,9 @@ function render(){
     const composicao=p.composicao?'<section class="resumo-composicao"><header><strong>Composição escolhida</strong><small>Selecionado agora: '+esc(p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo)?.nome??'—')+'</small></header>'+(p.composicao.instancias.length?p.composicao.instancias.map(x=>'<div><b>'+x.ordem+'</b><span>'+esc(x.modoNome)+'</span><small>→ '+esc(x.alvoNome)+'</small></div>').join(''):'<p>Escolha o modo na gaveta e clique no alvo da primeira instância.</p>')+'</section>':'';
     const temCompositor=p.composicao||p.compositor,gaveta=p.composicao??p.compositor;
     html='<section class="painel-acao-shell '+(temCompositor?'com-composicao ':'')+(gaveta?.gavetaAberta===false?'gaveta-recolhida ':'')+(p.rolagem?'em-rolagem':'')+'">'+gavetaComposicao(p)+'<section class="painel-acao">'+cartao+composicao+'<div class="selecao-acao"><strong>'+esc(p.detalhe)+'</strong><div class="linha-execucao">'+barraCustos(p,'custos-execucao')+'<div>'+controles+'</div></div></div></section></section>';
+  }else if(parte==='reacao'&&v.reacaoIniciativa){
+    const rp=v.reacaoIniciativa,reator=s.atores.find(x=>x.id===rp.reator),opcoes=reator?opcoesDisponiveis(reator).filter(o=>rp.opcoes.includes(o.id)):[];
+    html='<section class="prompt reacao"><strong>Ao rolar iniciativa · '+esc(reator?.nome)+'</strong><small>'+esc(rp.descricao)+'</small><small>Sem limite de tempo. Resolva esta escolha antes de agir.</small><div class="escolhas-reacao">'+btn('responderIniciativa','Não usar','data-id="" '+(ocupado?'disabled':''))+opcoes.map(o=>btn('responderIniciativa',arteHabilidade(o,reator.ficha),'data-id="'+esc(o.id)+'" class="ouro" '+(ocupado?'disabled ':'')+'data-info="'+esc(detalhes(o,reator.ficha))+'"')).join('')+'</div></section>';
   }else if(parte==='reacao'&&s.reacaoPendente){
     const rp=s.reacaoPendente,reator=s.atores.find(x=>x.id===rp.reator),alvo=s.atores.find(x=>x.id===rp.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>rp.opcoes.includes(o.id));
@@ -230,6 +233,7 @@ function render(){
     if(recursoAtivo&&!idsRecursos.has(recursoAtivo))recursoAtivo=null;
     const usaRecurso=o=>{
       if(!recursoAtivo)return true;
+      if(recursoAtivo==='reacao'&&o.categoria==='reacao')return true;
       if(recursoAtivo==='truques')return o.categoria==='magia'&&Number(o.circuloBase)===0;
       const circulo=Number(/^recurso:espaco-(\d+)$/.exec(recursoAtivo)?.[1]);
       const recurso=recursosFicha.find(r=>'recurso:'+r.id===recursoAtivo);
@@ -256,7 +260,7 @@ function render(){
         const modoCusto=gratuitos?'gratuito':'automatico',plano=planoCustoOpcao(a,o,modoCusto),custoIndisponivel=!plano||plano.custos.some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
         const req=o.requisitosUso??{},ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[];
         const requisitoIndisponivel=!livre&&((req.aposAtaque&&!ataques.length)||(req.aposAcerto&&!acertos.length)||(req.umaVezPorTurno&&a.usosTurno?.[req.umaVezPorTurno]));
-        const bloqueio=(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
+        const bloqueio=o.gatilho==='rolar_iniciativa'?'Somente na escolha ao rolar iniciativa':a.reacaoIniciativa?'Resolva a escolha de Iniciativa antes de agir':(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           custoIndisponivel?'Recurso insuficiente':
           requisitoIndisponivel?'Requisito de turno ainda não cumprido':'';
         const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
@@ -373,7 +377,7 @@ root.onclick=e=>{
   if(tipo==='selecionarTodasIniciativas'){iniciativasSelecionadas=new Set(v.estado.atores.filter(x=>x.emCombate!==false&&x.init===null).map(x=>x.id));render();return;}
   if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,pedido:controleDado?v.pedidoDado?.pedido:undefined,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
+  bus.postMessage({tipo,id,pendenciaId:tipo==='responderIniciativa'?v.reacaoIniciativa?.id:undefined,pedido:controleDado?v.pedidoDado?.pedido:undefined,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
     rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});
