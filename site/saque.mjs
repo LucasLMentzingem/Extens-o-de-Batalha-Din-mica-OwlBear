@@ -1,9 +1,9 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.45';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.46';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.45';
-import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.45';
-import {resumoItem} from './ficha-view.mjs?v=0.8.45';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.45';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.46';
+import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.46';
+import {resumoItem} from './ficha-view.mjs?v=0.8.46';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.46';
 const root=document.querySelector('#saque'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const atorId=new URLSearchParams(location.search).get('ator'),exameItem=criarExameItem();

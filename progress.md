@@ -1,5 +1,12 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-17 — integração 0.8.46 local
+
+- Integrado `origin/main`/PR #74 (`832c72d`), preservando a correção de conexão 0.8.45 do contribuidor, confirmada funcional pelo responsável.
+- Conflitos em bridge e room-sync resolvidos mantendo fatias por bytes, tentativa única pendente, reaproveitamento de difusão e consultas do mestre sem broadcast.
+- Recuperação de fichas inválidas e arquitetura de reset continuam como acréscimos locais; não são tratados como causa confirmada do incidente real.
+- 275 testes passaram. Detalhes em `docs/MERGE-CONEXAO-0.8.46.md`. Sem nova publicação; a 0.8.45 permanece disponível.
+
 ## 2026-11-17 — 0.8.45 local: recuperação de ficha inválida
 
 - Reprodução adicional: uma ficha antiga inválida bloqueava carregamento, conexão e exclusão de todas as fichas; o reenvio ocultava o erro real do controlador.

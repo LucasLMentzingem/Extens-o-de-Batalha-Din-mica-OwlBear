@@ -24,3 +24,23 @@ HUD e painel continuam instalando os observadores após uma falha inicial. A HUD
 O teste com SDK simulado não substitui uma conferência de rede em uma sala real do Owlbear. Correção incluída na publicação 0.8.44.
 
 Referência da API de broadcast: https://docs.owlbear.rodeo/extensions/apis/broadcast/
+
+## Ajuste da 0.8.45
+
+Relato em sala real com a 0.8.44: o painel mostra "Conectando..." e, cerca de 30 segundos depois, "Sem resposta do controlador da sala", com o mestre na cena.
+
+Problemas encontrados na 0.8.44, que podem explicar o sintoma (não foi possível reproduzir numa sala real):
+
+- **Muitas mensagens:** partes fixas de 2000 caracteres levavam uma mesa típica (7 fichas e 5 NPCs, cerca de 259 mil caracteres) a 130 mensagens de broadcast por sincronização.
+- **Reenvios empilhados:** o reenvio a cada 2 s não esperava a tentativa anterior. Cada reenvio fazia o controlador transmitir a mesa inteira de novo para todos.
+- **Resposta atrasada:** o controlador só respondia depois de terminar a transmissão. Com o canal congestionado, a resposta passava do prazo de 10 s e todas as tentativas expiravam.
+- **Erro real escondido:** um erro real do controlador ("Abra uma cena primeiro", "O encontro pertence ao mestre que o preparou") era descartado. Ao fim dos 30 s aparecia só a mensagem genérica.
+
+Correção:
+
+- `fatiarParaBroadcast` mede bytes reais (UTF-8 e escapes JSON) e mantém cada mensagem abaixo de 16 KB. A mesma mesa passa a usar 26 mensagens.
+- Uma consulta por vez: o reenvio só acontece depois que a anterior termina.
+- O controlador reaproveita a mesma transmissão para consultas repetidas da mesma revisão (em andamento ou concluída há menos de 3 s).
+- A consulta do próprio mestre (canal local) não retransmite a mesa para os jogadores.
+- O prazo de cada consulta passou de 10 s para 15 s.
+- A mensagem final inclui o último erro informado pelo controlador.

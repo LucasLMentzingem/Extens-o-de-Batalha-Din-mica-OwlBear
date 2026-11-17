@@ -1,5 +1,7 @@
 # Recuperação e reset da mesa — proposta 0.8.45 local
 
+Atualização: integrada à 0.8.46 local com a correção de conexão publicada na 0.8.45 pelo contribuidor. Ver `MERGE-CONEXAO-0.8.46.md`. O responsável confirmou que o fix de excesso de broadcast resolveu o relato real; a recuperação de ficha inválida permanece como proteção adicional.
+
 Estado: correção de recuperação implementada localmente; botão de reset especificado para revisão, sem implementação destrutiva e sem publicação. Não houve acesso à mesa real nem exclusão de dados do usuário.
 
 ## O novo relato e a causa possível
