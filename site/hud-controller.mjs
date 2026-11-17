@@ -1,3 +1,4 @@
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.48';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
 import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.48';
 import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.48';
@@ -55,11 +56,13 @@ function itensZona(z,pixelsMetro){
 export async function iniciarHud(){
   await pronto();
   const bus=await canalHud(),abertos=new Map();
-  const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado'];
+  const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado','atividades'];
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let saqueAbertoVisual=null,trocaAbertaVisual=null;
-  let alturaConteudoAcao=590;
+  let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false;
+  let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'barra'});
+  const marcasPorAtividade=new Map();
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
   let marcas=[],marcasPublicas=[],tokens=[],fila=Promise.resolve(),ferramentaDoTurno;
   const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
@@ -92,7 +95,19 @@ export async function iniciarHud(){
   const controla=a=>a&&(eu.role==='GM'||((a.ficha.tipo==='pj'||a.invocacao?.controlavel)&&a.dono===eu.id)); // M06: quem invocou controla a entidade
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*pixelsMetro,y:a.y*pixelsMetro};
-  const acaoVisivel=()=>pendente??acaoPublica;
+  const atividadeAtual=()=>atividades.atual(eu?.id);
+  const painelAtividades=()=>atividades.modo==='painel'||atividades.obrigatoria(eu?.id);
+  const acaoVisivel=()=>{
+    if(!painelAtividades())return null;
+    const a=atividadeAtual();if(a?.id===pendente?.publicId)return pendente;
+    return a?.acao?{...a.acao,somenteLeitura:true}:null;
+  };
+  function atualizarAtividades(){
+    if(pendente){pendente.publicId??=crypto.randomUUID();atividades.acao(resumoPendente(pendente),{propria:true});}
+    const a=atividadeAtual();acaoPublica=a?.acao&&a.id!==pendente?.publicId?a.acao:null;
+    const r=a?.rolagens.filter(r=>!r.fechada).at(-1)??a?.rolagens.filter(r=>r.resultado).at(-1);
+    pedidoDado=painelAtividades()&&r?{...r,podeEditar:r.fechada?false:r.podeEditar,tipo:r.fechada?'resultado':r.tipo}:null;
+  }
   function custosPrevia(a,o,modo='automatico'){
     const plano=planoCustoOpcao(a,o,modo);if(!plano)return [];
     return plano.custos.map(c=>{const recurso=c.tipo==='recurso'?a?.ficha?.recursos?.find(r=>r.id===c.id):null,key=c.tipo==='recurso'?c.id:c.tipo;
@@ -110,7 +125,7 @@ export async function iniciarHud(){
   function transmitir(){
     const p=acaoVisivel();
     if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,
-      imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
+      atividades:{modo:painelAtividades()?'painel':'barra',selecionada:atividadeAtual()?.id,propria:atividades.propria,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:resumoPendente(p,p===acaoPublica)}});
   }
   async function janela(parte,box){
@@ -129,6 +144,12 @@ export async function iniciarHud(){
     abertos.set(parte,key);
   }
   async function layout(){
+    if(layoutEmCurso){layoutPendente=true;return layoutEmCurso;}
+    layoutEmCurso=(async()=>{do{layoutPendente=false;await desenharLayout();}while(layoutPendente);})().finally(()=>{layoutEmCurso=null;});
+    return layoutEmCurso;
+  }
+  async function desenharLayout(){
+    atualizarAtividades();
     const ativo=pronta&&estado&&atores().length>0;
     const caixas={};
     if(ativo){
@@ -143,7 +164,8 @@ export async function iniciarHud(){
       const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
       const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
       const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
-      const limiteBarra=acaoLadoALado?leftAcao-gap:w-10;
+      const limiteAtividades=atividades.lista.size&&!painelAtividades()?w-Math.min(680,Math.max(260,w*.36))-20:w-10;
+      const limiteBarra=acaoLadoALado?leftAcao-gap:limiteAtividades;
       const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
       if(!foraDaOrdem||eu.role==='GM'){
@@ -165,6 +187,10 @@ export async function iniciarHud(){
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null)){
         const pendentes=atores().filter(a=>a.emCombate!==false&&a.init===null&&(eu.role==='GM'||controla(a))),iw=Math.min(eu.role==='GM'?440:340,w-12),ih=Math.min(h-24,eu.role==='GM'?Math.max(148,108+Math.ceil(pendentes.length/2)*43):118);
         caixas.iniciativa=[Math.round((w-iw)/2),Math.round(Math.max(12,(h-ih)*.40)),iw,ih];
+      }
+      if(atividades.lista.size){
+        const aw=Math.min(680,Math.max(260,w*.36));
+        caixas.atividades=painelAtividades()?[Math.round(Math.max(6,w-aw-10)),h-98,38,42]:[Math.round(Math.max(6,w-aw-10)),h-240,aw,192];
       }
       if(acaoAtual){
         const cw=Math.min(larguraAcao,w-12),ch=alturaAcao,left=acaoLadoALado?leftAcao:Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
@@ -201,12 +227,13 @@ export async function iniciarHud(){
   }
   async function publicarPrevia(items=marcas){
     if(!pendente)return;
+    atividades.acao(resumoPendente(pendente),{propria:true});
     const evento={tipo:'atualizar',id:pendente.publicId,atorId:pendente.cmd.ator,pendente:resumoPendente(pendente,true),marcas:compactarMarcas(items)};
     await OBR.broadcast.sendMessage(canalPrevia,evento,{destination:'REMOTE'}).catch(e=>console.warn('Falha ao publicar a prévia da ação.',e));
   }
-  async function fecharPreviaPublica(id,atorIdPublico){
+  async function fecharPreviaPublica(id,atorIdPublico,status){
     if(!id)return;
-    await OBR.broadcast.sendMessage(canalPrevia,{tipo:'fechar',id,atorId:atorIdPublico},{destination:'REMOTE'}).catch(e=>console.warn('Falha ao fechar a prévia pública.',e));
+    await OBR.broadcast.sendMessage(canalPrevia,{tipo:'fechar',id,atorId:atorIdPublico,status},{destination:'REMOTE'}).catch(e=>console.warn('Falha ao fechar a prévia pública.',e));
   }
   async function desenhar(items){
     await limparMarcas();if(items.length){await OBR.scene.local.addItems(items);marcas=items.map(x=>x.id);}
@@ -281,8 +308,8 @@ export async function iniciarHud(){
     }
     await desenhar(items);
   }
-  async function cancelar(){
-    const publicId=pendente?.publicId,atorIdPublico=pendente?.cmd?.ator;pendente=null;await limparMarcas();await fecharPreviaPublica(publicId,atorIdPublico);
+  async function cancelar(status='Cancelada'){
+    const publicId=pendente?.publicId,atorIdPublico=pendente?.cmd?.ator;pendente=null;atividades.concluir(publicId,status);await limparMarcas();await fecharPreviaPublica(publicId,atorIdPublico,status);
     if(anterior&&anterior!==tool&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(anterior);
     anterior=null;
   }
@@ -374,6 +401,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   async function escolher(evento){
+    if(atividades.pausada||atividadeAtual()?.id!==pendente?.publicId)return;
     const p=pendente;if(!p?.escolha||ocupado)return;
     let ponto=evento.pointerPosition;
     if(p.rule?.tipo==='saque'){
@@ -469,8 +497,9 @@ export async function iniciarHud(){
     const novoTurno=atual(s)?.id!==atual(estado??{ordem:[],atores:[]})?.id;
     // Em preparacao o HUD tambem e a central de uso livre. Uma atualizacao da
     // sala com a mesma revisao nao pode fechar a selecao recem-aberta.
-    if(pendente&&pendente.rev!==s.rev)await cancelar();
+    if(pendente&&!pendente.rolagem){pendente.rev=s.rev;pendente.cmd.rev=s.rev;}
     estado=s;eu=i;
+    for(const a of atividades.lista.values())if(a.atorId&&!s.atores.some(x=>x.id===a.atorId)){atividades.lista.delete(a.id);const ids=marcasPorAtividade.get(a.id)??[];if(ids.length)await OBR.scene.local.deleteItems(ids);marcasPorAtividade.delete(a.id);}
     pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
     await sincronizarZonas().catch(e=>console.error('Zonas:',e));
     await sincronizarPecas().catch(e=>console.error('Peças:',e));
@@ -503,6 +532,14 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   async function mensagem(d){
+    if(d.tipo==='rascunhoDado'){
+      if(pedidoDado?.pedido!==d.pedido||pedidoDado.podeEditar===false)return;
+      pedidoDado.rascunho={formula:d.formula,formulas:d.formulas};atividades.dado(pedidoDado);return;
+    }
+    if(['alternarAtividades','selecionarAtividade'].includes(d.tipo)){
+      if(d.tipo==='alternarAtividades'){const aberta=painelAtividades();atividades.modo=aberta?'barra':'painel';atividades.pausada=aberta;}else atividades.selecionar(d.id,d.abrir===true);
+      localStorage.setItem(ns+'/atividades-modo',atividades.modo);await layout();transmitir();return;
+    }
     if(d.pedir){transmitir();return;}
     if(d.tipo==='reposicionarMesa'&&eu.role==='GM'){await layout();return;}
     if(d.tipo==='alturaAcao'){
@@ -517,7 +554,7 @@ export async function iniciarHud(){
       dicaEfeito=typeof d.info==='string'&&d.info.trim()?d.info:null;await layout();transmitir();return;
     }
     const comandosDado=['alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'];
-    if(comandosDado.includes(d.tipo)&&pedidoDado?.podeEditar===false)return;
+    if(comandosDado.includes(d.tipo)&&(pedidoDado?.podeEditar===false||d.pedido&&d.pedido!==pedidoDado?.pedido))return;
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
       const dados=pedidoDado.meta?.adicionais??[],validos=new Set(dados.map(x=>x.id));if(!validos.has(d.id)||dados.find(x=>x.id===d.id)?.automatico)return;
       const selecionados=new Set(pedidoDado.recursosAtivos??[]);
@@ -527,9 +564,9 @@ export async function iniciarHud(){
         if(grupo)for(const opcao of dados)if(opcao.grupoExclusivo===grupo)selecionados.delete(opcao.id);
         selecionados.add(d.id);
       }
-      pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};await atualizarPreviaAdicionais();transmitir();
+      pedidoDado={...pedidoDado,recursosAtivos:[...selecionados]};atividades.dado(pedidoDado);await atualizarPreviaAdicionais();transmitir();
     }else if(d.tipo==='rolarDado'&&pedidoDado?.tipo==='ajuste'){
-      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();
+      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};atividades.dado(pedidoDado);transmitir();
       const resposta={pedido};
       if(Array.isArray(d.formulas)&&d.formulas.length)resposta.formulas=d.formulas.map(x=>String(x||'').replace(/\s+/g,''));
       else resposta.formula=String(d.formula||'').replace(/\s+/g,'');
@@ -595,16 +632,17 @@ export async function iniciarHud(){
     else if(d.tipo==='cancelar')await cancelar();
     else if(d.tipo==='confirmar'){
       if(!pendente?.pronto||pendente.rev!==estado.rev||d.rev!==estado.rev)return;
-      const cmd={...pendente.cmd,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]};
+      const cmd={...pendente.cmd,atividadeId:pendente.publicId,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]};
       pendente.rolagem=true;ocupado=true;await publicarPrevia();await layout();transmitir();
+      let terminou=false;
       try{
-        await api.enviar(cmd);
+        await api.enviar(cmd);terminou=true;
         if(cmd.opcao==='saquear'){
           compacto=true;localStorage.setItem(ns+'/compacto','1');
           localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:cmd.ator,quando:Date.now(),pagina:'inventario'}));
           await OBR.action.open();
         }
-      }finally{ocupado=false;if(pendente)await cancelar();}
+      }finally{ocupado=false;if(pendente)await cancelar(terminou?'Concluída':'Erro');}
     }else if(d.tipo==='resolverReacao'){
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(!rp||!controla(reator))return;
@@ -649,25 +687,31 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const imediato=['rascunhoDado','alternarAtividades','selecionarAtividade'].includes(e.data?.tipo)||e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };
-  OBR.broadcast.onMessage(canalPrevia,e=>serial(async()=>{
+  let filaPrevias=Promise.resolve();
+  const serialPrevia=fn=>{filaPrevias=filaPrevias.then(fn).catch(console.error);};
+  OBR.broadcast.onMessage(canalPrevia,e=>serialPrevia(async()=>{
     const d=e.data??{};
     if(d.tipo==='solicitar'){if(pendente)await publicarPrevia();return;}
     const participantes=await OBR.party.getPlayers(),remetente=participantes.find(p=>p.connectionId===e.connectionId),a=atores().find(x=>x.id===d.atorId);
     if(!remetente||!a)return;
     if(!remetentePodePublicarPrevia(remetente,a))return;
     if(d.tipo==='fechar'){
-      if(acaoPublica?.id!==d.id||acaoPublica.remetenteId!==remetente.id)return;
-      acaoPublica=null;await limparMarcasPublicas();await layout();transmitir();return;
+      const a=atividades.lista.get(d.id);if(!a||a.remetenteId!==remetente.id)return;
+      atividades.concluir(d.id,d.status??(a.acao?.rolagem?'Concluída':'Cancelada'));
+      const ids=marcasPorAtividade.get(d.id)??[];if(ids.length)await OBR.scene.local.deleteItems(ids);marcasPorAtividade.delete(d.id);
+      await layout();transmitir();return;
     }
     if(d.tipo!=='atualizar'||!d.id||!d.pendente||!marcasPublicasValidas(d.marcas))return;
-    await limparMarcasPublicas();
+    const anteriores=marcasPorAtividade.get(d.id)??[];
+    if(anteriores.length)await OBR.scene.local.deleteItems(anteriores);
     const items=reconstruirMarcas(d.marcas);
-    if(items.length){await OBR.scene.local.addItems(items);marcasPublicas=items.map(x=>x.id);}
-    acaoPublica={...d.pendente,id:d.id,atorId:a.id,remetenteId:remetente.id,somenteLeitura:true};
+    if(items.length)await OBR.scene.local.addItems(items);
+    marcasPorAtividade.set(d.id,items.map(x=>x.id));
+    atividades.acao({...d.pendente,id:d.id,atorId:a.id,somenteLeitura:true},{remetenteId:remetente.id});
     await layout();transmitir();
   }));
   // O Owlbear preserva ferramentas registradas enquanto a sala continua
@@ -678,7 +722,7 @@ export async function iniciarHud(){
     await OBR.tool.remove(tool).catch(()=>{});
     await OBR.tool.removeMode(mode).catch(()=>{});
     await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
-      onToolClick:(_,e)=>{if(!pendente)return true;serial(()=>escolher(e));return false;},
+      onToolClick:(_,e)=>{if(!pendente||atividades.pausada)return true;serial(()=>escolher(e));return false;},
       onToolDragStart:(_,e)=>{
         const a=estado&&atual(estado);
         if(!pendente&&a&&controla(a)&&a.token===e.target?.id)serial(async()=>{atorId=a.id;await preparar({tipo:'mover'});transmitir();});
@@ -692,20 +736,28 @@ export async function iniciarHud(){
   }
   api=await sala((s,i)=>serial(()=>atualizar(s,i)));
   responderDado=await interfaceRolagens(async d=>{
+    if(d.tipo==='atividade-aplicada'){
+      const a=atividades.lista.get(d.atividadeId);if(a){const alvos=d.alvos.filter(x=>atores().some(a=>a.id===x.id));a.aplicacao={alvos,total:alvos.reduce((n,x)=>n+x.pvPerdido,0)};await layout();transmitir();}return;
+    }
+    if(d.atorId&&!atores().some(a=>a.id===d.atorId))return;
     const vista=visibilidadeRolagem(d,eu);
     if(vista.tipo==='fechar'){
+      atividades.fecharDado(vista.pedido);
       if(pedidoDado?.pedido===vista.pedido)pedidoDado=null;
       if(anuncioDado?.pedido===vista.pedido)anuncioDado=null;
     }else if(vista.tipo==='pedido'){
+      if(vista.pedido.destino===eu.id&&!atividades.lista.get(vista.pedido.atividadeId??'rolagem:'+vista.pedido.pedido)?.rolagens.some(r=>r.pedido===vista.pedido.pedido))atividades.pausada=false;
+      atividades.dado(vista.pedido);
       pedidoDado=vista.pedido.tipo==='erro'?{...pedidoDado,...vista.pedido,tipo:'ajuste',erro:vista.pedido.mensagem}:vista.pedido;
     }else if(vista.tipo==='anuncio'){
+      atividades.dado(vista.anuncio);
       anuncioDado=vista.anuncio;clearTimeout(timerAnuncio);
       timerAnuncio=setTimeout(()=>serial(async()=>{if(anuncioDado?.pedido===vista.anuncio.pedido){anuncioDado=null;await layout();transmitir();}}),6500);
     }
     await layout();transmitir();
   });
   OBR.scene.onReadyChange(r=>serial(async()=>{
-    pronta=r;estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
+    pronta=r;atividades=new AtividadesMesa({modo:atividades.modo});marcasPorAtividade.clear();estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;

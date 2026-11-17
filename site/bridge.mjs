@@ -70,14 +70,14 @@ function extrairResultado(result){
 // #24 Jogador ausente não trava a mesa: quem não está na sala tem a rolagem enviada direto ao mestre,
 // e uma janela sem resposta por 40 s passa para o mestre em vez de cancelar a jogada.
 const PASSAR_AO_MESTRE_MS=40000;
-function dadoSala(usuario,ch,pedidos,mestreId,presentes=null){
+function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={}){
   return (formula,meta={})=>new Promise((resolve,reject)=>{
     const pedido=crypto.randomUUID();let destino=meta.destinoId==='GM'?mestreId:(meta.destinoId??usuario.id);
     if(destino!==mestreId&&presentes&&!presentes.has(destino))destino=mestreId;
     const {destinoId:_destinoOculto,roladorNome,...metaPublica}=meta;
     if(meta.tipo==='ataque')delete metaPublica.cd;
     const enviar=async d=>{
-      const evento={...d,destino,donoRolagem:roladorNome??usuario.name};
+      const evento={...d,...contexto,destino,donoRolagem:roladorNome??usuario.name};
       ch.postMessage({rolagemPublica:evento});
       await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
     };
@@ -366,7 +366,7 @@ export async function host(){
       }
       const faseAntes=s.fase;
       const presentes=new Set([eu.id,...(await OBR.party.getPlayers()).map(p=>p.id)]);
-      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes));
+      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes,{atividadeId:c.atividadeId,atorId:c.ator}));
       if(propNovo){
         const lado=500,token=buildImage({url:new URL('./assets/props/bau-madeira-saque-75graus.webp',location.href).href,mime:'image/webp',width:lado,height:lado},{dpi:lado/.9,offset:{x:lado/2,y:lado/2}})
           .id(propNovo.tokenId).name('Baú de madeira').layer('PROP').position(propNovo.posicao).build();
@@ -414,7 +414,14 @@ export async function host(){
         await limparVinculoToken(token);
       }
       const estadoMostrar=['vincular','remover'].includes(c.tipo)?await sincronizarNpcs():next;
-      await mostrar(estadoMostrar);await reply({});
+      await mostrar(estadoMostrar);
+      if(c.atividadeId){
+        const alvos=next.atores.filter(a=>tokens.some(t=>t.id===a.token&&t.visible)).map(a=>{
+          const antes=s.atores.find(x=>x.id===a.id);return {id:a.id,pvPerdido:Math.max(0,(antes?.pv??a.pv)-a.pv),pvTemporarios:Math.max(0,(antes?.pvTemporarios??0)-(a.pvTemporarios??0))};
+        }).filter(a=>a.pvPerdido||a.pvTemporarios);
+        const evento={tipo:'atividade-aplicada',atividadeId:c.atividadeId,alvos};ch.postMessage({rolagemPublica:evento});await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
+      }
+      await reply({});
     }catch(e){await reply({erro:e.message});}
   }
   // Várias consultas seguidas (reenvios, mais de um jogador entrando) reaproveitam a mesma transmissão
@@ -544,10 +551,10 @@ export async function sala(onView){
 
 export async function interfaceRolagens(onEvent){
   await pronto();const eu=await identidade(),ch=local();
-  if(eu.role==='GM')ch.addEventListener('message',e=>{const d=e.data?.rolagemPublica;if(d?.pedido)onEvent(d);});
+  if(eu.role==='GM')ch.addEventListener('message',e=>{const d=e.data?.rolagemPublica;if(d?.pedido||d?.tipo==='atividade-aplicada')onEvent(d);});
   else OBR.broadcast.onMessage(canais.roll,async e=>{
     const mestre=(await OBR.party.getPlayers()).some(p=>p.role==='GM'&&p.connectionId===e.connectionId);
-    if(mestre&&e.data?.pedido){
+    if(mestre&&(e.data?.pedido||e.data?.tipo==='atividade-aplicada')){
       // #24 Aviso para o jogador quando uma salvaguarda chega para ele.
       if(e.data.tipo==='ajuste'&&e.data.destino===eu.id&&e.data.meta?.tipo==='salvaguarda')Promise.resolve(OBR.notification.show('Salvaguarda para você: '+(e.data.meta.titulo??''),'WARNING')).catch(()=>{});
       onEvent(e.data);
