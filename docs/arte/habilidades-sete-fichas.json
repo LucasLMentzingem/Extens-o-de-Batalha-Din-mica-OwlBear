@@ -4,8 +4,8 @@
   "regra": "Cada habilidade distinta tem arte própria; a mesma habilidade em fichas, custos e círculos diferentes mantém sua identidade. Somente fundo e moldura são compartilhados por seção. Armas usam a arte do item e arremesso acrescenta símbolo separado.",
   "resumo": {
     "habilidades": 173,
-    "gerar": 41,
-    "disponiveis": 132,
+    "gerar": 0,
+    "disponiveis": 173,
     "variantesDeItens": 20
   },
   "habilidades": [
@@ -677,8 +677,8 @@
     {
       "arteId": "habilidade.cimitarra",
       "nome": "Cimitarra",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/itens/item-cimitarra.webp",
       "familias": [
         "classe"
       ],
@@ -1087,8 +1087,8 @@
     {
       "arteId": "habilidade.destruidor-de-hordas",
       "nome": "Destruidor de Hordas",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-destruidor-de-hordas.png",
       "familias": [
         "comum"
       ],
@@ -1185,8 +1185,8 @@
     {
       "arteId": "habilidade.elfo-silvestre",
       "nome": "Elfo Silvestre",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-elfo-silvestre.png",
       "familias": [
         "raca"
       ],
@@ -1208,8 +1208,8 @@
     {
       "arteId": "habilidade.emaranhar",
       "nome": "Emaranhar",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-emaranhar.png",
       "familias": [
         "classe"
       ],
@@ -1281,8 +1281,8 @@
     {
       "arteId": "habilidade.encerrar-mente-desperta",
       "nome": "Encerrar Mente Desperta",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-encerrar-mente-desperta.png",
       "familias": [
         "comum"
       ],
@@ -1432,8 +1432,8 @@
     {
       "arteId": "habilidade.escudo-da-fe",
       "nome": "Escudo da Fé",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-escudo-da-fe.png",
       "familias": [
         "classe"
       ],
@@ -1454,8 +1454,8 @@
     {
       "arteId": "habilidade.especialista",
       "nome": "Especialista",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-especialista.png",
       "familias": [
         "comum"
       ],
@@ -1504,8 +1504,8 @@
     {
       "arteId": "habilidade.explorador-habil",
       "nome": "Explorador Hábil",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-explorador-habil.png",
       "familias": [
         "comum"
       ],
@@ -1572,8 +1572,8 @@
     {
       "arteId": "habilidade.falar-com-animais",
       "nome": "Falar com Animais",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-falar-com-animais.png",
       "familias": [
         "classe"
       ],
@@ -1618,8 +1618,8 @@
     {
       "arteId": "habilidade.fogo-das-fadas",
       "nome": "Fogo das Fadas",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-fogo-das-fadas.png",
       "familias": [
         "classe"
       ],
@@ -1854,8 +1854,8 @@
     {
       "arteId": "habilidade.golpe-certeiro",
       "nome": "Golpe Certeiro",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-golpe-certeiro.png",
       "familias": [
         "classe"
       ],
@@ -1876,8 +1876,8 @@
     {
       "arteId": "habilidade.golpe-constritor",
       "nome": "Golpe Constritor",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-golpe-constritor.png",
       "familias": [
         "classe"
       ],
@@ -1962,8 +1962,8 @@
     {
       "arteId": "habilidade.heranca-draconica",
       "nome": "Herança dracônica",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-heranca-draconica.png",
       "familias": [
         "raca"
       ],
@@ -2032,8 +2032,8 @@
     {
       "arteId": "habilidade.ilusao-menor",
       "nome": "Ilusão Menor",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-ilusao-menor.png",
       "familias": [
         "classe"
       ],
@@ -2085,8 +2085,8 @@
     {
       "arteId": "habilidade.imobilizar-pessoa",
       "nome": "Imobilizar Pessoa",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-imobilizar-pessoa.png",
       "familias": [
         "classe"
       ],
@@ -2157,8 +2157,8 @@
     {
       "arteId": "habilidade.iniciado-em-magia-druida",
       "nome": "Iniciado em Magia (Druida)",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-iniciado-em-magia-druida.png",
       "familias": [
         "comum"
       ],
@@ -2179,8 +2179,8 @@
     {
       "arteId": "habilidade.inspiracao-de-bardo",
       "nome": "Inspiração de Bardo",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-inspiracao-de-bardo.png",
       "familias": [
         "comum"
       ],
@@ -2201,8 +2201,8 @@
     {
       "arteId": "habilidade.inspiracao-heroica",
       "nome": "Inspiração Heroica",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-inspiracao-heroica.png",
       "familias": [
         "raca"
       ],
@@ -2349,8 +2349,8 @@
     {
       "arteId": "habilidade.invisibilidade",
       "nome": "Invisibilidade",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-invisibilidade.png",
       "familias": [
         "classe"
       ],
@@ -2397,8 +2397,8 @@
     {
       "arteId": "habilidade.maestria-em-arma",
       "nome": "Maestria em Arma",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-maestria-em-arma.png",
       "familias": [
         "comum"
       ],
@@ -2463,8 +2463,8 @@
     {
       "arteId": "habilidade.magias-psiquicas",
       "nome": "Magias Psíquicas",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-magias-psiquicas.png",
       "familias": [
         "comum"
       ],
@@ -2529,8 +2529,8 @@
     {
       "arteId": "habilidade.manto-de-inspiracao",
       "nome": "Manto de Inspiração",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-manto-de-inspiracao.png",
       "familias": [
         "comum"
       ],
@@ -2623,8 +2623,8 @@
     {
       "arteId": "habilidade.marca-do-predador",
       "nome": "Marca do Predador",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-marca-do-predador.png",
       "familias": [
         "classe"
       ],
@@ -2648,8 +2648,8 @@
     {
       "arteId": "habilidade.mascara-de-muitas-faces",
       "nome": "Máscara de Muitas Faces",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-mascara-de-muitas-faces.png",
       "familias": [
         "comum"
       ],
@@ -2696,8 +2696,8 @@
     {
       "arteId": "habilidade.mensagem",
       "nome": "Mensagem",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-mensagem.png",
       "familias": [
         "classe"
       ],
@@ -2718,8 +2718,8 @@
     {
       "arteId": "habilidade.mente-desperta",
       "nome": "Mente Desperta",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-mente-desperta.png",
       "familias": [
         "comum"
       ],
@@ -2831,8 +2831,8 @@
     {
       "arteId": "habilidade.musico",
       "nome": "Músico",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-musico.png",
       "familias": [
         "comum"
       ],
@@ -2904,8 +2904,8 @@
     {
       "arteId": "habilidade.orientacao",
       "nome": "Orientação",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-orientacao.png",
       "familias": [
         "classe"
       ],
@@ -2926,8 +2926,8 @@
     {
       "arteId": "habilidade.pacto-do-tomo",
       "nome": "Pacto do Tomo",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-pacto-do-tomo.png",
       "familias": [
         "comum"
       ],
@@ -2948,8 +2948,8 @@
     {
       "arteId": "habilidade.palavra-curativa",
       "nome": "Palavra Curativa",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-palavra-curativa.png",
       "familias": [
         "classe"
       ],
@@ -3019,8 +3019,8 @@
     {
       "arteId": "habilidade.passos-largos",
       "nome": "Passos Largos",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-passos-largos.png",
       "familias": [
         "raca"
       ],
@@ -3043,8 +3043,8 @@
     {
       "arteId": "habilidade.pau-pra-toda-obra",
       "nome": "Pau pra Toda Obra",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-pau-pra-toda-obra.png",
       "familias": [
         "comum"
       ],
@@ -3161,8 +3161,8 @@
     {
       "arteId": "habilidade.ponto-de-sorte",
       "nome": "Ponto de Sorte",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-ponto-de-sorte.png",
       "familias": [
         "comum"
       ],
@@ -3233,8 +3233,8 @@
     {
       "arteId": "habilidade.presa-do-cacador",
       "nome": "Presa do Caçador",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-presa-do-cacador.png",
       "familias": [
         "comum"
       ],
@@ -3346,8 +3346,8 @@
     {
       "arteId": "habilidade.proficiencias-e-explorador-habil",
       "nome": "Proficiências e Explorador Hábil",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-proficiencias-e-explorador-habil.png",
       "familias": [
         "comum"
       ],
@@ -3499,8 +3499,8 @@
     {
       "arteId": "habilidade.rajada-agonizante",
       "nome": "Rajada Agonizante",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-rajada-agonizante.png",
       "familias": [
         "comum"
       ],
@@ -3521,8 +3521,8 @@
     {
       "arteId": "habilidade.rajada-mistica",
       "nome": "Rajada Mística",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-rajada-mistica.png",
       "familias": [
         "classe"
       ],
@@ -3565,8 +3565,8 @@
     {
       "arteId": "habilidade.reflexos",
       "nome": "Reflexos",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-reflexos.png",
       "familias": [
         "classe"
       ],
@@ -3635,8 +3635,8 @@
     {
       "arteId": "habilidade.riso-histerico-de-tasha",
       "nome": "Riso Histérico de Tasha",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-riso-histerico-de-tasha.png",
       "familias": [
         "classe"
       ],
@@ -3810,8 +3810,8 @@
     {
       "arteId": "habilidade.sugestao",
       "nome": "Sugestão",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-sugestao.png",
       "familias": [
         "classe"
       ],
@@ -4136,8 +4136,8 @@
     {
       "arteId": "habilidade.zombaria-perversa",
       "nome": "Zombaria Perversa",
-      "status": "gerar",
-      "arquivo": null,
+      "status": "disponivel",
+      "arquivo": "assets/habilidades/habilidade-zombaria-perversa.png",
       "familias": [
         "classe"
       ],

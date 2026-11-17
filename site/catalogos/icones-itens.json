@@ -118,5 +118,10 @@
   "item.la-arte.anel-segunda-chance": "assets/itens/item-la-arte-anel-segunda-chance.webp",
   "item.la-arte.colar-socorrista": "assets/itens/item-la-arte-colar-socorrista.webp",
   "item.la-arte.luvas-dragao-ascendente-mais-2": "assets/itens/item-la-arte-luvas-dragao-ascendente-mais-2.webp",
-  "item.la-arte.botas-escapistas-mais-2": "assets/itens/item-la-arte-botas-escapistas-mais-2.webp"
+  "item.la-arte.botas-escapistas-mais-2": "assets/itens/item-la-arte-botas-escapistas-mais-2.webp",
+  "item.adaga-sagrada-purificada-mais-2": "assets/itens/item-adaga-sagrada-purificada-mais-2.png",
+  "item.adaga-sagrada-profanada-mais-2": "assets/itens/item-adaga-sagrada-profanada-mais-2.png",
+  "item.agua-benta-da-purificacao": "assets/itens/item-agua-benta-da-purificacao.png",
+  "item.corda-15-m": "assets/itens/item-corda-15-m.png",
+  "item.armadura-de-escamas": "assets/itens/item-armadura-de-couro.webp"
 }

@@ -1,0 +1,183 @@
+{
+  "versaoFormato": 2,
+  "versaoCatalogo": 1,
+  "id": "irineu-ladino-3",
+  "nome": "Irineu — Ladino Nv3",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "ladino",
+      "nivel": 3,
+      "subclasse": "Ladrão"
+    }
+  ],
+  "especie": "Humano",
+  "atributos": {
+    "for": 10,
+    "des": 16,
+    "con": 14,
+    "int": 12,
+    "sab": 13,
+    "car": 12
+  },
+  "salvaguardas": {
+    "for": 0,
+    "des": 5,
+    "con": 2,
+    "int": 3,
+    "sab": 1,
+    "car": 1
+  },
+  "pvMaximos": 24,
+  "caBase": 10,
+  "deslocamentosM": {
+    "andar": 9,
+    "escalar": 9
+  },
+  "proficiencia": 2,
+  "pericias": {
+    "Furtividade": 7,
+    "Enganação": 5,
+    "Prestidigitação": 5,
+    "Investigação": 3,
+    "Percepção": 3,
+    "Intuição": 3
+  },
+  "idiomas": "Comum, Anão e Gíria de Ladrão.",
+  "sentidos": "Percepção passiva 13; visão normal.",
+  "resistencias": [],
+  "imunidades": [],
+  "vulnerabilidades": [],
+  "recursos": [],
+  "concessoes": [
+    {
+      "id": "disparada",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-disparada"
+    },
+    {
+      "id": "desengajar",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-desengajar"
+    },
+    {
+      "id": "esconder",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-esconder"
+    },
+    {
+      "id": "furtivo",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-furtivo"
+    },
+    {
+      "id": "mira",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-mira"
+    },
+    {
+      "id": "maos-rapidas",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-maos-rapidas"
+    },
+    {
+      "id": "escalador",
+      "tipo": "passiva",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-escalador"
+    },
+    {
+      "id": "especializacao",
+      "tipo": "passiva",
+      "ref": "habilidade.cemiterio.irineu-ladino-3-especializacao"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "capacidadeCargaKg": 68,
+    "itens": [
+      {
+        "id": "irineu-adaga",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_forte",
+        "ref": "item.adaga"
+      },
+      {
+        "id": "irineu-arco",
+        "quantidade": 1,
+        "ref": "item.reino.arco-curto"
+      },
+      {
+        "id": "irineu-couro",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "vestes",
+        "ref": "item.armadura-de-couro"
+      },
+      {
+        "id": "irineu-ferramentas",
+        "quantidade": 1,
+        "definicaoLocal": {
+          "nome": "Ferramentas de ladrão",
+          "tipo": "etc",
+          "pesoKg": 0.5,
+          "preco": {
+            "valor": 25,
+            "moeda": "po"
+          },
+          "descricao": "Treinado. Testes de DES +5; aplicar perícia e ferramenta conforme a tarefa."
+        }
+      },
+      {
+        "id": "irineu-flechas",
+        "quantidade": 20,
+        "definicaoLocal": {
+          "nome": "Flechas",
+          "tipo": "etc",
+          "pesoKg": 0.025,
+          "preco": {
+            "valor": 0.05,
+            "moeda": "po"
+          }
+        }
+      }
+    ]
+  },
+  "notas": [
+    {
+      "nome": "Interpretação",
+      "descricao": "Cerca de 40 anos, magro, cabelo engordurado, bigode irregular, dente de ouro, perfume excessivo e roupas gastas tentando parecer caras. Oportunista, evasivo, evita violência. Já visto rondando La arte e negociando com Alfred."
+    },
+    {
+      "nome": "Contrato",
+      "descricao": "Oferece 1000 PO pela entrega do colar verdadeiro; permite ficar com outros objetos. Alega compra anterior ao enterro, mas a história é falsa. Quer revender a joia. Dinheiro do pagamento guardado fora da cena, não no inventário pessoal."
+    },
+    {
+      "nome": "Ficha base",
+      "descricao": "Base de Ladino 3/Ladrão 2024 para NPC. Talentos de origem e poderes adicionais de espécie não foram acrescentados. Busca fuga, não duelo. Arco guardado: desequipar adaga e equipar arco ao usá-lo."
+    },
+    {
+      "nome": "Migração",
+      "descricao": "CA base técnica 10; couro 11+DES produz CA 14, conforme o equipamento original. A base antiga 13 não era defesa final sem couro. Identidade, atributos, perícias e escolhas preservados."
+    }
+  ],
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marcial"
+    ],
+    "armaduras": [
+      "leve"
+    ],
+    "maestrias": [
+      "adaga",
+      "arco_curto"
+    ]
+  },
+  "tipoCriatura": "humanoide"
+}

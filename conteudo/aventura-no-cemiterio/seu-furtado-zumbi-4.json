@@ -1,0 +1,117 @@
+{
+  "versaoFormato": 2,
+  "versaoCatalogo": 1,
+  "id": "seu-furtado-zumbi-4",
+  "nome": "Seu Furtado — Zumbi Nv4",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "npc-autoral",
+      "nivel": 4
+    }
+  ],
+  "especie": "Humanoide morto-vivo",
+  "atributos": {
+    "for": 16,
+    "des": 8,
+    "con": 18,
+    "int": 9,
+    "sab": 10,
+    "car": 8
+  },
+  "salvaguardas": {
+    "for": 3,
+    "des": -1,
+    "con": 6,
+    "int": -1,
+    "sab": 0,
+    "car": -1
+  },
+  "pvMaximos": 85,
+  "caBase": 13,
+  "deslocamentosM": {
+    "andar": 6
+  },
+  "proficiencia": 2,
+  "pericias": {
+    "Percepção": 2
+  },
+  "idiomas": "Entende Comum; vocalização limitada como morto-vivo.",
+  "sentidos": "Visão no escuro 18 m.",
+  "resistencias": [],
+  "imunidades": [
+    "veneno"
+  ],
+  "vulnerabilidades": [],
+  "recursos": [],
+  "concessoes": [
+    {
+      "id": "pancada",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.seu-furtado-zumbi-4-pancada"
+    },
+    {
+      "id": "ataques-multiplos",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.seu-furtado-zumbi-4-ataques-multiplos"
+    },
+    {
+      "id": "agarrar-passagem",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.seu-furtado-zumbi-4-agarrar-passagem"
+    },
+    {
+      "id": "natureza-morta",
+      "tipo": "passiva",
+      "ref": "habilidade.cemiterio.seu-furtado-zumbi-4-natureza-morta"
+    },
+    {
+      "id": "tenacidade-morta",
+      "tipo": "passiva",
+      "ref": "habilidade.cemiterio.seu-furtado-zumbi-4-tenacidade-morta"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": [
+      {
+        "id": "furtado-adaga-unica",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_forte",
+        "ref": "item.adaga-do-ultimo-rito"
+      },
+      {
+        "id": "furtado-colar-unico",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "colar",
+        "ref": "item.colar-da-ultima-palavra"
+      }
+    ]
+  },
+  "notas": [
+    {
+      "nome": "Identidade",
+      "descricao": "Anselmo Furtado, antigo comerciante funerário e cultista de Myrkul. Nível 4 autoral de campanha, sem ND oficial. Reanima quando retiram um pertence de sua tumba. Protege o mausoléu e não persegue pela cidade."
+    },
+    {
+      "nome": "Ajustar ao despertar",
+      "descricao": "Começa com colar e adaga. Se os aventureiros retiraram um item antes da animação, transfira-o ao portador: não crie uma segunda cópia. Não usa Falar com os Mortos enquanto zumbi."
+    }
+  ],
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples"
+    ],
+    "armaduras": [],
+    "maestrias": []
+  },
+  "tipoCriatura": "morto-vivo"
+}

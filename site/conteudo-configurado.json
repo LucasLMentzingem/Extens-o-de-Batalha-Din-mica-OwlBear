@@ -4,9 +4,9 @@
   "resumo": {
     "classes": 6,
     "racas": 6,
-    "habilidades": 260,
-    "comuns": 16,
-    "itens": 97
+    "habilidades": 326,
+    "comuns": 17,
+    "itens": 102
   },
   "sistemaEquipamentos": {
     "status": "Configurado",
@@ -888,10 +888,6 @@
           "status": "Automatizada"
         },
         {
-          "nome": "Soco (Golpe Desarmado) +5 | ação",
-          "status": "Automatizada"
-        },
-        {
           "nome": "Soco +5 | ação ou ação bônus",
           "status": "Automatizada"
         },
@@ -1042,6 +1038,10 @@
       "status": "Automatizada"
     },
     {
+      "nome": "Golpe Desarmado +5 | ação ou ação bônus",
+      "status": "Automatizada"
+    },
+    {
       "nome": "Influenciar | ação",
       "status": "Assistida pelo mestre"
     },
@@ -1082,6 +1082,18 @@
     {
       "nome": "Adaga do Último Rito",
       "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Adaga sagrada profanada +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Adaga sagrada purificada +2",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Água benta da purificação",
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Aljava com 20 Flechas",
@@ -1125,6 +1137,10 @@
     },
     {
       "nome": "Armadura de Couro Batido",
+      "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Armadura de escamas",
       "status": "CA, classe, slot e modificadores configurados"
     },
     {
@@ -1218,6 +1234,10 @@
     {
       "nome": "Colar simples de oficina",
       "status": "CA, classe, slot e modificadores configurados"
+    },
+    {
+      "nome": "Corda de 15 m",
+      "status": "Item, peso e carga configurados"
     },
     {
       "nome": "Corrente (3 m)",

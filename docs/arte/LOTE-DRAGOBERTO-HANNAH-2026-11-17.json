@@ -1,0 +1,196 @@
+{
+  "data": "2026-11-17",
+  "regra": "uma figura humanoide por arte",
+  "ferramenta": "imagegen integrada",
+  "registros": [
+    {
+      "id": "encerrar-mente-desperta",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-54449f21-e24f-41d1-89d1-6d700f48e576.png",
+      "prompt": "Use case: stylized-concept. Single fantasy ability icon, painterly semi-realistic fantasy art. Centered composition. An adult human male warlock alone, one hand open as a single violet telepathic thread fades away from his own temple, symbolizing ending his mental link. Only one humanoid figure. Exactly one humanoid character, no other people, no faces in background, no silhouettes, no portraits. Transparent alpha background, no backdrop, no frame, no text, no logo.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-encerrar-mente-desperta.png",
+      "arteId": "habilidade.encerrar-mente-desperta",
+      "alt": "Bruxo encerra o vínculo telepático com uma runa que se desfaz"
+    },
+    {
+      "id": "mensagem",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-92e7cf11-e604-4d30-ad4d-32b9c57186d4.png",
+      "prompt": "Use case: stylized-concept. Single fantasy ability icon, painterly semi-realistic fantasy art. Centered composition. Adult human male warlock alone whispers into a small luminous blue sigil floating beside his own ear, a thin arcane sound-thread curls outward toward empty space. Only one humanoid figure. Exactly one humanoid character, no other people, no faces in background, no silhouettes, no portraits. Transparent alpha background, no backdrop, no frame, no text, no logo.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-mensagem.png",
+      "arteId": "habilidade.mensagem",
+      "alt": "Bruxo sussurra para um sigilo arcano junto ao ouvido"
+    },
+    {
+      "id": "mente-desperta",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-0450835f-658d-46cf-a544-07b3ccfb68a1.png",
+      "prompt": "Use case: stylized-concept. Single fantasy ability icon, painterly semi-realistic fantasy art. Centered composition. Adult male human warlock alone with a glowing violet eye symbol at his temple and two concentric telepathic rings extending into empty space, active awakened mind. Exactly one humanoid figure, no other people, no faces, no background portraits. Transparent alpha background, no backdrop, no frame, no text, no logo.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-mente-desperta.png",
+      "arteId": "habilidade.mente-desperta",
+      "alt": "Bruxo concentra poder mental em anéis telepáticos"
+    },
+    {
+      "id": "sugestao",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-25a4478e-495c-483a-9476-93cb30674c53.png",
+      "prompt": "Use case: stylized-concept. Single fantasy ability icon, painterly semi-realistic fantasy art. Centered composition. Adult male human warlock alone, a golden thought glyph and subtle curling line leave his raised hand, visualizing a magically persuasive suggestion. Exactly one humanoid figure, no other people, no faces, no background portraits. Transparent alpha background, no backdrop, no frame, no text, no logo.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-sugestao.png",
+      "arteId": "habilidade.sugestao",
+      "alt": "Bruxo canaliza sugestão mágica por um glifo de pensamento"
+    },
+    {
+      "id": "destruidor-de-hordas",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-d0fec34b-94a6-4c33-8153-cc947b060167.png",
+      "prompt": "Stylized fantasy RPG ability art. Male wood elf hunter alone draws a bow while two distinct spectral arrowheads and two target rings hover separately beside him, symbolizing attacks against multiple foes without depicting targets. Show exactly one character only, no other beings or figures, no faces or portraits. Transparent background, no scenery, no frame, no text.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-destruidor-de-hordas.png",
+      "arteId": "habilidade.destruidor-de-hordas",
+      "alt": "Patrulheiro mira alvos múltiplos com símbolos de flechas"
+    },
+    {
+      "id": "falar-com-animais",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-a4020307-21f0-45a5-b0e0-80f5cc0ad049.png",
+      "prompt": "Stylized fantasy RPG ability art. Male wood elf ranger alone kneels and speaks, a small glowing fox-shaped speech glyph floats beside him, no actual animal or other figure. Show exactly one character only, no other beings or figures, no faces or portraits. Transparent background, no scenery, no frame, no text.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-falar-com-animais.png",
+      "arteId": "habilidade.falar-com-animais",
+      "alt": "Patrulheiro fala com um glifo arcano de raposa"
+    },
+    {
+      "id": "iniciado-em-magia-druida",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-44caa9aa-0b4a-41e3-b851-28d501ce0ab8.png",
+      "prompt": "Stylized painterly fantasy RPG icon. Male wood elf ranger alone holds a luminous green leaf between fingers, gentle druidic light circles his hand, representing nature magic and healing. Exactly one humanoid person in the entire composition, no other beings, faces, portraits or silhouettes. Transparent cutout, no backdrop, no frame, no words.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-iniciado-em-magia-druida.png",
+      "arteId": "habilidade.iniciado-em-magia-druida",
+      "alt": "Patrulheiro canaliza magia druídica em uma folha luminosa"
+    },
+    {
+      "id": "orientacao",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-b3e7be4f-4100-4063-a911-2f272eb6e661.png",
+      "prompt": "Use case: stylized-concept. Single fantasy ability icon, painterly semi-realistic fantasy art. Centered composition. Male wood elf ranger alone touches his own brow as a small green four pointed star and precise guiding motes illuminate around him, guidance magic. Exactly one humanoid figure, no other people, no faces, no background portraits. Transparent alpha background, no backdrop, no frame, no text, no logo.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-orientacao.png",
+      "arteId": "habilidade.orientacao",
+      "alt": "Patrulheiro evoca um símbolo verde de orientação"
+    },
+    {
+      "id": "palavra-curativa",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-53d52387-02ac-4819-ad36-8f7ff12bc7f7.png",
+      "prompt": "Stylized fantasy RPG ability art. Male wood elf ranger alone speaks a healing word, golden healing glyph and restorative aura spiral around his own hand, no patient or other figure. Show exactly one character only, no other beings or figures, no faces or portraits. Transparent background, no scenery, no frame, no text.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-palavra-curativa.png",
+      "arteId": "habilidade.palavra-curativa",
+      "alt": "Patrulheiro canaliza luz restauradora em si"
+    },
+    {
+      "id": "escudo-da-fe",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-b800dc71-05e2-43d5-844c-957e47414a45.png",
+      "prompt": "Painterly fantasy RPG ability icon. Male bronze dragonborn hunter alone, holds a prayer scroll close to his chest while a luminous golden shield glyph forms in front of his body, protective faith magic. Exactly one humanoid character, no other people or creatures. Transparent background, no scenery, no text, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-escudo-da-fe.png",
+      "arteId": "habilidade.escudo-da-fe",
+      "alt": "Draconato ergue um escudo mágico dourado"
+    },
+    {
+      "id": "golpe-certeiro",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-a695c3f6-a593-4fa5-9702-202ab4ba2080.png",
+      "prompt": "Painterly fantasy RPG ability icon. Male bronze dragonborn hunter alone aims a precise radiant shot from his longbow, a luminous arrow line and single target-ring glyph align ahead, curved scimitar visible at his belt. Exactly one humanoid character, no other people or creatures. Transparent background, no scenery, no text, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-golpe-certeiro.png",
+      "arteId": "habilidade.golpe-certeiro",
+      "alt": "Draconato mira um golpe radiante com seu arco"
+    },
+    {
+      "id": "golpe-constritor",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-f9aa253d-457e-4cb7-a689-f34121596a35.png",
+      "prompt": "Painterly fantasy RPG ability icon. Male bronze dragonborn hunter alone gripping a weapon as thorny spectral vines wrap around the weapon shaft and curl into a restraining loop, constricting magic without depicting a target. Exactly one humanoid character, no other people or creatures. Transparent background, no scenery, no text, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-golpe-constritor.png",
+      "arteId": "habilidade.golpe-constritor",
+      "alt": "Draconato envolve sua arma com vinhas mágicas"
+    },
+    {
+      "id": "especialista",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-f7b8712e-0348-4bf2-926b-53710bdc9fe3.png",
+      "prompt": "Stylized painterly fantasy RPG icon. Adult woman elf bard alone studies a map through a magnifying glass, a golden insight glimmer at her eye and a small persuasive speech glyph beside her, expertise in investigation and persuasion. Exactly one humanoid person in the entire composition, no other beings, faces, portraits or silhouettes. Transparent cutout, no backdrop, no frame, no words.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-especialista.png",
+      "arteId": "habilidade.especialista",
+      "alt": "Barda examina um mapa e símbolos de perícia"
+    },
+    {
+      "id": "fogo-das-fadas",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-d5f7aab8-344b-42a7-84c5-5201154ca556.png",
+      "prompt": "Stylized painterly fantasy RPG icon. Adult woman elf bard alone casts a brilliant faerie fire spell, her silhouette outlined by violet turquoise and gold motes with one small cube-shaped magical boundary, no target. Exactly one humanoid person in the entire composition, no other beings, faces, portraits or silhouettes. Transparent cutout, no backdrop, no frame, no words.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-fogo-das-fadas.png",
+      "arteId": "habilidade.fogo-das-fadas",
+      "alt": "Barda conjura fogo das fadas ao redor de si"
+    },
+    {
+      "id": "inspiracao-de-bardo",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-de4177c7-8be9-4621-bfee-c3fa94be9f65.png",
+      "prompt": "Stylized painterly fantasy RPG ability icon. Adult woman elf bard alone holds her lute as a single golden musical note glows over her heart, a tiny radiant spark symbolizing bardic inspiration. Exactly one person, no other beings or faces, no duplicate bodies. Transparent background, no backdrop, no frame, no lettering.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-inspiracao-de-bardo.png",
+      "arteId": "habilidade.inspiracao-de-bardo",
+      "alt": "Barda toca alaúde com uma nota inspiradora"
+    },
+    {
+      "id": "manto-de-inspiracao",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-15f52458-1ddb-4dbb-bdd6-8fd83311ccbb.png",
+      "prompt": "Stylized painterly fantasy RPG ability icon. Adult woman elf glamour bard alone wrapped in a swirling rose-gold mantle of musical light, with three small radiant stars circling her, inspiring movement and courage. Exactly one person, no other beings or faces, no duplicate bodies. Transparent background, no backdrop, no frame, no lettering.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-manto-de-inspiracao.png",
+      "arteId": "habilidade.manto-de-inspiracao",
+      "alt": "Barda se envolve em um manto de luz musical"
+    },
+    {
+      "id": "musico",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-044bfb2a-c27e-47ea-bea0-bb842032c4e3.png",
+      "prompt": "Stylized painterly fantasy RPG ability icon. Adult woman elf bard alone seated with a flute and a small lantern, gentle golden notes and a single heroic spark rise above the instrument, no other figures. Exactly one person, no other beings or faces, no duplicate bodies. Transparent background, no backdrop, no frame, no lettering.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-musico.png",
+      "arteId": "habilidade.musico",
+      "alt": "Barda toca flauta enquanto notas douradas brilham"
+    },
+    {
+      "id": "ilusao-menor",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-8dff5362-2f65-41d5-94f8-0974e863087c.png",
+      "prompt": "Painterly fantasy RPG ability icon. Adult woman elf bard alone conjures one small still golden coin illusion above her palm, the coin has a simple T symbol and faint translucent edges, no other figure. Exactly one humanoid character; no other people, creatures, faces or silhouettes. Transparent background, no scenery, no writing except the single T symbol if legible, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-ilusao-menor.png",
+      "arteId": "habilidade.ilusao-menor",
+      "alt": "Barda cria uma moeda ilusória marcada com T"
+    },
+    {
+      "id": "pau-pra-toda-obra",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-7f646dd4-6237-4846-970a-48874f73bfa9.png",
+      "prompt": "Painterly fantasy RPG ability icon. Adult woman elf bard alone adapts confidently to an unfamiliar task while holding a quill and compass, subtle golden insight motif, no other figures. Exactly one humanoid character; no other people, creatures, faces or silhouettes. Transparent background, no scenery, no writing except the single T symbol if legible, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-pau-pra-toda-obra.png",
+      "arteId": "habilidade.pau-pra-toda-obra",
+      "alt": "Barda improvisa com pena e bússola"
+    },
+    {
+      "id": "presa-do-cacador",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-19ce5379-d40b-415b-8fd5-722505526910.png",
+      "prompt": "Painterly fantasy RPG ability icon. Male bronze dragonborn hunter alone chooses one glowing hunter mark from two small abstract emblems hovering near his hand, one precise arrow point and one clustered arrow motif, no prey creature shown. Exactly one humanoid character; no other people, creatures, faces or silhouettes. Transparent background, no scenery, no writing except the single T symbol if legible, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-presa-do-cacador.png",
+      "arteId": "habilidade.presa-do-cacador",
+      "alt": "Draconato escolhe um símbolo de presa do caçador"
+    },
+    {
+      "id": "proficiencias-e-explorador-habil",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-9c4f073f-29b0-40c2-9aef-3eea81061b38.png",
+      "prompt": "Painterly fantasy RPG ability icon. Male bronze dragonborn hunter alone carries bow, sword, shield and map case, a few small abstract emblems for broad weapon and skill training, no other characters. Exactly one humanoid character; no other people, creatures, faces or silhouettes. Transparent background, no scenery, no writing except the single T symbol if legible, no frame.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-proficiencias-e-explorador-habil.png",
+      "arteId": "habilidade.proficiencias-e-explorador-habil",
+      "alt": "Draconato carrega equipamentos e símbolos de treinamento"
+    },
+    {
+      "id": "reflexos",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-0efc3a7a-11ae-477a-bf45-f0bb30b523b3.png",
+      "prompt": "Stylized painterly fantasy RPG ability icon. Adult woman elf bard alone stands in a poised defensive stance, one bright translucent mirror-like aura surrounds her and three small refracted glints suggest defensive illusion without duplicate bodies. Exactly one person, no other beings or faces, no duplicate bodies. Transparent background, no backdrop, no frame, no lettering.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-reflexos.png",
+      "arteId": "habilidade.reflexos",
+      "alt": "Barda usa uma aura ilusória defensiva"
+    },
+    {
+      "id": "zombaria-perversa",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-4d498b0e-0c85-4a77-9360-3701db7dee2f.png",
+      "prompt": "Stylized painterly fantasy RPG ability icon. Adult woman elf bard alone smirks while a violet speech-shaped magical glyph and psychic ripple flare beside her, representing cutting mockery without any target shown. Exactly one person, no other beings or faces, no duplicate bodies. Transparent background, no backdrop, no frame, no lettering.",
+      "target": "D:/Documents/Codex/2026-11-09/os-ogros-de-dnd-s-o/work/publicacao-owlbear/site/assets/habilidades/habilidade-zombaria-perversa.png",
+      "arteId": "habilidade.zombaria-perversa",
+      "alt": "Barda conjura uma runa de zombaria psíquica"
+    }
+  ],
+  "cimitarra": {
+    "arteId": "habilidade.cimitarra",
+    "origem": "assets/itens/item-cimitarra.webp",
+    "tipo": "reuso da arte do item"
+  }
+}

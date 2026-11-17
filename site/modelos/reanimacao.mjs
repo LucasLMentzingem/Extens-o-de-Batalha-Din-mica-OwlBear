@@ -1,0 +1,147 @@
+// Modelos de substituição sem loot próprio.
+export const modelosReanimacao={
+  "zumbi": {
+    "versaoFormato": 2,
+    "id": "cemiterio-zumbi-reanimado",
+    "nome": "Zumbi reanimado",
+    "tipo": "npc",
+    "edicao": "2024",
+    "classes": [
+      {
+        "id": "npc-autoral",
+        "nivel": 1
+      }
+    ],
+    "especie": "Zumbi",
+    "tipoCriatura": "morto-vivo",
+    "atributos": {
+      "for": 13,
+      "des": 6,
+      "con": 16,
+      "int": 3,
+      "sab": 6,
+      "car": 5
+    },
+    "salvaguardas": {
+      "for": 1,
+      "des": -2,
+      "con": 3,
+      "int": -4,
+      "sab": 0,
+      "car": -3
+    },
+    "pvMaximos": 15,
+    "caBase": 8,
+    "deslocamentosM": {
+      "andar": 6
+    },
+    "proficiencia": 2,
+    "pericias": {},
+    "recursos": [],
+    "concessoes": [
+      {
+        "id": "pancada",
+        "ref": "habilidade.cemiterio.zumbigoblin-pancada",
+        "tipo": "habilidade"
+      },
+      {
+        "id": "fortitude",
+        "ref": "habilidade.cemiterio.fortitude-morto-vivo",
+        "tipo": "passiva"
+      }
+    ],
+    "preparacao": {
+      "vagas": 0,
+      "preparadas": [],
+      "semprePreparadas": []
+    },
+    "inventario": {
+      "capacidadeCargaKg": 100,
+      "itens": []
+    },
+    "notas": [
+      {
+        "nome": "Modelo de reanimação",
+        "descricao": "Zumbi padrão de referência SRD 5.2.1: 15 PV, CA 8, Pancada +3 1d8+1. Não é o zumbi autoral nível 3 de 32 PV."
+      }
+    ],
+    "tamanho": "medio",
+    "imunidades": [
+      "veneno"
+    ],
+    "idiomas": "Entende Comum e Goblin; não fala.",
+    "sentidos": "Visão no escuro 18 m; Percepção passiva 8."
+  },
+  "zumbigoblin": {
+    "versaoFormato": 2,
+    "id": "cemiterio-zumbigoblin",
+    "nome": "Zumbigoblin",
+    "tipo": "npc",
+    "edicao": "2024",
+    "classes": [
+      {
+        "id": "npc-autoral",
+        "nivel": 1
+      }
+    ],
+    "especie": "Goblin reanimado",
+    "tipoCriatura": "morto-vivo",
+    "atributos": {
+      "for": 13,
+      "des": 6,
+      "con": 16,
+      "int": 3,
+      "sab": 6,
+      "car": 5
+    },
+    "salvaguardas": {
+      "for": 1,
+      "des": -2,
+      "con": 3,
+      "int": -4,
+      "sab": 0,
+      "car": -3
+    },
+    "pvMaximos": 15,
+    "caBase": 8,
+    "deslocamentosM": {
+      "andar": 6
+    },
+    "proficiencia": 2,
+    "pericias": {},
+    "recursos": [],
+    "concessoes": [
+      {
+        "id": "pancada",
+        "ref": "habilidade.cemiterio.zumbigoblin-pancada",
+        "tipo": "habilidade"
+      },
+      {
+        "id": "fortitude",
+        "ref": "habilidade.cemiterio.fortitude-morto-vivo",
+        "tipo": "passiva"
+      }
+    ],
+    "preparacao": {
+      "vagas": 0,
+      "preparadas": [],
+      "semprePreparadas": []
+    },
+    "inventario": {
+      "capacidadeCargaKg": 100,
+      "itens": []
+    },
+    "notas": [
+      {
+        "nome": "Adaptação",
+        "descricao": "PV 15 e tamanho Pequeno autorais; ND de referência 1/4. Substitui Fuga Ágil, perícias e ataques vivos; nenhum equipamento fornece CA ao corpo reanimado. Controle e Fortitude assistidos."
+      }
+    ],
+    "tamanho": "pequeno",
+    "imunidades": [
+      "veneno"
+    ],
+    "idiomas": "Entende Comum e Goblin; não fala.",
+    "sentidos": "Visão no escuro 18 m; Percepção passiva 8."
+  }
+};

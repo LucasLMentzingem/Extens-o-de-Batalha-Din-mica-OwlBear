@@ -1,6 +1,8 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.52';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.52';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.52';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.53';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.53';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.53';
+
+import {sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.53';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -121,7 +123,7 @@ export function atualizarMagias(f){
       if(f.id==='nikki'&&[13,15].includes(f.caBase))f.caBase=12; // #9 sem armadura: 10 + DESif(f.id==='nikki'&&f.armaduraEquipada===undefined)f.armaduraEquipada=false;
     }
     if(nome==='sopro de dragao')configurarSoproDragao(o);
-    if(o.automacao)continue;
+    if(o.automacao||o.resolucaoAssistida===true)continue;
     const circulo=o.circuloBase??1;
     if(nome==='misseis magicos'){
       o.automacao={tipo:'projeteis',alcanceM:LIMITE_ALCANCE_M,dano:'1d4+1',elemento:'energetico'};
@@ -229,6 +231,12 @@ export function derivarOpcaoCirculo(a,o,circuloUsado,{magiaDuplicada=false}={}){
   const escala=v.escalaCirculo;
   if(escala?.danoDadosPorCirculo&&v.automacao?.dano)v.automacao.dano=formulaComDadosAdicionais(v.automacao.dano,escala.facesDano??/d(\d+)/.exec(v.automacao.dano)?.[1],acima*escala.danoDadosPorCirculo);
   if(escala?.alvosPorCirculo&&v.selecao)v.selecao.max+=acima*escala.alvosPorCirculo;
+  if(escala?.curaDadosPorCirculo&&v.automacao?.tipo==='cura')v.automacao.formula=formulaComDadosAdicionais(v.automacao.formula,escala.facesCura,acima*escala.curaDadosPorCirculo);
+  if(escala?.pvTemporariosPorCirculo&&v.automacao?.tipo==='pv_temporario'){const m=/^(\d+d\d+)([+-]\d+)?$/.exec(v.automacao.formula);if(m)v.automacao.formula=m[1]+'+'+(Number(m[2]??0)+acima*escala.pvTemporariosPorCirculo);}
+  if(v.discipuloVida&&v.automacao?.tipo==='cura'){
+    const m=/^(\d+d\d+)([+-]\d+)?$/.exec(v.automacao.formula);
+    if(m)v.automacao.formula=m[1]+'+'+(Number(m[2]??0)+2+circulo);
+  }
   return v;
 }
 function corrigirMagiasRevisao(f){
@@ -1738,7 +1746,7 @@ export async function aplicar(s,c,u,rolar) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['removerSobreposicaoFicha','reanimarCorpo','transformarAdagaMissao','exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1746,6 +1754,46 @@ export async function aplicar(s,c,u,rolar) {
   if(a?.reacaoIniciativa&&['usar','passar','mover','inventario','soltarItem'].includes(c.tipo))throw Error('Resolva a escolha de Iniciativa antes de agir.');
   let msg='';
   switch(c.tipo) {
+    case 'removerSobreposicaoFicha': {
+      exigir(a?.sobreposicaoFicha&&c.confirmado===true,'Confirme a remoção da sobreposição.');
+      exigir(!s.reacaoPendente&&!s.resolucaoPendente&&!trocaDoAtor(s,a.id),'Conclua reações, resoluções e trocas.');
+      encerrarConcentracao(s,a,'remoção da sobreposição');
+      removerSobreposicao(a,validar);sincronizarConcessoesItens(a);
+      for(const p of s.atores)if(p.saqueAberto?.origem?.id===a.id)delete p.saqueAberto;
+      msg='Mestre removeu a sobreposição de '+a.nome+'. Ficha original restaurada com os pertences restantes; isto não ressuscita a criatura.';break;
+    }
+    case 'reanimarCorpo': {
+      const origem=s.atores.find(x=>x.id===c.conjuradorId);
+      exigir(a&&origem&&a!==origem&&origem.pv>0,'Escolha o corpo e um conjurador consciente.');
+      exigir(c.confirmado===true&&c.minutoConcluido===true,'O mestre deve confirmar um minuto completo de conjuração e os componentes.');
+      exigir(!s.reacaoPendente&&!s.resolucaoPendente&&!trocaDoAtor(s,a.id),'Conclua reações, resoluções e trocas antes de sobrepor a ficha.');
+      exigir(distancia(a,origem)<=3+1e-8,'O corpo está a mais de 3 m.');
+      const magia=origem.ficha.opcoes.find(o=>o.reanimacao===true);
+      exigir(magia&&opcaoPreparada(origem.ficha,magia),'O conjurador não tem Animar Mortos preparado.');
+      const circulo=Number(c.circulo??3);
+      exigir(inteiro(circulo,3,9)&&(origem.rec['espaco-'+circulo]??0)>=1,'Espaço de 3º círculo ou superior indisponível.');
+      const nome=a.nome;
+      sobreporMortoVivo(s,a,origem,{validar,compactarFicha,encerrarConcentracao});
+      origem.rec['espaco-'+circulo]--;
+      msg=origem.nome+' reanimou '+nome+' como '+a.ficha.nome+'. Loot restante e token preservados; controle de 24 horas e ordens assistidos.';break;
+    }
+    case 'transformarAdagaMissao': {
+      const i=a?.ficha.inventario.itens.find(i=>i.id===c.itemId);
+      exigir(i?.catalogoRef==='item.adaga-do-ultimo-rito'&&i.quantidade===1,'Selecione a instância da adaga inicial.');
+      exigir(c.confirmado===true&&c.ritoConcluido===true,'O mestre deve confirmar elegibilidade e conclusão do rito.');
+      exigir(['purificada','profanada'].includes(c.resultado),'Resultado inválido.');
+      let agua,portador;
+      if(c.resultado==='purificada'){
+        exigir(c.altarOriginal===true,'A purificação exige o altar original da capela subterrânea.');
+        portador=s.atores.find(x=>x.id===c.aguaAtorId);
+        agua=portador?.ficha.inventario.itens.find(x=>x.id===c.aguaItemId&&x.catalogoRef==='item.agua-benta-da-purificacao'&&x.quantidade>=1);
+        exigir(agua,'Uma dose de água benta de missão precisa ser consumida.');
+      }
+      const nova=resolverInstanciaItem({id:i.id,ref:'item.adaga-sagrada-'+c.resultado+'-mais-2',quantidade:1,equipado:i.equipado,equipadoSlot:i.equipadoSlot,preferido:i.preferido});
+      a.ficha.inventario.itens[a.ficha.inventario.itens.indexOf(i)]=nova;
+      if(agua){agua.quantidade--;if(!agua.quantidade)portador.ficha.inventario.itens=portador.ficha.inventario.itens.filter(x=>x!==agua);}
+      sincronizarConcessoesItens(a);msg='Mestre confirmou o rito: '+nova.nome+'. Mesma instância e posse; efeito antigo removido.';break;
+    }
     case 'configurarRecipiente': {
       const r=recipientePorId(s,c.recipienteId);exigir(r&&r.tipo==='caixa','Baú não encontrado.');
       exigir(inteiro(c.capacidadeSlots,1,200),'A capacidade deve ser de 1 a 200 espaços.');
@@ -1812,7 +1860,7 @@ export async function aplicar(s,c,u,rolar) {
         return {item,quantidade:entrada.quantidade};
       });
       const copias=transferencias.map(({item,quantidade})=>{
-        const copia=structuredClone(item);copia.id=origemTipo!=='personagem'&&quantidade===item.quantidade?item.id:crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
+        const copia=structuredClone(item);copia.id=quantidade===item.quantidade?item.id:crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
         return copia;
       });
       let equipamentoDireto=null;
@@ -2333,6 +2381,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'reagir': {
       const o=opcoesDisponiveis(a).find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
       exigir(s.fase==='turnos'&&a.pv>0&&o,'Reação indisponível.');
+      exigir(!o.reanimacao,'Use Reanimar corpo em Controle de fichas após um minuto de conjuração; esse comando cobra o espaço.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
       exigir(plano&&custosDisponiveis(a,o,c.modoCusto??'automatico'),'Saldo insuficiente para reagir.');registrarEspacoNoTurno(s,a,plano.custos);
       for(const v of plano.custos){
@@ -2398,7 +2447,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       exigir(c.atores===undefined||Array.isArray(c.atores)&&c.atores.every(id=>s.atores.some(x=>x.id===id)),'Personagens do descanso inválidos.');
-      for(const p of s.atores.filter(x=>x.ficha.tipo==='pj'&&x.estadoVida!=='morto'&&(!c.atores||c.atores.includes(x.id)))){ // #12 descanso só de quem foi escolhido
+      for(const p of s.atores.filter(x=>(x.ficha.tipo==='pj'||x.ficha.descansoNpc===true)&&x.estadoVida!=='morto'&&(!c.atores||c.atores.includes(x.id)))){ // #12 descanso só de quem foi escolhido
         // #25 O descanso longo também aplica tudo que um descanso curto recuperaria.
         const eventosDescanso=c.periodo==='longo'?['descanso_curto','descanso_longo']:['descanso_curto'];
         for(const r of p.ficha.recursos){
@@ -2412,7 +2461,7 @@ export async function aplicar(s,c,u,rolar) {
         const escolhas=escolhasDeDescanso(p,c.periodo);
         if(escolhas.length)p.escolhasDescanso=[...(p.escolhasDescanso??[]).filter(e=>!escolhas.some(x=>x.grupoExclusivo===e.grupoExclusivo)),...escolhas];
       }
-      msg='Descanso '+c.periodo+' dos jogadores.';
+      msg='Descanso '+c.periodo+' dos participantes elegíveis.';
       {const pendentes=s.atores.filter(x=>x.escolhasDescanso?.length).map(x=>x.nome);if(pendentes.length)msg+=' Escolhas pendentes: '+pendentes.join(', ')+'.';}
       break;
     case 'escolherAposDescanso': {
@@ -2957,6 +3006,7 @@ export function publico(s){
     a.saqueAberto.nome=a.saqueAberto.origem?.tipo==='personagem'?s.atores.find(x=>x.id===a.saqueAberto.origem.id)?.nome:a.saqueAberto.nome;
   }
   delete v.filaReacoes;delete v.resolucaoPendente;
+  for(const a of v.atores)delete a.sobreposicaoFicha;
   for(const a of v.atores)if(a.ficha.tipo==='npc'){
     delete a.bencao;
     a.ficha={tipo:'npc',nome:a.nome,opcoes:[]};delete a.pv;delete a.rec;

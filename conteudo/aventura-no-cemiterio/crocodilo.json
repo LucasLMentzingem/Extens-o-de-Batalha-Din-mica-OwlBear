@@ -1,0 +1,71 @@
+{
+  "versaoFormato": 2,
+  "id": "crocodilo",
+  "nome": "Crocodilo",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "npc-autoral",
+      "nivel": 1
+    }
+  ],
+  "especie": "Crocodilo",
+  "tipoCriatura": "fera",
+  "atributos": {
+    "for": 15,
+    "des": 10,
+    "con": 13,
+    "int": 2,
+    "sab": 10,
+    "car": 5
+  },
+  "salvaguardas": {
+    "for": 2,
+    "des": 0,
+    "con": 3,
+    "int": -4,
+    "sab": 0,
+    "car": -3
+  },
+  "pvMaximos": 13,
+  "caBase": 12,
+  "deslocamentosM": {
+    "andar": 6,
+    "nadar": 9
+  },
+  "proficiencia": 2,
+  "pericias": {
+    "Furtividade": 2
+  },
+  "recursos": [],
+  "concessoes": [
+    {
+      "id": "mordida",
+      "ref": "habilidade.cemiterio.crocodilo-mordida",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "folego",
+      "ref": "habilidade.cemiterio.crocodilo-folego",
+      "tipo": "passiva"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": []
+  },
+  "notas": [
+    {
+      "nome": "Origem",
+      "descricao": "D&D Basic Rules 2024 / SRD 5.2.1: ND 1/2, XP 100. Crocodilo comum, sem versão gigante. Nível técnico 1 do formato. Sem token fornecido."
+    }
+  ],
+  "tamanho": "grande",
+  "nd": 0.5
+}

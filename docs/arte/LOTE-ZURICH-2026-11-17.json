@@ -1,0 +1,94 @@
+{
+  "data": "2026-11-17",
+  "ferramenta": "imagegen integrada",
+  "registros": [
+    {
+      "id": "destruidor-de-hordas",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-a43a253e-e779-4b4a-89de-eee73284c249.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: A male wood elf hunter in green leather armor releases two arrows in quick succession, the paired arrows strike two separate monstrous foes flanking one another, dynamic clear multi-target attack, no gore. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.destruidor-de-hordas",
+      "target": "site/assets/habilidades/habilidade-destruidor-de-hordas.png",
+      "alt": "Patrulheiro dispara duas flechas contra inimigos diferentes"
+    },
+    {
+      "id": "elfo-silvestre",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-1041c542-6610-48b5-b5c3-24df6cd6dd17.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Elegant male wood elf ranger with pointed ears, green hood, woodland cloak, standing among leaves with subtle darkvision glow and a tiny sprouting druidic leaf in palm, racial nature and keen senses. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.elfo-silvestre",
+      "target": "site/assets/habilidades/habilidade-elfo-silvestre.png",
+      "alt": "Elfo patrulheiro com sentidos aguçados e magia natural"
+    },
+    {
+      "id": "emaranhar",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-96d12bbe-58c9-48dd-8071-172441d86e93.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: A patch of thorny green vines erupts from soil and coils around the boots and legs of a humanoid foe, restraining them in a small forest floor patch, druidic magic, no extra scene. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.emaranhar",
+      "target": "site/assets/habilidades/habilidade-emaranhar.png",
+      "alt": "Vinhas prendem as pernas de um adversário"
+    },
+    {
+      "id": "explorador-habil",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-ee73c3ad-355c-448c-b71d-9a90e2861dac.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger crouches to inspect tiny tracks with a keen eye, two subtle language scroll ribbons with abstract unreadable symbols beside him, expertise and learned languages, no text. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.explorador-habil",
+      "target": "site/assets/habilidades/habilidade-explorador-habil.png",
+      "alt": "Patrulheiro examina rastros e idiomas aprendidos"
+    },
+    {
+      "id": "falar-com-animais",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-fe268d3d-4fa6-48d0-93e1-5edcd1e9c3ac.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger kneels to speak calmly with a fox and small bird, a gentle green magical ripple links them, clear mutual communication. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.falar-com-animais",
+      "target": "site/assets/habilidades/habilidade-falar-com-animais.png",
+      "alt": "Elfo patrulheiro conversa com raposa e pássaro"
+    },
+    {
+      "id": "iniciado-em-magia-druida",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-8639d9fe-eeb3-4761-828b-7ea70c931de4.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger holds a small glowing leaf while a soft green-gold blessing flows toward a wounded ally, tiny healing light and guidance, nature magic. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.iniciado-em-magia-druida",
+      "target": "site/assets/habilidades/habilidade-iniciado-em-magia-druida.png",
+      "alt": "Patrulheiro canaliza magia druídica de orientação e cura"
+    },
+    {
+      "id": "maestria-em-arma",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-539f9949-5611-49e8-8703-1bf7239896f8.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger presents a longbow and curved scimitar, each highlighted by a distinct restrained mastery glow, switching weapon techniques. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.maestria-em-arma",
+      "target": "site/assets/habilidades/habilidade-maestria-em-arma.png",
+      "alt": "Arco longo e cimitarra destacados pela maestria marcial"
+    },
+    {
+      "id": "marca-do-predador",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-b945d268-1f99-4640-b3fa-4a05965182b4.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf hunter sights a distant beast through bow, a luminous amber sigil marks the prey, faint spectral tracks trail behind it, no injury. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.marca-do-predador",
+      "target": "site/assets/habilidades/habilidade-marca-do-predador.png",
+      "alt": "Caçador mira presa marcada por um sigilo luminoso"
+    },
+    {
+      "id": "orientacao",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-af09078a-28d4-4604-bd76-0aebc05cbce7.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger touches an ally shoulder, a small green four-point star and faint guiding motes appear over ally, guidance cantrip. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.orientacao",
+      "target": "site/assets/habilidades/habilidade-orientacao.png",
+      "alt": "Patrulheiro concede orientação mágica a um aliado"
+    },
+    {
+      "id": "palavra-curativa",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-8d9538a7-230d-41e0-bcc7-1e64217f00cf.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger speaks a healing word toward a wounded companion, warm green-gold light restores them from a distance, no touch, restorative spell. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.palavra-curativa",
+      "target": "site/assets/habilidades/habilidade-palavra-curativa.png",
+      "alt": "Luz dourada cura um aliado à distância"
+    },
+    {
+      "id": "passos-largos",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-34146b8e-800c-4d63-8704-cd59db841796.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly semi-realistic detailed fantasy inventory art consistent with game ability icons. Centered readable composition, distinct silhouette and clear single concept. Subject: Male wood elf ranger strides forward with a light wind and green leaves circling his boots, elongated spectral footprints imply increased speed, nature magic. Transparent background, actual alpha cutout, no environment backdrop, no frame, no text, no logo.",
+      "arteId": "habilidade.passos-largos",
+      "target": "site/assets/habilidades/habilidade-passos-largos.png",
+      "alt": "Patrulheiro avança com velocidade envolta em folhas"
+    }
+  ]
+}

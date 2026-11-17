@@ -2306,6 +2306,169 @@
           }
         ]
       }
+    },
+    {
+      "id": "item.adaga-sagrada-purificada-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga sagrada purificada +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 1500,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Resultado alternativo autoral da missão. O +2 pertence ao nome: bônus real +1 no ataque, sem bônus plano ao dano da arma. Cada acerto e arremesso soma 1d4 radiante separado; participa do crítico. Substitui integralmente a adaga inicial e seu +1 necrótico. Preço e raridade propostos.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "empilhavel": false,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "radiante",
+          "critico": true
+        },
+        "icone": "assets/itens/item-adaga-sagrada-purificada-mais-2.png",
+        "modificadores": {
+          "ataque": 1
+        }
+      }
+    },
+    {
+      "id": "item.adaga-sagrada-profanada-mais-2",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Adaga sagrada profanada +2",
+        "tipo": "equipamento",
+        "categoria": "arma",
+        "tipoArma": "adaga",
+        "grupoProficiencia": "simples",
+        "propriedades": [
+          "corpo_a_corpo",
+          "acuidade",
+          "leve",
+          "arremessavel"
+        ],
+        "preco": {
+          "valor": 1500,
+          "moeda": "po"
+        },
+        "pesoKg": 0.5,
+        "slotEquipamento": "mao_forte",
+        "leve": true,
+        "descricao": "Resultado alternativo autoral da missão. O +2 pertence ao nome: bônus real +1 no ataque, sem bônus plano ao dano da arma. Cada acerto e arremesso soma 1d4 necrotico separado; participa do crítico. Substitui integralmente a adaga inicial e seu +1 necrótico. Preço e raridade propostos.",
+        "modelosAcoes": [
+          {
+            "modo": "corpo_a_corpo",
+            "alcanceM": 1.5,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          },
+          {
+            "modo": "arremesso",
+            "alcanceNormalM": 6,
+            "alcanceM": 18,
+            "dano": "1d4",
+            "tipoDano": "perfurante"
+          }
+        ],
+        "negociavel": true,
+        "raridade": "raro",
+        "empilhavel": false,
+        "danoExtraAoAcertar": {
+          "formula": "1d4",
+          "elemento": "necrotico",
+          "critico": true
+        },
+        "icone": "assets/itens/item-adaga-sagrada-profanada-mais-2.png",
+        "modificadores": {
+          "ataque": 1
+        }
+      }
+    },
+    {
+      "id": "item.agua-benta-da-purificacao",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Água benta da purificação",
+        "tipo": "etc",
+        "categoria": "missao",
+        "empilhavel": false,
+        "pesoKg": 0.5,
+        "preco": {
+          "valor": 25,
+          "moeda": "po"
+        },
+        "negociavel": false,
+        "descricao": "Uma dose lacrada de missão. Consumida apenas quando o mestre confirma a purificação no altar original da capela subterrânea. Não é um botão de ataque nem permite purificar em qualquer lugar. Sem reposição automática.",
+        "icone": "assets/itens/item-agua-benta-da-purificacao.png"
+      }
+    },
+    {
+      "id": "item.corda-15-m",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Corda de 15 m",
+        "tipo": "etc",
+        "empilhavel": true,
+        "pesoKg": 2.5,
+        "preco": {
+          "valor": 1,
+          "moeda": "po"
+        },
+        "negociavel": true,
+        "descricao": "Corda comum de 15 metros (50 pés). Usos, amarração e capacidade dependem da cena e do mestre; não concede deslocamento ou ataque automático.",
+        "icone": "assets/itens/item-corda-15-m.png"
+      }
+    },
+    {
+      "id": "item.armadura-de-escamas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura de escamas",
+        "tipo": "equipamento",
+        "categoriaArmadura": "media",
+        "slotEquipamento": "vestes",
+        "pesoKg": 22.5,
+        "preco": {
+          "valor": 50,
+          "moeda": "po"
+        },
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 14,
+          "atributo": "des",
+          "classe": "media",
+          "limiteAtributo": 2
+        },
+        "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade.",
+        "negociavel": true
+      }
     }
   ]
 }

@@ -1,0 +1,123 @@
+{
+  "versaoFormato": 2,
+  "id": "cemiterio-goblin-1",
+  "nome": "Goblin 1 — séquito do necromante",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "npc-autoral",
+      "nivel": 1
+    }
+  ],
+  "especie": "Goblin",
+  "tipoCriatura": "feerico",
+  "atributos": {
+    "for": 8,
+    "des": 15,
+    "con": 10,
+    "int": 10,
+    "sab": 8,
+    "car": 8
+  },
+  "salvaguardas": {
+    "for": -1,
+    "des": 2,
+    "con": 0,
+    "int": 0,
+    "sab": -1,
+    "car": -1
+  },
+  "pvMaximos": 10,
+  "caBase": 10,
+  "deslocamentosM": {
+    "andar": 9
+  },
+  "proficiencia": 2,
+  "pericias": {
+    "Furtividade": 6,
+    "Percepção": -1
+  },
+  "recursos": [],
+  "concessoes": [
+    {
+      "id": "desengajar",
+      "ref": "habilidade.cemiterio.goblin-desengajar",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "esconder",
+      "ref": "habilidade.cemiterio.goblin-esconder",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "vantagem",
+      "ref": "habilidade.cemiterio.goblin-vantagem",
+      "tipo": "habilidade"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": [
+      {
+        "id": "goblin-1-couro",
+        "ref": "item.armadura-de-couro",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "vestes"
+      },
+      {
+        "id": "goblin-1-escudo",
+        "ref": "item.escudo",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_fraca"
+      },
+      {
+        "id": "goblin-1-cimitarra",
+        "ref": "item.cimitarra",
+        "quantidade": 1,
+        "equipado": true,
+        "equipadoSlot": "mao_forte"
+      },
+      {
+        "id": "goblin-1-arco",
+        "ref": "item.reino.arco-curto",
+        "quantidade": 1
+      }
+    ]
+  },
+  "notas": [
+    {
+      "nome": "ND e armamento",
+      "descricao": "ND 1/4. CA 15 com couro e escudo; CA 13 sem escudo. Desequipe o escudo e a cimitarra antes de equipar o arco de duas mãos. Alcance máximo de 18 m da mesa; munição assistida."
+    },
+    {
+      "nome": "Regra autoral",
+      "descricao": "Permanece Feérico. Reanimação como zumbigoblin é exceção da aventura, sem mudar a espécie para Humanoide."
+    }
+  ],
+  "tamanho": "pequeno",
+  "reanimacao": {
+    "modelo": "zumbigoblin",
+    "aventura": "aventura-no-cemiterio"
+  },
+  "idiomas": "Comum, Goblin",
+  "sentidos": "Visão no escuro 18 m; Percepção passiva 9.",
+  "proficienciasEquipamento": {
+    "armas": [
+      "simples",
+      "marciais"
+    ],
+    "armaduras": [
+      "leve",
+      "escudo"
+    ],
+    "maestrias": []
+  }
+}

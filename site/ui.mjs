@@ -1,16 +1,17 @@
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.52';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.52';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.53';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.53';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.53';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.52';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.52';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.52';
-import {itensCatalogo,lojasCatalogo} from './catalog.mjs?v=0.8.52';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.52';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.52';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.52';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.52';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.52';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.52';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.53';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.53';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.53';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.53';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.53';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.53';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.53';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.53';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.53';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.53';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -65,7 +66,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.52',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.53',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -126,8 +127,13 @@ function renderControleFichasMestre(){
   });
   // #12 Durante o combate o mestre também pode adicionar reforços (entram com iniciativa rolada).
   const importar='<div class="importar-fichas">'+renderGruposFichas()+'<div class="campos"><label>Adicionar ficha JSON<input id="arquivo" type="file" accept=".json,application/json"></label><label>Importar pasta como grupo<input id="pasta-fichas" type="file" webkitdirectory multiple accept=".json,application/json"></label></div><p class="muted">O nome da pasta será o nome do grupo. Até 50 fichas JSON, incluindo subpastas.</p>'+(s.fase==='preparo'?'':'<p class="muted">Reforços rolam iniciativa ao entrar no combate.</p>')+'</div>';
+  const corpos=s.atores.filter(a=>modeloReanimacao(a)),conjuradores=s.atores.filter(a=>a.pv>0&&a.ficha.opcoes.some(o=>o.reanimacao));
+  const restaurar=s.atores.filter(a=>a.sobreposicaoFicha).map(a=>'<p>'+esc(a.nome)+' · original resguardada: '+esc(a.sobreposicaoFicha.nomeOriginal)+' <button data-exportar-original="'+esc(a.id)+'">Baixar ficha original</button> <button data-remover-sobreposicao="'+esc(a.id)+'">Remover sobreposição</button></p>').join('');
+  const reanimar=corpos.length&&conjuradores.length?'<section><h3>Reanimar corpo · protótipo</h3><p>Depois de um minuto completo de conjuração, confirme os componentes. Cobra um espaço de 3º círculo e mantém os pertences restantes do corpo. Controle e ordens são assistidos.</p><label>Corpo<select id="reanimar-corpo">'+corpos.map(a=>opt(a.id,a.nome)).join('')+'</select></label><label>Conjurador<select id="reanimar-conjurador">'+conjuradores.map(a=>opt(a.id,a.nome)).join('')+'</select></label><button data-do="reanimar-corpo">Confirmar reanimação</button></section>':'';
+  const adagas=s.atores.flatMap(a=>a.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.adaga-do-ultimo-rito').map(i=>({a,i}))),aguas=s.atores.flatMap(a=>a.ficha.inventario.itens.filter(i=>i.catalogoRef==='item.agua-benta-da-purificacao'&&i.quantidade>0).map(i=>({a,i})));
+  const rito=adagas.length?'<section><h3>Desfecho da adaga · mestre</h3><p>Confirme a elegibilidade narrativa. Purificação exige o altar original e consome uma dose. Profanação exige as mortes elegíveis verificadas pelo mestre.</p><select id="rito-adaga">'+adagas.map(({a,i})=>opt(a.id+'|'+i.id,a.nome+' · '+i.nome)).join('')+'</select><select id="rito-resultado">'+opt('purificada','Purificada')+opt('profanada','Profanada')+'</select><select id="rito-agua">'+opt('','Sem dose')+aguas.map(({a,i})=>opt(a.id+'|'+i.id,a.nome+' · Água benta')).join('')+'</select><button data-do="rito-adaga">Confirmar desfecho da missão</button></section>':'';
   const recuperacao=(s.quarentenaFichas??[]).length?'<section class="fichas-recuperacao"><h3>Fichas em recuperação</h3><p>Estas fichas não passaram na validação. Seus originais foram preservados; exporte antes de corrigir e importar novamente.</p>'+s.quarentenaFichas.map(r=>'<article class="linha-vinculo"><div><strong>'+esc(r.nome)+'</strong><p>'+esc(r.erro)+'</p></div><button data-exportar-isolada="'+esc(r.id)+'">Baixar original</button><button class="perigo" data-excluir-isolada="'+esc(r.id)+'">Excluir ficha isolada</button></article>').join('')+'</section>':'';
-  return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+recuperacao+importar+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
+  return '<section class="controle-fichas-mestre"><div class="titulo-controle"><div><small>PAINEL EXCLUSIVO DO MESTRE</small><h2>Controle de fichas</h2><p>Importe fichas e vincule cada uma a um token e, quando for PJ, a um jogador online.</p></div></div>'+recuperacao+importar+reanimar+restaurar+rito+resumoToken+'<div class="lista-vinculos">'+(linhas||'<p class="estado-vazio">Nenhuma ficha carregada.</p>')+'</div></section>';
 }
 function renderFichaRecipiente(r){
  if(!r)return '';const gm=info.role==='GM',slots=r.itens?.length??r.ocupados??0;
@@ -380,7 +386,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.52',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.53',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -465,7 +471,15 @@ async function executar(k){
     if(!atores.length)throw Error('Selecione ao menos uma ficha.');
     await enviar('iniciativas',{atores});return;
   }
-  if(['curto','longo'].includes(k)){const atores=s.atores.filter(x=>x.ficha.tipo==='pj'&&x.emCombate!==false).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação só aos jogadores marcados como no encontro ('+atores.length+').'))await enviar('descanso',{periodo:k,atores});return;}
+  if(['curto','longo'].includes(k)){const atores=s.atores.filter(x=>(x.ficha.tipo==='pj'||x.ficha.descansoNpc===true)&&x.emCombate!==false).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação aos jogadores e NPCs com descanso habilitado presentes no encontro ('+atores.length+').'))await enviar('descanso',{periodo:k,atores});return;}
+  if(k==='reanimar-corpo'){
+    const ator=$('reanimar-corpo').value,conjuradorId=$('reanimar-conjurador').value;
+    if(await confirma('Reanimar este corpo?','Confirmo que o conjurador concluiu um minuto de conjuração, está a até 3 m e possui os componentes. Será consumido um espaço de 3º círculo.'))await enviar('reanimarCorpo',{ator,conjuradorId,confirmado:true,minutoConcluido:true});return;
+  }
+  if(k==='rito-adaga'){
+    const [ator,itemId]=$('rito-adaga').value.split('|'),resultado=$('rito-resultado').value,[aguaAtorId,aguaItemId]=$('rito-agua').value.split('|');
+    if(await confirma('Confirmar adaga '+resultado+'?',resultado==='purificada'?'Confirmo que estão no altar original da capela e que o rito foi concluído. A dose será consumida.':'Confirmo as 100 mortes elegíveis e a conclusão do ritual. A arma terá dano necrótico.'))await enviar('transformarAdagaMissao',{ator,itemId,resultado,aguaAtorId,aguaItemId,confirmado:true,ritoConcluido:true,altarOriginal:resultado==='purificada'});return;
+  }
   if(k==='amanhecer'){if(await confirma('Registrar o amanhecer?','Recupera os usos dos itens cuja recarga acontece ao amanhecer, inclusive itens guardados e vendidos.'))await enviar('amanhecer');return;}
   if(k.startsWith('tempo-'))return enviar('avancarTempo',{passo:k.slice(6)});
   if(k==='encerrar'){
@@ -524,6 +538,8 @@ $('app').onclick=e=>{const b=e.target.closest('button');if(!b||ocupado)return;
  if(b.dataset.configurarVinculo){secao='gm';paginaMestre='fichas';escolhido=b.dataset.configurarVinculo;const p=s.atores.find(x=>x.id===escolhido);if(p?.token)tokenSelecionado=p.token;const grupo=gruposAtores([p].filter(Boolean))[0];if(grupo)gruposMestreAbertos.add('fichas/'+grupo.id);render();return document.querySelector('.controle-fichas-mestre')?.scrollIntoView({behavior:'smooth'});}
  if(b.dataset.usarSelecaoVinculo)return tarefa(()=>usarSelecaoNoVinculo(b.dataset.usarSelecaoVinculo));
  if(b.dataset.salvarVinculo)return tarefa(()=>salvarVinculoAtor(b.dataset.salvarVinculo));
+ if(b.dataset.exportarOriginal){const p=s.atores.find(a=>a.id===b.dataset.exportarOriginal);if(!p?.sobreposicaoFicha||info.role!=='GM')return;const f=structuredClone(p.sobreposicaoFicha.fichaOriginal);f.inventario.itens=p.ficha.inventario.itens.map(i=>compactarInstanciaItem(i));const url=URL.createObjectURL(new Blob([JSON.stringify(f,null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download=f.id+'-original.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
+ if(b.dataset.removerSobreposicao)return tarefa(async()=>{if(await confirma('Remover sobreposição?','Restaura a ficha original no estado anterior, preservando o loot restante. Não ressuscita o corpo.'))await enviar('removerSobreposicaoFicha',{ator:b.dataset.removerSobreposicao,confirmado:true});});
  if(b.dataset.excluirFicha)return tarefa(async()=>{const id=b.dataset.excluirFicha,p=s.atores.find(x=>x.id===id);if(!p)return;if(!await confirma('Excluir '+p.nome+' do encontro?','A ficha será retirada do encontro, mas o arquivo JSON original continuará disponível.'))return;escolhido=id;await enviar('remover');if(escolhido===id)escolhido=null;aviso(p.nome+' foi excluído do encontro.');});
  if(b.dataset.exportarIsolada){const r=s.quarentenaFichas?.find(x=>x.id===b.dataset.exportarIsolada);if(!r||info.role!=='GM')return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.original,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='ficha-em-recuperacao-'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);return;}
  if(b.dataset.excluirIsolada)return tarefa(async()=>{if(info.role!=='GM')throw Error('Somente o mestre.');const r=s.quarentenaFichas?.find(x=>x.id===b.dataset.excluirIsolada);if(!r)return;if(!await confirma('Excluir '+r.nome+' da recuperação?','O registro isolado será removido. O backup automático da mesa será preservado.'))return;if(!await confirma('Confirmar exclusão da ficha isolada?','Esta ação não apaga o token manual do mapa.'))return;await enviar('excluirFichaIsolada',{registroId:r.id,confirmado:true,confirmacaoFinal:true});});
@@ -624,7 +640,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.52');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.53');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

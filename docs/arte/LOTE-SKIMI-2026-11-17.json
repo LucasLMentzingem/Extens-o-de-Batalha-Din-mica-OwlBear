@@ -1,0 +1,139 @@
+{
+  "data": "2026-11-17",
+  "ferramenta": "imagegen integrada",
+  "registros": [
+    {
+      "id": "encerrar-mente-desperta",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-f1b12377-d898-4064-bad0-1b255fc2de00.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: Two male heads in profile, their violet telepathic connecting thread breaks cleanly at center and dissolves, calm deliberate ending of mind link.",
+      "arteId": "habilidade.encerrar-mente-desperta",
+      "target": "site/assets/habilidades/habilidade-encerrar-mente-desperta.png",
+      "alt": "Vínculo telepático entre dois homens se desfaz"
+    },
+    {
+      "id": "imobilizar-pessoa",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-2639d6f3-b9ca-4d0c-9e26-072295ccdcea.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: An adult male human adventurer held rigid upright by translucent violet magical bands around torso arms and legs, paralysis spell, no physical ropes.",
+      "arteId": "habilidade.imobilizar-pessoa",
+      "target": "site/assets/habilidades/habilidade-imobilizar-pessoa.png",
+      "alt": "Humanoide paralisado por faixas de energia violeta"
+    },
+    {
+      "id": "inspiracao-heroica",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-cdab4e36-f9b2-465d-a4fd-db0355f00aae.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: A human male adventurer with hand on chest as a brilliant golden star of courage radiates from his heart, uplifting heroic determination.",
+      "arteId": "habilidade.inspiracao-heroica",
+      "target": "site/assets/habilidades/habilidade-inspiracao-heroica.png",
+      "alt": "Aventureiro ganha coragem com uma estrela dourada no peito"
+    },
+    {
+      "id": "invisibilidade",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-78dce049-507b-45b0-80f9-9e2aeae847f0.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: A male human warlock becoming invisible, left half solid cloak and face, right half fading into translucent shimmering contour, no background.",
+      "arteId": "habilidade.invisibilidade",
+      "target": "site/assets/habilidades/habilidade-invisibilidade.png",
+      "alt": "Bruxo humano desaparece em um contorno translúcido"
+    },
+    {
+      "id": "magias-psiquicas",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-c65c3e4b-9d68-483a-b262-964261111faa.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: A human male warlock with closed mouth and hands relaxed, silent psychic spell radiating as violet concentric ripples from his temples and a glowing mind silhouette above his head.",
+      "arteId": "habilidade.magias-psiquicas",
+      "target": "site/assets/habilidades/habilidade-magias-psiquicas.png",
+      "alt": "Bruxo humano conjura silenciosamente com energia mental"
+    },
+    {
+      "id": "mascara-de-muitas-faces",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-94065720-4e42-43b2-999e-673586d3dcb3.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: A human male warlock face surrounded by three translucent alternate masculine faces, a magical illusion disguise changing appearance, no floating text.",
+      "arteId": "habilidade.mascara-de-muitas-faces",
+      "target": "site/assets/habilidades/habilidade-mascara-de-muitas-faces.png",
+      "alt": "Rostos ilusórios oferecem disfarces ao bruxo"
+    },
+    {
+      "id": "mensagem",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-940802e1-09e2-400a-828b-1eefe8c96da8.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: Two small male profiles, one whispering with a hand near his lips, a delicate silver-blue curling thread travels to the other ear, secret message. Strict clean cutout, absolutely no fog or colored backdrop between heads; empty space must be alpha transparent.",
+      "arteId": "habilidade.mensagem",
+      "target": "site/assets/habilidades/habilidade-mensagem.png",
+      "alt": "Sussurro mágico viaja até o ouvido do destinatário"
+    },
+    {
+      "id": "mente-desperta",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-55843fa8-b1e6-468a-8ec2-30333f57a645.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: Two human male faces in profile with a bright continuous violet thread connecting their temples, subtle psychic halo, stable mutual telepathic connection. Strict clean cutout, absolutely no fog or colored backdrop between heads; empty space must be alpha transparent.",
+      "arteId": "habilidade.mente-desperta",
+      "target": "site/assets/habilidades/habilidade-mente-desperta.png",
+      "alt": "Duas mentes conectadas por um vínculo telepático"
+    },
+    {
+      "id": "pacto-do-tomo",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-b8ab06aa-ae92-4eec-a458-0b8911383177.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: An open ancient dark leather Book of Shadows levitates, ornate bronze corners, blank parchment pages with abstract violet non-letter magical light, tendril wisps emerging, no character.",
+      "arteId": "habilidade.pacto-do-tomo",
+      "target": "site/assets/habilidades/habilidade-pacto-do-tomo.png",
+      "alt": "Livro das Sombras aberto emana magia de pacto"
+    },
+    {
+      "id": "ponto-de-sorte",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-18418274-318d-4c6f-a2a0-d909f71f7f0f.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: One faceted emerald green gemstone charm with a small four-leaf clover and a curling golden arc of luck, distinct compact object icon, no dice numbers.",
+      "arteId": "habilidade.ponto-de-sorte",
+      "target": "site/assets/habilidades/habilidade-ponto-de-sorte.png",
+      "alt": "Amuleto verde com trevo e arco dourado de sorte"
+    },
+    {
+      "id": "rajada-agonizante",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-d502b819-0dd5-4f7f-9afb-88c826e3e91f.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: Close-up male warlock hand amplifying a violet force bolt with a second tightly coiling jagged magenta energy helix, intense concentrated power, no victim. Strict clean PNG cutout. No fog, no filled background, no ambient glow backdrop. Empty space fully transparent.",
+      "arteId": "habilidade.rajada-agonizante",
+      "target": "site/assets/habilidades/habilidade-rajada-agonizante.png",
+      "alt": "Energia adicional envolve e intensifica uma rajada violeta"
+    },
+    {
+      "id": "rajada-mistica",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-608b056b-bbaa-4e1d-8be6-193d2069c476.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: Human male warlock extends one hand firing a single bright cyan-violet eldritch force beam diagonally, dynamic cloak, visible face and hand, no lightning storm or backdrop. Strict clean PNG cutout. No fog, no filled background, no ambient glow backdrop. Empty space fully transparent.",
+      "arteId": "habilidade.rajada-mistica",
+      "target": "site/assets/habilidades/habilidade-rajada-mistica.png",
+      "alt": "Bruxo humano dispara um feixe de força arcana"
+    },
+    {
+      "id": "riso-histerico-de-tasha",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-7bd1b9a2-458b-4f0c-a392-87aa353dad04.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: A male fantasy adventurer fallen seated clutching his belly in uncontrollable laughter, head tilted back, eyes shut, faint violet enchantment ribbons, no injury.",
+      "arteId": "habilidade.riso-histerico-de-tasha",
+      "target": "site/assets/habilidades/habilidade-riso-histerico-de-tasha.png",
+      "alt": "Aventureiro caído ri sem conseguir se controlar"
+    },
+    {
+      "id": "sugestao",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-b7a2590b-1a83-4e08-854e-2bacdc37eec5.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability icon illustration, detailed painterly semi-realistic classic fantasy inventory art. Centered compact composition readable at 100px, generous margins, complete silhouettes. If depicting Skimi use an adult HUMAN MAN warlock with short dark hair, short beard, dark leather and muted violet cloak, Great Old One theme. Truly transparent alpha background. No scene backdrop, no frame, no writing, no letters, no UI, no logo. Subject: A composed human male warlock beside another adult male adventurer, subtle golden-violet thread from warlock temple guiding the attentive other man toward a small floating directional arc, calm reasonable persuasion rather than mind control chains.",
+      "arteId": "habilidade.sugestao",
+      "target": "site/assets/habilidades/habilidade-sugestao.png",
+      "alt": "Bruxo influencia uma decisão com um fio de encanto"
+    },
+    {
+      "id": "habilidade-fonte-magia-espaco-1-ponto",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-980b768d-6d21-4219-9007-06ae5ae1d73f.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly detailed semi-realistic cutout matching classic fantasy inventory art. A male infernal tiefling sorcerer, unmistakably adult man with horns and beard, violet robes, converts one small hollow purple magical ring into ONE luminous sorcery mote flowing into his chest. The disappearing ring and one mote clearly readable. Waist-up centered isolated composition, generous empty margin. Transparent alpha background, no scenery, no frame, no text, no UI, no logo. This depicts converting a first-level spell slot to one sorcery point.",
+      "target": "site/assets/habilidades/habilidade-fonte-magia-espaco-1-ponto.png"
+    },
+    {
+      "id": "habilidade-fonte-magia-espaco-2-pontos",
+      "path": "C:\\Users\\Lucas Mentzingem\\.codex\\generated_images\\01a1e9f0-14de-7903-9e1a-b16e0238688c\\exec-8aef1ff1-bad4-4868-8327-48cacb212b96.png",
+      "prompt": "Use case: stylized-concept. Single fantasy RPG ability illustration, painterly detailed semi-realistic cutout matching classic fantasy inventory art. A male infernal tiefling sorcerer, unmistakably adult man with horns and beard, violet robes, converts one large hollow purple magical ring into TWO distinct luminous sorcery motes flowing into his chest. The disappearing ring and two motes clearly readable. Waist-up centered isolated composition, generous empty margin. Transparent alpha background, no scenery, no frame, no text, no UI, no logo. This depicts converting a second-level spell slot to two sorcery points.",
+      "target": "site/assets/habilidades/habilidade-fonte-magia-espaco-2-pontos.png"
+    }
+  ],
+  "reassociacoes": {
+    "pericia-natureza": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-2eb68dfc-8c3c-4503-94b1-b0f293601af4.png",
+    "pericia-percepcao": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-11d45b2f-10af-4af4-98e7-ff9e0a1b8c2e.png",
+    "habilidade-preparar": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-b0131dff-afbc-4a85-961c-568e6621e25d.png",
+    "pericia-prestidigitacao": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-b1b1f53d-f9ca-4a2a-9cc9-d3955f620eb9.png",
+    "pericia-sobrevivencia": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-0657de1b-de10-43e9-9bd0-323bf7fe4415.png",
+    "habilidade-usar-objeto": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-438bb506-c354-4eb4-a22d-17c7a5be0979.png",
+    "habilidade-usar-magia": "C:/Users/Lucas Mentzingem/.codex/generated_images/01a1c286-ff46-7b93-8048-8c66dd71c676/exec-ad2adb3e-440b-4e6a-8840-07861100f388.png"
+  }
+}

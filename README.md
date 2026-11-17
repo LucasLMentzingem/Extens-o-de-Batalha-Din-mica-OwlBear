@@ -1,6 +1,10 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.52**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.52.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.53**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.53.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+## Aventura no cemitério e reanimação
+
+[Baixar grupo importável](https://lucaslmentzingem.github.io/Extens-o-de-Batalha-Din-mica-OwlBear/downloads/aventura-no-cemiterio.zip). Extraia e importe a pasta “aventura no cemiterio” em Controle de fichas. São 11 fichas, incluindo padre, necromante, mímico e crocodilo. O protótipo permite ao mestre reanimar corpos com uma sobreposição que resguarda a ficha original e conserva o loot restante. [Funcionamento e limites](docs/PROTOTIPO-SOBREPOSICAO-CEMITERIO.md).
 
 ## Lojas e comércio
 

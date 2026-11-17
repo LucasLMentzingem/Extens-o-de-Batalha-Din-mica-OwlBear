@@ -6728,6 +6728,1447 @@
         },
         "foraCombate": true
       }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-disparada",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ação Ardilosa · Disparada",
+        "descricao": "Ação bônus de ladino.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "economia",
+          "disparada": true
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-desengajar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ação Ardilosa · Desengajar",
+        "descricao": "Ação bônus de ladino.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "economia",
+          "desengajar": true
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-esconder",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ação Ardilosa · Esconder-se",
+        "descricao": "Ação bônus; exige condições de esconder-se. Furtividade +7, CD 15. Teste e condição assistidos.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-furtivo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ataque Furtivo — 2d6",
+        "descricao": "Uma vez por turno, em acerto com arma de Acuidade ou à distância: precisa de vantagem, ou aliado não incapacitado a 1,5 m do alvo e nenhuma desvantagem. Mestre confere elegibilidade. Adicionar 2d6 do tipo de dano da arma.",
+        "categoria": "acao",
+        "custo": [],
+        "gatilho": "apos_acerto",
+        "umaVezPorTurno": true,
+        "aprimoramento": {
+          "dano": "2d6",
+          "elemento": "perfurante",
+          "critico": true
+        },
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-mira",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mira Firme",
+        "descricao": "Ação bônus, somente se não se moveu neste turno: vantagem no próximo ataque deste turno e deslocamento zero até o fim do turno. Condições e vantagem assistidas.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-maos-rapidas",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mãos Rápidas",
+        "descricao": "Ação bônus para teste de Prestidigitação com ferramentas de ladrão para fechadura/armadilha ou furtar bolso; ou ação Utilizar; ou ação Mágica para item mágico que use essa ação. Arbitragem assistida, não concede uma ação bônus extra.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-escalador",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Trabalho em Altura",
+        "descricao": "Deslocamento de escalada igual ao de caminhada. Saltos usam Destreza em vez de Força nas distâncias. Aplicação assistida.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.irineu-ladino-3-especializacao",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Especialização",
+        "descricao": "Furtividade e Enganação têm proficiência dobrada, já incorporada nos bônus. Ferramentas de ladrão DES +5.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.seu-furtado-zumbi-4-pancada",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pancada",
+        "descricao": "Um ataque corpo a corpo +5, 1d8+3 contundente.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 5,
+          "dano": "1d8+3",
+          "elemento": "contundente",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.seu-furtado-zumbi-4-ataques-multiplos",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pancadas múltiplas",
+        "descricao": "Dois ataques de Pancada por uma ação. A adaga é uma alternativa de ataque simples e não integra esta sequência.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 5,
+          "dano": "1d8+3",
+          "elemento": "contundente",
+          "alcanceM": 1.5
+        },
+        "composicao": {
+          "tipo": "sequencia",
+          "quantidadeMinima": 2,
+          "quantidadeMaxima": 2,
+          "modoPadrao": "pancada",
+          "modos": [
+            {
+              "id": "pancada",
+              "nome": "Pancada",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8+3",
+                "elemento": "contundente",
+                "alcanceM": 1.5
+              }
+            },
+            {
+              "id": "segunda-pancada",
+              "nome": "Segunda pancada",
+              "tipo": "ataque",
+              "automacao": {
+                "tipo": "ataque",
+                "bonus": 5,
+                "dano": "1d8+3",
+                "elemento": "contundente",
+                "alcanceM": 1.5
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.seu-furtado-zumbi-4-agarrar-passagem",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mãos da sepultura — reação",
+        "descricao": "Quando uma criatura visível a até 1,5 m tenta se afastar usando seu movimento, antes de sair ela faz salvaguarda de FOR ou DES, à escolha dela, CD 13. Falha: Agarrado, deslocamento zero, escape com ação e Atletismo ou Acrobacia CD 13. Requer uma mão livre; máximo um alvo agarrado. Não acumula com ataque de oportunidade na mesma reação. Mecânica autoral; teste e condição assistidos.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "reacao",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.seu-furtado-zumbi-4-natureza-morta",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Natureza morta",
+        "descricao": "Imune a dano de veneno (configurado) e à condição Envenenado (assistida). Não precisa respirar, comer ou beber.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.seu-furtado-zumbi-4-tenacidade-morta",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Tenacidade cadavérica",
+        "descricao": "Quando dano reduz a 0 PV, salvo dano radiante ou acerto crítico, faça salvaguarda de CON CD 5 + dano recebido. Sucesso: fica com 1 PV. Teste e ajuste de PV assistidos; não é uma ressurreição automática.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.zumbi-padrao-3-pancada",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pancada",
+        "descricao": "Um ataque corpo a corpo +4, 1d8+2 contundente. Um ataque por ação.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 4,
+          "dano": "1d8+2",
+          "elemento": "contundente",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.zumbi-padrao-3-natureza-morta",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Natureza morta",
+        "descricao": "Imune a dano de veneno (configurado) e à condição Envenenado (assistida). Não precisa respirar, comer ou beber.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.zumbi-padrao-3-tenacidade-morta",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Tenacidade cadavérica",
+        "descricao": "Quando dano reduz a 0 PV, salvo dano radiante ou acerto crítico, faça salvaguarda de CON CD 5 + dano recebido. Sucesso: fica com 1 PV. Teste e ajuste de PV assistidos; não é uma ressurreição automática.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.goblin-desengajar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Fuga Ágil · Desengajar",
+        "descricao": "Ação bônus.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "desengajar"
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.goblin-esconder",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Fuga Ágil · Esconder-se",
+        "descricao": "Ação bônus; Furtividade +6. Mestre verifica condições de esconder-se.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.goblin-vantagem",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Dano por vantagem",
+        "descricao": "Após acerto com vantagem. Mestre verifica a vantagem e o tipo cortante/perfurante da arma.",
+        "categoria": "acao",
+        "custo": [],
+        "gatilho": "apos_acerto",
+        "aprimoramento": {
+          "dano": "1d4",
+          "critico": true
+        },
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.zumbigoblin-pancada",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pancada",
+        "descricao": "Ataque +3, 1d8+1 contundente.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 3,
+          "dano": "1d8+1",
+          "elemento": "contundente",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.fortitude-morto-vivo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Fortitude de Morto-vivo",
+        "descricao": "Assistido: ao cair a 0 por dano que não seja radiante nem crítico, CON CD 5 + dano recebido; sucesso fica com 1 PV. Sem custo. Imune a Envenenado e Exaustão; não recebe resistência necrótica.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-raio-de-gelo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Raio de Gelo",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 0,
+        "descricao": "V,S; 18 m. Ataque à distância [1d20+7]; [2d8] frio. Reduz deslocamento em 3 m até o início do próximo turno do drow.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 7,
+          "dano": "2d8",
+          "elemento": "frio",
+          "alcanceM": 18
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-toque-arrepiante",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Toque Arrepiante",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 0,
+        "descricao": "V,S; toque. Ataque mágico corpo a corpo [1d20+7]; [2d10] necrótico. Alvo não recupera PV até o fim do próximo turno do drow. Versão 2024: não é ataque à distância.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 7,
+          "dano": "2d10",
+          "elemento": "necrotico",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-armadura-arcana",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Armadura Arcana",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 1,
+        "descricao": "V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 1.5,
+          "efeito": {
+            "nome": "Armadura Arcana",
+            "tipo": "buff",
+            "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+            "removeEm": "descanso_longo",
+            "caMinima": 13,
+            "requisitos": {
+              "semArmadura": true
+            },
+            "modificadores": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-escudo-arcano",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo Arcano",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 1,
+        "descricao": "V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana.",
+        "custo": [
+          {
+            "tipo": "reacao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-raio-de-doenca",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Raio de Doença",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 1,
+        "descricao": "V,S; 18 m. Ataque à distância [1d20+7]. Acerto: [2d8] veneno e Envenenado até o fim do próximo turno do drow. Sem resistência adicional. +1d8 por círculo acima do 1º.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 7,
+          "dano": "2d8",
+          "elemento": "veneno",
+          "alcanceM": 18,
+          "efeitoAcerto": {
+            "nome": "Envenenado",
+            "tipo": "condicao",
+            "condicao": "envenenado",
+            "duracao": {
+              "turnos": 1,
+              "expira": "fim_origem"
+            }
+          }
+        },
+        "escalaCirculo": {
+          "danoDadosPorCirculo": 1,
+          "facesDano": 8
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-vitalidade-falsa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Vitalidade Falsa",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 1,
+        "descricao": "V,S,M (álcool); pessoal. Recebe [2d4+4] PV temporários; +5 por círculo acima do 1º. PV temporários não se somam entre si nem curam; registre em campo próprio.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "pv_temporario",
+          "formula": "2d4+4",
+          "alcanceM": 0
+        },
+        "escalaCirculo": {
+          "pvTemporariosPorCirculo": 5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-passo-nebuloso",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Passo Nebuloso",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 2,
+        "descricao": "V. Teleporte até 9 m para espaço desocupado que veja. Sem concentração. Pode usar truque com a ação; não gastar segundo espaço nesse turno.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-2",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "teleporte",
+          "alcanceM": 9
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-raio-do-enfraquecimento",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Raio do Enfraquecimento",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 2,
+        "descricao": "V,S; 18 m; concentração até 1 minuto. CON CD 15. Sucesso: desvantagem no próximo ataque até o início do próximo turno do drow. Falha: desvantagem em testes d20 de FOR e subtrai [1d8] de todas as rolagens de dano. Repete CON CD 15 ao fim de cada turno, encerrando com sucesso.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-2",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-toque-vampirico",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Toque Vampírico",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 3,
+        "descricao": "V,S; pessoal; concentração até 1 minuto. Ataque mágico corpo a corpo [1d20+7] contra criatura ao alcance; [3d6] necrótico. Recupera metade do dano necrótico efetivamente causado, arredondada para baixo. Nos turnos seguintes, repete o ataque com ação Mágica, sem novo espaço.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-3",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.necromante-animar-mortos",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Animar Mortos",
+        "categoria": "magia",
+        "origem": "necromante-autoral",
+        "circuloBase": 3,
+        "descricao": "V,S,M (sangue, carne e pó de osso); 3 m. Anima ossos ou cadáver de Humanoide Pequeno/Médio como esqueleto ou zumbi. Controle por 24 horas; ação bônus comanda mortos-vivos criados pela magia a até 18 m. Sem ordem, Esquiva e evita perigo; ordem geral persiste até ser cumprida. Nova conjuração antes das 24 horas mantém controle de até 4 mortos-vivos, em vez de criar outro. Não é ritual, não é uma ação, não traz a pessoa de volta à vida. Goblins Feéricos não são alvos válidos. Não há mortos-vivos pré-incluídos no grupo. Nesta aventura, o goblin marcado é exceção autoral válida. Protótipo: o mestre confirma um minuto concluído em Controle de fichas > Reanimar corpo; ali o espaço é debitado e uma sobreposição aplicada sobre a ficha original resguardada. Não declarar esta opção separadamente.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-3",
+            "quantidade": 1
+          }
+        ],
+        "reanimacao": true,
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.drow-heranca-elfica",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Herança élfica",
+        "descricao": "Vantagem contra Enfeitiçado. Não precisa dormir; magia não o faz dormir. Transe de 4 horas para descanso longo. Visão no escuro não atravessa Escuridão mágica. Este NPC simplificado não inclui todas as opções de classe e linhagem.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-orientacao",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Orientação",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 0,
+        "descricao": "Toque, concentração até 1 minuto; adiciona 1d4 a testes da perícia escolhida. Perícia assistida.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "conceder_dado",
+          "alcanceM": 1.5,
+          "modificador": {
+            "nome": "Orientação",
+            "formula": "1d4",
+            "tipos": [
+              "teste"
+            ],
+            "removeAoUsar": false
+          }
+        },
+        "concentracao": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-chama-sagrada",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Chama Sagrada",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 0,
+        "descricao": "DES CD 15; 2d8 radiante, sem dano no sucesso. Cobertura não ajuda; mestre verifica.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "salva",
+          "atributo": "des",
+          "cd": 15,
+          "dano": "2d8",
+          "elemento": "radiante",
+          "alcanceM": 18,
+          "metade": false
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-poupar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Poupar os Moribundos",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 0,
+        "descricao": "Estabiliza uma criatura viva a 0 PV; alcance de 9 m no nível 5.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "estabilizar",
+          "alcanceM": 9
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-taumaturgia",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Taumaturgia",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 0,
+        "descricao": "Prodígios a até 9 m; efeitos narrativos assistidos.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-luz",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Luz",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 0,
+        "descricao": "Toque em objeto; luz por 1 hora. Mestre configura a iluminação do objeto.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-palavra-curativa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Palavra Curativa",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Bônus; cura 2d4+7 no 1º círculo, incluindo SAB +4 e Discípulo +3.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "cura",
+          "formula": "2d4+4",
+          "alcanceM": 18
+        },
+        "discipuloVida": true,
+        "escalaCirculo": {
+          "curaDadosPorCirculo": 2,
+          "facesCura": 4
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-escudo-fe",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Escudo da Fé",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Bônus; concentração 10 min; +2 CA.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "efeito",
+          "alcanceM": 18,
+          "efeito": {
+            "nome": "Escudo da Fé",
+            "tipo": "buff",
+            "descricao": "+2 na Classe de Armadura.",
+            "modificadores": {
+              "ca": 2
+            },
+            "duracao": {
+              "turnos": 100,
+              "expira": "inicio_origem"
+            }
+          }
+        },
+        "concentracao": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-santuario",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Santuário",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Bônus, 9 m, 1 minuto. Atacantes precisam SAB CD 15 para atacar o protegido; término e alvos assistidos.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-detectar",
+      "revisao": 2,
+      "definicao": {
+        "nome": "Detectar Magia",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Ação ou ritual de 10 minutos; concentração 10 minutos; detecção assistida. Este botão consome espaço; ritual é narrativo.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "concentracao": true,
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-protecao",
+      "revisao": 2,
+      "definicao": {
+        "nome": "Proteção contra o Bem e o Mal",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Toque; concentração 10 minutos; proteção e componentes consumíveis assistidos.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "concentracao": true,
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-prece",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Prece de Cura",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 2,
+        "descricao": "Conjuração de 10 minutos; até cinco criaturas recebem descanso curto e 2d8+8 de cura, incluindo Discípulo. Elegibilidade e cura assistidas; mestre aguarda os 10 minutos antes de declarar.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-2",
+            "quantidade": 1
+          }
+        ],
+        "requisitosUso": {
+          "somenteForaCombate": true
+        },
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-acalmar",
+      "revisao": 2,
+      "definicao": {
+        "nome": "Acalmar Emoções",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 2,
+        "descricao": "Concentração 1 min; CAR CD 15; supressão de medo/encanto ou indiferença; alvos e efeitos assistidos.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-2",
+            "quantidade": 1
+          }
+        ],
+        "concentracao": true,
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-dissipar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Dissipar Magia",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 3,
+        "descricao": "Termina magias de até 3º; para maiores teste de SAB +4 CD 10+nível. Mestre resolve.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-3",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-remover",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Remover Maldição",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 3,
+        "descricao": "Toque; remove maldições conforme elegibilidade; não resolve automaticamente o rito da adaga.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-3",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-auxilio",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Auxílio",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 2,
+        "descricao": "Até três criaturas recebem +5 PV máximos/atuais por 8 horas; +5 por círculo superior. Ajustes assistidos.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-2",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-bencao",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Bênção",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Até três alvos a 9 m, concentração 1 minuto: +1d4 em ataques e salvaguardas.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "bencao",
+          "alcanceM": 9,
+          "turnos": 10
+        },
+        "concentracao": true,
+        "selecao": {
+          "tipo": "alvos",
+          "min": 1,
+          "max": 3,
+          "repetirAlvo": false,
+          "alcanceM": 9
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-curar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Curar Ferimentos",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 1,
+        "descricao": "Toque; cura 2d8+7 no 1º círculo, incluindo SAB +4 e Discípulo +3.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-1",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "cura",
+          "formula": "2d8+4",
+          "alcanceM": 1.5
+        },
+        "discipuloVida": true,
+        "escalaCirculo": {
+          "curaDadosPorCirculo": 2,
+          "facesCura": 8
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-restauracao",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Restauração Menor",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 2,
+        "descricao": "Bônus, toque; encerra Cego, Surdo, Paralisado ou Envenenado. Remoção assistida.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-2",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-palavra-massa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Palavra Curativa em Massa",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 3,
+        "descricao": "Bônus; até seis criaturas a 18 m; cura 2d4+9 (SAB +4, Discípulo +5). Cura e alvos assistidos.",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-3",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-revivificar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Revivificar",
+        "categoria": "magia",
+        "origem": "clerigo",
+        "origemTipo": "classe",
+        "circuloBase": 3,
+        "descricao": "Toque em morto há até 1 minuto, retorna com 1 PV; exige diamantes consumidos de 300 PO. Mestre verifica morte, tempo, corpo e remove os diamantes antes de declarar. Nenhum diamante inicial ou uso gratuito.",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "espaco-3",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-preservar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Preservar a Vida",
+        "descricao": "Distribua 25 PV entre criaturas a até 9 m, até metade do máximo de cada uma; assistido.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "canalizar-divindade",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-centelha",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Centelha Divina · cura",
+        "descricao": "Uma criatura a até 9 m recupera 1d8+4 PV. Não aplica Discípulo.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "canalizar-divindade",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "cura",
+          "formula": "1d8+4",
+          "alcanceM": 9
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-centelha-dano",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Centelha Divina · dano",
+        "descricao": "CON CD 15; 1d8+4 radiante ou necrótico, metade no sucesso; escolha e efeito assistidos.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "canalizar-divindade",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-expulsar",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Expulsar Mortos-vivos / Abrasar",
+        "descricao": "Cada morto-vivo escolhido a 9 m faz SAB CD 15; falha: amedrontado/incapacitado 1 minuto e pode sofrer 4d8 radiante de Abrasar. Mestre resolve alvos, fuga e término; uma única utilização.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          },
+          {
+            "tipo": "recurso",
+            "id": "canalizar-divindade",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.quevedo-discipulo",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Discípulo da Vida",
+        "descricao": "Ao curar com espaço no turno da conjuração, soma 2 + nível do espaço. Curar Ferimentos e Palavra Curativa calculam uma única vez. Demais curas estão descritas com bônus para resolução assistida. Sem autocura do nível 6.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-mordida",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mordida",
+        "descricao": "Ataque +5, 1d8+3 perfurante mais 1d8 ácido separado. Contra criatura agarrada pelo mímico, use a variante Mordida contra agarrado com vantagem.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 5,
+          "dano": "1d8+3",
+          "elemento": "perfurante",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-pseudopode",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Pseudópode",
+        "descricao": "Ataque +5, 1d8+3 contundente mais 1d8 ácido separado. Alvo Grande ou menor fica Agarrado; escape CD 13 com desvantagem. Vínculo e condição assistidos.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 5,
+          "dano": "1d8+3",
+          "elemento": "contundente",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-forma",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mudar Forma",
+        "descricao": "Bônus; objeto Pequeno/Médio ou massa verdadeira; estatísticas mantidas. Aparência e aderência assistidas.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "bonus",
+            "quantidade": 1
+          }
+        ],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-aderencia",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Aderência e imunidades",
+        "descricao": "Na forma de objeto, adere a quem toca; criatura Enorme ou menor fica Agarrada, escape CD 13 com desvantagem. Imune a Caído (assistido) e ácido (configurado). Visão no escuro 18 m.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-iniciativa",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Iniciativa treinada",
+        "descricao": "Bônus +2 além da DES +1.",
+        "categoria": "acao",
+        "custo": [],
+        "modificadores": {
+          "iniciativa": 2
+        },
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.crocodilo-mordida",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mordida",
+        "descricao": "Acerto: alvo Médio ou menor fica Agarrado (escape CD 12) e Contido enquanto agarrado; vínculo, escape e limite de uma presa assistidos.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 4,
+          "dano": "1d8+2",
+          "elemento": "perfurante",
+          "alcanceM": 1.5
+        }
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.crocodilo-folego",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Prender a respiração",
+        "descricao": "Pode prender a respiração por 1 hora; assistido.",
+        "categoria": "acao",
+        "custo": [],
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-acido",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Ácido do mímico",
+        "categoria": "acao",
+        "descricao": "Parcela ácida obrigatória e separada em cada acerto de Mordida ou Pseudópode.",
+        "custo": [],
+        "gatilho": "apos_acerto",
+        "automatico": true,
+        "aprimoramento": {
+          "dano": "1d8",
+          "elemento": "acido",
+          "critico": true
+        },
+        "resolucaoAssistida": true
+      }
+    },
+    {
+      "id": "habilidade.cemiterio.mimico-mordida-agarrado",
+      "revisao": 1,
+      "definicao": {
+        "nome": "Mordida contra agarrado",
+        "descricao": "Use com vantagem somente contra a criatura agarrada por este mímico; mestre verifica. 2d8+3 perfurante mais 1d8 ácido.",
+        "categoria": "acao",
+        "custo": [
+          {
+            "tipo": "acao",
+            "quantidade": 1
+          }
+        ],
+        "automacao": {
+          "tipo": "ataque",
+          "bonus": 5,
+          "dano": "2d8+3",
+          "elemento": "perfurante",
+          "alcanceM": 1.5
+        }
+      }
     }
   ]
 }

@@ -1,0 +1,97 @@
+{
+  "versaoFormato": 2,
+  "id": "mimico",
+  "nome": "Mímico",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "npc-autoral",
+      "nivel": 1
+    }
+  ],
+  "especie": "Mímico",
+  "tipoCriatura": "monstruosidade",
+  "atributos": {
+    "for": 17,
+    "des": 12,
+    "con": 15,
+    "int": 5,
+    "sab": 13,
+    "car": 8
+  },
+  "salvaguardas": {
+    "for": 3,
+    "des": 1,
+    "con": 2,
+    "int": -3,
+    "sab": 1,
+    "car": -1
+  },
+  "pvMaximos": 58,
+  "caBase": 12,
+  "deslocamentosM": {
+    "andar": 6
+  },
+  "proficiencia": 2,
+  "pericias": {
+    "Furtividade": 5
+  },
+  "recursos": [],
+  "concessoes": [
+    {
+      "id": "mordida",
+      "ref": "habilidade.cemiterio.mimico-mordida",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "pseudopode",
+      "ref": "habilidade.cemiterio.mimico-pseudopode",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "forma",
+      "ref": "habilidade.cemiterio.mimico-forma",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "aderencia",
+      "ref": "habilidade.cemiterio.mimico-aderencia",
+      "tipo": "passiva"
+    },
+    {
+      "id": "iniciativa",
+      "ref": "habilidade.cemiterio.mimico-iniciativa",
+      "tipo": "passiva"
+    },
+    {
+      "id": "acido",
+      "ref": "habilidade.cemiterio.mimico-acido",
+      "tipo": "habilidade"
+    },
+    {
+      "id": "mordida-agarrado",
+      "ref": "habilidade.cemiterio.mimico-mordida-agarrado",
+      "tipo": "habilidade"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": []
+  },
+  "notas": [
+    {
+      "nome": "Origem",
+      "descricao": "D&D Basic Rules 2024 / SRD 5.2.1: ND 2, XP 450. Nível técnico 1 exigido pelo formato não é nível de PJ. Sem token fornecido."
+    }
+  ],
+  "nd": 2,
+  "imunidades": [
+    "acido"
+  ]
+}

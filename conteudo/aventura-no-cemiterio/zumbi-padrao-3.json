@@ -1,0 +1,79 @@
+{
+  "versaoFormato": 2,
+  "versaoCatalogo": 1,
+  "id": "zumbi-padrao-3",
+  "nome": "Zumbi padrão — Nv3",
+  "tipo": "npc",
+  "edicao": "2024",
+  "classes": [
+    {
+      "id": "npc-autoral",
+      "nivel": 3
+    }
+  ],
+  "especie": "Humanoide morto-vivo",
+  "atributos": {
+    "for": 14,
+    "des": 8,
+    "con": 16,
+    "int": 3,
+    "sab": 6,
+    "car": 5
+  },
+  "salvaguardas": {
+    "for": 2,
+    "des": -1,
+    "con": 5,
+    "int": -4,
+    "sab": -2,
+    "car": -3
+  },
+  "pvMaximos": 32,
+  "caBase": 9,
+  "deslocamentosM": {
+    "andar": 6
+  },
+  "proficiencia": 2,
+  "pericias": {},
+  "idiomas": "Entende Comum; vocalização limitada como morto-vivo.",
+  "sentidos": "Visão no escuro 18 m.",
+  "resistencias": [],
+  "imunidades": [
+    "veneno"
+  ],
+  "vulnerabilidades": [],
+  "recursos": [],
+  "concessoes": [
+    {
+      "id": "pancada",
+      "tipo": "habilidade",
+      "ref": "habilidade.cemiterio.zumbi-padrao-3-pancada"
+    },
+    {
+      "id": "natureza-morta",
+      "tipo": "passiva",
+      "ref": "habilidade.cemiterio.zumbi-padrao-3-natureza-morta"
+    },
+    {
+      "id": "tenacidade-morta",
+      "tipo": "passiva",
+      "ref": "habilidade.cemiterio.zumbi-padrao-3-tenacidade-morta"
+    }
+  ],
+  "preparacao": {
+    "vagas": 0,
+    "preparadas": [],
+    "semprePreparadas": []
+  },
+  "inventario": {
+    "capacidadeCargaKg": 100,
+    "itens": []
+  },
+  "notas": [
+    {
+      "nome": "Modelo repetível",
+      "descricao": "Nível 3 autoral de campanha, sem ND oficial. Use duas cópias no encontro inicial com Seu Furtado. Sem itens mágicos ou tesouro valioso."
+    }
+  ],
+  "tipoCriatura": "morto-vivo"
+}

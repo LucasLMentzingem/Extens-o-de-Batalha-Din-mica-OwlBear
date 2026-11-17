@@ -1,6 +1,15 @@
 # Estado do projeto
 
-Revisão de 17 de novembro de 2026, versão **0.8.52**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
+Revisão de 17 de novembro de 2026, versão **0.8.53**, linha travada em 0.8.x até 0.8.99.
+
+## Entrega — 0.8.53
+
+- Concluídas as artes das sete fichas: 173 identidades disponíveis, zero pendentes, mais variantes de itens. Corrigidas associações antigas e as duas conversões de Fonte de Magia.
+- Publicadas as artes de Skimi, Zurich, Dragoberto e Hannah; revisão para uma figura humanoide por arte nas cenas refeitas. Herança Dracônica agora inclui o PNG gerado no pacote.
+- Reanimação aplica sobreposição com ficha original resguardada e inventário único. Humanoide morto recebe Zumbi; goblin marcado da aventura recebe Zumbigoblin. Remoção e exportação da original disponíveis ao mestre; saque após a segunda morte preserva o loot restante.
+- Grupo importável com 11 fichas em `conteudo/aventura-no-cemiterio/` e ZIP público. Quatro itens de missão com artes; desfecho da adaga preserva instância e posse.
+- Padre: cura e Discípulo, Bênção, Escudo da Fé e Canalizar Divindade; demais efeitos complexos assistidos. Descanso habilitado para padre/necromante NPC. [Detalhes](PROTOTIPO-SOBREPOSICAO-CEMITERIO.md).
+- 325 testes automatizados aprovados. Fix publicado de Sopro de Dragão preservado; validação em sala real ainda pendente.
 
 ## Entrega — 0.8.52
 
