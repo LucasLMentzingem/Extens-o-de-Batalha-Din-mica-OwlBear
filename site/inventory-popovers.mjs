@@ -10,7 +10,7 @@ export async function abrirJanelaInventario(tipo,atorId,sessaoId){
   try{
     const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
     const width=Math.min(tipo==='saque'?560:680,Math.max(240,w-16)),height=Math.min(tipo==='saque'?720:820,Math.max(220,h-32));
-    const url=new URL('./'+tipo+'.html?v=0.8.47',import.meta.url);url.searchParams.set('ator',atorId);if(tipo==='troca')url.searchParams.set('troca',sessaoId);
+    const url=new URL('./'+tipo+'.html?v=0.8.48',import.meta.url);url.searchParams.set('ator',atorId);if(tipo==='troca')url.searchParams.set('troca',sessaoId);
     await OBR.popover.close(id).catch(()=>{});
     await OBR.popover.open({id,url:url.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,w-width-12),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
     return true;
