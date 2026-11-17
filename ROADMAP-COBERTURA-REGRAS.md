@@ -8,7 +8,7 @@ Meta atual. Abrange as 12 classes, subclasses do SRD, 9 espécies, talentos, mae
 
 Referência: [mapeamento de nível 3](docs/mapeamento-nivel-3/README.md).
 
-A situação consolidada na 0.8.22, com módulos, regressões abertas e dependências das sete fichas, está em [Módulos pendentes](docs/MODULOS-PENDENTES.md). Os módulos não devem ser considerados fechados apenas porque uma parte já funciona.
+A situação consolidada na 0.8.49, com módulos, regressões abertas e dependências das sete fichas, está em [Módulos pendentes](docs/MODULOS-PENDENTES.md). Os módulos não devem ser considerados fechados apenas porque uma parte já funciona.
 
 Os contratos de [reaproveitamento nas etapas seguintes](docs/MODULOS-PENDENTES.md#reaproveitamento-nas-etapas-seguintes) partem das decisões das sete fichas. A etapa 5 reaproveita os gatilhos e limites da sequência com Ataque Extra. A etapa 7 reaproveita a escolha após descanso nas Táticas Defensivas do Caçador. As etapas seguintes devem reaproveitar zonas, entidades e efeitos vinculados conforme cada regra.
 

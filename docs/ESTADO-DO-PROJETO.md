@@ -1,74 +1,47 @@
 # Estado do projeto
 
-Revisão de 15 de novembro de 2026, versão 0.8.36, linha 0.8.x. Contribuição de Soneka integrada a partir do commit `34654e1`, com revisão de compatibilidade e testes adicionais.
+Revisão de 17 de novembro de 2026, versão **0.8.49**, linha travada em 0.8.x até 0.8.99. Nenhum avanço de versão maior/menor está autorizado.
 
-A 0.8.36 integra a contribuição 0.8.35 do PR #73 e adiciona a Luva de Boxeador das Ruas +1 aos incomuns da La Arte por 600 PO. Sem armadura nem escudo, ela concede +1 ao ataque desarmado e +1 ao dano. As Luvas do Dragão Ascendente +2 também concedem +1 ao ataque desarmado sem armadura, preservando o fogo adicional e o bônus de CA. Os modificadores são derivados do equipamento atual, inclusive na Gaveta, Torrente, soco bônus e oportunidade, e desaparecem ao desequipar ou vestir armadura.
+## Entrega atual
 
-A revisão também antecipa o ajuste de Combate com Armas Grandes para antes do resultado e do relatório de dano da HUD. Atacante Selvagem compara as alternativas já ajustadas. A aplicação no motor é idempotente e a reação preventiva preserva o estilo. Validação com 248 testes e fluxos de ataque/dano em Chromium com SDK/Dice+ simulados, sem erros de página. A checagem em sala real continua acompanhada nas issues das fichas.
+A 0.8.49 reúne os quatro avanços preparados depois da 0.8.48:
 
-A 0.8.33 restaura o raio do livro nas áreas circulares e calibra a cena para 1,5 m por célula. Motor, HUD, zonas, alvos, deslocamentos e tokens usam a mesma conversão entre pixels e metros. A régua nativa é configurada em metros e distância euclidiana. Estados anteriores são migrados uma única vez, preservando a posição no desenho. Uma trajetória pendente precisa de nova seleção para recalcular oportunidades na escala corrigida.
+- **Saque:** pegar e equipar fecha apenas o loot do chão esgotado. Em baú/recipiente, retira a unidade e mantém a janela aberta, mesmo quando o recipiente fica vazio.
+- **Barra de Atividades:** histórico horizontal à direita, teste/dano e retrato, seleção por clique e abertura por duplo clique. A própria ação tem prioridade; ocultar preserva alvos, composição e rascunho, e concluir restaura o modo anterior. Histórico local de sessão, sem persistir ao recarregar. [Contrato e limites](BARRA-ATIVIDADES.md).
+- **Loteria/compositor:** Golpe Desarmado unificado com modos de Ação Bônus e Ação, até dois alvos e custo agregado. Torrente mantém os dois golpes e pode acrescentar um terceiro por Ação; Mão de Cura substitui somente um dos dois originais. **Mão de Dolo saiu de todos os modos preparados**, por pedido posterior do responsável; continua oferecida após acerto elegível, com Foco e limite compartilhado. [Contrato](COMPOSICAO-GOLPES-DESARMADOS.md).
+- **Metabolismo Incomum:** escolha ao rolar iniciativa, individual, em lote ou como reforço; sem cronômetro e sem custo de Reação. Só oferece com uso e benefício disponível. Recupera Foco e rola 1d6+3 de cura no nível 3. Ativação direta pela barra é bloqueada no cliente e no motor. O dono decide; o mestre assume sem dono conectado. A iniciativa inicial aguarda as escolhas antes de iniciar os turnos. [Contrato](METABOLISMO-INICIATIVA.md).
+- **Pico de Adrenalina:** conferidos Correr com Ação Bônus, 2 PV temporários e dois usos recuperáveis em descanso curto ou longo para Loteria de nível 3; descrição central esclarecida.
 
-Verificação da 0.8.33 com 228 testes automatizados e Chromium headless com SDK simulado. A HUD mostrou Despedaçar com raio de duas células, alcance de 18 m com doze células, movimento de 1,5 m com uma célula, zona antiga no mesmo ponto do mapa e reabertura idempotente, sem erros de página. A confirmação em sala real do Owlbear permanece pendente.
+Fichas salvas são normalizadas a partir do catálogo central; essas mudanças não exigem apagar/reimportar as sete fichas. Nenhuma imagem nova foi gerada nesta entrega.
 
-A 0.8.34 acrescenta os dois itens de missão ao catálogo central e ao Conteúdo configurado. A adaga aplica 1 necrótico fixo por acerto e o colar concede Falar com os Mortos uma vez por amanhecer. Saldos de itens persistem nas instâncias, e o mestre possui um comando confirmado para registrar o amanhecer. Verificação com 236 testes de motor e fluxo da HUD em Chromium com SDK/Dice+ simulados, incluindo aplicação de dano, gasto da ação e recuperação pelo botão do mestre.
+## Base integrada
 
-A 0.8.35 fecha as pendências mecânicas das sete fichas no motor:
+A base preserva as contribuições dos PRs #66–#74 e as correções posteriores. A conexão e recuperação de estado da 0.8.45 foram integradas na 0.8.46. O saque/arremesso recebeu menus, geometria de seleção e criação de loot em ATTACHMENT acima dos personagens. A 0.8.48 corrigiu RateLimitHit: comparação de campos, gravações em lote e uma única fila com espera progressiva; 50 sincronizações estáveis não gravam a cena. [Investigação e estresse](FIX-RATELIMIT-LOOT.md).
 
-- **Combate com Armas Grandes (Draven):** com arma corpo a corpo empunhada com duas mãos, cada 1 ou 2 nos dados da arma conta como 3. Vale no ataque simples, na Gaveta de Composição e no ataque de oportunidade. Arremesso e distância não contam. O ajuste aparece no histórico.
-- **Mão de Dolo no soco bônus (Loteria):** o soco das Artes Marciais ganhou a Gaveta com "Golpe + Mão de Dolo". O requisito de ter atacado antes no turno continua valendo na Gaveta. A causa era um caractere de controle no lugar de `\b` na expressão que reconhece o soco.
-- **Skimi:** Disfarçar-se aplica o marcador Disfarçado por 1 hora, com opção de encerrar antes. Mente Desperta marca conjurador e alvo por 3 minutos, substitui o vínculo anterior e o encerramento remove os dois marcadores. Força Fantasmagórica cria o token público da ilusão no alvo e faz uma única salvaguarda de INT. Na falha, aplica o marcador e concede Estudar ao alvo. Com "Ilusão causa dano" marcada no Compositor, Skimi ganha Força Fantasmagórica · Dano: 2d8 psíquico, sem custo, uma vez em cada turno seu, com o alvo dentro da ilusão ou a até 1,5 m dela. Sucesso em Estudar, fim da concentração ou expiração removem marcador, token e dano.
-- **M10 tipo de criatura:** o campo `tipoCriatura` da ficha vale `humanoide` quando ausente. Imobilizar Pessoa, Enfeitiçar Pessoa e Acalmar Emoções só afetam humanoides. O Familiar é `fada` e a Mão Mágica é `objeto`.
+Mantidos: escala compartilhada de 1,5 m por célula, posições contínuas e distância euclidiana; áreas com medidas do livro; itens portáteis com efeitos derivados do portador; invocações vinculadas e zonas persistentes; defesa por tipo de dano; grupos de fichas e comércio com dinheiro/carga validados. As decisões #1/#2 permanecem intencionais. As regressões #4, #63, #64 e #65 estão fechadas no GitHub.
 
-Verificação: 241 testes de motor em Node com dados simulados, `validar-versao` e `gerar-catalogo-runtime --check`. A HUD do Compositor ("Ilusão causa dano") passou só na checagem de sintaxe, sem renderização. Continua aberta a validação em sala real exigida pelos critérios de conclusão.
+## Validação da publicação
 
-## Entregas recentes
+- **301 testes automatizados passaram** na suíte completa executada pelo workflow de publicação.
+- Catálogo consistente: 260 habilidades, 120 itens e duas lojas; versão/cache sincronizados.
+- Navegador headless com SDK/Dice+ simulados: Barra de Atividades e rascunhos, golpes/custos no compositor, Metabolismo sem relógio, barra bloqueada, cura e Foco sem gastar Reação.
+- Estresse do reconciliador: 1.000 recipientes/2.000 peças, operações em lote, repetição idempotente e recuperação após falha simulada.
+- Esses resultados **não substituem a conferência em uma sala real**. O responsável informou que saque/equipar já funcionavam; a nova regra de permanência e os fluxos novos ainda precisam ser conferidos após instalar a 0.8.49.
 
-| Versão | Entrega | Impacto |
-| --- | --- | --- |
-| 0.8.12 | Início do M04 | Círculo de conjuração derivado, custos reativos e compositor expandido |
-| 0.8.13 | Sequência Ágil | Ataque principal e secundário com alvos independentes e custo único |
-| 0.8.14 | Controles do mestre | Avanço de duração fora de combate, descansos, PvP por encontro e reforços |
-| 0.8.15 | Fix de HUD | Recursos ordenados, filtro de truques, custo derivado de magias menores, controles recolhíveis e altura responsiva |
-| 0.8.16 | Filtro de círculos | Magias de círculo menor continuam classificáveis mesmo quando usam espaços de Pacto superiores |
-| 0.8.17 | Venda e moedas | Vender exige catálogo aberto da loja escolhida; PO sem peso |
-| 0.8.18 | Saque | Inventário de derrotados, seleção em lote, quantidades e limite de carga |
-| 0.8.19–0.8.20 | Recuperação | Diagnóstico de carregamento, backup, recuperação de valores inválidos e precisão monetária; retorno à numeração normal após versões excepcionais autorizadas |
-| 0.8.21 | Grupos de fichas | Aventureiros e Soldados do Reino, listas recolhíveis, adição individual ou em grupo com cena já ocupada |
-| 0.8.22 | Duplicação de NPCs | Token duplicado recebe ator independente; equipamentos e escolhas preservados, PV/recursos iniciais, sem efeitos temporários ou dono |
-| 0.8.24 | Estabilização | Bênção no relógio, oportunidades na trajetória inteira e primeira paridade de ataques compostos |
-| 0.8.25 | Importação de pastas | Pastas de fichas viram grupos reutilizáveis |
-| 0.8.28 | M05, M06 e fichas | Zonas persistentes (Emaranhar), prévia vermelha de trajetória, entidades invocadas (Familiar, Mãos Mágicas), Ilusão Menor, Prostrador por tamanho, dados explosivos, Taumaturgia e Mão de Dolo na Gaveta do golpe avulso |
-| 0.8.26 | Fichas de nível 3 | Paridade #65, Destruidor de Hordas na Gaveta, Desarme, Mão de Dolo preparada, Magia Potencializada por dados, Magia Duplicada e escolha da Presa do Caçador no descanso |
+## Ponto de retomada
 
-O manual de criação de fichas está em [MANUAL-CRIACAO-FICHAS.md](MANUAL-CRIACAO-FICHAS.md).
+1. Conferir na sala real a Barra de Atividades com dois clientes, prioridade própria, pausa/retomada, rascunhos, resultados e permissões.
+2. Conferir Loteria: Golpe Desarmado Ação/Bônus, Torrente com terceiro golpe, Mão de Cura, Mão de Dolo somente pós-acerto, Metabolismo pelo jogador e pelo mestre quando ausente; confirmar custos/recargas.
+3. Conferir saque/equipar em baú versus item único e repetir arremessos/depósitos com vários clientes. A #76 separa implementação entregue do estresse real ainda pendente.
+4. Encerrar os aceites visuais das sete fichas nas issues #56–#62 e atualizar a auditoria #39 com evidência. Não declarar toda a etapa de nível 3 concluída por passar a suíte atual.
+5. Retomar os contratos gerais de M02/M03/M04: ordenação/interceptação genérica, escolhas declarativas e reserva condicional de custos/Smites. Os custos por modo implementados são um avanço parcial, sem fechar o M04 inteiro.
+6. Seguir [módulos pendentes](MODULOS-PENDENTES.md) e [roadmap](../ROADMAP-COBERTURA-REGRAS.md): nível 3, depois 5, 7 e 10. A fila de imagens continua congelada na #75 até nova ordem.
 
-A integração da 0.8.26 preserva os grupos de pastas da 0.8.25 e acrescenta proteção aos limites por turno entre combates e na atualização de mesas antigas. O fluxo avulso de Destruidor de Hordas usa o alcance real da arma e mantém sua prévia após selecionar o alvo. Validação local com 202 testes de motor e verificação da interface e da ponte Dice+ simulada. Os detalhes e as verificações ainda pendentes em sala real estão em [TESTES-SETE-FICHAS-NIVEL-3.md](TESTES-SETE-FICHAS-NIVEL-3.md#resultado-da-0826).
+## Documentação para contribuir
 
-## Prioridade
+- [Manual de criação de fichas JSON e grupos](MANUAL-CRIACAO-FICHAS.md).
+- [Matriz de testes das sete fichas](TESTES-SETE-FICHAS-NIVEL-3.md).
+- [Arquitetura M04](ARQUITETURA-M04-COMPOSITOR-ACOES.md) e [Gaveta](MODULO-GAVETA-COMPOSICAO.md). Direcionamentos históricos de Mão de Dolo preparada foram superados pelo contrato da 0.8.49.
+- [Notas 0.8.49](RELEASE-0.8.49.md) e [política de versões](../VERSIONING.md).
 
-O M04 foi retomado na 0.8.26, seguindo [a arquitetura aprovada](ARQUITETURA-M04-COMPOSITOR-ACOES.md): manobras, Destruidor de Hordas, Mão de Dolo preparada e as metamagias de Nikki já usam as regras comuns. Permanecem pendentes a reserva genérica de custos condicionais, Smites e as janelas do M02.
-
-A meta de cobertura continua organizada em níveis 3, 5, 7 e 10 no [roadmap](../ROADMAP-COBERTURA-REGRAS.md). A presença de uma definição no catálogo não comprova cobertura completa da classe.
-
-A lista consolidada de módulos e bloqueios está em [MODULOS-PENDENTES.md](MODULOS-PENDENTES.md). Nenhum dos 16 contratos gerais foi declarado concluído: dez estão parciais e seis ainda não possuem o módulo geral. A cópia independente de NPCs é infraestrutura reutilizável, mas não implementa vínculo de invocação, controlador, duração ou encerramento do M06.
-
-## Revisão de impacto
-
-- Skimi possui espaços de 2º círculo. O rodapé agora deriva o custo das magias de 1º para esses espaços, incluindo a seleção pelo filtro de recurso.
-- A ordenação dos círculos usa IDs independentes por recurso. Outros recursos preservam sua ordem relativa e Reação aparece por último.
-- A compactação ao abrir Ficha é local ao usuário. A altura das instâncias é calculada a partir do conteúdo, limitada pela tela e pelo máximo de 590 px antes da rolagem.
-- O avanço de tempo processa a duração dos efeitos ativos e encerra concentrações cujos efeitos vinculados expiraram. Um turno corresponde a 6 segundos. Condições como Caído conservam sua regra própria de remoção.
-- O avanço não executa dano periódico, testes repetidos ou gatilhos de combate. Esses eventos continuam dependendo do fluxo de combate ou da arbitragem.
-- PvP controla a identificação de adversários para oportunidade e ameaça adjacente em ataques à distância. A seleção direta de alvos continua disponível para a mesa.
-
-## Lacunas encontradas na revisão
-
-1. Bênção usa estado próprio em `ator.bencao`. O avanço externo de tempo percorre `efeitosAtivos`, exigindo integração adicional para esse estado. [Issue #63](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/63).
-2. A detecção de oportunidade ainda exige que o movimento comece dentro do alcance. Um trajeto que entra e sai do alcance num único movimento precisa da interseção completa do segmento. [Issue #64](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/64).
-3. O caminho de ataques compostos precisa de revisão das maestrias e dos aprimoramentos de acerto que o ataque individual oferece. A sequência Ágil e seu custo estão testados, mas a composição geral segue parcial. [Issue #65](https://github.com/LucasLMentzingem/Extens-o-de-Batalha-Din-mica-OwlBear/issues/65).
-
-## Validação
-
-Na 0.8.22, passaram 176 testes do motor; catálogo de runtime consistente com 259 habilidades, 117 itens e duas lojas; versionamento validado. O teste headless do bridge com SDK simulado confirmou marcação de origem, cópia independente, idempotência, filtro de eventos de movimento e confirmação de sincronização. A auditoria de todas as combinações possíveis não está concluída.
-
-Testes headless usam o simulador e SDK controlado. A integração em uma sala real do Owlbear continua sendo uma etapa de validação da mesa.
+O histórico detalhado das versões anteriores está nos commits e nos relatórios específicos. Preserve progresso de outros contribuidores ao integrar; fetch antes de publicar e execute o mesmo conjunto de testes do workflow.

@@ -1,6 +1,6 @@
 # Escolhas ao rolar iniciativa
 
-Implementação local, ainda sem publicação de manifesto.
+Integrado à versão 0.8.49. A suíte completa da publicação contém 301 testes aprovados.
 
 ## Metabolismo Incomum — Loteria
 

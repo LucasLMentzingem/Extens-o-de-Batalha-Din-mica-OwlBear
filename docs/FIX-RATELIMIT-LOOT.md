@@ -11,7 +11,7 @@ O reconciliador antigo percorria todos os recipientes e chamava updateItems repe
 - Novo módulo loot-sync.mjs: uma leitura da cena por sincronização; adições, alterações e exclusões em lotes; nenhuma gravação para peças que já estão corretas. Imagem e proxy continuam juntos, com chão em ATTACHMENT e baú em PROP. Movimento do proxy continua atualizando a posição lógica sem regravar a cena.
 - Após RateLimitHit, aguardar 15 segundos e aplicar espera progressiva até 60 segundos. Uma única fila de recuperação e avisos limitados a um por minuto; comandos respeitam a pausa. Os dados salvos não são descartados.
 - Mão fraca não mostra simultaneamente o ataque normal e o extra: alterna a opção exibida quando os requisitos do extra estiverem presentes. Azagaia e outras armas sem Leve não recebem o ataque adicional dessa propriedade. Ágil mantém o extra dentro do compositor.
-- Pegar e equipar conclui a transferência imediatamente na mão escolhida e fecha a janela ao receber o estado confirmado. Erros de capacidade/custo mantêm a janela aberta e mostram a causa.
+- Pegar e equipar conclui a transferência imediatamente na mão escolhida. Na 0.8.49, fechar a janela vale somente ao esgotar o loot do chão; baús e outros recipientes continuam abertos, inclusive depois de retirar seu último item. Erros de capacidade/custo mantêm a janela aberta e mostram a causa.
 
 ## Evidência
 
@@ -23,4 +23,4 @@ O reconciliador antigo percorria todos os recipientes e chamava updateItems repe
 
 Regressões adicionais verificam alternância normal/extra, azagaia na mão fraca, saque e equipar uma unidade de pilha. Testes headless confirmaram saque/equipar imediato e erro SDK no formato aninhado RateLimitHit seguido de recuperação, sem repetir ataque nem restaurar arma. Os testes headless usam SDK simulado; não medem limites ou desempenho reais dos servidores do Owlbear. Ainda requer verificação na sala real com vários usuários.
 
-Código preparado para o próximo pacote; não altera o manifesto publicado nesta etapa.
+Correção de RateLimitHit publicada na 0.8.48; ajuste de permanência da janela integrado à 0.8.49. A validação inicial do usuário foi positiva; estresse com vários clientes reais continua pendente.

@@ -2,6 +2,8 @@
 
 Submódulo reutilizável do **M04 — Compositor e modificador de ações**. Serve para habilidades cuja resolução possui uma ou mais instâncias e permite escolher, para cada uma, um modo e um alvo antes de confirmar a ação.
 
+Atualização 0.8.49: [golpes desarmados e custos por modo](COMPOSICAO-GOLPES-DESARMADOS.md). Mão de Dolo não é mais preparada na Gaveta; permanece somente após acerto. Os exemplos históricos que a pré-selecionavam foram superados por essa decisão.
+
 ## Contrato no catálogo
 
 ```json
@@ -73,7 +75,8 @@ A arquitetura completa está em [M04 — Arquitetura do Compositor de Ações](A
 
 | Ficha | Habilidade | Composição |
 |---|---|---|
-| Loteria | Torrente de Golpes | Dois golpes; um pode ser substituído por Mão de Cura e um pode vir com Mão de Dolo preparada |
+| Loteria | Torrente de Golpes | Dois golpes; um pode ser substituído por Mão de Cura. Terceiro golpe opcional por 1 Ação |
+| Loteria | Golpe Desarmado | Um modo por Ação Bônus e outro por Ação; até dois alvos, cobrança agregada |
 | Nikki Lauda | Explosão Elemental | Uma instância; escolha entre sete tipos de dano |
 | Dragoberto | Golpe Certeiro | Uma instância; escolha arma e dano normal ou radiante |
 | Dragoberto e Zurich | Ataques de arma com Destruidor de Hordas ativo | Etapa opcional após o ataque com a mesma arma |

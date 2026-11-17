@@ -1,6 +1,6 @@
 # Barra de Atividades da Mesa
 
-Implementação local em 17/11/2026. Complementa a transmissão pública de prévias e rolagens; não torna simultâneas as transações do motor.
+Integrada à versão 0.8.49 em 17/11/2026. Complementa a transmissão pública de prévias e rolagens; não torna simultâneas as transações do motor.
 
 ## Apresentação
 
@@ -25,6 +25,6 @@ Prévia de cada participante tem sua própria coleção de marcas. Não há envi
 ## Verificação
 
 - Testes unitários: concorrência, prioridade própria, restauração do modo, participação obrigatória, histórico limitado, resultados preservados e rerrolagens.
-- Regressão completa: 290 testes passaram (incluindo o ajuste local de manter baú aberto ao equipar).
+- Regressão completa da 0.8.49: 301 testes passaram, incluindo manter baú aberto ao equipar, golpes compostos e escolhas de iniciativa.
 - Navegador headless com SDK simulado: duas prévias remotas, própria ação, pausa/retomada, retorno à barra, histórico somente leitura e fórmula 1d20+7 preservada ao recolher/abrir antes de rolar e concluir. Mantido o teste de recuperação do arremesso após falha transitória do SDK.
 - Não houve teste na sala real nesta etapa. Layout e latência precisam ser conferidos no Owlbear real após uma publicação autorizada.

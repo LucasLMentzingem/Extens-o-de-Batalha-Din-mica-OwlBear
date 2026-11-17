@@ -1,6 +1,6 @@
 # Golpe Desarmado e Torrente — composição de recursos
 
-Decisão da mesa aplicada localmente em 17/11/2026. Substitui o direcionamento anterior que permitia preparar Mão de Dolo na gaveta.
+Decisão da mesa integrada à 0.8.49 em 17/11/2026. Substitui o direcionamento anterior que permitia preparar Mão de Dolo na gaveta.
 
 - Para Loteria e fichas de monge normalizadas por Artes Marciais, há um único botão Golpe Desarmado no rodapé e livro. A entrada histórica Soco permanece migrável, mas não aparece como botão separado.
 - O compositor do golpe tem Soco com ação bônus e Soco com ação. Escolha inicial: bônus se houver saldo, depois ação. Cada modo pode entrar uma vez, totalizando até dois golpes contra o mesmo alvo ou dois alvos. Escolha explícita permite usar só a ação.
@@ -17,4 +17,4 @@ O catálogo central e o runtime foram atualizados. A normalização adapta ficha
 
 ## Verificação
 
-294 testes passaram, incluindo regressões atualizadas para o novo direcionamento de Mão de Dolo e quatro testes novos de composição: dois recursos/dois alvos, terceiro soco da Torrente, cura restrita aos golpes originais e normalização repetida sem duplicações. Testes de navegador com SDK simulado conferiram os dois modos do golpe, custos no cabeçalho, três etapas da Torrente e ausência de Mão de Dolo. Falta conferência na sala real. Trabalho mantido local, sem novo manifesto nesta etapa.
+294 testes passaram, incluindo regressões atualizadas para o novo direcionamento de Mão de Dolo e quatro testes novos de composição: dois recursos/dois alvos, terceiro soco da Torrente, cura restrita aos golpes originais e normalização repetida sem duplicações. Testes de navegador com SDK simulado conferiram os dois modos do golpe, custos no cabeçalho, três etapas da Torrente e ausência de Mão de Dolo. Falta conferência na sala real. Integrado à versão 0.8.49, com 301 testes na suíte completa.
