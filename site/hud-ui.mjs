@@ -1,12 +1,12 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.60';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.60';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.60';
-import {pronto} from './bridge.mjs?v=0.8.60';
-import {canalHud} from './hud-controller.mjs?v=0.8.60';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.60';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.61';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.61';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.61';
+import {pronto} from './bridge.mjs?v=0.8.61';
+import {canalHud} from './hud-controller.mjs?v=0.8.61';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.61';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
-let filtroAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
+let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
 let nomesSkillsVisiveis=localStorage.getItem('la-arte/nomes-skills')!=='0';
 function controlesMesa(s,fora){
@@ -32,6 +32,14 @@ function controlesMesa(s,fora){
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
+const nomesRecursosCurtos={acao:'Ação',bonus:'Bônus',truques:'Truq.',reacao:'Reação',feiticaria:'Feit.',inata:'Inata',repreensao:'Repre.',dv:'D.Vida','dados-de-vida':'D.Vida','passo-nebuloso-gratis':'P.Neb.','passos-largos-da-linhagem':'P.Larg.','marca-do-predador':'Marca','palavra-curativa-do-talento':'Cura','astucia-magica':'Astúc.','pontos-de-sorte':'Sorte','inspiracao-heroica':'I.Her.','pontos-de-foco':'Foco','metabolismo-incomum':'Metab.','pico-de-adrenalina':'Adren.','vigor-implacavel':'Vigor','inspiracao-de-bardo':'I.Bard.','magia-fascinante':'Fasc.','ataque-de-sopro':'Sopro','dados-de-superioridade':'Sup.','recuperar-folego':'Fôlego','surto-de-acao':'Surto','queimadura-de-fogo':'Fogo'};
+function nomeRecursoCurto(r){
+  const id=r.id.replace(/^recurso:/,''),circulo=/^espaco-(\d+)$/.exec(id);
+  if(circulo)return 'Esp.'+circulo[1]+'º';
+  if(nomesRecursosCurtos[id])return nomesRecursosCurtos[id];
+  const palavra=r.nome.replace(/^(?:Pontos|Dados|Espaços) de\s+/i,'').split(/\s+/)[0];
+  return palavra.length>6?palavra.slice(0,5)+'.':palavra;
+}
 const curto=o=>{const nome=o.nome.replace(/^(Truque|\dº)\s*\|\s*/,'');return o.varianteArremessoDe||o.automacao?.arremesso?nome.split(/\s*[|—]\s*/)[0]:nome.split(/\s*[|·—]\s*/)[0];};
 const grupo=o=>o.origemItem||o.categoria==='item'?'Itens':(o.categoria==='reacao'||o.custo?.some(c=>c.tipo==='reacao'))?'Reações':o.custo?.some(c=>c.tipo==='bonus')?'Bônus':o.categoria==='magia'?'Magias':'Ações';
 const normalizar=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -133,7 +141,8 @@ function render(){
     const alternar=btn('alternarAtividades','☷<small> '+quantidade+'</small>','class="alternar-atividades '+(quantidade?'pulsando':'')+'" aria-label="'+(feed.modo==='painel'?'Abrir atividades da mesa':'Fechar atividades da mesa')+'"');
     if(feed.modo==='painel')html=alternar;
     else{
-      const filtradas=lista.filter(at=>filtroAtividades==='pendentes'?pendenteUsuario(at):filtroAtividades==='minhas'?at.execucao?.donoId===eu.id||at.id===feed.propria:filtroAtividades==='encerradas'?!at.ativa:true);
+      const ehSalvaguarda=at=>Boolean(at.atividadeOrigemId)||at.rolagens.some(r=>r.meta?.tipo==='salvaguarda');
+      const filtradas=lista.filter(at=>(filtroAtividades==='pendentes'?pendenteUsuario(at):filtroAtividades==='minhas'?at.execucao?.donoId===eu.id||at.id===feed.propria:filtroAtividades==='encerradas'?!at.ativa:true)&&(tipoAtividades==='todas'||ehSalvaguarda(at)===(tipoAtividades==='salvaguardas')));
       const cards=filtradas.map(at=>{
         const ator=s.atores.find(x=>x.id===at.atorId),f=ator?.ficha??{},salva=!!at.atividadeOrigemId,o=at.acao?.opcaoPublica??(salva?testeVisual('salvaguardas',at.rolagens[0]?.meta?.atributo??'des',0):{id:at.id,nome:at.titulo,categoria:'acao'});
         const pai=salva?lista.find(x=>x.id===at.atividadeOrigemId):null,resultados=at.rolagens.filter(r=>r.resultado);
@@ -145,7 +154,7 @@ function render(){
         const confirmar=confirmacaoExecucao===e?.id?'<div class="confirmacao-execucao"><small>Encerrar esta jogada? Efeitos já aplicados permanecem.</small>'+btn('confirmarCancelarExecucao','Confirmar cancelamento','data-id="'+esc(e.id)+'"')+btn('desistirCancelarExecucao','Voltar')+'</div>':'';
         return '<article class="cartao-atividade '+(pendenteUsuario(at)?'pendente-usuario ':'')+(feed.selecionada===at.id?'selecionada':'')+'"><button class="abrir-atividade" data-cmd="selecionarAtividade" data-id="'+esc(at.id)+'" data-info="'+esc(resumo)+'"><i class="token-atividade">'+(ator?retrato(ator):'<b>?</b>')+'</i><span class="icone-atividade">'+arteHabilidade(o,f)+'</span><span><strong>'+esc(at.titulo)+'</strong><small>'+esc(ator?.nome??'Participante')+' · '+esc(at.estado)+'</small>'+(salva?'<small>Resposta a '+esc(pai?.titulo??'uma ação da mesa')+'</small>':'')+(at.aplicacao?'<small>Dano aplicado: '+at.aplicacao.total+'</small>':'')+progresso+(e?.motivo?'<small>'+esc(e.motivo)+'</small>':'')+(e?.erro?'<small>'+esc(e.erro)+'</small>':'')+'</span></button>'+controles+confirmar+'</article>';
       }).join('');
-      html='<section class="gaveta-atividades"><header><strong>Atividades da mesa · '+quantidade+' pendentes</strong>'+btn('recolherAtividades','×','aria-label="Fechar gaveta e acompanhar ao vivo"')+'</header><nav>'+[['todas','Todas'],['pendentes','Para responder'],['minhas','Minhas'],['encerradas','Encerradas']].map(([id,label])=>btn('filtrarAtividades',label,'data-id="'+id+'" aria-pressed="'+(filtroAtividades===id)+'"')).join('')+'</nav><div class="lista-atividades">'+(cards||'<p>Nenhuma atividade neste filtro.</p>')+'</div><footer>'+btn('fecharAtividade','Voltar ao vivo')+btn('restaurarJanelas','Restaurar janelas')+'</footer></section>';
+      html='<section class="gaveta-atividades"><header><strong>Atividades da mesa · '+quantidade+' pendentes</strong>'+btn('recolherAtividades','×','aria-label="Fechar gaveta e acompanhar ao vivo"')+'</header><nav aria-label="Estado das atividades">'+[['todas','Todas'],['pendentes','Para responder'],['minhas','Minhas'],['encerradas','Encerradas']].map(([id,label])=>btn('filtrarAtividades',label,'data-id="'+id+'" aria-pressed="'+(filtroAtividades===id)+'"')).join('')+'</nav><nav aria-label="Tipo de atividade">'+[['todas','Todos os tipos'],['salvaguardas','Salvaguardas'],['ataque','Ataque']].map(([id,label])=>btn('filtrarTipoAtividade',label,'data-id="'+id+'" aria-pressed="'+(tipoAtividades===id)+'"')).join('')+'</nav><div class="lista-atividades">'+(cards||'<p>Nenhuma atividade neste filtro.</p>')+'</div><footer>'+btn('fecharAtividade','Voltar ao vivo')+btn('restaurarJanelas','Restaurar janelas')+'</footer></section>';
     }
   }else if(parte==='ordem'){
     const fora=s.fase==='preparo'||a?.emCombate===false;
@@ -225,7 +234,8 @@ function render(){
   }else if(parte==='barra'&&a){
     const pvMax=pvMaximosAtuais(a);
     const reserva='style="--efeitos-reserva:0px"';
-    if(v.compacto){html='<section class="dock compacta" '+reserva+'><div class="dock-corpo"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside></div></section>';root.innerHTML=html;return;}
+    if(v.compacto){html='<section class="dock compacta" '+reserva+'><div class="dock-corpo"><aside><div class="retrato" title="Clique duas vezes para expandir">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV</b></aside></div></section>';}
+    else{
     const turno=ativo===a.id;
     const ops=ordenarOpcoesRodape(a,undefined,{comum:filtro==='Comum'});
     const opcoesGratuitas=ops.filter(o=>o.usoGratuito);
@@ -265,7 +275,10 @@ function render(){
       ...recursosFicha.map(r=>({id:'recurso:'+r.id,nome:r.nome,simbolo:/^espaco-/.test(r.id)?r.id.slice(7)+'º':'◆',atual:a.rec[r.fonteId??r.id],maximo:r.maximo,descricao:(r.fonteId?'Saldo compartilhado com os espaços de '+r.fonteId.slice(7)+'º círculo. ':'Recurso renovável. ')+'Recarga: '+recuperacao(r)+'.'})),
       {id:'reacao',nome:'Reação',simbolo:'✦',atual:foraCombate?'∞':a.reacao,maximo:1,descricao:'Usada por gatilhos fora do seu turno. Recarga: no início do turno.'}
     ];
-    const botoesRecursos=recursos.map(r=>btn('recurso','<b>'+r.simbolo+'</b><small>'+esc(r.atual)+(r.maximo>1?'/'+r.maximo:'')+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"')).join('');
+    const botoesRecursos=recursos.map(r=>{
+      const saldo=String(r.atual)+(r.maximo>1?'/'+r.maximo:'');
+      return btn('recurso','<b>'+r.simbolo+'</b>'+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto(r))+'</span>':'')+'<small class="saldo-recurso">'+esc(saldo)+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(nomesSkillsVisiveis?'com-nome ':'')+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome+': '+saldo)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"');
+    }).join('');
     const consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
     const renderOpcao=o=>{
         const livre=foraCombate;
@@ -292,9 +305,10 @@ function render(){
     const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Raça',nomeRaca(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
     const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
     html='<section class="dock" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+btn('ficha','Ficha')+'</header>'+
-      '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud">'+btn('alternarNomesSkills','Aa','class="alternar-nomes-skills" aria-label="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' textos das habilidades" title="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' textos das habilidades" aria-pressed="'+nomesSkillsVisiveis+'"')+'<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
+      '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud">'+btn('alternarNomesSkills','Aa','class="alternar-nomes-skills" aria-label="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" title="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" aria-pressed="'+nomesSkillsVisiveis+'"')+'<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
       '<div class="centro-hud"><div class="grade '+(nomesSkillsVisiveis?'':'sem-nomes-skills')+'" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
       '<div class="filtros-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</div>'+(!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+'</article></div></section>';
+    }
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
   const trilhoScroll=root.querySelector('.trilho-atividades')?.scrollLeft??0;
@@ -344,6 +358,7 @@ root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
   const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','alternarDadoRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
   if(tipo==='filtrarAtividades'){filtroAtividades=id;render();return;}
+  if(tipo==='filtrarTipoAtividade'){tipoAtividades=id;render();return;}
   if(tipo==='pedirCancelarExecucao'){confirmacaoExecucao=id;render();return;}
   if(tipo==='desistirCancelarExecucao'){confirmacaoExecucao=null;render();return;}
   if(tipo==='confirmarCancelarExecucao'){bus.postMessage({tipo:'cancelarExecucao',id,confirmado:true});confirmacaoExecucao=null;render();return;}
@@ -420,12 +435,22 @@ root.onchange=e=>{
 root.oncontextmenu=e=>{const b=e.target.closest('[data-cmd="usar"]');if(b&&!b.disabled){e.preventDefault();b.click();}};
 root.ondblclick=e=>{
   const ordem=e.target.closest('[data-cmd="ator"]');if(ordem){e.preventDefault();bus.postMessage({tipo:'focar',id:ordem.dataset.id});return;}
-  if(e.target.closest('.retrato')){e.preventDefault();bus.postMessage({tipo:'compactar'});}
+  if(e.target.closest('.retrato')){e.preventDefault();bus.postMessage({tipo:'compactar',valor:!v.compacto});}
 };
 const assinaturaEfeitos=vista=>{
   const ator=vista?.estado?.atores?.find(x=>x.id===vista.atorId);
   return JSON.stringify([vista?.atorId,ator?.efeitosAtivos??[],ator?.concentracaoAtiva??null]);
 };
-await pronto();bus=await canalHud();bus.onmessage=e=>{if(e.data.vista){const proxima=e.data.vista;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}};bus.postMessage({pedir:true});bus.postMessage({presenca:parte});setInterval(()=>bus.postMessage({presenca:parte}),2500);
-if(parte==='reacao')setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250);
-
+const parametrosHud=new URL(location.href).searchParams,sessaoHud=parametrosHud.get('sessaoHud'),documentoHud=parametrosHud.get('documentoHud');
+await pronto();bus=await canalHud();const publicar=bus.postMessage.bind(bus);bus.postMessage=d=>publicar({...d,sessaoHud,documentoHud});
+let pressionado=false;const entrada=valor=>{if(pressionado===valor)return;pressionado=valor;bus.postMessage({entradaHud:parte,pressionado:valor});};
+const presenca=()=>bus.postMessage({presenca:parte,compacto:parte==='barra'?Boolean(root.querySelector('.compacta')):undefined});
+bus.onmessage=e=>{
+ if(e.data.verificarPresenca===parte&&(!sessaoHud||e.data.sessaoHud===sessaoHud)){presenca();return;}
+ if(e.data.vista){const proxima=e.data.vista;if(sessaoHud&&proxima.sessaoHud!==sessaoHud)return;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}
+};
+document.addEventListener('pointerdown',()=>entrada(true),true);document.addEventListener('pointerup',e=>entrada(e.buttons!==0),true);document.addEventListener('pointercancel',()=>entrada(false),true);document.addEventListener('pointermove',e=>{if(!e.buttons)entrada(false);},true);
+window.addEventListener('blur',()=>entrada(false));document.addEventListener('visibilitychange',()=>{if(document.hidden)entrada(false);else presenca();});
+bus.postMessage({pedir:true});presenca();const timerPresenca=setInterval(presenca,2500);
+const timerReacao=parte==='reacao'?setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250):null;
+window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);bus.close();},{once:true});

@@ -45,6 +45,8 @@ Validação dos 11 JSONs com o motor real e referências centrais; suíte existe
 
 ## Revisão mecânica de 17/11/2026
 
+**Regra da 0.8.61 (18/11/2026):** os comandos de descanso da mesa passam a afetar somente fichas `pj` vivas, participando ou não da iniciativa. Padre, necromante e outros NPCs não são restaurados, mesmo que o arquivo antigo tenha `descansoNpc: true`. Essa decisão substitui a elegibilidade para descanso global descrita no registro histórico abaixo. Incluída na publicação 0.8.61.
+
 325 testes aprovados. Sete verificações adicionais cobrem recuperação dos NPCs, cura em turnos com custo e círculo exatos, troca/expiração de concentração, consumo das opções assistidas, Chama Sagrada (CD 15, sucesso/falha), Centelha sem Discípulo e estabilização sem ressurreição.
 
 Corrigidos: padre e necromante habilitados explicitamente para descanso de NPC (`descansoNpc`); o comando de descanso recupera seus recursos e o painel os inclui. NPCs comuns continuam fora. Detectar Magia e Proteção contra o Bem e o Mal agora registram concentração e encerram a anterior. A marca `resolucaoAssistida` impede que a migração por nome transforme Acalmar Emoções em uma automação antiga de CD 13. Efeitos dessas magias continuam assistidos conforme descrito.

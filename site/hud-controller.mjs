@@ -1,18 +1,20 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.60';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.61';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.60';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.60';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.60';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.60';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.60';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.60';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.60';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.60';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.60';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.60';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.61';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.61';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.61';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.61';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.61';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.61';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.61';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.61';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.61';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.61';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.61';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.61';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.60',import.meta.url);
+const url=new URL('./hud.html?v=0.8.61',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -55,7 +57,21 @@ function itensZona(z,pixelsMetro){
 }
 export async function iniciarHud(){
   await pronto();
-  const bus=await canalHud(),abertos=new Map(),presencas=new Map();
+  const conexao=await OBR.player.getConnectionId(),chaveControle=ns+'/hud-controlador/'+OBR.room.id+'/'+conexao;
+  const controles=globalThis[Symbol.for(ns+'/controladores-hud')]??(globalThis[Symbol.for(ns+'/controladores-hud')]=new Set());
+  if(controles.has(chaveControle))return false;
+  controles.add(chaveControle);
+  let liberar;try{liberar=await adquirirControleLocal(chaveControle);}catch(e){controles.delete(chaveControle);throw e;}
+  if(!liberar){controles.delete(chaveControle);return false;}
+  const sessaoHud=crypto.randomUUID(),limpezas=[],diagnostico=[];let encerrado=false;
+  const registrar=(tipo,dados={})=>{diagnostico.push({tipo,quando:Date.now(),...dados});if(diagnostico.length>128)diagnostico.shift();};
+  const encerrarHud=()=>{if(encerrado)return;encerrado=true;for(const limpar of limpezas.splice(0))try{limpar?.();}catch{}controles.delete(chaveControle);liberar();};
+  globalThis.addEventListener('pagehide',encerrarHud,{once:true});limpezas.push(()=>globalThis.removeEventListener('pagehide',encerrarHud));
+  try{
+  const bus=await canalHud(),abertos=new Map(),presencas=new Map(),documentos=new Map(),pings=new Map(),ponteiros=new Set();
+  let ponteiroMapa=false,layoutAguardandoPonteiro=false;
+  limpezas.push(()=>{bus.onmessage=null;bus.close();});
+  const chaveDiagnostico=Symbol.for(ns+'/hud-diagnostico');globalThis[chaveDiagnostico]=()=>({sessao:sessaoHud,entrada:{mapa:ponteiroMapa,janelas:[...ponteiros]},eventos:structuredClone(diagnostico)});limpezas.push(()=>{delete globalThis[chaveDiagnostico];});
   const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado','atividades'];
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
@@ -65,7 +81,7 @@ export async function iniciarHud(){
   const marcasPorAtividade=new Map();
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
   let marcas=[],marcasPublicas=[],tokens=[],fila=Promise.resolve(),ferramentaDoTurno;
-  const serial=fn=>{fila=fila.then(fn).catch(e=>OBR.notification.show(e.message||String(e),'ERROR'));};
+  const serial=fn=>{if(encerrado)return;fila=fila.then(()=>!encerrado&&fn()).catch(e=>{if(!encerrado)OBR.notification.show(e.message||String(e),'ERROR');});};
   async function sincronizarPecas(){ // M06: peças visuais estáticas (Ilusão Menor), públicas e idempotentes
     if(!pronta)return;
     const chave=ns+'/peca',desejadas=new Map((estado?.pecas??[]).map(p=>{
@@ -125,28 +141,44 @@ export async function iniciarHud(){
       saldosComposicao:{acao:a?.acao??0,bonus:a?.bonus??0,reacao:a?.reacao??0,...(a?.rec??{})},foraCombate:estado?.fase==='preparo'||a?.emCombate===false,custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura:somenteLeitura||p.somenteLeitura===true};
   }
   function transmitir(){
+    if(encerrado)return;
     const p=acaoVisivel();
-    if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
+    if(estado)bus.postMessage({vista:{sessaoHud,estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
       atividades:{modo:atividades.modo,selecionada:atividadeAtual()?.id,propria:atividades.propria,pendentes:atividades.pendencias(eu.id).length,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:resumoPendente(p,p===acaoPublica)}});
   }
   async function janela(parte,box){
+    if(encerrado)return;
     const id=ns+'/hud/'+parte;
-    if(!box){if(abertos.has(parte)){await OBR.popover.close(id).catch(()=>{});abertos.delete(parte);}return;}
-    const key=JSON.stringify(box);
-    if(abertos.get(parte)===key&&Date.now()-(presencas.get(parte)??0)<6500)return;
+    const antes=abertos.has(parte)?JSON.parse(abertos.get(parte)):null;
+    const key=box&&JSON.stringify(box);
+    if(antes&&(!box||abertos.get(parte)!==key)&&(ponteiroMapa||ponteiros.size)){layoutAguardandoPonteiro=true;return;}
+    if(!box){if(antes){await OBR.popover.close(id).catch(()=>{});abertos.delete(parte);documentos.delete(parte);presencas.delete(parte);pings.delete(parte);registrar('fechar',{parte});}return;}
+    if(antes&&Date.now()-(presencas.get(parte)??0)<6500){
+      if(abertos.get(parte)===key)return;
+      // Âncora inferior estável: alterar dimensões preserva o documento e os cliques.
+      if(parte==='barra'&&antes[0]===box[0]&&antes[1]+antes[3]===box[1]+box[3]&&OBR.popover.setWidth&&OBR.popover.setHeight){
+        try{if(antes[2]!==box[2])await OBR.popover.setWidth(id,box[2]);if(antes[3]!==box[3])await OBR.popover.setHeight(id,box[3]);abertos.set(parte,key);registrar('redimensionar',{parte,width:box[2],height:box[3]});return;}catch{registrar('redimensionamento-indisponivel',{parte});}
+      }
+    }
+    if(antes&&abertos.get(parte)===key){
+      if(document.visibilityState==='hidden'||ponteiroMapa||ponteiros.size)return;
+      let existe=false;try{existe=typeof OBR.popover.getWidth==='function'&&(await OBR.popover.getWidth(id))>0;}catch{}
+      if(existe){const ping=pings.get(parte);if(!ping){pings.set(parte,Date.now());bus.postMessage({verificarPresenca:parte,sessaoHud});return;}if(Date.now()-ping<2000)return;}
+    }
     // Uma atualização da extensão pode reiniciar o controlador enquanto o
     // Owlbear ainda conserva o pop-up antigo. Fechar pelo ID torna a abertura
     // idempotente e impede que um pop-up órfão bloqueie toda a HUD.
     await OBR.popover.close(id).catch(()=>{});
     const [left,top,width,height]=box;
-    const pagina=new URL(url.href);pagina.searchParams.set('parte',parte);
+    const documento=crypto.randomUUID(),pagina=new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);
     await OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,
-      anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+      anchorReference:'POSITION',anchorPosition:{left,top:parte==='barra'?top+height:top},transformOrigin:{horizontal:'LEFT',vertical:parte==='barra'?'BOTTOM':'TOP'}});
     abertos.set(parte,key);
-    presencas.set(parte,Date.now());
+    documentos.set(parte,documento);presencas.set(parte,Date.now());pings.delete(parte);registrar('abrir',{parte,documento,width,height});
   }
   async function layout(){
+    if(encerrado)return;
     if(layoutEmCurso){layoutPendente=true;return layoutEmCurso;}
     layoutEmCurso=(async()=>{do{layoutPendente=false;await desenharLayout();}while(layoutPendente);})().finally(()=>{layoutEmCurso=null;});
     return layoutEmCurso;
@@ -197,11 +229,12 @@ export async function iniciarHud(){
         caixas.acao=[Math.round(left),Math.round(Math.max(62,top)),cw,ch];
       }
       // O puxador permanece disponível mesmo sem histórico ou seleção.
-      const aw=Math.min(680,Math.max(260,w*.36));
       if(atividades.modo==='painel'){
-        const acao=caixas.acao,left=acao?Math.max(6,acao[0]-58):w-62,top=acao?Math.max(62,acao[1]+acao[3]-52):h-98;
-        caixas.atividades=[Math.round(left-46),Math.round(top),98,52];
-      }else caixas.atividades=[8,Math.min(150,Math.max(62,h-430)),Math.min(440,w-16),Math.min(420,h-95)];
+        caixas.atividades=[Math.max(8,w-108),Math.max(8,h-98),98,52];
+      }else{
+        const aw=Math.min(440,w-16),ah=Math.min(420,h-95);
+        caixas.atividades=[Math.round((w-aw)/2),Math.round((h-ah)/2),aw,ah];
+      }
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if((rp&&controla(reator))||escolhaIniciativa())caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado){
@@ -211,7 +244,13 @@ export async function iniciarHud(){
         const extrasManuais=(pedidoDado.meta?.adicionais??[]).filter(x=>(pedidoDado.recursosAtivos??[]).includes(x.id)).length;
         const ch=Math.min(h-72,pedidoDado.tipo==='indeterminada'?280+(n+extrasManuais)*82:pedidoDado.tipo==='resultado'?230+n*82+extraResultado:190+n*116+extraAjuste);
         const dw=Math.min(470,w-12),centroX=caixas.acao?caixas.acao[0]+caixas.acao[2]/2:w*.75;
-        const left=Math.max(6,Math.min(w-dw-6,centroX-dw/2)),limiteInferior=caixas.acao?caixas.acao[1]-10:caixas.barra?caixas.barra[1]-10:h-48,top=Math.max(62,Math.min((h-ch)/2,limiteInferior-ch));
+        let left=Math.max(6,Math.min(w-dw-6,centroX-dw/2));const gaveta=caixas.atividades;
+        if(atividades.modo==='barra'&&left+dw>gaveta[0]&&left<gaveta[0]+gaveta[2]){
+          if(w-gaveta[0]-gaveta[2]-16>=dw)left=gaveta[0]+gaveta[2]+10;
+          else if(gaveta[0]-16>=dw)left=gaveta[0]-dw-10;
+        }
+        const sobreGaveta=atividades.modo==='barra'&&left+dw>gaveta[0]&&left<gaveta[0]+gaveta[2];
+        const limiteInferior=Math.min(caixas.acao?caixas.acao[1]-10:caixas.barra?caixas.barra[1]-10:h-48,sobreGaveta?gaveta[1]-10:Infinity),top=Math.max(62,Math.min((h-ch)/2,limiteInferior-ch));
         caixas.dados=[Math.round(left),Math.round(top),dw,ch];
       }
       if(anuncioDado){
@@ -507,7 +546,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   async function atualizar(s,i){
-    if(!pronta)return;
+    if(!pronta||encerrado)return;
     const novoTurno=atual(s)?.id!==atual(estado??{ordem:[],atores:[]})?.id;
     // Em preparacao o HUD tambem e a central de uso livre. Uma atualizacao da
     // sala com a mesma revisao nao pode fechar a selecao recem-aberta.
@@ -546,8 +585,9 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   async function mensagem(d){
-    if(d.presenca){presencas.set(d.presenca,Date.now());return;}
-    if(d.tipo==='restaurarJanelas'){abertos.clear();presencas.clear();await layout();transmitir();return;}
+    if(d.presenca){if(!documentos.has(d.presenca)||d.documentoHud!==documentos.get(d.presenca))return;presencas.set(d.presenca,Date.now());pings.delete(d.presenca);if(d.presenca==='barra'&&typeof d.compacto==='boolean'&&d.compacto!==compacto)transmitir();return;}
+    if(d.entradaHud){if(!documentos.has(d.entradaHud)||d.documentoHud!==documentos.get(d.entradaHud))return;if(d.pressionado)ponteiros.add(d.entradaHud);else{ponteiros.delete(d.entradaHud);retomarLayout();}return;}
+    if(d.tipo==='restaurarJanelas'){ponteiros.clear();ponteiroMapa=false;layoutAguardandoPonteiro=false;registrar('recuperacao-manual');await Promise.all(partesHud.map(parte=>OBR.popover.close(ns+'/hud/'+parte).catch(()=>{})));abertos.clear();documentos.clear();presencas.clear();pings.clear();await layout();transmitir();return;}
     if(d.tipo==='cancelarExecucao'){
       await api.enviar({tipo:d.tipo,execucaoId:d.id,confirmado:d.confirmado===true,rev:estado.rev});return;
     }
@@ -606,7 +646,7 @@ export async function iniciarHud(){
       if(!estado||!pronta||ocupado)return;
       if(d.rev!==undefined&&d.rev!==estado.rev)return;
       if(d.tipo==='linhas'){linhas=Math.max(1,Math.min(5,Number(d.valor)||3));localStorage.setItem(ns+'/linhas',linhas);}
-    else if(d.tipo==='compactar'){compacto=!compacto;localStorage.setItem(ns+'/compacto',compacto?'1':'0');}
+    else if(d.tipo==='compactar'){compacto=typeof d.valor==='boolean'?d.valor:!compacto;localStorage.setItem(ns+'/compacto',compacto?'1':'0');registrar('modo-barra',{compacto});}
     else if(d.tipo==='focar'){
       const a=atores().find(x=>x.id===d.id),p=pos(a);if(!a||!token(a))return;
       const [w,h,escala]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight(),OBR.viewport.getScale()]);
@@ -706,7 +746,7 @@ export async function iniciarHud(){
       if(eu.role!=='GM'||d.rev!==estado.rev)return;
       ocupado=true;transmitir();
       try{
-        const atores=d.tipo==='descanso'?estado.atores.filter(x=>x.ficha.tipo==='pj'&&x.emCombate!==false).map(x=>x.id):undefined;
+        const atores=d.tipo==='descanso'?atoresElegiveisDescanso(estado).map(x=>x.id):undefined;
         await api.enviar({tipo:d.tipo,rev:d.rev,pvp:d.pvp===true,passo:d.passo,periodo:d.periodo,atores});
       }finally{ocupado=false;}
     }else if(d.tipo==='iniciativas'||d.tipo==='npcs'){
@@ -723,13 +763,15 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=e.data?.presenca||['restaurarJanelas','cancelarExecucao','assumirPedido','resultadoManual','rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(e.data?.tipo)||e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const d=e.data;if(encerrado||!mensagemHudValida(d,sessaoHud))return;
+    const imediato=d.presenca||d.entradaHud||['restaurarJanelas','cancelarExecucao','assumirPedido','resultadoManual','rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(d.tipo)||d.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(d.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };
   let filaPrevias=Promise.resolve();
   const serialPrevia=fn=>{filaPrevias=filaPrevias.then(fn).catch(console.error);};
-  OBR.broadcast.onMessage(canalPrevia,e=>serialPrevia(async()=>{
+  limpezas.push(OBR.broadcast.onMessage(canalPrevia,e=>serialPrevia(async()=>{
+    if(encerrado)return;
     const d=e.data??{};
     if(d.tipo==='solicitar'){if(pendente)await publicarPrevia();return;}
     const participantes=await OBR.party.getPlayers(),remetente=participantes.find(p=>p.connectionId===e.connectionId),a=atores().find(x=>x.id===d.atorId);
@@ -749,7 +791,13 @@ export async function iniciarHud(){
     marcasPorAtividade.set(d.id,items.map(x=>x.id));
     atividades.acao({...d.pendente,id:d.id,atorId:a.id,somenteLeitura:true},{remetenteId:remetente.id});
     await layout();transmitir();
-  }));
+  })));
+  function retomarLayout(){if(!ponteiroMapa&&!ponteiros.size&&layoutAguardandoPonteiro){layoutAguardandoPonteiro=false;serial(async()=>{await layout();transmitir();});}}
+  function fimPonteiro(){ponteiroMapa=false;retomarLayout();}
+  function interromperMira(motivo,verificarFerramenta=false){
+    fimPonteiro();registrar('interromper-mira',{motivo});
+    serial(async()=>{if(verificarFerramenta&&await OBR.tool.getActiveTool()===tool)return;if(pendente&&!pendente.rolagem){await cancelar();await layout();transmitir();}});
+  }
   // O Owlbear preserva ferramentas registradas enquanto a sala continua
   // aberta. Ao atualizar a extensão, tentar criar o mesmo ID novamente lança
   // erro e interrompe o controlador antes de ele abrir rodapé e carrossel.
@@ -758,21 +806,26 @@ export async function iniciarHud(){
     await OBR.tool.remove(tool).catch(()=>{});
     await OBR.tool.removeMode(mode).catch(()=>{});
     await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
+      onToolDown:()=>{ponteiroMapa=true;},onToolUp:fimPonteiro,
       onToolClick:(_,e)=>{if(!pendente||atividades.pausada)return true;serial(()=>escolher(e));return false;},
       onToolDragStart:(_,e)=>{
+        ponteiroMapa=true;
         const a=estado&&atual(estado);
         if(!pendente&&a&&controla(a)&&a.token===e.target?.id)serial(async()=>{atorId=a.id;await preparar({tipo:'mover'});transmitir();});
       },
-      onToolDragEnd:(_,e)=>serial(()=>escolher(e)),
-      onKeyDown:(_,e)=>{if(e.code==='Escape')serial(()=>mensagem({tipo:'cancelar'}));}});
+      onToolDragEnd:(_,e)=>{fimPonteiro();serial(()=>escolher(e));},
+      onToolDragCancel:()=>interromperMira('arrasto-cancelado'),onDeactivate:()=>interromperMira('modo-desativado',true),
+      onKeyDown:(_,e)=>{if(e.code==='Escape')interromperMira('escape');}});
     await OBR.tool.create({id:tool,icons,defaultMode:mode});
+    if(OBR.tool.onToolChange)limpezas.push(OBR.tool.onToolChange(id=>{registrar('ferramenta',{id});if(id!==tool)interromperMira('troca-de-ferramenta',true);}));
   }catch(e){
     console.warn('Ferramenta de mira indisponível; a HUD continuará ativa.',e);
     Promise.resolve(OBR.notification.show('A HUD foi recuperada, mas a ferramenta de mira precisa recarregar a sala.','WARNING')).catch(()=>{});
   }
   let filaVistas=Promise.resolve();
-  api=await sala((s,i)=>{filaVistas=filaVistas.then(()=>atualizar(s,i)).catch(e=>console.warn('Atualizar mesa:',e));});
+  api=await sala((s,i)=>{if(!encerrado)filaVistas=filaVistas.then(()=>atualizar(s,i)).catch(e=>console.warn('Atualizar mesa:',e));});
   responderDado=await interfaceRolagens(async d=>{
+    if(encerrado)return;
     if(d.tipo==='execucao'||d.tipo==='lista-execucoes'){
       for(const e of d.tipo==='execucao'?[d.execucao]:d.execucoes){atividades.execucao(e);if(e.donoId===eu?.id&&!['Concluída','Cancelada','Falhou'].includes(e.estado)&&!atividades.propria){atividades.propria=e.atividadeId;atividades.atenderFila=false;}}
       await layout();transmitir();return;
@@ -797,31 +850,36 @@ export async function iniciarHud(){
     }
     await layout();transmitir();
   });
-  OBR.scene.onReadyChange(r=>serial(async()=>{
+  limpezas.push(OBR.scene.onReadyChange(r=>serial(async()=>{
+    ponteiros.clear();ponteiroMapa=false;layoutAguardandoPonteiro=false;
     pronta=r;atividades=new AtividadesMesa({modo:atividades.modo});marcasPorAtividade.clear();estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;
     if(r)await api.notify();
-  }));
-  OBR.player.onChange(p=>{const a=atores().find(x=>x.token===p.selection?.[0]);if(a&&controla(a)&&!pendente&&a.id!==atorId)serial(()=>mensagem({tipo:'ator',id:a.id}));});
-  OBR.scene.grid.onChange(grid=>serial(async()=>{
+  })));
+  limpezas.push(OBR.player.onChange(p=>{const a=atores().find(x=>x.token===p.selection?.[0]);if(a&&controla(a)&&!pendente&&a.id!==atorId)serial(()=>mensagem({tipo:'ator',id:a.id}));}));
+  limpezas.push(OBR.scene.grid.onChange(grid=>serial(async()=>{
     const proxima=pixelsPorMetro(grid.dpi);
     if(proxima===pixelsMetro)return;
     await cancelar();pixelsMetro=proxima;
     await sincronizarZonas();await sincronizarPecas();
     await layout();transmitir();
-  }));
+  })));
   if(typeof OBR.scene.items.onChange==='function'){
     let quadro=0,ultimos;
-    OBR.scene.items.onChange(items=>{ultimos=items;if(quadro)return;quadro=requestAnimationFrame(()=>{quadro=0;const lote=ultimos;serial(()=>sincronizarTokens(lote));});});
+    limpezas.push(OBR.scene.items.onChange(items=>{ultimos=items;if(quadro)return;quadro=requestAnimationFrame(()=>{quadro=0;const lote=ultimos;serial(()=>sincronizarTokens(lote));});}));
+    limpezas.push(()=>cancelAnimationFrame(quadro));
   }
   // Remove instâncias que possam ter sobrevivido ao recarregamento do
   // background antes da primeira sincronização com o encontro.
   await Promise.all(partesHud.map(parte=>OBR.popover.close(ns+'/hud/'+parte).catch(()=>{})));
   let verificando=false;
-  setInterval(()=>{if(verificando)return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}catch(e){console.warn('Aguardando conexão com o mestre:',e.message);}finally{verificando=false;}});},1200);
+  const timerSaude=setInterval(()=>{if(verificando||encerrado||document.visibilityState==='hidden')return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}catch(e){console.warn('Aguardando conexão com o mestre:',e.message);}finally{verificando=false;}});},1200);
+  limpezas.push(()=>{clearInterval(timerSaude);clearTimeout(timerAnuncio);});
   // A recuperação deve continuar instalada mesmo quando o mestre chega depois.
   api.notify().then(()=>OBR.broadcast.sendMessage(canalPrevia,{tipo:'solicitar'},{destination:'REMOTE'})).catch(e=>console.warn('Aguardando conexão com o mestre:',e.message));
+  registrar('iniciar',{conexao});return {encerrar:encerrarHud};
+  }catch(e){encerrarHud();throw e;}
 }
 

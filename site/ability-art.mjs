@@ -1,7 +1,7 @@
-import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.60';
-import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.60';
-import {definicaoHabilidade} from './catalog.mjs?v=0.8.60';
-import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.60';
+import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.61';
+import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.61';
+import {definicaoHabilidade} from './catalog.mjs?v=0.8.61';
+import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.61';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normal=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const slug=x=>normal(x).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');

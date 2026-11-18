@@ -1,17 +1,18 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.60';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.60';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.60';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.61';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.61';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.61';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.60';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.60';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa} from './engine.mjs?v=0.8.60';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.60';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.60';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.60';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.60';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.60';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.60';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.60';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.61';
+import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.61';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.61';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.61';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.61';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.61';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.61';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.61';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.61';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.61';
+import {canalHud} from './hud-controller.mjs?v=0.8.61';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -77,7 +78,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.60',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.61',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -170,7 +171,7 @@ function render(){
   escolhido=a?.id;
   const meu=a&&(gm||(a.ficha.tipo==='pj'&&a.dono===(testar?'teste':info.id)));
   $('modo').textContent=info.modo==='ensaio'?'Simulador local · '+(testar?'Jogador':'Mestre'):'Owlbear · '+(gm?'Mestre':'Jogador');
-  let h='<nav class="paginas">'+btn('ficha','Controle de fichas',!mestre&&!catalogando?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+btn('catalogo','Conteúdo configurado',catalogando?'ativa':'')+'</nav>';
+  let h='<nav class="paginas">'+btn('ficha','Controle de fichas',!mestre&&!catalogando?'ativa':'')+(gm?btn('gm','Controle do mestre',mestre?'ativa':''):'')+btn('catalogo','Conteúdo configurado',catalogando?'ativa':'')+(info.modo==='sala'?btn('reabrir-hud','Reabrir HUD'):'')+'</nav>';
   if(info.modo==='ensaio') h+='<div class="linha">'+btn('teste',testar?'Voltar ao mestre':'Testar como jogador')+'</div>';
   if(catalogando){h+=renderCatalogo();$('app').innerHTML=h;return;}
   if(mestre){
@@ -398,7 +399,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.60',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.61',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -463,6 +464,7 @@ async function rolarTeste(grupo,chave){
   await enviar('teste',{grupo,chave,modo:$('modoTeste').value,ajuste:num('ajusteTeste'),dadosAjuste:dadosExtras($('dadosTeste').value),confirmado:info.role==='GM'&&!testar&&a.ficha.tipo==='pj'});
 }
 async function executar(k){
+  if(k==='reabrir-hud'){const canal=await canalHud();canal.postMessage({tipo:'restaurarJanelas'});setTimeout(()=>canal.close(),100);aviso('Reabrindo a HUD. As jogadas em andamento serão preservadas.');return;}
   const a=s.atores.find(x=>x.id===escolhido);
   if(k==='gm'||k==='ficha'||k==='catalogo'){secao=k;return render();}
   if(k==='npcs-toggle'){npcsAbertos=!npcsAbertos;return render();}
@@ -483,7 +485,7 @@ async function executar(k){
     if(!atores.length)throw Error('Selecione ao menos uma ficha.');
     await enviar('iniciativas',{atores});return;
   }
-  if(['curto','longo'].includes(k)){const atores=s.atores.filter(x=>(x.ficha.tipo==='pj'||x.ficha.descansoNpc===true)&&x.emCombate!==false).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação aos jogadores e NPCs com descanso habilitado presentes no encontro ('+atores.length+').'))await enviar('descanso',{periodo:k,atores});return;}
+  if(['curto','longo'].includes(k)){const atores=atoresElegiveisDescanso(s).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação somente às fichas de jogadores da mesa ('+atores.length+'), inclusive fora da iniciativa.'))await enviar('descanso',{periodo:k,atores});return;}
   if(k==='reanimar-corpo'){
     const ator=$('reanimar-corpo').value,conjuradorId=$('reanimar-conjurador').value;
     if(await confirma('Reanimar este corpo?','O corpo será transformado imediatamente. O conjurador deve estar a até 3 m e possuir os componentes. Consome uma ação em combate e um espaço de 3º círculo.'))await enviar('reanimarCorpo',{ator,conjuradorId,confirmado:true});return;
@@ -654,7 +656,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.60');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.61');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

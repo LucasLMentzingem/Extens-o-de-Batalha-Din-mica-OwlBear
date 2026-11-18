@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {mensagemHudValida} from './site/hud-protocol.mjs';
+test('vistas de outro controlador nunca viram comandos ou eco',()=>{for(const vista of [null,{},false,{compacto:true}])assert.equal(mensagemHudValida({vista,tipo:'compactar'},'atual'),false);});
+test('geração antiga não redimensiona nem restaura a HUD atual',()=>{assert.equal(mensagemHudValida({tipo:'restaurarJanelas',sessaoHud:'antiga'},'atual'),false);assert.equal(mensagemHudValida({tipo:'compactar',sessaoHud:'atual',valor:false},'atual'),true);});
+test('somente comandos conhecidos, presença e controle de entrada são aceitos',()=>{for(const d of [null,[],{},'compactar',{tipo:'desconhecido'},{presenca:{}},{entradaHud:'barra',pressionado:'sim'}])assert.equal(mensagemHudValida(d,'atual'),false);for(const d of [{pedir:true},{presenca:'barra'},{entradaHud:'barra',pressionado:false},{tipo:'confirmar'},{tipo:'descanso'}])assert.equal(mensagemHudValida(d,'atual'),true);});
+test('painel normal pode recuperar a HUD sem depender de uma janela interativa',()=>assert.equal(mensagemHudValida({tipo:'restaurarJanelas'},'atual'),true));

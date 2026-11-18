@@ -54,11 +54,11 @@ test('adagas novas derivam ataque +1, dano base sem bônus e parcelas elementais
   }
 });
 
-test('padre e necromante NPC recuperam seus recursos sem recuperar NPCs comuns',async()=>{
+test('descansos da mesa não restauram padre, necromante ou outros NPCs',async()=>{
   const s=novo(),p=adicionar(s,validar(fonte('padre-quevedo'))),d=adicionar(s,validar(fonte('drow-necromante-6'))),g=adicionar(s,validar(fonte('goblin-1')));
   p.rec['canalizar-divindade']=0;p.rec['espaco-1']=0;d.rec['espaco-3']=0;p.pv=10;g.pv=1;
-  const curto=await cmd(s,'descanso',{periodo:'curto',atores:[p.id,d.id,g.id]});assert.equal(curto.atores[0].rec['canalizar-divindade'],1);assert.equal(curto.atores[0].rec['espaco-1'],0);assert.equal(curto.atores[1].rec['espaco-3'],0);
-  const longo=await cmd(curto,'descanso',{periodo:'longo',atores:[p.id,d.id,g.id]});assert.equal(longo.atores[0].rec['canalizar-divindade'],2);assert.equal(longo.atores[0].rec['espaco-1'],4);assert.equal(longo.atores[1].rec['espaco-3'],3);assert.equal(longo.atores[0].pv,38);assert.equal(longo.atores[2].pv,1);
+  const curto=await cmd(s,'descanso',{periodo:'curto',atores:[p.id,d.id,g.id]});assert.equal(curto.atores[0].rec['canalizar-divindade'],0);assert.equal(curto.atores[0].rec['espaco-1'],0);assert.equal(curto.atores[1].rec['espaco-3'],0);
+  const longo=await cmd(curto,'descanso',{periodo:'longo',atores:[p.id,d.id,g.id]});assert.equal(longo.atores[0].rec['canalizar-divindade'],0);assert.equal(longo.atores[0].rec['espaco-1'],0);assert.equal(longo.atores[1].rec['espaco-3'],0);assert.equal(longo.atores[0].pv,10);assert.equal(longo.atores[2].pv,1);
 });
 
 test('curas no turno cobram ação/bônus e espaço certo com resultado exato e limite de PV',async()=>{

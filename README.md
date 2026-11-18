@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.60**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.60.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.61**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.61.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Rodapé com renderização e ciclo de janelas corrigidos, recuperação **Reabrir HUD** também para jogadores, Aa nos recursos, atividades centralizadas com filtros de tipo e descansos somente para PJs vivos, inclusive fora da iniciativa.
 
 Na lista de grupos importados, o mestre pode **Excluir ficha** individualmente ou **Excluir grupo**, com confirmação. As unidades já adicionadas ao encontro e os arquivos JSON originais são preservados.
 

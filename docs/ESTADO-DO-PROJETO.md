@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.61 — 18/11/2026
+
+Correções autorizadas dos dois bugs de HUD e todos os ajustes locais acumulados. Rodapé/cache unificados, controlador único, mensagens tipadas, iframe estável, limpeza de mira e recuperação acessível ao jogador. Aa nos recursos, atividades centrais com filtros Salvaguardas/Ataque e descanso somente para PJs vivos independentemente da participação na iniciativa. 426 testes e cenários de navegador aprovados; SDK/Dice+ simulados. Ver [notas e limites](RELEASE-0.8.61.md).
+
 ## Entrega — 0.8.60 — 18/11/2026
 
 Fix do plano de Atividades da mesa, com publicação autorizada após a validação de 415 testes e 26 cenários de integração. Baseline 0.8.59 congelada antes das alterações; comparação e evidências entregues no chat em `outputs/fix-mesa`. Ver [notas da versão](RELEASE-0.8.60.md).

@@ -1,11 +1,11 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.60';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.60';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.60';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.60';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.60';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.61';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.61';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.61';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.61';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.61';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.60';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.60';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.61';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.61';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -705,6 +705,8 @@ export function adicionar(s,f,nome=f.nome) {
 }
 export const atual = s=>s.atores.find(a=>a.id===s.ordem[s.vez]);
 export const ativos = s=>s.atores.filter(a=>a.emCombate!==false);
+// Participar da iniciativa não é requisito para descansar na mesa.
+export const atoresElegiveisDescanso=(s,ids)=>s.atores.filter(a=>a.ficha.tipo==='pj'&&a.estadoVida!=='morto'&&(!ids||ids.includes(a.id)));
 export const mod = n=>Math.floor((n-10)/2);
 const classesArmas={
   guerreiro:['simples','marcial'],guardiao:['simples','marcial'],soldado:['simples','marcial'],
@@ -2530,7 +2532,7 @@ export async function aplicar(s,c,u,rolar,contextoExecucao=null) {
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       exigir(c.atores===undefined||Array.isArray(c.atores)&&c.atores.every(id=>s.atores.some(x=>x.id===id)),'Personagens do descanso inválidos.');
-      for(const p of s.atores.filter(x=>(x.ficha.tipo==='pj'||x.ficha.descansoNpc===true)&&x.estadoVida!=='morto'&&(!c.atores||c.atores.includes(x.id)))){ // #12 descanso só de quem foi escolhido
+      for(const p of atoresElegiveisDescanso(s,c.atores)){ // #12 descanso só de quem foi escolhido
         // #25 O descanso longo também aplica tudo que um descanso curto recuperaria.
         const eventosDescanso=c.periodo==='longo'?['descanso_curto','descanso_longo']:['descanso_curto'];
         for(const r of p.ficha.recursos){

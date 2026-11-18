@@ -1,5 +1,45 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+
+## 2026-11-18 — correções autorizadas e publicação 0.8.61
+
+- Usuário autorizou aplicar as soluções dos dois bugs e publicar todos os ajustes locais. Notas anteriores de não aplicação são registros históricos, substituídos por esta entrega.
+- Corrigidos cache compacto/expandido, duplicidade de controlador e ecos; barra redimensionada sem trocar documento, geometria adiada durante pressão, limpeza de cancelamento/desativação e recuperação por jogador preservando a execução aceita.
+- Incluídos Aa, centro/filtros de Atividades e regra final de descanso apenas de PJs vivos. Conteúdo e fix de Sopro preservados.
+- 426 testes; 26 cenários de mesa, cinco de descanso, seis de HUD, filtros e oito variações Zurich aprovados. 200 alternâncias e 60 ciclos físicos sem falha. SDK/Dice+ simulados; bloqueio nativo exato do Move não reproduzido.
+- Versão/catalogo válidos; evidências da candidata em work/publicacao-0.8.61 e cópia entregue em outputs/publicacao-0.8.61. Publicação deve ser conferida pelo manifesto normal e hashes do commit.
+
+## 2026-11-18 — análise de rodapé/Move e ajustes locais posteriores
+
+- Pedido: analisar os dois bugs e propor correções na fonte, sem aplicar ainda essas correções de HUD. Usuário confirmou que Move bloqueia os cliques, não só muda o cursor.
+- Bug do retrato no painel grande confirmado no renderer: ramo compacto grava innerHTML e retorna sem atualizar ultimoHtml. Mesmo documento recebendo expandir/compactar/expandir falha 100/100 por GM/P1; experimento somente na resposta de teste atualizando o cache fez 0/100 falhas por cliente. Fonte do renderer compacto permanece sem essa correção.
+- Move nativo ainda não reproduzido. Revisão: janelas são destruídas/recriadas em alteração geométrica; faltam handlers de cancelamento/desativação. 20 ciclos reais de mock por GM/P1 não bloquearam; recriar o iframe com botão pressionado perdeu pointerup no documento removido. Isso não comprova captura presa no host.
+- Condição adicional comprovada em ensaio induzido: duas inicializações de iniciarHud respondem no mesmo canal com compacto true/false; vistas recebidas por outro controlador são tratadas como comandos e geram ecos. Não foi comprovada duplicidade na sala do usuário. Soluções propostas: commit único de render, controlador único por sala/conexão, mensagens tipadas, ciclo de popovers estável, limpeza completa de arrasto e recuperação acessível ao jogador.
+- Pedido novo aplicado: gaveta de Atividades aberta no centro da tela; botão recolhido continua no canto inferior direito. Filtros independentes por estado e tipo (Todos os tipos / Salvaguardas / Ataque), onde Ataque reúne as demais atividades. Salva e origem continuam separadas; operação não é cancelada ao filtrar.
+- Regra de descanso substituída por pedido explícito: SOMENTE PJs vivos, dentro ou fora da participação na iniciativa. NPCs (inclusive padre/necromante com flag antiga) permanecem intactos. Descansar continua sendo uma ação de preparação, fora de um combate em andamento; não foi habilitado descanso durante turnos.
+- Validação: 422 testes passam; cinco cenários de descanso em navegador; centro/filtros e conclusão de salva aprovados. Skill Playwright executada e capturas revisadas. Evidências em work/hud-bugs; relatório em outputs/ajustes-locais/analise-hud. Sem commit/push/publicação.
+
+## 2026-11-18 — descansos testados e corrigidos localmente
+
+- Reproduzida exclusão de PJs marcados fora do combate nos dois painéis de descanso. Rodapé também excluía NPCs com descansoNpc (padre/necromante). Mensagem de sucesso podia ocorrer sem restaurar recursos.
+- Centralizada a seleção em atoresElegiveisDescanso, usada pelo motor, HUD e painel principal: vivos, PJs ou NPCs habilitados; participação na iniciativa não é requisito. Seleção explícita de descanso individual mantida.
+- 421 testes passaram, incluindo seis regressões novas; quatro cenários de navegador, cada um conferindo 55 saldos, mais fila de descanso após cancelar ação. Jogador recebe e conserva os saldos após recarga. Recursos ao amanhecer, mortos e NPCs não habilitados preservados.
+- Relatório e evidências em outputs/ajustes-locais/descansos; scripts em work/descansos. Apenas local, sem publicação. Aa e posição de Atividades preservados.
+
+## 2026-11-18 — Aa nos títulos de recursos (local)
+
+- Aa controla também títulos curtos nos quadrados de recursos; saldo aparece imediatamente abaixo do título e permanece visível com Aa desligado. Mantidos símbolos, dimensões e filtros.
+- Exemplos: Ação, Bônus, Esp.1º, Feit., Inata, D.Vida; nome completo continua na dica e na descrição acessível.
+- Verificado em navegador: ligar/desligar preserva todos os saldos, mantém filtro selecionado, exibe 0/3 e conserva preferência após recarga. Capturas inspecionadas e cliente Playwright da skill executado. Evidências em work/recursos-aa.
+- Alteração apenas local, sem versão nova, commit, push ou publicação. Posição local anterior de Atividades preservada.
+
+## 2026-11-18 — posição local de Atividades da mesa
+
+- Pedido posterior à publicação: devolver Atividades da mesa ao canto inferior direito; manter apenas local.
+- Botão recolhido permanece no canto inferior direito, inclusive durante ação própria; gaveta aberta ancorada à direita e embaixo, com altura/rolagem limitadas ao viewport. Painel de dados sobe quando necessário para não ficar coberto pela gaveta.
+- Cenário existente F03 passou: abrir/recolher gaveta, preservar salvaguarda do NPC e concluir a ação. Captura visual revisada; cliente Playwright da skill executado e sem erros novos. Evidências em work/atividades-canto.
+- Sem alteração de versão, commit, push ou publicação. Produção continua 0.8.60.
+
 ## 2026-11-18 — publicação autorizada da 0.8.60
 
 - O responsável solicitou publicar o fix após receber o relatório comparativo. Preparar commit completo, enviar a main e verificar Actions e manifesto normal publicado.

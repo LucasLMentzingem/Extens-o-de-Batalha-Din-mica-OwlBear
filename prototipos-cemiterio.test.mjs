@@ -126,11 +126,11 @@ test('Preservar distribui 25 PV por prioridade, respeita metade e não perde sal
   const {s,a,p}=mesa('padre-quevedo');a.pv=1;p.pv=1;p.efeitosAtivos=[{id:'bloq',nome:'Bloqueio',bloqueiaCura:true}];
   const n=await usar(s,a,'preservar',{alvos:[p.id,a.id]});assert.equal(ator(n,p).pv,1);assert.equal(ator(n,a).pv,19);assert.equal(ator(n,a).rec['canalizar-divindade'],1);
 });
-test('Prece demora dez minutos, recupera descanso curto e impede repetição até descanso longo',async()=>{
+test('Prece demora dez minutos e sua restrição de NPC não é removida pelo descanso global',async()=>{
   const {s,a,p}=mesa('padre-quevedo','padre-quevedo');p.nome='Outro padre';p.pv=1;p.rec['canalizar-divindade']=0;let n=await usar(s,a,'prece',{alvos:[p.id]});assert.equal(ator(n,a).rec['espaco-2'],3);assert.equal(ator(n,p).pv,1);
   n=await comando(n,'avancarTempo',{passo:'1min'});assert.equal(ator(n,p).pv,1);for(let i=0;i<9;i++)n=await comando(n,'avancarTempo',{passo:'1min'});
   assert.equal(ator(n,p).pv,13);assert.equal(ator(n,p).rec['canalizar-divindade'],1);assert.equal(ator(n,a).rec['espaco-2'],2);await assert.rejects(()=>usar(n,a,'prece',{alvos:[p.id]}));
-  n=await comando(n,'descanso',{periodo:'longo',atores:[p.id]});assert.ok(!ator(n,p).efeitosAtivos.some(e=>e.preceRecebida));
+  n=await comando(n,'descanso',{periodo:'longo',atores:[p.id]});assert.ok(ator(n,p).efeitosAtivos.some(e=>e.preceRecebida),'descanso global não altera NPC');
 });
 test('Revivificar recusa sem diamante ou confirmação; consome diamante e volta com 1 PV',async()=>{
   const {s,a,p}=mesa('padre-quevedo');p.pv=0;p.estadoVida='morto';const args={alvo:p.id,parametros:{morteRecente:'sim'}};await assert.rejects(()=>usar(s,a,'revivificar',args),/diamante/);
@@ -239,6 +239,12 @@ test('Auxílio devolve PV atuais ao expirar/dissipar, e descanso longo termina c
     if(modo==='tempo'){ator(n,p).efeitosAtivos.find(e=>e.auxilio).duracao.restante=1;n=await comando(n,'avancarTempo',{passo:'1t'});}
     if(modo==='dissipar')n=await usar(n,a,'dissipar',{alvo:p.id});
     if(modo==='descanso'){ator(n,p).ficha.descansoNpc=true;n=await comando(n,'descanso',{periodo:'longo',atores:[p.id]});}
-    assert.equal(ator(n,p).pv,modo==='descanso'?p.ficha.pvMaximos:1);assert.equal(pvMaximosAtuais(ator(n,p)),p.ficha.pvMaximos);
+    assert.equal(ator(n,p).pv,modo==='descanso'?6:1);assert.equal(pvMaximosAtuais(ator(n,p)),p.ficha.pvMaximos+(modo==='descanso'?5:0));
   }
+});
+
+test('descanso longo do PJ encerra Auxílio e restaura PV ao máximo sem o bônus',async()=>{
+  const {s,a}=mesa('padre-quevedo'),p=adicionar(s,JSON.parse(fs.readFileSync(new URL('./site/fichas/nikki.json',import.meta.url))));p.x=0;p.y=1;p.pv=1;p.emCombate=false;
+  let n=await usar(s,a,'auxilio',{alvos:[p.id]});assert.equal(ator(n,p).pv,6);
+  n=await comando(n,'descanso',{periodo:'longo',atores:[p.id]});assert.equal(ator(n,p).pv,p.ficha.pvMaximos);assert.equal(pvMaximosAtuais(ator(n,p)),p.ficha.pvMaximos);assert.ok(!ator(n,p).efeitosAtivos.some(e=>e.auxilio));
 });
