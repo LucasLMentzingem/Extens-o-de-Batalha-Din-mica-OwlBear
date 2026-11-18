@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.70 — confirmação e área do movimento dinâmico — 18/11/2026
+
+Clique/duplo clique só selecionam; execução exclusiva pelo botão da instância. Círculo de deslocamento ao ativar, atualizado com o saldo e sem acompanhar o cursor. Destinos fora do círculo ou sem saldo suficiente são recusados. Nove cenários de navegador com SDK simulado, incluindo regressão completa das etapas e recarga. [Notas](RELEASE-0.8.70.md).
+
 ## Entrega — 0.8.69 — trajetória após clique — 18/11/2026
 
 Movimento dinâmico sem atualização ao passar o cursor. Trajeto e custo são definidos após clicar; plano de habilidade permanece visível e estável até confirmar. Mecânicas da 0.8.68 preservadas. Oito cenários GM/P1 com verificações de cursor antes/depois do clique. [Notas](RELEASE-0.8.69.md).

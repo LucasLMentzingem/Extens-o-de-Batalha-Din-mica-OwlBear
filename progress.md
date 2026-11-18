@@ -1,5 +1,9 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-18 — movimento pela instância e círculo disponível, 0.8.70
+
+Usuário corrigiu: clique/duplo clique não devem executar movimento; somente a instância confirma. Removido envio automático do callback do mapa. Criado círculo local estático de deslocamento quando o modo está ligado e o personagem pode agir, sem prévia por cursor; assinatura evita recriações desnecessárias. Destino fora do círculo bloqueado e custo completo validado antes de aceitar seleção. Teste `work/movimento-confirmar/validar-limites.cjs` aprova clique/duplo sem mover, execução única pela instância, área 9→6 m, borda, rejeição fora e remoção ao desligar. Oito regressões em `validar-regressao.cjs`, incluindo F5, oportunidades, zonas e cone. Notas em `docs/RELEASE-0.8.70.md`.
+
 ## 2026-11-18 — trajetória somente após clique, 0.8.69
 
 Usuário pediu retirar atualização contínua da trajetória. Removidos callback de movimento de cursor, desenho/cálculo por hover e indicador correspondente no rodapé. Clique para andar, prévia estática da habilidade e demais etapas persistentes preservadas. Teste de navegador estendido em `work/previa-clique/validar.cjs`: oito cenários, 25 movimentos antes/depois da seleção por cenário, sem criar/alterar marcas; clique produz plano. Notas em `docs/RELEASE-0.8.69.md`.
