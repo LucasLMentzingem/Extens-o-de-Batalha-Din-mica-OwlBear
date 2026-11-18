@@ -1,0 +1,1418 @@
+{
+  "formato": 1,
+  "larguras": {
+    "mini": 128,
+    "detalhe": 256,
+    "compat": 128
+  },
+  "arquivos": [
+    {
+      "arquivo": "classe-generico.png",
+      "sha256Original": "26427fa7156610c712c0e174a452ad3a86d070b66c0a9acf86d7151f9b2481aa",
+      "originalBytes": 288134,
+      "compatBytes": 7364,
+      "miniBytes": 6988,
+      "detalheBytes": 20178
+    },
+    {
+      "arquivo": "comum-generico.png",
+      "sha256Original": "769596696707fa29ec0fa84264f76898b37b2cf5bf963ca3734ce5f8ddb464d9",
+      "originalBytes": 239027,
+      "compatBytes": 6438,
+      "miniBytes": 5168,
+      "detalheBytes": 14092
+    },
+    {
+      "arquivo": "comum-pericia.png",
+      "sha256Original": "cd1f7786ce86864c438f66ecc83bdf1994323487be6e9ab16fff5a7e842e24c8",
+      "originalBytes": 405795,
+      "compatBytes": 9723,
+      "miniBytes": 7886,
+      "detalheBytes": 23622
+    },
+    {
+      "arquivo": "comum-soco.png",
+      "sha256Original": "bbaf7560326aa3aae93a9dee9d2dd0d5f0435f2a4fdaa80e469b345e3a0e6d32",
+      "originalBytes": 385918,
+      "compatBytes": 9835,
+      "miniBytes": 8462,
+      "detalheBytes": 24512
+    },
+    {
+      "arquivo": "habilidade-acalmar-emocoes.png",
+      "sha256Original": "0b2a3ed0316de6d47fc1b263969d9d0db3bff8f2d430322fc32df79beb4ba10e",
+      "originalBytes": 394166,
+      "compatBytes": 10095,
+      "miniBytes": 11356,
+      "detalheBytes": 35484
+    },
+    {
+      "arquivo": "habilidade-acudir-os-moribundos.png",
+      "sha256Original": "4772d7c5c5295da869eb636880d764ceebb515d999b1da7b9a96f7b68f5134bd",
+      "originalBytes": 403499,
+      "compatBytes": 10081,
+      "miniBytes": 7514,
+      "detalheBytes": 21618
+    },
+    {
+      "arquivo": "habilidade-ajudar.png",
+      "sha256Original": "87c7a7348ebae3cb06b281a69c5695d51d798eac62bffb2a2ef0f1322be53151",
+      "originalBytes": 410313,
+      "compatBytes": 9865,
+      "miniBytes": 8686,
+      "detalheBytes": 25440
+    },
+    {
+      "arquivo": "habilidade-amizade.png",
+      "sha256Original": "5f4340c082efbc8a43e09a65822845cc41e4163167fd2a804f47d707c937eb1b",
+      "originalBytes": 422900,
+      "compatBytes": 9869,
+      "miniBytes": 8938,
+      "detalheBytes": 26518
+    },
+    {
+      "arquivo": "habilidade-analisar.png",
+      "sha256Original": "46776eb4e249193d16dd4243fa4c9f396c4644b061066a6cbe16ed3372502ede",
+      "originalBytes": 477901,
+      "compatBytes": 12221,
+      "miniBytes": 8272,
+      "detalheBytes": 23768
+    },
+    {
+      "arquivo": "habilidade-arco-perfurante.png",
+      "sha256Original": "9436043bcd025bf9bd161fc3cfe96620abbe93d692631d1f4117c20bb0e6b683",
+      "originalBytes": 271067,
+      "compatBytes": 7261,
+      "miniBytes": 8066,
+      "detalheBytes": 25160
+    },
+    {
+      "arquivo": "habilidade-arco-radiante.png",
+      "sha256Original": "8aa4bd2d72439b4c1a2da01712daeab88f2daed37b71cea7d19759a167087774",
+      "originalBytes": 300048,
+      "compatBytes": 8252,
+      "miniBytes": 11444,
+      "detalheBytes": 32476
+    },
+    {
+      "arquivo": "habilidade-armadura-arcana.png",
+      "sha256Original": "9b955ce2a13f446b3cd1c060c033bbf3be930c6a16aae77a4c18c8cdfd1d6f91",
+      "originalBytes": 343420,
+      "compatBytes": 8108,
+      "miniBytes": 7546,
+      "detalheBytes": 21616
+    },
+    {
+      "arquivo": "habilidade-arquearia.png",
+      "sha256Original": "b1811e7eeac9e1edeb2d49227f659b677837d4868ca5c9e1c6c66baba3d8e5ca",
+      "originalBytes": 360823,
+      "compatBytes": 9512,
+      "miniBytes": 9340,
+      "detalheBytes": 26876
+    },
+    {
+      "arquivo": "habilidade-arrombar.png",
+      "sha256Original": "7ced2677c270ce4f7dbd08d34836013460dce58505af0cd1ccaac64ca7216c42",
+      "originalBytes": 424165,
+      "compatBytes": 10648,
+      "miniBytes": 8058,
+      "detalheBytes": 23668
+    },
+    {
+      "arquivo": "habilidade-arte-druidica.png",
+      "sha256Original": "b2e1ef29978840f0c02b9a0ee9af43d8582406903e0357bb97bb732bbd794148",
+      "originalBytes": 289982,
+      "compatBytes": 7398,
+      "miniBytes": 9002,
+      "detalheBytes": 25970
+    },
+    {
+      "arquivo": "habilidade-artes-marciais.png",
+      "sha256Original": "3cb7361ac9201bc1172b376e57b8e5196c5e74ad3d27587ace8bc55fb17abd12",
+      "originalBytes": 293812,
+      "compatBytes": 8563,
+      "miniBytes": 9166,
+      "detalheBytes": 24708
+    },
+    {
+      "arquivo": "habilidade-assassino-de-colossos.png",
+      "sha256Original": "d4a8612e30cbb9c90080155d077f6739ebce2e2d1e1f2debeeef4f4a36cee4bf",
+      "originalBytes": 453184,
+      "compatBytes": 11216,
+      "miniBytes": 8524,
+      "detalheBytes": 25500
+    },
+    {
+      "arquivo": "habilidade-astucia-magica.png",
+      "sha256Original": "b1265cb568c2942ddba2199fe464727a198cd4a9a90a272349259e5b777ecce9",
+      "originalBytes": 482944,
+      "compatBytes": 11032,
+      "miniBytes": 9628,
+      "detalheBytes": 29974
+    },
+    {
+      "arquivo": "habilidade-atacante-selvagem.png",
+      "sha256Original": "05703d0ddd8adb3ed4e475e9061371a7596587f1007096e62efee7f824f63350",
+      "originalBytes": 438546,
+      "compatBytes": 11399,
+      "miniBytes": 13880,
+      "detalheBytes": 43168
+    },
+    {
+      "arquivo": "habilidade-ataque-ameacador.png",
+      "sha256Original": "4a513742c8f66aa53e6e921aa6a3a503f9b3c99b47890bea1f8eb6a7881322bb",
+      "originalBytes": 461028,
+      "compatBytes": 12103,
+      "miniBytes": 11780,
+      "detalheBytes": 34774
+    },
+    {
+      "arquivo": "habilidade-ataque-de-desarme.png",
+      "sha256Original": "8debea729979c0539f2ebe1b5930d70b6cb60587c8fb4fad175b93e8077e04e0",
+      "originalBytes": 403523,
+      "compatBytes": 11028,
+      "miniBytes": 12186,
+      "detalheBytes": 38280
+    },
+    {
+      "arquivo": "habilidade-ataque-de-oportunidade.png",
+      "sha256Original": "f10cc327577048242f39c7d2eae9b52b62a4d573c6a2ba6f5f79036bccfd99c5",
+      "originalBytes": 405611,
+      "compatBytes": 10452,
+      "miniBytes": 10938,
+      "detalheBytes": 30860
+    },
+    {
+      "arquivo": "habilidade-ataque-de-sopro-cone.png",
+      "sha256Original": "0a60da1e7fce457f5c5deac6cfbd01e98d8b8cc9dc3281e98b64ab690b466ca7",
+      "originalBytes": 431088,
+      "compatBytes": 9864,
+      "miniBytes": 9630,
+      "detalheBytes": 28178
+    },
+    {
+      "arquivo": "habilidade-ataque-de-sopro-linha.png",
+      "sha256Original": "b5f633808db82aeb543e792e06083021c571e4c7217a8cf2d187e374087e23f8",
+      "originalBytes": 142744,
+      "compatBytes": 4335,
+      "miniBytes": 4938,
+      "detalheBytes": 13320
+    },
+    {
+      "arquivo": "habilidade-ataque-prostrador.png",
+      "sha256Original": "22e845c1f49956acf39c134d368dd7454aad48afe562f7e2b01e0f596b4c91d5",
+      "originalBytes": 272466,
+      "compatBytes": 7795,
+      "miniBytes": 8760,
+      "detalheBytes": 25734
+    },
+    {
+      "arquivo": "habilidade-bracos-de-hadar.png",
+      "sha256Original": "0ecb32bf611a2dcb2a50f15a94f3abe55cbb665c653ce9accbddefa6153c637f",
+      "originalBytes": 410609,
+      "compatBytes": 11904,
+      "miniBytes": 13140,
+      "detalheBytes": 40770
+    },
+    {
+      "arquivo": "habilidade-combate-com-armas-grandes.png",
+      "sha256Original": "c9734128db27d786e77e619e5f53c52901a710a835052a13575680e5fd6ad28b",
+      "originalBytes": 340951,
+      "compatBytes": 9054,
+      "miniBytes": 10608,
+      "detalheBytes": 31854
+    },
+    {
+      "arquivo": "habilidade-compreender-idiomas.png",
+      "sha256Original": "a72310752916532d566f1aafba7f49f4248151491c27252805402c9676dd3444",
+      "originalBytes": 528465,
+      "compatBytes": 11298,
+      "miniBytes": 11572,
+      "detalheBytes": 32784
+    },
+    {
+      "arquivo": "habilidade-concentracao-e-feiticaria-inata.png",
+      "sha256Original": "e2b7b82551738094a7bc4c950acdd0a94362e0460a962d30548fae72937be331",
+      "originalBytes": 454213,
+      "compatBytes": 10676,
+      "miniBytes": 7970,
+      "detalheBytes": 23696
+    },
+    {
+      "arquivo": "habilidade-concentracao-e-turno.png",
+      "sha256Original": "a6c07b8577de1c100ccefac1b46c8fa0809f9b8fb5b1ecb0fb8b9e0adfefb492",
+      "originalBytes": 291685,
+      "compatBytes": 8046,
+      "miniBytes": 9182,
+      "detalheBytes": 28784
+    },
+    {
+      "arquivo": "habilidade-conhecimento-do-cacador.png",
+      "sha256Original": "716ef2cf94185dde3993dcc69dc7d8ff5ad394e2d426002984c027d2c6b8fbf9",
+      "originalBytes": 496665,
+      "compatBytes": 12250,
+      "miniBytes": 13226,
+      "detalheBytes": 40766
+    },
+    {
+      "arquivo": "habilidade-correr.png",
+      "sha256Original": "23b8d960f448d164182e4958132936af4955eed0d1d0fa6bf046a93e5f1cdad3",
+      "originalBytes": 485925,
+      "compatBytes": 11793,
+      "miniBytes": 14064,
+      "detalheBytes": 43584
+    },
+    {
+      "arquivo": "habilidade-curar-ferimentos.png",
+      "sha256Original": "c6c30e397e541720c0fc52ea4c1e7b50472ffcd38d302a7fe3d6880eb50b0209",
+      "originalBytes": 625954,
+      "compatBytes": 13221,
+      "miniBytes": 9454,
+      "detalheBytes": 29810
+    },
+    {
+      "arquivo": "habilidade-defesa-paciente.png",
+      "sha256Original": "7c6cb2f7eb690554108b7f7fd8971ef558796f883618417676708725cb7d6261",
+      "originalBytes": 345039,
+      "compatBytes": 9901,
+      "miniBytes": 12246,
+      "detalheBytes": 35360
+    },
+    {
+      "arquivo": "habilidade-defesa-sem-armadura.png",
+      "sha256Original": "aa1b86b59897c7b87390a87aba20b43ed101592a94bcdb7439cbe7e5849ad27c",
+      "originalBytes": 445684,
+      "compatBytes": 10549,
+      "miniBytes": 11900,
+      "detalheBytes": 38232
+    },
+    {
+      "arquivo": "habilidade-defesas-e-sentidos.png",
+      "sha256Original": "0434c6351930f355f8db24db982ac1f02d597037ebce1d2a81b2cf635f353623",
+      "originalBytes": 491385,
+      "compatBytes": 12424,
+      "miniBytes": 11686,
+      "detalheBytes": 38966
+    },
+    {
+      "arquivo": "habilidade-defletir-ataques.png",
+      "sha256Original": "17ebb330f62d350626f69b8efd2a4cd3c9ec6b98614af09509d3e2646bd9d5a2",
+      "originalBytes": 518814,
+      "compatBytes": 11876,
+      "miniBytes": 12122,
+      "detalheBytes": 37220
+    },
+    {
+      "arquivo": "habilidade-derrubar.png",
+      "sha256Original": "a6c95592c297685fa33e8c62342e316a2be4c27bc4a82d92d2c16dedd9b9cd45",
+      "originalBytes": 317683,
+      "compatBytes": 9027,
+      "miniBytes": 9674,
+      "detalheBytes": 26770
+    },
+    {
+      "arquivo": "habilidade-desengajar.png",
+      "sha256Original": "815763e8c8056916e1e44de10d1464149fb924eb2ca0928fbce1ae6d77939fe7",
+      "originalBytes": 263839,
+      "compatBytes": 7778,
+      "miniBytes": 9342,
+      "detalheBytes": 26784
+    },
+    {
+      "arquivo": "habilidade-despedacar.png",
+      "sha256Original": "ebf9691f431ab9235b109b7fbad5136e765bb896d85eee5ab03eb3e28ef91ea3",
+      "originalBytes": 526718,
+      "compatBytes": 11911,
+      "miniBytes": 11440,
+      "detalheBytes": 36750
+    },
+    {
+      "arquivo": "habilidade-destruidor-de-hordas.png",
+      "sha256Original": "4c4a22b934d630a178456bac21590202bf03ca935f3d85fcadee8933585159ef",
+      "originalBytes": 226369,
+      "compatBytes": 6666,
+      "miniBytes": 8490,
+      "detalheBytes": 26392
+    },
+    {
+      "arquivo": "habilidade-detectar-magia.png",
+      "sha256Original": "b3957ad677bcb594c2d88bd4952063bca13b9ec6b5dcec1c7f0a1f5e3d93fab0",
+      "originalBytes": 602115,
+      "compatBytes": 12077,
+      "miniBytes": 8412,
+      "detalheBytes": 26954
+    },
+    {
+      "arquivo": "habilidade-detectar-pensamentos.png",
+      "sha256Original": "ad52b82231b6dcf5f24dc13ee861e0cb18e3b3bfc88ca02aab54575692327aa4",
+      "originalBytes": 561241,
+      "compatBytes": 11816,
+      "miniBytes": 10524,
+      "detalheBytes": 32260
+    },
+    {
+      "arquivo": "habilidade-disfarcar-se.png",
+      "sha256Original": "4370330cce4ccd299c7fff34491ce5400c389cf0e847ccbc4336a821dbe7495c",
+      "originalBytes": 509060,
+      "compatBytes": 11046,
+      "miniBytes": 9500,
+      "detalheBytes": 28614
+    },
+    {
+      "arquivo": "habilidade-elfo-silvestre.png",
+      "sha256Original": "13393d3343f2b2a85b381dfb68223bcf5500147d896ed6dee46a0cade31ce8dc",
+      "originalBytes": 549468,
+      "compatBytes": 12749,
+      "miniBytes": 10494,
+      "detalheBytes": 31782
+    },
+    {
+      "arquivo": "habilidade-emaranhar.png",
+      "sha256Original": "b0490cc50f5a5d9b682537e1f37cf64c64e1737ba7f0f5048aa524b7beef1f88",
+      "originalBytes": 446727,
+      "compatBytes": 10644,
+      "miniBytes": 11636,
+      "detalheBytes": 35788
+    },
+    {
+      "arquivo": "habilidade-empurrar.png",
+      "sha256Original": "ae6ef7d057ea7a0153b76cfb4785d2339be189d7e3de65a55be9a174dcaeb4a7",
+      "originalBytes": 319358,
+      "compatBytes": 9921,
+      "miniBytes": 12756,
+      "detalheBytes": 39070
+    },
+    {
+      "arquivo": "habilidade-encerrar-disfarcar-se.png",
+      "sha256Original": "7ccd9cf9c911026572c4a8f28886b744590c3a112dfc333fad27a77fc17e3944",
+      "originalBytes": 496523,
+      "compatBytes": 11119,
+      "miniBytes": 9232,
+      "detalheBytes": 28596
+    },
+    {
+      "arquivo": "habilidade-encerrar-mente-desperta.png",
+      "sha256Original": "7758de28cab7f894ed0121580e6732006fd44dd9ee32d205c5f2bcca8a9919e4",
+      "originalBytes": 477500,
+      "compatBytes": 11583,
+      "miniBytes": 10320,
+      "detalheBytes": 29482
+    },
+    {
+      "arquivo": "habilidade-encontrar-familiar.png",
+      "sha256Original": "500ac456c9cb6dd772dcfc0bb7fd863ab4f6ab68347dae4712f72d64131616ae",
+      "originalBytes": 531873,
+      "compatBytes": 11729,
+      "miniBytes": 9674,
+      "detalheBytes": 29386
+    },
+    {
+      "arquivo": "habilidade-enfeiticar-pessoa.png",
+      "sha256Original": "01243705abbd729d19fb961ca265334b922eab84973ccba04b26a242f0a0582c",
+      "originalBytes": 609936,
+      "compatBytes": 12638,
+      "miniBytes": 11172,
+      "detalheBytes": 35158
+    },
+    {
+      "arquivo": "habilidade-entregar-magia-de-toque.png",
+      "sha256Original": "14c9fafe21d79ffed047e90be2bb1402708778c17abcbda7de81210f72472955",
+      "originalBytes": 445235,
+      "compatBytes": 10449,
+      "miniBytes": 9542,
+      "detalheBytes": 27922
+    },
+    {
+      "arquivo": "habilidade-esconder.png",
+      "sha256Original": "759be8ae589d0ba7adfd646c428e6ebe0cd6da48591efce5d1c7ff42ee82e99b",
+      "originalBytes": 298625,
+      "compatBytes": 9569,
+      "miniBytes": 6318,
+      "detalheBytes": 17842
+    },
+    {
+      "arquivo": "habilidade-escudo-da-fe.png",
+      "sha256Original": "4b4fbe1bc110cbad06b779469c196bc78d65a538bccee1349c43c60bf3be0a3b",
+      "originalBytes": 597891,
+      "compatBytes": 12881,
+      "miniBytes": 10404,
+      "detalheBytes": 34828
+    },
+    {
+      "arquivo": "habilidade-especialista.png",
+      "sha256Original": "0f34b41e781ae259bfef28bba185d9ad4ed05792eff3dc9be2413468fb473c58",
+      "originalBytes": 653413,
+      "compatBytes": 13618,
+      "miniBytes": 11706,
+      "detalheBytes": 37956
+    },
+    {
+      "arquivo": "habilidade-esquivar.png",
+      "sha256Original": "02de49b375d80f85266bed55da802211215aa90f9ac594b6d3633ff3e5c5c957",
+      "originalBytes": 289745,
+      "compatBytes": 8067,
+      "miniBytes": 8358,
+      "detalheBytes": 25046
+    },
+    {
+      "arquivo": "habilidade-explorador-habil.png",
+      "sha256Original": "056c48573edf8638e0665f73ad834e0fbc343d9f67ee27e865b7ec2486ffc660",
+      "originalBytes": 456193,
+      "compatBytes": 10911,
+      "miniBytes": 11096,
+      "detalheBytes": 34350
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-acido.png",
+      "sha256Original": "2d863bddcb223b0dc88931fe82a6bf2fe0ab3245e036be1968e0de6bc088634c",
+      "originalBytes": 333478,
+      "compatBytes": 8677,
+      "miniBytes": 10284,
+      "detalheBytes": 32400
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-fogo.png",
+      "sha256Original": "29e59af14f47393675b41db849ff17ac2669703c1e639a3cc1adbbec34fb7e5d",
+      "originalBytes": 572672,
+      "compatBytes": 13090,
+      "miniBytes": 12102,
+      "detalheBytes": 36598
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-frio.png",
+      "sha256Original": "d9d75627f2c1c1e0c385a71279b906a5fd9aae9b470dd2e30bcb6ee19b29afc3",
+      "originalBytes": 502646,
+      "compatBytes": 12524,
+      "miniBytes": 15164,
+      "detalheBytes": 50710
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-psiquico.png",
+      "sha256Original": "81a4192dbc89a3795887518168d545897f3a4ec5c44131a170337a9e92878e74",
+      "originalBytes": 617149,
+      "compatBytes": 13507,
+      "miniBytes": 14968,
+      "detalheBytes": 47120
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-raio.png",
+      "sha256Original": "12da13f828cb6ad0b010d3aaa5f3f3597460412b2769fb08f3200298f5db1745",
+      "originalBytes": 567778,
+      "compatBytes": 12836,
+      "miniBytes": 13954,
+      "detalheBytes": 41890
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-trovejante.png",
+      "sha256Original": "c7bb0793bdbbb6c4791c0a813fb6ac750f855428847f1f90f426ad5f5a001879",
+      "originalBytes": 529213,
+      "compatBytes": 11483,
+      "miniBytes": 11334,
+      "detalheBytes": 33290
+    },
+    {
+      "arquivo": "habilidade-explosao-elemental-veneno.png",
+      "sha256Original": "5a349baaefa9da3c85a1d142952c7bae22d7c88c17b1bc37714d833132872838",
+      "originalBytes": 538158,
+      "compatBytes": 11941,
+      "miniBytes": 10534,
+      "detalheBytes": 30460
+    },
+    {
+      "arquivo": "habilidade-fala-telepatica.png",
+      "sha256Original": "3251722184c440b7654239050115c047bfa2c0a67ad81e0f0c95bc2da641af8c",
+      "originalBytes": 624352,
+      "compatBytes": 13036,
+      "miniBytes": 10700,
+      "detalheBytes": 32338
+    },
+    {
+      "arquivo": "habilidade-falar-com-animais.png",
+      "sha256Original": "1bade85b0d56df76febbbcf15fa823b2a137920991dd047b85136f025d57839c",
+      "originalBytes": 223102,
+      "compatBytes": 6295,
+      "miniBytes": 6040,
+      "detalheBytes": 18846
+    },
+    {
+      "arquivo": "habilidade-feiticaria-inata.png",
+      "sha256Original": "0c06dad84f742d6196045586acbce0c799311a9cff21fa38e3442dd90f9879a1",
+      "originalBytes": 552587,
+      "compatBytes": 11741,
+      "miniBytes": 8994,
+      "detalheBytes": 27742
+    },
+    {
+      "arquivo": "habilidade-fogo-das-fadas.png",
+      "sha256Original": "f6253879f7a17d10c219f22aaeb5839b3beb05b849c42e3c326c8a28a33bba65",
+      "originalBytes": 419588,
+      "compatBytes": 9452,
+      "miniBytes": 12362,
+      "detalheBytes": 38024
+    },
+    {
+      "arquivo": "habilidade-fonte-magia-criar-espaco-1.png",
+      "sha256Original": "3649ac452a285ed31772cf8cc60616def627249a6149d2ed78fa9134549e702c",
+      "originalBytes": 310373,
+      "compatBytes": 8035,
+      "miniBytes": 10364,
+      "detalheBytes": 29596
+    },
+    {
+      "arquivo": "habilidade-fonte-magia-criar-espaco-2.png",
+      "sha256Original": "3fbd1fd106b74524b03e05d44d51eab098bb18959a9492d63f99188242194fff",
+      "originalBytes": 317451,
+      "compatBytes": 8400,
+      "miniBytes": 8750,
+      "detalheBytes": 27732
+    },
+    {
+      "arquivo": "habilidade-fonte-magia-espaco-1-ponto.png",
+      "sha256Original": "78c1cbccbf847994ed8777cef73575ba3ac906a75f79efa1009236b09762a20b",
+      "originalBytes": 456984,
+      "compatBytes": 10826,
+      "miniBytes": 8920,
+      "detalheBytes": 28912
+    },
+    {
+      "arquivo": "habilidade-fonte-magia-espaco-2-pontos.png",
+      "sha256Original": "1a064cf7eb243f13371c86550778282a741acd7c959c3fdb7ec0e08fa1ba9edd",
+      "originalBytes": 482171,
+      "compatBytes": 11106,
+      "miniBytes": 9684,
+      "detalheBytes": 31242
+    },
+    {
+      "arquivo": "habilidade-forca-fantasmagorica.png",
+      "sha256Original": "8523f28492027cdc02c29eb40e4019620ed3d863a50927f9ecf151903d0bd480",
+      "originalBytes": 510065,
+      "compatBytes": 11562,
+      "miniBytes": 8680,
+      "detalheBytes": 28372
+    },
+    {
+      "arquivo": "habilidade-gastar-dado-de-vida.png",
+      "sha256Original": "eb020ebd0ea2a50a7ca092200bd591fb082a478af121e5529656b35889c8c14b",
+      "originalBytes": 493522,
+      "compatBytes": 10771,
+      "miniBytes": 7646,
+      "detalheBytes": 23684
+    },
+    {
+      "arquivo": "habilidade-golpe-certeiro.png",
+      "sha256Original": "56f8d3d24cdb960c8053756e5dae70f7fd98acff51f5ff3eab348cd57c94194d",
+      "originalBytes": 267871,
+      "compatBytes": 7156,
+      "miniBytes": 8130,
+      "detalheBytes": 25176
+    },
+    {
+      "arquivo": "habilidade-golpe-constritor.png",
+      "sha256Original": "4a1f07b19f65c0a6d9b5323adc8643210c3851c8ade238bb5974f835cf7fc06c",
+      "originalBytes": 511949,
+      "compatBytes": 12279,
+      "miniBytes": 12070,
+      "detalheBytes": 37174
+    },
+    {
+      "arquivo": "habilidade-habilidoso.png",
+      "sha256Original": "fbdb95c0b89fb97c099df6bbac2808d63f9b736862a5690153ea9a3b49ae4f9a",
+      "originalBytes": 555630,
+      "compatBytes": 12162,
+      "miniBytes": 10058,
+      "detalheBytes": 31468
+    },
+    {
+      "arquivo": "habilidade-heranca-draconica.png",
+      "sha256Original": "3f6feeb43bac7feaf3072792e3de77ea3ff54ae62dd7ccba3ead011b6f374f51",
+      "originalBytes": 488119,
+      "compatBytes": 11081,
+      "miniBytes": 9474,
+      "detalheBytes": 29842
+    },
+    {
+      "arquivo": "habilidade-humano.png",
+      "sha256Original": "21904b8e6713af6e091ee50c8e34c9d02f4f0b7241c2e12c1e3ffa8c793c9a18",
+      "originalBytes": 502871,
+      "compatBytes": 11229,
+      "miniBytes": 10218,
+      "detalheBytes": 33060
+    },
+    {
+      "arquivo": "habilidade-ilusao-menor.png",
+      "sha256Original": "78087d23e77ccc4a7a248b042236b8d5a243ad399c2b0abea7eab59ce88da9f0",
+      "originalBytes": 492204,
+      "compatBytes": 10855,
+      "miniBytes": 10176,
+      "detalheBytes": 32636
+    },
+    {
+      "arquivo": "habilidade-imobilizar-pessoa.png",
+      "sha256Original": "aac7a08b6a0b99648a0f27eb820b182150db3c96ad2d5aecc9b31df145e4c7b4",
+      "originalBytes": 178347,
+      "compatBytes": 5136,
+      "miniBytes": 4364,
+      "detalheBytes": 12012
+    },
+    {
+      "arquivo": "habilidade-imobilizar.png",
+      "sha256Original": "43a78a4bcc642de4b3f8f724fae709e053ec8a4944eb6d92dcb264431a9c9923",
+      "originalBytes": 482707,
+      "compatBytes": 10876,
+      "miniBytes": 8912,
+      "detalheBytes": 26436
+    },
+    {
+      "arquivo": "habilidade-implementos-de-misericordia.png",
+      "sha256Original": "94d54ff87a0d7ea798625e332a17435cf9c83317629b4be7ab1098a97dd2c90c",
+      "originalBytes": 500801,
+      "compatBytes": 11229,
+      "miniBytes": 10154,
+      "detalheBytes": 29142
+    },
+    {
+      "arquivo": "habilidade-influenciar.png",
+      "sha256Original": "fde1c2f5b02560bdb23a6ffaf6c1ebc88a882d861107aaccbe5a42a95382b63b",
+      "originalBytes": 532920,
+      "compatBytes": 11711,
+      "miniBytes": 8826,
+      "detalheBytes": 28980
+    },
+    {
+      "arquivo": "habilidade-iniciado-em-magia-druida.png",
+      "sha256Original": "4495414c17f1679649d177465cca92b398fd525907682f36c06ee08566df5bc5",
+      "originalBytes": 594115,
+      "compatBytes": 12934,
+      "miniBytes": 11500,
+      "detalheBytes": 38210
+    },
+    {
+      "arquivo": "habilidade-inspiracao-de-bardo.png",
+      "sha256Original": "9d11997b099804c764a6ea6e1d2e7c0c36dd9b7fabdbc047126754608e983b2f",
+      "originalBytes": 540085,
+      "compatBytes": 11664,
+      "miniBytes": 9906,
+      "detalheBytes": 30282
+    },
+    {
+      "arquivo": "habilidade-inspiracao-heroica.png",
+      "sha256Original": "80f533d8a7432e1edda02c8f9449c1da5a35aab95a67d53cfc07d2bd4beafebf",
+      "originalBytes": 377801,
+      "compatBytes": 9496,
+      "miniBytes": 7516,
+      "detalheBytes": 22324
+    },
+    {
+      "arquivo": "habilidade-invisibilidade.png",
+      "sha256Original": "623f3e2301f0006c864ce07b386c9fdb990b2a82cf4b82b20a8dc3dbadef6446",
+      "originalBytes": 411626,
+      "compatBytes": 9136,
+      "miniBytes": 9164,
+      "detalheBytes": 26810
+    },
+    {
+      "arquivo": "habilidade-maestria-em-arma.png",
+      "sha256Original": "31888c7f05e716f175c2ee2079a04d49965860f92db773f17a365f15cdc3f002",
+      "originalBytes": 307169,
+      "compatBytes": 7715,
+      "miniBytes": 8316,
+      "detalheBytes": 25714
+    },
+    {
+      "arquivo": "habilidade-magia-duplicada.png",
+      "sha256Original": "d50329f05375f540dcd0748c53886e8623dcbda36609faf26f2eec5cfa410769",
+      "originalBytes": 621081,
+      "compatBytes": 13334,
+      "miniBytes": 12426,
+      "detalheBytes": 37046
+    },
+    {
+      "arquivo": "habilidade-magia-potencializada.png",
+      "sha256Original": "70dc740ae8f5336932848c99f30b6c9dc3c21271e2478cfcdf8a60e289190187",
+      "originalBytes": 539250,
+      "compatBytes": 12052,
+      "miniBytes": 9180,
+      "detalheBytes": 27370
+    },
+    {
+      "arquivo": "habilidade-magias-psiquicas.png",
+      "sha256Original": "3e5cbc2f1c95ed23b35d20b70c30b3eb9a1ced19edb25a6dbb3d60f995b528d0",
+      "originalBytes": 310545,
+      "compatBytes": 7973,
+      "miniBytes": 7758,
+      "detalheBytes": 26050
+    },
+    {
+      "arquivo": "habilidade-manipular-objeto.png",
+      "sha256Original": "c9049ff397dadacfc9947f60c73e2982ab7a1a2684b0fe80164e59d1f38c1cc4",
+      "originalBytes": 526934,
+      "compatBytes": 11465,
+      "miniBytes": 8702,
+      "detalheBytes": 26452
+    },
+    {
+      "arquivo": "habilidade-manobras.png",
+      "sha256Original": "6f0e8fa6ccdded3ddd0e38b0b3939a08c962ba893866411468ba244a09a3328b",
+      "originalBytes": 427139,
+      "compatBytes": 11304,
+      "miniBytes": 10898,
+      "detalheBytes": 33230
+    },
+    {
+      "arquivo": "habilidade-manto-de-inspiracao.png",
+      "sha256Original": "f7f93e7f5be89f3e1adb052a455c57f86655d326846c7837248517f749702a3a",
+      "originalBytes": 582195,
+      "compatBytes": 12841,
+      "miniBytes": 12636,
+      "detalheBytes": 42116
+    },
+    {
+      "arquivo": "habilidade-mao-de-cura.png",
+      "sha256Original": "57a93e94069cd2d7502177a53323ad213199f5d0b82ace902d46ea0c1dcb47dd",
+      "originalBytes": 516214,
+      "compatBytes": 11370,
+      "miniBytes": 8636,
+      "detalheBytes": 25092
+    },
+    {
+      "arquivo": "habilidade-mao-de-dolo.png",
+      "sha256Original": "b9ed5e20fed584f56e1d153baede03ee6988a4b4726f198c85c8729495e2d87e",
+      "originalBytes": 410482,
+      "compatBytes": 10781,
+      "miniBytes": 9490,
+      "detalheBytes": 26044
+    },
+    {
+      "arquivo": "habilidade-maos-magicas.png",
+      "sha256Original": "6a9936ba6d4919df96761a96cb05d64df62886901b9075840f6b0a6ea9e8f7a3",
+      "originalBytes": 464405,
+      "compatBytes": 10055,
+      "miniBytes": 8902,
+      "detalheBytes": 25926
+    },
+    {
+      "arquivo": "habilidade-marca-do-predador.png",
+      "sha256Original": "373adcf989a466b0decfcfc8665f9d243da74186f9f498e671e1411db8449745",
+      "originalBytes": 277859,
+      "compatBytes": 7358,
+      "miniBytes": 8076,
+      "detalheBytes": 25556
+    },
+    {
+      "arquivo": "habilidade-mascara-de-muitas-faces.png",
+      "sha256Original": "786a25528d056e98a405b3b039b7d6faa427576927443c2abeb84b49d3796b29",
+      "originalBytes": 448439,
+      "compatBytes": 10236,
+      "miniBytes": 8694,
+      "detalheBytes": 25570
+    },
+    {
+      "arquivo": "habilidade-mensagem.png",
+      "sha256Original": "03d30e175e9c8ac9d399360a245ad72ca454a0bfb6d985ca444d6c29794e0d94",
+      "originalBytes": 441708,
+      "compatBytes": 10317,
+      "miniBytes": 7920,
+      "detalheBytes": 24334
+    },
+    {
+      "arquivo": "habilidade-mente-desperta.png",
+      "sha256Original": "1d2b9bc8dedb34d42efe355eeb50369609f2c87738661a5ebcad481e6a237b87",
+      "originalBytes": 605572,
+      "compatBytes": 13189,
+      "miniBytes": 14416,
+      "detalheBytes": 43972
+    },
+    {
+      "arquivo": "habilidade-mente-tatica.png",
+      "sha256Original": "2893ff409a72e6f8556797e215283a684c879ee2f6572cebce51cec0a3e5e973",
+      "originalBytes": 354921,
+      "compatBytes": 8665,
+      "miniBytes": 9794,
+      "detalheBytes": 30812
+    },
+    {
+      "arquivo": "habilidade-metabolismo-incomum.png",
+      "sha256Original": "85420675178b0860eafdc0c08342c35beae54758c8140d410412ac478f3ce3c9",
+      "originalBytes": 438229,
+      "compatBytes": 10026,
+      "miniBytes": 9440,
+      "detalheBytes": 29974
+    },
+    {
+      "arquivo": "habilidade-movimento-sem-armadura.png",
+      "sha256Original": "51f5860a46b61cb075b461da3476046dea4bbbd7506a550d436a8ca61223ae9e",
+      "originalBytes": 492989,
+      "compatBytes": 12362,
+      "miniBytes": 15976,
+      "detalheBytes": 50020
+    },
+    {
+      "arquivo": "habilidade-musico.png",
+      "sha256Original": "b20fddaf9e0ecaf94039b59701fcd5514b0a716648f17f35b7946847a00966e4",
+      "originalBytes": 511303,
+      "compatBytes": 11329,
+      "miniBytes": 11280,
+      "detalheBytes": 36690
+    },
+    {
+      "arquivo": "habilidade-nota-de-importacao.png",
+      "sha256Original": "6b65e3f22affd44138f29ca2c24f060f3f53c4ef175333fb2c2e9ac37d56a227",
+      "originalBytes": 372598,
+      "compatBytes": 9877,
+      "miniBytes": 7468,
+      "detalheBytes": 20974
+    },
+    {
+      "arquivo": "habilidade-orientacao.png",
+      "sha256Original": "c2a882d95ae3a428cb07fe14b7f5fc62b56d8322091dc0bf4d7b7a3ca5dff202",
+      "originalBytes": 530116,
+      "compatBytes": 12061,
+      "miniBytes": 11208,
+      "detalheBytes": 36060
+    },
+    {
+      "arquivo": "habilidade-pacto-do-tomo.png",
+      "sha256Original": "7ee8c0c95a4b6a91d24b1c3549ad742c1c959282a6812048f90a19606d14e155",
+      "originalBytes": 238249,
+      "compatBytes": 6658,
+      "miniBytes": 6554,
+      "detalheBytes": 19236
+    },
+    {
+      "arquivo": "habilidade-palavra-curativa.png",
+      "sha256Original": "2ec7f3510d168bd14ea4bbcf83bb7d936476c9758f928de97f3fc15a1c8d2bc2",
+      "originalBytes": 288980,
+      "compatBytes": 7774,
+      "miniBytes": 7902,
+      "detalheBytes": 23398
+    },
+    {
+      "arquivo": "habilidade-passo-do-vento.png",
+      "sha256Original": "81682069fd4de88c543eda5d63b8c97a124ed0a99f3d4c08cb443d4991f31c2d",
+      "originalBytes": 381418,
+      "compatBytes": 9760,
+      "miniBytes": 12632,
+      "detalheBytes": 39154
+    },
+    {
+      "arquivo": "habilidade-passo-nebuloso.png",
+      "sha256Original": "edc99fd03bc9980e7f4b2dab0b8d62e1fca5a91ae3d86413c8cbcd3713ec166e",
+      "originalBytes": 501673,
+      "compatBytes": 10779,
+      "miniBytes": 11714,
+      "detalheBytes": 35138
+    },
+    {
+      "arquivo": "habilidade-passos-largos.png",
+      "sha256Original": "aaf4da2b928f67df1ea6d2c6cfe9e425d52f12161c9dcbbdc73b7d56afe7b5a5",
+      "originalBytes": 343175,
+      "compatBytes": 8620,
+      "miniBytes": 11980,
+      "detalheBytes": 35576
+    },
+    {
+      "arquivo": "habilidade-pau-pra-toda-obra.png",
+      "sha256Original": "51f813507f82f8b5ca76dafb00af914368f1a6aa8468a5dc317fed957587087f",
+      "originalBytes": 611530,
+      "compatBytes": 13374,
+      "miniBytes": 13346,
+      "detalheBytes": 41326
+    },
+    {
+      "arquivo": "habilidade-pericias-e-idiomas.png",
+      "sha256Original": "0f5097f385a18ffdc3175c904764f9f9e579837762956b0afc7b38c8249612d1",
+      "originalBytes": 316883,
+      "compatBytes": 7770,
+      "miniBytes": 7330,
+      "detalheBytes": 20292
+    },
+    {
+      "arquivo": "habilidade-pico-de-adrenalina.png",
+      "sha256Original": "454a2d012dc5bc60fc5e6b9498a3faf244d446e62dc3d827ff024ef33f7e38a4",
+      "originalBytes": 372128,
+      "compatBytes": 8983,
+      "miniBytes": 10778,
+      "detalheBytes": 32924
+    },
+    {
+      "arquivo": "habilidade-ponto-de-sorte.png",
+      "sha256Original": "26a69116173714e3fca2a530b2d39968744191a370339b473f847364f505a4b7",
+      "originalBytes": 130536,
+      "compatBytes": 4211,
+      "miniBytes": 4214,
+      "detalheBytes": 12220
+    },
+    {
+      "arquivo": "habilidade-preparacao-e-origem.png",
+      "sha256Original": "2d3f96938f67f283dc6f60978fbd55002107688c9f024bed4502b122a50e490c",
+      "originalBytes": 520855,
+      "compatBytes": 11800,
+      "miniBytes": 9862,
+      "detalheBytes": 30742
+    },
+    {
+      "arquivo": "habilidade-preparar.png",
+      "sha256Original": "94d6a4fbe6c64e143406dd65f63554cb8377d54e17b181a4dc51d14ab0dc9df3",
+      "originalBytes": 462444,
+      "compatBytes": 10671,
+      "miniBytes": 8382,
+      "detalheBytes": 24598
+    },
+    {
+      "arquivo": "habilidade-presa-do-cacador.png",
+      "sha256Original": "2a9e73cd2d2309351acc5af6dbfe194e0a802249a3eb12ac9c3ba50a2dd65d86",
+      "originalBytes": 533139,
+      "compatBytes": 11882,
+      "miniBytes": 11940,
+      "detalheBytes": 36580
+    },
+    {
+      "arquivo": "habilidade-procurar.png",
+      "sha256Original": "427db3c33b99050dec18486fcc7dd71b7033f450c5e30339897379174a3e038d",
+      "originalBytes": 644363,
+      "compatBytes": 13877,
+      "miniBytes": 11720,
+      "detalheBytes": 36016
+    },
+    {
+      "arquivo": "habilidade-proficiencias-e-explorador-habil.png",
+      "sha256Original": "34fd2093d93c8a21035a824260b3504ee306bba76096162d4ec9847d522281c9",
+      "originalBytes": 548201,
+      "compatBytes": 12920,
+      "miniBytes": 11458,
+      "detalheBytes": 36494
+    },
+    {
+      "arquivo": "habilidade-proficiencias.png",
+      "sha256Original": "e801fb8ce6f5d98fa5d3eb1ae69d4fe3c056a5723ec15c3dac0e7cf146f25a77",
+      "originalBytes": 424634,
+      "compatBytes": 10110,
+      "miniBytes": 8492,
+      "detalheBytes": 23556
+    },
+    {
+      "arquivo": "habilidade-protecao-contra-laminas.png",
+      "sha256Original": "e19b865997c987ee4f3856f330cc7f8d40faa5758730ca6a341fd6b7ff361c95",
+      "originalBytes": 645444,
+      "compatBytes": 13155,
+      "miniBytes": 12782,
+      "detalheBytes": 39762
+    },
+    {
+      "arquivo": "habilidade-queda-suave.png",
+      "sha256Original": "182e32fa14bf2ccda24839f22eaf042f6dd0f7429b31ef086959aca7e63c8ee9",
+      "originalBytes": 475979,
+      "compatBytes": 10701,
+      "miniBytes": 12540,
+      "detalheBytes": 39546
+    },
+    {
+      "arquivo": "habilidade-queimadura-de-fogo.png",
+      "sha256Original": "5cae4c9f0c018305d31c854b79ff3c32ab06ed6a494a1e05b06a6c0b11cb9f65",
+      "originalBytes": 282608,
+      "compatBytes": 7941,
+      "miniBytes": 8856,
+      "detalheBytes": 24908
+    },
+    {
+      "arquivo": "habilidade-rajada-agonizante.png",
+      "sha256Original": "8cf175ddef8f6c2b286cf2f54dc9351b157138f622751b020b26ac5c8dbd93d9",
+      "originalBytes": 265410,
+      "compatBytes": 7156,
+      "miniBytes": 6834,
+      "detalheBytes": 20370
+    },
+    {
+      "arquivo": "habilidade-rajada-mistica.png",
+      "sha256Original": "ac18bf9fa75964cf70f142e19257666c06540cceee984d1f11711f566b367213",
+      "originalBytes": 235872,
+      "compatBytes": 6701,
+      "miniBytes": 6484,
+      "detalheBytes": 18856
+    },
+    {
+      "arquivo": "habilidade-recuperar-folego.png",
+      "sha256Original": "5e0784c56d1699c4e18ba2ea7425ac7773d9424c806d8391a6237eb5e3aa7201",
+      "originalBytes": 485294,
+      "compatBytes": 11054,
+      "miniBytes": 9814,
+      "detalheBytes": 30082
+    },
+    {
+      "arquivo": "habilidade-reflexos.png",
+      "sha256Original": "31e6ef7bb387a5c5068952a15d66f38ba9dd0733a3fd206a8f8f9dfaf563d7ce",
+      "originalBytes": 658029,
+      "compatBytes": 12415,
+      "miniBytes": 13372,
+      "detalheBytes": 40410
+    },
+    {
+      "arquivo": "habilidade-repreensao-diabolica.png",
+      "sha256Original": "e5196301cea5d0e991031024d220fed5d7e0e8ea8c2746aab32fdb0d881ecbf3",
+      "originalBytes": 452508,
+      "compatBytes": 11212,
+      "miniBytes": 11450,
+      "detalheBytes": 34138
+    },
+    {
+      "arquivo": "habilidade-riso-histerico-de-tasha.png",
+      "sha256Original": "195105f30f8f0b142bcc6d925806f3e209eae8ecc59a3be58c88ff39cef068de",
+      "originalBytes": 378773,
+      "compatBytes": 9818,
+      "miniBytes": 8402,
+      "detalheBytes": 24486
+    },
+    {
+      "arquivo": "habilidade-saquear.png",
+      "sha256Original": "bc146779c3e9738a23e7facd418e2c28079e6bb9bb70736a2c472c2765d5f393",
+      "originalBytes": 599439,
+      "compatBytes": 13213,
+      "miniBytes": 10128,
+      "detalheBytes": 33406
+    },
+    {
+      "arquivo": "habilidade-sentidos-e-defesas.png",
+      "sha256Original": "b768f72d9c2a1dc209ae8543873c9070aeacec7652b8d5e91abfea0517df604d",
+      "originalBytes": 596944,
+      "compatBytes": 12952,
+      "miniBytes": 12874,
+      "detalheBytes": 38522
+    },
+    {
+      "arquivo": "habilidade-sopro-de-dragao.png",
+      "sha256Original": "299061acc92216d299d05e21995909bf6d413acd2414dd4cf0033e97a624802a",
+      "originalBytes": 428094,
+      "compatBytes": 9976,
+      "miniBytes": 9582,
+      "detalheBytes": 29246
+    },
+    {
+      "arquivo": "habilidade-sugestao.png",
+      "sha256Original": "3177144df7b602b3b6a8bbc14d75e16b616b8f534c791c8f650106dc30373bcf",
+      "originalBytes": 495593,
+      "compatBytes": 11408,
+      "miniBytes": 11260,
+      "detalheBytes": 34764
+    },
+    {
+      "arquivo": "habilidade-surto-de-acao.png",
+      "sha256Original": "4eec31681d2650f8d5f99aa81be9034693e6a5c0727b920bfce70da08c981952",
+      "originalBytes": 425359,
+      "compatBytes": 10366,
+      "miniBytes": 11650,
+      "detalheBytes": 36262
+    },
+    {
+      "arquivo": "habilidade-sussurros-dissonantes.png",
+      "sha256Original": "6e078c90abde3b9490903ddbfad599fbedcdc49e8e930faf90a83230b3e1c2ed",
+      "originalBytes": 601966,
+      "compatBytes": 12823,
+      "miniBytes": 11188,
+      "detalheBytes": 34888
+    },
+    {
+      "arquivo": "habilidade-talho-mental.png",
+      "sha256Original": "756ae4ddcba0e01aa80916a232c57b415de2c05da4c8e220b77b63f995155790",
+      "originalBytes": 422297,
+      "compatBytes": 9339,
+      "miniBytes": 11360,
+      "detalheBytes": 32632
+    },
+    {
+      "arquivo": "habilidade-taumaturgia.png",
+      "sha256Original": "e8827df6a4a0f99d828c24cc23140c3a389bf062e88b37b9f108e0896a3a7347",
+      "originalBytes": 499607,
+      "compatBytes": 11490,
+      "miniBytes": 11932,
+      "detalheBytes": 35214
+    },
+    {
+      "arquivo": "habilidade-toque-chocante.png",
+      "sha256Original": "7b3edf0b05936f4427d949a2e064e8a83e5b740241826fc91370511a097af8c9",
+      "originalBytes": 590677,
+      "compatBytes": 12647,
+      "miniBytes": 9982,
+      "detalheBytes": 32458
+    },
+    {
+      "arquivo": "habilidade-treinamentos.png",
+      "sha256Original": "7368ad940dc4e00b0becbf61f655b7130a64c4a9a3ad2e20f722ed670d0415d3",
+      "originalBytes": 519101,
+      "compatBytes": 11728,
+      "miniBytes": 11176,
+      "detalheBytes": 33806
+    },
+    {
+      "arquivo": "habilidade-usar-magia.png",
+      "sha256Original": "9d566750ca67b8445625075590838891f289ce78c02e4fb8b085ecaf0a2f39d1",
+      "originalBytes": 519192,
+      "compatBytes": 10999,
+      "miniBytes": 10968,
+      "detalheBytes": 31034
+    },
+    {
+      "arquivo": "habilidade-usar-objeto.png",
+      "sha256Original": "fd3169322cf3093a8e478d55677ca578d73c2902e50f89b5c22328f8fb3a66b8",
+      "originalBytes": 496701,
+      "compatBytes": 11330,
+      "miniBytes": 9946,
+      "detalheBytes": 30194
+    },
+    {
+      "arquivo": "habilidade-valentao-de-taverna.png",
+      "sha256Original": "c26c1d38eb6a1ec622babba9b4c29bc060659b2780ff8400932b7c63011a8d29",
+      "originalBytes": 360047,
+      "compatBytes": 9959,
+      "miniBytes": 10728,
+      "detalheBytes": 30618
+    },
+    {
+      "arquivo": "habilidade-visao-no-escuro.png",
+      "sha256Original": "4698e9b0cb945b793679bf0da1cedbc8ce6de30c188eaf5306a52231eed61b93",
+      "originalBytes": 295953,
+      "compatBytes": 9645,
+      "miniBytes": 6070,
+      "detalheBytes": 16782
+    },
+    {
+      "arquivo": "habilidade-zombaria-perversa.png",
+      "sha256Original": "63486809631cbccb57337821b5bfd80ecc567cf0f5bae953ff23983ff4e7cfc8",
+      "originalBytes": 540447,
+      "compatBytes": 11773,
+      "miniBytes": 12830,
+      "detalheBytes": 40222
+    },
+    {
+      "arquivo": "magia-misseis-magicos.png",
+      "sha256Original": "511d3e119be812ccc956d99835a0092191073871c07dfbaacd44727bc87e9b3f",
+      "originalBytes": 191041,
+      "compatBytes": 6200,
+      "miniBytes": 8374,
+      "detalheBytes": 23198
+    },
+    {
+      "arquivo": "magia-raio-fogo.png",
+      "sha256Original": "bd73c74f6b751bc20d5637f5b61a02ec550d8fdb02833b3662305a7a491b98ad",
+      "originalBytes": 103036,
+      "compatBytes": 4041,
+      "miniBytes": 4222,
+      "detalheBytes": 11482
+    },
+    {
+      "arquivo": "magia-saraivada-espinhos.png",
+      "sha256Original": "7ef1f9b1bf94dd4ec341cab7436add054a4edb6c3b642e41439fa5f748ed6b9b",
+      "originalBytes": 261710,
+      "compatBytes": 7761,
+      "miniBytes": 11278,
+      "detalheBytes": 33806
+    },
+    {
+      "arquivo": "monge-torrente-golpes.png",
+      "sha256Original": "a15d03462fe78419b8e9423e565b1af57b37ed061b5d639003f2e8028f35dd77",
+      "originalBytes": 418350,
+      "compatBytes": 9292,
+      "miniBytes": 10542,
+      "detalheBytes": 30612
+    },
+    {
+      "arquivo": "pericia-acrobacia.png",
+      "sha256Original": "807e07e68ff86414c4f7fab1763d31ad95d62444b18bab6e59891eabc04b7674",
+      "originalBytes": 386306,
+      "compatBytes": 10150,
+      "miniBytes": 11160,
+      "detalheBytes": 30938
+    },
+    {
+      "arquivo": "pericia-arcanismo.png",
+      "sha256Original": "73b70b0cbf89e919c113212a9a37ad0a94125b2863e874491304724ef9bc40f5",
+      "originalBytes": 455852,
+      "compatBytes": 10379,
+      "miniBytes": 9916,
+      "detalheBytes": 32234
+    },
+    {
+      "arquivo": "pericia-atletismo.png",
+      "sha256Original": "f8c801a0baeaf622624ba5fa63542102b15a90cf32dc44a3c5f13ac6432f8459",
+      "originalBytes": 454778,
+      "compatBytes": 11008,
+      "miniBytes": 9376,
+      "detalheBytes": 28158
+    },
+    {
+      "arquivo": "pericia-atuacao.png",
+      "sha256Original": "2d332436b057190b40e7a082ca3e51da8a772fd21b749606d35e57cb40b90da9",
+      "originalBytes": 503327,
+      "compatBytes": 11299,
+      "miniBytes": 10522,
+      "detalheBytes": 30738
+    },
+    {
+      "arquivo": "pericia-enganacao.png",
+      "sha256Original": "1193839e825e5be661d7e01dbe1e3c50899d190517c8a0cce0b80d177bbf9be3",
+      "originalBytes": 452864,
+      "compatBytes": 11494,
+      "miniBytes": 7600,
+      "detalheBytes": 22808
+    },
+    {
+      "arquivo": "pericia-furtividade.png",
+      "sha256Original": "d8f16141771039256100253414cfebf853a012e0b23354dfe0f991d46baf8a0b",
+      "originalBytes": 350619,
+      "compatBytes": 10642,
+      "miniBytes": 7894,
+      "detalheBytes": 24350
+    },
+    {
+      "arquivo": "pericia-historia.png",
+      "sha256Original": "21bc81ac848228897b4a288d6111348b26dac7d41c6c7f695e2b77ccb1efbfb4",
+      "originalBytes": 507178,
+      "compatBytes": 11593,
+      "miniBytes": 8736,
+      "detalheBytes": 26332
+    },
+    {
+      "arquivo": "pericia-intimidacao.png",
+      "sha256Original": "481a5de42ba97741d17f71000f4b67622f0f02eb0b78b8d5a94f0ca85d568861",
+      "originalBytes": 589512,
+      "compatBytes": 12990,
+      "miniBytes": 9258,
+      "detalheBytes": 30424
+    },
+    {
+      "arquivo": "pericia-intuicao.png",
+      "sha256Original": "32c92684717d3cb76601c0a5a18e7b8015e8880f45760eda57d26efa1fb78446",
+      "originalBytes": 496759,
+      "compatBytes": 11318,
+      "miniBytes": 9778,
+      "detalheBytes": 30342
+    },
+    {
+      "arquivo": "pericia-lidar-com-animais.png",
+      "sha256Original": "7ffbf6458b780c3288863be09d7a8c04a30efae5a8e6f7372778b5a4f15a8161",
+      "originalBytes": 414782,
+      "compatBytes": 10214,
+      "miniBytes": 9756,
+      "detalheBytes": 28438
+    },
+    {
+      "arquivo": "pericia-medicina.png",
+      "sha256Original": "0990e345b3464e2de9775f4bb8bd64808b757de9d391e378dc804ce2b290dd10",
+      "originalBytes": 602274,
+      "compatBytes": 12928,
+      "miniBytes": 11334,
+      "detalheBytes": 34820
+    },
+    {
+      "arquivo": "pericia-natureza.png",
+      "sha256Original": "e4f94e703c3e2c36970833ef72feb0c176d255fd142a50f7a08594096478afd9",
+      "originalBytes": 571618,
+      "compatBytes": 12643,
+      "miniBytes": 10912,
+      "detalheBytes": 34468
+    },
+    {
+      "arquivo": "pericia-percepcao.png",
+      "sha256Original": "e1e795a80950c6797985de25937bf900fbcae2d13a180ed0ba883be0c0ff7ab4",
+      "originalBytes": 515633,
+      "compatBytes": 11481,
+      "miniBytes": 11566,
+      "detalheBytes": 35304
+    },
+    {
+      "arquivo": "pericia-persuasao.png",
+      "sha256Original": "956276d4ca884e186422137e1bbe67d2f001324fbbe4708f756dbd89fa98c6a4",
+      "originalBytes": 528637,
+      "compatBytes": 11563,
+      "miniBytes": 10396,
+      "detalheBytes": 31046
+    },
+    {
+      "arquivo": "pericia-prestidigitacao.png",
+      "sha256Original": "865fee994c3262f1af868ee8b4d23b8456224cbb8cec38bc3486e3909ec6e6fc",
+      "originalBytes": 434366,
+      "compatBytes": 10268,
+      "miniBytes": 7444,
+      "detalheBytes": 20278
+    },
+    {
+      "arquivo": "pericia-religiao.png",
+      "sha256Original": "ea95479349766f25314cfd4e51cf13fb1babbeb53b5c93e1a92d71240503d328",
+      "originalBytes": 568226,
+      "compatBytes": 12084,
+      "miniBytes": 9108,
+      "detalheBytes": 28048
+    },
+    {
+      "arquivo": "pericia-sobrevivencia.png",
+      "sha256Original": "e9fb13ddc5547364907c9cabc1f7534abc09286e06524f07227f4622aa5eb39a",
+      "originalBytes": 637565,
+      "compatBytes": 12966,
+      "miniBytes": 11488,
+      "detalheBytes": 37154
+    },
+    {
+      "arquivo": "raca-generico.png",
+      "sha256Original": "29558eeab4e41962ee371300c04cfd4d61d95fbd94b4fa614cfb1c8f71f3d53c",
+      "originalBytes": 177261,
+      "compatBytes": 5683,
+      "miniBytes": 6178,
+      "detalheBytes": 17546
+    },
+    {
+      "arquivo": "salvaguarda-car.png",
+      "sha256Original": "46bbb3126af751e4fe80f1d943c005648cc88d1566efa8995c3c59dfb62aad40",
+      "originalBytes": 301550,
+      "compatBytes": 8021,
+      "miniBytes": 9564,
+      "detalheBytes": 28302
+    },
+    {
+      "arquivo": "salvaguarda-con.png",
+      "sha256Original": "ae25846b51421f0408f79c7e8ffb9c1a898c2886ed03071335f2fcfa7c552714",
+      "originalBytes": 275773,
+      "compatBytes": 7288,
+      "miniBytes": 5172,
+      "detalheBytes": 15030
+    },
+    {
+      "arquivo": "salvaguarda-des.png",
+      "sha256Original": "29189d1f2613b7da183528bbd89fc179193376281c90f3729fbbdd32e605ea81",
+      "originalBytes": 226041,
+      "compatBytes": 6945,
+      "miniBytes": 8288,
+      "detalheBytes": 23540
+    },
+    {
+      "arquivo": "salvaguarda-for.png",
+      "sha256Original": "f6d5a52aff56b5a7b3bec82de896a363baa9266feffca619efaa89d6e7f01ccd",
+      "originalBytes": 358306,
+      "compatBytes": 9106,
+      "miniBytes": 7302,
+      "detalheBytes": 21644
+    },
+    {
+      "arquivo": "salvaguarda-int.png",
+      "sha256Original": "6c23b7897789712a2eb0a7ca073409031e4f77c45f57dcbb876ae739b7fbe83c",
+      "originalBytes": 256605,
+      "compatBytes": 6593,
+      "miniBytes": 6486,
+      "detalheBytes": 18038
+    },
+    {
+      "arquivo": "salvaguarda-sab.png",
+      "sha256Original": "aed9e3b22c41dff8367ab8260754d68f9df681f68eda8d2f35b8e1c0c0c8064d",
+      "originalBytes": 341031,
+      "compatBytes": 9084,
+      "miniBytes": 11552,
+      "detalheBytes": 34562
+    },
+    {
+      "arquivo": "variante-arremesso.png",
+      "sha256Original": "9d0b73fc4f054a05a81f9235e1d8506666c2ef82294afec38e191e0058581b44",
+      "originalBytes": 64553,
+      "compatBytes": 3117,
+      "miniBytes": 3274,
+      "detalheBytes": 8316
+    }
+  ]
+}

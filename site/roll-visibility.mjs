@@ -18,8 +18,5 @@ export function visibilidadeRolagem(d,eu){
   if(d.tipo==='fechar')return {tipo:'fechar',pedido:d.pedido};
   const podeEditar=eu.role==='GM'||d.destino===eu.id;
   const evento={...rolagemParaUsuario(d,eu),podeEditar};
-  if(!podeEditar&&rolagemTemAnuncioCompacto(d)){
-    return d.tipo==='resultado'?{tipo:'anuncio',anuncio:evento}:{tipo:'ignorar'};
-  }
   return {tipo:'pedido',pedido:evento};
 }

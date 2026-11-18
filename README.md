@@ -1,6 +1,6 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.59**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.59.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.60**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.60.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 Na lista de grupos importados, o mestre pode **Excluir ficha** individualmente ou **Excluir grupo**, com confirmação. As unidades já adicionadas ao encontro e os arquivos JSON originais são preservados.
 

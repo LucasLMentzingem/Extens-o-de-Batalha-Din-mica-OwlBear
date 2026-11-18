@@ -52,3 +52,18 @@ export function receptorDeEstado(){
     return JSON.parse(texto);
   };
 }
+
+// Projeção pública incremental: mudanças de recursos não retransmitem a ficha.
+const igual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const camposDiferentes=(a,b)=>[...new Set([...Object.keys(a),...Object.keys(b)])].filter(k=>!igual(a[k],b[k])).map(k=>({k,...(k in b?{valor:b[k]}:{remover:true})}));
+export function deltaDeEstado(antes,depois){
+ const a={...antes},b={...depois};delete a.atores;delete b.atores;
+ const porId=new Map(antes.atores.map(x=>[x.id,x]));
+ return {campos:camposDiferentes(a,b),atores:depois.atores.map(x=>porId.has(x.id)?{id:x.id,campos:camposDiferentes(porId.get(x.id),x)}:{id:x.id,novo:x}).filter(x=>x.novo||x.campos.length),ordem:depois.atores.map(x=>x.id)};
+}
+export function aplicarDeltaEstado(antes,delta){
+ const out=structuredClone(antes),aplicar=(a,cs)=>{for(const c of cs??[]){if(c.remover)delete a[c.k];else a[c.k]=structuredClone(c.valor);}return a;};
+ aplicar(out,delta.campos);const mapa=new Map(out.atores.map(a=>[a.id,a]));
+ for(const a of delta.atores??[]){if(a.novo)mapa.set(a.id,structuredClone(a.novo));else{if(!mapa.has(a.id))throw Error('Ator da atualização incremental não encontrado.');aplicar(mapa.get(a.id),a.campos);}}
+ out.atores=delta.ordem.map(id=>{const a=mapa.get(id);if(!a)throw Error('Atualização incremental incompleta.');return a;});return out;
+}

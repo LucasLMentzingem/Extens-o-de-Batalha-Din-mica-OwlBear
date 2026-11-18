@@ -1,5 +1,23 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-18 — publicação autorizada da 0.8.60
+
+- O responsável solicitou publicar o fix após receber o relatório comparativo. Preparar commit completo, enviar a main e verificar Actions e manifesto normal publicado.
+- Produção coincide com os hashes da candidata validada; a baseline e o relatório anteriores são preservados como registros históricos.
+
+## 2026-11-18 — fix das atividades e baseline comparativa
+
+- Solicitação atual: implementar o plano consolidado, congelando antes os resultados de resposta, tráfego e peso para comparação ao terminar; sem publicar nesta etapa.
+- Base anterior preservada: 0.8.59, commit `9e32614126bf216dd774627a85721a07c00b4cc9`. Suíte repetida antes das mudanças: 394/394 em 7.996,58 ms.
+- Baseline imutável e fontes métricas em `D:/Documents/Codex/2026-11-17/leia-d-documents-codex-2026-11/outputs/fix-mesa/baseline-0.8.59/`. Inclui hashes dos 412 arquivos de produção e resultados anteriores, sem sobrescrever a auditoria entregue.
+- Antes: site 100.676.566 bytes; imagens 97.952.420 bytes; cold medido 20.042.050 bytes; 60 perícias: 6.921.506 bytes / 1.299 mensagens (inclui sync/entrada); mediana 334,69 ms / p95 415,70 ms. Burst 100: 1 sucesso / 99 recusas.
+- Implementados até aqui: fontes de dano por identidade, audiência pública de jogador, guarda de cancelamento tardio, registro durável de execuções com diário recuperável, reservas por escopo e aplicação com merge validado; fila de atividades por usuário, salvaguardas filhas, gaveta, heartbeat e controles de cancelamento/assunção.
+- Prova intermediária: Zurich na HUD aplicou Marca 3 e Saraivada 8 corretamente; primeiros testes do registro e das atividades aprovados; burst preliminar concluiu 100/100. Não é resultado final de desempenho.
+- Concluído localmente como candidata 0.8.60, sem commit/push/publicação. 415 testes, 26 cenários de integração, sete variações Zurich + clique HUD e espera real de 62 s passaram. Catálogo/versão/diff válidos.
+- Final: site 33.026.185 bytes; download frio 1.544.712 bytes; 60 perícias mediana 254,47 ms / p95 289,97 ms, 718.724 bytes; rajada 100/100 em 24,09 s. Rede limitada: artes 9,94 s, controles 7,35 s (antes 6,44 s); heap cresceu ~0,4 MiB. Ganhos e regressões registrados.
+- Diário pausa ao trocar de cena, versão da etapa rejeita confirmações antigas, geração/conexão filtra eventos do controlador anterior. Web Locks impede backgrounds duplicados no perfil. Fichas/tokens e 176 originais de artes verificados pelos hashes da baseline.
+- Relatório, comparação JSON e evidências em outputs/fix-mesa. Limites: SDK/Dice+ simulados; sem sala real; sem migração automática entre aparelhos; recarga de cada fronteira de habilidades especiais ainda não homologada.
+
 ## 2026-11-17 — interações de inventário na 0.8.46 local
 
 - Arremesso composto transfere arma ao chão; Ágil conserva escolhas corpo a corpo/arremesso; falha visual do SDK não reverte ataque já resolvido e recebe tentativa de sincronização.

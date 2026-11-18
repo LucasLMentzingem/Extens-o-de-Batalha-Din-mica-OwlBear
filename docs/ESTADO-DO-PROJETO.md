@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.60 — 18/11/2026
+
+Fix do plano de Atividades da mesa, com publicação autorizada após a validação de 415 testes e 26 cenários de integração. Baseline 0.8.59 congelada antes das alterações; comparação e evidências entregues no chat em `outputs/fix-mesa`. Ver [notas da versão](RELEASE-0.8.60.md).
+
 Revisão de 17 de novembro de 2026, versão **0.8.59**, linha travada em 0.8.x até 0.8.99.
 
 ## Entrega — 0.8.59

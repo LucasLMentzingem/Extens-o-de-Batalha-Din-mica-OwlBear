@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.59");
+@import url("./ability-art.css?v=0.8.60");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -215,3 +215,11 @@ body.atividades{overflow:hidden}#hud:has(>.alternar-atividades){height:100%;disp
 .atividade .carretel{display:inline-block;height:1em;line-height:1em;width:.65em;overflow:hidden;vertical-align:baseline}.carretel>span{display:block;animation:digitos-girando .6s steps(10) infinite}.carretel.segundo>span{animation-duration:.43s}.carretel>.fita-final{animation:none}.fita-final>span{display:block;height:1em}.girando{animation:none}@keyframes digitos-girando{to{transform:translateY(-10em)}}@media(prefers-reduced-motion:reduce){.carretel>span{animation:none}}
 
 .historico-atividades{position:relative;padding-left:56px;box-sizing:border-box}.historico-atividades>header>.alternar-atividades{position:absolute;left:0;top:72px}
+
+/* A lista e o painel de acompanhamento são visões da mesma execução. */
+.alternar-atividades{width:94px;font-size:23px}.alternar-atividades small{font:700 13px system-ui}
+.gaveta-atividades{height:100%;display:flex;flex-direction:column;gap:8px;padding:10px;box-sizing:border-box;background:#172723f5;border:1px solid #b29a68;border-radius:10px;color:#f1e6cd;font-size:12px}
+.gaveta-atividades>header{display:flex;align-items:center;justify-content:space-between;gap:8px}.gaveta-atividades>header button{font-size:22px;padding:0 8px}.gaveta-atividades>nav,.gaveta-atividades>footer{display:flex;gap:5px;flex-wrap:wrap}.gaveta-atividades button{font-size:11px;padding:5px 7px}.gaveta-atividades nav [aria-pressed=true]{background:#615438;border-color:#edcf8c}
+.lista-atividades{display:flex;flex-direction:column;gap:7px;overflow:auto;min-height:50px;flex:1;scrollbar-width:thin}.cartao-atividade{border:1px solid #6f6751;border-radius:7px;background:#1e302c;padding:6px}.cartao-atividade.selecionada{border-color:#f2cc7e}.abrir-atividade{display:flex;align-items:center;width:100%;text-align:left;gap:7px;background:transparent;border:0!important}.abrir-atividade>span:last-child{min-width:0;flex:1}.abrir-atividade strong,.abrir-atividade small{display:block;overflow-wrap:anywhere}.abrir-atividade small{font-size:10px;color:#d7d4c4;margin-top:3px}.abrir-atividade .token-atividade{flex:0 0 32px;width:32px;height:32px}.abrir-atividade .icone-atividade{flex:0 0 38px;width:38px;height:38px}.controles-execucao{display:flex;gap:4px;justify-content:flex-end;margin-top:5px;flex-wrap:wrap}.confirmacao-execucao{padding:6px;border:1px solid #dcbd78;border-radius:5px;margin-top:6px}.confirmacao-execucao small{display:block;margin-bottom:6px}
+.pendente-usuario{border-color:#e7bd65;box-shadow:inset 0 0 8px #ddad4144;animation:atividade-pulso 1.8s ease-in-out infinite}.sujeito-rolagem{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12px;margin:7px 0}.sujeito-rolagem i{display:block;width:33px;height:33px;border:1px solid #d5b06d;border-radius:50%;overflow:hidden}.sujeito-rolagem img{width:100%;height:100%;object-fit:cover}.sujeito-rolagem small{flex-basis:100%;font-size:10px}.resultado-indeterminado label{display:block;margin:8px 0}.resultado-indeterminado input{width:100%;box-sizing:border-box}.resultado-indeterminado p{font-size:12px;line-height:1.4}
+@media(prefers-reduced-motion:reduce){.pendente-usuario{animation:none}}

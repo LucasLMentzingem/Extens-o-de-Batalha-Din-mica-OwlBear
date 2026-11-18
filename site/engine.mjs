@@ -1,9 +1,11 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.59';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.59';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.59';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.60';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.60';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.60';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.60';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.60';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.59';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.59';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.60';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.60';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -697,7 +699,7 @@ export function validar(f) {
 export const novo = () => {const s={rev:0,fase:'preparo',rodada:0,vez:0,atores:[],ordem:[],historico:[],filaReacoes:[],recipientes:[]};normalizarComercio(s);return s;};
 export function adicionar(s,f,nome=f.nome) {
   const ficha=validar(f);
-  const a={id:crypto.randomUUID(),nome,ficha,token:null,dono:null,emCombate:true,pv:f.pvMaximos,pvTemporarios:0,estadoVida:'consciente',salvaguardasMorte:{sucessos:0,falhas:0},rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),usosTurno:{},eventosTurno:{ataques:[],acertos:[]},x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
+  const a={id:idDoEstado(s),nome,ficha,token:null,dono:null,emCombate:true,pv:f.pvMaximos,pvTemporarios:0,estadoVida:'consciente',salvaguardasMorte:{sucessos:0,falhas:0},rec:Object.fromEntries(f.recursos.map(r=>[r.id,r.saldoInicial])),usosTurno:{},eventosTurno:{ataques:[],acertos:[]},x:s.atores.length,y:0,init:null,acao:1,bonus:1,reacao:1,metros:f.deslocamentosM.andar};
   sincronizarConcessoesItens(a);
   s.atores.push(a); return a;
 }
@@ -1357,8 +1359,8 @@ function abrirProximaReacao(s){
     const proxima=mov.ameacas.shift(),reator=s.atores.find(a=>a.id===proxima.reator);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>proxima.opcoes.includes(o.id)&&o.gatilho==='sair_alcance'&&reator.reacao>0);
     if(!reator||reator.pv<=0||!opcoes.length)continue;
-    s.reacaoPendente={id:crypto.randomUUID(),gatilho:'sair_alcance',reator:reator.id,alvo:mov.ator,
-      opcoes:opcoes.map(o=>o.id),ponto:proxima.ponto,terminaEm:Date.now()+20000};
+    s.reacaoPendente={id:idDoEstado(s),gatilho:'sair_alcance',reator:reator.id,alvo:mov.ator,
+      opcoes:opcoes.map(o=>o.id),ponto:proxima.ponto,terminaEm:agoraDoEstado(s)+20000};
     return reator;
   }
   if(mov){
@@ -1431,8 +1433,8 @@ function abrirProximaReacaoEvento(s){
     const evento=s.filaReacoes.shift(),reator=s.atores.find(a=>a.id===evento.reator),alvo=s.atores.find(a=>a.id===evento.alvo);
     const opcoes=(reator?.ficha.opcoes??[]).filter(o=>evento.opcoes.includes(o.id)&&o.gatilho===evento.gatilho&&custosDisponiveis(reator,o));
     if(!reator||!alvo||reator.pv<=0||reator.reacao<=0||!opcoes.length)continue;
-    s.reacaoPendente={id:crypto.randomUUID(),gatilho:evento.gatilho,reator:reator.id,alvo:alvo.id,opcoes:opcoes.map(o=>o.id),
-      descricao:evento.descricao,contexto:evento.contexto,terminaEm:Date.now()+20000};
+    s.reacaoPendente={id:idDoEstado(s),gatilho:evento.gatilho,reator:reator.id,alvo:alvo.id,opcoes:opcoes.map(o=>o.id),
+      descricao:evento.descricao,contexto:evento.contexto,terminaEm:agoraDoEstado(s)+20000};
     return reator;
   }
   delete s.reacaoPendente;return null;
@@ -1450,8 +1452,8 @@ function abrirReacaoPreventiva(s,reator,origem,resolucao){
   const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o)&&(!resolucao.projeteis||o.automacao?.tipo==='escudo_arcano')&&(!o.automacao?.elementos||o.automacao.elementos.includes(resolucao?.elemento))); // #34 Defletir: só C/C/P
   if(!opcoes.length)return false;
   s.resolucaoPendente={...resolucao,tipo:resolucao.projeteis?'projeteis':'dano_ataque',origem:origem.id,alvo:reator.id};
-  s.reacaoPendente={id:crypto.randomUUID(),gatilho:'ser_atingido',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
-    descricao:reator.nome+' foi atingido por '+origem.nome+'. O dano aguarda esta reação.',terminaEm:Date.now()+20000};
+  s.reacaoPendente={id:idDoEstado(s),gatilho:'ser_atingido',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
+    descricao:reator.nome+' foi atingido por '+origem.nome+'. O dano aguarda esta reação.',terminaEm:agoraDoEstado(s)+20000};
   return true;
 }
 const dadosExtrasValidos=xs=>Array.isArray(xs)&&xs.length<=4&&xs.every(x=>/^\d{1,2}d(?:4|6|8|10|12|20)$/.test(x));
@@ -1468,7 +1470,7 @@ export function encerrarConcentracao(s,a,motivo=''){
 }
 function iniciarConcentracao(s,a,o){
   encerrarConcentracao(s,a);
-  const id=crypto.randomUUID();a.concentracaoAtiva={id,opcao:o.id,nome:o.nome,desdeRodada:s.rodada};return id;
+  const id=idDoEstado(s);a.concentracaoAtiva={id,opcao:o.id,nome:o.nome,desdeRodada:s.rodada};return id;
 }
 function processarDuracoes(s,ator,evento){
   for(const alvo of s.atores){
@@ -1570,15 +1572,15 @@ function restaurarEconomia(a){
 export function temBeneficioNaIniciativa(a,o){
   const r=o?.automacao;return Boolean(r?.cura&&a.pv<pvMaximosAtuais(a)||(r?.recuperarRecursos??[]).some(id=>{const max=a.ficha.recursos.find(r=>r.id===id)?.maximo??0;return (a.rec[id]??0)<max;}));
 }
-function oferecerReacaoIniciativa(a){
+function oferecerReacaoIniciativa(a,s){
   if(a.emCombate===false||a.estadoVida==='morto')return;
   const opcoes=opcoesDisponiveis(a).filter(o=>o.gatilho==='rolar_iniciativa'&&o.ativa!==false&&custosDisponiveis(a,o)&&temBeneficioNaIniciativa(a,o));
-  if(opcoes.length)a.reacaoIniciativa={id:crypto.randomUUID(),reator:a.id,opcoes:opcoes.map(o=>o.id),descricao:'Ao rolar iniciativa: deseja usar '+opcoes.map(o=>o.nome).join(' ou ')+'? Não gasta Reação.'};
+  if(opcoes.length)a.reacaoIniciativa={id:idDoEstado(s),reator:a.id,opcoes:opcoes.map(o=>o.id),descricao:'Ao rolar iniciativa: deseja usar '+opcoes.map(o=>o.nome).join(' ou ')+'? Não gasta Reação.'};
 }
 async function inserirReforco(s,a,resultado,formulaD20){
   const atualId=atual(s)?.id;
   a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,'desvantagem'),{tipo:'iniciativa',titulo:'Iniciativa de reforço · '+a.nome})).total;
-  oferecerReacaoIniciativa(a);
+  oferecerReacaoIniciativa(a,s);
   const porId=new Map(s.atores.map(x=>[x.id,x]));
   const posicao=s.ordem.findIndex(id=>{
     const outro=porId.get(id);
@@ -1608,9 +1610,10 @@ export function modoDoAtaque(s,a,p,rule,{modoPedido='normal',efeitosOrigem=[]}={
   const desvantagem=Boolean(modoPedido==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra||(rp.caido&&!perto)||inimigoColado||(rule.alcanceNormalM!=null&&distancia(a,p)>rule.alcanceNormalM+1e-8));
   return vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
 }
-export async function aplicar(s,c,u,rolar) {
+export async function aplicar(s,c,u,rolar,contextoExecucao=null) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
+  if(contextoExecucao)Object.defineProperty(s,'__contextoExecucao',{value:contextoExecucao,enumerable:false});
   s.filaReacoes??=[];s.recipientes??=[];normalizarComercio(s);
   for(const p of s.atores){
     atualizarMagias(p.ficha);sincronizarAuxilio(p);p.ficha.inventario=structuredClone(inventarioNormalizado(p.ficha));p.usosTurno=p.usosTurno??{};p.eventosTurno=p.eventosTurno??{ataques:[],acertos:[]};p.pvTemporarios=Number.isInteger(p.pvTemporarios)?p.pvTemporarios:0;p.estadoVida=p.estadoVida??(p.pv>0?'consciente':'inconsciente');p.salvaguardasMorte=p.salvaguardasMorte??{sucessos:0,falhas:0};sincronizarConcessoesItens(p);
@@ -1644,7 +1647,7 @@ export async function aplicar(s,c,u,rolar) {
       const alvo=s.atores.find(x=>meta.alvoAtorId?x.id===meta.alvoAtorId:x.nome===meta.alvo),e=alvo?.efeitosAtivos?.find(e=>e.santuarioCD);
       if(e&&(await rolarD20(p.ficha.salvaguardas?.sab??mod(p.ficha.atributos.sab),p,{tipo:'salvaguarda',atributo:'sab',cd:e.santuarioCD,titulo:'Santuário · '+alvo.nome})).total<e.santuarioCD){msg+=' • Santuário impediu o ataque a '+alvo.nome;return {natural:1,total:0,santuarioBloqueou:true};}
     }
-    if(meta.tipo==='salvaguarda'&&p)meta={...meta,destinoId:meta.destinoId??controladorDe(p),roladorNome:meta.roladorNome??p.nome};
+    if(meta.tipo==='salvaguarda'&&p)meta={...meta,destinoId:meta.destinoId??controladorDe(p),roladorNome:meta.roladorNome??p.nome,atorRespondenteId:p.id,tokenRespondenteId:p.token};
     const efeito=meta.tipo==='salvaguarda'?p?.efeitosAtivos?.find(e=>e.penalidadeProximaSalva):null;
     const restricoes=meta.tipo==='salvaguarda'?restricoesAtivas(p):{},atributo=meta.atributo;
     const alvoAtaque=meta.tipo==='ataque'?s.atores.find(x=>meta.alvoAtorId?x.id===meta.alvoAtorId:x.nome===meta.alvo):null,forcaFraca=p?.efeitosAtivos?.some(e=>e.restricoes?.desvantagemD20?.includes(atributo));
@@ -1769,13 +1772,13 @@ export async function aplicar(s,c,u,rolar) {
     }
     for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
     if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(ataqueBase,rule,rolagem);
-    const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
+    const parcelas=parcelasPorFonte(rolagem,escolhidos),base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
     const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});
     const textos=[];
     if(notaFaces)textos.push(notaFaces.trim().replace(/^\(|\)$/g,''));
     {const t=await explodirDados(rule,p,base,tagsDano,titulo??o.nome);if(t)textos.push(t.replace(/^ \+ /,''));}
     for(let i=0;i<escolhidos.length;i++){
-      const g=escolhidos[i];textos.push(valoresBrutos[i+1]+' de '+g.nome);
+      const g=escolhidos[i];textos.push(g.nome+': '+valoresBrutos[i+1]+' bruto'+(g.aprimoramento.salvaArea?' em área, antes das salvaguardas':' já incluídos no dano direto'));
       if(g.aprimoramento.salvaArea){
         const area=g.aprimoramento.salvaArea,atingidos=s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8);
         for(const alvoArea of atingidos){const bonus=alvoArea.ficha.salvaguardas?.[area.atributo]??mod(alvoArea.ficha.atributos[area.atributo]),rr=await rolarD20(bonus,alvoArea,{tipo:'salvaguarda',atributo:area.atributo,titulo:'Salvaguarda · '+g.nome,alvo:alvoArea.nome,cd:area.cd,destinoId:controladorDe(alvoArea),roladorNome:alvoArea.nome}),bruto=rr.total>=area.cd&&area.metade?Math.floor(valoresBrutos[i+1]/2):rr.total>=area.cd?0:valoresBrutos[i+1],recebido=bruto?await aplicarDanoNoAtor(alvoArea,bruto,g.aprimoramento.elemento,{origem:a,parcelas:[{valor:bruto,tipo:g.aprimoramento.elemento,tags:['magia','area']}]}):0;textos.push(alvoArea.nome+' '+(rr.total>=area.cd?'passou':'falhou')+' e perdeu '+recebido+' PV');}
@@ -1816,7 +1819,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(distancia(a,origem)<=3+1e-8,'O corpo está a mais de 3 m.');
       const magia=origem.ficha.opcoes.find(o=>o.reanimacao===true);
       exigir(magia&&opcaoPreparada(origem.ficha,magia),'O conjurador não tem Animar Mortos preparado.');
-      return aplicar(s,{tipo:'usar',rev:s.rev,ator:origem.id,opcao:magia.id,alvo:a.id,circuloUsado:Number(c.circulo??3),confirmado:true},u,rolar);
+      return aplicar(s,{tipo:'usar',rev:s.rev,ator:origem.id,opcao:magia.id,alvo:a.id,circuloUsado:Number(c.circulo??3),confirmado:true},u,rolar,contextoExecucao);
     }
     case 'transformarAdagaMissao': {
       const i=a?.ficha.inventario.itens.find(i=>i.id===c.itemId);
@@ -1851,7 +1854,7 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'recipienteAdicionarItem': {
       const r=recipientePorId(s,c.recipienteId);exigir(r&&inteiro(c.quantidade,1,9999),'Recipiente ou quantidade inválida.');
-      const item=resolverInstanciaItem({id:crypto.randomUUID(),ref:c.itemRef,quantidade:c.quantidade});
+      const item=resolverInstanciaItem({id:idDoEstado(s),ref:c.itemRef,quantidade:c.quantidade});
       exigir(item&&item.tipo!=='moeda','Escolha um item do catálogo. Para PO, use o campo específico.');
       item.equipado=false;delete item.equipadoSlot;
       exigir(r.itens.some(x=>empilhamentoCompativel(x,item))||slotsUsados(r.itens)<r.capacidadeSlots,'A caixa está cheia.');
@@ -1860,7 +1863,7 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'recipienteAdicionarPo': {
       const r=recipientePorId(s,c.recipienteId);exigir(r&&inteiro(c.quantidade,1,9999999),'Recipiente ou quantidade de PO inválida.');
-      const moeda=resolverInstanciaItem({id:crypto.randomUUID(),ref:'item.moedas-de-ouro',quantidade:c.quantidade});
+      const moeda=resolverInstanciaItem({id:idDoEstado(s),ref:'item.moedas-de-ouro',quantidade:c.quantidade});
       const existente=r.itens.find(i=>i.tipo==='moeda'&&(i.moeda??'po')==='po');
       if(existente)existente.quantidade+=c.quantidade;else{exigir(slotsUsados(r.itens)<r.capacidadeSlots,'A caixa está cheia.');r.itens.push(moeda);}
       r.revisao++;msg='Mestre colocou '+c.quantidade+' PO em '+r.nome+'.';break;
@@ -1877,7 +1880,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(!r.trancado||u.role==='GM','O recipiente está trancado.');
       exigir(distancia(a,r.posicaoM)<=1.5+1e-8,'O recipiente está a mais de 1,5 m.');
       if(s.fase==='turnos')a.acao--;
-      a.saqueAberto={id:crypto.randomUUID(),origem:{tipo:r.tipo,id:r.id},nome:r.nome,distanciaM:1.5};
+      a.saqueAberto={id:idDoEstado(s),origem:{tipo:r.tipo,id:r.id},nome:r.nome,distanciaM:1.5};
       a.saqueAberto.itens=structuredClone(r.itens);
       msg=a.nome+' iniciou o saque de '+r.nome+'.';break;
     }
@@ -1901,7 +1904,7 @@ export async function aplicar(s,c,u,rolar) {
         return {item,quantidade:entrada.quantidade};
       });
       const copias=transferencias.map(({item,quantidade})=>{
-        const copia=structuredClone(item);copia.id=quantidade===item.quantidade?item.id:crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
+        const copia=structuredClone(item);copia.id=quantidade===item.quantidade?item.id:idDoEstado(s);copia.quantidade=quantidade;copia.equipado=false;copia.preferido=false;delete copia.equipadoSlot;
         return copia;
       });
       let equipamentoDireto=null;
@@ -1950,7 +1953,7 @@ export async function aplicar(s,c,u,rolar) {
       if(equipamentoDireto){if(s.fase==='turnos'&&equipamentoDireto.anteriores.length)a.bonus--;for(const anterior of equipamentoDireto.anteriores){anterior.equipado=false;delete anterior.equipadoSlot;}}
       copias.forEach(item=>adicionarItemInventario(a,item));
       for(const {item,quantidade} of devolver){
-        const copia=structuredClone(item);copia.id=quantidade===item.quantidade?item.id:crypto.randomUUID();copia.quantidade=quantidade;copia.equipado=false;delete copia.equipadoSlot;
+        const copia=structuredClone(item);copia.id=quantidade===item.quantidade?item.id:idDoEstado(s);copia.quantidade=quantidade;copia.equipado=false;delete copia.equipadoSlot;
         if(quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==item);else item.quantidade-=quantidade;
         adicionarItemRecipiente(recipiente,copia);
       }
@@ -1965,7 +1968,7 @@ export async function aplicar(s,c,u,rolar) {
       const item=a.ficha.inventario?.itens.find(i=>i.id===c.itemId);exigir(item,'Item não encontrado.');
       exigir(Number.isFinite(c.quantidade)&&c.quantidade>0&&c.quantidade<=item.quantidade&&(item.tipo==='moeda'?quantidadeMoedaValida(c.quantidade):Number.isInteger(c.quantidade)),'Quantidade inválida.');
       if(s.fase==='turnos'&&item.equipado){exigir(a.bonus>=1,'É preciso ter uma ação bônus para largar equipamento em uso.');a.bonus--;}
-      const copia=structuredClone(item);if(c.quantidade<item.quantidade)copia.id=crypto.randomUUID();copia.quantidade=c.quantidade;copia.equipado=false;delete copia.equipadoSlot;
+      const copia=structuredClone(item);if(c.quantidade<item.quantidade)copia.id=idDoEstado(s);copia.quantidade=c.quantidade;copia.equipado=false;delete copia.equipadoSlot;
       if(c.quantidade===item.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==item);else item.quantidade-=c.quantidade;
       criarLootNoChao(s,copia,{x:a.x,y:a.y});msg=a.nome+' largou '+c.quantidade+'× '+item.nome+' no chão.';break;
     }
@@ -1989,7 +1992,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(Array.isArray(c.fichas)&&c.fichas.length>0&&c.fichas.length<=LIMITE_FICHAS_GRUPO,'Selecione de uma a cinquenta fichas.');
       const fichas = c.fichas.map(ficha => compactarFicha(validar(ficha)));
       s.gruposFichas ??= [];
-      s.gruposFichas.push({id:'pasta-'+crypto.randomUUID(),nome:c.nome.trim(),fichas});
+      s.gruposFichas.push({id:'pasta-'+idDoEstado(s),nome:c.nome.trim(),fichas});
       msg='Grupo '+c.nome.trim()+' importado com '+fichas.length+' ficha(s).';
       break;
     }
@@ -2102,7 +2105,7 @@ export async function aplicar(s,c,u,rolar) {
     case 'iniciativa':
       exigir(s.fase==='iniciativa' && a.emCombate!==false && a.init===null,'Iniciativa já resolvida ou ficha fora do combate.');
       a.init=(await resultado(formulaD20(bonusIniciativa(a),a,null,desvantagemArmaduraSemTreino(a,'des')?'desvantagem':'normal'),{tipo:'iniciativa',titulo:'Iniciativa · '+a.nome})).total;msg=a.nome+' • iniciativa '+a.init;
-      oferecerReacaoIniciativa(a);
+      oferecerReacaoIniciativa(a,s);
       iniciarTurnos(s);
       break;
     case 'iniciativas': {
@@ -2113,7 +2116,7 @@ export async function aplicar(s,c,u,rolar) {
       exigir(participantes.every(x=>x&&x.emCombate!==false&&x.init===null),'Uma das iniciativas já foi resolvida ou está fora do combate.');
       const formulas=participantes.map(x=>formulaD20(bonusIniciativa(x),x,null,desvantagemArmaduraSemTreino(x,'des')?'desvantagem':'normal'));
       const resultados=await resultadoLote(formulas,{tipo:'iniciativa_lote',titulo:'Iniciativas',rotuloInstancia:'Iniciativa',unidadeResultado:'de iniciativa',descricaoLote:'Revise cada iniciativa. O Dice+ lançará todos os dados juntos.',instancias:participantes.map(x=>({titulo:x.nome,alvo:x.ficha.tipo==='pj'?'Jogador':'NPC'}))});
-      participantes.forEach((x,i)=>{x.init=resultados[i].total;oferecerReacaoIniciativa(x);});
+      participantes.forEach((x,i)=>{x.init=resultados[i].total;oferecerReacaoIniciativa(x,s);});
       msg='Iniciativas • '+participantes.map((x,i)=>x.nome+' '+resultados[i].total).join(' · ');
       iniciarTurnos(s);
       break;
@@ -2164,7 +2167,7 @@ export async function aplicar(s,c,u,rolar) {
       const destino=s.atores.find(x=>x.id===c.destino);
       exigir(s.fase==='preparo'&&a?.ficha.tipo==='pj'&&destino?.ficha.tipo==='pj'&&destino!==a,'Escolha outro personagem para a troca.');
       exigir(!trocaDoAtor(s,a.id)&&!trocaDoAtor(s,destino.id),'Um dos personagens já participa de outra troca.');
-      const t={id:crypto.randomUUID(),solicitante:a.id,destinatario:destino.id,status:'solicitada',ofertas:{[a.id]:{itens:[],poPc:0},[destino.id]:{itens:[],poPc:0}},confirmacaoItens:{[a.id]:false,[destino.id]:false},confirmacaoFinal:{[a.id]:false,[destino.id]:false},criadaEm:Date.now()};
+      const t={id:idDoEstado(s),solicitante:a.id,destinatario:destino.id,status:'solicitada',ofertas:{[a.id]:{itens:[],poPc:0},[destino.id]:{itens:[],poPc:0}},confirmacaoItens:{[a.id]:false,[destino.id]:false},confirmacaoFinal:{[a.id]:false,[destino.id]:false},criadaEm:agoraDoEstado(s)};
       s.comercio.trocas.push(t);msg=a.nome+' solicitou uma troca com '+destino.nome+'.';break;
     }
     case 'responderTroca': {
@@ -2213,7 +2216,7 @@ export async function aplicar(s,c,u,rolar) {
       if(!ids.every(id=>t.confirmacaoFinal[id])){msg=a.nome+' confirmou a troca final.';break;}
       const atores=Object.fromEntries(ids.map(id=>[id,s.atores.find(x=>x.id===id)])),saldos=Object.fromEntries(ids.map(id=>[id,saldoMoedasPc(atores[id])]));
       for(const id of ids){const origem=atores[id],oferta=ofertaTroca(t,id);exigir(saldos[id]>=oferta.poPc,'PO insuficientes para concluir a troca de '+origem.nome+'.');for(const entrada of oferta.itens){const item=origem.ficha.inventario?.itens.find(i=>i.id===entrada.itemId);exigir(item&&!item.equipado&&item.tipo!=='moeda'&&item.negociavel!==false&&inteiro(entrada.quantidade,1,Math.floor(item.quantidade)),'Um item de '+origem.nome+' não está mais disponível.');}}
-      for(const id of ids){const origem=atores[id],destino=atores[ids.find(x=>x!==id)],oferta=ofertaTroca(t,id);for(const entrada of oferta.itens){const item=origem.ficha.inventario.itens.find(i=>i.id===entrada.itemId),movido=structuredClone(item);movido.quantidade=entrada.quantidade;movido.equipado=false;delete movido.equipadoSlot;if(entrada.quantidade!==item.quantidade)movido.id=crypto.randomUUID();retirarQuantidadeItem(origem,item,entrada.quantidade);adicionarItemInventario(destino,movido);}}
+      for(const id of ids){const origem=atores[id],destino=atores[ids.find(x=>x!==id)],oferta=ofertaTroca(t,id);for(const entrada of oferta.itens){const item=origem.ficha.inventario.itens.find(i=>i.id===entrada.itemId),movido=structuredClone(item);movido.quantidade=entrada.quantidade;movido.equipado=false;delete movido.equipadoSlot;if(entrada.quantidade!==item.quantidade)movido.id=idDoEstado(s);retirarQuantidadeItem(origem,item,entrada.quantidade);adicionarItemInventario(destino,movido);}}
       for(const id of ids){const recebido=ofertaTroca(t,ids.find(x=>x!==id)).poPc,entregue=ofertaTroca(t,id).poPc;definirSaldoMoedasPc(atores[id],saldos[id]-entregue+recebido);}
       for(const id of ids)exigir(pesoInventario(atores[id])<=capacidadeCargaAtual(atores[id])+1e-8,'A troca ultrapassa a capacidade de carga de '+atores[id].nome+'.');
       s.comercio.trocas=s.comercio.trocas.filter(x=>x!==t);msg=atores[ids[0]].nome+' e '+atores[ids[1]].nome+' concluíram a troca.';break;
@@ -2237,7 +2240,7 @@ export async function aplicar(s,c,u,rolar) {
       const unitario=precoCompraPc(itemLoja,estado.descontoPct),total=unitario*quantidade,saldo=saldoMoedasPc(a);
       exigir(saldo>=total,'PO insuficientes para esta compra.');
       definirSaldoMoedasPc(a,saldo-total);
-      const item=structuredClone(itemLoja);item.id=crypto.randomUUID();item.quantidade=quantidade;item.equipado=false;delete item.equipadoSlot;delete item.ref;delete item.ajustes;
+      const item=structuredClone(itemLoja);item.id=idDoEstado(s);item.quantidade=quantidade;item.equipado=false;delete item.equipadoSlot;delete item.ref;delete item.ajustes;
       adicionarItemInventario(a,item);
       exigir(pesoInventario(a)<=capacidadeCargaAtual(a)+1e-8,'A compra ultrapassa a capacidade de carga.');
       msg=a.nome+' comprou '+quantidade+'× '+item.nome+' por '+(total/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO na '+loja.nome+'.';break;
@@ -2249,10 +2252,10 @@ export async function aplicar(s,c,u,rolar) {
       exigir(inteiro(quantidade,1,Math.floor(item.quantidade)),'Quantidade de venda inválida.');
       const unitario=precoVendaPc(item),total=unitario*quantidade,saldo=saldoMoedasPc(a),vendido=structuredClone(item);
       vendido.quantidade=quantidade;vendido.equipado=false;delete vendido.equipadoSlot;
-      if(quantidade!==item.quantidade)vendido.id=crypto.randomUUID();
+      if(quantidade!==item.quantidade)vendido.id=idDoEstado(s);
       retirarQuantidadeItem(a,item,quantidade);definirSaldoMoedasPc(a,saldo+total);
       exigir(pesoInventario(a)<=capacidadeCargaAtual(a)+1e-8,'As moedas recebidas ultrapassam a capacidade de carga.');
-      const lista=estado.recomprasPorAtor[a.id]??=[];lista.push({id:crypto.randomUUID(),instancia:compactarInstanciaItem(vendido),precoPc:total,vendidoEm:Date.now()});
+      const lista=estado.recomprasPorAtor[a.id]??=[];lista.push({id:idDoEstado(s),instancia:compactarInstanciaItem(vendido),precoPc:total,vendidoEm:agoraDoEstado(s)});
       msg=a.nome+' vendeu '+quantidade+'× '+vendido.nome+' por '+(total/100).toLocaleString('pt-BR',{maximumFractionDigits:2})+' PO na '+loja.nome+'.';break;
     }
     case 'recomprar': {
@@ -2266,7 +2269,7 @@ export async function aplicar(s,c,u,rolar) {
     }
     case 'gmAdicionarItem': {
       exigir(a&&inteiro(c.quantidade,1,9999),'Quantidade de item inválida.');
-      const item=resolverInstanciaItem({id:crypto.randomUUID(),ref:c.itemRef,quantidade:c.quantidade});
+      const item=resolverInstanciaItem({id:idDoEstado(s),ref:c.itemRef,quantidade:c.quantidade});
       exigir(item&&item.tipo!=='moeda','Escolha um item do catálogo. Para moedas, use Adicionar PO.');
       item.equipado=false;delete item.equipadoSlot;
       adicionarItemInventario(a,item);
@@ -2662,7 +2665,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       if(rule?.tipo==='prototipo'){msg+=' • '+await executarPrototipo(s,a,o,c,apiPrototipo,{concentracaoId});break;}
       if(rule?.tipo==='saque'){
         const r=c.recipienteId?recipientePorId(s,c.recipienteId):null;
-        a.saqueAberto=r?{id:crypto.randomUUID(),nome:r.nome,origem:{tipo:r.tipo,id:r.id},itens:structuredClone(r.itens)}:{id:crypto.randomUUID(),alvoId:c.alvo,origem:{tipo:'personagem',id:c.alvo}};
+        a.saqueAberto=r?{id:idDoEstado(s),nome:r.nome,origem:{tipo:r.tipo,id:r.id},itens:structuredClone(r.itens)}:{id:idDoEstado(s),alvoId:c.alvo,origem:{tipo:'personagem',id:c.alvo}};
         msg+=' • escolha os pertences para levar.';break;
       }
       if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}
@@ -2686,7 +2689,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const duracao=rule.turnos?{restante:rule.turnos,expira:'inicio_origem'}:undefined;
         if(rule.tipo==='peca'){
           s.pecas=(s.pecas??[]).filter(p=>!(p.opcaoId===o.id&&p.origemAtorId===a.id));
-          s.pecas.push({id:crypto.randomUUID(),nome:rule.peca?.nome??o.nome,opcaoId:o.id,origemAtorId:a.id,posicao:{x:ponto.x,y:ponto.y},tamanhoM:rule.peca?.tamanhoM??1.5,imagem:rule.peca?.imagem??'assets/tokens/invocacao-padrao.png',duracao,concentracaoId:concentracaoId??undefined});
+          s.pecas.push({id:idDoEstado(s),nome:rule.peca?.nome??o.nome,opcaoId:o.id,origemAtorId:a.id,posicao:{x:ponto.x,y:ponto.y},tamanhoM:rule.peca?.tamanhoM??1.5,imagem:rule.peca?.imagem??'assets/tokens/invocacao-padrao.png',duracao,concentracaoId:concentracaoId??undefined});
           msg+=' • peça visual criada';break;
         }
         for(const antiga of s.atores.filter(x=>x.invocacao?.origemAtorId===a.id&&x.invocacao.opcaoId===o.id))encerrarInvocacao(s,antiga,'substituída');
@@ -2794,9 +2797,9 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           for(const g of [...escolhidos,...usadosRerrolagem])for(const custo of g.custo??[]){const bag=custo.tipo==='recurso'?a.rec:a,key=custo.tipo==='recurso'?custo.id:custo.tipo;exigir(bag[key]>=custo.quantidade,'Saldo insuficiente para '+g.nome);bag[key]-=custo.quantidade;}
           for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
           if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(ataqueInstancia,r,rolagem);
-          const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],valores=[parcelas[0].total,...escolhidos.map((g,j)=>(parcelas[j+1]??{total:0}).total)],pacotes=[{valor:valores[0],tipo:r.elemento,tags},...escolhidos.filter(g=>!g.aprimoramento.salvaArea).map((g,j)=>({valor:valores[escolhidos.indexOf(g)+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags}))];
+          const parcelas=parcelasPorFonte(rolagem,escolhidos),valores=[parcelas[0].total,...escolhidos.map((g,j)=>(parcelas[j+1]??{total:0}).total)],pacotes=[{valor:valores[0],tipo:r.elemento,tags},...escolhidos.filter(g=>!g.aprimoramento.salvaArea).map((g,j)=>({valor:valores[escolhidos.indexOf(g)+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags}))];
           const dano=await aplicarDanoNoAtor(p,pacotes.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:pacotes});
-          msg+=' • '+(critico?'crítico · ':'')+dano+' PV'+escolhidos.map((g,j)=>' + '+valores[j+1]+' '+g.nome).join('');
+          msg+=' • '+(critico?'crítico · ':'')+dano+' PV'+escolhidos.map((g,j)=>' • '+g.nome+': '+valores[j+1]+' bruto'+(g.aprimoramento.salvaArea?' em área, antes das salvaguardas':' já incluídos no dano direto')).join('');
           msg+=notaFaces;
           msg+=await explodirDados(r,p,parcelas[0],tags,modo.nome);
           for(let j=0;j<escolhidos.length;j++){
@@ -2844,7 +2847,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       validarRequisitosUso(s,a,o,afetados[0]);
       // M05 #44: a magia deixa uma zona persistente com identidade, origem, geometria, duração e concentração.
       if(rule.zona&&temArea){
-        const area=rule.area??{forma:'circulo',raioM:rule.raioM},zid=crypto.randomUUID();
+        const area=rule.area??{forma:'circulo',raioM:rule.raioM},zid=idDoEstado(s);
         s.zonas=(s.zonas??[]).filter(z=>!(z.opcaoId===o.id&&z.origemAtorId===a.id&&!z.concentracaoId));
         s.zonas.push({id:zid,nome:rule.zona.nome??o.nome,opcaoId:o.id,origemAtorId:a.id,origemNome:a.nome,cor:rule.zona.cor,
           geometria:{...structuredClone(area),...(areaDirecional?{origem:{x:a.x,y:a.y}}:{})},centro:{x:centro.x,y:centro.y},
@@ -2986,7 +2989,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         }
         // M06 Força Fantasmagórica: token público da ilusão; se marcada "Ilusão causa dano" e o alvo falhou, o conjurador ganha o dano gratuito.
         if(rule.ilusao&&afetados.length===1){
-          const p=afetados[0],il=rule.ilusao,pecaId=crypto.randomUUID(),ponto=c.ponto&&Number.isFinite(c.ponto.x)&&Number.isFinite(c.ponto.y)?c.ponto:{x:p.x,y:p.y},turnos=rule.efeitoFalha?.turnos??10,nomeIlusao=il.peca?.nome??o.nome;
+          const p=afetados[0],il=rule.ilusao,pecaId=idDoEstado(s),ponto=c.ponto&&Number.isFinite(c.ponto.x)&&Number.isFinite(c.ponto.y)?c.ponto:{x:p.x,y:p.y},turnos=rule.efeitoFalha?.turnos??10,nomeIlusao=il.peca?.nome??o.nome;
           s.pecas=(s.pecas??[]).filter(x=>!(x.opcaoId===o.id&&x.origemAtorId===a.id));
           s.pecas.push({id:pecaId,nome:nomeIlusao,opcaoId:o.id,origemAtorId:a.id,posicao:{x:ponto.x,y:ponto.y},tamanhoM:il.peca?.tamanhoM??1.5,imagem:il.peca?.imagem??'assets/tokens/invocacao-padrao.png',duracao:{restante:turnos,expira:'inicio_origem'},concentracaoId:concentracaoId??undefined});
           a.efeitosAtivos=(a.efeitosAtivos??[]).filter(x=>x.ilusao?.opcaoId!==o.id);
@@ -3040,12 +3043,12 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
       if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(o,rule,rolagem);
-      const parcelas=rolagem.resultados?.length?rolagem.resultados:[rolagem],base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
+      const parcelas=parcelasPorFonte(rolagem,escolhidos),base=parcelas[0],valoresBrutos=[base.total,...escolhidos.map((g,i)=>(parcelas[i+1]??{total:0}).total)],parcelasDiretas=[{valor:base.total,tipo:rule.elemento,tags:tagsDano},...escolhidos.flatMap((g,i)=>g.aprimoramento.salvaArea?[]:[{valor:valoresBrutos[i+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tagsDano}])];
       const danoDireto=await aplicarDanoNoAtor(p,parcelasDiretas.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:parcelasDiretas});msg+=' • '+p.nome+' perdeu '+danoDireto+' PV';
       msg+=notaFaces;
       msg+=await explodirDados(rule,p,base,tagsDano,o.nome);
       for(let i=0;i<escolhidos.length;i++){
-        const g=escolhidos[i];msg+=' + '+valoresBrutos[i+1]+' de '+g.nome;
+        const g=escolhidos[i];msg+=' • '+g.nome+': '+valoresBrutos[i+1]+' bruto'+(g.aprimoramento.salvaArea?' em área, antes das salvaguardas':' já incluídos no dano direto');
         if(g.aprimoramento.salvaArea){
           const area=g.aprimoramento.salvaArea,atingidos=s.atores.filter(x=>x.emCombate!==false&&x.pv>0&&distancia(x,p)<=area.raioM+1e-8);
           for(const alvoArea of atingidos){const bonus=alvoArea.ficha.salvaguardas?.[area.atributo]??mod(alvoArea.ficha.atributos[area.atributo]),rr=await rolarD20(bonus,alvoArea,{tipo:'salvaguarda',atributo:area.atributo,titulo:'Salvaguarda · '+g.nome,alvo:alvoArea.nome,cd:area.cd,destinoId:alvoArea.ficha.tipo==='pj'&&alvoArea.dono?alvoArea.dono:'GM',roladorNome:alvoArea.nome}),bruto=rr.total>=area.cd&&area.metade?Math.floor(valoresBrutos[i+1]/2):rr.total>=area.cd?0:valoresBrutos[i+1],recebido=bruto?await aplicarDanoNoAtor(alvoArea,bruto,g.aprimoramento.elemento,{origem:a,parcelas:[{valor:bruto,tipo:g.aprimoramento.elemento,tags:['magia','area']}]}):0;msg+=' • '+alvoArea.nome+' '+(rr.total>=area.cd?'passou':'falhou')+' e perdeu '+recebido+' PV';}

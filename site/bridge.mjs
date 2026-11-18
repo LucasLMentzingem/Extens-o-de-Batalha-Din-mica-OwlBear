@@ -1,18 +1,36 @@
-import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.59';
-import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.59';
-import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.59';
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.59';
+import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.60';
+import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.60';
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.60';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.60';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.59';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.59';
-import {compactarEstado} from './catalog.mjs?v=0.8.59';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.59';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.59';
-import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast} from './room-sync.mjs?v=0.8.59';
-import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.59';
+import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.60';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.60';
+import {compactarEstado} from './catalog.mjs?v=0.8.60';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.60';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.60';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.60';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.60';
+import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.60';
+import {novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.60';
+import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.60';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.60';
 export const ns='aventura-dnd.combate.v1';
+let seloControle;
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
+async function enviarEventoRolagem(evento){
+  if(seloControle)evento={...evento,cena:seloControle.cena,geracao:seloControle.geracao};
+  const texto=JSON.stringify(evento);
+  if(new TextEncoder().encode(texto).length<12000)return OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
+  const seq=crypto.randomUUID(),partes=fatiarParaBroadcast(texto);
+  for(const [n,{i,parte}] of partes.entries())await OBR.broadcast.sendMessage(canais.roll,{fragmento:true,seq,i,parte,final:n===partes.length-1,cena:seloControle?.cena,geracao:seloControle?.geracao},{destination:'REMOTE'});
+}
 const chaveCena=ns+'/cena';
+async function controlaLocal(eu){const meta=await OBR.scene.getMetadata(),controle=meta[ns+'/controlador'];return eu.role==='GM'&&(!meta[ns+'/mestre']||meta[ns+'/mestre']===eu.id)&&(!controle||controle.connectionId===eu.connectionId);}
+async function mensagemDoControlador(e){
+ const meta=await OBR.scene.getMetadata(),p=(await OBR.party.getPlayers()).find(p=>p.role==='GM'&&p.connectionId===e.connectionId);
+ const controle=meta[ns+'/controlador'];
+ return !!p&&(!meta[ns+'/mestre']||meta[ns+'/mestre']===p.id)&&(!controle||controle.connectionId===e.connectionId)&&(!e.data?.geracao||e.data.geracao===controle?.geracao);
+}
 export const emSala=OBR.isAvailable;
 export const pronto=()=>new Promise(resolve=>OBR.onReady(resolve));
 const local=()=>new BroadcastChannel(ns+'/'+OBR.room.id);
@@ -24,7 +42,8 @@ const hidratar=s=>{
   }
   return s;
 };
-const persistir=(key,s)=>localStorage.setItem(key,JSON.stringify(compactarEstado(s)));
+const registrosExecucao=new Map();
+const persistir=(key,s)=>{const out=compactarEstado(s);delete out.__execucoes;const registro=registrosExecucao.get(key);if(registro)out.__execucoes=registro;localStorage.setItem(key,JSON.stringify(out));};
 export async function exemplos(){
   return Promise.all(['nikki','soldado'].map(async k=>{
     const r=await fetch('./fichas/'+k+'.json');if(!r.ok)throw Error('Falha ao carregar '+k);return r.json();
@@ -43,7 +62,7 @@ export async function demo(onView){
   const key=ns+'/ensaio';
   let s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo()),timerReacao;const sync=new BroadcastChannel(ns+'/ensaio-sync');
   const info={id:'mestre',role:'GM',players:[{id:'teste',name:'Jogador de teste'}],tokens:[],modo:'ensaio'};
-  const notify=()=>{
+  const notify=async()=>{
     clearTimeout(timerReacao);s.atores.forEach(a=>atualizarMagias(a.ficha));onView(s,info);
     if(s.reacaoPendente){const id=s.reacaoPendente.id;timerReacao=setTimeout(async()=>{
       if(s.reacaoPendente?.id!==id)return;const p=s.reacaoPendente;
@@ -72,27 +91,48 @@ function extrairResultado(result){
 // #24 Jogador ausente não trava a mesa: quem não está na sala tem a rolagem enviada direto ao mestre,
 // e uma janela sem resposta por 40 s passa para o mestre em vez de cancelar a jogada.
 const PASSAR_AO_MESTRE_MS=40000;
-function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={}){
+function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={},runtime={}){
   return (formula,meta={})=>new Promise((resolve,reject)=>{
-    const pedido=crypto.randomUUID();let destino=meta.destinoId==='GM'?mestreId:(meta.destinoId??usuario.id);
+    const pedido=runtime.pedido??crypto.randomUUID();let destino=runtime.snapshot?.destino??(meta.destinoId==='GM'?mestreId:(meta.destinoId??usuario.id));
     if(destino!==mestreId&&presentes&&!presentes.has(destino))destino=mestreId;
     const {destinoId:_destinoOculto,roladorNome,...metaPublica}=meta;
     if(meta.tipo==='ataque')delete metaPublica.cd;
+    let encerrado=false,ultimoEvento,etapaVersao=runtime.snapshot?.etapaVersao??0;
     const enviar=async d=>{
-      const evento={...d,...contexto,destino,donoRolagem:roladorNome??usuario.name};
+      if(encerrado&&d.tipo!=='fechar')return;
+      const repeticao=d===ultimoEvento||!ultimoEvento&&d.etapaVersao&&d.tipo===runtime.snapshot?.tipo;
+      if(!repeticao)etapaVersao++;
+      const respostaPropria=meta.tipo==='salvaguarda';
+      const evento={...d,...contexto,etapaVersao,atividadeId:respostaPropria?pedido:contexto.atividadeId,atividadeOrigemId:respostaPropria?contexto.atividadeId:undefined,atorId:respostaPropria?meta.atorRespondenteId??contexto.atorId:contexto.atorId,destino,donoRolagem:roladorNome??usuario.name};
+      ultimoEvento=evento;runtime.salvar?.(evento);
       ch.postMessage({rolagemPublica:evento});
-      await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
+      await enviarEventoRolagem(rolagemParaUsuario(evento,{role:'PLAYER'}));
     };
-    let fase='ajuste',resultado,recursosAtivos=(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado).map(x=>x.id),rerrolagensUsadas=[],metaResolucaoAtual=meta;
-    const timer=setTimeout(()=>finalizar(Error('A rolagem não foi confirmada a tempo.')),180000);
+    let fase=runtime.snapshot?.tipo==='resultado'?'resultado':runtime.snapshot?.tipo==='rolando'||runtime.snapshot?.tipo==='indeterminada'?'indeterminada':'ajuste',resultado=runtime.snapshot?.resultado,recursosAtivos=runtime.snapshot?.recursosAtivos??(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado).map(x=>x.id),rerrolagensUsadas=runtime.snapshot?.rerrolagensUsadas??[],metaResolucaoAtual={...meta,adicionais:(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id))};
+    if(fase==='indeterminada')destino=mestreId;
+    const timer=setTimeout(()=>{if(runtime.salvar){OBR.notification.show('Há uma resposta pendente há mais de 3 minutos. Abra as Atividades da mesa para assumir ou cancelar.','WARNING').catch(()=>{});}else finalizar(Error('A rolagem não foi confirmada a tempo.'));},180000);
     const passar=destino!==mestreId?setTimeout(()=>{
       if(fase!=='ajuste')return;
       Promise.resolve(enviar({tipo:'fechar',pedido})).catch(console.error);
       destino=mestreId;const p=pedidos.get(pedido);if(p)p.destino=mestreId;
       Promise.resolve(enviar({tipo:'ajuste',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,titulo:(metaPublica.titulo??'Rolagem')+' · sem resposta, rolando pelo jogador'}})).catch(console.error);
     },PASSAR_AO_MESTRE_MS):null;
-    function finalizar(erro,valor){clearTimeout(timer);clearTimeout(passar);pedidos.delete(pedido);Promise.resolve(enviar({tipo:'fechar',pedido})).catch(console.error);erro?reject(erro):resolve(valor);}
-    const responder=async resposta=>{
+    function finalizar(erro,valor){if(encerrado)return;runtime.concluir?.(erro,valor);encerrado=true;clearTimeout(timer);clearTimeout(passar);pedidos.delete(pedido);Promise.resolve(enviar({tipo:'fechar',pedido})).catch(console.error);erro?reject(erro):resolve(valor);}
+    const responder=async(resposta,autor={role:'GM'})=>{
+      if(encerrado)return;
+      if(resposta.etapaVersao!==etapaVersao)return;
+      if(resposta.manual&&autor.role!=='GM')return;
+      if(resposta.cancelar&&runtime.cancelar&&!runtime.cancelar(autor))return;
+      if(resposta.assumir){destino=mestreId;const p=pedidos.get(pedido);if(p)p.destino=mestreId;await enviar({...ultimoEvento,tipo:fase==='indeterminada'?'indeterminada':fase,assumida:true});return;}
+      if(fase==='indeterminada'&&resposta.manual){
+        const xs=resposta.manual.totais,extras=(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id)),bases=Array.isArray(formula)?formula:[formula],n=meta.combinarAdicionais?bases.length:bases.length+extras.length;
+        if(!Array.isArray(xs)||xs.length!==n||xs.some(x=>!Number.isFinite(x)||Math.abs(x)>100000))throw Error('Informe todos os resultados manuais.');
+        const natural=resposta.manual.natural;if((bases.length===1&&/d20/i.test(String(bases[0]))&&natural===undefined)||natural!==undefined&&(!Number.isInteger(natural)||natural<1||natural>20))throw Error('Informe a face natural do d20 entre 1 e 20.');
+        resultado={total:xs.reduce((a,b)=>a+b,0),natural,formula,resumo:'Resultado manual do mestre',manual:true,resultados:xs.map(total=>({total,manual:true}))};
+        if(['dano','dano-lote'].includes(meta.tipo))resultado=identificarParcelas(resultado,formula,extras);
+        const relatorios=relatoriosDaRolagem(resultado,{...meta,adicionais:extras});if(relatorios.length)resultado.relatoriosDano=relatorios;
+        fase='resultado';await enviar({tipo:'resultado',pedido,resultado,recursosAtivos,rerrolagensUsadas,status:'Resultado manual do mestre',meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});return;
+      }
       if(resposta.cancelar)return finalizar(Error('Rolagem cancelada.'));
       if(fase==='resultado'&&resposta.continuar)return finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});
       if(fase==='resultado'&&resposta.rerrolar){
@@ -110,7 +150,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={}){
           fase='rolando';
           try{
             await enviar({tipo:'rolando',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});
-            const notacao=trocas.map((d,i)=>'1d'+d.lados+'#'+opcao.nome+' · dado '+(i+1)).join(', '),novo=await executarDice({id:destino,name:roladorNome??usuario.name},notacao);
+            const notacao=trocas.map((d,i)=>'1d'+d.lados+'#'+opcao.nome+' · dado '+(i+1)).join(', '),novo=await executarDice({id:destino,name:roladorNome??usuario.name,role:destino===mestreId?'GM':'PLAYER',secreta:meta.secreta===true},notacao);
             const valores=(novo.grupos?.length?novo.grupos.map(g=>g.dice?.find(x=>x.kept!==false)?.value):(novo.resultados??[novo]).map(x=>x.total)).slice(0,trocas.length);
             if(valores.length!==trocas.length||valores.some(v=>!Number.isInteger(v)))throw Error('O Dice+ não devolveu todos os dados rerrolados.');
             resultado=aplicarRerrolagemParcial(resultado,trocas.map((d,i)=>({grupo:d.grupo,indice:d.indice,valor:valores[i]})),opcao.limiteDados??3);
@@ -146,7 +186,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={}){
         const indicesRolados=expressoesDice.map((f,i)=>i).filter(i=>!/^[-+]?\d+$/.test(expressoesDice[i]));
         const expressoesRoladas=indicesRolados.map(i=>expressoesDice[i]);
         const notacao=expressoesRoladas.length>1?indicesRolados.map(i=>expressoesDice[i]+'#'+tituloInstancia(i)).join(', '):expressoesRoladas[0];
-        resultado=notacao?await executarDice({id:destino,name:roladorNome??usuario.name},notacao):{total:0,grupos:[],resumo:'0'};
+        resultado=notacao?await executarDice({id:destino,name:roladorNome??usuario.name,role:destino===mestreId?'GM':'PLAYER',secreta:meta.secreta===true},notacao):{total:0,grupos:[],resumo:'0'};
         if(indicesRolados.length!==expressoesDice.length){
           const rolados=resultado.resultados??[resultado];let indice=0;
           const partes=expressoesDice.map(f=>/^[-+]?\d+$/.test(f)?{total:Number(f),formula:f,resumo:f,grupos:[]}:rolados[indice++]);
@@ -162,6 +202,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={}){
           resultado={...resultado,...melhor,total:melhor.total+restantes.reduce((n,x)=>n+x.total,0),resultados:[melhor,...restantes],alternativasDano:alternativas,modificadorDano:meta.modificadorDano,resumo:melhor.resumo};
         }
         if(Array.isArray(formula)&&expressoes.length===1&&!resultado.resultados)resultado={...resultado,resultados:[{total:resultado.total,natural:resultado.natural,formula:resultado.formula,resumo:resultado.resumo,grupos:resultado.grupos}]};
+        if(['dano','dano-lote'].includes(meta.tipo))resultado=identificarParcelas(resultado,Array.isArray(formula)?bases:bases[0],extras);
         const metaResolucao={...meta,adicionais:extras};metaResolucaoAtual=metaResolucao;
         ajustarFacesMinimasRolagem(resultado,meta.facesMinimasDano);
         const relatoriosDano=relatoriosDaRolagem(resultado,metaResolucao);
@@ -176,8 +217,9 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={}){
         fase='resultado';await enviar({tipo:'resultado',pedido,resultado,status,recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});
       }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:e.message});}
     };
-    pedidos.set(pedido,{destino,responder});
-    Promise.resolve(enviar({tipo:'ajuste',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica})).catch(finalizar);
+    pedidos.set(pedido,{destino,responder,fechar:()=>finalizar(Error('Rolagem cancelada.')),suspender:()=>{encerrado=true;clearTimeout(timer);clearTimeout(passar);pedidos.delete(pedido);resolve();},reexibir:(remoto=true)=>ultimoEvento&&(remoto?enviar(ultimoEvento):ch.postMessage({rolagemPublica:ultimoEvento}))});
+    const inicial=runtime.snapshot?{...runtime.snapshot,tipo:fase==='indeterminada'?'indeterminada':fase,pedido}:{tipo:'ajuste',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica};
+    Promise.resolve(enviar(inicial)).catch(finalizar);
   });
 }
 function validarNotacao(notation){
@@ -198,7 +240,7 @@ function executarDice(usuario,formula){
     });
     const offErr=OBR.broadcast.onMessage(ns+'/roll-error',e=>{if(e.data?.rollId===rollId)finish('Dice+ recusou a rolagem.');});
     const timer=setTimeout(()=>finish('Dice+ não respondeu. Confira a extensão antes de tentar novamente.'),20000);
-    OBR.broadcast.sendMessage('dice-plus/roll-request',{rollId,playerId:usuario.id,playerName:usuario.name,source:ns,timestamp:Date.now(),diceNotation:formula,rollTarget:'dm',showResults:false},{destination:'ALL'}).catch(e=>finish(e.message));
+    OBR.broadcast.sendMessage('dice-plus/roll-request',{rollId,playerId:usuario.id,playerName:usuario.name,source:ns,timestamp:Date.now(),diceNotation:formula,rollTarget:destinoDicePublico(usuario),showResults:false},{destination:'ALL'}).catch(e=>finish(e.message));
   });
 }
 // M06 (#45): o mestre cria o token de cada entidade invocada (id fixo, sem duplicar) e apaga o de quem acabou.
@@ -225,7 +267,13 @@ const sincronizarTokensRecipientes=criarSincronizadorRecipientes({items:OBR.scen
 const sincronizarTokensReanimados=criarSincronizadorTokensReanimados({items:OBR.scene.items,baseUrl:location.href});
 export async function host(){
   await pronto();const eu=await identidade();if(eu.role!=='GM')return;
+  if(await OBR.scene.isReady()){const meta=await OBR.scene.getMetadata();if(meta[ns+'/mestre']&&meta[ns+'/mestre']!==eu.id)return;}
+  if(!await adquirirControleLocal(ns+'/controlador/'+OBR.room.id))return;
+  const geracao=crypto.randomUUID();let cenaControle;
   const ch=local();let fila=Promise.resolve(),timerReacao,cenaCalibrada,timerProps,pausaPropsAte=0,ultimoAvisoProps=0;const pedidos=new Map();
+  const respostasExecucao=new Map(),rolagensEmCurso=new Set();let chaveAtiva;
+  const avaliadas=new Map();
+  let ultimaVistaPublica,filaDeVistas=Promise.resolve();const confirmacoesVista=new Map();
   const serial=fn=>{fila=fila.then(fn).catch(e=>console.error(e));};
   async function carregar(){
     if(!await OBR.scene.isReady())throw Error('Abra uma cena primeiro.');
@@ -239,8 +287,29 @@ export async function host(){
       id=id||crypto.randomUUID();await OBR.scene.setMetadata({[chaveCena]:id,[autoridade]:eu.id});
     }
     const key=ns+'/'+OBR.room.id+'/'+id;
-    const bruto=localStorage.getItem(key);
-    const recuperado=recuperarEstado(JSON.parse(bruto||'null')??novo()),s=recuperado.estado;
+    if(chaveAtiva&&chaveAtiva!==key){
+      // O diário já está salvo. Encerrar só as janelas/callbacks da cena antiga;
+      // voltar a ela restaura o pedido conhecido, sem uma segunda rolagem.
+      for(const p of pedidos.values())p.suspender?.();
+      rolagensEmCurso.clear();avaliadas.clear();registrosExecucao.delete(chaveAtiva);
+      for(const [id,reply] of respostasExecucao){reply({erro:'Jogada pausada na cena anterior. Retorne àquela cena para retomá-la.'});respostasExecucao.delete(id);}
+      ultimaVistaPublica=undefined;confirmacoesVista.clear();
+    }
+    if(cenaControle!==id){
+      const anterior=meta[ns+'/controlador'];
+      if(anterior&&anterior.connectionId!==eu.connectionId){
+        if((await OBR.party.getPlayers()).some(p=>p.connectionId===anterior.connectionId))throw Error('O controlador desta cena ainda está conectado em outra instância.');
+        if(!localStorage.getItem(key))throw Error('Importe o backup desta cena antes de assumir o controle em outro navegador.');
+      }
+      seloControle={cena:key,connectionId:eu.connectionId,geracao};
+      await OBR.scene.setMetadata({[ns+'/controlador']:seloControle});cenaControle=id;
+    }else if(meta[ns+'/controlador']?.geracao!==geracao)throw Error('Esta geração do controlador foi encerrada. Reabra a extensão.');
+    const bruto=localStorage.getItem(key),salvo=JSON.parse(bruto||'null')??novo();
+    if(!registrosExecucao.has(key)){
+      const r=salvo.__execucoes??novoRegistroExecucoes();if(r.formato!==1)throw Error('Formato de execução incompatível. Exporte o backup antes de continuar.');registrosExecucao.set(key,r);
+    }
+    delete salvo.__execucoes;chaveAtiva=key;
+    const recuperado=recuperarEstado(salvo),s=recuperado.estado;
     if(recuperado.novas.length){
       // Falhar a cópia impede gravar qualquer migração parcial.
       localStorage.setItem(key+'/backup-recuperacao/'+Date.now(),bruto);
@@ -269,10 +338,16 @@ export async function host(){
       const ids=new Set(ocultos.map(a=>a.id));const ativo=v.ordem[v.vez];
       v.atores=v.atores.filter(a=>!ids.has(a.id));v.ordem=v.ordem.filter(id=>!ids.has(id));v.vez=v.ordem.indexOf(ativo);v.historico=[];
     }
-    const dados=JSON.stringify(v), seq=crypto.randomUUID();
-    // Partes medidas em bytes (UTF-8 + escapes JSON) abaixo do limite de 16 KB do broadcast.
-    const partes=fatiarParaBroadcast(dados);
-    for(const [n,{i,parte}] of partes.entries())await OBR.broadcast.sendMessage(canais.view,{seq,i,final:n===partes.length-1,parte},{destination:'REMOTE'});
+    const transmitir=async()=>{
+      if(ultimaVistaPublica&&v.rev<ultimaVistaPublica.estado.rev)return {seq:ultimaVistaPublica.seq,rev:ultimaVistaPublica.estado.rev};
+      const seq=crypto.randomUUID(),completo=JSON.stringify(v);
+      const delta=!consulta&&ultimaVistaPublica?{tipo:'delta',seq,baseSeq:ultimaVistaPublica.seq,baseRev:ultimaVistaPublica.estado.rev,rev:v.rev,delta:deltaDeEstado(ultimaVistaPublica.estado,v)}:null;
+      const dados=delta&&JSON.stringify(delta).length<completo.length*.75?JSON.stringify(delta):completo;
+      const partes=fatiarParaBroadcast(dados);
+      for(const [n,{i,parte}] of partes.entries())await OBR.broadcast.sendMessage(canais.view,{seq,cena:chaveAtiva,geracao:seloControle?.geracao,i,final:n===partes.length-1,parte},{destination:'REMOTE'});
+      ultimaVistaPublica={seq,estado:v};return {seq,rev:v.rev};
+    };
+    const envio=filaDeVistas.then(transmitir);filaDeVistas=envio.catch(()=>{ultimaVistaPublica=null;});return envio;
   }
   async function sincronizarNpcs(){
     const {key,s}=await carregar();
@@ -304,9 +379,11 @@ export async function host(){
     if(!token||!(await OBR.scene.items.getItems([token])).some(i=>i.id===token))return;
     await OBR.scene.items.updateItems([token],items=>{for(const i of items){if(i.metadata){delete i.metadata[chaveFichaNpc];if(typeof i.metadata[chaveBloqueioNpc]==='boolean')i.locked=i.metadata[chaveBloqueioNpc];delete i.metadata[chaveBloqueioNpc];}}});
   }
-  async function executar(c,u,reply){
+  async function executar(c,u,reply,execucao=null){
+    let chaveExecucao;
     try{
       const {key,s}=await carregar();
+      chaveExecucao=key;
       if(c.tipo==='sync'){await mostrar(await sincronizarNpcs());await reply({});return;}
       if(c.tipo==='excluirFichaIsolada'){
         const registro=excluirFichaIsolada(s,c.registroId,u,c);
@@ -371,7 +448,27 @@ export async function host(){
       }
       const faseAntes=s.fase;
       const presentes=new Set([eu.id,...(await OBR.party.getPlayers()).map(p=>p.id)]);
-      const next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes,{atividadeId:c.atividadeId,atorId:c.ator}));
+      let next;
+      if(execucao){
+        const registro=registrosExecucao.get(key);
+        if(!iniciarExecucao(registro,execucao,s)){salvarRegistro(key);await anunciarExecucao(execucao,s);return;}
+        const passo=await avancarExecucao(registro,execucao);
+        salvarRegistro(key);
+        if(passo?.pedido){
+          await anunciarExecucao(execucao,s);
+          for(const r of passo.pedidos??[passo.pedido])abrirPedidoExecucao(key,execucao,r,presentes);
+          return;
+        }
+        if(!passo)return;
+        const atual=await carregar();if(atual.key!==key)throw Error('A cena mudou antes de aplicar a execução.');
+        for(const a of atual.s.atores){const t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/pixelsMetro;a.y=t.y/pixelsMetro;}}
+        validarDependenciasExecucao(execucao,passo.base,atual.s);next=aplicarResultadoExecucao(passo.base,passo.next,atual.s);
+        const etapa=structuredClone(registro),concluida=etapa.lista.find(e=>e.id===execucao.id);encerrarExecucao(etapa,concluida,'Concluída');
+        const documento=compactarEstado(next);documento.__execucoes=etapa;
+        localStorage.setItem(key,JSON.stringify(documento)); // mundo e recibo no mesmo ponto de gravação
+        const anteriores=new Map(registro.lista.map(e=>[e.id,e]));Object.assign(registro,etapa);
+        registro.lista=etapa.lista.map(e=>{const anterior=anteriores.get(e.id);if(!anterior)return e;if(e.id!==execucao.id)return anterior;Object.assign(anterior,e);delete anterior.baseRef;return anterior;});
+      }else next=await aplicar(s,{...c,ensaio:false},u,dadoSala(u,ch,pedidos,eu.id,presentes,{atividadeId:c.atividadeId,atorId:c.ator}));
       if(propNovo){
         const lado=500,token=buildImage({url:new URL('./assets/props/bau-madeira-saque-75graus.webp',location.href).href,mime:'image/webp',width:lado,height:lado},{dpi:lado/.9,offset:{x:lado/2,y:lado/2}})
           .id(propNovo.tokenId).name('Baú de madeira').layer('PROP').position(propNovo.posicao).build();
@@ -426,47 +523,140 @@ export async function host(){
         }).filter(a=>a.pvPerdido||a.pvTemporarios);
         const evento={tipo:'atividade-aplicada',atividadeId:c.atividadeId,alvos};ch.postMessage({rolagemPublica:evento});await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
       }
+      if(execucao)await anunciarExecucao(execucao,next);
       await reply({});
-    }catch(e){await reply({erro:e.message});}
+    }catch(e){
+      if(execucao){
+        if(chaveExecucao!==chaveAtiva){await reply({erro:'Jogada pausada na cena anterior. Retorne àquela cena para retomá-la.'});return;}
+        const registro=registrosExecucao.get(chaveExecucao??chaveAtiva);
+        if(execucao.estado==='Concluída'){console.warn('Execução salva; apresentação pendente:',e);await reply({});return;}
+        encerrarExecucao(registro,execucao,'Falhou',e.message);salvarRegistro(chaveExecucao??chaveAtiva);
+        try{if(chaveExecucao===chaveAtiva)await anunciarExecucao(execucao,(await carregar()).s);}catch{}
+      }
+      await reply({erro:e.message});
+    }
+  }
+  function salvarRegistro(key){
+    if(!registrosExecucao.has(key))throw Error('O registro desta cena está pausado.');
+    const salvo=JSON.parse(localStorage.getItem(key)||'null');
+    if(!salvo)throw Error('A mesa ainda não foi salva. Sincronize antes de continuar.');
+    salvo.__execucoes=registrosExecucao.get(key);localStorage.setItem(key,JSON.stringify(salvo));
+  }
+  async function anunciarExecucao(e,s){
+    const resumo=resumoExecucao(e,s),evento={tipo:'execucao',execucao:resumo};
+    ch.postMessage({rolagemPublica:evento});
+    const a=s.atores.find(x=>x.id===e.atorId),tokens=await getTokens();
+    if(!a||!a.token||tokens.some(t=>t.id===a.token&&t.visible))await enviarEventoRolagem(evento);
+  }
+  async function anunciarRegistro(s,{remoto=true}={}){
+    const registro=registrosExecucao.get(chaveAtiva);if(!registro)return;
+    const tokens=await getTokens(),visiveis=new Set(tokens.filter(t=>t.visible).map(t=>t.id));
+    const lista=registro.lista.map(e=>resumoExecucao(e,s));
+    ch.postMessage({rolagemPublica:{tipo:'lista-execucoes',execucoes:lista}});
+    if(remoto)await enviarEventoRolagem({tipo:'lista-execucoes',execucoes:lista.filter(e=>{const a=s.atores.find(x=>x.id===e.atorId);return !a?.token||visiveis.has(a.token);})});
+    for(const p of pedidos.values())await p.reexibir?.(remoto);
+  }
+  function abrirPedidoExecucao(key,e,r,presentes){
+    if(r.resultado||rolagensEmCurso.has(r.id)||encerrada(e))return;
+    rolagensEmCurso.add(r.id);
+    const registro=registrosExecucao.get(key);
+    const runtime={pedido:r.id,snapshot:r.snapshot,
+      salvar:evento=>{if(evento.tipo==='fechar')return;r.snapshot=structuredClone(evento);if(evento.tipo==='rolando')r.dadosLancados=true;e.estado=evento.tipo==='resultado'?'Resultado disponível':evento.tipo==='indeterminada'?'Resultado desconhecido':evento.tipo==='rolando'?'Em andamento':'Aguardando resposta';e.versao++;registro.versao++;salvarRegistro(key);},
+      concluir:(erro,valor)=>{if(!erro&&!encerrada(e)){r.resultado=structuredClone(valor);e.estado='Em andamento';e.versao++;registro.versao++;salvarRegistro(key);}},
+      cancelar:autor=>{
+        const resultado=cancelarExecucao(registro,e.id,autor);salvarRegistro(key);
+        serial(async()=>{const {s}=await carregar();await anunciarExecucao(e,s);if(resultado.terminal){respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);await bombear();}});
+        return resultado.terminal===true;
+      }
+    };
+    const rolar=dadoSala(e.usuario,ch,pedidos,eu.id,presentes,{atividadeId:e.atividadeId,atorId:e.atorId,execucaoId:e.id},runtime);
+    rolar(r.formula,r.meta).then(()=>serial(async()=>{rolagensEmCurso.delete(r.id);if(key===chaveAtiva&&!encerrada(e))await bombear();}),err=>serial(async()=>{
+      rolagensEmCurso.delete(r.id);if(encerrada(e))return;
+      encerrarExecucao(registro,e,'Falhou',err.message);salvarRegistro(key);respostasExecucao.get(e.id)?.({erro:err.message});respostasExecucao.delete(e.id);
+      if(key===chaveAtiva){await anunciarExecucao(e,(await carregar()).s);await bombear();}
+    }));
+  }
+  async function bombear(){
+    if(!await OBR.scene.isReady())return;
+    const {key,s}=await carregar(),registro=registrosExecucao.get(key);
+    const vivas=new Set(registro.lista.filter(e=>!encerrada(e)).map(e=>e.id));for(const id of avaliadas.keys())if(!vivas.has(id))avaliadas.delete(id);
+    for(const e of [...registro.lista]){
+      if(encerrada(e))continue;
+      if(!e.iniciadaEm&&!podeIniciarExecucao(registro,e)){
+        if(e.estado!=='Na fila'){e.estado='Na fila';e.motivo='Aguardando personagem, alvo ou turno de outra execução.';e.versao++;registro.versao++;salvarRegistro(key);await anunciarExecucao(e,s);}
+        continue;
+      }
+      const assinatura=e.rolagens.map(r=>!!r.resultado).join(',');
+      if(e.iniciadaEm&&avaliadas.get(e.id)===assinatura)continue;
+      const versao=e.versao;
+      await executar(e.comando,e.usuario,resposta=>{respostasExecucao.get(e.id)?.(resposta);respostasExecucao.delete(e.id);},e);
+      // Respostas podem chegar durante os awaits de publicação. Marcar somente
+      // o diário examinado, para não engolir uma confirmação concorrente.
+      if(e.iniciadaEm&&!encerrada(e))avaliadas.set(e.id,assinatura);
+      if(e.estado==='Na fila'&&e.versao===versao)continue;
+    }
+  }
+  async function encaminhar(c,u,req,reply){
+    const {key,s}=await carregar(),registro=registrosExecucao.get(key);
+    if(c.tipo==='estadoExecucao'){
+      const e=registro.lista.find(x=>x.id===c.execucaoId)??registro.encerramentos?.[c.execucaoId];
+      if(!e||u.role!=='GM'&&e.usuario.id!==u.id){await reply({consultaExecucao:c.execucaoId,erro:'Execução não encontrada para este usuário.'});return;}
+      await reply({consultaExecucao:e.id,...(encerrada(e)?{erro:e.estado==='Concluída'?undefined:e.erro??e.estado}:{recebida:true})});return;
+    }
+    if(c.tipo==='cancelarExecucao'){
+      const {execucao:e,terminal}=cancelarExecucao(registro,c.execucaoId,u,{confirmado:c.confirmado===true});salvarRegistro(key);
+      if(terminal){for(const r of e.rolagens)pedidos.get(r.id)?.fechar();respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);}
+      await anunciarExecucao(e,s);await reply({});await bombear();return;
+    }
+    if(['excluirFichaIsolada','criarPeca','criarRecipiente','vincular'].includes(c.tipo)){await executar(c,u,reply);await bombear();return;}
+    const intencao={...c,ensaio:false,atividadeId:c.atividadeId??req};
+    const existia=registro.lista.some(e=>e.id===req)||registro.encerramentos?.[req];
+    const e=admitirExecucao(registro,intencao,u,req,s);
+    if(encerrada(e)){await reply(e.estado==='Concluída'?{}:{erro:e.erro??e.estado});return;}
+    if(!existia){try{persistir(key,s);}catch(err){registro.lista=registro.lista.filter(x=>x!==e);registro.versao--;throw err;}}
+    respostasExecucao.set(e.id,reply);
+    await reply({recebida:true,execucaoId:e.id});await anunciarExecucao(e,s);await bombear();
   }
   // Várias consultas seguidas (reenvios, mais de um jogador entrando) reaproveitam a mesma transmissão
   // da vista em vez de retransmitir a mesa inteira para todos a cada pedido.
   let difusao=null;
-  async function responderSync(reply,{remoto=true}={}){
+  async function responderSync(reply,{remoto=true,destinatarioId,sequenciaRecebida}={}){
     try{
       const {s}=await carregar();
-      if(!remoto){await mostrar(s,true,{remoto:false});await reply({});return;}
+      if(!remoto){await mostrar(s,true,{remoto:false});await anunciarRegistro(s,{remoto:false});serial(()=>bombear());await reply({});return;}
       const d=difusao;
-      if(!(d&&d.rev===s.rev&&(d.emCurso||Date.now()-d.fim<3000))){
+      if(!(d&&d.rev===s.rev&&sequenciaRecebida===d.seq&&confirmacoesVista.get(destinatarioId)?.seq===d.seq&&Date.now()-d.fim<3000)){
         const nova={rev:s.rev,emCurso:true,fim:0};
-        nova.promessa=mostrar(s,true).finally(()=>{nova.emCurso=false;nova.fim=Date.now();});
+        nova.promessa=mostrar(s,true).then(v=>{nova.seq=v.seq;return v;}).finally(()=>{nova.emCurso=false;nova.fim=Date.now();});
         difusao=nova;
       }
-      await difusao.promessa;await reply({});
+      await difusao.promessa;await anunciarRegistro(s);serial(()=>bombear());await reply({});
     }
     catch(e){await reply({erro:e.message});}
   }
-  ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply);else if(e.data.comando){const reply=r=>ch.postMessage({...r,resposta:e.data.req});if(e.data.comando.tipo==='sync')responderSync(reply,{remoto:false}).catch(console.error);else serial(()=>executar(e.data.comando,eu,reply));}};
+  const agendar=(c,u,req,reply)=>serial(async()=>{try{await encaminhar(c,u,req,reply);}catch(e){await reply({erro:e.message});}});
+  ch.onmessage=e=>{if(e.data.rollReply&&pedidos.has(e.data.rollReply.pedido))Promise.resolve(pedidos.get(e.data.rollReply.pedido).responder(e.data.rollReply,eu)).catch(err=>OBR.notification.show(err.message,'ERROR'));else if(e.data.comando){const reply=r=>ch.postMessage({...r,resposta:e.data.req});if(e.data.comando.tipo==='sync')responderSync(reply,{remoto:false}).catch(console.error);else agendar(e.data.comando,eu,e.data.req,reply);}};
   OBR.broadcast.onMessage(canais.cmd,e=>{
     const receber=async()=>{
     const u=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
-    if(!u||u.role!=='PLAYER')return;
+    if(!u||!['PLAYER','GM'].includes(u.role))return;
     const reply=r=>OBR.broadcast.sendMessage(ns+'/resposta',{...r,resposta:e.data.req},{destination:'REMOTE'});
-    if(e.data.comando?.tipo==='sync')await responderSync(reply);
-    else serial(()=>executar(e.data.comando,u,reply));
+    if(e.data.comando?.tipo==='syncAck'){confirmacoesVista.set(u.id,{seq:e.data.comando.seq,rev:e.data.comando.rev});return;}
+    if(e.data.comando?.tipo==='sync')await responderSync(reply,{destinatarioId:u.id,sequenciaRecebida:e.data.comando.sequenciaRecebida});
+    else agendar(e.data.comando,u,e.data.req,reply);
     };
     receber().catch(console.error);
   });
   OBR.broadcast.onMessage(canais.rollReply,async e=>{
     const p=pedidos.get(e.data?.pedido),jogador=(await OBR.party.getPlayers()).find(x=>x.connectionId===e.connectionId);
-    if(p&&jogador?.id===p.destino)p.responder(e.data);
+    if(p&&(jogador?.id===p.destino||jogador?.role==='GM'))Promise.resolve(p.responder(e.data,jogador)).catch(err=>console.warn('Resposta recusada:',err.message));
   });
   const sync=()=>serial(async()=>{if(await OBR.scene.isReady()){
     const {key,s}=await carregar(),[itens,dpi]=await Promise.all([OBR.scene.items.getItems(),OBR.scene.grid.getDpi()]),pixelsMetro=pixelsPorMetro(dpi);let mudou=false;
     for(const r of s.recipientes??[]){const t=itens.find(i=>i.id===idSelecaoRecipiente(r))??itens.find(i=>i.id===r.tokenId);if(t){const x=t.position.x/pixelsMetro,y=t.position.y/pixelsMetro;if(r.posicaoM.x!==x||r.posicaoM.y!==y){r.posicaoM={x,y};mudou=true;}}}
     if(mudou)persistir(key,s);
     if(Date.now()>=pausaPropsAte)await sincronizarTokensRecipientes(s,pixelsMetro);
-    await mostrar(await sincronizarNpcs());
+    await mostrar(await sincronizarNpcs());await bombear();
   }});
   let assinaturaItens='',sincronizacaoAgendada=false,itensRecipienteNaCena=null;
   OBR.scene.items.onChange(itens=>{
@@ -516,55 +706,71 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.59',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.60',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.59',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.60',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }
 export async function sala(onView){
   await pronto();const eu=await identidade();const ch=local(),espera=new Map();
-  function receber(d){if(!d.resposta)return;const cb=espera.get(d.resposta);if(cb){espera.delete(d.resposta);cb(d.erro);}}
-  const montarEstado=receptorDeEstado();let ultimaRev=-1,recebeuVista=false;
-  const mestre=async e=>(await OBR.party.getPlayers()).some(p=>p.role==='GM'&&p.connectionId===e.connectionId);
+  function receber(d){const id=d.consultaExecucao??d.resposta;if(!id)return;const cb=espera.get(id);if(cb){if(!d.recebida)espera.delete(id);cb(d);}}
+  const montarEstado=receptorDeEstado();let ultimaRev=-1,recebeuVista=false,vistaAtual,ultimaSequencia;
+  const mestre=mensagemDoControlador;
   let fila=Promise.resolve();
   if(eu.role==='GM')ch.onmessage=e=>{receber(e.data);if(e.data.vista){recebeuVista=true;onView(e.data.vista,e.data.info);}};
-  else{
+  {
     OBR.broadcast.onMessage(ns+'/resposta',async e=>{if(await mestre(e))receber(e.data);});
     OBR.broadcast.onMessage(canais.view,e=>{fila=fila.then(async()=>{
       if(!await mestre(e))return;
-      const estado=montarEstado(e.data);
-      if(estado&&(estado.rev??0)>=ultimaRev){ultimaRev=estado.rev??0;recebeuVista=true;onView(estado,{...eu,modo:'sala',players:[],tokens:[]});}
+      const recebido=montarEstado(e.data);if(!recebido)return;
+      const meta=await OBR.scene.getMetadata(),cena=ns+'/'+OBR.room.id+'/'+meta[chaveCena];
+      if(e.data.cena&&e.data.cena!==cena)return;
+      if(recebido.tipo==='delta'&&(recebido.baseSeq!==ultimaSequencia||recebido.baseRev!==ultimaRev)){notify().catch(console.warn);return;}
+      const estado=recebido.tipo==='delta'?aplicarDeltaEstado(vistaAtual,recebido.delta):recebido;
+      if(estado&&(estado.rev??0)>=ultimaRev){ultimaRev=estado.rev??0;ultimaSequencia=e.data.seq;vistaAtual=estado;recebeuVista=true;onView(estado,{...eu,modo:'sala',players:[],tokens:[]});await OBR.broadcast.sendMessage(canais.cmd,{comando:{tipo:'syncAck',seq:ultimaSequencia,rev:ultimaRev}},{destination:'REMOTE'});}
     }).catch(console.error);});
   }
-  const send=(comando,req)=>eu.role==='GM'?ch.postMessage({comando,req}):OBR.broadcast.sendMessage(canais.cmd,{comando,req},{destination:'REMOTE'});
+  const send=async(comando,req)=>await controlaLocal(eu)?ch.postMessage({comando,req}):OBR.broadcast.sendMessage(canais.cmd,{comando,req},{destination:'REMOTE'});
+  const execucoesRecebidas=receptorDeEstado();
+  const receberExecucao=d=>{const lista=d.tipo==='lista-execucoes'?d.execucoes:d.tipo==='execucao'?[d.execucao]:[];for(const e of lista??[])if(encerrada(e))receber({resposta:e.id,erro:e.estado==='Concluída'?undefined:e.erro??e.estado});};
+  if(eu.role==='GM')ch.addEventListener('message',e=>{if(e.data.rolagemPublica)receberExecucao(e.data.rolagemPublica);});
+  OBR.broadcast.onMessage(canais.roll,async e=>{if(!await mestre(e))return;const d=e.data.fragmento?execucoesRecebidas(e.data):e.data;if(d)receberExecucao(d);});
   const enviar=async c=>{
     const req=crypto.randomUUID();
+    if(c.tipo!=='sync')c={...c,emitidaEm:Date.now()};
     return new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>{espera.delete(req);reject(Error(c.tipo==='sync'?'Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.':'Sem confirmação do mestre. Atualize antes de repetir.'));},c.tipo==='sync'?15000:60000);
-      espera.set(req,err=>{clearTimeout(timer);if(err){const e=Error(err);e.controladorRespondeu=true;reject(e);}else resolve();});
-      Promise.resolve(send(c,req)).catch(e=>{clearTimeout(timer);espera.delete(req);reject(e);});
+      let aceito=false,timer,reenvio;
+      const limpar=()=>{clearTimeout(timer);clearInterval(reenvio);};
+      if(c.tipo==='sync')timer=setTimeout(()=>{espera.delete(req);reject(Error('Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.'));},15000);
+      else reenvio=setInterval(()=>{if(aceito)Promise.resolve(send({tipo:'estadoExecucao',execucaoId:req},'consulta:'+req)).catch(()=>{});else Promise.resolve(send(c,req)).catch(()=>{});},10000);
+      espera.set(req,d=>{if(d.recebida){aceito=true;return;}limpar();if(d.erro){const e=Error(d.erro);e.controladorRespondeu=true;reject(e);}else resolve();});
+      Promise.resolve(send(c,req)).catch(e=>{if(c.tipo==='sync'){limpar();espera.delete(req);reject(e);}else OBR.notification.show('Reconectando: verificando o recebimento da jogada.','WARNING').catch(()=>{});});
     });
   };
   let syncEmCurso;
-  const notify=()=>syncEmCurso??(syncEmCurso=consultarComReenvio(async()=>{await enviar({tipo:'sync'});if(!recebeuVista)throw Error('Aguardando os dados da mesa.');}).finally(()=>{syncEmCurso=null;}));
+  const notify=()=>syncEmCurso??(syncEmCurso=consultarComReenvio(async()=>{await enviar({tipo:'sync',sequenciaRecebida:ultimaSequencia});if(!recebeuVista)throw Error('Aguardando os dados da mesa.');}).finally(()=>{syncEmCurso=null;}));
   OBR.party.onChange(()=>{notify().catch(console.warn);});
-  OBR.scene.onReadyChange(ready=>{ultimaRev=-1;recebeuVista=false;if(ready)notify().catch(console.warn);});
+  OBR.scene.onReadyChange(ready=>{ultimaRev=-1;recebeuVista=false;vistaAtual=null;ultimaSequencia=null;if(ready)notify().catch(console.warn);});
   return {notify,enviar,observarSelecao:fn=>OBR.player.onChange(p=>fn(p.selection?.[0])),selecionado:async()=>(await OBR.player.getSelection())?.[0]};
 }
 
 export async function interfaceRolagens(onEvent){
   await pronto();const eu=await identidade(),ch=local();
-  if(eu.role==='GM')ch.addEventListener('message',e=>{const d=e.data?.rolagemPublica;if(d?.pedido||d?.tipo==='atividade-aplicada')onEvent(d);});
-  else OBR.broadcast.onMessage(canais.roll,async e=>{
-    const mestre=(await OBR.party.getPlayers()).some(p=>p.role==='GM'&&p.connectionId===e.connectionId);
-    if(mestre&&(e.data?.pedido||e.data?.tipo==='atividade-aplicada')){
-      // #24 Aviso para o jogador quando uma salvaguarda chega para ele.
-      if(e.data.tipo==='ajuste'&&e.data.destino===eu.id&&e.data.meta?.tipo==='salvaguarda')Promise.resolve(OBR.notification.show('Salvaguarda para você: '+(e.data.meta.titulo??''),'WARNING')).catch(()=>{});
-      onEvent(e.data);
-    }
+  const montar=receptorDeEstado(),avisados=globalThis[Symbol.for(ns+'/avisos-rolagem')]??(globalThis[Symbol.for(ns+'/avisos-rolagem')]=new Set());
+  const versoes=new Map();
+  const entregar=d=>{
+    if(!d)return;
+    if(d.pedido&&Number.isInteger(d.etapaVersao)){versoes.set(d.pedido,d.etapaVersao);if(versoes.size>1024)versoes.delete(versoes.keys().next().value);}
+    if(d.tipo==='ajuste'&&d.destino===eu.id&&d.meta?.tipo==='salvaguarda'&&!avisados.has(d.pedido)){avisados.add(d.pedido);if(avisados.size>128)avisados.delete(avisados.values().next().value);OBR.notification.show('Salvaguarda pendente: '+(d.meta.titulo??''),'WARNING').catch(()=>{});}
+    if(d.pedido||['atividade-aplicada','execucao','lista-execucoes'].includes(d.tipo))onEvent(d);
+  };
+  if(eu.role==='GM')ch.addEventListener('message',e=>entregar(e.data?.rolagemPublica));
+  OBR.broadcast.onMessage(canais.roll,async e=>{
+    const mestre=await mensagemDoControlador(e);
+    if(mestre)entregar(e.data?.fragmento?montar(e.data):e.data);
   });
-  return resposta=>eu.role==='GM'?ch.postMessage({rollReply:resposta}):OBR.broadcast.sendMessage(canais.rollReply,resposta,{destination:'REMOTE'});
+  return async resposta=>{resposta={...resposta,etapaVersao:resposta.etapaVersao??versoes.get(resposta.pedido)};return await controlaLocal(eu)?ch.postMessage({rollReply:resposta}):OBR.broadcast.sendMessage(canais.rollReply,resposta,{destination:'REMOTE'});};
 }
 

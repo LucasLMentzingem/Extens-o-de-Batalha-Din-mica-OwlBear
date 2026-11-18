@@ -261,15 +261,15 @@ test('usos gratuitos pertencem à habilidade, são exclusivos na aba e precedem 
  await assert.rejects(aplicar(s,{tipo:'usar',rev:s.rev,ator:a.id,opcao:o.id,alvo:a.id,confirmado:true,modoCusto:'gratuito'},gm,async()=>1),/Saldo insuficiente/);
  assert.equal(s.atores[0].rec['espaco-1'],3,'a aba gratuita não pode cair silenciosamente no custo normal');
 });
-test('rolagens públicas preservam edição do dono e GM e resumem iniciativa e salvaguardas para observadores',()=>{
+test('rolagens públicas preservam edição do dono e GM e são acompanháveis ao vivo por observadores',()=>{
  const ajuste={tipo:'ajuste',pedido:'r1',destino:'p',formula:'1d20+4',meta:{tipo:'ataque',titulo:'Ataque'}},resultado={...ajuste,tipo:'resultado',resultado:{total:17},status:'Acerto'};
  assert.equal(visibilidadeRolagem(ajuste,{id:'m',role:'GM'}).pedido.podeEditar,true);
  assert.equal(visibilidadeRolagem(ajuste,{id:'p',role:'PLAYER'}).pedido.podeEditar,true);
  assert.equal(visibilidadeRolagem(ajuste,{id:'q',role:'PLAYER'}).pedido.podeEditar,false);
  const salva={...ajuste,meta:{tipo:'salvaguarda',titulo:'Salvaguarda de DES'}};
- assert.equal(visibilidadeRolagem(salva,{id:'q',role:'PLAYER'}).tipo,'ignorar');
- assert.equal(visibilidadeRolagem({...salva,tipo:'resultado',resultado:{total:15},status:'Sucesso'},{id:'q',role:'PLAYER'}).tipo,'anuncio');
- assert.equal(visibilidadeRolagem({...resultado,meta:{tipo:'iniciativa'}},{id:'q',role:'PLAYER'}).tipo,'anuncio');
+ assert.equal(visibilidadeRolagem(salva,{id:'q',role:'PLAYER'}).pedido.podeEditar,false);
+ assert.equal(visibilidadeRolagem({...salva,tipo:'resultado',resultado:{total:15},status:'Sucesso'},{id:'q',role:'PLAYER'}).tipo,'pedido');
+ assert.equal(visibilidadeRolagem({...resultado,meta:{tipo:'iniciativa'}},{id:'q',role:'PLAYER'}).pedido.podeEditar,false);
  assert.equal(visibilidadeRolagem({tipo:'fechar',pedido:'r1'},{id:'q',role:'PLAYER'}).tipo,'fechar');
 });
 test('salvaguardas automáticas são encaminhadas ao dono da ficha e continuam disponíveis ao GM',async()=>{

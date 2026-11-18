@@ -1,11 +1,12 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.59';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.59';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.59';
-import {pronto} from './bridge.mjs?v=0.8.59';
-import {canalHud} from './hud-controller.mjs?v=0.8.59';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.59';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.60';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.60';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.60';
+import {pronto} from './bridge.mjs?v=0.8.60';
+import {canalHud} from './hud-controller.mjs?v=0.8.60';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.60';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
+let filtroAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
 let nomesSkillsVisiveis=localStorage.getItem('la-arte/nomes-skills')!=='0';
 function controlesMesa(s,fora){
@@ -126,16 +127,26 @@ function render(){
   iniciativasSelecionadas=new Set([...iniciativasSelecionadas].filter(id=>idsPendentes.has(id)));
   let html='';
   if(parte==='atividades'){
-    const feed=v.atividades??{lista:[]},emAndamento=feed.lista.some(x=>x.ativa&&x.id!==feed.propria);
-    const alternar=btn(feed.modo==='barra'?'recolherAtividades':'alternarAtividades',feed.modo==='barra'?'▶':'◀','class="alternar-atividades '+(emAndamento?'pulsando':'')+'" aria-label="'+(feed.modo==='barra'?'Recolher barra de atividades':'Mostrar barra de atividades')+'"');
-    html=feed.modo==='painel'?alternar:'<section class="historico-atividades"><header>'+alternar+'<small>Atividades da mesa</small></header><div class="trilho-atividades">'+feed.lista.slice().sort((a,b)=>(a.id===feed.propria?-1:b.id===feed.propria?1:b.ordem-a.ordem)).map(at=>{
-      const ator=s.atores.find(x=>x.id===at.atorId),f=ator?.ficha??{},o=at.acao?.opcaoPublica??{id:at.id,nome:at.titulo,categoria:'acao'},resultados=at.rolagens.filter(r=>r.resultado),danos=resultados.filter(r=>['dano','dano-lote'].includes(r.meta?.tipo));
-      const soma=at.aplicacao?.total??danos.reduce((n,r)=>n+(r.resultado.relatoriosDano?.length?r.resultado.relatoriosDano.reduce((m,x)=>m+x.pvPerdido,0):r.resultado.total??0),0),testes=resultados.filter(r=>!['dano','dano-lote'].includes(r.meta?.tipo));
-      const teste=testes.at(-1)?.resultado,totalTeste=teste?.total??teste?.resultados?.map(r=>r.total).join('/'),rolando=at.rolagens.some(r=>!r.fechada&&r.tipo==='rolando'),tipoAtual=at.rolagens.filter(r=>!r.fechada).at(-1)?.meta?.tipo;
-      const resumo=[at.titulo,ator?.nome??'Participante',at.estado,...(at.aplicacao?.alvos??[]).map(x=>(s.atores.find(a=>a.id===x.id)?.nome??'Alvo')+': '+x.pvPerdido+' PV retirados'+(x.pvTemporarios?' e '+x.pvTemporarios+' PV temporários absorvidos':'')),...resultados.map(r=>(r.meta?.titulo??'Rolagem')+': '+(r.resultado.resumo??r.resultado.total??r.resultado.resultados?.map(x=>x.total).join(', ')))].join('\n');
-      const numero=(chave,n,mov)=>'<output data-numero="'+esc(at.id+':'+chave)+'" data-valor="'+esc(n)+'" class="'+(mov?'girando':'')+'">'+(mov?'<span class="carretel"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0</span></span><span class="carretel segundo"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>0</span></span>':esc(n))+'</output>';
-      return '<button type="button" class="atividade '+(at.ativa?'ativa ':'')+(feed.selecionada===at.id?'selecionada ':'')+'" data-cmd="selecionarAtividade" data-id="'+esc(at.id)+'" data-info="'+esc(resumo)+'" aria-label="'+esc(at.titulo)+'"><small class="soma-dano">Dano '+numero('dano',danos.length?soma:'—',rolando&&['dano','dano-lote'].includes(tipoAtual))+'</small><small>Teste '+numero('teste',totalTeste??'—',rolando&&!['dano','dano-lote'].includes(tipoAtual))+'</small><span class="icone-atividade">'+arteHabilidade(o,f)+'</span><i class="token-atividade">'+(ator?retrato(ator):'<b>?</b>')+'</i><small>'+esc(at.id===feed.propria?'Sua ação':ator?.nome??'Rolagem')+'</small></button>';
-    }).join('')+'</div></section>';
+    const feed=v.atividades??{lista:[]},lista=feed.lista??[];
+    const pendenteUsuario=at=>at.ativa&&(at.rolagens.some(r=>!r.fechada&&r.destino===eu.id&&r.tipo!=='rolando')||gm&&at.execucao?.cancelamentoSolicitado);
+    const quantidade=lista.filter(pendenteUsuario).length;
+    const alternar=btn('alternarAtividades','☷<small> '+quantidade+'</small>','class="alternar-atividades '+(quantidade?'pulsando':'')+'" aria-label="'+(feed.modo==='painel'?'Abrir atividades da mesa':'Fechar atividades da mesa')+'"');
+    if(feed.modo==='painel')html=alternar;
+    else{
+      const filtradas=lista.filter(at=>filtroAtividades==='pendentes'?pendenteUsuario(at):filtroAtividades==='minhas'?at.execucao?.donoId===eu.id||at.id===feed.propria:filtroAtividades==='encerradas'?!at.ativa:true);
+      const cards=filtradas.map(at=>{
+        const ator=s.atores.find(x=>x.id===at.atorId),f=ator?.ficha??{},salva=!!at.atividadeOrigemId,o=at.acao?.opcaoPublica??(salva?testeVisual('salvaguardas',at.rolagens[0]?.meta?.atributo??'des',0):{id:at.id,nome:at.titulo,categoria:'acao'});
+        const pai=salva?lista.find(x=>x.id===at.atividadeOrigemId):null,resultados=at.rolagens.filter(r=>r.resultado);
+        const resumo=resultados.map(r=>(r.meta?.titulo??'Rolagem')+': '+(r.resultado.resumo??r.resultado.total)).join('\n');
+        const e=at.execucao??lista.find(x=>x.execucao?.id===at.execucaoId)?.execucao;
+        const salvas=e?.pedidos.filter(x=>x.tipo==='salvaguarda')??[],progresso=!salva&&salvas.length?'<small>Salvaguardas: '+salvas.filter(x=>x.concluido).length+' / '+salvas.length+' respondidas</small>':'';
+        const controla=gm||e?.donoId===eu.id,pedido=at.rolagens.find(r=>!r.fechada);
+        const controles=at.ativa&&e?'<div class="controles-execucao">'+btn('selecionarAtividade','Retomar','data-id="'+esc(at.id)+'"')+(gm&&pedido?btn('assumirPedido','Assumir','data-id="'+esc(pedido.pedido)+'"'):'')+(controla?btn('pedirCancelarExecucao',e.cancelamentoSolicitado?'Cancelamento solicitado':'Cancelar ação','data-id="'+esc(e.id)+'" '+(e.cancelamentoSolicitado&&!gm?'disabled':'')):'')+'</div>':'';
+        const confirmar=confirmacaoExecucao===e?.id?'<div class="confirmacao-execucao"><small>Encerrar esta jogada? Efeitos já aplicados permanecem.</small>'+btn('confirmarCancelarExecucao','Confirmar cancelamento','data-id="'+esc(e.id)+'"')+btn('desistirCancelarExecucao','Voltar')+'</div>':'';
+        return '<article class="cartao-atividade '+(pendenteUsuario(at)?'pendente-usuario ':'')+(feed.selecionada===at.id?'selecionada':'')+'"><button class="abrir-atividade" data-cmd="selecionarAtividade" data-id="'+esc(at.id)+'" data-info="'+esc(resumo)+'"><i class="token-atividade">'+(ator?retrato(ator):'<b>?</b>')+'</i><span class="icone-atividade">'+arteHabilidade(o,f)+'</span><span><strong>'+esc(at.titulo)+'</strong><small>'+esc(ator?.nome??'Participante')+' · '+esc(at.estado)+'</small>'+(salva?'<small>Resposta a '+esc(pai?.titulo??'uma ação da mesa')+'</small>':'')+(at.aplicacao?'<small>Dano aplicado: '+at.aplicacao.total+'</small>':'')+progresso+(e?.motivo?'<small>'+esc(e.motivo)+'</small>':'')+(e?.erro?'<small>'+esc(e.erro)+'</small>':'')+'</span></button>'+controles+confirmar+'</article>';
+      }).join('');
+      html='<section class="gaveta-atividades"><header><strong>Atividades da mesa · '+quantidade+' pendentes</strong>'+btn('recolherAtividades','×','aria-label="Fechar gaveta e acompanhar ao vivo"')+'</header><nav>'+[['todas','Todas'],['pendentes','Para responder'],['minhas','Minhas'],['encerradas','Encerradas']].map(([id,label])=>btn('filtrarAtividades',label,'data-id="'+id+'" aria-pressed="'+(filtroAtividades===id)+'"')).join('')+'</nav><div class="lista-atividades">'+(cards||'<p>Nenhuma atividade neste filtro.</p>')+'</div><footer>'+btn('fecharAtividade','Voltar ao vivo')+btn('restaurarJanelas','Restaurar janelas')+'</footer></section>';
+    }
   }else if(parte==='ordem'){
     const fora=s.fase==='preparo'||a?.emCombate===false;
     if(!fora){
@@ -175,11 +186,14 @@ function render(){
     const descricao=rp.descricao??((alvo?.nome??'O alvo')+' está deixando seu alcance corpo a corpo.');
     html='<section class="prompt reacao"><strong>Reação de '+esc(reator?.nome)+'</strong><small>'+esc(descricao)+'</small><b class="timer">'+restante+' s</b><small>Ao escolher a reação, a janela de ajuste será aberta antes de cada rolagem.</small><div class="escolhas-reacao">'+btn('resolverReacao','Não fazer nada','data-id=""')+opcoes.map(o=>btn('resolverReacao',arteHabilidade(o,reator.ficha),'data-id="'+esc(o.id)+'" class="ouro" data-info="'+esc(detalhes(o,reator.ficha))+'"')).join('')+'</div></section>';
   }else if(parte==='dados'&&v.pedidoDado){
-    const d=v.pedidoDado,m=d.meta??{},editavel=d.podeEditar!==false,observador=editavel?'':'<small class="observador-rolagem">Acompanhando a rolagem de '+esc(d.donoRolagem??'outro participante')+'.</small>';
-    if(d.tipo==='resultado'){
+    const d=v.pedidoDado,m=d.meta??{},editavel=d.podeEditar!==false,sujeito=s.atores.find(x=>x.id===d.atorId),observador='<div class="sujeito-rolagem">'+(sujeito?'<i>'+retrato(sujeito)+'</i><span>'+esc(sujeito.nome)+'</span>':'')+(d.atividadeOrigemId?'<small>Salvaguarda vinculada à ação de origem</small>':'')+'</div>'+(editavel?'':'<small class="observador-rolagem">Acompanhando a rolagem de '+esc(d.donoRolagem??'outro participante')+'.</small>');
+    if(d.tipo==='indeterminada'){
+      const extras=(m.adicionais??[]).filter(x=>(d.recursosAtivos??[]).includes(x.id)),bases=d.formulas??[d.formula],fontes=[...bases.map((f,i)=>({nome:bases.length>1?'Base '+(i+1):'Resultado base',formula:f})),...(m.combinarAdicionais?[]:extras)];
+      html='<section class="prompt resultado-indeterminado"><strong>'+esc(m.titulo??'Rolagem interrompida')+'</strong>'+observador+'<p>O resultado não foi registrado antes da interrupção. Não haverá uma nova rolagem automática.</p>'+(gm?fontes.map((f,i)=>'<label>'+esc(f.nome)+' · '+esc(f.formula??'')+'<input type="number" data-total-manual="'+i+'" required></label>').join('')+(/d20/.test(String(d.formula))?'<label>Face natural do d20<input id="naturalManual" type="number" min="1" max="20"></label>':'')+btn('resultadoManual','Registrar resultado manual','class="ouro"'):'<small>O mestre precisa resolver esta pendência.</small>')+'</section>';
+    }else if(d.tipo==='resultado'){
       const r=d.resultado,classe=/crític/i.test(d.status)?'critico':/falha/i.test(d.status)?'falha':'acerto';
       const lote=r.resultados?.length?r.resultados:null,extras=(m.adicionaisAtivos??[]).map(id=>m.adicionais?.find(x=>x.id===id)).filter(Boolean);
-      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(info.titulo||info.nome||'Instância '+(i+1))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??'de dano')+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
+      const conteudo=lote?'<div class="resultados-lote">'+lote.map((x,i)=>{const info=m.instancias?.[i]??(i===0?{titulo:'Dano base',alvo:m.alvo,critico:m.critico}:extras[i-1]??{}),iniciativa=m.tipo==='iniciativa_lote';return '<article class="'+(!iniciativa&&i?'dano-extra':'')+'"><strong>'+esc(x.fonteNome??(info.titulo||info.nome||'Instância '+(i+1)))+(info.alvo?' · '+esc(info.alvo):'')+'</strong><output>'+esc(x.resumo||x.total)+'</output><b>'+esc(x.total)+' '+esc(m.unidadeResultado??(x.tipoFonte?infoTipoDano(x.tipoFonte).nome:'de dano'))+(info.critico?' · crítico':'')+'</b></article>';}).join('')+'</div>':'<output>'+esc(r.resumo||r.total)+'</output>';
       const rerrolagens=(m.rerrolagens??[]).filter(x=>!(d.rerrolagensUsadas??[]).includes(x.id)).filter(x=>!x.somenteFalha||!Number.isFinite(m.cd)||d.total<m.cd);
       const painelRerrolagem=rerrolagens.length?'<div class="recursos-rolagem rerrolagens"><small>Recursos de rerrolagem</small><div>'+rerrolagens.map(x=>btn('escolherRerrolagem',arteHabilidade(x,a?.ficha??{},'sem-texto')+'<span class="nome-adicional">'+esc(x.nome)+'</span>','data-id="'+esc(x.id)+'" aria-pressed="'+(rerrolagemAtiva===x.id)+'" '+(editavel?'':'disabled ')+'data-info="'+esc(x.descricao||x.nome)+'"')).join('')+'</div>'+(rerrolagemAtiva&&editavel?seletorDadosRerrolagem(r,rerrolagens.find(x=>x.id===rerrolagemAtiva)):'')+'</div>':'';
       const alternativas=r.alternativasDano?.length?'<div class="alternativas-dano"><small>'+esc(r.modificadorDano?.nome??'Duas rolagens')+'</small>'+r.alternativasDano.map((x,i)=>'<span class="'+(x.total===Math.max(...r.alternativasDano.map(y=>y.total))?'escolhida':'')+'">Rolagem '+(i+1)+': <b>'+esc(x.resumo||x.total)+'</b></span>').join('')+'<strong>Maior resultado aplicado</strong></div>':'';
@@ -284,7 +298,10 @@ function render(){
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
   const trilhoScroll=root.querySelector('.trilho-atividades')?.scrollLeft??0;
-  ocultarDica();root.innerHTML=html;
+  if(html===ultimoHtml)return;
+  const campo=document.activeElement,restaurar=campo&&root.contains(campo)&&campo.matches('input')?{id:campo.id,lote:campo.dataset.formulaLote,inicio:campo.selectionStart,fim:campo.selectionEnd}:null;
+  ocultarDica();root.innerHTML=html;ultimoHtml=html;
+  if(restaurar){const novo=restaurar.id?document.getElementById(restaurar.id):root.querySelector('[data-formula-lote="'+restaurar.lote+'"]');if(novo){novo.focus();if(restaurar.inicio!==null)novo.setSelectionRange(restaurar.inicio,restaurar.fim);}}
   const trilho=root.querySelector('.trilho-atividades');if(trilho)trilho.scrollLeft=trilhoScroll;
   for(const el of root.querySelectorAll('[data-numero]')){
     const chave=el.dataset.numero,valor=el.dataset.valor,anterior=numerosAtividade.get(chave);numerosAtividade.set(chave,valor);
@@ -326,6 +343,16 @@ root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=oc
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
   const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','alternarDadoRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
+  if(tipo==='filtrarAtividades'){filtroAtividades=id;render();return;}
+  if(tipo==='pedirCancelarExecucao'){confirmacaoExecucao=id;render();return;}
+  if(tipo==='desistirCancelarExecucao'){confirmacaoExecucao=null;render();return;}
+  if(tipo==='confirmarCancelarExecucao'){bus.postMessage({tipo:'cancelarExecucao',id,confirmado:true});confirmacaoExecucao=null;render();return;}
+  if(['recolherAtividades','fecharAtividade','restaurarJanelas','assumirPedido'].includes(tipo)){bus.postMessage({tipo,id});return;}
+  if(tipo==='resultadoManual'){
+    const totais=[...root.querySelectorAll('[data-total-manual]')].map(e=>e.value===''?NaN:Number(e.value)),campo=root.querySelector('#naturalManual');
+    if(totais.some(n=>!Number.isFinite(n)))return;
+    bus.postMessage({tipo,pedido:v.pedidoDado.pedido,etapaVersao:v.pedidoDado.etapaVersao,totais,natural:campo?.value?Number(campo.value):undefined});return;
+  }
   if(tipo==='alternarNomesSkills'){
     nomesSkillsVisiveis=!nomesSkillsVisiveis;
     localStorage.setItem('la-arte/nomes-skills',nomesSkillsVisiveis?'1':'0');
@@ -378,7 +405,7 @@ root.onclick=e=>{
   if(tipo==='selecionarTodasIniciativas'){iniciativasSelecionadas=new Set(v.estado.atores.filter(x=>x.emCombate!==false&&x.init===null).map(x=>x.id));render();return;}
   if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
   const reacao=tipo==='resolverReacao';
-  bus.postMessage({tipo,id,pendenciaId:tipo==='responderIniciativa'?v.reacaoIniciativa?.id:undefined,pedido:controleDado?v.pedidoDado?.pedido:undefined,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
+  bus.postMessage({tipo,id,pendenciaId:tipo==='responderIniciativa'?v.reacaoIniciativa?.id:undefined,pedido:controleDado?v.pedidoDado?.pedido:undefined,etapaVersao:controleDado?v.pedidoDado?.etapaVersao:undefined,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
     parametros:Object.fromEntries([...document.querySelectorAll('[data-prototipo-parametro]')].map(e=>[e.dataset.prototipoParametro,e.value])),rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
     ajuste:Number(document.querySelector(reacao?'#ajusteReacao':'#ajuste')?.value||0),
     dadosAjuste:dadosExtras(document.querySelector(reacao?'#dadosReacao':'#dadosAjuste')?.value)});
@@ -399,6 +426,6 @@ const assinaturaEfeitos=vista=>{
   const ator=vista?.estado?.atores?.find(x=>x.id===vista.atorId);
   return JSON.stringify([vista?.atorId,ator?.efeitosAtivos??[],ator?.concentracaoAtiva??null]);
 };
-await pronto();bus=await canalHud();bus.onmessage=e=>{if(e.data.vista){const proxima=e.data.vista;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}};bus.postMessage({pedir:true});
+await pronto();bus=await canalHud();bus.onmessage=e=>{if(e.data.vista){const proxima=e.data.vista;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}};bus.postMessage({pedir:true});bus.postMessage({presenca:parte});setInterval(()=>bus.postMessage({presenca:parte}),2500);
 if(parte==='reacao')setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250);
 

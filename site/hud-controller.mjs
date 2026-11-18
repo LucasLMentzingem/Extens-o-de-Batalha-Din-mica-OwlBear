@@ -1,18 +1,18 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.59';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.60';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.59';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.59';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.59';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.59';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.59';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.59';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.59';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.59';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.59';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.59';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.60';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.60';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada} from './engine.mjs?v=0.8.60';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.60';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.60';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.60';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.60';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.60';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.60';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.60';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.59',import.meta.url);
+const url=new URL('./hud.html?v=0.8.60',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -55,13 +55,13 @@ function itensZona(z,pixelsMetro){
 }
 export async function iniciarHud(){
   await pronto();
-  const bus=await canalHud(),abertos=new Map();
+  const bus=await canalHud(),abertos=new Map(),presencas=new Map();
   const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado','atividades'];
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
   let saqueAbertoVisual=null,trocaAbertaVisual=null;
   let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false;
-  let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'barra'});
+  let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'painel'});
   const marcasPorAtividade=new Map();
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
   let marcas=[],marcasPublicas=[],tokens=[],fila=Promise.resolve(),ferramentaDoTurno;
@@ -98,10 +98,10 @@ export async function iniciarHud(){
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*pixelsMetro,y:a.y*pixelsMetro};
   const atividadeAtual=()=>atividades.atual(eu?.id);
-  const painelAtividades=()=>atividades.modo==='painel'||atividades.obrigatoria(eu?.id);
+  const painelAtividades=()=>Boolean(atividadeAtual());
   const acaoVisivel=()=>{
     if(!painelAtividades())return null;
-    const a=atividadeAtual();if(a?.id===pendente?.publicId)return pendente;
+    const a=atividadeAtual();if(a?.rolagens.some(r=>!r.fechada))return null;if(a?.id===pendente?.publicId)return pendente;
     return a?.acao?{...a.acao,somenteLeitura:true}:null;
   };
   function atualizarAtividades(){
@@ -127,14 +127,14 @@ export async function iniciarHud(){
   function transmitir(){
     const p=acaoVisivel();
     if(estado)bus.postMessage({vista:{estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
-      atividades:{modo:painelAtividades()?'painel':'barra',selecionada:atividadeAtual()?.id,propria:atividades.propria,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
+      atividades:{modo:atividades.modo,selecionada:atividadeAtual()?.id,propria:atividades.propria,pendentes:atividades.pendencias(eu.id).length,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:resumoPendente(p,p===acaoPublica)}});
   }
   async function janela(parte,box){
     const id=ns+'/hud/'+parte;
     if(!box){if(abertos.has(parte)){await OBR.popover.close(id).catch(()=>{});abertos.delete(parte);}return;}
     const key=JSON.stringify(box);
-    if(abertos.get(parte)===key)return;
+    if(abertos.get(parte)===key&&Date.now()-(presencas.get(parte)??0)<6500)return;
     // Uma atualização da extensão pode reiniciar o controlador enquanto o
     // Owlbear ainda conserva o pop-up antigo. Fechar pelo ID torna a abertura
     // idempotente e impede que um pop-up órfão bloqueie toda a HUD.
@@ -144,6 +144,7 @@ export async function iniciarHud(){
     await OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,
       anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
     abertos.set(parte,key);
+    presencas.set(parte,Date.now());
   }
   async function layout(){
     if(layoutEmCurso){layoutPendente=true;return layoutEmCurso;}
@@ -166,7 +167,7 @@ export async function iniciarHud(){
       const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
       const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
       const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
-      const limiteAtividades=atividades.lista.size&&!painelAtividades()?w-Math.min(680,Math.max(260,w*.36))-20:w-10;
+      const limiteAtividades=w-10;
       const limiteBarra=acaoLadoALado?leftAcao-gap:limiteAtividades;
       const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
@@ -197,19 +198,20 @@ export async function iniciarHud(){
       }
       // O puxador permanece disponível mesmo sem histórico ou seleção.
       const aw=Math.min(680,Math.max(260,w*.36));
-      if(painelAtividades()){
+      if(atividades.modo==='painel'){
         const acao=caixas.acao,left=acao?Math.max(6,acao[0]-58):w-62,top=acao?Math.max(62,acao[1]+acao[3]-52):h-98;
-        caixas.atividades=[Math.round(left),Math.round(top),52,52];
-      }else caixas.atividades=[Math.round(Math.max(6,w-aw-10)),h-240,aw,192];
+        caixas.atividades=[Math.round(left-46),Math.round(top),98,52];
+      }else caixas.atividades=[8,Math.min(150,Math.max(62,h-430)),Math.min(440,w-16),Math.min(420,h-95)];
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if((rp&&controla(reator))||escolhaIniciativa())caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];
       if(pedidoDado){
         const n=pedidoDado.formulas?.length??pedidoDado.resultado?.resultados?.length??1;
         const extraResultado=pedidoDado.tipo==='resultado'&&pedidoDado.meta?.rerrolagens?.length?105:0;
         const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?210:0;
-        const ch=Math.min(h-72,pedidoDado.tipo==='resultado'?190+n*82+extraResultado:160+n*116+extraAjuste);
+        const extrasManuais=(pedidoDado.meta?.adicionais??[]).filter(x=>(pedidoDado.recursosAtivos??[]).includes(x.id)).length;
+        const ch=Math.min(h-72,pedidoDado.tipo==='indeterminada'?280+(n+extrasManuais)*82:pedidoDado.tipo==='resultado'?230+n*82+extraResultado:190+n*116+extraAjuste);
         const dw=Math.min(470,w-12),centroX=caixas.acao?caixas.acao[0]+caixas.acao[2]/2:w*.75;
-        const left=Math.max(6,Math.min(w-dw-6,centroX-dw/2)),top=caixas.acao?Math.max(6,caixas.acao[1]-ch-10):Math.max(62,(h-ch)/2);
+        const left=Math.max(6,Math.min(w-dw-6,centroX-dw/2)),limiteInferior=caixas.acao?caixas.acao[1]-10:caixas.barra?caixas.barra[1]-10:h-48,top=Math.max(62,Math.min((h-ch)/2,limiteInferior-ch));
         caixas.dados=[Math.round(left),Math.round(top),dw,ch];
       }
       if(anuncioDado){
@@ -544,6 +546,15 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   async function mensagem(d){
+    if(d.presenca){presencas.set(d.presenca,Date.now());return;}
+    if(d.tipo==='restaurarJanelas'){abertos.clear();presencas.clear();await layout();transmitir();return;}
+    if(d.tipo==='cancelarExecucao'){
+      await api.enviar({tipo:d.tipo,execucaoId:d.id,confirmado:d.confirmado===true,rev:estado.rev});return;
+    }
+    if(d.tipo==='assumirPedido'&&eu.role==='GM'){await responderDado({pedido:d.id,assumir:true});return;}
+    if(d.tipo==='resultadoManual'&&eu.role==='GM'){
+      await responderDado({pedido:d.pedido,etapaVersao:d.etapaVersao,manual:{totais:d.totais,natural:d.natural}});return;
+    }
     if(d.tipo==='rascunhoDado'){
       if(pedidoDado?.pedido!==d.pedido||pedidoDado.podeEditar===false)return;
       pedidoDado.rascunho={formula:d.formula,formulas:d.formulas};atividades.dado(pedidoDado);return;
@@ -565,6 +576,7 @@ export async function iniciarHud(){
     if(d.tipo==='dicaEfeito'){
       dicaEfeito=typeof d.info==='string'&&d.info.trim()?d.info:null;await layout();transmitir();return;
     }
+    if(d.etapaVersao!==undefined&&pedidoDado&&d.etapaVersao!==pedidoDado.etapaVersao)return;
     const comandosDado=['alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'];
     if(comandosDado.includes(d.tipo)&&(pedidoDado?.podeEditar===false||d.pedido&&d.pedido!==pedidoDado?.pedido))return;
     if(d.tipo==='alternarAdicional'&&pedidoDado?.tipo==='ajuste'){
@@ -583,13 +595,13 @@ export async function iniciarHud(){
       if(Array.isArray(d.formulas)&&d.formulas.length)resposta.formulas=d.formulas.map(x=>String(x||'').replace(/\s+/g,''));
       else resposta.formula=String(d.formula||'').replace(/\s+/g,'');
       resposta.recursosAtivos=Array.isArray(d.recursosAtivos)?d.recursosAtivos:[];
-      await responderDado(resposta);
+      await responderDado({...resposta,etapaVersao:d.etapaVersao});
     }else if(d.tipo==='rerrolarDado'&&pedidoDado?.tipo==='resultado'&&d.rerrolagem){
-      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();await responderDado({pedido,rerrolar:true,rerrolagem:d.rerrolagem,...(Array.isArray(d.dados)?{dados:d.dados}:{})});
+      const pedido=pedidoDado.pedido;pedidoDado={...pedidoDado,tipo:'rolando'};transmitir();await responderDado({pedido,etapaVersao:d.etapaVersao,rerrolar:true,rerrolagem:d.rerrolagem,...(Array.isArray(d.dados)?{dados:d.dados}:{})});
     }else if(d.tipo==='continuarDado'&&pedidoDado?.tipo==='resultado'){
-      const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,continuar:true});
+      const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,etapaVersao:d.etapaVersao,continuar:true});
     }else if(d.tipo==='cancelarDado'&&pedidoDado){
-      const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,cancelar:true});
+      const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,etapaVersao:d.etapaVersao,cancelar:true});
     }else{
       if(!estado||!pronta||ocupado)return;
       if(d.rev!==undefined&&d.rev!==estado.rev)return;
@@ -650,7 +662,7 @@ export async function iniciarHud(){
     else if(d.tipo==='cancelar')await cancelar();
     else if(d.tipo==='confirmar'){
       if(!pendente?.pronto||pendente.rev!==estado.rev||d.rev!==estado.rev)return;
-      const cmd={...pendente.cmd,parametros:{...pendente.cmd.parametros,...d.parametros},atividadeId:pendente.publicId,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]};
+      const cmd={...pendente.cmd,parametros:{...pendente.cmd.parametros,...d.parametros},atividadeId:pendente.publicId,confirmado:true,modo:d.modo,ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]},atividadeConfirmada=pendente.publicId;
       pendente.rolagem=true;ocupado=true;await publicarPrevia();await layout();transmitir();
       let terminou=false;
       try{
@@ -660,7 +672,7 @@ export async function iniciarHud(){
           localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:cmd.ator,quando:Date.now(),pagina:'inventario'}));
           await OBR.action.open();
         }
-      }finally{ocupado=false;if(pendente)await cancelar(terminou?'Concluída':'Erro');}
+      }finally{ocupado=false;if(pendente?.publicId===atividadeConfirmada){const estadoFinal=atividades.lista.get(atividadeConfirmada)?.execucao?.estado;await cancelar(terminou?'Concluída':estadoFinal==='Cancelada'?'Cancelada':'Erro');}}
     }else if(d.tipo==='responderIniciativa'){
       const rp=escolhaIniciativa(),reator=atores().find(a=>a.id===rp?.reator);
       if(!rp||!controla(reator)||d.pendenciaId!==rp.id)return;
@@ -711,7 +723,7 @@ export async function iniciarHud(){
     await layout();transmitir();
   }
   bus.onmessage=e=>{
-    const imediato=['rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(e.data?.tipo)||e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
+    const imediato=e.data?.presenca||['restaurarJanelas','cancelarExecucao','assumirPedido','resultadoManual','rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(e.data?.tipo)||e.data?.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(e.data?.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };
@@ -758,8 +770,13 @@ export async function iniciarHud(){
     console.warn('Ferramenta de mira indisponível; a HUD continuará ativa.',e);
     Promise.resolve(OBR.notification.show('A HUD foi recuperada, mas a ferramenta de mira precisa recarregar a sala.','WARNING')).catch(()=>{});
   }
-  api=await sala((s,i)=>serial(()=>atualizar(s,i)));
+  let filaVistas=Promise.resolve();
+  api=await sala((s,i)=>{filaVistas=filaVistas.then(()=>atualizar(s,i)).catch(e=>console.warn('Atualizar mesa:',e));});
   responderDado=await interfaceRolagens(async d=>{
+    if(d.tipo==='execucao'||d.tipo==='lista-execucoes'){
+      for(const e of d.tipo==='execucao'?[d.execucao]:d.execucoes){atividades.execucao(e);if(e.donoId===eu?.id&&!['Concluída','Cancelada','Falhou'].includes(e.estado)&&!atividades.propria){atividades.propria=e.atividadeId;atividades.atenderFila=false;}}
+      await layout();transmitir();return;
+    }
     if(d.tipo==='atividade-aplicada'){
       const a=atividades.lista.get(d.atividadeId);if(a){const alvos=d.alvos.filter(x=>atores().some(a=>a.id===x.id));a.aplicacao={alvos,total:alvos.reduce((n,x)=>n+x.pvPerdido,0)};await layout();transmitir();}return;
     }
