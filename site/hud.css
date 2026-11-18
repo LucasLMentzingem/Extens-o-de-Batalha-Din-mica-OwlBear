@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.68");
+@import url("./ability-art.css?v=0.8.69");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -240,4 +240,4 @@ body.atividades,body.atividades #hud{height:100vh}
 /* Em telas baixas, a gaveta inteira pode rolar sem invadir o rodapé. */
 .gaveta-atividades{overflow-y:auto}.gaveta-atividades>header,.gaveta-atividades>nav,.gaveta-atividades>footer{flex-shrink:0}
 
-.movimento-hud{grid-template-columns:98px 6px;flex-basis:110px}.movimento-botoes{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:98px;max-width:98px}.movimento-hud .movimento-botoes button{width:100%;height:auto;min-height:32px;white-space:normal;font-size:10px;padding:5px}.alternar-movimento-dinamico[aria-pressed="true"]{background:#b9944e;color:#17151b;border-color:#f3d78b}.previa-movimento{font-size:10px;overflow-wrap:anywhere}.custo-mini.movimento .saldo-recurso{font-size:8.5px;letter-spacing:-.2px}
+.movimento-hud{grid-template-columns:98px 6px;flex-basis:110px}.movimento-botoes{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:98px;max-width:98px}.movimento-hud .movimento-botoes button{width:100%;height:auto;min-height:32px;white-space:normal;font-size:10px;padding:5px}.alternar-movimento-dinamico[aria-pressed="true"]{background:#b9944e;color:#17151b;border-color:#f3d78b}.custo-mini.movimento .saldo-recurso{font-size:8.5px;letter-spacing:-.2px}

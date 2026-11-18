@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.68**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.68.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.69**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.69.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Movimento dinâmico sem prévia ao passar o cursor; trajetória e custo aparecem após clicar.
 
 Movimento dinâmico acima de Mover: clique para andar ou aproxime-se automaticamente para executar uma habilidade. Percurso reto, custo em metros na carta e oportunidades antes da habilidade, com interrupção sem consumir seus recursos.
 

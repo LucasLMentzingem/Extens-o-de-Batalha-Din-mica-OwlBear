@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.69 — trajetória após clique — 18/11/2026
+
+Movimento dinâmico sem atualização ao passar o cursor. Trajeto e custo são definidos após clicar; plano de habilidade permanece visível e estável até confirmar. Mecânicas da 0.8.68 preservadas. Oito cenários GM/P1 com verificações de cursor antes/depois do clique. [Notas](RELEASE-0.8.69.md).
+
 ## Entrega — 0.8.68 — movimento dinâmico — 18/11/2026
 
 Botão acima de Mover, clique para andar e aproximação automática em linha reta para habilidades. Custo em metros na carta; oportunidades e zonas resolvidas antes da habilidade, com interrupção sem consumir seus recursos. Etapas persistentes, recuperação sem repetir rolagens/custos e cancelamento com limpeza de continuação. 451 testes, oito cenários GM/jogador e 12 layouts conferidos com SDK simulado. Publicação autorizada. [Notas](RELEASE-0.8.68.md).

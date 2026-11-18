@@ -1,5 +1,9 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-18 — trajetória somente após clique, 0.8.69
+
+Usuário pediu retirar atualização contínua da trajetória. Removidos callback de movimento de cursor, desenho/cálculo por hover e indicador correspondente no rodapé. Clique para andar, prévia estática da habilidade e demais etapas persistentes preservadas. Teste de navegador estendido em `work/previa-clique/validar.cjs`: oito cenários, 25 movimentos antes/depois da seleção por cenário, sem criar/alterar marcas; clique produz plano. Notas em `docs/RELEASE-0.8.69.md`.
+
 ## 2026-11-18 — movimento dinâmico, 0.8.68
 
 Usuário aprovou arquitetura e pediu desenvolver/publicar. Percurso sempre reto, inclusive através de áreas prejudiciais; desvios ficam a cargo do jogador. Criado planejador geométrico compartilhado, aproximação por hitbox/posição comum para vários alvos, botão sobre Mover e custo/deslocamento atual na carta. Execução em etapas persistentes: movimento, reação, habilidade; somente trechos realizados são cobrados, e acerto de oportunidade cancela habilidade sem consumir seus recursos. Zonas têm etapas de entrada, e reações do próprio jogador podem ser atendidas durante a ação pausada. Limpeza de cancelamento/erro e liberação das bases antigas implementadas. 451 testes; oito cenários completos GM/P1 incluindo F5 durante reação/resultado sem rerrolar, cancelamento e área que prende. Regressão visual: seis contextos e 12 layouts. Evidências em `work/dinamico/`; notas em `docs/RELEASE-0.8.68.md`. Publicação autorizada pelo usuário.
