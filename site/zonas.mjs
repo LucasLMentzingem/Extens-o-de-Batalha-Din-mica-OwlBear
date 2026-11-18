@@ -2,6 +2,7 @@
 // Geometria pura em metros, euclidiana e contínua: o grid é só visual.
 // O motor (autoridade do mestre) e a prévia da HUD usam as mesmas funções.
 
+import {centroAlvo,raioAlvo,distanciaAoAlvo,discoNoPoligono} from './target-geometry.mjs?v=0.8.67';
 const EPS=1e-9;
 
 // Polígono convexo da zona, em coordenadas absolutas. Círculos retornam null.
@@ -19,14 +20,9 @@ export function poligonoZona(z){
 
 export function pontoNaZona(z,p){
   const g=z.geometria??{};
-  if(g.forma==='circulo')return Math.hypot(p.x-z.centro.x,p.y-z.centro.y)<=g.raioM+1e-8;
+  if(g.forma==='circulo')return distanciaAoAlvo(z.centro,p)<=g.raioM+1e-8;
   const pol=poligonoZona(z);if(!pol)return false;
-  let sinal=0;
-  for(let i=0;i<pol.length;i++){
-    const a=pol[i],b=pol[(i+1)%pol.length],cruz=(b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x);
-    if(Math.abs(cruz)<=1e-8)continue;const s=Math.sign(cruz);if(sinal&&s!==sinal)return false;sinal=s;
-  }
-  return true;
+  return discoNoPoligono(p,pol);
 }
 
 // Trecho [t0,t1] (0..1) do segmento a→b que fica dentro da zona, ou null.
@@ -40,6 +36,10 @@ export function trechoNaZona(z,a,b){
     return t0<=t1+EPS?[t0,Math.max(t0,t1)]:null;
   }
   const pol=poligonoZona(z);if(!pol)return null;
+  return recortarPoligono(pol,a,b);
+}
+function recortarPoligono(pol,a,b){
+  const dx=b.x-a.x,dy=b.y-a.y;
   // Cyrus–Beck: recorte do segmento por polígono convexo (orientação detectada).
   let area=0;for(let i=0;i<pol.length;i++){const p=pol[i],q=pol[(i+1)%pol.length];area+=p.x*q.y-q.x*p.y;}
   const orient=area>=0?1:-1;let t0=0,t1=1;
@@ -52,6 +52,24 @@ export function trechoNaZona(z,a,b){
     if(t0>t1+EPS)return null;
   }
   return [t0,Math.max(t0,t1)];
+}
+
+// Trajetória do disco: polígono + cápsulas das bordas, com cantos arredondados.
+// Não altera a metragem de terreno difícil, que continua medida pelo percurso.
+export function trechoDaHitbox(z,a,b,movente){
+  const r=raioAlvo(movente),g=z.geometria??{};
+  if(!r)return trechoNaZona(z,a,b);
+  const offset=centroAlvo({...movente,x:0,y:0}),inicio={x:a.x+offset.x,y:a.y+offset.y},fim={x:b.x+offset.x,y:b.y+offset.y};
+  if(g.forma==='circulo')return trechoNaZona({...z,geometria:{...g,raioM:g.raioM+r}},inicio,fim);
+  const pol=poligonoZona(z);if(!pol)return null;
+  const trechos=[trechoNaZona(z,inicio,fim)];
+  for(let i=0;i<pol.length;i++){
+    const p=pol[i],q=pol[(i+1)%pol.length],dx=q.x-p.x,dy=q.y-p.y,n=Math.hypot(dx,dy);
+    trechos.push(trechoNaZona({centro:p,geometria:{forma:'circulo',raioM:r}},inicio,fim));
+    if(n){const px=-dy/n*r,py=dx/n*r;
+      trechos.push(recortarPoligono([{x:p.x+px,y:p.y+py},{x:q.x+px,y:q.y+py},{x:q.x-px,y:q.y-py},{x:p.x-px,y:p.y-py}],inicio,fim));}
+  }
+  const validos=trechos.filter(Boolean);return validos.length?[Math.min(...validos.map(t=>t[0])),Math.max(...validos.map(t=>t[1]))]:null;
 }
 
 // A zona afeta esta criatura? (base da "hostilidade" mostrada na prévia)
@@ -67,7 +85,7 @@ export function primeiroContato(zonas,a,b,movente){
   let melhor=null;
   for(const z of zonas??[]){
     if(!zonaAfeta(z,movente))continue;
-    const tr=trechoNaZona(z,a,b);if(!tr)continue;
+    const tr=trechoDaHitbox(z,a,b,movente);if(!tr)continue;
     if(!melhor||tr[0]<melhor.t)melhor={zona:z,t:tr[0],ponto:{x:a.x+(b.x-a.x)*tr[0],y:a.y+(b.y-a.y)*tr[0]}};
   }
   return melhor;
@@ -84,7 +102,7 @@ export function terrenoDificilDasZonas(zonas,a,b,movente){
 
 // Zonas em que o trajeto entra (estava fora no início e cruza a borda), em ordem de contato.
 export function entradasNaTrajetoria(zonas,a,b,movente){
-  return (zonas??[]).filter(z=>zonaAfeta(z,movente)&&!pontoNaZona(z,a)).map(z=>({zona:z,trecho:trechoNaZona(z,a,b)})).filter(x=>x.trecho).sort((x,y)=>x.trecho[0]-y.trecho[0]).map(x=>x.zona);
+  return (zonas??[]).filter(z=>zonaAfeta(z,movente)&&!pontoNaZona(z,{...a,hitbox:movente?.hitbox})).map(z=>({zona:z,trecho:trechoDaHitbox(z,a,b,movente)})).filter(x=>x.trecho).sort((x,y)=>x.trecho[0]-y.trecho[0]).map(x=>x.zona);
 }
 
 // Representação pública compacta (marcas no mapa).

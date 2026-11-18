@@ -1,4 +1,4 @@
-import {pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.66';
+import {pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.67';
 const ns='aventura-dnd.combate.v1',prefixoRecipiente='laarte-recipiente-';
 // Une operações por lote e só grava os campos que realmente mudaram.
 export function criarSincronizadorRecipientes({items,buildImage,buildCurve,baseUrl}){

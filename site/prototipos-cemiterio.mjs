@@ -1,3 +1,4 @@
+import {distanciaAoAlvo,centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.67';
 // Protótipos explícitos: usam a mesma autoridade, transação e relógio do motor.
 export const modosPrototipo=new Set(['animar','enfraquecer','vampirico','taumaturgia','luz','santuario','detectar','protecao','prece','acalmar','dissipar','remover','auxilio','restauracao','revivificar','preservar','centelha','expulsar']);
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -11,7 +12,7 @@ export function validarPrototipo(s,a,o,c,modeloReanimacao){
   assert(modosPrototipo.has(r.modo),'Protótipo desconhecido.');
   for(const e of r.escolhas??[])assert(e.valores.some(v=>v.id===(c.parametros?.[e.id]??e.valores[0].id)),'Escolha inválida: '+e.nome);
   const ids=o.selecao?c.alvos:r.pessoal?[a.id]:[c.alvo],alvos=ids?.map(id=>s.atores.find(p=>p.id===id));
-  assert(alvos?.length&&alvos.every(p=>p&&distancia(a,p)<=r.alcanceM+1e-8),'Escolha alvos válidos ao alcance.');
+  assert(alvos?.length&&alvos.every(p=>p&&distanciaAoAlvo(a,p)<=r.alcanceM+1e-8),'Escolha alvos válidos ao alcance.');
   assert(new Set(ids).size===ids.length,'Escolha criaturas diferentes.');
   if(r.modo==='animar')assert(alvos.every(p=>p!==a&&modeloReanimacao(p)&&['pequeno','medio'].includes(p.ficha.tamanho??'medio')),'Escolha um humanoide morto Pequeno/Médio a 0 PV ou menos, ou goblin marcado da aventura. PJs devem estar mortos.');
   if(r.modo==='prece')assert(alvos.every(p=>p.estadoVida!=='morto'&&!p.efeitosAtivos?.some(e=>e.preceRecebida)),'Prece exige criaturas vivas que ainda não receberam esta magia desde o último descanso longo.');
@@ -24,12 +25,12 @@ export function validarPrototipo(s,a,o,c,modeloReanimacao){
   if(r.modo==='expulsar')assert(alvos.every(p=>normal(p.ficha.tipoCriatura).replace(/[- ]/g,'')==='mortovivo'),'Expulsar só aceita mortos-vivos.');
   if(r.modo==='acalmar'){
     assert(alvos.every(p=>normal(p.ficha.tipoCriatura??'humanoide')==='humanoide'),'Acalmar Emoções exige humanoides.');
-    const centros=[...alvos];for(let i=0;i<alvos.length;i++)for(let j=i+1;j<alvos.length;j++){
-      const p=alvos[i],q=alvos[j],d=distancia(p,q);if(!d||d>12)continue;
-      const h=Math.sqrt(36-d*d/4),x=(p.x+q.x)/2,y=(p.y+q.y)/2;
+    const centros=alvos.map(centroAlvo);for(let i=0;i<alvos.length;i++)for(let j=i+1;j<alvos.length;j++){
+      const p=centroAlvo(alvos[i]),q=centroAlvo(alvos[j]),d=distancia(p,q),r=6+raioAlvo(alvos[i]),t=6+raioAlvo(alvos[j]);if(!d||d>r+t||d<Math.abs(r-t))continue;
+      const k=(r*r-t*t+d*d)/(2*d),h=Math.sqrt(Math.max(0,r*r-k*k)),x=p.x+k*(q.x-p.x)/d,y=p.y+k*(q.y-p.y)/d;
       for(const sinal of [-1,1])centros.push({x:x+sinal*h*(q.y-p.y)/d,y:y-sinal*h*(q.x-p.x)/d});
     }
-    assert(centros.some(c=>alvos.every(p=>distancia(c,p)<=6+1e-8)),'Os alvos devem caber em uma esfera de raio 6 m.');
+    assert(centros.some(c=>alvos.every(p=>distanciaAoAlvo(c,p)<=6+1e-8)),'Os alvos devem caber em uma esfera de raio 6 m.');
   }
   if(r.modo==='restauracao')assert(alvos[0].efeitosAtivos?.some(e=>e.condicao===(c.parametros?.condicao??'cego')),'O alvo não possui a condição escolhida.');
 }

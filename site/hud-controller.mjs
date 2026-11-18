@@ -1,20 +1,21 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.66';
+import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.67';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.67';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.66';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.66';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.66';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.66';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.66';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.66';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.66';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.66';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.66';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.66';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.66';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.66';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.67';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.67';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.67';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.67';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.67';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.67';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.67';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.67';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.67';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.67';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.67';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.67';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.66',import.meta.url);
+const url=new URL('./hud.html?v=0.8.67',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -33,11 +34,11 @@ function marcaArea(rule,origem,ponto,pixelsMetro){
   const dx=ponto.x-origem.x,dy=ponto.y-origem.y,n=Math.hypot(dx,dy)||1,ux=dx/n,uy=dy/n,l=area.comprimentoM*pixelsMetro,w=(area.larguraM??(area.forma==='cone'?area.comprimentoM:1.5))*pixelsMetro/2,fx=ux*l,fy=uy*l,px=-uy*w,py=ux*w;
   return area.forma==='cone'?[poligono(origem,[{x:0,y:0},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py}],'#79cfb1')]:[poligono(origem,[{x:px,y:py},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py},{x:-px,y:-py}],'#79cfb1')];
 }
-function alvosDaArea(rule,origem,ponto,atores,pos,pixelsMetro){
+function alvosDaArea(rule,origem,ponto,atores,pos,pixelsMetro,geometria){
   const origemM={x:origem.x/pixelsMetro,y:origem.y/pixelsMetro},pontoM={x:ponto.x/pixelsMetro,y:ponto.y/pixelsMetro};
   return atores.filter(a=>{
     const p=pos(a),mesmoPonto=Math.hypot(p.x-origem.x,p.y-origem.y)<=1e-8;
-    return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,{x:p.x/pixelsMetro,y:p.y/pixelsMetro},rule);
+    return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,geometria(a),rule);
   });
 }
 // M05: cada cliente desenha as zonas ativas a partir do estado público (persistem ao recarregar,
@@ -113,6 +114,9 @@ export async function iniciarHud(){
   const escolhaIniciativa=()=>controla(atores().find(a=>a.id===estado?.reacaoPendente?.reator))?null:atores().find(a=>a.reacaoIniciativa&&controla(a)&&(a.dono===eu.id||eu.role==='GM'&&(!a.dono||!(eu.players??[]).some(p=>p.id===a.dono))))?.reacaoIniciativa;
   const token=a=>tokens.find(t=>t.id===a?.token);
   const pos=a=>token(a)?.position??{x:a.x*pixelsMetro,y:a.y*pixelsMetro};
+  const geometria=a=>{const p=pos(a),t=token(a);return {x:p.x/pixelsMetro,y:p.y/pixelsMetro,hitbox:t?hitboxToken(t):a.hitbox};};
+  const distanciaAlvo=(origem,a)=>distanciaAoAlvo({x:origem.x/pixelsMetro,y:origem.y/pixelsMetro},geometria(a));
+  const estadoDaCena=()=>({...estado,atores:atores().map(a=>({...a,...geometria(a)}))});
   const atividadeAtual=()=>atividades.atual(eu?.id);
   const painelAtividades=()=>Boolean(atividadeAtual());
   const acaoVisivel=()=>{
@@ -326,14 +330,14 @@ export async function iniciarHud(){
   }
   function marcasDestruidorAvulso(p){
     if(!p.rule?.usarArmaAnterior)return [];
-    const oferta=ofertaDestruidorDeHordas(estado,ator());
+    const oferta=ofertaDestruidorDeHordas(estadoDaCena(),{...ator(),...geometria(ator())});
     return oferta?marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos):[];
   }
   function elegiveisDestruidorNaComposicao(p){
     const modo=p?.composicao?.modos.find(m=>m.id===p.composicao.modoAtivo),anterior=p?.cmd?.composicao?.at(-1),a=ator();
     if(!modo?.destruidorDeHordas||!anterior||!a)return null;
     const def=(opcoesDisponiveis(a).find(o=>o.id===p.cmd.opcao)?.composicao?.modos??[]).find(m=>m.id===anterior.modoId);
-    const alvos=alvosElegiveisDestruidor(estado,a,{alvoOriginalId:anterior.alvoId,alcanceM:def?.automacao?.alcanceM,raioM:modo.destruidorDeHordas.raioM,jaAtacados:p.cmd.composicao.map(x=>x.alvoId)});
+    const alvos=alvosElegiveisDestruidor(estadoDaCena(),{...a,...geometria(a)},{alvoOriginalId:anterior.alvoId,alcanceM:def?.automacao?.alcanceM,raioM:modo.destruidorDeHordas.raioM,jaAtacados:p.cmd.composicao.map(x=>x.alvoId)});
     return {centroId:anterior.alvoId,raioM:modo.destruidorDeHordas.raioM,alvos};
   }
   function marcasComposicao(p){
@@ -375,7 +379,7 @@ export async function iniciarHud(){
     let o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
     if(o?.gatilho==='rolar_iniciativa')throw Error('Use esta habilidade somente na janela de Iniciativa.');
     if(a.reacaoIniciativa)throw Error('Resolva a escolha de Iniciativa antes de agir.');
-    const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estado,a):null;
+    const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estadoDaCena(),{...a,...geometria(a)}):null;
     if(rule?.usarArmaAnterior){
       if(!oferta)throw Error('Faça antes um ataque com arma e confira o limite de Destruidor de Hordas.');
       const anterior=a.eventosTurno.ataques.at(-1),arma=opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);
@@ -431,8 +435,9 @@ export async function iniciarHud(){
   }
   async function sincronizarTokens(items){
     if(!estado)return;
-    const ids=new Set([...atores().map(a=>a.token),...(estado.recipientes??[]).flatMap(r=>[r.tokenId,idSelecaoRecipiente(r)])].filter(Boolean)),antes=new Map(tokens.map(t=>[t.id,t.position]));
-    const proximos=items.filter(t=>ids.has(t.id)),mudou=proximos.some(t=>{const p=antes.get(t.id);return !p||p.x!==t.position.x||p.y!==t.position.y;});
+    const assinatura=t=>JSON.stringify([t.position,hitboxToken(t)]);
+    const ids=new Set([...atores().map(a=>a.token),...(estado.recipientes??[]).flatMap(r=>[r.tokenId,idSelecaoRecipiente(r)])].filter(Boolean)),antes=new Map(tokens.map(t=>[t.id,assinatura(t)]));
+    const proximos=items.filter(t=>ids.has(t.id)),mudou=proximos.some(t=>{return antes.get(t.id)!==assinatura(t);});
     tokens=proximos;if(!mudou)return;
     const p=pendente,a=ator();
     if(!p?.escolha||!a){transmitir();return;}
@@ -446,9 +451,9 @@ export async function iniciarHud(){
     const alvoSelecionado=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
     let ponto=alvoSelecionado?pos(alvoSelecionado):p.ponto;
     if(!ponto){await desenhar([circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p)]);transmitir();return;}
-    const distancia=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro,temArea=Boolean(p.rule?.raioM||p.rule?.area);
+    const distancia=alvoSelecionado?distanciaAlvo(p.origem,alvoSelecionado):Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro,temArea=Boolean(p.rule?.raioM||p.rule?.area);
     p.pronto=distancia<=p.raio+1e-8;
-    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro):[];
+    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro,geometria):[];
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
     const marcas=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
@@ -479,15 +484,15 @@ export async function iniciarHud(){
     let alvo;
     if(p.escolha==='alvo'||p.escolha==='lista'){
       alvo=atores().find(a=>a.token===evento.target?.id);
-      if(!alvo)alvo=atores().filter(a=>token(a)).sort((a,b)=>dist(a)-dist(b)).find(a=>dist(a)<=pixelsMetro*METROS_POR_CELULA*.65);
-      function dist(a){const c=pos(a);return Math.hypot(c.x-ponto.x,c.y-ponto.y);}
+      if(!alvo)alvo=atores().filter(a=>token(a)).sort((a,b)=>dist(a)-dist(b)).find(a=>dist(a)<=raioAlvo(geometria(a))*pixelsMetro+1e-8);
+      function dist(a){const c=centroAlvo(geometria(a));return Math.hypot(c.x*pixelsMetro-ponto.x,c.y*pixelsMetro-ponto.y);}
       if(!alvo)throw Error('Clique em um participante visível.');ponto=pos(alvo);
     }
     if(p.rule?.usarArmaAnterior){
-      const oferta=ofertaDestruidorDeHordas(estado,ator());
+      const oferta=ofertaDestruidorDeHordas(estadoDaCena(),{...ator(),...geometria(ator())});
       if(!oferta?.alvos.some(x=>x.id===alvo?.id))throw Error('Destruidor de Hordas: escolha uma criatura destacada e ainda não atacada neste turno.');
     }
-    const d=Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro;
+    const d=alvo?distanciaAlvo(p.origem,alvo):Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro;
     if(d>p.raio+1e-8){
       p.pronto=false;await layout();transmitir();throw Error('Fora do alcance. Escolha outro ponto.');
     }
@@ -519,7 +524,7 @@ export async function iniciarHud(){
     if(alvo)p.cmd.alvo=alvo.id;
     if(p.escolha==='area')p.cmd.ponto=celula;
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
-    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro):alvo?[alvo]:[];
+    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro,geometria):alvo?[alvo]:[];
     const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
     const items=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
@@ -534,17 +539,8 @@ export async function iniciarHud(){
     await desenhar(items);
     const forma=p.rule?.area?.forma??(p.rule?.raioM?'círculo':'');p.ponto=ponto;p.pronto=true;p.detalhe=(alvo?alvo.nome+' · ':'')+medida(d)+(temArea?' · '+forma+(['cone','linha'].includes(forma)?' travado':'')+' · '+(afetados.map(a=>a.nome).join(', ')||'área vazia'):'')+(p.rule?.deslocamentoForcado?' · seta branca: destino do alvo':'')+(contatoZona?' · entra em '+contatoZona.zona.nome+(terrenoZona?' (terreno difícil: +'+medida(terrenoZona)+')':''):'');
     if(p.escolha==='destino'&&!ator().desengajado){
-      const ameacas=atores().flatMap(outro=>{
-        const lado=a=>a.ficha.lado??a.ficha.tipo;
-        if(lado(outro)===lado(ator())||outro.pv===0||outro.reacao<=0||!token(outro))return [];
-        const centro=pos(outro), alcance=outro.ficha.alcanceCorpoACorpoM??1.5;
-        const r=alcance*pixelsMetro,dx=ponto.x-p.origem.x,dy=ponto.y-p.origem.y,px=p.origem.x-centro.x,py=p.origem.y-centro.y;
-        if(Math.hypot(px,py)>r+1e-8||Math.hypot(ponto.x-centro.x,ponto.y-centro.y)<=r+1e-8)return [];
-        const aa=dx*dx+dy*dy,bb=2*(px*dx+py*dy),cc=px*px+py*py-r*r,delta=bb*bb-4*aa*cc;
-        if(aa<=0||delta<0)return [];
-        const t=(-bb+Math.sqrt(delta))/(2*aa),saida={x:p.origem.x+dx*t,y:p.origem.y+dy*t};
-        return [{ator:outro,ponto:saida,t}];
-      });
+      const ameacas=oportunidades(estadoDaCena(),{...ator(),...geometria(ator())},celula)
+        .map(x=>({ator:atores().find(a=>a.id===x.reator),ponto:{x:x.ponto.x*pixelsMetro,y:x.ponto.y*pixelsMetro},t:x.t})).filter(x=>token(x.ator));
       if(ameacas.length){
         ameacas.sort((a,b)=>a.t-b.t);p.detalhe+=' · Reação antes de confirmar: '+ameacas.map(x=>x.ator.nome).join(', ');
         for(const x of ameacas)items.push(...seta(pos(x.ator),x.ponto));

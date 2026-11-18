@@ -1,5 +1,9 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
+## 2026-11-18 — alcance/área pela hitbox, 0.8.67
+
+Pedido atual: selecionar/afetar o alvo se o círculo da hitbox interceptar o alcance ou a área. Criado módulo geométrico compartilhado entre HUD, autoridade, protótipos e zonas; dimensões vêm da cena e mudanças invalidam execuções pendentes. Limites de pontos no chão/movimento e cone do Sopro de Dragão preservados. 439 testes aprovados. Navegador GM/jogador aprovou sete cenários completos, incluindo redimensionamento sem F5. Documentação em `docs/FIX-ALCANCE-HITBOX.md`; evidências em `work/hitbox/`. Publicação 0.8.67 autorizada pelo usuário.
+
 
 ## 2026-11-18 — atalhos, token na ficha e buffs, publicação 0.8.66
 

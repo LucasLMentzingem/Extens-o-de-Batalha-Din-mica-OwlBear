@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.66**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.66.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.67**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.67.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Alcance e áreas consideram o contato com a hitbox circular do alvo, respeitando o tamanho do token. Regra compartilhada entre HUD e autoridade, incluindo composições, protótipos e áreas persistentes.
 
 Atalhos Ficha, Inventário e Livro de habilidades no rodapé abrem diretamente suas abas. Cabeçalho da ficha usa o token do personagem. Buffs compactos rolam somente na vertical quando necessário.
 

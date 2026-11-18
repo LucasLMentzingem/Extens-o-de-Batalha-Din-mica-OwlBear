@@ -1,5 +1,5 @@
-import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.66';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.66';
+import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.67';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.67';
 
 export const encerrada=e=>['Concluída','Cancelada','Falhou'].includes(e.estado);
 const clone=x=>structuredClone(x),igual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -87,7 +87,7 @@ export function aplicarResultadoExecucao(base,next,atual){
 export function validarDependenciasExecucao(e,base,atual){
  for(const k of ['fase','rodada','vez','ordem'])if(!igual(base[k],atual[k]))throw Error('O turno mudou durante a execução. Confira a jogada antes de aplicar.');
  const ids=e.recursos.includes('mesa')?base.atores.map(a=>a.id):e.recursos.filter(x=>x.startsWith('ator:')).map(x=>x.slice(5));
- const campos=['dono','token','emCombate','pv','pvTemporarios','estadoVida','rec','acao','bonus','reacao','efeitosAtivos','concentracaoAtiva','bencao'];if(e.comando.tipo!=='teste')campos.push('x','y');
+ const campos=['dono','token','emCombate','pv','pvTemporarios','estadoVida','rec','acao','bonus','reacao','efeitosAtivos','concentracaoAtiva','bencao'];if(e.comando.tipo!=='teste')campos.push('x','y','hitbox');
  for(const id of ids){const a=base.atores.find(x=>x.id===id),b=atual.atores.find(x=>x.id===id);if(!a||!b)throw Error('Um participante da jogada foi removido.');
   for(const k of campos)if(!igual(a[k],b[k]))throw Error('Uma condição de '+a.nome+' mudou durante a jogada: '+k+'.');
   if(!igual(compactarFicha(a.ficha),compactarFicha(b.ficha)))throw Error('A ficha de '+a.nome+' mudou durante a jogada.');

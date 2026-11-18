@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.67 — alcance pela hitbox — 18/11/2026
+
+Alvos passam a contar pelo contato de sua hitbox circular com alcance/área. HUD, motor, composições, protótipos e zonas compartilham a regra; Sopro de Dragão preservado. 439 testes e sete cenários GM/jogador completos conferidos com SDK simulado. Publicação autorizada; detalhes em [RELEASE-0.8.67.md](RELEASE-0.8.67.md) e [FIX-ALCANCE-HITBOX.md](FIX-ALCANCE-HITBOX.md).
+
 ## Entrega — 0.8.66 — 18/11/2026
 
 Atalhos diretos às três abas da ficha, retrato com token vinculado e buffs compactos sem scroll horizontal. GM/P1, dez aberturas de abas e 24 combinações de efeitos conferidos; publicação autorizada. [Notas e validação](RELEASE-0.8.66.md).
