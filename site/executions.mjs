@@ -1,5 +1,5 @@
-import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.62';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.62';
+import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.63';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.63';
 
 export const encerrada=e=>['Concluída','Cancelada','Falhou'].includes(e.estado);
 const clone=x=>structuredClone(x),igual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);

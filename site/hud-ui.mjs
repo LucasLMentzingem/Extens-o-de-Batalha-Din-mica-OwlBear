@@ -1,10 +1,10 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.62';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.62';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.62';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.62';
-import {pronto} from './bridge.mjs?v=0.8.62';
-import {canalHud} from './hud-controller.mjs?v=0.8.62';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.62';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.63';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.63';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.63';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.63';
+import {pronto} from './bridge.mjs?v=0.8.63';
+import {canalHud} from './hud-controller.mjs?v=0.8.63';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.63';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
@@ -98,9 +98,13 @@ function efeitosHud(a){
   return lista.length?'<div class="efeitos-hud" aria-label="Buffs, condições e concentração">'+lista.map(e=>'<span class="efeito-hud '+esc(e.tipo??'efeito')+'" tabindex="0" data-info="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':e.tipo==='concentracao'?'◉':'✦')+'</b><small>'+esc(e.nome)+'</small></span>').join('')+'</div>':'';
 }
 function barraCustos(p,classe=''){
-  const simbolo={acao:'●',bonus:'▲',reacao:'✦',recurso:'◆'};
   const custos=p?.custos??[];if(!custos.length)return '<div class="custos-compositor '+classe+'"><span class="custo-mini sem-custo"><b>○</b><small>Sem custo</small></span></div>';
-  return '<div class="custos-compositor '+classe+'">'+custos.map(c=>'<span class="custo-mini '+esc(c.tipo)+'" data-info="'+esc(c.nome+' · custo '+c.quantidade+' · saldo '+(c.saldo??'—')+'/'+(c.maximo??'—'))+'"><b>'+simbolo[c.tipo]+'</b><small>'+esc(c.tipo==='recurso'?(c.saldo??0)+'/'+(c.maximo??0):c.quantidade)+'</small></span>').join('')+'</div>';
+  return '<div class="custos-compositor '+classe+'">'+custos.map(c=>{
+    const id=c.tipo==='recurso'?c.id:c.tipo,nome=c.nome??id;
+    const saldo=p.foraCombate&&c.tipo!=='recurso'?'∞':String(c.saldo??'—')+((c.maximo??1)>1?'/'+c.maximo:'');
+    const dica=nome+' · custo '+c.quantidade+' · saldo '+(c.saldo??'—')+'/'+(c.maximo??'—');
+    return '<span class="custo-mini recurso-hud '+esc(c.tipo)+(Number(c.saldo)===0?' zerado':'')+'" role="img" aria-label="'+esc(dica)+'" data-info="'+esc(dica)+'">'+arteRecurso(id)+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto({id,nome}))+'</span>':'')+'<small class="saldo-recurso">'+esc(saldo)+'</small></span>';
+  }).join('')+'</div>';
 }
 function cartaoAcao(o,f,p){
   if(!o)return '';
@@ -455,3 +459,5 @@ window.addEventListener('blur',()=>entrada(false));document.addEventListener('vi
 bus.postMessage({pedir:true});presenca();const timerPresenca=setInterval(presenca,2500);
 const timerReacao=parte==='reacao'?setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250):null;
 window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);bus.close();},{once:true});
+
+window.addEventListener('storage',e=>{if(e.key==='la-arte/nomes-skills'){nomesSkillsVisiveis=e.newValue!=='0';if(v)render();}});

@@ -1,20 +1,20 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.62';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.63';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.62';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.62';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.62';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.62';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.62';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.62';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.62';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.62';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.62';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.62';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.62';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.62';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.63';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.63';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.63';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.63';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.63';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.63';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.63';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.63';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.63';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.63';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.63';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.63';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.62',import.meta.url);
+const url=new URL('./hud.html?v=0.8.63',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -228,12 +228,13 @@ export async function iniciarHud(){
         const top=acaoLadoALado?h-ch-48:h-ch-(ator()?(compacto?102:altura)+58:48);
         caixas.acao=[Math.round(left),Math.round(Math.max(62,top)),cw,ch];
       }
-      // O puxador permanece disponível mesmo sem histórico ou seleção.
+      // Botão e gaveta ficam acima do rodapé, inclusive ao expandir a barra.
+      const baseAtividades=(caixas.barra?.[1]??h-48)-10;
       if(atividades.modo==='painel'){
-        caixas.atividades=[Math.max(8,w-108),Math.max(8,h-98),98,52];
+        caixas.atividades=[Math.max(8,w-108),Math.max(8,baseAtividades-52),98,52];
       }else{
-        const aw=Math.min(440,w-16),ah=Math.min(420,h-95);
-        caixas.atividades=[Math.round((w-aw)/2),Math.round((h-ah)/2),aw,ah];
+        const aw=Math.min(440,w-16),ah=Math.max(1,Math.min(420,h-95,baseAtividades-8));
+        caixas.atividades=[Math.round((w-aw)/2),Math.round(Math.max(8,Math.min((h-ah)/2,baseAtividades-ah))),aw,ah];
       }
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if((rp&&controla(reator))||escolhaIniciativa())caixas.reacao=[Math.round((w-Math.min(390,w-12))/2),Math.round(Math.max(60,(h-245)/2)),Math.min(390,w-12),245];

@@ -1,6 +1,21 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
 
+## 2026-11-18 — publicação autorizada 0.8.63
+
+- Usuário autorizou publicar a correção local das faixas dos textos, padronização dos custos e posição de Atividades acima do rodapé. Cache/manifesto avançam para 0.8.63.
+- Executar suíte, validação de layout e conferência da implantação/manifesto/arquivos. Evidências em outputs/publicacao-0.8.63.
+
+## 2026-11-18 — fundos dos textos, custos e Atividades acima do rodapé
+
+Correção local posterior à 0.8.62: removidos os fundos das letras nos recursos. O ícone já tinha proporção quadrada; as duas faixas deixavam apenas 1 px livre entre os textos. As letras continuam com sombra para contraste.
+
+Quadrados de custos das habilidades no cabeçalho e na linha Executar usam as mesmas artes, moldura, nome curto e saldo do rodapé. Sem custo conserva o indicador próprio. Quantidade exigida e saldo completo permanecem na dica/descrição acessível. Aa sincroniza os nomes entre documentos por storage; saldos sempre visíveis.
+
+Atividades (botão e gaveta) limita o fundo ao topo do rodapé menos 10 px, incluindo linhas e modo compacto. Gaveta mantém eixo horizontal central; ajusta altura/espaço vertical e permite rolagem em telas baixas.
+
+Testes com SDK simulado: 12 combinações (1440x1000 e 900x600, linhas 1/3/5, compacto/expandido), ambas as formas de Atividades acima do rodapé. Astúcia Mágica no cabeçalho/execução, ícones quadrados, Aa sincronizado e saldos preservados; sem erros de página. Capturas revisadas; cliente Playwright da skill executado. Catálogo/versão válidos. Apenas local, sem publicação.
+
 ## 2026-11-18 — publicação autorizada 0.8.62
 
 - Usuário solicitou publicar a integração local de ícones dos recursos. Cache e manifesto avançados para 0.8.62; alterações da etapa local incluídas.

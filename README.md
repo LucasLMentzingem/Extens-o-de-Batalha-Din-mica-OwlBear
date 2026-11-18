@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.62**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.62.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.63**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.63.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Recursos sem faixas escuras atrás dos textos e com o mesmo padrão nas instâncias de habilidades. Atividades da mesa fica acima do rodapé, aberta ou recolhida.
 
 Recursos com ícones WebP de 100×100, fundo e moldura compartilhados. Nome curto e saldo sobre a imagem; Aa alterna o nome e conserva o saldo.
 

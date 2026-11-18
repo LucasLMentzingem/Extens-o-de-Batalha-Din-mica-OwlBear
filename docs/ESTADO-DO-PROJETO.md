@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.63 — 18/11/2026
+
+Fundos das letras removidos dos recursos; custos nas habilidades com o mesmo padrão do rodapé; Aa sincronizado entre janelas. Atividades aberta/recolhida sempre acima do rodapé. Imagens WebP anteriores reutilizadas. 426 testes e 12 combinações de layout verificadas. [Notas e limites](RELEASE-0.8.63.md).
+
 ## Entrega — 0.8.62 — 18/11/2026
 
 Ícones dos recursos aplicados com fundo e moldura compartilhados; título/saldo sobre a arte, saldo sempre visível com Aa desligado. 37 WebP 100×100 somam 168.080 bytes. Originais fora de site; imagens com hash de conteúdo. Publicação autorizada pelo usuário. [Notas e validação](RELEASE-0.8.62.md).
