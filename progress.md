@@ -1,6 +1,31 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
 
+## 2026-11-18 — publicação autorizada 0.8.64
+
+- Usuário solicitou publicar os ajustes acumulados de custo/recursos atuais e permanência da carta durante rolagens. A regra intermediária custo/capacidade fica somente como registro histórico. Cache e manifesto atualizados para 0.8.64.
+- Executar suíte e verificações focadas, enviar main e conferir manifesto normal/arquivos. Evidências em outputs/publicacao-0.8.64.
+
+## 2026-11-18 — regra final custo / recursos atuais
+
+Regra visual final solicitada: custo / recursos atuais nas instâncias de habilidades, substituindo custo / capacidade. O saldo do rodapé conserva atual / máximo. Exemplo com máximo 3 e saldo 2: Torrente exibe 1/2 e rodapé 2/3. Dica distingue custo, saldo e capacidade.
+
+Verificado com SDK simulado: caso real de Torrente, Aa e 32 combinações de tipo/quantidade/máximo/saldo, incluindo zero. Capturas revisadas e cliente Playwright da skill executado. Correção de permanência da carta durante rolagens preservada. Local, sem publicar; produção 0.8.63.
+
+## 2026-11-18 — preservar carta durante rolagens
+
+Correção local: acaoVisivel descartava a carta sempre que havia dado aberto. Removido o descarte; carta acompanha a atividade e também a origem de uma salvaguarda filha. A altura não é mais forçada a 338 px durante a rolagem. Controles de executar/alterar seguem bloqueados, com mensagem de andamento. Dados usam espaço lateral quando disponível; a posição evita sobrepor a carta em telas com espaço.
+
+Validado com SDK/Dice+ simulados: jogador, GM e observador em ataque e salvaguarda; ajuste, dado em trânsito e resultado; origem visível enquanto GM responde pelo NPC; conclusão única com rev1 e fechamento após concluir. Sete regressões anteriores passaram: F03, F04, F05, F09, F14, F15 e F16 (salvas, recargas, ações paralelas, prioridade e fila). Capturas revisadas e cliente da skill executado. Em telas estreitas pode não haver espaço para dispor todos os painéis lado a lado.
+
+A alteração anterior de custo/capacidade nas instâncias permanece local. Sem publicação, versão atual publicada 0.8.63.
+
+## 2026-11-18 — custo / capacidade nas instâncias
+
+Instâncias de habilidades: os quadrados de custo passam a exibir quantidade exigida / capacidade máxima, inclusive Ação/Bônus/Reação e fora de combate. Exemplo: Torrente de Golpes mostra Foco 1/3, enquanto o rodapé continua com saldo 3/3. Dica acessível explicita custo/capacidade e saldo atual. Cálculo, consumo e reservas não foram alterados.
+
+Verificação local com SDK simulado: Torrente 1/3 no cabeçalho e execução; barra 3/3; 32 combinações de tipos, quantidades, máximos, saldos e fora/dentro de combate; Aa conserva os números. Sem erros de página. Capturas revisadas e cliente da skill executado. Versão/catálogo/diff válidos. Local, sem publicar.
+
 ## 2026-11-18 — publicação autorizada 0.8.63
 
 - Usuário autorizou publicar a correção local das faixas dos textos, padronização dos custos e posição de Atividades acima do rodapé. Cache/manifesto avançam para 0.8.63.

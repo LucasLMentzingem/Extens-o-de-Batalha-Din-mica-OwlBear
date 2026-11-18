@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.64 — 18/11/2026
+
+Custo/recursos atuais nas instâncias; carta preservada durante rolagens e salvaguardas filhas. Dados ao lado quando há espaço; controles de execução bloqueados durante a jogada. Publicação autorizada pelo usuário. [Notas e validação](RELEASE-0.8.64.md).
+
 ## Entrega — 0.8.63 — 18/11/2026
 
 Fundos das letras removidos dos recursos; custos nas habilidades com o mesmo padrão do rodapé; Aa sincronizado entre janelas. Atividades aberta/recolhida sempre acima do rodapé. Imagens WebP anteriores reutilizadas. 426 testes e 12 combinações de layout verificadas. [Notas e limites](RELEASE-0.8.63.md).

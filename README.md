@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.63**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.63.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.64**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.64.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Nas instâncias, recursos mostram custo/recursos atuais (ex.: 1/2); a barra mantém atual/máximo. A carta permanece visível durante as rolagens e a resposta de salvaguardas, com execução bloqueada até concluir.
 
 Recursos sem faixas escuras atrás dos textos e com o mesmo padrão nas instâncias de habilidades. Atividades da mesa fica acima do rodapé, aberta ou recolhida.
 

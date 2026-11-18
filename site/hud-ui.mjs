@@ -1,10 +1,10 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.63';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.63';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.63';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.63';
-import {pronto} from './bridge.mjs?v=0.8.63';
-import {canalHud} from './hud-controller.mjs?v=0.8.63';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.63';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.64';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.64';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.64';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.64';
+import {pronto} from './bridge.mjs?v=0.8.64';
+import {canalHud} from './hud-controller.mjs?v=0.8.64';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.64';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
@@ -101,9 +101,9 @@ function barraCustos(p,classe=''){
   const custos=p?.custos??[];if(!custos.length)return '<div class="custos-compositor '+classe+'"><span class="custo-mini sem-custo"><b>○</b><small>Sem custo</small></span></div>';
   return '<div class="custos-compositor '+classe+'">'+custos.map(c=>{
     const id=c.tipo==='recurso'?c.id:c.tipo,nome=c.nome??id;
-    const saldo=p.foraCombate&&c.tipo!=='recurso'?'∞':String(c.saldo??'—')+((c.maximo??1)>1?'/'+c.maximo:'');
-    const dica=nome+' · custo '+c.quantidade+' · saldo '+(c.saldo??'—')+'/'+(c.maximo??'—');
-    return '<span class="custo-mini recurso-hud '+esc(c.tipo)+(Number(c.saldo)===0?' zerado':'')+'" role="img" aria-label="'+esc(dica)+'" data-info="'+esc(dica)+'">'+arteRecurso(id)+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto({id,nome}))+'</span>':'')+'<small class="saldo-recurso">'+esc(saldo)+'</small></span>';
+    const custo=String(c.quantidade??0)+'/'+(c.saldo??'—');
+    const dica=nome+' · custo '+(c.quantidade??0)+' · recursos atuais '+(c.saldo??'—')+' · capacidade total '+(c.maximo??'—');
+    return '<span class="custo-mini recurso-hud '+esc(c.tipo)+(Number(c.saldo)===0?' zerado':'')+'" role="img" aria-label="'+esc(dica)+'" data-info="'+esc(dica)+'">'+arteRecurso(id)+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto({id,nome}))+'</span>':'')+'<small class="saldo-recurso">'+esc(custo)+'</small></span>';
   }).join('')+'</div>';
 }
 function cartaoAcao(o,f,p){
