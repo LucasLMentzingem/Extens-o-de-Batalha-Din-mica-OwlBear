@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.68 — movimento dinâmico — 18/11/2026
+
+Botão acima de Mover, clique para andar e aproximação automática em linha reta para habilidades. Custo em metros na carta; oportunidades e zonas resolvidas antes da habilidade, com interrupção sem consumir seus recursos. Etapas persistentes, recuperação sem repetir rolagens/custos e cancelamento com limpeza de continuação. 451 testes, oito cenários GM/jogador e 12 layouts conferidos com SDK simulado. Publicação autorizada. [Notas](RELEASE-0.8.68.md).
+
 ## Entrega — 0.8.67 — alcance pela hitbox — 18/11/2026
 
 Alvos passam a contar pelo contato de sua hitbox circular com alcance/área. HUD, motor, composições, protótipos e zonas compartilham a regra; Sopro de Dragão preservado. 439 testes e sete cenários GM/jogador completos conferidos com SDK simulado. Publicação autorizada; detalhes em [RELEASE-0.8.67.md](RELEASE-0.8.67.md) e [FIX-ALCANCE-HITBOX.md](FIX-ALCANCE-HITBOX.md).

@@ -1,4 +1,4 @@
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.67';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.68';
 // Alcance parte da origem desenhada; basta tocar o disco do alvo. Metros contínuos.
 // A hitbox vem do token da cena, nunca de parâmetros enviados pelo jogador.
 export function hitboxToken(t){

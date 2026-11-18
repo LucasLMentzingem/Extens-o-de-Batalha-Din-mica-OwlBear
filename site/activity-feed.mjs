@@ -24,7 +24,8 @@ export class AtividadesMesa{
  }
  execucao(e){
   const a=this.obter(e.atividadeId??e.id);if(a.execucao?.versao>e.versao)return a;
-  Object.assign(a,{execucao:structuredClone(e),execucaoId:e.id,atorId:e.atorId,titulo:e.titulo,estado:e.estado,executada:true,ativa:!['Concluída','Cancelada','Falhou'].includes(e.estado),atualizadaEm:this.agora()});
+  if(e.acao&&!a.acao)a.acao=structuredClone(e.acao);
+  Object.assign(a,{...(e.atividadeOrigemId?{atividadeOrigemId:e.atividadeOrigemId}:{}),execucao:structuredClone(e),execucaoId:e.id,atorId:e.atorId,titulo:e.titulo,estado:e.estado,executada:true,ativa:!['Concluída','Cancelada','Falhou'].includes(e.estado),atualizadaEm:this.agora()});
   for(const p of e.pedidos??[])if(p.concluido&&p.tipo!=='salvaguarda'&&!a.rolagens.some(r=>r.pedido===p.pedido)&&p.resultado)a.rolagens.push({pedido:p.pedido,tipo:'resultado',meta:{tipo:p.tipo,titulo:p.titulo},resultado:structuredClone(p.resultado),fechada:true});
   for(const p of e.pedidos??[])if(p.tipo==='salvaguarda'&&p.atorRespondenteId){
    const filha=this.obter(p.pedido);Object.assign(filha,{atividadeOrigemId:a.id,execucaoId:e.id,atorId:p.atorRespondenteId,titulo:p.titulo??'Salvaguarda',executada:true});

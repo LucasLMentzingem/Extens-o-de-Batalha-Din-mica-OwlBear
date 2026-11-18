@@ -1,13 +1,15 @@
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.67';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.67';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.67';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.67';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.67';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.67';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.67';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.68';
+import {primeiroContato} from './zonas.mjs?v=0.8.68';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.68';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.68';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.68';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.68';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.68';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.68';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.68';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.67';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.67';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.68';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.68';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -1263,18 +1265,18 @@ function modificadorDanoAntesDaRolagem(a,o){
 export const mediaFormula=f=>String(f??'').replace(/\s+/g,'').split(/(?=[+-])/).reduce((n,parte)=>{const m=/^([+-]?)(\d*)d(\d+)$/i.exec(parte),sinal=parte.startsWith('-')?-1:1;if(m)return n+sinal*Number(m[2]||1)*(Number(m[3])+1)/2;const k=Number(parte);return Number.isFinite(k)?n+k:n;},0);
 const formulaCritica=f=>String(f).replace(/(\d*)d(\d+)/g,(_,n,l)=>(2*Number(n||1))+'d'+l);
 // #65 Prévia do Destruidor de Hordas: criaturas a até raioM do alvo original, dentro do alcance da arma e ainda não atacadas no turno.
-export function alvosElegiveisDestruidor(s,a,{alvoOriginalId,alcanceM,raioM=1.5,jaAtacados=[]}={}){
+export function alvosElegiveisDestruidor(s,a,{alvoOriginalId,alcanceM,raioM=1.5,jaAtacados=[],ignorarAlcance=false}={}){
   const original=s.atores.find(x=>x.id===alvoOriginalId);if(!original)return [];
   const atacados=new Set([...(a.eventosTurno?.ataques??[]).map(e=>e.alvo),...jaAtacados,original.id]);
-  return s.atores.filter(x=>x.id!==a.id&&x.emCombate!==false&&x.pv>0&&!atacados.has(x.id)&&distanciaAoAlvo(original,x)<=raioM+1e-8&&distanciaAoAlvo(a,x)<=Math.min(LIMITE_ALCANCE_M,alcanceM??1.5)+1e-8);
+  return s.atores.filter(x=>x.id!==a.id&&x.emCombate!==false&&x.pv>0&&!atacados.has(x.id)&&distanciaAoAlvo(original,x)<=raioM+1e-8&&(ignorarAlcance||distanciaAoAlvo(a,x)<=Math.min(LIMITE_ALCANCE_M,alcanceM??1.5)+1e-8));
 }
-export function ofertaDestruidorDeHordas(s,a){
+export function ofertaDestruidorDeHordas(s,a,{ignorarAlcance=false}={}){
   if(!a||s.fase==='turnos'&&atual(s)?.id!==a.id)return null;
   const hb=opcoesDisponiveis(a).find(o=>o.automacao?.usarArmaAnterior&&o.requisitosUso);if(!hb)return null;
   const chave=hb.requisitosUso.umaVezPorTurno??hb.id;if(a.usosTurno?.[chave])return null;
   const anterior=(a.eventosTurno?.ataques??[]).at(-1);if(!anterior||!(anterior.tags??[]).includes('arma'))return null;
   const arma=opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);if(arma?.automacao?.tipo!=='ataque')return null;
-  const raioM=hb.requisitosUso.distanciaDoAlvoAnteriorM??1.5,alvos=alvosElegiveisDestruidor(s,a,{alvoOriginalId:anterior.alvo,alcanceM:arma.automacao.alcanceM,raioM});
+  const raioM=hb.requisitosUso.distanciaDoAlvoAnteriorM??1.5,alvos=alvosElegiveisDestruidor(s,a,{alvoOriginalId:anterior.alvo,alcanceM:arma.automacao.alcanceM,raioM,ignorarAlcance});
   return {opcaoId:hb.id,nome:hb.nome,centroAtorId:anterior.alvo,raioM,alcanceM:arma.automacao.alcanceM,alvos:alvos.map(x=>({id:x.id,nome:x.nome}))};
 }
 // #56 #62 M03: escolhas declaradas para o fim do descanso (Presa do Caçador). A definição declara o grupo exclusivo;
@@ -1604,7 +1606,62 @@ export function modoDoAtaque(s,a,p,rule,{modoPedido='normal',efeitosOrigem=[]}={
   const desvantagem=Boolean(modoPedido==='desvantagem'||ra.desvantagemAtaques||rp.desvantagemAtaquesContra||(rp.caido&&!perto)||inimigoColado||(rule.alcanceNormalM!=null&&distanciaAoAlvo(a,p)>rule.alcanceNormalM+1e-8));
   return vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
 }
-export async function aplicar(s,c,u,rolar,contextoExecucao=null) {
+const dinamicaAtiva=p=>p&&['andando','habilidade'].includes(p.fase);
+function terminarDinamica(s,motivo,fase='cancelada'){
+ const next=structuredClone(s);Object.assign(next.acaoDinamica,{fase,motivo});next.rev++;
+ next.historico.unshift(motivo);next.historico=next.historico.slice(0,45);return next;
+}
+export function cancelarMovimentoDinamico(s,id,motivo='Movimento dinâmico cancelado.'){
+ if(s.acaoDinamica?.id!==id||!dinamicaAtiva(s.acaoDinamica))return s;
+ const next=terminarDinamica(s,motivo);if(next.movimentoPendente?.ator===next.acaoDinamica.ator){delete next.movimentoPendente;delete next.reacaoPendente;}return next;
+}
+export async function aplicar(s,c,u,rolar,contextoExecucao=null){
+ if(c.tipo!=='continuarDinamico'&&!(c.movimentoDinamico===true&&['usar','mover'].includes(c.tipo)))return aplicarBase(s,c,u,rolar,contextoExecucao);
+ exigir(c.rev===s.rev,'O encontro mudou. Confira a jogada.');
+ const a=s.atores.find(x=>x.id===c.ator);exigir(a&&(u.role==='GM'||a.dono===u.id&&(a.ficha.tipo==='pj'||a.invocacao?.controlavel)),'Você não controla esse personagem.');
+ if(u.role==='GM'&&a.ficha.tipo==='pj')exigir(c.confirmado,'Confirme a ação em nome do jogador.');
+ let next=structuredClone(s),p=next.acaoDinamica;
+ if(c.tipo!=='continuarDinamico'){
+  exigir(!dinamicaAtiva(p)&&!s.reacaoPendente,'Resolva a jogada pendente primeiro.');
+  exigir(s.fase==='turnos'&&a.emCombate!==false&&atual(s)?.id===a.id,'Movimento dinâmico exige o turno desse personagem.');
+  let o=c.tipo==='usar'?opcoesDisponiveis(a).find(x=>x.id===c.opcao):null;
+  if(o)o=derivarOpcaoCirculo(a,o,c.circuloUsado,{magiaDuplicada:c.magiaDuplicada===true});
+  if(o?.automacao?.usarArmaAnterior){const anterior=a.eventosTurno?.ataques?.at(-1),arma=opcoesDisponiveis(a).find(x=>x.id===anterior?.opcao);if(arma?.automacao)o={...o,automacao:arma.automacao};}
+  const levantar=temCondicao(a,'caido')?deslocamentoMaximo(a)/2:0,plano=planejarMovimentoDinamico(s,a,c,o,{levantar});
+  exigir(plano.possivel,plano.motivo);
+  if(plano.distancia<=1e-8)return aplicarBase(s,{...c,movimentoDinamico:undefined},u,rolar,contextoExecucao);
+  exigir(a.pv>0&&!restricoesAtivas(a).imovel,'O personagem está impedido de se mover.');
+  if(c.tipo==='usar'){
+   // Só valida a cópia: nenhum dado é lançado e nenhum custo é confirmado.
+   const ensaio=structuredClone(s),atorEnsaio=ensaio.atores.find(x=>x.id===a.id),parar={};Object.assign(atorEnsaio,plano.destino);
+   try{await aplicarBase(ensaio,{...c,movimentoDinamico:undefined},u,async()=>{throw parar;});}catch(e){if(e!==parar)throw e;}
+  }
+  p=next.acaoDinamica={id:c.movimentoDinamicoId??c.atividadeId??crypto.randomUUID(),ator:a.id,atividadeId:c.atividadeId,
+   fase:'andando',origem:{x:a.x,y:a.y},destino:plano.destino,custoPrevisto:plano.custo,saldoInicial:a.metros,zonasVisitadas:[],
+   comando:c.tipo==='usar'?{...structuredClone(c),movimentoDinamico:undefined}:null};
+ }else exigir(p&&p.id===c.movimentoDinamicoId&&p.ator===a.id,'A jogada dinâmica não está mais disponível.');
+ if(!dinamicaAtiva(p))return terminarDinamica(next,p.motivo??'Jogada encerrada.',p.fase);
+ exigir(!next.movimentoPendente&&!next.reacaoPendente,'Aguardando a reação pendente.');
+ if(next.fase!=='turnos'||atual(next)?.id!==a.id||a.pv<=0)return terminarDinamica(next,'Habilidade cancelada: o personagem não pode continuar neste turno.');
+ const naPosicao=Math.hypot(a.x-p.destino.x,a.y-p.destino.y)<=1e-8;
+ if(!naPosicao){
+  if(restricoesAtivas(a).imovel||restricoesAtivas(a).semAcoes)return terminarDinamica(next,'Efeito no percurso impediu a continuação; habilidade não consumida.');
+  const zonas=entradasNaTrajetoria(next.zonas,a,p.destino,a).filter(z=>!p.zonasVisitadas.includes(z.id));
+  const contato=primeiroContato(zonas,a,p.destino,a),destino=contato?.ponto??p.destino;
+  try{
+   next=await aplicarBase(next,{tipo:'mover',ator:a.id,rev:next.rev,confirmado:c.confirmado,x:destino.x,y:destino.y,atividadeId:p.atividadeId},u,rolar,contextoExecucao);
+   if(contato)next.acaoDinamica.zonasVisitadas.push(...zonas.filter(z=>{const x=primeiroContato([z],a,p.destino,a);return x&&Math.abs(x.t-contato.t)<1e-8;}).map(z=>z.id));
+   return next;
+  }catch(e){return terminarDinamica(next,'Movimento interrompido: '+e.message);}
+ }
+ if(!p.comando)return terminarDinamica(next,'Movimento dinâmico concluído.','concluida');
+ if(restricoesAtivas(a).semAcoes)return terminarDinamica(next,'Efeito no percurso impediu a habilidade; recursos preservados.');
+ try{
+  next=await aplicarBase(next,{...p.comando,rev:next.rev},u,rolar,contextoExecucao);
+  next.acaoDinamica.fase='concluida';next.acaoDinamica.motivo='Movimento e habilidade concluídos.';return next;
+ }catch(e){return terminarDinamica(next,'Habilidade cancelada após o movimento: '+e.message);}
+}
+async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
   // The caller commits this copy only after every validation and die succeeds.
   s=structuredClone(s);
   if(contextoExecucao)Object.defineProperty(s,'__contextoExecucao',{value:contextoExecucao,enumerable:false});
@@ -2444,7 +2501,8 @@ export async function aplicar(s,c,u,rolar,contextoExecucao=null) {
         const critico=face===20||(rt.criticoCorpoACorpo&&distanciaAoAlvo(a,alvo)<=1.5+1e-8),formula=critico?formulaCritica(rule.dano):rule.dano;
         const resolvido=await resolverDanoDeAtaque({o:ataque,rule,p:alvo,critico,formula,tagsDano:tagsAtaque(ataque,rule),titulo:'Dano · '+ataque.nome}),dano=resolvido.dano+resolvido.textos.map(x=>' • '+x).join('');
         const percorrida=distancia(mov.origem,p.ponto),totalTrajeto=Math.max(.0001,distancia(mov.origem,mov.destino)),custoPercorrido=(mov.custoMovimento??totalTrajeto)*Math.min(1,percorrida/totalTrajeto);
-        alvo.x=p.ponto.x;alvo.y=p.ponto.y;alvo.metros=Math.max(0,alvo.metros-custoPercorrido);
+        alvo.x=p.ponto.x;alvo.y=p.ponto.y;alvo.metros=Math.max(0,alvo.metros-(s.acaoDinamica?.fase==='andando'?custoTrajeto(s,{...alvo,...mov.origem},p.ponto):custoPercorrido));
+        if(s.acaoDinamica?.ator===alvo.id&&s.acaoDinamica.fase==='andando'){s.acaoDinamica.fase='cancelada';s.acaoDinamica.motivo='Ataque de oportunidade acertou; habilidade cancelada sem gastar seus recursos.';}
         msg+=' e causou '+dano+'. O movimento parou em '+percorrida.toFixed(2)+' m.';
         delete s.movimentoPendente;delete s.reacaoPendente;abrirProximaReacaoEvento(s);
       }else{
@@ -2595,6 +2653,7 @@ export async function aplicar(s,c,u,rolar,contextoExecucao=null) {
 msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join(', ')+'.':'');break;
       }
       exigir(a.pv>0,'Personagem a 0 PV.');
+      if(c.tipo==='mover')exigir(!restricoesAtivas(a).imovel,'O personagem está impedido de se mover.');
       if(c.tipo==='mover'){
         exigir(Number.isFinite(c.x)&&Number.isFinite(c.y),'Destino inválido.');
         // #23 Levantar-se do Caído custa metade do deslocamento (livro 2024).

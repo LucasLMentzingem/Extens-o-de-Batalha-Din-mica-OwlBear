@@ -1,11 +1,12 @@
-import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.67';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.67';
+import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.68';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.68';
 
 export const encerrada=e=>['Concluída','Cancelada','Falhou'].includes(e.estado);
 const clone=x=>structuredClone(x),igual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 export const novoRegistroExecucoes=()=>({formato:1,versao:0,lista:[],bases:{},encerramentos:{},expirouAntes:0});
 export class PedidoDeRolagem extends Error{constructor(formula,meta,indice){super('Aguardando rolagem');Object.assign(this,{formula:clone(formula),meta:clone(meta),indice});}}
 export function recursosDaExecucao(s,c){
+ if(c.movimentoDinamico===true)return ['mesa'];
  if(c.tipo==='teste')return ['ator:'+c.ator];
  if(c.tipo!=='usar')return ['mesa'];
  const a=s.atores.find(x=>x.id===c.ator),o=a&&opcoesDisponiveis(a).find(x=>x.id===c.opcao);
@@ -15,7 +16,7 @@ export function recursosDaExecucao(s,c){
 }
 export function podeIniciarExecucao(registro,e){
  const ocupadas=registro.lista.filter(x=>x.id!==e.id&&!encerrada(x)&&x.iniciadaEm);
- return !ocupadas.some(x=>x.recursos.includes('mesa')||e.recursos.includes('mesa')||x.recursos.some(r=>e.recursos.includes(r)));
+ return !ocupadas.some(x=>x.id!==e.paiDinamico&&(x.recursos.includes('mesa')||e.recursos.includes('mesa')||x.recursos.some(r=>e.recursos.includes(r))));
 }
 export function admitirExecucao(registro,c,u,id,s,{agora=Date.now()}={}){
  const anterior=registro.lista.find(x=>x.id===id)??registro.encerramentos?.[id];
@@ -25,9 +26,16 @@ export function admitirExecucao(registro,c,u,id,s,{agora=Date.now()}={}){
  const a=s.atores.find(x=>x.id===c.ator);
  if(u.role!=='GM'&&(!a||a.dono!==u.id||(a.ficha.tipo!=='pj'&&!a.invocacao?.controlavel)))throw Error('Você não controla esse personagem.');
  const e={id,atividadeId:c.atividadeId??id,usuario:{id:u.id,name:u.name,role:u.role},atorId:c.ator,intencao:{...clone(c),rev:undefined},comando:clone(c),recursos:recursosDaExecucao(s,c),estado:'Recebida',criadaEm:agora,versao:1,rolagens:[],ids:[],tempos:[]};
+ if(c.movimentoDinamico===true)e.comando.movimentoDinamicoId=id;
+ if(c.tipo==='resolverReacao'&&s.acaoDinamica&&s.reacaoPendente){e.paiDinamico=s.acaoDinamica.id;e.atividadeOrigemId=s.acaoDinamica.atividadeId;}
  registro.lista.push(e);registro.versao++;return e;
 }
 export function iniciarExecucao(registro,e,s,{agora=Date.now()}={}){
+ if(e.rebaseDinamico){
+  if(s.movimentoPendente||s.reacaoPendente)return false;
+  const base=compactarEstado(s);delete base.__execucoes;e.baseRef=e.id+':etapa:'+e.etapaDinamica;registro.bases[e.baseRef]=base;
+  e.comando.rev=s.rev;delete e.rebaseDinamico;
+ }
  if(e.iniciadaEm)return true;
  if(!podeIniciarExecucao(registro,e)){e.estado='Na fila';e.motivo='Aguardando personagem, alvo ou turno de outra execução.';return false;}
  const base=compactarEstado(s);delete base.__execucoes;
@@ -59,7 +67,7 @@ export async function avancarExecucao(registro,e,{executar=aplicar,agora=Date.no
  if(rodada.erro)throw rodada.erro;
  if(rodada.next)return {base,next:rodada.next};
  if(!faltantes.length)throw Error('O motor aguardou uma etapa sem pedido recuperável.');
- for(const falta of faltantes)if(!e.rolagens[falta.indice])e.rolagens[falta.indice]={id:e.id+':'+falta.indice,indice:falta.indice,formula:falta.formula,meta:falta.meta,assinatura:falta.assinatura};
+ for(const falta of faltantes)if(!e.rolagens[falta.indice])e.rolagens[falta.indice]={id:e.id+':'+(e.etapaDinamica?'etapa'+e.etapaDinamica+':':'')+falta.indice,indice:falta.indice,formula:falta.formula,meta:falta.meta,assinatura:falta.assinatura};
  const pedidos=faltantes.map(f=>e.rolagens[f.indice]),r=pedidos[0];
  e.estado=r.snapshot?.tipo==='resultado'?'Resultado disponível':r.snapshot?.tipo==='rolando'?'Resultado desconhecido':'Aguardando resposta';e.versao++;registro.versao++;
  return {pedido:r,pedidos};
@@ -83,6 +91,15 @@ export function aplicarResultadoExecucao(base,next,atual){
   if(k in next)out[k]=clone(next[k]);else delete out[k];
  }
  out.rev=(atual.rev??0)+1;out.historico=[next.historico[0],...(atual.historico??[])].filter(Boolean).slice(0,45);return out;
+}
+export function checkpointDinamico(registro,e,s){
+ const anterior=e.baseRef;delete e.baseRef;
+ if(anterior&&!registro.lista.some(x=>x.id!==e.id&&!encerrada(x)&&x.baseRef===anterior))delete registro.bases[anterior];
+ e.diarioDinamico??=[];e.diarioDinamico.push(...e.rolagens);e.rolagens=[];e.ids=[];e.tempos=[];
+ e.etapaDinamica=(e.etapaDinamica??0)+1;e.rebaseDinamico=true;
+ e.comando={tipo:'continuarDinamico',ator:e.atorId,confirmado:e.intencao.confirmado,atividadeId:e.atividadeId,movimentoDinamicoId:e.id,rev:s.rev};
+ e.estado=s.reacaoPendente?'Aguardando reação':'Em andamento';e.motivo=s.reacaoPendente?'Oportunidade antes de continuar o movimento e a habilidade.':'Movimento dinâmico em etapas.';
+ e.versao++;registro.versao++;
 }
 export function validarDependenciasExecucao(e,base,atual){
  for(const k of ['fase','rodada','vez','ordem'])if(!igual(base[k],atual[k]))throw Error('O turno mudou durante a execução. Confira a jogada antes de aplicar.');
@@ -110,12 +127,15 @@ export function cancelarExecucao(registro,id,u,{confirmado=false}={}){
  const e=registro.lista.find(x=>x.id===id);if(!e)throw Error('Execução não encontrada.');
  if(u.role!=='GM'&&e.usuario.id!==u.id)throw Error('Você não pode cancelar a ação de outro participante.');
  if(encerrada(e))return {execucao:e,terminal:true};
- const comDados=e.rolagens.some(r=>r.dadosLancados||r.resultado||r.snapshot?.resultado||['rolando','indeterminada'].includes(r.snapshot?.tipo));
+ const diarios=[...e.rolagens,...(e.diarioDinamico??[]),...registro.lista.filter(x=>x.paiDinamico===e.id&&!encerrada(x)).flatMap(x=>x.rolagens)];
+ const comDados=diarios.some(r=>r.dadosLancados||r.resultado||r.snapshot?.resultado||['rolando','indeterminada'].includes(r.snapshot?.tipo));
  if(comDados&&u.role!=='GM'){e.cancelamentoSolicitado=true;e.versao++;registro.versao++;return {execucao:e,solicitado:true};}
  if(comDados&&!confirmado)throw Error('Confirme o cancelamento de uma ação com dados já lançados.');
  encerrarExecucao(registro,e,'Cancelada','Cancelada por '+(u.name??u.id));return {execucao:e,terminal:true};
 }
 export function resumoExecucao(e,s){
- const a=s.atores.find(x=>x.id===e.atorId),o=a&&opcoesDisponiveis(a).find(x=>x.id===e.comando.opcao);
- return {id:e.id,atividadeId:e.atividadeId,atorId:e.atorId,donoId:e.usuario.id,titulo:o?.nome??(e.comando.tipo==='teste'?'Teste · '+e.comando.chave:e.comando.tipo),estado:e.estado,versao:e.versao,criadaEm:e.criadaEm,encerradaEm:e.encerradaEm,erro:e.erro,motivo:e.motivo,cancelamentoSolicitado:e.cancelamentoSolicitado===true,pedidos:e.rolagens.map(r=>({pedido:r.id,tipo:r.meta.tipo,titulo:r.meta.titulo,atorRespondenteId:r.meta.atorRespondenteId,destino:r.snapshot?.destino,concluido:!!r.resultado,resultado:r.resultado?{total:r.resultado.total,natural:r.resultado.natural,resumo:r.resultado.resumo,resultados:r.resultado.resultados?.map(x=>({total:x.total,natural:x.natural,resumo:x.resumo,fonteId:x.fonteId,fonteNome:x.fonteNome,tipoFonte:x.tipoFonte,formulaFonte:x.formulaFonte}))}:undefined}))};
+ const a=s.atores.find(x=>x.id===e.atorId),o=a&&(opcoesDisponiveis(a).find(x=>x.id===(e.intencao??e.comando).opcao)??(e.intencao?.movimentoDinamico?{id:'movimento-dinamico',nome:'Movimento dinâmico',categoria:'movimento',descricao:'Mover em linha reta até o destino selecionado.'}:null));
+ const din=s.acaoDinamica?.id===e.id?s.acaoDinamica:null;
+ const acao=e.intencao?.movimentoDinamico&&o?{id:e.atividadeId,atorId:e.atorId,titulo:o.nome,opcao:e.intencao.opcao,opcaoPublica:o,fichaPublica:{recursos:a.ficha.recursos},rolagem:true,somenteLeitura:true,detalhe:din?.motivo??e.motivo??'Movimento e habilidade em andamento.',custos:[{tipo:'movimento',nome:'Movimento (m)',quantidade:Number((din?.custoPrevisto??0).toFixed(2)),saldo:din?.saldoInicial??a.metros,maximo:a.metros}]}:null;
+ return {acao,atividadeOrigemId:e.atividadeOrigemId,id:e.id,atividadeId:e.atividadeId,atorId:e.atorId,donoId:e.usuario.id,titulo:o?.nome??(e.comando.tipo==='teste'?'Teste · '+e.comando.chave:e.comando.tipo),estado:e.estado,versao:e.versao,criadaEm:e.criadaEm,encerradaEm:e.encerradaEm,erro:e.erro,motivo:e.motivo,cancelamentoSolicitado:e.cancelamentoSolicitado===true,pedidos:[...(e.diarioDinamico??[]),...e.rolagens].map(r=>({pedido:r.id,tipo:r.meta.tipo,titulo:r.meta.titulo,atorRespondenteId:r.meta.atorRespondenteId,destino:r.snapshot?.destino,concluido:!!r.resultado,resultado:r.resultado?{total:r.resultado.total,natural:r.resultado.natural,resumo:r.resultado.resumo,resultados:r.resultado.resultados?.map(x=>({total:x.total,natural:x.natural,resumo:x.resumo,fonteId:x.fonteId,fonteNome:x.fonteNome,tipoFonte:x.tipoFonte,formulaFonte:x.formulaFonte}))}:undefined}))};
 }

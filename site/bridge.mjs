@@ -1,20 +1,20 @@
-import {hitboxToken} from './target-geometry.mjs?v=0.8.67';
-import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.67';
-import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.67';
-import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.67';
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.67';
+import {hitboxToken} from './target-geometry.mjs?v=0.8.68';
+import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.68';
+import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.68';
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.68';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.68';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.67';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.67';
-import {compactarEstado} from './catalog.mjs?v=0.8.67';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.67';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.67';
-import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.67';
-import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.67';
-import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.67';
-import {novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.67';
-import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.67';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.67';
+import {cancelarMovimentoDinamico,novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.68';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.68';
+import {compactarEstado} from './catalog.mjs?v=0.8.68';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.68';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.68';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.68';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.68';
+import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.68';
+import {checkpointDinamico,novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.68';
+import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.68';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.68';
 export const ns='aventura-dnd.combate.v1';
 let seloControle;
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
@@ -380,6 +380,11 @@ export async function host(){
     if(!token||!(await OBR.scene.items.getItems([token])).some(i=>i.id===token))return;
     await OBR.scene.items.updateItems([token],items=>{for(const i of items){if(i.metadata){delete i.metadata[chaveFichaNpc];if(typeof i.metadata[chaveBloqueioNpc]==='boolean')i.locked=i.metadata[chaveBloqueioNpc];delete i.metadata[chaveBloqueioNpc];}}});
   }
+  async function descartarDinamica(key,e,motivo){
+    const atual=await carregar();if(atual.key!==key)return;
+    const limpo=cancelarMovimentoDinamico(atual.s,e.paiDinamico??e.id,motivo);
+    if(limpo!==atual.s){persistir(key,limpo);await mostrar(limpo);}
+  }
   async function executar(c,u,reply,execucao=null){
     let chaveExecucao;
     try{
@@ -464,7 +469,9 @@ export async function host(){
         const atual=await carregar();if(atual.key!==key)throw Error('A cena mudou antes de aplicar a execução.');
         for(const a of atual.s.atores){const t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/pixelsMetro;a.y=t.y/pixelsMetro;if(t.hitbox)a.hitbox=t.hitbox;else delete a.hitbox;}}
         validarDependenciasExecucao(execucao,passo.base,atual.s);next=aplicarResultadoExecucao(passo.base,passo.next,atual.s);
-        const etapa=structuredClone(registro),concluida=etapa.lista.find(e=>e.id===execucao.id);encerrarExecucao(etapa,concluida,'Concluída');
+        const etapa=structuredClone(registro),concluida=etapa.lista.find(e=>e.id===execucao.id),din=next.acaoDinamica;
+        if(din?.id===execucao.id&&['andando','habilidade'].includes(din.fase))checkpointDinamico(etapa,concluida,next);
+        else encerrarExecucao(etapa,concluida,din?.id===execucao.id&&din.fase==='cancelada'?'Cancelada':'Concluída',din?.id===execucao.id&&din.fase==='cancelada'?din.motivo:undefined);
         const documento=compactarEstado(next);documento.__execucoes=etapa;
         localStorage.setItem(key,JSON.stringify(documento)); // mundo e recibo no mesmo ponto de gravação
         const anteriores=new Map(registro.lista.map(e=>[e.id,e]));Object.assign(registro,etapa);
@@ -525,13 +532,15 @@ export async function host(){
         const evento={tipo:'atividade-aplicada',atividadeId:c.atividadeId,alvos};ch.postMessage({rolagemPublica:evento});await OBR.broadcast.sendMessage(canais.roll,evento,{destination:'REMOTE'});
       }
       if(execucao)await anunciarExecucao(execucao,next);
-      await reply({});
+      if(!execucao||encerrada(execucao))await reply({});
+      if(next.acaoDinamica)serial(()=>bombear());
     }catch(e){
       if(execucao){
         if(chaveExecucao!==chaveAtiva){await reply({erro:'Jogada pausada na cena anterior. Retorne àquela cena para retomá-la.'});return;}
         const registro=registrosExecucao.get(chaveExecucao??chaveAtiva);
         if(execucao.estado==='Concluída'){console.warn('Execução salva; apresentação pendente:',e);await reply({});return;}
         encerrarExecucao(registro,execucao,'Falhou',e.message);salvarRegistro(chaveExecucao??chaveAtiva);
+        await descartarDinamica(chaveExecucao??chaveAtiva,execucao,'Jogada interrompida: '+e.message);serial(()=>bombear());
         try{if(chaveExecucao===chaveAtiva)await anunciarExecucao(execucao,(await carregar()).s);}catch{}
       }
       await reply({erro:e.message});
@@ -566,14 +575,14 @@ export async function host(){
       concluir:(erro,valor)=>{if(!erro&&!encerrada(e)){r.resultado=structuredClone(valor);e.estado='Em andamento';e.versao++;registro.versao++;salvarRegistro(key);}},
       cancelar:autor=>{
         const resultado=cancelarExecucao(registro,e.id,autor);salvarRegistro(key);
-        serial(async()=>{const {s}=await carregar();await anunciarExecucao(e,s);if(resultado.terminal){respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);await bombear();}});
+        serial(async()=>{if(resultado.terminal)await descartarDinamica(key,e,'Jogada cancelada; habilidade não executada.');const {s}=await carregar();await anunciarExecucao(e,s);if(resultado.terminal){respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);await bombear();}});
         return resultado.terminal===true;
       }
     };
     const rolar=dadoSala(e.usuario,ch,pedidos,eu.id,presentes,{atividadeId:e.atividadeId,atorId:e.atorId,execucaoId:e.id},runtime);
-    rolar(r.formula,r.meta).then(()=>serial(async()=>{rolagensEmCurso.delete(r.id);if(key===chaveAtiva&&!encerrada(e))await bombear();}),err=>serial(async()=>{
+    rolar(r.formula,{...r.meta,...(e.atividadeOrigemId?{atividadeOrigemId:e.atividadeOrigemId}:{})}).then(()=>serial(async()=>{rolagensEmCurso.delete(r.id);if(key===chaveAtiva&&!encerrada(e))await bombear();}),err=>serial(async()=>{
       rolagensEmCurso.delete(r.id);if(encerrada(e))return;
-      encerrarExecucao(registro,e,'Falhou',err.message);salvarRegistro(key);respostasExecucao.get(e.id)?.({erro:err.message});respostasExecucao.delete(e.id);
+      encerrarExecucao(registro,e,'Falhou',err.message);salvarRegistro(key);await descartarDinamica(key,e,'Rolagem interrompida: '+err.message);respostasExecucao.get(e.id)?.({erro:err.message});respostasExecucao.delete(e.id);
       if(key===chaveAtiva){await anunciarExecucao(e,(await carregar()).s);await bombear();}
     }));
   }
@@ -587,7 +596,8 @@ export async function host(){
         if(e.estado!=='Na fila'){e.estado='Na fila';e.motivo='Aguardando personagem, alvo ou turno de outra execução.';e.versao++;registro.versao++;salvarRegistro(key);await anunciarExecucao(e,s);}
         continue;
       }
-      const assinatura=e.rolagens.map(r=>!!r.resultado).join(',');
+      if(e.rebaseDinamico&&(s.movimentoPendente||s.reacaoPendente))continue;
+      const assinatura=(e.etapaDinamica??0)+':'+e.rolagens.map(r=>!!r.resultado).join(',');
       if(e.iniciadaEm&&avaliadas.get(e.id)===assinatura)continue;
       const versao=e.versao;
       await executar(e.comando,e.usuario,resposta=>{respostasExecucao.get(e.id)?.(resposta);respostasExecucao.delete(e.id);},e);
@@ -606,7 +616,7 @@ export async function host(){
     }
     if(c.tipo==='cancelarExecucao'){
       const {execucao:e,terminal}=cancelarExecucao(registro,c.execucaoId,u,{confirmado:c.confirmado===true});salvarRegistro(key);
-      if(terminal){for(const r of e.rolagens)pedidos.get(r.id)?.fechar();respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);}
+      if(terminal){await descartarDinamica(key,e,'Jogada cancelada; habilidade não executada.');for(const r of e.rolagens)pedidos.get(r.id)?.fechar();respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);}
       await anunciarExecucao(e,s);await reply({});await bombear();return;
     }
     if(['excluirFichaIsolada','criarPeca','criarRecipiente','vincular'].includes(c.tipo)){await executar(c,u,reply);await bombear();return;}
@@ -707,10 +717,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.67',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.68',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.67',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.68',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }

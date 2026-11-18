@@ -1,21 +1,23 @@
-import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.67';
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.67';
+import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.68';
+import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.68';
+import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.68';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.68';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.67';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.67';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.67';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.67';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.67';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.67';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.67';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.67';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.67';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.67';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.67';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.67';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.68';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.68';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.68';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.68';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.68';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.68';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.68';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.68';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.68';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.68';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.68';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.68';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.67',import.meta.url);
+const url=new URL('./hud.html?v=0.8.68',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -34,11 +36,10 @@ function marcaArea(rule,origem,ponto,pixelsMetro){
   const dx=ponto.x-origem.x,dy=ponto.y-origem.y,n=Math.hypot(dx,dy)||1,ux=dx/n,uy=dy/n,l=area.comprimentoM*pixelsMetro,w=(area.larguraM??(area.forma==='cone'?area.comprimentoM:1.5))*pixelsMetro/2,fx=ux*l,fy=uy*l,px=-uy*w,py=ux*w;
   return area.forma==='cone'?[poligono(origem,[{x:0,y:0},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py}],'#79cfb1')]:[poligono(origem,[{x:px,y:py},{x:fx+px,y:fy+py},{x:fx-px,y:fy-py},{x:-px,y:-py}],'#79cfb1')];
 }
-function alvosDaArea(rule,origem,ponto,atores,pos,pixelsMetro,geometria){
+function alvosDaArea(rule,origem,ponto,atores,pos,pixelsMetro,geometria,conjuradorId){
   const origemM={x:origem.x/pixelsMetro,y:origem.y/pixelsMetro},pontoM={x:ponto.x/pixelsMetro,y:ponto.y/pixelsMetro};
   return atores.filter(a=>{
-    const p=pos(a),mesmoPonto=Math.hypot(p.x-origem.x,p.y-origem.y)<=1e-8;
-    return !(rule?.excluirConjurador&&mesmoPonto)&&dentroDaArea(origemM,pontoM,geometria(a),rule);
+    return !((rule?.excluirConjurador||['cone','linha'].includes(rule?.area?.forma))&&a.id===conjuradorId)&&dentroDaArea(origemM,pontoM,geometria(a),rule);
   });
 }
 // M05: cada cliente desenha as zonas ativas a partir do estado público (persistem ao recarregar,
@@ -76,6 +77,7 @@ export async function iniciarHud(){
   const partesHud=['ordem','barra','efeitos','dica-efeito','iniciativa','acao','reacao','dados','anuncio-dado','atividades'];
   let estado,eu,api,atorId,pendente,acaoPublica,anterior,pedidoDado,anuncioDado,timerAnuncio,responderDado,dicaEfeito,ocupado=false,linhas=Number(localStorage.getItem(ns+'/linhas'))||3,espacoEfeitos=0;
   let compacto=localStorage.getItem(ns+'/compacto')==='1';
+  let movimentoDinamico=localStorage.getItem(ns+'/movimento-dinamico')==='1',movimentoHover=null,marcasHover=[],ultimoHover=0;
   let saqueAbertoVisual=null,trocaAbertaVisual=null;
   let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false;
   let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'painel'});
@@ -117,6 +119,8 @@ export async function iniciarHud(){
   const geometria=a=>{const p=pos(a),t=token(a);return {x:p.x/pixelsMetro,y:p.y/pixelsMetro,hitbox:t?hitboxToken(t):a.hitbox};};
   const distanciaAlvo=(origem,a)=>distanciaAoAlvo({x:origem.x/pixelsMetro,y:origem.y/pixelsMetro},geometria(a));
   const estadoDaCena=()=>({...estado,atores:atores().map(a=>({...a,...geometria(a)}))});
+  const origemHabilidade=p=>p.cmd.movimentoDinamico&&p.planoMovimento?.possivel?{x:p.planoMovimento.destino.x*pixelsMetro,y:p.planoMovimento.destino.y*pixelsMetro}:p.origem;
+  const alvosAreaPrevista=(p,ponto,origem)=>alvosDaArea(p.rule,origem,ponto,atores(),pos,pixelsMetro,a=>a.id===p.cmd.ator?{...geometria(a),x:origem.x/pixelsMetro,y:origem.y/pixelsMetro}:geometria(a),p.cmd.ator);
   const atividadeAtual=()=>atividades.atual(eu?.id);
   const painelAtividades=()=>Boolean(atividadeAtual());
   const acaoVisivel=()=>{
@@ -138,9 +142,10 @@ export async function iniciarHud(){
   }
   function resumoPendente(p,somenteLeitura=false){
     if(!p)return null;
+    atualizarPlanoDinamico(p);
     const a=atores().find(x=>x.id===(p.cmd?.ator??p.atorId)),o=p.opcaoPublica??opcoesDisponiveis(a??{}).find(x=>x.id===(p.cmd?.opcao??p.opcao));
     return {id:p.publicId??p.id,atorId:a?.id??p.atorId,titulo:p.titulo,detalhe:p.detalhe,pronto:p.pronto,
-      opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?{...structuredClone(o),visual:visualHabilidade(o,a?.ficha??p.fichaPublica??{})}:null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
+      movimentoDinamico:p.cmd?.movimentoDinamico===true,opcao:p.cmd?.opcao??p.opcao,opcaoPublica:o?{...structuredClone(o),visual:visualHabilidade(o,a?.ficha??p.fichaPublica??{})}:null,fichaPublica:{recursos:structuredClone(a?.ficha?.recursos??p.fichaPublica?.recursos??[])},
       lista:p.escolha==='lista'||p.lista,quantidade:p.cmd?.alvos?.length??p.quantidade,min:p.regraLista?.min??p.min,max:p.regraLista?.max??p.max,
       alvos:p.cmd?.alvos??p.alvos??[],parametros:structuredClone(p.cmd?.parametros??p.parametros??{}),composicao:p.composicao?structuredClone(p.composicao):null,compositor:p.compositor?structuredClone(p.compositor):null,
       saldosComposicao:{acao:a?.acao??0,bonus:a?.bonus??0,reacao:a?.reacao??0,...(a?.rec??{})},foraCombate:estado?.fase==='preparo'||a?.emCombate===false,custos:structuredClone(p.custos??custosPrevia(a,o,p.cmd?.modoCusto)),rolagem:p.rolagem,substitui:p.substitui,donoAcao:a?.nome??p.donoAcao,rev:p.rev,somenteLeitura:somenteLeitura||p.somenteLeitura===true};
@@ -148,7 +153,7 @@ export async function iniciarHud(){
   function transmitir(){
     if(encerrado)return;
     const p=acaoVisivel();
-    if(estado)bus.postMessage({vista:{sessaoHud,estado,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
+    if(estado)bus.postMessage({vista:{sessaoHud,estado,movimentoDinamico,movimentoHover,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
       atividades:{modo:atividades.modo,selecionada:atividadeAtual()?.id,propria:atividades.propria,pendentes:atividades.pendencias(eu.id).length,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:resumoPendente(p,p===acaoPublica)}});
   }
@@ -293,6 +298,7 @@ export async function iniciarHud(){
     await OBR.broadcast.sendMessage(canalPrevia,{tipo:'fechar',id,atorId:atorIdPublico,status},{destination:'REMOTE'}).catch(e=>console.warn('Falha ao fechar a prévia pública.',e));
   }
   async function desenhar(items){
+    if(pendente?.cmd.movimentoDinamico){atualizarPlanoDinamico(pendente);const plano=pendente.planoMovimento;if(plano?.possivel&&plano.distancia>1e-8)items=[...(pendente.cmd.tipo==='usar'?[circulo(origemHabilidade(pendente),pendente.raio*pixelsMetro,'#e5c079'),...items.slice(1)]:items),...seta(pendente.origem,{x:plano.destino.x*pixelsMetro,y:plano.destino.y*pixelsMetro}),circulo({x:plano.destino.x*pixelsMetro,y:plano.destino.y*pixelsMetro},.2*pixelsMetro,'#79cfb1')];}
     await limparMarcas();if(items.length){await OBR.scene.local.addItems(items);marcas=items.map(x=>x.id);}
     await publicarPrevia(items);
   }
@@ -330,14 +336,14 @@ export async function iniciarHud(){
   }
   function marcasDestruidorAvulso(p){
     if(!p.rule?.usarArmaAnterior)return [];
-    const oferta=ofertaDestruidorDeHordas(estadoDaCena(),{...ator(),...geometria(ator())});
+    const oferta=ofertaDestruidorDeHordas(estadoDaCena(),{...ator(),...geometria(ator())},{ignorarAlcance:movimentoDinamico});
     return oferta?marcasDestruidor(oferta.centroAtorId,oferta.raioM,oferta.alvos):[];
   }
   function elegiveisDestruidorNaComposicao(p){
     const modo=p?.composicao?.modos.find(m=>m.id===p.composicao.modoAtivo),anterior=p?.cmd?.composicao?.at(-1),a=ator();
     if(!modo?.destruidorDeHordas||!anterior||!a)return null;
     const def=(opcoesDisponiveis(a).find(o=>o.id===p.cmd.opcao)?.composicao?.modos??[]).find(m=>m.id===anterior.modoId);
-    const alvos=alvosElegiveisDestruidor(estadoDaCena(),{...a,...geometria(a)},{alvoOriginalId:anterior.alvoId,alcanceM:def?.automacao?.alcanceM,raioM:modo.destruidorDeHordas.raioM,jaAtacados:p.cmd.composicao.map(x=>x.alvoId)});
+    const alvos=alvosElegiveisDestruidor(estadoDaCena(),{...a,...geometria(a)},{alvoOriginalId:anterior.alvoId,alcanceM:def?.automacao?.alcanceM,raioM:modo.destruidorDeHordas.raioM,ignorarAlcance:movimentoDinamico,jaAtacados:p.cmd.composicao.map(x=>x.alvoId)});
     return {centroId:anterior.alvoId,raioM:modo.destruidorDeHordas.raioM,alvos};
   }
   function marcasComposicao(p){
@@ -367,8 +373,30 @@ export async function iniciarHud(){
   }
   async function cancelar(status='Cancelada'){
     const publicId=pendente?.publicId,atorIdPublico=pendente?.cmd?.ator;pendente=null;atividades.concluir(publicId,status);await limparMarcas();await fecharPreviaPublica(publicId,atorIdPublico,status);
-    if(anterior&&anterior!==tool&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(anterior);
+    if(!(movimentoDinamico&&estado?.fase==='turnos')&&anterior&&anterior!==tool&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(anterior);
     anterior=null;
+  }
+  function atualizarPlanoDinamico(p){
+    if(!p?.cmd?.movimentoDinamico||p.rolagem)return;
+    const c=p.cmd,a=ator();if(!a||c.tipo==='mover'&&!Number.isFinite(c.x)||c.tipo==='usar'&&!c.alvo&&!c.alvos?.length&&!c.ponto){p.planoMovimento=null;p.custos=(p.custos??[]).filter(x=>x.tipo!=='movimento');return;}
+    const cena=estadoDaCena(),geo=cena.atores.find(x=>x.id===a.id),o=p.opcaoPublica;
+    const plano=planejarMovimentoDinamico(cena,geo,c,o,{levantar:temCondicao(a,'caido')?deslocamentoMaximo(a)/2:0});p.planoMovimento=plano;
+    p.custos=[...(p.custos??[]).filter(x=>x.tipo!=='movimento'),{tipo:'movimento',nome:'Movimento (m)',quantidade:Number((plano.custo??0).toFixed(2)),saldo:Number(a.metros.toFixed(2)),maximo:deslocamentoMaximo(a)}];
+    p.pronto=plano.possivel&&(p.escolha!=='lista'||(c.alvos?.length??0)>=(p.composicao?.quantidadeMinima??p.regraLista?.min??1));
+    if(!plano.possivel){p.detalhe=plano.motivo;}
+    else if(plano.distancia>1e-8){
+      const contato=primeiroContato(cena.zonas,geo,plano.destino,geo),ameacas=geo.desengajado?[]:oportunidades(cena,geo,plano.destino);
+      p.detalhe=p.detalhe.replace(/ · Movimento:.*$/,'')+' · Movimento: '+medida(plano.custo)+(contato?' · atravessa '+contato.zona.nome:'')+(ameacas.length?' · oportunidade: '+ameacas.map(x=>cena.atores.find(a=>a.id===x.reator)?.nome).join(', '):'');
+    }
+  }
+  async function limparHover(){if(marcasHover.length)await OBR.scene.local.deleteItems(marcasHover);marcasHover=[];movimentoHover=null;}
+  async function preverMovimento(ponto){
+    if(!ponto||!ator()||pendente||await OBR.tool.getActiveTool()!==tool)return;
+    const cena=estadoDaCena(),a=cena.atores.find(x=>x.id===atorId),destino={x:ponto.x/pixelsMetro,y:ponto.y/pixelsMetro};
+    const plano=planejarMovimentoDinamico(cena,a,{tipo:'mover',...destino},null,{levantar:temCondicao(a,'caido')?deslocamentoMaximo(a)/2:0}),contato=primeiroContato(cena.zonas,a,destino,a),ameacas=a.desengajado?[]:oportunidades(cena,a,destino);
+    await limparHover();movimentoHover={custo:Number((plano.custo??0).toFixed(2)),possivel:plano.possivel,motivo:plano.motivo,perigo:contato?.zona.nome,oportunidades:ameacas.length};
+    const items=[...seta(pos(ator()),ponto),circulo(ponto,.15*pixelsMetro,plano.possivel?'#79cfb1':'#e54848'),...ameacas.map(x=>circulo({x:x.ponto.x*pixelsMetro,y:x.ponto.y*pixelsMetro},.2*pixelsMetro,'#e54848'))];
+    await OBR.scene.local.addItems(items);marcasHover=items.map(x=>x.id);transmitir();
   }
   async function preparar(d){
     const a=ator();
@@ -379,7 +407,7 @@ export async function iniciarHud(){
     let o=base?derivarOpcaoCirculo(a,base,circuloUsado,{magiaDuplicada}):base,rule=o?.automacao;
     if(o?.gatilho==='rolar_iniciativa')throw Error('Use esta habilidade somente na janela de Iniciativa.');
     if(a.reacaoIniciativa)throw Error('Resolva a escolha de Iniciativa antes de agir.');
-    const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estadoDaCena(),{...a,...geometria(a)}):null;
+    const oferta=rule?.usarArmaAnterior?ofertaDestruidorDeHordas(estadoDaCena(),{...a,...geometria(a)},{ignorarAlcance:movimentoDinamico}):null;
     if(rule?.usarArmaAnterior){
       if(!oferta)throw Error('Faça antes um ataque com arma e confira o limite de Destruidor de Hordas.');
       const anterior=a.eventosTurno.ataques.at(-1),arma=opcoesDisponiveis(a).find(x=>x.id===anterior.opcao);
@@ -390,7 +418,7 @@ export async function iniciarHud(){
     if(d.tipo==='usar'&&!o)return;
     const foraCombate=d.tipo==='usar'&&(estado.fase==='preparo'||a.emCombate===false);
     if(d.tipo!=='iniciativa'&&!reacao&&!foraCombate&&atual(estado)?.id!==a.id)return;
-    const cmd={tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {}),...(magiaDuplicada?{magiaDuplicada:true}:{}),...(ilusaoCausaDano?{ilusaoCausaDano:true}:{})};
+    const cmd={...(movimentoDinamico&&!foraCombate&&!reacao&&d.tipo==='usar'||d.dinamico?{movimentoDinamico:true}:{}),tipo:reacao?'reagir':d.tipo,ator:a.id,rev:estado.rev,opcao:base?.id,assistido:!rule,modoCusto:d.modoCusto??'automatico',...(circulos.length?{circuloUsado}: {}),...(magiaDuplicada?{magiaDuplicada:true}:{}),...(ilusaoCausaDano?{ilusaoCausaDano:true}:{})};
     let escolha=null;
     if(d.tipo==='mover'||rule?.tipo==='teleporte')escolha='destino';
     if(['invocar','peca'].includes(rule?.tipo))escolha='area'; // M06: escolher o ponto onde a entidade/peça aparece
@@ -403,6 +431,7 @@ export async function iniciarHud(){
       substitui:eu.role==='GM'&&a.ficha.tipo==='pj',detalhe:rule?.tempoSegundos?'Conjuração de '+(rule.tempoSegundos/60)+' min: selecione o corpo/beneficiários e inicie; depois avance o tempo ou mantenha a ação nos turnos.':reacao?'Conferir gatilho e gastar a reação.':o&&!rule?'Efeito assistido pelo mestre.':a.nome};
     if(circulos.length>1||duplicadaDisponivel||ilusaoDisponivel)pendente.compositor={gavetaAberta:true,circulos,circuloAtivo:circuloUsado,...(duplicadaDisponivel?{duplicadaDisponivel:true,magiaDuplicada}:{}),...(ilusaoDisponivel?{ilusaoDisponivel:true,ilusaoCausaDano}:{})};
     if(o?.composicao)pendente.composicao={gavetaAberta:true,custosPorModo:o.composicao.custosPorModo,modoPadrao:o.composicao.modoPadrao,modoAtivo:o.composicao.modoPadrao,quantidadeMinima:o.composicao.quantidadeMinima,quantidadeMaxima:o.composicao.quantidadeMaxima,modos:structuredClone(o.composicao.modos.map(m=>({id:m.id,nome:m.nome,visual:visualHabilidade({...m,categoria:o.categoria,origem:o.origem,origemTipo:o.origemTipo},a.ficha),descricao:m.descricao,tipo:m.tipo,custo:structuredClone(m.custo??[]),ateOrdem:m.ateOrdem,limitePorUso:m.limitePorUso,ordem:m.ordem,requerModoAnterior:m.requerModoAnterior,umaVezPorTurno:m.umaVezPorTurno,destruidorDeHordas:m.destruidorDeHordas}))),instancias:[]};
+    await limparHover();
     if(escolha){
       pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
       const origem=pos(a),alcanceComposicao=Math.max(0,...(o?.composicao?.modos??[]).map(m=>Number(m.automacao?.alcanceM)||0)),raio=escolha==='destino'?(d.tipo==='mover'?a.metros:rule.alcanceM):(o?.composicao?alcanceComposicao:rule.alcanceM);
@@ -441,7 +470,7 @@ export async function iniciarHud(){
     tokens=proximos;if(!mudou)return;
     const p=pendente,a=ator();
     if(!p?.escolha||!a){transmitir();return;}
-    p.origem=pos(a);
+    p.origem=pos(a);atualizarPlanoDinamico(p);
     if(p.escolha==='lista'){await atualizarLista(p);return;}
     if(p.escolha==='destino'){
       p.pronto=false;delete p.cmd.x;delete p.cmd.y;delete p.ponto;
@@ -453,9 +482,9 @@ export async function iniciarHud(){
     if(!ponto){await desenhar([circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p)]);transmitir();return;}
     const distancia=alvoSelecionado?distanciaAlvo(p.origem,alvoSelecionado):Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro,temArea=Boolean(p.rule?.raioM||p.rule?.area);
     p.pronto=distancia<=p.raio+1e-8;
-    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro,geometria):[];
-    const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
-    const marcas=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
+    const alvosDeslocados=p.cmd.alvo?[alvoSelecionado].filter(Boolean):temArea?alvosAreaPrevista(p,ponto,origemHabilidade(p)):[];
+    const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?origemHabilidade(p):ponto):p.origem;
+    const marcas=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,origemHabilidade(p),ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,alvosDeslocados)];
     if(p.cmd.alvo)marcas.push(...setaAlvo(p.origem,ponto));
     p.marcasBase=marcas;await desenhar(marcas);
     const alvo=p.cmd.alvo?atores().find(x=>x.id===p.cmd.alvo):null;
@@ -489,18 +518,18 @@ export async function iniciarHud(){
       if(!alvo)throw Error('Clique em um participante visível.');ponto=pos(alvo);
     }
     if(p.rule?.usarArmaAnterior){
-      const oferta=ofertaDestruidorDeHordas(estadoDaCena(),{...ator(),...geometria(ator())});
+      const oferta=ofertaDestruidorDeHordas(estadoDaCena(),{...ator(),...geometria(ator())},{ignorarAlcance:movimentoDinamico});
       if(!oferta?.alvos.some(x=>x.id===alvo?.id))throw Error('Destruidor de Hordas: escolha uma criatura destacada e ainda não atacada neste turno.');
     }
     const d=alvo?distanciaAlvo(p.origem,alvo):Math.hypot(ponto.x-p.origem.x,ponto.y-p.origem.y)/pixelsMetro;
-    if(d>p.raio+1e-8){
+    if(d>p.raio+1e-8&&!p.cmd.movimentoDinamico){
       p.pronto=false;await layout();transmitir();throw Error('Fora do alcance. Escolha outro ponto.');
     }
     if(p.escolha==='lista'){
       if(p.composicao){
         const modo=p.composicao.modos.find(m=>m.id===p.composicao.modoAtivo),def=(opcoesDisponiveis(ator()).find(o=>o.id===p.cmd.opcao)?.composicao?.modos??[]).find(m=>m.id===modo?.id);
         if(!modo||!def)throw Error('Escolha um modo válido na Gaveta de Composição.');
-        if(d>(def.automacao?.alcanceM??p.raio)+1e-8)throw Error(modo.nome+' está fora do alcance.');
+        if(!p.cmd.movimentoDinamico&&d>(def.automacao?.alcanceM??p.raio)+1e-8)throw Error(modo.nome+' está fora do alcance.');
         const usados=(p.cmd.composicao??[]).filter(x=>x.modoId===modo.id).length;
         if(modo.limitePorUso&&usados>=modo.limitePorUso)throw Error('O limite de '+modo.nome+' foi atingido.');
         const indice=(p.cmd.composicao?.length??0)+1,anterior=p.cmd.composicao?.at(-1);
@@ -524,9 +553,10 @@ export async function iniciarHud(){
     if(alvo)p.cmd.alvo=alvo.id;
     if(p.escolha==='area')p.cmd.ponto=celula;
     if(p.escolha==='destino')Object.assign(p.cmd,celula);
-    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosDaArea(p.rule,p.origem,ponto,atores(),pos,pixelsMetro,geometria):alvo?[alvo]:[];
-    const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?p.origem:ponto):p.origem;
-    const items=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,p.origem,ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
+    atualizarPlanoDinamico(p);
+    const temArea=Boolean(p.rule?.raioM||p.rule?.area),afetados=temArea?alvosAreaPrevista(p,ponto,origemHabilidade(p)):alvo?[alvo]:[];
+    const direcional=['cone','linha'].includes(p.rule?.area?.forma),origemVetor=temArea?(direcional?origemHabilidade(p):ponto):p.origem;
+    const items=[circulo(p.origem,p.raio*pixelsMetro,'#e5c079'),...marcasDestruidorAvulso(p),...(temArea?marcaArea(p.rule,origemHabilidade(p),ponto,pixelsMetro):[circulo(ponto,.43*METROS_POR_CELULA*pixelsMetro,'#79cfb1')]),...marcasDeslocamento(p.rule,origemVetor,afetados)];
     if(alvo)items.push(...setaAlvo(p.origem,ponto));
     let contatoZona=null,terrenoZona=0;
     if(p.escolha==='destino'){
@@ -647,9 +677,10 @@ export async function iniciarHud(){
     }else if(d.tipo==='cancelarDado'&&pedidoDado){
       const pedido=pedidoDado.pedido;pedidoDado=null;transmitir();await responderDado({pedido,etapaVersao:d.etapaVersao,cancelar:true});
     }else{
-      if(!estado||!pronta||ocupado)return;
+      if(!estado||!pronta||ocupado&&d.tipo!=='resolverReacao')return;
       if(d.rev!==undefined&&d.rev!==estado.rev)return;
-      if(d.tipo==='linhas'){linhas=Math.max(1,Math.min(5,Number(d.valor)||3));localStorage.setItem(ns+'/linhas',linhas);}
+      if(d.tipo==='alternarMovimentoDinamico'){movimentoDinamico=!movimentoDinamico;localStorage.setItem(ns+'/movimento-dinamico',movimentoDinamico?'1':'0');await limparHover();if(movimentoDinamico)await OBR.tool.activateTool(tool);}
+    else if(d.tipo==='linhas'){linhas=Math.max(1,Math.min(5,Number(d.valor)||3));localStorage.setItem(ns+'/linhas',linhas);}
     else if(d.tipo==='compactar'){compacto=typeof d.valor==='boolean'?d.valor:!compacto;localStorage.setItem(ns+'/compacto',compacto?'1':'0');registrar('modo-barra',{compacto});}
     else if(d.tipo==='focar'){
       const a=atores().find(x=>x.id===d.id),p=pos(a);if(!a||!token(a))return;
@@ -726,9 +757,10 @@ export async function iniciarHud(){
     }else if(d.tipo==='resolverReacao'){
       const rp=estado.reacaoPendente,reator=atores().find(a=>a.id===rp?.reator);
       if(!rp||!controla(reator))return;
+      const ocupadoAnterior=ocupado;
       ocupado=true;transmitir();
       try{await api.enviar({tipo:'resolverReacao',ator:reator.id,opcao:d.opcao||null,rev:estado.rev,
-        confirmado:eu.role==='GM'&&reator.ficha.tipo==='pj',modo:d.modo||'normal',ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]});}finally{ocupado=false;}
+        confirmado:eu.role==='GM'&&reator.ficha.tipo==='pj',modo:d.modo||'normal',ajuste:d.ajuste??0,dadosAjuste:d.dadosAjuste??[]});}finally{ocupado=ocupadoAnterior;}
     }else if(d.tipo==='teste'){
       if(d.ator){if(!atores().some(a=>a.id===d.ator&&controla(a)))return;atorId=d.ator;}
       const a=ator(),grupo=d.grupo,chave=d.chave;
@@ -768,7 +800,7 @@ export async function iniciarHud(){
   }
   bus.onmessage=e=>{
     const d=e.data;if(encerrado||!mensagemHudValida(d,sessaoHud))return;
-    const imediato=d.presenca||d.entradaHud||['restaurarJanelas','cancelarExecucao','assumirPedido','resultadoManual','rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(d.tipo)||d.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(d.tipo);
+    const imediato=d.presenca||d.entradaHud||['resolverReacao','restaurarJanelas','cancelarExecucao','assumirPedido','resultadoManual','rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(d.tipo)||d.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(d.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
   };
@@ -799,6 +831,7 @@ export async function iniciarHud(){
   function retomarLayout(){if(!ponteiroMapa&&!ponteiros.size&&layoutAguardandoPonteiro){layoutAguardandoPonteiro=false;serial(async()=>{await layout();transmitir();});}}
   function fimPonteiro(){ponteiroMapa=false;retomarLayout();}
   function interromperMira(motivo,verificarFerramenta=false){
+    limparHover().catch(console.error);
     fimPonteiro();registrar('interromper-mira',{motivo});
     serial(async()=>{if(verificarFerramenta&&await OBR.tool.getActiveTool()===tool)return;if(pendente&&!pendente.rolagem){await cancelar();await layout();transmitir();}});
   }
@@ -811,7 +844,10 @@ export async function iniciarHud(){
     await OBR.tool.removeMode(mode).catch(()=>{});
     await OBR.tool.createMode({id:mode,icons:[{...icons[0],filter:{activeTools:[tool]}}],cursors:[{cursor:'crosshair'}],
       onToolDown:()=>{ponteiroMapa=true;},onToolUp:fimPonteiro,
-      onToolClick:(_,e)=>{if(!pendente||atividades.pausada)return true;serial(()=>escolher(e));return false;},
+      onToolClick:(_,e)=>{
+        if(!pendente&&movimentoDinamico&&estado?.fase==='turnos'&&atual(estado)?.id===atorId&&controla(ator())&&!ocupado){serial(async()=>{await limparHover();await preparar({tipo:'mover',dinamico:true});await escolher(e);if(pendente?.pronto)await mensagem({tipo:'confirmar',rev:estado.rev});});return false;}
+        if(!pendente||atividades.pausada)return true;serial(()=>escolher(e));return false;},
+      onToolMove:(_,e)=>{if(movimentoDinamico&&!pendente&&!ocupado&&estado?.fase==='turnos'&&atual(estado)?.id===atorId&&Date.now()-ultimoHover>120){ultimoHover=Date.now();serial(()=>preverMovimento(e.pointerPosition));}},
       onToolDragStart:(_,e)=>{
         ponteiroMapa=true;
         const a=estado&&atual(estado);
