@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.64**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.64.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.65**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.65.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Perícias e salvaguardas com arte nítida, sem véu no rodapé, balão e carta. Rolagem acima da instância, ambas com margem direita de 75 px.
 
 Nas instâncias, recursos mostram custo/recursos atuais (ex.: 1/2); a barra mantém atual/máximo. A carta permanece visível durante as rolagens e a resposta de salvaguardas, com execução bloqueada até concluir.
 

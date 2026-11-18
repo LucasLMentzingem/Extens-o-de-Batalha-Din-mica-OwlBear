@@ -1,6 +1,13 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
 
+## 2026-11-18 — continuação da publicação, 0.8.65
+
+- Publicação 0.8.64 confirmada após interrupção: Actions 44360671205, commit ed9a8adb85e97a89d091e44ea518e52bb9dcbf9a; manifesto e 61 arquivos conferidos.
+- Usuário orientou o trabalho de publicação em andamento: remover véu de perícias/salvaguardas e colocar rolagem acima da carta, com margem direita de 75 px em ambas. Implementado e incluído na versão seguinte.
+- Classe específica mantém opacidade 1 e fundos de texto transparentes nos três contextos. Layout divide altura entre dados/carta e atualiza durante espera humana; timer usa fila própria de layout.
+- Seis contextos visuais e 12 layouts (1920×1080 a 480×380), resize durante espera e conclusão das jogadas verificados; validar suíte e regressões finais antes do envio. Evidências em outputs/publicacao-0.8.65.
+
 ## 2026-11-18 — publicação autorizada 0.8.64
 
 - Usuário solicitou publicar os ajustes acumulados de custo/recursos atuais e permanência da carta durante rolagens. A regra intermediária custo/capacidade fica somente como registro histórico. Cache e manifesto atualizados para 0.8.64.

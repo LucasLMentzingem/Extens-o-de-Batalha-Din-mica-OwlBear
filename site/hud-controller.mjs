@@ -1,20 +1,20 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.64';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.65';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.64';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.64';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.64';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.64';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.64';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.64';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.64';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.64';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.64';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.64';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.64';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.64';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.65';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.65';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.65';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.65';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.65';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.65';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.65';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.65';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.65';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.65';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.65';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.65';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.64',import.meta.url);
+const url=new URL('./hud.html?v=0.8.65',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -197,9 +197,10 @@ export async function iniciarHud(){
       // histórico e a barra de rolagem sem comprimir os ícones da grade.
       const temCompositor=Boolean(acaoAtual?.composicao||acaoAtual?.compositor),gaveta=acaoAtual?.composicao??acaoAtual?.compositor;
       const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(590,alturaConteudoAcao,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
-      const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(w-12,larguraCartao+larguraGaveta);
+      const margemDireita=75,larguraDisponivel=Math.max(1,w-margemDireita-8);
+      const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(larguraDisponivel,larguraCartao+larguraGaveta);
       const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
-      const leftAcao=Math.round(Math.max(margemEsquerda,w-larguraAcao-10));
+      const leftAcao=Math.round(w-margemDireita-larguraAcao);
       const limiteAtividades=w-10;
       const limiteBarra=acaoLadoALado?leftAcao-gap:limiteAtividades;
       const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
@@ -225,8 +226,8 @@ export async function iniciarHud(){
         caixas.iniciativa=[Math.round((w-iw)/2),Math.round(Math.max(12,(h-ih)*.40)),iw,ih];
       }
       if(acaoAtual){
-        const cw=Math.min(larguraAcao,w-12),ch=alturaAcao,left=acaoLadoALado?leftAcao:Math.min(w-cw-10,Math.max(10,w*.75-cw/2));
-        const top=acaoLadoALado?h-ch-48:h-ch-(ator()?(compacto?102:altura)+58:48);
+        const cw=larguraAcao,ch=alturaAcao,left=leftAcao;
+        const top=h-ch-48;
         caixas.acao=[Math.round(left),Math.round(Math.max(62,top)),cw,ch];
       }
       // Botão e gaveta ficam acima do rodapé, inclusive ao expandir a barra.
@@ -244,18 +245,20 @@ export async function iniciarHud(){
         const extraResultado=pedidoDado.tipo==='resultado'&&pedidoDado.meta?.rerrolagens?.length?105:0;
         const extraAjuste=pedidoDado.tipo!=='resultado'&&pedidoDado.meta?.adicionais?.length?210:0;
         const extrasManuais=(pedidoDado.meta?.adicionais??[]).filter(x=>(pedidoDado.recursosAtivos??[]).includes(x.id)).length;
-        const ch=Math.min(h-72,pedidoDado.tipo==='indeterminada'?280+(n+extrasManuais)*82:pedidoDado.tipo==='resultado'?230+n*82+extraResultado:190+n*116+extraAjuste);
-        const espacoAoLado=caixas.acao?caixas.acao[0]-16:0;
-        const dw=Math.min(470,w-12,espacoAoLado>=300?espacoAoLado:470),centroX=caixas.acao?caixas.acao[0]+caixas.acao[2]/2:w*.75;
-        let left=Math.max(6,Math.min(w-dw-6,centroX-dw/2));const gaveta=caixas.atividades;
-        if(espacoAoLado>=dw)left=caixas.acao[0]-dw-10;
-        const sobreAcao=x=>caixas.acao&&x+dw>caixas.acao[0]&&x<caixas.acao[0]+caixas.acao[2];
-        if(atividades.modo==='barra'&&left+dw>gaveta[0]&&left<gaveta[0]+gaveta[2]){
-          if(w-gaveta[0]-gaveta[2]-16>=dw&&!sobreAcao(gaveta[0]+gaveta[2]+10))left=gaveta[0]+gaveta[2]+10;
-          else if(gaveta[0]-16>=dw&&!sobreAcao(gaveta[0]-dw-10))left=gaveta[0]-dw-10;
+        let ch=Math.min(h-72,pedidoDado.tipo==='indeterminada'?280+(n+extrasManuais)*82:pedidoDado.tipo==='resultado'?230+n*82+extraResultado:190+n*116+extraAjuste);
+        const dw=Math.min(470,larguraDisponivel),left=w-margemDireita-dw;
+        let top=Math.max(8,Math.min((h-ch)/2,(caixas.barra?.[1]??h-48)-10-ch));
+        if(caixas.acao){
+          // Uma coluna à direita: rolagem acima da carta, com espaço rolável
+          // dividido entre ambas quando a altura da tela não comporta tudo.
+          const espaco=Math.max(2,h-48-62-10);
+          if(ch+caixas.acao[3]>espaco){
+            ch=Math.min(ch,Math.max(1,Math.floor(espaco*.4)));
+            caixas.acao[3]=Math.max(1,espaco-ch);
+          }
+          caixas.acao[1]=h-48-caixas.acao[3];
+          top=caixas.acao[1]-10-ch;
         }
-        const sobreGaveta=atividades.modo==='barra'&&left+dw>gaveta[0]&&left<gaveta[0]+gaveta[2];
-        const limiteInferior=Math.min(sobreAcao(left)?caixas.acao[1]-10:caixas.barra?caixas.barra[1]-10:h-48,sobreGaveta?gaveta[1]-10:Infinity),top=Math.max(62,Math.min((h-ch)/2,limiteInferior-ch));
         caixas.dados=[Math.round(left),Math.round(top),dw,ch];
       }
       if(anuncioDado){
@@ -880,7 +883,8 @@ export async function iniciarHud(){
   // background antes da primeira sincronização com o encontro.
   await Promise.all(partesHud.map(parte=>OBR.popover.close(ns+'/hud/'+parte).catch(()=>{})));
   let verificando=false;
-  const timerSaude=setInterval(()=>{if(verificando||encerrado||document.visibilityState==='hidden')return;verificando=true;serial(async()=>{try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}catch(e){console.warn('Aguardando conexão com o mestre:',e.message);}finally{verificando=false;}});},1200);
+  // O layout tem sua própria fila; não deve esperar a execução que aguarda dados.
+  const timerSaude=setInterval(async()=>{if(verificando||encerrado||document.visibilityState==='hidden')return;verificando=true;try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}catch(e){console.warn('Aguardando conexão com o mestre:',e.message);}finally{verificando=false;}},1200);
   limpezas.push(()=>{clearInterval(timerSaude);clearTimeout(timerAnuncio);});
   // A recuperação deve continuar instalada mesmo quando o mestre chega depois.
   api.notify().then(()=>OBR.broadcast.sendMessage(canalPrevia,{tipo:'solicitar'},{destination:'REMOTE'})).catch(e=>console.warn('Aguardando conexão com o mestre:',e.message));

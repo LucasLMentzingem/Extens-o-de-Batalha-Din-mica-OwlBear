@@ -6,6 +6,9 @@
 .habilidade-arte>img[hidden]{display:none}.habilidade-nome{position:absolute;inset:auto 2px 2px;display:block!important;width:auto!important;white-space:normal!important;font:600 9px/1.08 "Segoe UI",sans-serif!important;text-align:center;text-shadow:0 1px 2px #000,1px 0 2px #000;overflow-wrap:break-word;overflow:visible!important;color:#fff5df;background:#101016bf;border-radius:2px;padding:2px;box-sizing:border-box}
 .habilidade-arte.sem-arte .habilidade-nome,.habilidade-arte.texto .habilidade-nome{inset:3px;display:grid!important;grid-template-columns:minmax(0,1fr);align-content:center;background:#10101635;font-size:9px!important;overflow-wrap:anywhere!important;min-width:0}
 .habilidade-arte.texto .habilidade-recorte{opacity:.25}.habilidade-arte.texto:has(.habilidade-bonus) .habilidade-nome{bottom:13px}
+/* Perícias e salvaguardas exibem a arte sem o véu do modo de texto. */
+.habilidade-arte.teste-arte .habilidade-recorte{opacity:1}
+.habilidade-arte.teste-arte .habilidade-nome,.habilidade-arte.teste-arte .habilidade-bonus{background:transparent!important}
 .habilidade-bonus{position:absolute;bottom:1px;right:3px;left:3px;font:700 10px/1 "Segoe UI",sans-serif;text-align:center;color:#a9efda}
 .habilidade-variante{position:absolute;top:2px;left:2px;right:2px;font:600 7px/1.1 "Segoe UI",sans-serif;text-align:center;background:#101016ce;color:#f9d99e;pointer-events:none}
 .habilidade-arte:has(.habilidade-variante-imagem) .habilidade-variante{top:2px;left:auto;right:2px;width:22px;height:22px;display:grid;place-items:center;border:1px solid #f2d49a;border-radius:50%;box-shadow:0 1px 4px #000b;background:#111a}

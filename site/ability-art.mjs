@@ -1,7 +1,7 @@
-import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.64';
-import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.64';
-import {definicaoHabilidade} from './catalog.mjs?v=0.8.64';
-import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.64';
+import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.65';
+import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.65';
+import {definicaoHabilidade} from './catalog.mjs?v=0.8.65';
+import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.65';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normal=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const slug=x=>normal(x).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -38,7 +38,7 @@ export function testeVisual(grupo,chave,bonus){
 }
 export function arteHabilidade(h={},f={},classe=''){
   const v=visualHabilidade(h,f),img=(src,cls)=>{if(!src)return '';const derivado=miniaturasHabilidades[src];return '<img class="'+cls+'" src="'+esc(derivado?.mini??src)+'" '+(derivado?'data-art-detalhe="'+esc(derivado.detalhe)+'" ':'')+'alt="" loading="lazy" decoding="async" width="128" height="128" draggable="false">';};
-  return '<span class="habilidade-arte '+v.familia+' '+v.layout+' '+(v.arquivo?'com-arte':'sem-arte')+' '+esc(classe)+'" role="img" aria-label="'+esc(h.nome??v.alt)+'">'+
+  return '<span class="habilidade-arte '+v.familia+' '+v.layout+' '+(/^(pericia|salvaguarda)\./.test(v.arteId)?'teste-arte ':'')+(v.arquivo?'com-arte':'sem-arte')+' '+esc(classe)+'" role="img" aria-label="'+esc(h.nome??v.alt)+'">'+
     '<span class="habilidade-fundo" aria-hidden="true"></span>'+img(v.fundo,'habilidade-fundo-imagem')+img(v.arquivo,'habilidade-recorte')+
     '<span class="habilidade-moldura" aria-hidden="true"></span>'+img(v.moldura,'habilidade-moldura-imagem')+
     '<span class="habilidade-nome">'+esc(v.textoCurto)+'</span>'+(h.bonusVisual!=null?'<span class="habilidade-bonus">'+esc((h.bonusVisual>=0?'+':'')+h.bonusVisual)+'</span>':'')+

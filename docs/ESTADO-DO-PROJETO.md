@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.65 — 18/11/2026
+
+Ícones de perícias/salvaguardas sem véu no rodapé, balão e carta. Rolagens acima da instância, ambas com margem direita de 75 px; divisão de altura em telas baixas. Layout atualiza durante espera da jogada. Custo/recursos atuais e permanência da carta da 0.8.64 preservados. [Notas e validação](RELEASE-0.8.65.md).
+
 ## Entrega — 0.8.64 — 18/11/2026
 
 Custo/recursos atuais nas instâncias; carta preservada durante rolagens e salvaguardas filhas. Dados ao lado quando há espaço; controles de execução bloqueados durante a jogada. Publicação autorizada pelo usuário. [Notas e validação](RELEASE-0.8.64.md).
