@@ -1,4 +1,4 @@
-import {modelosReanimacao} from './modelos/reanimacao.mjs?v=0.8.61';
+import {modelosReanimacao} from './modelos/reanimacao.mjs?v=0.8.62';
 
 const normalizar=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export function modeloReanimacao(ator){

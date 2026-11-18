@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.61**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.61.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.62**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.62.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Recursos com ícones WebP de 100×100, fundo e moldura compartilhados. Nome curto e saldo sobre a imagem; Aa alterna o nome e conserva o saldo.
 
 Rodapé com renderização e ciclo de janelas corrigidos, recuperação **Reabrir HUD** também para jogadores, Aa nos recursos, atividades centralizadas com filtros de tipo e descansos somente para PJs vivos, inclusive fora da iniciativa.
 

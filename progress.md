@@ -1,6 +1,21 @@
 Original prompt: Implementar ajuste de rolagens antes de ataques, grade da HUD configurável de 1 a 5 linhas, reações automáticas com janela de 20 segundos, salvaguardas pelo atributo, lista completa de períícias, HUD compactável, foco de câmera pelo carrossel e ataques de oportunidade que interrompem o movimento no ponto do acerto.
 
 
+## 2026-11-18 — publicação autorizada 0.8.62
+
+- Usuário solicitou publicar a integração local de ícones dos recursos. Cache e manifesto avançados para 0.8.62; alterações da etapa local incluídas.
+- Validação da HUD, suíte completa, catálogo/versão e posterior confirmação dos arquivos publicados fazem parte desta entrega. Evidências em outputs/publicacao-0.8.62.
+
+## 2026-11-18 — ícones dos recursos aplicados localmente
+
+Aplicado localmente: ícone sob os textos, fundo e moldura universais compartilhados. Nome curto no topo; saldo maior embaixo. Aa alterna o nome; saldo sempre visível, inclusive zerado. Filtros e dicas acessíveis preservados.
+
+37 imagens WebP 100x100 somam 168.080 bytes (~164 KiB), redução de 93,51% sobre 2.589.296 bytes das fontes usadas. Hash no nome para cache. Só as imagens dos recursos presentes são referenciadas pela HUD; originais fora de site. Nenhuma imagem no estado/broadcast da mesa. Medida de tamanho de arquivos, sem benchmark de FPS/latência.
+
+Cobertura: 30 IDs de fichas, Ação/Bônus/Reação/Truques e Última Palavra. Oito recursos associados a artes existentes de habilidades/item. Reservas futuras sem mapeamento usam arte genérica e conservam os textos. Três círculos refeitos sem moldura/fundo embutido.
+
+Navegador com SDK simulado: 11 recursos de Nikki; imagens em 100px; Aa; saldos preservados; filtro Ação; compacto/expandido. Todos os IDs das fichas e Última Palavra com ID da instância cobertos. Sem erros de página. Capturas revisadas; cliente Playwright da skill executado. Versão e catálogo válidos. Sem publicação; versão 0.8.61.
+
 ## 2026-11-18 — correções autorizadas e publicação 0.8.61
 
 - Usuário autorizou aplicar as soluções dos dois bugs e publicar todos os ajustes locais. Notas anteriores de não aplicação são registros históricos, substituídos por esta entrega.

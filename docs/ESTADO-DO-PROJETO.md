@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.62 — 18/11/2026
+
+Ícones dos recursos aplicados com fundo e moldura compartilhados; título/saldo sobre a arte, saldo sempre visível com Aa desligado. 37 WebP 100×100 somam 168.080 bytes. Originais fora de site; imagens com hash de conteúdo. Publicação autorizada pelo usuário. [Notas e validação](RELEASE-0.8.62.md).
+
 ## Entrega — 0.8.61 — 18/11/2026
 
 Correções autorizadas dos dois bugs de HUD e todos os ajustes locais acumulados. Rodapé/cache unificados, controlador único, mensagens tipadas, iframe estável, limpeza de mira e recuperação acessível ao jogador. Aa nos recursos, atividades centrais com filtros Salvaguardas/Ataque e descanso somente para PJs vivos independentemente da participação na iniciativa. 426 testes e cenários de navegador aprovados; SDK/Dice+ simulados. Ver [notas e limites](RELEASE-0.8.61.md).

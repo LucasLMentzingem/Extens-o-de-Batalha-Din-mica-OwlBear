@@ -1,9 +1,10 @@
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.61';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.61';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.61';
-import {pronto} from './bridge.mjs?v=0.8.61';
-import {canalHud} from './hud-controller.mjs?v=0.8.61';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.61';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.62';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.62';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.62';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.62';
+import {pronto} from './bridge.mjs?v=0.8.62';
+import {canalHud} from './hud-controller.mjs?v=0.8.62';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.62';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
@@ -32,9 +33,9 @@ function controlesMesa(s,fora){
 document.body.className=parte;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
-const nomesRecursosCurtos={acao:'Ação',bonus:'Bônus',truques:'Truq.',reacao:'Reação',feiticaria:'Feit.',inata:'Inata',repreensao:'Repre.',dv:'D.Vida','dados-de-vida':'D.Vida','passo-nebuloso-gratis':'P.Neb.','passos-largos-da-linhagem':'P.Larg.','marca-do-predador':'Marca','palavra-curativa-do-talento':'Cura','astucia-magica':'Astúc.','pontos-de-sorte':'Sorte','inspiracao-heroica':'I.Her.','pontos-de-foco':'Foco','metabolismo-incomum':'Metab.','pico-de-adrenalina':'Adren.','vigor-implacavel':'Vigor','inspiracao-de-bardo':'I.Bard.','magia-fascinante':'Fasc.','ataque-de-sopro':'Sopro','dados-de-superioridade':'Sup.','recuperar-folego':'Fôlego','surto-de-acao':'Surto','queimadura-de-fogo':'Fogo'};
+const nomesRecursosCurtos={acao:'Ação',bonus:'Bônus',truques:'Truq.',reacao:'Reação',feiticaria:'Feit.',inata:'Inata',repreensao:'Repre.',dv:'D.Vida','dados-de-vida':'D.Vida','passo-nebuloso-gratis':'P.Neb.','passos-largos-da-linhagem':'P.Larg.','marca-do-predador':'Marca','palavra-curativa-do-talento':'Cura','astucia-magica':'Astúc.','pontos-de-sorte':'Sorte','inspiracao-heroica':'I.Her.','pontos-de-foco':'Foco','metabolismo-incomum':'Metab.','pico-de-adrenalina':'Adren.','vigor-implacavel':'Vigor','inspiracao-de-bardo':'I.Bard.','magia-fascinante':'Fasc.','ataque-de-sopro':'Sopro','dados-de-superioridade':'Sup.','recuperar-folego':'Fôlego','surto-de-acao':'Surto','queimadura-de-fogo':'Fogo','canalizar-divindade':'Divin.','disparo-preparado':'Disparo','reposicionar':'Repos.','golpe-comando':'Comando','ultima-palavra':'Última'};
 function nomeRecursoCurto(r){
-  const id=r.id.replace(/^recurso:/,''),circulo=/^espaco-(\d+)$/.exec(id);
+  const id=chaveArteRecurso(r.id),circulo=/^espaco-(\d+)$/.exec(id);
   if(circulo)return 'Esp.'+circulo[1]+'º';
   if(nomesRecursosCurtos[id])return nomesRecursosCurtos[id];
   const palavra=r.nome.replace(/^(?:Pontos|Dados|Espaços) de\s+/i,'').split(/\s+/)[0];
@@ -277,7 +278,7 @@ function render(){
     ];
     const botoesRecursos=recursos.map(r=>{
       const saldo=String(r.atual)+(r.maximo>1?'/'+r.maximo:'');
-      return btn('recurso','<b>'+r.simbolo+'</b>'+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto(r))+'</span>':'')+'<small class="saldo-recurso">'+esc(saldo)+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(nomesSkillsVisiveis?'com-nome ':'')+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome+': '+saldo)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"');
+      return btn('recurso',arteRecurso(r.id)+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto(r))+'</span>':'')+'<small class="saldo-recurso">'+esc(saldo)+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(nomesSkillsVisiveis?'com-nome ':'')+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome+': '+saldo)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"');
     }).join('');
     const consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
     const renderOpcao=o=>{

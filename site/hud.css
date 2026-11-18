@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.61");
+@import url("./ability-art.css?v=0.8.62");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -184,11 +184,15 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .dock-corpo>article>header button{margin-left:auto}
 .topo-hud{display:flex;align-items:center;gap:6px;min-height:45px;overflow:hidden}
 .recursos-hud{display:flex;align-items:center;gap:3px;min-width:0;overflow-x:auto;scrollbar-width:thin}
-.recurso-hud{position:relative;display:grid;place-items:center;align-content:center;flex:0 0 42px;width:42px;height:42px;padding:2px;border-color:#756f5b;background:linear-gradient(145deg,#354542,#202d2c);line-height:1}
-.recurso-hud>b{font-size:15px;color:#9fe9dc}.recurso-hud>small{max-width:38px;overflow:hidden;text-overflow:ellipsis;color:#eee0b9;font-size:9px;white-space:nowrap}
-.recurso-hud.com-nome{gap:1px}.recurso-hud.com-nome>b{font-size:12px}.nome-recurso{max-width:100%;font-size:8px;line-height:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d5e6df}.recurso-hud>.saldo-recurso{flex-shrink:0;line-height:10px}
-.recurso-hud[aria-pressed=true]{border-color:#f0ca82;background:#584b35;box-shadow:inset 0 0 0 1px #d7ad68,0 0 7px #c79a54aa}
-.recurso-hud.zerado{filter:saturate(.25);opacity:.42}
+.recurso-hud{position:relative;isolation:isolate;overflow:hidden;display:block;flex:0 0 42px;width:42px;height:42px;padding:0;border:1px solid #756f5b;border-radius:4px;background:#152420;line-height:1}
+.recurso-hud img{position:absolute;pointer-events:none;user-select:none;object-fit:contain;width:100%;height:100%;inset:0}
+.recurso-fundo{z-index:0}.recurso-hud .recurso-icone{z-index:1;inset:3%;width:94%;height:94%;opacity:.85}.recurso-moldura{z-index:2}
+.recurso-hud .nome-recurso,.recurso-hud .saldo-recurso{position:absolute;z-index:3;left:2px;right:2px;margin:0;max-width:none;color:#fff6dc;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;pointer-events:none}
+.recurso-hud .nome-recurso{top:3px;padding:2px 0;font-size:9px;font-weight:700;line-height:11px;background:linear-gradient(90deg,transparent,#081311df 18%,#081311df 82%,transparent)}
+.recurso-hud .saldo-recurso{bottom:3px;padding:2px 0;font-size:13px;font-weight:800;line-height:14px;background:linear-gradient(90deg,transparent,#081311e8 18%,#081311e8 82%,transparent)}
+.recurso-hud[aria-pressed=true]{border-color:#ffe3a0;box-shadow:inset 0 0 0 1px #edc178,0 0 5px #c79a5470}
+.recurso-hud[aria-pressed=true] .nome-recurso,.recurso-hud[aria-pressed=true] .saldo-recurso{color:#ffdf88}
+.recurso-hud.zerado .recurso-icone{filter:saturate(.15);opacity:.38}.recurso-hud.zerado .saldo-recurso{color:#ffb3a4}
 .ferramentas-hud{display:flex;align-items:center;gap:3px;margin-left:auto;white-space:nowrap}
 .ferramentas-hud label{display:flex;align-items:center;gap:3px;font-size:10px}.ferramentas-hud select{width:44px;padding:3px}
 .centro-hud{display:flex;min-height:0;flex:1;gap:5px;overflow:hidden}

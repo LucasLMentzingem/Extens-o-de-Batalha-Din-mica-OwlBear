@@ -1,0 +1,9 @@
+{
+  "descricao": "Originais preservados; derivadas de produção em assets/recursos. Recursos sem arte individual usam a habilidade correspondente ou tema relacionado.",
+  "adaptadas": {
+    "reposicionar": "site/assets/habilidades/habilidade-correr.png",
+    "golpe-comando": "site/assets/habilidades/habilidade-ataque-ameacador.png",
+    "truques": "site/assets/habilidades/habilidade-ilusao-menor.png",
+    "ultima-palavra": "site/assets/itens/item-colar-da-ultima-palavra.webp"
+  }
+}

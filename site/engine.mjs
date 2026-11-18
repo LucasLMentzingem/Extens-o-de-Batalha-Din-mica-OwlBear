@@ -1,11 +1,11 @@
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.61';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.61';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.61';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.61';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.61';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.62';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.62';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.62';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.62';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.62';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.61';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.61';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.62';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.62';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
