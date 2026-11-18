@@ -1,18 +1,18 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.65';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.65';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.65';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.66';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.66';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.66';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.65';
-import {fichaEditavel,biblioteca} from './ficha-view.mjs?v=0.8.65';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.65';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.65';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.65';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.65';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.65';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.65';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.65';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.65';
-import {canalHud} from './hud-controller.mjs?v=0.8.65';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.66';
+import {fichaEditavel,biblioteca,retratoFicha} from './ficha-view.mjs?v=0.8.66';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.66';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.66';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.66';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.66';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.66';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.66';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.66';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.66';
+import {canalHud} from './hud-controller.mjs?v=0.8.66';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -27,6 +27,16 @@ function confirma(t,d,comPvp=false){
 }
 let tokenSelecionado,solicitacaoFicha,recebido,secao='ficha',alvos=[],npcsAbertos=false,bausAbertos=false,recipienteSelecionadoId=null,paginaRecipiente='ficha',paginaFicha='personagem',paginaLivro='classe',itemContexto=null,itemContextoSlot=null,habilidadeContexto=null,lojaLocalAtor=null,trocaLocalId=null,trocaLocalAtor=null,trocaSolicitadaPor=null,abrindoTroca=false;
 let lojaDaVenda=null;
+let imagensTokens=new Map();
+function pintarRetratoFicha(){
+  const a=s?.atores.find(x=>x.id===escolhido),marca=document.querySelector('.marca-dnd');
+  if(a&&marca){const imagem=imagensTokens.get(a.token),assinatura=JSON.stringify([a.id,imagem??null]);if(marca.dataset.retrato===assinatura)return;marca.innerHTML=retratoFicha(a,imagem);marca.dataset.retrato=assinatura;}
+}
+function atualizarRetratosTokens(items){
+  imagensTokens=new Map(items.filter(x=>x.type==='IMAGE'&&x.layer==='CHARACTER'&&x.image?.url).map(x=>[x.id,x.image.url]));
+  pintarRetratoFicha();
+}
+
 let gruposFichas=[];
 let paginaMestre='combate';
 const gruposMestreAbertos=new Set();
@@ -78,7 +88,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.65',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.66',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -207,7 +217,7 @@ function render(){
   else if(a){
     const f=a.ficha;
     h+=painelEscolhasDescanso(a,gm);
-    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[],gm,s.fase==='preparo',Boolean(trocaDoAtor(s,a.id)));
+    h+=fichaEditavel(a,meu,paginaFicha,paginaLivro,s.fase==='preparo'?lojasAtivas(s):[],gm,s.fase==='preparo',Boolean(trocaDoAtor(s,a.id)),imagensTokens.get(a.token));
     if(!mestre){
     if(f.pvMaximos)h+='<div class="numeros">'+[['PV',a.pv+' / '+pvMaximosAtuais(a)],['CA',caAtual(a)],['Movimento',Number(a.metros.toFixed(2))+' m'],['Ação',a.acao],['Bônus',a.bonus],['Reação',a.reacao]].map(([k,v])=>'<span><small>'+k+'</small><b>'+esc(v)+'</b></span>').join('')+'</div><div class="barra"><i style="width:'+100*a.pv/pvMaximosAtuais(a)+'%"></i></div>';
     if(f.recursos?.length)h+='<div class="recursos-ficha">'+f.recursos.map(r=>'<div title="'+esc((r.recuperacao??[]).map(x=>x.evento.replaceAll('_',' ')).join(', '))+'"><small>'+esc(r.nome)+'</small><b>'+esc(a.rec[r.id])+' / '+r.maximo+'</b></div>').join('')+'</div>';
@@ -399,7 +409,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.65',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.66',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -656,14 +666,19 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.65');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.66');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);
  if(emSala){
+   const pararRetratos=OBR.scene.items.onChange(atualizarRetratosTokens);
+   const carregarRetratos=async()=>atualizarRetratosTokens(await OBR.scene.items.getItems());
+   if(await OBR.scene.isReady())await carregarRetratos().catch(console.warn);
+   const pararCena=OBR.scene.onReadyChange(r=>{if(r)carregarRetratos().catch(console.warn);else atualizarRetratosTokens([]);});
+   window.addEventListener('pagehide',()=>{pararRetratos?.();pararCena?.();},{once:true});
    const chave=ns+'/abrir-ficha/'+OBR.room.id;
    function pedido(raw){if(!raw)return;const d=JSON.parse(raw);if(Date.now()-d.quando>30000)return;
-     secao='ficha';solicitacaoFicha=d.id;if(d.pagina)paginaFicha=d.pagina;if(s)view(recebido,info);localStorage.removeItem(chave);}
+     secao='ficha';solicitacaoFicha=d.id;paginaFicha=['personagem','inventario','habilidades'].includes(d.pagina)?d.pagina:'personagem';if(s)view(recebido,info);localStorage.removeItem(chave);}
    window.addEventListener('storage',e=>{if(e.key===chave)pedido(e.newValue);});pedido(localStorage.getItem(chave));
    let ultimo;
    const selecionar=id=>{tokenSelecionado=id||null;if(!id||id===ultimo){ultimo=id;return;}ultimo=id;if(!s)return;const a=s?.atores.find(x=>x.token===id&&(info?.role==='GM'||x.dono===info?.id));if(a){escolhido=a.id;acao=null;alvos=[];}if(info?.role==='GM'&&secao==='gm'||a)render();};

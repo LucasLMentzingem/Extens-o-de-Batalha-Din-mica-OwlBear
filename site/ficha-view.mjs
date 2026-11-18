@@ -1,7 +1,7 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.65';
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.65';
-import {arteItem} from './item-art.mjs?v=0.8.65';
-import {arteHabilidade} from './ability-art.mjs?v=0.8.65';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.66';
+import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.66';
+import {arteItem} from './item-art.mjs?v=0.8.66';
+import {arteHabilidade} from './ability-art.mjs?v=0.8.66';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -71,7 +71,10 @@ export function livroHabilidades(a,pagina='classe',podeEditar=false){
   const nomes={classe:classeNome,comum:'Comum',raca:nomeRaca(f),reacoes:'Reações'};
   return '<section class="livro-habilidades"><header><div><small>LIVRO DE HABILIDADES</small><h2>'+esc(nomes[pagina]??nomes.classe)+'</h2></div><nav>'+['classe','comum','raca','reacoes'].map(id=>'<button type="button" data-livro-aba="'+id+'" aria-pressed="'+(pagina===id)+'">'+esc(nomes[id])+'</button>').join('')+'</nav></header><p class="muted">'+(podeEditar?'Clique com o botão direito para preparar magias ou ativar e desativar passivas e reações.':'Livro disponível somente para consulta.')+'</p>'+corpo+'</section>';
 }
-export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe',lojas=[],gm=false,trocasPermitidas=true,trocaAtiva=false){
+export function retratoFicha(a,imagem){
+  return imagem?'<img src="'+esc(imagem)+'" alt="Token de '+esc(a.nome??a.ficha.nome)+'" decoding="async">':'<span aria-label="Personagem sem token">'+esc((a.nome??a.ficha.nome??'?').slice(0,1))+'</span>';
+}
+export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe',lojas=[],gm=false,trocasPermitidas=true,trocaAtiva=false,imagemToken=null){
   const f=a.ficha,bloqueado=podeEditar?'':'disabled',nivel=f.classes.reduce((n,c)=>n+c.nivel,0);
   const bonusTotal=campo=>bonusEfeito(a,campo)+bonusEquipamento(a,campo)+bonusPassiva(a,campo),bonusCA=bonusTotal('ca'),bonusPV=bonusTotal('pvMaximos'),bonusMov=bonusTotal('deslocamentoM');
   const classes=f.classes.map((c,i)=>'<div class="linha-classe">'+campo('Classe','classe-id-'+i,c.nome??c.id,'text','data-classe="'+i+'"',bloqueado)+campo('Nível','classe-nivel-'+i,c.nivel,'number','min="1" max="10" data-nivel="'+i+'"',bloqueado)+'</div>').join('');
@@ -81,7 +84,7 @@ export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='clas
   const recursos=(f.recursos??[]).map(r=>'<div class="recurso-editavel" data-recurso="'+esc(r.id)+'"><label><span>'+esc(r.nome)+'</span><input name="recurso-nome" value="'+esc(r.nome)+'" '+bloqueado+'></label><label>Atual<input name="recurso-atual" type="number" min="0" max="9999" value="'+esc(a.rec?.[r.id]??r.saldoInicial)+'" '+bloqueado+'></label><label>Máximo<input name="recurso-max" type="number" min="0" max="9999" value="'+r.maximo+'" '+bloqueado+'></label></div>').join('')||'<p class="muted">Esta ficha não possui recursos com saldo.</p>';
   const baseBonus=(classe,rotuloBase,nomeBase,valorBase,extraBase,rotuloBonus,valorBonus,sufixo='')=>'<div class="valor-com-bonus '+classe+'">'+campo(rotuloBase,nomeBase,valorBase,'number',extraBase,bloqueado)+campo(rotuloBonus,nomeBase+'-bonus',(valorBonus>=0?'+':'')+valorBonus+sufixo,'text','','disabled')+'</div>';
   const conteudoFicha=
-    '<section class="cabecalho-dnd"><div class="marca-dnd">D&amp;D</div><div class="identificacao-ficha">'+campo('Nome do personagem','nome',f.nome,'text','required maxlength="100"',bloqueado)+'<div class="classes-ficha">'+classes+'</div></div><div class="identificacao-menor">'+campo('Espécie','especie',f.especie??'','text','',bloqueado)+campo('Bônus de proficiência','proficiencia',f.proficiencia??(2+Math.floor((nivel-1)/4)),'number','min="0" max="10"',bloqueado)+'</div></section>'+
+    '<section class="cabecalho-dnd"><div class="marca-dnd">'+retratoFicha(a,imagemToken)+'</div><div class="identificacao-ficha">'+campo('Nome do personagem','nome',f.nome,'text','required maxlength="100"',bloqueado)+'<div class="classes-ficha">'+classes+'</div></div><div class="identificacao-menor">'+campo('Espécie','especie',f.especie??'','text','',bloqueado)+campo('Bônus de proficiência','proficiencia',f.proficiencia??(2+Math.floor((nivel-1)/4)),'number','min="0" max="10"',bloqueado)+'</div></section>'+
     '<section class="atributos-editaveis">'+atributos+'</section>'+
     '<section class="combate-ficha"><h3>Combate <small>Totais: '+pvMaximosAtuais(a)+' PV · CA '+caAtual(a)+' · '+deslocamentoMaximo(a)+' m</small></h3><div class="valores-combate">'+campo('PV atual','pv-atual',a.pv,'number','min="0" max="9999"',bloqueado)+baseBonus('pv-total','PV máximo · base','pv-max',f.pvMaximos,'min="1" max="9999"','Bônus',bonusPV)+baseBonus('ca-total','CA · base','ca',f.caBase,'min="0" max="99"','Bônus',bonusCA)+baseBonus('mov-total','Deslocamento · base','deslocamento',f.deslocamentosM.andar,'min="0" max="999" step="0.5"','Bônus',bonusMov,' m')+'</div></section>'+efeitosFicha(a)+
     '<div class="corpo-ficha"><section><h3>Salvaguardas</h3><div class="campos-ficha salvas-editaveis">'+salvas+'</div><h3>Perícias</h3><div class="campos-ficha pericias-editaveis">'+pericias+'</div></section><section><h3>Recursos</h3><div class="recursos-editaveis">'+recursos+'</div><h3>Características</h3><div class="campos-ficha texto-ficha">'+campo('Sentidos','sentidos',f.sentidos??'','text','',bloqueado)+campo('Idiomas','idiomas',f.idiomas??'','text','',bloqueado)+'<label>Anotações livres<textarea name="anotacoes" rows="6" '+bloqueado+'>'+esc(f.anotacoes??'')+'</textarea></label></div></section></div>'+

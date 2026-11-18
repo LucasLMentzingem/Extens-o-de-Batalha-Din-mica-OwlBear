@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.65**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.65.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.66**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.66.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+Atalhos Ficha, Inventário e Livro de habilidades no rodapé abrem diretamente suas abas. Cabeçalho da ficha usa o token do personagem. Buffs compactos rolam somente na vertical quando necessário.
 
 Perícias e salvaguardas com arte nítida, sem véu no rodapé, balão e carta. Rolagem acima da instância, ambas com margem direita de 75 px.
 

@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.66 — 18/11/2026
+
+Atalhos diretos às três abas da ficha, retrato com token vinculado e buffs compactos sem scroll horizontal. GM/P1, dez aberturas de abas e 24 combinações de efeitos conferidos; publicação autorizada. [Notas e validação](RELEASE-0.8.66.md).
+
 ## Entrega — 0.8.65 — 18/11/2026
 
 Ícones de perícias/salvaguardas sem véu no rodapé, balão e carta. Rolagens acima da instância, ambas com margem direita de 75 px; divisão de altura em telas baixas. Layout atualiza durante espera da jogada. Custo/recursos atuais e permanência da carta da 0.8.64 preservados. [Notas e validação](RELEASE-0.8.65.md).

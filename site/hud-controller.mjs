@@ -1,20 +1,20 @@
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.65';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.66';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.65';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.65';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.65';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.65';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.65';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.65';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.65';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.65';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.65';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.65';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.65';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.65';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.66';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.66';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.66';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.66';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.66';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.66';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.66';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.66';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.66';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.66';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.66';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.66';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.65',import.meta.url);
+const url=new URL('./hud.html?v=0.8.66',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -191,7 +191,7 @@ export async function iniciarHud(){
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
       const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
-      const faixaEfeitos=temEfeitos?118:0,margemEsquerda=72,gap=10,acaoAtual=acaoVisivel();
+      const faixaEfeitos=temEfeitos?134:0,margemEsquerda=72,gap=10,acaoAtual=acaoVisivel();
       espacoEfeitos=0;
       // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
       // histórico e a barra de rolagem sem comprimir os ícones da grade.
@@ -215,7 +215,7 @@ export async function iniciarHud(){
         const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
         const left=leftBarra,top=h-alturaBarra-48;
         caixas.barra=[left,top,larguraCorpo,alturaBarra];
-        if(temEfeitos)caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-Math.min(164,alturaBarra))/2),112,Math.min(164,alturaBarra)];
+        if(temEfeitos){const alturaEfeitos=compacto?108:164;caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-alturaEfeitos)/2),128,alturaEfeitos];}
         if(temEfeitos&&dicaEfeito){
           const dw=Math.min(380,w-16),linhasDica=dicaEfeito.split('\n').length,dh=Math.min(190,h-16,Math.max(82,36+linhasDica*22));
           caixas['dica-efeito']=[Math.max(8,Math.min(w-dw-8,left)),Math.max(8,top-dh-8),dw,dh];
@@ -663,7 +663,7 @@ export async function iniciarHud(){
     else if(d.tipo==='ficha'){
       compacto=true;localStorage.setItem(ns+'/compacto','1');
       await layout();transmitir();
-      localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:atorId,quando:Date.now()}));
+      localStorage.setItem(ns+'/abrir-ficha/'+OBR.room.id,JSON.stringify({id:atorId,quando:Date.now(),pagina:['personagem','inventario','habilidades'].includes(d.pagina)?d.pagina:'personagem'}));
       if(ator()?.token)await OBR.player.select([ator().token],true);
       await OBR.action.open();bus.postMessage({abrirFicha:atorId});return;
     }
