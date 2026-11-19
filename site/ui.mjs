@@ -1,18 +1,18 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.70';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.70';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.70';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.71';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.71';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.71';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.70';
-import {fichaEditavel,biblioteca,retratoFicha} from './ficha-view.mjs?v=0.8.70';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.70';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.70';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.70';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.70';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.70';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.70';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.70';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.70';
-import {canalHud} from './hud-controller.mjs?v=0.8.70';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.71';
+import {fichaEditavel,biblioteca,retratoFicha} from './ficha-view.mjs?v=0.8.71';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.71';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.71';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.71';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.71';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.71';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.71';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.71';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.71';
+import {canalHud} from './hud-controller.mjs?v=0.8.71';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -88,7 +88,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.70',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.71',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -328,7 +328,7 @@ function lerFicha(a){
   f.atributos=Object.fromEntries(['for','des','con','int','sab','car'].map(k=>[k,numero('atributo-'+k)]));
   f.salvaguardas=Object.fromEntries(['for','des','con','int','sab','car'].map(k=>[k,numero('salva-'+k)]));
   f.pericias=Object.fromEntries(Object.keys(periciasPadrao).map(k=>[k,numero('pericia-'+k)]));
-  f.pvMaximos=numero('pv-max');f.caBase=numero('ca');f.deslocamentosM={...(f.deslocamentosM??{}),andar:numero('deslocamento')};
+  f.pvMaximos=numero('pv-max');if(form.querySelector('[name="ca-ajuste"]')){const ajuste=numero('ca-ajuste'),d=f.defesaCA??{versao:1,semArmadura:{base:10,atributos:[{atributo:'des'}]}};if(ajuste!==(Number(d.ajusteManual)||0)){d.ajusteManual=ajuste;delete d.ajusteLegado;}f.defesaCA=d;}f.deslocamentosM={...(f.deslocamentosM??{}),andar:numero('deslocamento')};
   f.sentidos=valor('sentidos').trim();f.idiomas=valor('idiomas').trim();f.anotacoes=valor('anotacoes').trim();
   const rec={};
   for(const linha of form.querySelectorAll('[data-recurso]')){
@@ -409,7 +409,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.70',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.71',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -666,7 +666,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.70');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.71');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

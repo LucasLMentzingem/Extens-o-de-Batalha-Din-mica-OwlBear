@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.70';
-import {saldoMoedasPo} from './engine.mjs?v=0.8.70';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.70';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.71';
+import {saldoMoedasPo} from './engine.mjs?v=0.8.71';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.71';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);let trocaId=params.get('troca'),atorId=params.get('ator'),s,info,api,ocupado=false,encerrada=false;

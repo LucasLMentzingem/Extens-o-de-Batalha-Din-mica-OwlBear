@@ -1,7 +1,7 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.70';
-import {bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.70';
-import {arteItem} from './item-art.mjs?v=0.8.70';
-import {arteHabilidade} from './ability-art.mjs?v=0.8.70';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.71';
+import {resolverCA,bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.71';
+import {arteItem} from './item-art.mjs?v=0.8.71';
+import {arteHabilidade} from './ability-art.mjs?v=0.8.71';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -22,7 +22,7 @@ export function cabecalhoFicha(a){
     '<div class="atributos">'+Object.entries(f.atributos).map(([k,n])=>{const b=Math.floor((n-10)/2);return '<button type="button" class="atributo" data-save="'+esc(k)+'" title="Clique com o botão direito para rolar a salvaguarda"><small>'+esc(k.toUpperCase())+'</small><strong>'+(b>=0?'+':'')+b+'</strong><span>'+n+'</span></button>';}).join('')+'</div>';
 }
 const campo=(rotulo,nome,valor,tipo='text',extra='',bloqueado='')=>'<label>'+rotulo+'<input name="'+nome+'" type="'+tipo+'" value="'+esc(valor)+'" '+extra+' '+bloqueado+'></label>';
-const nomesSlots={cabeca:'Cabeça',capa:'Capa',vestes:'Vestes',botas:'Botas',mao_forte:'Mão forte',mao_fraca:'Mão fraca',arma_distancia:'Arma à distância',colar:'Colar',acessorio_1:'Acessório I',acessorio_2:'Acessório II'};
+const nomesSlots={cabeca:'Cabeça',capa:'Capa',vestes:'Vestes',botas:'Botas',luvas:'Luvas',mao_forte:'Mão forte',mao_fraca:'Mão fraca',arma_distancia:'Arma à distância',colar:'Colar',acessorio_1:'Acessório I',acessorio_2:'Acessório II'};
 export const resumoItem=(i,f)=>{
   const quantidade=Number(i.quantidade??1);
   const mods=Object.entries(i.modificadores??{}).map(([k,v])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'Deslocamento',ataque:'Ataque',dano:'Dano'}[k]??k)+' '+(v>=0?'+':'')+v);
@@ -74,6 +74,13 @@ export function livroHabilidades(a,pagina='classe',podeEditar=false){
 export function retratoFicha(a,imagem){
   return imagem?'<img src="'+esc(imagem)+'" alt="Token de '+esc(a.nome??a.ficha.nome)+'" decoding="async">':'<span aria-label="Personagem sem token">'+esc((a.nome??a.ficha.nome??'?').slice(0,1))+'</span>';
 }
+// #77 CA: base da fórmula escolhida + bônus atuais = total. Só o ajuste manual é editável;
+// a CA calculada nunca é gravada de volta como entrada.
+function campoCA(a,bloqueado){
+  const r=resolverCA(a),manual=Number(a.ficha.defesaCA?.ajusteManual)||0,bonus=(r.bonusTotal??0)-manual;
+  const origem=r.origemBase?.nome?'Base: '+r.origemBase.nome:'',legado=a.ficha.defesaCA?.ajusteLegado?' (ajuste herdado da CA antiga; revise com o mestre)':'';
+  return '<div class="valor-com-bonus ca-total" title="'+esc(origem+legado)+'">'+campo('CA · base','ca-base',r.base??0,'number','','disabled')+campo('Bônus','ca-bonus',(bonus>=0?'+':'')+bonus,'text','','disabled')+campo('Ajuste manual'+(legado?' *':''),'ca-ajuste',manual,'number','min="-20" max="40"',bloqueado)+'</div>';
+}
 export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe',lojas=[],gm=false,trocasPermitidas=true,trocaAtiva=false,imagemToken=null){
   const f=a.ficha,bloqueado=podeEditar?'':'disabled',nivel=f.classes.reduce((n,c)=>n+c.nivel,0);
   const bonusTotal=campo=>bonusEfeito(a,campo)+bonusEquipamento(a,campo)+bonusPassiva(a,campo),bonusCA=bonusTotal('ca'),bonusPV=bonusTotal('pvMaximos'),bonusMov=bonusTotal('deslocamentoM');
@@ -86,7 +93,7 @@ export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='clas
   const conteudoFicha=
     '<section class="cabecalho-dnd"><div class="marca-dnd">'+retratoFicha(a,imagemToken)+'</div><div class="identificacao-ficha">'+campo('Nome do personagem','nome',f.nome,'text','required maxlength="100"',bloqueado)+'<div class="classes-ficha">'+classes+'</div></div><div class="identificacao-menor">'+campo('Espécie','especie',f.especie??'','text','',bloqueado)+campo('Bônus de proficiência','proficiencia',f.proficiencia??(2+Math.floor((nivel-1)/4)),'number','min="0" max="10"',bloqueado)+'</div></section>'+
     '<section class="atributos-editaveis">'+atributos+'</section>'+
-    '<section class="combate-ficha"><h3>Combate <small>Totais: '+pvMaximosAtuais(a)+' PV · CA '+caAtual(a)+' · '+deslocamentoMaximo(a)+' m</small></h3><div class="valores-combate">'+campo('PV atual','pv-atual',a.pv,'number','min="0" max="9999"',bloqueado)+baseBonus('pv-total','PV máximo · base','pv-max',f.pvMaximos,'min="1" max="9999"','Bônus',bonusPV)+baseBonus('ca-total','CA · base','ca',f.caBase,'min="0" max="99"','Bônus',bonusCA)+baseBonus('mov-total','Deslocamento · base','deslocamento',f.deslocamentosM.andar,'min="0" max="999" step="0.5"','Bônus',bonusMov,' m')+'</div></section>'+efeitosFicha(a)+
+    '<section class="combate-ficha"><h3>Combate <small>Totais: '+pvMaximosAtuais(a)+' PV · CA '+caAtual(a)+' · '+deslocamentoMaximo(a)+' m</small></h3><div class="valores-combate">'+campo('PV atual','pv-atual',a.pv,'number','min="0" max="9999"',bloqueado)+baseBonus('pv-total','PV máximo · base','pv-max',f.pvMaximos,'min="1" max="9999"','Bônus',bonusPV)+campoCA(a,bloqueado)+baseBonus('mov-total','Deslocamento · base','deslocamento',f.deslocamentosM.andar,'min="0" max="999" step="0.5"','Bônus',bonusMov,' m')+'</div></section>'+efeitosFicha(a)+
     '<div class="corpo-ficha"><section><h3>Salvaguardas</h3><div class="campos-ficha salvas-editaveis">'+salvas+'</div><h3>Perícias</h3><div class="campos-ficha pericias-editaveis">'+pericias+'</div></section><section><h3>Recursos</h3><div class="recursos-editaveis">'+recursos+'</div><h3>Características</h3><div class="campos-ficha texto-ficha">'+campo('Sentidos','sentidos',f.sentidos??'','text','',bloqueado)+campo('Idiomas','idiomas',f.idiomas??'','text','',bloqueado)+'<label>Anotações livres<textarea name="anotacoes" rows="6" '+bloqueado+'>'+esc(f.anotacoes??'')+'</textarea></label></div></section></div>'+
     '<details class="editor-avancado"><summary>Editor avançado · ações, magias, equipamentos e passivas</summary><p class="muted">Use quando precisar alterar campos que ainda não possuem uma caixa própria. O formato JSON completo continua compatível com a importação.</p><textarea id="fichaJson" rows="18" spellcheck="false" '+bloqueado+'>'+esc(JSON.stringify(f,null,2))+'</textarea></details>';
   const abas=[['personagem','Ficha de personagem'],['inventario','Inventário'],['habilidades','Livro de Habilidades']];
