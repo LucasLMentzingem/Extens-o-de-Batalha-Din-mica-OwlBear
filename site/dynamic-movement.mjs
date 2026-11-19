@@ -1,5 +1,5 @@
-import {centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.73';
-import {terrenoDificilDasZonas} from './zonas.mjs?v=0.8.73';
+import {centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.74';
+import {terrenoDificilDasZonas} from './zonas.mjs?v=0.8.74';
 const EPS=1e-8,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 // Projeção sobre a interseção dos discos de alcance. Não procura desvios.
 export function pontoMaisProximo(origem,discos){
