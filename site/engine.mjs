@@ -1,22 +1,22 @@
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.70';
-import {primeiroContato} from './zonas.mjs?v=0.8.70';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.70';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.70';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.70';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.70';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.70';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.70';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.70';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.71';
+import {primeiroContato} from './zonas.mjs?v=0.8.71';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.71';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.71';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.71';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.71';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.71';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.71';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.71';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.70';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.70';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.71';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.71';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
 export const LIMITE_FICHAS_GRUPO = 50;
 export const quantidadeMoedaValida=valor=>Number.isFinite(valor)&&Math.abs(valor-Math.round(valor*100)/100)<1e-10;
 export const avancosMesa=[['10min','10 Min',600],['1min','1 Min',60],['30seg','30 Seg',30],['1t','1T',6],['5t','5T',30],['10t','10T',60]];
-export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
+export const slotsEquipamento = Object.freeze(['cabeca','capa','vestes','botas','luvas','mao_forte','mao_fraca','arma_distancia','colar','acessorio_1','acessorio_2']);
 export const periciasPadrao = {
   'Acrobacia':'des','Lidar com Animais':'sab','Arcanismo':'int','Atletismo':'for',
   'Atuação':'car','Enganação':'car','Furtividade':'des','História':'int',
@@ -136,7 +136,7 @@ export function atualizarMagias(f){
     if(nomeCompleto.includes('mao de cura'))o.automacao={tipo:'cura',formula:'1d6+1',alcanceM:1.5};
     if(o.categoria!=='magia'||typeof o.nome!=='string')continue;
     if(nome==='armadura arcana'&&!o.prototipo){
-      o.foraCombate=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Armadura Arcana',tipo:'buff',descricao:'A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.',removeEm:'descanso_longo',caMinima:13,requisitos:{semArmadura:true},modificadores:{}}};
+      o.foraCombate=true;o.automacao={tipo:'efeito',alcanceM:1.5,efeito:{nome:'Armadura Arcana',tipo:'buff',descricao:'Sem armadura nem escudo, a CA base do alvo passa a ser 13 + DES (recalculada a cada mudança).',removeEm:'descanso_longo',caMinima:13,requisitos:{semArmadura:true},modificadores:{}}};
       if(f.id==='nikki'&&[13,15].includes(f.caBase))f.caBase=12; // #9 sem armadura: 10 + DESif(f.id==='nikki'&&f.armaduraEquipada===undefined)f.armaduraEquipada=false;
     }
     if(nome==='sopro de dragao')configurarSoproDragao(o);
@@ -209,6 +209,43 @@ export function atualizarMagias(f){
   // Encontros persistidos guardam a ficha já normalizada. Reaplicar este
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
+  migrarLuvas(f);
+  migrarDefesaCA(f);
+}
+// #77 Slot de Luvas: luvas equipadas em acessórios passam para o slot próprio. Se havia dois pares,
+// o primeiro continua equipado e os demais voltam ao inventário (nada é vendido, excluído ou duplicado).
+const ehLuvas=i=>i?.slotEquipamento==='luvas'||/\bluvas?\b/.test(textoNormal(i?.nome));
+function migrarLuvas(f){
+  const itens=f?.inventario?.itens;if(!Array.isArray(itens))return;
+  let ocupado=itens.some(i=>i.equipado&&i.equipadoSlot==='luvas'&&ehLuvas(i));
+  for(const i of itens){
+    if(i.tipo!=='equipamento'||!ehLuvas(i))continue;
+    i.slotEquipamento='luvas';
+    if(!i.equipado||i.equipadoSlot==='luvas')continue;
+    if(!ocupado){i.equipadoSlot='luvas';ocupado=true;}
+    else{i.equipado=false;delete i.equipadoSlot;(f.avisosMigracao??=[]).push('Luvas: '+i.nome+' voltou ao inventário (só um par pode ficar equipado).');}
+  }
+}
+// #77 Migração da defesa: cria defesaCA uma única vez preservando a CA total que a ficha tinha.
+// 1) tenta 10 + DES sem armadura; 2) criatura sem armadura com CA intrínseca fixa (ex.: saco 1);
+// 3) diferença restante vira ajusteManual marcado como legado, para o mestre revisar.
+const FORMULAS_DEFESA_SEM_ARMADURA={monge:'sab',barbaro:'con'};
+function migrarDefesaCA(f){
+  for(const p of f?.passivas??[]){
+    if(p.formulaCA||!/defesa sem armadura/.test(textoNormal(p.nome)))continue;
+    const classe=(f.classes??[]).map(c=>textoNormal(c.id)).find(c=>FORMULAS_DEFESA_SEM_ARMADURA[c]);
+    if(classe)p.formulaCA={id:'defesa-sem-armadura-'+classe,base:10,atributos:[{atributo:'des'},{atributo:FORMULAS_DEFESA_SEM_ARMADURA[classe]}],requisitos:{semArmaduraCorporal:true,semEscudo:true}};
+  }
+  if(f?.defesaCA?.versao===1||!f?.atributos||!Array.isArray(f?.inventario?.itens))return;
+  const ator={ficha:f,efeitosAtivos:[]},antigo=caLegado(ator);
+  const total=d=>{f.defesaCA=d;return resolverCA(ator).total;};
+  let d={versao:1,semArmadura:{base:10,atributos:[{atributo:'des'}]},ajusteManual:0};
+  if(total(d)!==antigo){
+    const fixa={versao:1,semArmadura:{base:Number(f.caBase)||0,atributos:[]},ajusteManual:0};
+    if(!estadoProtecao(ator).usaArmaduraCorporal&&total(fixa)===antigo)d=fixa;
+    else d={...d,ajusteManual:antigo-total(d),ajusteLegado:true};
+  }
+  f.defesaCA=d;
 }
 // Correções de magias e ações da revisão de regras (#14, #15, #17, #27).
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
@@ -475,7 +512,7 @@ function slotLegado(nome){
   if(/arco|besta/.test(t))return 'arma_distancia';
   if(/adaga|espada|cimitarra|lanca|machado|martelo|clava|cajado|rapieira|tridente/.test(t))return 'mao_forte';
   if(/armadura|couro|malha|placa|robe|veste/.test(t))return 'vestes';
-  if(/escudo/.test(t))return 'mao_fraca';if(/bota/.test(t))return 'botas';if(/capa/.test(t))return 'capa';if(/colar|amuleto/.test(t))return 'colar';if(/elmo|capacete|chapeu|coroa/.test(t))return 'cabeca';if(/anel|luva/.test(t))return 'acessorio_1';return null;
+  if(/escudo/.test(t))return 'mao_fraca';if(/bota/.test(t))return 'botas';if(/capa/.test(t))return 'capa';if(/colar|amuleto/.test(t))return 'colar';if(/elmo|capacete|chapeu|coroa/.test(t))return 'cabeca';if(/luva/.test(t))return 'luvas';if(/anel/.test(t))return 'acessorio_1';return null;
 }
 function separarCopias(itens){
   const usados=new Set(itens.map(i=>i.id)),saida=[];
@@ -1046,12 +1083,60 @@ export function proficienteComArmadura(f,item){
 }
 const armadurasSemTreino=a=>itensEquipados(a).filter(i=>['leve','media','pesada'].includes(textoNormal(i.categoriaArmadura??i.classeArmadura?.classe))&&!proficienteComArmadura(a.ficha,i));
 const desvantagemArmaduraSemTreino=(a,atributo)=>['for','des'].includes(atributo)&&armadurasSemTreino(a).length>0;
-export const caAtual=a=>{
+// #77 CA dinâmica. A CA salva não é mais piso: a defesa é sempre fórmula-base + bônus atuais.
+// Proteção separada: armadura corporal (leve/média/pesada) e escudo são fatos distintos.
+const categoriaProtecao=i=>textoNormal(i?.categoriaArmadura??i?.classeArmadura?.classe);
+const ehEscudo=i=>categoriaProtecao(i)==='escudo'||/escudo/.test(textoNormal(i?.nome));
+const ehArmaduraCorporal=i=>!ehEscudo(i)&&['leve','media','pesada'].includes(categoriaProtecao(i));
+export function estadoProtecao(a){
+  const itens=itensEquipados(a),corporais=itens.filter(ehArmaduraCorporal),escudos=itens.filter(ehEscudo);
+  const legado=!Array.isArray(a?.ficha?.inventario?.itens)&&usaArmadura(a);
+  return {usaArmaduraCorporal:corporais.length>0||legado,usaEscudo:escudos.length>0,corporais,escudos};
+}
+const valorFormula=(a,f)=>{
+  let bonus=0;
+  for(const at of f.atributos??[]){let m=mod(a?.ficha?.atributos?.[at.atributo]??10);if(Number.isFinite(at.limite))m=Math.min(m,at.limite);bonus+=m;}
+  return {base:Number(f.base)||0,bonusAtributos:bonus,valor:(Number(f.base)||0)+bonus};
+};
+const requisitosFormulaOk=(prot,r={})=>!(r.semArmaduraCorporal&&prot.usaArmaduraCorporal)&&!(r.semEscudo&&prot.usaEscudo)&&!(r.semArmadura&&(prot.usaArmaduraCorporal||prot.usaEscudo));
+// Fórmula de efeito: formulaCA declarativa ou o legado caMinima (Armadura Arcana: 13 + DES, sem armadura nem escudo).
+const formulaDeEfeito=e=>e?.formulaCA??(Number.isFinite(e?.caMinima)?{id:'efeito-'+(e.id??'ca'),base:e.caMinima,atributos:[{atributo:'des'}],requisitos:{semArmadura:true}}:null);
+export function resolverCA(a){
+  const f=a?.ficha;
+  if(!f?.atributos)return {disponivel:false,total:null,base:0,bonusTotal:0,fontes:[]};
+  if(!f.defesaCA)return {disponivel:true,legado:true,total:caLegado(a),base:caLegado(a),bonusTotal:0,fontes:[]};
+  const prot=estadoProtecao(a),d=f.defesaCA,candidatas=[];
+  for(const i of itensEquipados(a)){
+    const ca=i.classeArmadura;if(ca?.tipo!=='base'||ehEscudo(i))continue;
+    candidatas.push({tipo:'armadura',id:'item:'+i.id,nome:i.nome,corporal:ehArmaduraCorporal(i),formula:{base:ca.valor,atributos:ca.atributo?[{atributo:ca.atributo,limite:ca.limiteAtributo}]:[]}});
+  }
+  if(!prot.usaArmaduraCorporal){
+    candidatas.push({tipo:'sem_armadura',id:'ficha:sem-armadura',nome:'Sem armadura',formula:d.semArmadura??{base:10,atributos:[{atributo:'des'}]}});
+    for(const p of (f.passivas??[]).filter(p=>p.ativa!==false&&p.formulaCA))if(requisitosFormulaOk(prot,p.formulaCA.requisitos))candidatas.push({tipo:'traco',id:'passiva:'+p.id,nome:p.nome,formula:p.formulaCA});
+    for(const e of a.efeitosAtivos??[]){const fe=formulaDeEfeito(e);if(fe&&requisitosFormulaOk(prot,fe.requisitos))candidatas.push({tipo:'efeito',id:'efeito:'+e.id,nome:e.nome,formula:fe});}
+  }
+  let escolhida=null;
+  for(const c of candidatas){const v=valorFormula(a,c.formula);c.calculo=v;if(!escolhida||v.valor>escolhida.calculo.valor)escolhida=c;}
+  const fontes=[];
+  const bonusEscudos=prot.escudos.reduce((n,i)=>{const ca=i.classeArmadura;const v=ca?.tipo==='bonus'&&proficienteComArmadura(f,i)?Number(ca.valor)||0:0;if(v)fontes.push({tipo:'escudo',id:'item:'+i.id,nome:i.nome,valor:v});return n+v;},0);
+  const encantamentoEscudoSemProficiencia=prot.escudos.filter(i=>!proficienteComArmadura(f,i)).reduce((n,i)=>n+(Number(i.modificadores?.ca)||0),0);
+  const bonusItens=bonusEquipamento(a,'ca')-encantamentoEscudoSemProficiencia,bonusTracos=bonusPassiva(a,'ca');
+  // O delta congelado da Armadura Arcana legada (modificadores.ca de efeitos com caMinima) não soma mais.
+  const bonusEfeitos=(a.efeitosAtivos??[]).filter(e=>!Number.isFinite(e.caMinima)).reduce((n,e)=>n+(Number(e.modificadores?.ca)||0),0);
+  const bonusManual=Number(d.ajusteManual)||0;
+  const base=escolhida?.calculo.base??0,bonusAtributos=escolhida?.calculo.bonusAtributos??0;
+  const bonusTotal=bonusAtributos+bonusEscudos+bonusItens+bonusTracos+bonusEfeitos+bonusManual;
+  return {disponivel:true,origemBase:escolhida?{tipo:escolhida.tipo,id:escolhida.id,nome:escolhida.nome}:null,base,bonusAtributos,bonusEscudos,bonusItens,bonusTracos,bonusEfeitos,bonusManual,bonusTotal,total:base+bonusTotal,fontes,
+    formulasDescartadas:candidatas.filter(c=>c!==escolhida).map(c=>({id:c.id,nome:c.nome,valor:c.calculo.valor}))};
+}
+// Cálculo antigo (CA salva como piso), usado só para migrar fichas sem defesaCA preservando o total.
+function caLegado(a){
   const mongeSemArmadura=(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')&&!usaArmadura(a);
   let base=mongeSemArmadura?10+mod(a.ficha.atributos.des)+mod(a.ficha.atributos.sab):(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')?10:a?.ficha?.caBase??0,bonus=0;
   for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base'){let valor=Number(ca.valor)||0;if(ca.atributo){let modificador=mod(a?.ficha?.atributos?.[ca.atributo]??10);if(Number.isFinite(ca.limiteAtributo))modificador=Math.min(modificador,ca.limiteAtributo);valor+=modificador;}base=Math.max(base,valor);}if(ca?.tipo==='bonus'&&proficienteComArmadura(a.ficha,i))bonus+=Number(ca.valor)||0;}
   return base+bonus+bonusEquipamento(a,'ca')+bonusPassiva(a,'ca')+bonusEfeito(a,'ca');
-};
+}
+export const caAtual=a=>resolverCA(a).total??0;
 export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusPassiva(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');
 export const deslocamentoMaximo=a=>{
   const penalidade=itensEquipados(a).some(i=>i.categoriaArmadura==='pesada'&&Number(i.requisitos?.forca)>(a?.ficha?.atributos?.for??0))?3:0;
@@ -1965,7 +2050,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
         const item=transferencia.item;let slot=c.equiparSlot??item.slotEquipamento;
         if(slot==='acessorio')slot=!a.ficha.inventario.itens.some(i=>i.equipado&&i.equipadoSlot==='acessorio_1')?'acessorio_1':'acessorio_2';
         const armaUmaMao=item.slotEquipamento==='mao_forte'&&!armaDuasMaos(item);
-        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item saqueado.');
+        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'&&['acessorio_1','acessorio_2'].includes(slot)||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item saqueado.');
         const exigidos=armaDuasMaos(item)&&['mao_forte','mao_fraca'].includes(slot)?['mao_forte','mao_fraca']:[slot];
         const anteriores=a.ficha.inventario.itens.filter(i=>i.equipado&&exigidos.some(s=>ocupaSlot(i,s)));
         exigir(s.fase!=='turnos'||!anteriores.length||a.bonus>=1,'É preciso ter uma ação bônus para substituir equipamento.');
@@ -2360,7 +2445,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
         let slot=c.slot??item.slotEquipamento;
         if(slot==='acessorio')slot=!a.ficha.inventario.itens.some(i=>i.equipado&&i.equipadoSlot==='acessorio_1')?'acessorio_1':'acessorio_2';
         const armaUmaMao=item.slotEquipamento==='mao_forte'&&!armaDuasMaos(item);
-        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item.');
+        exigir(slotsEquipamento.includes(slot)&&(slot===item.slotEquipamento||item.slotEquipamento==='acessorio'&&['acessorio_1','acessorio_2'].includes(slot)||armaUmaMao&&slot==='mao_fraca'),'Slot incompatível com o item.');
         const exigidos=armaDuasMaos(item)&&['mao_forte','mao_fraca'].includes(slot)?['mao_forte','mao_fraca']:[slot];
         const anteriores=a.ficha.inventario.itens.filter(i=>i.equipado&&i!==item&&exigidos.some(s=>ocupaSlot(i,s)));
         if(emTurno&&anteriores.length){exigir(a.bonus>=1,'É preciso ter uma ação bônus para substituir equipamento.');a.bonus--;}
@@ -2940,7 +3025,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         }
         if(def.danoAoSerAtingido)def.danoAoSerAtingido={...def.danoAoSerAtingido,origemAtorId:a.id};
         if(def.duracao)def.duracao={...def.duracao,restante:def.duracao.turnos};
-        if(Number.isFinite(def.caMinima))def.modificadores.ca=Math.max(0,def.caMinima+mod(p.ficha.atributos.des)-caAtual(p));
+        // #77 Armadura Arcana: 13 + DES é uma fórmula candidata recalculada a cada consulta (resolverCA), não um delta gravado.
         p.efeitosAtivos.push(def);const maxDepois=pvMaximosAtuais(p);
         if(def.tambemNoConjurador&&p!==a){const copia={...structuredClone(def),opcoesConcedidas:doConjurador?structuredClone(doConjurador):undefined};a.efeitosAtivos=[...(a.efeitosAtivos??[]),copia];}
         else if(doConjurador&&p===a)def.opcoesConcedidas=[...(def.opcoesConcedidas??[]),...structuredClone(doConjurador)];

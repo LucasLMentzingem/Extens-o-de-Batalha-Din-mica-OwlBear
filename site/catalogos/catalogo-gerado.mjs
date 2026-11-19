@@ -10558,17 +10558,17 @@ export default {
     },
     {
       "id": "item.luvas-de-treino-par",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Luvas de treino (par)",
         "tipo": "equipamento",
-        "categoria": "acessorio",
+        "categoria": "luvas",
         "preco": {
           "valor": 2,
           "moeda": "po"
         },
         "pesoKg": 0.25,
-        "slotEquipamento": "acessorio",
+        "slotEquipamento": "luvas",
         "descricao": "Protegem as mãos durante o treino.",
         "negociavel": true,
         "icone": "assets/itens/item-luvas-de-treino-par.webp",
@@ -11713,14 +11713,17 @@ export default {
         "categoriaArmadura": "media",
         "classeArmadura": {
           "tipo": "base",
-          "valor": 14,
+          "valor": 13,
           "classe": "media",
           "atributo": "des",
           "limiteAtributo": 2
         },
-        "descricao": "Armadura média, CA 14 + DES (máximo +2).",
+        "descricao": "Armadura média, CA 13 + DES (máximo +2), +1 de encantamento.",
         "negociavel": true,
         "raridade": "incomum",
+        "modificadores": {
+          "ca": 1
+        },
         "icone": "assets/itens/item-la-arte-camisao-malha-mais-1.webp",
         "iconeElemento": "neutro"
       }
@@ -11741,7 +11744,7 @@ export default {
         "categoriaArmadura": "pesada",
         "classeArmadura": {
           "tipo": "base",
-          "valor": 17,
+          "valor": 16,
           "classe": "pesada"
         },
         "requisitos": {
@@ -11750,9 +11753,12 @@ export default {
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada, CA 17; FOR 13; desvantagem em Furtividade.",
+        "descricao": "Armadura pesada, CA 16 +1 de encantamento; FOR 13; desvantagem em Furtividade.",
         "negociavel": true,
         "raridade": "incomum",
+        "modificadores": {
+          "ca": 1
+        },
         "icone": "assets/itens/item-la-arte-cota-malha-mais-1.webp",
         "iconeElemento": "neutro"
       }
@@ -11773,7 +11779,7 @@ export default {
         "categoriaArmadura": "pesada",
         "classeArmadura": {
           "tipo": "base",
-          "valor": 19,
+          "valor": 18,
           "classe": "pesada"
         },
         "requisitos": {
@@ -11782,9 +11788,12 @@ export default {
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada, CA 19; FOR 15; desvantagem em Furtividade.",
+        "descricao": "Armadura pesada, CA 18 +1 de encantamento; FOR 15; desvantagem em Furtividade.",
         "negociavel": true,
         "raridade": "incomum",
+        "modificadores": {
+          "ca": 1
+        },
         "icone": "assets/itens/item-la-arte-placas-mais-1.webp",
         "iconeElemento": "neutro"
       }
@@ -11805,12 +11814,15 @@ export default {
         "categoriaArmadura": "escudo",
         "classeArmadura": {
           "tipo": "bonus",
-          "valor": 3,
+          "valor": 2,
           "classe": "escudo"
         },
-        "descricao": "Empunhado na mão fraca. Concede +3 à CA.",
+        "descricao": "Empunhado na mão fraca. Concede +2 à CA e +1 de encantamento (exige proficiência com escudo).",
         "negociavel": true,
         "raridade": "incomum",
+        "modificadores": {
+          "ca": 1
+        },
         "icone": "assets/itens/item-la-arte-escudo-mais-1.webp",
         "iconeElemento": "neutro"
       }
@@ -12026,13 +12038,13 @@ export default {
       "definicao": {
         "nome": "Luvas da Guarda +1",
         "tipo": "equipamento",
-        "categoria": "acessorio",
+        "categoria": "luvas",
         "preco": {
           "valor": 500,
           "moeda": "po"
         },
         "pesoKg": 0.25,
-        "slotEquipamento": "acessorio",
+        "slotEquipamento": "luvas",
         "descricao": "Sem armadura, concede +1 à CA.",
         "negociavel": true,
         "raridade": "incomum",
@@ -12051,13 +12063,13 @@ export default {
       "definicao": {
         "nome": "Luva de Boxeador das Ruas +1",
         "tipo": "equipamento",
-        "categoria": "acessorio",
+        "categoria": "luvas",
         "preco": {
           "valor": 600,
           "moeda": "po"
         },
         "pesoKg": 0.25,
-        "slotEquipamento": "acessorio",
+        "slotEquipamento": "luvas",
         "descricao": "Enquanto equipada sem armadura nem escudo, concede +1 às jogadas de ataque desarmado e +1 ao dano de cada acerto desarmado.",
         "negociavel": true,
         "raridade": "incomum",
@@ -12736,14 +12748,17 @@ export default {
         "categoriaArmadura": "media",
         "classeArmadura": {
           "tipo": "base",
-          "valor": 15,
+          "valor": 13,
           "classe": "media",
           "atributo": "des",
           "limiteAtributo": 2
         },
-        "descricao": "Armadura média, CA 15 + DES (máximo +2).",
+        "descricao": "Armadura média, CA 13 + DES (máximo +2), +2 de encantamento.",
         "negociavel": true,
         "raridade": "raro",
+        "modificadores": {
+          "ca": 2
+        },
         "icone": "assets/itens/item-la-arte-camisao-malha-mais-2.webp",
         "iconeElemento": "neutro"
       }
@@ -12764,7 +12779,7 @@ export default {
         "categoriaArmadura": "pesada",
         "classeArmadura": {
           "tipo": "base",
-          "valor": 18,
+          "valor": 16,
           "classe": "pesada"
         },
         "requisitos": {
@@ -12773,9 +12788,12 @@ export default {
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada, CA 18; FOR 13; desvantagem em Furtividade.",
+        "descricao": "Armadura pesada, CA 16 +2 de encantamento; FOR 13; desvantagem em Furtividade.",
         "negociavel": true,
         "raridade": "raro",
+        "modificadores": {
+          "ca": 2
+        },
         "icone": "assets/itens/item-la-arte-cota-malha-mais-2.webp",
         "iconeElemento": "neutro"
       }
@@ -12796,7 +12814,7 @@ export default {
         "categoriaArmadura": "pesada",
         "classeArmadura": {
           "tipo": "base",
-          "valor": 20,
+          "valor": 18,
           "classe": "pesada"
         },
         "requisitos": {
@@ -12805,9 +12823,12 @@ export default {
         "penalidades": {
           "furtividade": "desvantagem"
         },
-        "descricao": "Armadura pesada, CA 20; FOR 15; desvantagem em Furtividade.",
+        "descricao": "Armadura pesada, CA 18 +2 de encantamento; FOR 15; desvantagem em Furtividade.",
         "negociavel": true,
         "raridade": "raro",
+        "modificadores": {
+          "ca": 2
+        },
         "icone": "assets/itens/item-la-arte-placas-mais-2.webp",
         "iconeElemento": "neutro"
       }
@@ -12828,12 +12849,15 @@ export default {
         "categoriaArmadura": "escudo",
         "classeArmadura": {
           "tipo": "bonus",
-          "valor": 4,
+          "valor": 2,
           "classe": "escudo"
         },
-        "descricao": "Empunhado na mão fraca. Concede +4 à CA.",
+        "descricao": "Empunhado na mão fraca. Concede +2 à CA e +2 de encantamento (exige proficiência com escudo).",
         "negociavel": true,
         "raridade": "raro",
+        "modificadores": {
+          "ca": 2
+        },
         "icone": "assets/itens/item-la-arte-escudo-mais-2.webp",
         "iconeElemento": "neutro"
       }
@@ -12973,13 +12997,13 @@ export default {
       "definicao": {
         "nome": "Luvas do Dragão Ascendente +2",
         "tipo": "equipamento",
-        "categoria": "acessorio",
+        "categoria": "luvas",
         "preco": {
           "valor": 1400,
           "moeda": "po"
         },
         "pesoKg": 0.25,
-        "slotEquipamento": "acessorio",
+        "slotEquipamento": "luvas",
         "descricao": "Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura nem escudo, concede também +1 às jogadas de ataque desarmado e +1 à CA.",
         "negociavel": true,
         "raridade": "raro",

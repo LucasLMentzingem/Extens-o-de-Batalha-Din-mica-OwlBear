@@ -1,4 +1,4 @@
-import {arteItem} from './item-art.mjs?v=0.8.70';
+import {arteItem} from './item-art.mjs?v=0.8.71';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function celulaInventario(i,{atributos='',descricao='',selecionada=false}={}){
   if(!i)return '<div class="celula-item vazia" aria-label="Espaço vazio"></div>';

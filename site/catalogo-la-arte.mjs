@@ -11,10 +11,10 @@ const incomuns=[
     opcoesConcedidas:[{id:'ultimo-folego',nome:'Último Fôlego',categoria:'item',origem:'Veste do Último Fôlego',gatilho:'ser_atingido',descricao:'Reação ao sofrer dano: reduza o dano em 1d6.',custo:[{tipo:'reacao',quantidade:1},{tipo:'recurso',id:'ultimo-folego',quantidade:1}],automacao:{tipo:'reduzir_dano',formula:'1d6'}}]
   }),
   item('couro-passo-macio','item.couro-batido','Couro do Passo Macio','incomum',485,'Armadura leve, CA 12 + DES e +1 em testes de Furtividade.',{modificadores:{furtividade:1}}),
-  item('camisao-malha-mais-1','item.camisao-de-malha','Camisão de malha +1','incomum',530,'Armadura média, CA 14 + DES (máximo +2).',{classeArmadura:{tipo:'base',valor:14,classe:'media',atributo:'des',limiteAtributo:2}}),
-  item('cota-malha-mais-1','item.cota-de-malha','Cota de malha +1','incomum',560,'Armadura pesada, CA 17; FOR 13; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:17,classe:'pesada'}}),
-  item('placas-mais-1','item.armadura-de-placas','Armadura de placas +1','incomum',2000,'Armadura pesada, CA 19; FOR 15; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:19,classe:'pesada'}}),
-  item('escudo-mais-1','item.escudo','Escudo +1','incomum',510,'Empunhado na mão fraca. Concede +3 à CA.',{classeArmadura:{tipo:'bonus',valor:3,classe:'escudo'}}),
+  item('camisao-malha-mais-1','item.camisao-de-malha','Camisão de malha +1','incomum',530,'Armadura média, CA 13 + DES (máximo +2), +1 de encantamento.',{classeArmadura:{tipo:'base',valor:13,classe:'media',atributo:'des',limiteAtributo:2},modificadores:{ca:1}}),
+  item('cota-malha-mais-1','item.cota-de-malha','Cota de malha +1','incomum',560,'Armadura pesada, CA 16 +1 de encantamento; FOR 13; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:16,classe:'pesada'},modificadores:{ca:1}}),
+  item('placas-mais-1','item.armadura-de-placas','Armadura de placas +1','incomum',2000,'Armadura pesada, CA 18 +1 de encantamento; FOR 15; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:18,classe:'pesada'},modificadores:{ca:1}}),
+  item('escudo-mais-1','item.escudo','Escudo +1','incomum',510,'Empunhado na mão fraca. Concede +2 à CA e +1 de encantamento (exige proficiência com escudo).',{classeArmadura:{tipo:'bonus',valor:2,classe:'escudo'},modificadores:{ca:1}}),
   item('anel-mao-firme','item.anel-simples-de-oficina','Anel da Mão Firme','incomum',425,'+1 em testes para abrir fechaduras com ferramentas de ladrão.',{
     modificadores:{abrirFechaduras:1},
     opcoesConcedidas:[{id:'abrir-fechadura',nome:'Abrir fechadura',categoria:'item',origem:'Anel da Mão Firme',descricao:'Use ferramentas de ladrão para abrir uma fechadura. O anel concede +1 a este teste.',custo:[{tipo:'acao',quantidade:1}],automacao:{tipo:'teste',atributo:'des',pericia:'Prestidigitação',ferramenta:'ferramentas_de_ladrao',contexto:'abrirFechaduras',cd:15}}]
@@ -46,10 +46,10 @@ const raros=[
     recursosConcedidos:[recurso('sombra-curta','Sombra Curta')],
     opcoesConcedidas:[{id:'sombra-curta',nome:'Sombra Curta',categoria:'item',origem:'Couro da Sombra Curta',descricao:'Fique invisível até o início do próximo turno.',custo:[{tipo:'bonus',quantidade:1},{tipo:'recurso',id:'sombra-curta',quantidade:1}],selecao:alvoUnico(),requisitosUso:{alvoIgualConjurador:true},automacao:{tipo:'efeito',alcanceM:1.5,efeito:{nome:'Sombra Curta',tipo:'condicao',condicao:'invisivel',descricao:'Invisível até o início do próximo turno.',duracao:{turnos:1,expira:'inicio_origem'}}}}]
   }),
-  item('camisao-malha-mais-2','item.camisao-de-malha','Camisão de malha +2','raro',1390,'Armadura média, CA 15 + DES (máximo +2).',{classeArmadura:{tipo:'base',valor:15,classe:'media',atributo:'des',limiteAtributo:2}}),
-  item('cota-malha-mais-2','item.cota-de-malha','Cota de malha +2','raro',1460,'Armadura pesada, CA 18; FOR 13; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:18,classe:'pesada'}}),
-  item('placas-mais-2','item.armadura-de-placas','Armadura de placas +2','raro',5050,'Armadura pesada, CA 20; FOR 15; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:20,classe:'pesada'}}),
-  item('escudo-mais-2','item.escudo','Escudo +2','raro',1325,'Empunhado na mão fraca. Concede +4 à CA.',{classeArmadura:{tipo:'bonus',valor:4,classe:'escudo'}}),
+  item('camisao-malha-mais-2','item.camisao-de-malha','Camisão de malha +2','raro',1390,'Armadura média, CA 13 + DES (máximo +2), +2 de encantamento.',{classeArmadura:{tipo:'base',valor:13,classe:'media',atributo:'des',limiteAtributo:2},modificadores:{ca:2}}),
+  item('cota-malha-mais-2','item.cota-de-malha','Cota de malha +2','raro',1460,'Armadura pesada, CA 16 +2 de encantamento; FOR 13; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:16,classe:'pesada'},modificadores:{ca:2}}),
+  item('placas-mais-2','item.armadura-de-placas','Armadura de placas +2','raro',5050,'Armadura pesada, CA 18 +2 de encantamento; FOR 15; desvantagem em Furtividade.',{classeArmadura:{tipo:'base',valor:18,classe:'pesada'},modificadores:{ca:2}}),
+  item('escudo-mais-2','item.escudo','Escudo +2','raro',1325,'Empunhado na mão fraca. Concede +2 à CA e +2 de encantamento (exige proficiência com escudo).',{classeArmadura:{tipo:'bonus',valor:2,classe:'escudo'},modificadores:{ca:2}}),
   item('anel-segunda-chance','item.anel-simples-de-oficina','Anel da Segunda Chance','raro',1300,'Ao falhar numa salvaguarda, 1 uso por descanso longo: rerrole e use o novo resultado.',{
     recursosConcedidos:[recurso('segunda-chance','Segunda Chance')],
     opcoesConcedidas:[{id:'segunda-chance',nome:'Segunda Chance',categoria:'item',origem:'Anel da Segunda Chance',descricao:'Após falhar numa salvaguarda, rerrole e use o novo resultado.',gatilho:'apos_rolagem_d20',custo:[{tipo:'recurso',id:'segunda-chance',quantidade:1}],rerrolagem:{tipo:'d20',modo:'todos',tipos:['salvaguarda'],somenteFalha:true}}]

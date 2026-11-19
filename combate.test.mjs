@@ -611,7 +611,7 @@ test('Armadura Arcana: CA 12 sem armadura (#9), aplica +2 fora de combate e term
  await m.go('vincular',{ator:m.a.id,dono:'p'});const espacos=m.a.rec['espaco-1'];
  await m.go('usar',{ator:m.a.id,opcao:o.id,alvo:m.a.id},player);
  assert.equal(m.s.atores[0].acao,1);assert.equal(m.s.atores[0].rec['espaco-1'],espacos-1);assert.equal(caAtual(m.s.atores[0]),15);
- assert.equal(m.s.atores[0].efeitosAtivos[0].modificadores.ca,3);assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
+ assert.ok(!m.s.atores[0].efeitosAtivos[0].modificadores.ca,'#77 sem delta congelado: 13 + DES é recalculado');assert.equal(m.s.atores[0].efeitosAtivos[0].removeEm,'descanso_longo');
  await m.go('descanso',{periodo:'curto'});assert.equal(caAtual(m.s.atores[0]),15);
  await m.go('descanso',{periodo:'longo'});assert.equal(caAtual(m.s.atores[0]),12);assert.equal(m.s.atores[0].efeitosAtivos.length,0);
 });
@@ -1234,7 +1234,7 @@ test('armaduras e escudos das duas lojas entregam exatamente a CA declarada',()=
  for(const item of itens){
   const s=novo(),treinada=structuredClone(nikki);treinada.proficienciasEquipamento.armaduras=['leve','media','pesada','escudo'];const a=adicionar(s,treinada);for(const i of a.ficha.inventario.itens)i.equipado=false;
   const copia=structuredClone(item);copia.id='ca-'+item.id;copia.quantidade=1;copia.equipado=true;copia.equipadoSlot=copia.slotEquipamento;a.ficha.inventario.itens.push(copia);
-  const ca=copia.classeArmadura,modDes=2,esperada=ca.tipo==='bonus'?a.ficha.caBase+ca.valor:ca.valor+(ca.atributo==='des'?Math.min(modDes,ca.limiteAtributo??99):0);
+  const ca=copia.classeArmadura,modDes=2,encanto=Number(copia.modificadores?.ca)||0,esperada=encanto+(ca.tipo==='bonus'?a.ficha.caBase+ca.valor:ca.valor+(ca.atributo==='des'?Math.min(modDes,ca.limiteAtributo??99):0)); // #77 encantamento separado, mesmo total
   assert.equal(caAtual(a),esperada,item.nome);
  }
 });

@@ -1863,17 +1863,17 @@
     },
     {
       "id": "item.luvas-de-treino-par",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Luvas de treino (par)",
         "tipo": "equipamento",
-        "categoria": "acessorio",
+        "categoria": "luvas",
         "preco": {
           "valor": 2,
           "moeda": "po"
         },
         "pesoKg": 0.25,
-        "slotEquipamento": "acessorio",
+        "slotEquipamento": "luvas",
         "descricao": "Protegem as mãos durante o treino.",
         "negociavel": true
       }

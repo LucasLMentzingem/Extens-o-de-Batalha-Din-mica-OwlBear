@@ -1,9 +1,9 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.70';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.71';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.70';
-import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.70';
-import {resumoItem} from './ficha-view.mjs?v=0.8.70';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.70';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.71';
+import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.71';
+import {resumoItem} from './ficha-view.mjs?v=0.8.71';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.71';
 const menu=document.createElement('dialog');menu.id='menu';document.body.append(menu);
 const root=document.querySelector('#saque'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -55,7 +55,7 @@ root.addEventListener('contextmenu',e=>{const b=e.target.closest('[data-item]');
  menu.innerHTML='<h2>'+esc(item.nome)+'</h2>'+arteItem(item)+'<footer><button data-exame>Examinar</button><button data-fechar>Fechar</button></footer>';
  if(item.tipo==='equipamento'){
  const slots=item.slotEquipamento==='mao_forte'&&!item.duasMaos?['mao_forte','mao_fraca']:item.slotEquipamento==='acessorio'?['acessorio_1','acessorio_2']:[item.slotEquipamento];
- for(const slot of slots){const b=document.createElement('button');b.textContent='Pegar e equipar · '+({mao_forte:'mão forte',mao_fraca:'mão fraca',acessorio_1:'acessório I',acessorio_2:'acessório II'}[slot]??slot);b.onclick=()=>{if(ocupado)return;quantidades.clear();depositos.clear();equiparItemId=item.id;equiparSlot=slot;quantidades.set(item.id,1);menu.close();render();root.querySelector('#confirmarSaque').click();};menu.querySelector('footer').prepend(b);}
+ for(const slot of slots){const b=document.createElement('button');b.textContent='Pegar e equipar · '+({mao_forte:'mão forte',mao_fraca:'mão fraca',acessorio_1:'acessório I',acessorio_2:'acessório II',luvas:'luvas'}[slot]??slot);b.onclick=()=>{if(ocupado)return;quantidades.clear();depositos.clear();equiparItemId=item.id;equiparSlot=slot;quantidades.set(item.id,1);menu.close();render();root.querySelector('#confirmarSaque').click();};menu.querySelector('footer').prepend(b);}
  }
  menu.querySelector('[data-exame]').onclick=()=>{menu.close();exameItem.abrir(item)};menu.querySelector('[data-fechar]').onclick=()=>menu.close();menu.showModal();
  }});
