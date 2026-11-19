@@ -1,15 +1,15 @@
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.72';
-import {primeiroContato} from './zonas.mjs?v=0.8.72';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.72';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.72';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.72';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.72';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.72';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.72';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.72';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.73';
+import {primeiroContato} from './zonas.mjs?v=0.8.73';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.73';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.73';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.73';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.73';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.73';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.73';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.73';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.72';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.72';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.73';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.73';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -212,6 +212,8 @@ export function atualizarMagias(f){
   migrarLuvas(f);
   migrarEncantamentosCA(f);
   migrarDefesaCA(f);
+  // Escudo Arcano em qualquer ficha: reação automática ao ser atingido (+5 CA até o início do próximo turno; pode fazer o ataque errar).
+  for(const o of f.opcoes??[])if(/(^|\| )escudo arcano\b/.test(textoNormal(o.nome))&&o.custo?.some(x=>x.tipo==='reacao')&&!o.automacao){o.gatilho='ser_atingido';o.automacao={tipo:'escudo_arcano'};}
 }
 function migrarEncantamentosCA(f){
   // Somente as oito variantes conhecidas que embutiam +1/+2 na base.
@@ -1550,13 +1552,13 @@ function enfileirarReacaoAoSofrerDano(s,reator,origem,valor,elemento){
   if(!opcoes.length)return;
   s.filaReacoes??=[];s.filaReacoes.push({gatilho:'sofrer_dano',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
     descricao:reator.nome+' sofreu '+valor+(elemento?' de dano '+elemento:' de dano')+' de '+origem.nome+'.',contexto:{dano:valor,elemento}});
-  abrirProximaReacaoEvento(s);
+  if(!s.__compondo)abrirProximaReacaoEvento(s); // na Gaveta, abre ao fim da sequência
 }
 function abrirReacaoPreventiva(s,reator,origem,resolucao){
   if(s.fase!=='turnos'||s.reacaoPendente||!reator||!origem||reator===origem||reator.pv<=0||reator.reacao<=0)return false;
   const opcoes=opcoesDisponiveis(reator).filter(o=>o.gatilho==='ser_atingido'&&o.custo?.some(c=>c.tipo==='reacao')&&custosDisponiveis(reator,o)&&(!resolucao.projeteis||o.automacao?.tipo==='escudo_arcano')&&(!o.automacao?.elementos||o.automacao.elementos.includes(resolucao?.elemento))); // #34 Defletir: só C/C/P
   if(!opcoes.length)return false;
-  s.resolucaoPendente={...resolucao,tipo:resolucao.projeteis?'projeteis':'dano_ataque',origem:origem.id,alvo:reator.id};
+  s.resolucaoPendente={...resolucao,tipo:resolucao.tipo??(resolucao.projeteis?'projeteis':'dano_ataque'),origem:origem.id,alvo:reator.id};
   s.reacaoPendente={id:idDoEstado(s),gatilho:'ser_atingido',reator:reator.id,alvo:origem.id,opcoes:opcoes.map(o=>o.id),
     descricao:reator.nome+' foi atingido por '+origem.nome+'. O dano aguarda esta reação.',terminaEm:agoraDoEstado(s)+20000};
   return true;
@@ -1725,7 +1727,7 @@ export function cancelarMovimentoDinamico(s,id,motivo='Movimento dinâmico cance
  const next=terminarDinamica(s,motivo);if(next.movimentoPendente?.ator===next.acaoDinamica.ator){delete next.movimentoPendente;delete next.reacaoPendente;}return next;
 }
 export async function aplicar(s,c,u,rolar,contextoExecucao=null){
- if(c.tipo!=='continuarDinamico'&&!(c.movimentoDinamico===true&&['usar','mover'].includes(c.tipo)))return aplicarBase(s,c,u,rolar,contextoExecucao);
+ if(c.tipo!=='continuarDinamico'&&!(c.movimentoDinamico===true&&['usar','mover'].includes(c.tipo)))return retomarComposicao(await aplicarBase(s,c,u,rolar,contextoExecucao),rolar,contextoExecucao);
  exigir(c.rev===s.rev,'O encontro mudou. Confira a jogada.');
  const a=s.atores.find(x=>x.id===c.ator);exigir(a&&(u.role==='GM'||a.dono===u.id&&(a.ficha.tipo==='pj'||a.invocacao?.controlavel)),'Você não controla esse personagem.');
  if(u.role==='GM'&&a.ficha.tipo==='pj')exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -1769,6 +1771,16 @@ export async function aplicar(s,c,u,rolar,contextoExecucao=null){
   next=await aplicarBase(next,{...p.comando,rev:next.rev},u,rolar,contextoExecucao);
   next.acaoDinamica.fase='concluida';next.acaoDinamica.motivo='Movimento e habilidade concluídos.';return next;
  }catch(e){return terminarDinamica(next,'Habilidade cancelada após o movimento: '+e.message);}
+}
+// Reação ao ser atingido no meio da Gaveta de Composição (Escudo Arcano, Veste do Último Fôlego):
+// a Gaveta para antes do dano e continua do mesmo golpe depois que o alvo responde.
+async function retomarComposicao(s,rolar,contextoExecucao){
+ const cont=s?.continuacaoComposicao;if(!cont)return s;
+ const origem=s.atores.find(x=>x.id===cont.origem);
+ if(!origem){delete s.continuacaoComposicao;return s;}
+ const rolarOrigem=(f,m={})=>rolar(f,{...m,destinoId:m.destinoId??controladorAtor(origem),roladorNome:m.roladorNome??origem.nome});
+ try{return await aplicarBase(s,{...cont.comando,rev:s.rev,confirmado:true,retomadaId:cont.id},{id:'sistema',role:'GM'},rolarOrigem,contextoExecucao);}
+ catch(e){const out=structuredClone(s);delete out.continuacaoComposicao;registrar(out,'A sequência de '+origem.nome+' foi interrompida: '+e.message);return out;}
 }
 async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
   // The caller commits this copy only after every validation and die succeeds.
@@ -2498,7 +2510,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
       exigir(s.fase==='turnos'&&p&&p.reator===a?.id,'Esta reação não está mais disponível.');
       if(p.gatilho==='ser_atingido'){
         const pend=s.resolucaoPendente,origem=s.atores.find(x=>x.id===pend?.origem),alvo=s.atores.find(x=>x.id===pend?.alvo);
-        exigir(['dano_ataque','projeteis'].includes(pend?.tipo)&&origem&&alvo&&alvo===a,'O ataque pendente não está mais disponível.');
+        exigir(['dano_ataque','projeteis','composicao'].includes(pend?.tipo)&&origem&&alvo&&alvo===a,'O ataque pendente não está mais disponível.');
         let reducao=0,nomeReacao='nenhuma reação',redirecionar=null;
         if(c.opcao){
           let o=a.ficha.opcoes.find(o=>o.id===c.opcao&&p.opcoes.includes(o.id)&&o.gatilho==='ser_atingido');
@@ -2510,6 +2522,12 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
             a.efeitosAtivos=[...(a.efeitosAtivos??[]).filter(e=>!e.bloqueiaMisseis),{id:'escudo-arcano',nome:'Escudo Arcano',tipo:'buff',magia:true,circuloMagia:1,origemAtorId:a.id,modificadores:{ca:5},bloqueiaMisseis:true,duracao:{turnos:1,restante:1,expira:'inicio_alvo'}}];
           }else{reducao=(await resultado(o.automacao.formula,{tipo:'reducao',titulo:'Redução · '+o.nome,alvo:a.nome})).total;redirecionar=o.automacao.redirecionar??null;}
           nomeReacao=o.nome+(o.circuloUsado?' · '+o.circuloUsado+'º círculo':'');
+        }
+        if(pend.tipo==='composicao'){
+          const cancelou=Boolean(alvo.efeitosAtivos?.some(e=>e.bloqueiaMisseis)&&!pend.critico&&Number.isFinite(pend.ataqueTotal)&&pend.ataqueTotal<caAtual(alvo));
+          s.continuacaoComposicao={id:idDoEstado(s),origem:origem.id,comando:pend.comando,indice:pend.indice,critico:pend.critico,reducao,cancelou,nomeReacao};
+          delete s.resolucaoPendente;delete s.reacaoPendente;
+          msg=alvo.nome+(c.opcao?' respondeu com '+nomeReacao:' não usou reação')+(cancelou?' • Escudo Arcano fez o ataque errar':reducao?' • redução de '+reducao+' no dano':'');break;
         }
         if(pend.tipo==='projeteis'){
           const respondidos=[...(pend.respondidos??[]),a.id],alvos=pend.alvos.map(id=>s.atores.find(x=>x.id===id)).filter(Boolean);
@@ -2784,6 +2802,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       exigir(c.tipo==='usar','Comando desconhecido.');
       exigir(!a.conjuracaoLonga,'Conjuração longa em curso. Mantenha a ação a cada turno ou encerre a concentração.');
+      const retomada=c.retomadaId?s.continuacaoComposicao:null;exigir(!c.retomadaId||retomada?.id===c.retomadaId,'Sequência pausada inválida.');if(retomada)delete s.continuacaoComposicao;
       const oBase=opcaoDeclarada;exigir(oBase,'Opção desconhecida.');exigir(opcaoDisponivel(a,oBase),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
       let o=derivarOpcaoCirculo(a,oBase,c.circuloUsado,{magiaDuplicada:c.magiaDuplicada===true});
       if(o.composicao?.tipo==='efeito'){
@@ -2814,8 +2833,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       validarPlanoAntesDoCusto(s,a,o,rule,c);
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico',c.composicao??(o.composicao?.custosPorModo?[{modoId:o.composicao.modoPadrao}]:undefined));
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
-      if(!o.naoConjura&&!rule?.tempoSegundos)registrarEspacoNoTurno(s,a,plano.custos); // converter espaço em pontos (Fonte de Magia) não é conjurar
-      for(const custo of plano.custos){
+      if(!retomada&&!o.naoConjura&&!rule?.tempoSegundos)registrarEspacoNoTurno(s,a,plano.custos); // converter espaço em pontos (Fonte de Magia) não é conjurar
+      for(const custo of retomada?[]:plano.custos){
         if(rule?.tempoSegundos&&custo.tipo==='recurso'){exigir((a.rec[custo.id]??0)>=custo.quantidade,'Saldo insuficiente para '+o.nome);continue;}
         if(foraCombate&&custo.tipo!=='recurso')continue;
         const bag=custo.tipo==='recurso'?a.rec:a;const key=custo.tipo==='recurso'?custo.id:custo.tipo;
@@ -2823,7 +2842,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       }
       msg=a.nome+' • '+o.nome+(plano.gratuito?' • uso gratuito':'');
       if((o.categoria==='magia'||rule?.tipo==='ataque'||rule?.dano||rule?.modo==='vampirico')&&(a.efeitosAtivos??[]).some(e=>e.encerraAoAgir)){a.efeitosAtivos=a.efeitosAtivos.filter(e=>!e.encerraAoAgir);msg+=' • encerrou proteção/invisibilidade ao agir';} // #14 e Santuário
-      const concentracaoId=o.concentracao||rule?.tempoSegundos?iniciarConcentracao(s,a,o):null;
+      const concentracaoId=retomada?(a.concentracaoAtiva?.id??null):o.concentracao||rule?.tempoSegundos?iniciarConcentracao(s,a,o):null;
+      if(retomada)msg=a.nome+' • '+o.nome+' (continuação)';
       if(rule?.tipo==='prototipo'){msg+=' • '+await executarPrototipo(s,a,o,c,apiPrototipo,{concentracaoId});break;}
       if(rule?.tipo==='saque'){
         const r=c.recipienteId?recipientePorId(s,c.recipienteId):null;
@@ -2912,16 +2932,19 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         const def=o.composicao,entradas=Array.isArray(c.composicao)?c.composicao:(Array.isArray(c.alvos)?c.alvos.map(alvoId=>({modoId:def.modoPadrao,alvoId})):(c.alvo?[{modoId:def.modoPadrao,alvoId:c.alvo}]:[]));
         exigir(entradas.length>=def.quantidadeMinima&&entradas.length<=def.quantidadeMaxima,'Quantidade de instâncias da composição inválida.');
         // #59 Soco bônus das Artes Marciais na Gaveta: mantém o requisito de ter atacado antes no turno.
-        if(def.golpeDesarmado&&o.requisitosUso)validarRequisitosUso(s,a,o,s.atores.find(x=>x.id===entradas[0]?.alvoId)??null);
+        if(def.golpeDesarmado&&o.requisitosUso&&!retomada)validarRequisitosUso(s,a,o,s.atores.find(x=>x.id===entradas[0]?.alvoId)??null);
         const contagens={};
+        Object.defineProperty(s,'__compondo',{value:true,configurable:true,writable:true});
         for(let i=0;i<entradas.length;i++){
           const entrada=entradas[i],modo=def.modos.find(m=>m.id===entrada.modoId),p=s.atores.find(x=>x.id===entrada.alvoId);
           exigir(modo&&p,'Modo ou alvo da composição inválido.');contagens[modo.id]=(contagens[modo.id]??0)+1;
+          if(retomada&&i<retomada.indice)continue; // golpes resolvidos antes da pausa
+          const retomandoEste=retomada&&i===retomada.indice;
           exigir(!modo.limitePorUso||contagens[modo.id]<=modo.limitePorUso,'O limite de '+modo.nome+' nesta habilidade foi atingido.');
           exigir(!modo.ateOrdem||i+1<=modo.ateOrdem,'Este modo só pode substituir um dos golpes iniciais.');
           exigir(!modo.ordem||modo.ordem===i+1,'A ordem da composição de '+modo.nome+' é inválida.');
           exigir(!modo.requerModoAnterior||entradas[i-1]?.modoId===modo.requerModoAnterior,modo.nome+' exige a etapa anterior da composição.');
-          exigir(!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
+          exigir(retomandoEste||!modo.umaVezPorTurno||!a.usosTurno?.[modo.umaVezPorTurno],modo.nome+' já foi usada neste turno.');
           const automacaoModo=modo.destruidorDeHordas?validarDestruidorNaComposicao(s,a,def,entradas,i):modo.automacao;
           exigir(distanciaAoAlvo(a,p)<=automacaoModo.alcanceM+1e-8,'Alvo de '+modo.nome+' fora do alcance.');
           if(modo.tipo==='cura'){
@@ -2934,10 +2957,18 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           const origensBloqueadas=(a.efeitosAtivos??[]).filter(e=>(e.condicao==='enfeiticado'||e.restricoes?.naoAtacarOrigem)&&e.origemAtorId).map(e=>e.origemAtorId);
           exigir(!origensBloqueadas.includes(p.id),'Enfeitiçado: não pode atacar a origem do efeito.');
           const modoDado=modoDoAtaque(s,a,p,r,{modoPedido:c.modo,efeitosOrigem:efeitos}),modoAnterior=c.modo;c.modo=modoDado;
-          const rr=await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Instância '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
-          const face=rr.natural,total=rr.total,acertou=face!==1&&(face===20||total>=defesa),evento={opcao:modo.origemOpcaoId??o.id,planoOpcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
+          const rr=retomandoEste?{natural:retomada.critico?20:null,total:null}:await rolarD20(r.bonus,a,{tipo:'ataque',titulo:'Instância '+(i+1)+' · '+modo.nome,alvo:p.nome,cd:defesa,penalidade:rp.penalidadeAtaquesContra});c.modo=modoAnterior;
+          const face=rr.natural,total=rr.total,acertou=retomandoEste?!retomada.cancelou:face!==1&&(face===20||total>=defesa),evento={opcao:modo.origemOpcaoId??o.id,planoOpcao:o.id,modo:modo.id,alvo:p.id,tags:tagsAtaque(o,r),acertou};
           if(modo.umaVezPorTurno)a.usosTurno[modo.umaVezPorTurno]=true;
+          if(retomandoEste){
+            const anterior=[...a.eventosTurno.ataques].reverse().find(e=>e.planoOpcao===o.id&&e.alvo===p.id&&e.modo===modo.id);if(anterior)anterior.acertou=acertou;
+            msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': '+(acertou?retomada.nomeReacao&&retomada.reducao?'acertou (após '+retomada.nomeReacao+')':'acertou':'Escudo Arcano fez errar');
+            if(!acertou)continue;
+          }else{
           a.eventosTurno.ataques.push(evento);msg+=' • '+(i+1)+'. '+modo.nome+' em '+p.nome+': d20 '+face+(a.ficha.tipo==='pj'?' (total '+total+')':'');
+          // Acerto contra quem tem Escudo Arcano/Veste disponível: pausa antes do dano e espera a reação.
+          if(acertou&&abrirReacaoPreventiva(s,p,a,{tipo:'composicao',comando:(({rev,retomadaId,...x})=>structuredClone(x))({...c,composicao:entradas}),indice:i,critico:face===20,ataqueTotal:total,elemento:r.elemento,nome:modo.nome,opcaoId:o.id})){msg+=' • aguardando reação de '+p.nome;break;}
+          }
           if(!acertou){msg+=' • errou';if(r.arremesso)msg+=largarArmaArremessada(s,a,fonteArremesso,p);if(r.danoAoErrar&&face!==1){const parcelasErro=[{valor:r.danoAoErrar,tipo:r.elemento,tags:tagsAtaque({...o,nome:modo.nome},r)}],danoErro=await aplicarDanoNoAtor(p,r.danoAoErrar,r.elemento,{origem:a,parcelas:parcelasErro});msg+=' • Garantido: '+p.nome+' sofreu '+danoErro;}continue;}
           a.eventosTurno.acertos.push(evento);
           if(r.efeitoAcerto){p.efeitosAtivos=[...(p.efeitosAtivos??[]).filter(e=>e.id!==modo.id+'-acerto'),{...structuredClone(r.efeitoAcerto),id:modo.id+'-acerto',origemAtorId:a.id}];if(r.efeitoAcerto.zerarReacao)p.reacao=0;}
@@ -2960,6 +2991,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
           for(const g of escolhidos)if(g.umaVezPorTurno)marcarUsoNesteTurno(s,a,g.id);
           if(modificadorDano&&s.fase==='turnos')a.usosTurno[modificadorDano.id]=true;const notaFaces=aplicarFacesMinimas(ataqueInstancia,r,rolagem);
           const parcelas=parcelasPorFonte(rolagem,escolhidos),valores=[parcelas[0].total,...escolhidos.map((g,j)=>(parcelas[j+1]??{total:0}).total)],pacotes=[{valor:valores[0],tipo:r.elemento,tags},...escolhidos.filter(g=>!g.aprimoramento.salvaArea).map((g,j)=>({valor:valores[escolhidos.indexOf(g)+1],tipo:g.aprimoramento.elemento,tags:g.aprimoramento.tags??tags}))];
+          if(retomandoEste&&retomada.reducao){let saldo=retomada.reducao;for(const x of pacotes){const tira=Math.min(x.valor,saldo);x.valor-=tira;saldo-=tira;}msg+=' • '+retomada.nomeReacao+' reduziu '+retomada.reducao;}
           const dano=await aplicarDanoNoAtor(p,pacotes.reduce((n,x)=>n+x.valor,0),null,{critico,origem:a,parcelas:pacotes});
           msg+=' • '+(critico?'crítico · ':'')+dano+' PV'+escolhidos.map((g,j)=>' • '+g.nome+': '+valores[j+1]+' bruto'+(g.aprimoramento.salvaArea?' em área, antes das salvaguardas':' já incluídos no dano direto')).join('');
           msg+=notaFaces;
@@ -2970,6 +3002,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
             const salva=g.aprimoramento.salva;if(salva?.tamanhoMaximo&&!tamanhoAte(p,salva.tamanhoMaximo))msg+=' • '+p.nome+' é grande demais para '+g.nome;else if(salva){const bonus=p.ficha.salvaguardas?.[salva.atributo]??mod(p.ficha.atributos[salva.atributo]),rr=await rolarD20(bonus,p,{tipo:'salvaguarda',atributo:salva.atributo,titulo:'Salvaguarda · '+g.nome,alvo:p.nome,cd:salva.cd});if(rr.total<salva.cd&&salva.efeitoFalha?.desarmar){msg+=await desarmarAlvo(p);}else if(rr.total<salva.cd&&salva.efeitoFalha){const def=salva.efeitoFalha,e={id:g.id,nome:def.nome,tipo:'condicao',condicao:def.condicao,duracao:{restante:def.turnos??1,expira:def.expira??'fim_origem'},origemAtorId:a.id};p.efeitosAtivos=(p.efeitosAtivos??[]).filter(x=>x.id!==g.id);p.efeitosAtivos.push(e);msg+=' • '+p.nome+' falhou e recebeu '+e.nome;}else msg+=' • '+p.nome+' resistiu a '+g.nome;}
           }
         }
+        s.__compondo=false;abrirProximaReacaoEvento(s);
         break;
       }
       const selecao=multi(o);let escolhidos;
