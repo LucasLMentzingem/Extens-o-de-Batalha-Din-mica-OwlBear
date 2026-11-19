@@ -135,7 +135,7 @@ export default {
     },
     {
       "id": "habilidade.reino.escudo-arcano",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Escudo Arcano (Shield) — 1º CÍRCULO / REAÇÃO",
         "categoria": "magia",
@@ -153,7 +153,11 @@ export default {
             "id": "espaco-1",
             "quantidade": 1
           }
-        ]
+        ],
+        "gatilho": "ser_atingido",
+        "automacao": {
+          "tipo": "escudo_arcano"
+        }
       }
     },
     {
