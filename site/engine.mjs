@@ -1,15 +1,15 @@
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.73';
-import {primeiroContato} from './zonas.mjs?v=0.8.73';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.73';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.73';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.73';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.73';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.73';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.73';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.73';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.74';
+import {primeiroContato} from './zonas.mjs?v=0.8.74';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.74';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.74';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.74';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.74';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.74';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.74';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.74';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.73';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.73';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.74';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.74';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -1809,7 +1809,8 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
     const r=await rolar(formula,meta);return typeof r==='number'?{total:r,natural:/d20/.test(formula)?r:null,formula,resumo:String(r)}:r;
   };
   const resultadoLote=async(formulas,meta={})=>{
-    if(meta.tipo==='dano-lote'&&a?.efeitosAtivos?.some(e=>e.reducaoDanoFormula))formulas=formulas.map(f=>f+'-1d8');
+    const origemLote=s.atores.find(p=>p.id===meta.origemAtorId)??a;
+    if(meta.tipo==='dano-lote'&&origemLote?.efeitosAtivos?.some(e=>e.reducaoDanoFormula))formulas=formulas.map(f=>f+'-1d8');
     const r=await rolar(formulas,meta),lista=Array.isArray(r)?r:r?.resultados;
     exigir(Array.isArray(lista)&&lista.length===formulas.length,'A rolagem conjunta não retornou todos os resultados.');
     return lista.map((x,i)=>typeof x==='number'?{total:x,natural:null,formula:formulas[i],resumo:String(x)}:x);
@@ -1859,6 +1860,16 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
     if(p.salvaguardasMorte.falhas>=3){p.estadoVida='morto';texto+=' Morreu.';}
     else if(p.salvaguardasMorte.sucessos>=3){p.estadoVida='estavel';p.salvaguardasMorte={sucessos:0,falhas:0};texto+=' Ficou estável.';}
     msg+=(msg?' • ':'')+texto;
+  };
+  // Mísseis Mágicos: dardos em quem está sob Escudo Arcano são anulados sem rolar dado; os demais rolam juntos.
+  const resolverDardos=async(origem,alvos,formula,elemento,nome,metaExtra={},aoAtingir=null)=>{
+    let msg='';const livres=alvos.filter(p=>!p.efeitosAtivos?.some(e=>e.bloqueiaMisseis));
+    const protegidos=new Map();for(const p of alvos)if(!livres.includes(p))protegidos.set(p,(protegidos.get(p)??0)+1);
+    for(const [p,n] of protegidos)msg+=' • Escudo Arcano anulou '+n+(n===1?' dardo':' dardos')+' em '+p.nome;
+    if(!livres.length)return msg;
+    const danos=await resultadoLote(livres.map(()=>formula),{...metaExtra,tipo:'dano-lote',titulo:'Danos · '+nome,instancias:livres.map((p,i)=>({titulo:'Seta '+(i+1),alvo:p.nome,tipoDano:elemento})),parcelasDano:livres.map(()=>({tipo:elemento,tags:['magia','projétil']})),alvosDano:livres.map(resumoAlvoDano)});
+    for(let i=0;i<livres.length;i++){msg+=' • '+livres[i].nome+' sofreu '+await aplicarDanoNoAtor(livres[i],danos[i].total,elemento,{origem,relatorio:danos[i].relatorioDano});aoAtingir?.(livres[i]);}
+    return msg;
   };
   const aplicarDanoNoAtor=async(p,dano,elemento,{critico=false,origem=null,relatorio=null,parcelas=null,ajustes=[],retornarDanoRecebido=false}={})=>{
     // O relatório vindo da rolagem foi calculado com a foto do alvo antes do primeiro acerto.
@@ -2533,12 +2544,8 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
           const respondidos=[...(pend.respondidos??[]),a.id],alvos=pend.alvos.map(id=>s.atores.find(x=>x.id===id)).filter(Boolean);
           delete s.reacaoPendente;delete s.resolucaoPendente;
           if(alvos.some(p=>!respondidos.includes(p.id)&&abrirReacaoPreventiva(s,p,origem,{...pend,respondidos}))){msg='Aguardando Escudo Arcano do próximo alvo.';break;}
-          msg=origem.nome+' • '+pend.nome;
-          for(const p of alvos){
-            if(p.efeitosAtivos?.some(e=>e.bloqueiaMisseis)){msg+=' • Escudo Arcano protegeu '+p.nome;continue;}
-            const r=await resultado(pend.formula,{tipo:'dano',origemAtorId:origem.id,titulo:pend.nome,alvo:p.nome,tipoDano:pend.elemento});
-            msg+=' • '+p.nome+' perdeu '+await aplicarDanoNoAtor(p,r.total,pend.elemento,{origem})+' PV';
-          }abrirProximaReacaoEvento(s);break;
+          msg=origem.nome+' • '+pend.nome+await resolverDardos(origem,alvos,pend.formula,pend.elemento,pend.nome,{origemAtorId:origem.id,destinoId:controladorAtor(origem),roladorNome:origem.nome});
+          abrirProximaReacaoEvento(s);break;
         }
         if(alvo.efeitosAtivos?.some(e=>e.bloqueiaMisseis)&&!pend.critico&&Number.isFinite(pend.ataqueTotal)&&pend.ataqueTotal<caAtual(alvo)){
           msg='Escudo Arcano impediu o ataque contra '+alvo.nome+'.';delete s.resolucaoPendente;delete s.reacaoPendente;abrirProximaReacaoEvento(s);break;
@@ -3124,12 +3131,10 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       const desvantagem=c.modo==='desvantagem'||(rule.tipo==='ataque'&&restricoesAtacante.desvantagemAtaques)||(rule.tipo==='ataque'&&restricoesAlvos.some(r=>r.desvantagemAtaquesContra))||caidoLonge||inimigoColado||(rule.tipo==='ataque'&&rule.alcanceNormalM!=null&&afetados.some(p=>distanciaAoAlvo(a,p)>rule.alcanceNormalM+1e-8));
       const modoOriginal=c.modo;c.modo=vantagem===desvantagem?'normal':vantagem?'vantagem':'desvantagem';
       if(rule.tipo==='projeteis'){
-        const formulas=afetados.map(()=>rule.dano),instancias=afetados.map((p,i)=>({titulo:'Seta '+(i+1),alvo:p.nome})),nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*(?:acerto automático|classe).*$/i,'');
-        const tags=['magia','projétil'];
+        const nome=o.nome.replace(/^\d+º\s*\|\s*/,'').replace(/\s*·\s*(?:acerto automático|classe).*$/i,'');
         const pend={projeteis:true,alvos:afetados.map(p=>p.id),respondidos:[],formula:rule.dano,elemento:rule.elemento,nome:o.nome};
         if(afetados.some(p=>abrirReacaoPreventiva(s,p,a,pend))){msg+=' • aguardando Escudo Arcano';c.modo=modoOriginal;break;}
-        const danos=await resultadoLote(formulas,{tipo:'dano-lote',titulo:'Danos · '+nome,instancias:instancias.map(x=>({...x,tipoDano:rule.elemento})),parcelasDano:afetados.map(()=>({tipo:rule.elemento,tags})),alvosDano:afetados.map(resumoAlvoDano)});
-        for(let i=0;i<afetados.length;i++){if(afetados[i].efeitosAtivos?.some(e=>e.bloqueiaMisseis)){msg+=' • Escudo Arcano bloqueou os projéteis em '+afetados[i].nome;continue;}msg+=' • '+afetados[i].nome+' sofreu '+await aplicarDanoNoAtor(afetados[i],danos[i].total,rule.elemento,{origem:a,relatorio:danos[i].relatorioDano});deslocarForcado(afetados[i]);}
+        msg+=await resolverDardos(a,afetados,rule.dano,rule.elemento,nome,{},deslocarForcado);
         c.modo=modoOriginal;break;
       }
       if(rule.tipo==='dano_direto'){ // #21 dano sem jogada (Mão de Dolo depois de um golpe da Torrente)

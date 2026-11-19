@@ -98,3 +98,32 @@ test('jogador não consegue forjar uma continuação de Gaveta',async()=>{
   let {s,at,df}=await mesa('zurich','nikki');const {o,composicao}=gaveta(at,df,/Cimitarra/);
   await assert.rejects(aplicar(s,{tipo:'usar',ator:at.id,opcao:o.id,composicao,rev:s.rev,retomadaId:'falsa'},jogador,dados(30)),/pausada inválida/);
 });
+
+// Mísseis Mágicos contra Escudo Arcano: todos os dardos naquele alvo são anulados e nem chegam a rolar.
+async function misseis(){
+  let {s,at,df}=await mesa('nikki','reino-mago-3');const outro=adicionar(s,await ficha('zurich'),'Outro');outro.x=0;outro.y=3;outro.pv=50;Object.assign(outro,{acao:1,bonus:1,reacao:0,metros:9,init:5});s.ordem.push(outro.id);
+  const o=opcoesDisponiveis(at).find(o=>o.automacao?.tipo==='projeteis');assert.ok(o,'Nikki tem Mísseis Mágicos');
+  const escudo=df.ficha.opcoes.find(o=>/escudo arcano/i.test(o.nome));return {s,at,df,outro,o,escudo};
+}
+const rolagens=log=>async(f,m={})=>{log.push({...m,formula:f});return Array.isArray(f)?{resultados:f.map(()=>({total:3}))}:{total:3,natural:10};};
+test('Mísseis Mágicos: todos os dardos no alvo do Escudo Arcano são anulados sem rolar dado',async()=>{
+  let {s,at,df,o,escudo}=await misseis();const log=[];
+  s=await aplicar(s,{tipo:'usar',ator:at.id,opcao:o.id,alvos:[df.id,df.id,df.id],rev:s.rev},jogador,rolagens(log));
+  assert.ok(s.reacaoPendente?.opcoes.includes(escudo.id));
+  s=await aplicar(s,{tipo:'resolverReacao',ator:df.id,opcao:escudo.id,rev:s.rev},gm,rolagens(log));
+  assert.equal(s.atores[1].pv,200,'nenhum dano');assert.equal(log.filter(m=>/dano/.test(m.tipo)).length,0,'nenhum dado de dano rolado');
+  assert.ok(s.historico.some(h=>/Escudo Arcano anulou 3 dardos/.test(h)));
+});
+test('Mísseis Mágicos: só os dardos dos outros alvos rolam, numa única rolagem do conjurador',async()=>{
+  let {s,at,df,outro,o,escudo}=await misseis();const log=[];
+  s=await aplicar(s,{tipo:'usar',ator:at.id,opcao:o.id,alvos:[df.id,df.id,outro.id],rev:s.rev},jogador,rolagens(log));
+  s=await aplicar(s,{tipo:'resolverReacao',ator:df.id,opcao:escudo.id,rev:s.rev},gm,rolagens(log));
+  const danos=log.filter(m=>/dano/.test(m.tipo));assert.equal(danos.length,1);assert.deepEqual(danos[0].formula,['1d4+1']);assert.equal(danos[0].destinoId,'p','rolado por quem controla a Nikki');
+  assert.equal(s.atores[1].pv,200);assert.equal(s.atores[2].pv,47);
+});
+test('Mísseis Mágicos contra quem já está com Escudo Arcano ativo: sem janela e sem rolar os dardos dele',async()=>{
+  let {s,at,df,outro,o}=await misseis();df.efeitosAtivos=[{id:'escudo-arcano',nome:'Escudo Arcano',tipo:'buff',modificadores:{ca:5},bloqueiaMisseis:true,duracao:{turnos:1,restante:1,expira:'inicio_alvo'}}];df.reacao=0;
+  const log=[];s=await aplicar(s,{tipo:'usar',ator:at.id,opcao:o.id,alvos:[df.id,outro.id,df.id],rev:s.rev},jogador,rolagens(log));
+  assert.equal(s.reacaoPendente,undefined);const danos=log.filter(m=>/dano/.test(m.tipo));assert.equal(danos.length,1);assert.deepEqual(danos[0].formula,['1d4+1']);
+  assert.equal(s.atores[1].pv,200);assert.equal(s.atores[2].pv,47);
+});
