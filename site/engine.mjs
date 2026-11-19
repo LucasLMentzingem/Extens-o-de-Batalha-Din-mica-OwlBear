@@ -1,15 +1,15 @@
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.71';
-import {primeiroContato} from './zonas.mjs?v=0.8.71';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.71';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.71';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.71';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.71';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.71';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.71';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade} from './catalog.mjs?v=0.8.71';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.72';
+import {primeiroContato} from './zonas.mjs?v=0.8.72';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.72';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.72';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.72';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.72';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.72';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.72';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.72';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.71';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.71';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.72';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.72';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -210,7 +210,23 @@ export function atualizarMagias(f){
   // vínculo na migração impede que armas guardadas continuem na HUD.
   vincularAcoesEquipamentos(f);
   migrarLuvas(f);
+  migrarEncantamentosCA(f);
   migrarDefesaCA(f);
+}
+function migrarEncantamentosCA(f){
+  // Somente as oito variantes conhecidas que embutiam +1/+2 na base.
+  // Ajustes de instância antigos podem sobrepor o catálogo já corrigido.
+  for(const i of f.inventario?.itens??[]){
+    if(!/^item\.la-arte\.(camisao-malha|cota-malha|placas|escudo)-mais-[12]$/.test(i.catalogoRef??''))continue;
+    const base=definicaoItem(i.catalogoRef),magico=base?.modificadores?.ca,ca=base?.classeArmadura;
+    if(!ca||i.classeArmadura?.valor!==ca.valor+magico)continue;
+    const assinatura=x=>JSON.stringify([x.tipo,x.classe,x.atributo??null,x.limiteAtributo??null]);
+    if(assinatura(i.classeArmadura)!==assinatura(ca)||![0,magico].includes(Number(i.modificadores?.ca)||0))continue;
+    i.classeArmadura={...i.classeArmadura,valor:ca.valor};i.modificadores={...i.modificadores,ca:magico};
+    const ajuste=f._catalogoV2?.instancias?.find(x=>x.id===i.id)?.ajustes;
+    if(ajuste?.classeArmadura?.valor===ca.valor+magico)ajuste.classeArmadura.valor=ca.valor;
+    if(ajuste?.modificadores?.ca===0)ajuste.modificadores.ca=magico;
+  }
 }
 // #77 Slot de Luvas: luvas equipadas em acessórios passam para o slot próprio. Se havia dois pares,
 // o primeiro continua equipado e os demais voltam ao inventário (nada é vendido, excluído ou duplicado).
@@ -226,26 +242,36 @@ function migrarLuvas(f){
     else{i.equipado=false;delete i.equipadoSlot;(f.avisosMigracao??=[]).push('Luvas: '+i.nome+' voltou ao inventário (só um par pode ficar equipado).');}
   }
 }
-// #77 Migração da defesa: cria defesaCA uma única vez preservando a CA total que a ficha tinha.
-// 1) tenta 10 + DES sem armadura; 2) criatura sem armadura com CA intrínseca fixa (ex.: saco 1);
-// 3) diferença restante vira ajusteManual marcado como legado, para o mestre revisar.
+// #77 A CA antiga era um total, não um bônus permanente. A revisão 2 migra
+// pela regra da ficha e remove somente ajustes gerados pela migração 0.8.71.
 const FORMULAS_DEFESA_SEM_ARMADURA={monge:'sab',barbaro:'con'};
+const AVENTUREIROS_CA=new Set(['dragoberto','draven-thorne','hannah-montana','loteria','nikki','skimi','zurich']);
+const DEFESAS_INTRINSECAS_CA=new Set(['crocodilo','mimico','saco-de-pancadas','cemiterio-zumbigoblin','cemiterio-zumbi-reanimado','zumbi-padrao-3','seu-furtado-zumbi-4']);
+function defesaSemArmaduraPadrao(f){
+  // Criaturas/objetos podem ter defesa intrínseca. PJ usa 10 + DES ou o traço.
+  if(f.tipo==='npc'&&!estadoProtecao({ficha:f}).usaArmaduraCorporal&&Number.isFinite(f.caBase)&&(DEFESAS_INTRINSECAS_CA.has(f.id)||f.caBase!==10&&f.caBase!==10+mod(f.atributos.des)))return {base:f.caBase,atributos:[]};
+  return {base:10,atributos:[{atributo:'des'}]};
+}
 function migrarDefesaCA(f){
   for(const p of f?.passivas??[]){
     if(p.formulaCA||!/defesa sem armadura/.test(textoNormal(p.nome)))continue;
     const classe=(f.classes??[]).map(c=>textoNormal(c.id)).find(c=>FORMULAS_DEFESA_SEM_ARMADURA[c]);
     if(classe)p.formulaCA={id:'defesa-sem-armadura-'+classe,base:10,atributos:[{atributo:'des'},{atributo:FORMULAS_DEFESA_SEM_ARMADURA[classe]}],requisitos:{semArmaduraCorporal:true,semEscudo:true}};
   }
-  if(f?.defesaCA?.versao===1||!f?.atributos||!Array.isArray(f?.inventario?.itens))return;
-  const ator={ficha:f,efeitosAtivos:[]},antigo=caLegado(ator);
-  const total=d=>{f.defesaCA=d;return resolverCA(ator).total;};
-  let d={versao:1,semArmadura:{base:10,atributos:[{atributo:'des'}]},ajusteManual:0};
-  if(total(d)!==antigo){
-    const fixa={versao:1,semArmadura:{base:Number(f.caBase)||0,atributos:[]},ajusteManual:0};
-    if(!estadoProtecao(ator).usaArmaduraCorporal&&total(fixa)===antigo)d=fixa;
-    else d={...d,ajusteManual:antigo-total(d),ajusteLegado:true};
+  if(!f?.atributos||!Array.isArray(f?.inventario?.itens))return;
+  if(!f.defesaCA){
+    f.defesaCA={versao:1,revisao:2,semArmadura:defesaSemArmaduraPadrao(f),ajusteManual:0};
+    return;
   }
-  f.defesaCA=d;
+  const d=f.defesaCA;if(d.revisao>=2)return;
+  if(d.ajusteLegado===true){
+    d.ajusteManual=0;delete d.ajusteLegado;
+  }
+  // A 0.8.71 congelava a CA de um aventureiro importado já sem armadura.
+  // Limitar o reparo às fichas canônicas; fórmulas autorais explícitas ficam intactas.
+  if(AVENTUREIROS_CA.has(f.id)&&d.semArmadura?.base===f.caBase&&d.semArmadura.atributos?.length===0)d.semArmadura={base:10,atributos:[{atributo:'des'}]};
+  if(DEFESAS_INTRINSECAS_CA.has(f.id)&&d.semArmadura?.base===10&&d.semArmadura.atributos?.length===1&&d.semArmadura.atributos[0].atributo==='des')d.semArmadura={base:f.caBase,atributos:[]};
+  d.revisao=2;
 }
 // Correções de magias e ações da revisão de regras (#14, #15, #17, #27).
 // Magias conjuradas com espaço acima do círculo base (ex.: Magia de Pacto do Bruxo, sempre 2º).
@@ -686,6 +712,9 @@ export function validar(f) {
   validarDefesasFonte(f);for(const p of f.passivas??[])validarDefesasFonte(p);for(const e of f.efeitos??[])validarDefesasFonte(e);
   const out=structuredClone(f);
   out.inventario=structuredClone(inventarioNormalizado(out));
+  // Fichas v1 só ganham inventário normalizado neste ponto. Não deixá-las
+  // usando a CA total legada até a próxima ação/reabertura.
+  migrarLuvas(out);migrarEncantamentosCA(out);migrarDefesaCA(out);
   exigir(Number.isFinite(out.inventario.capacidadeCargaKg)&&out.inventario.capacidadeCargaKg>0,'Capacidade de carga inválida.');
   lista(out.inventario.itens,'Inventário');
   for(const item of out.inventario.itens){
@@ -1102,12 +1131,13 @@ const requisitosFormulaOk=(prot,r={})=>!(r.semArmaduraCorporal&&prot.usaArmadura
 // Fórmula de efeito: formulaCA declarativa ou o legado caMinima (Armadura Arcana: 13 + DES, sem armadura nem escudo).
 const formulaDeEfeito=e=>e?.formulaCA??(Number.isFinite(e?.caMinima)?{id:'efeito-'+(e.id??'ca'),base:e.caMinima,atributos:[{atributo:'des'}],requisitos:{semArmadura:true}}:null);
 export function resolverCA(a){
-  const f=a?.ficha;
+  let f=a?.ficha;
   if(!f?.atributos)return {disponivel:false,total:null,base:0,bonusTotal:0,fontes:[]};
-  if(!f.defesaCA)return {disponivel:true,legado:true,total:caLegado(a),base:caLegado(a),bonusTotal:0,fontes:[]};
-  const prot=estadoProtecao(a),d=f.defesaCA,candidatas=[];
+  if(!Array.isArray(f.inventario?.itens)){f={...f,inventario:inventarioNormalizado(f)};a={...a,ficha:f};}
+  const prot=estadoProtecao(a),d=f.defesaCA??{semArmadura:defesaSemArmaduraPadrao(f)},candidatas=[];
   for(const i of itensEquipados(a)){
     const ca=i.classeArmadura;if(ca?.tipo!=='base'||ehEscudo(i))continue;
+    if(prot.usaArmaduraCorporal&&!ehArmaduraCorporal(i))continue;
     candidatas.push({tipo:'armadura',id:'item:'+i.id,nome:i.nome,corporal:ehArmaduraCorporal(i),formula:{base:ca.valor,atributos:ca.atributo?[{atributo:ca.atributo,limite:ca.limiteAtributo}]:[]}});
   }
   if(!prot.usaArmaduraCorporal){
@@ -1126,15 +1156,9 @@ export function resolverCA(a){
   const bonusManual=Number(d.ajusteManual)||0;
   const base=escolhida?.calculo.base??0,bonusAtributos=escolhida?.calculo.bonusAtributos??0;
   const bonusTotal=bonusAtributos+bonusEscudos+bonusItens+bonusTracos+bonusEfeitos+bonusManual;
+  for(const [tipo,nome,valor] of [['atributos','Atributos da regra de base',bonusAtributos],['itens','Equipamentos',bonusItens],['tracos','Traços aditivos',bonusTracos],['efeitos','Efeitos ativos',bonusEfeitos],['manual','Ajuste manual',bonusManual]])if(valor)fontes.push({tipo,id:'ca:'+tipo,nome,valor});
   return {disponivel:true,origemBase:escolhida?{tipo:escolhida.tipo,id:escolhida.id,nome:escolhida.nome}:null,base,bonusAtributos,bonusEscudos,bonusItens,bonusTracos,bonusEfeitos,bonusManual,bonusTotal,total:base+bonusTotal,fontes,
     formulasDescartadas:candidatas.filter(c=>c!==escolhida).map(c=>({id:c.id,nome:c.nome,valor:c.calculo.valor}))};
-}
-// Cálculo antigo (CA salva como piso), usado só para migrar fichas sem defesaCA preservando o total.
-function caLegado(a){
-  const mongeSemArmadura=(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')&&!usaArmadura(a);
-  let base=mongeSemArmadura?10+mod(a.ficha.atributos.des)+mod(a.ficha.atributos.sab):(a?.ficha?.classes??[]).some(c=>textoNormal(c.id)==='monge')?10:a?.ficha?.caBase??0,bonus=0;
-  for(const i of itensEquipados(a)){const ca=i.classeArmadura;if(ca?.tipo==='base'){let valor=Number(ca.valor)||0;if(ca.atributo){let modificador=mod(a?.ficha?.atributos?.[ca.atributo]??10);if(Number.isFinite(ca.limiteAtributo))modificador=Math.min(modificador,ca.limiteAtributo);valor+=modificador;}base=Math.max(base,valor);}if(ca?.tipo==='bonus'&&proficienteComArmadura(a.ficha,i))bonus+=Number(ca.valor)||0;}
-  return base+bonus+bonusEquipamento(a,'ca')+bonusPassiva(a,'ca')+bonusEfeito(a,'ca');
 }
 export const caAtual=a=>resolverCA(a).total??0;
 export const pvMaximosAtuais=a=>(a?.ficha?.pvMaximos??0)+bonusEquipamento(a,'pvMaximos')+bonusPassiva(a,'pvMaximos')+bonusEfeito(a,'pvMaximos');

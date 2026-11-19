@@ -1,10 +1,10 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.71';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.71';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.71';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.71';
-import {pronto} from './bridge.mjs?v=0.8.71';
-import {canalHud} from './hud-controller.mjs?v=0.8.71';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.71';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.72';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.72';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.72';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.72';
+import {pronto} from './bridge.mjs?v=0.8.72';
+import {canalHud} from './hud-controller.mjs?v=0.8.72';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.72';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';

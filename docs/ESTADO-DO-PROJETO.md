@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.72 — CA base + extra, migração e salvamento — 18/11/2026
+
+Revisão da PR #78: base da armadura ou regra sem armadura/traço; todos os bônus em CA extra, inclusive manual. Removido ajuste automático criado para conservar total antigo, reparadas fichas v1 e dados da 0.8.71, variantes mágicas antigas e salvamento compacto pelo jogador. Sem reimportação de fichas. 472 testes e 18 cenários de interface em duas sessões com SDK simulado. [Notas e limites da verificação](RELEASE-0.8.72.md).
+
 ## Entrega — 0.8.70 — confirmação e área do movimento dinâmico — 18/11/2026
 
 Clique/duplo clique só selecionam; execução exclusiva pelo botão da instância. Círculo de deslocamento ao ativar, atualizado com o saldo e sem acompanhar o cursor. Destinos fora do círculo ou sem saldo suficiente são recusados. Nove cenários de navegador com SDK simulado, incluindo regressão completa das etapas e recarga. [Notas](RELEASE-0.8.70.md).

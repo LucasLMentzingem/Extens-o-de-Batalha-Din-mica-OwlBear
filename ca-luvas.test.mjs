@@ -11,9 +11,9 @@ const mesa=async id=>{const s=novo();const a=adicionar(s,validar(await ficha(id)
 const desequipar=async(s,a,item)=>aplicar(s,{tipo:'inventario',ator:a.id,operacao:'desequipar',itemId:item.id,rev:s.rev,confirmado:true},gm);
 const armaduraDe=a=>a.ficha.inventario.itens.find(i=>i.equipado&&i.classeArmadura?.tipo==='base');
 
-test('migração preserva a CA de todas as fichas do repositório',async()=>{
+test('migração usa as regras das fichas, sem fabricar ajuste para conservar o total antigo',async()=>{
   const ids=(await fs.readdir('site/fichas')).filter(n=>n.endsWith('.json')&&n!=='ficha.schema.json').map(n=>n.replace('.json',''));
-  const esperado={'dragoberto':16,'draven-thorne':16,'hannah-montana':13,'loteria':14,'nikki':12,'skimi':13,'zurich':15,'saco-de-pancadas':1};
+  const esperado={'dragoberto':13,'draven-thorne':16,'hannah-montana':13,'loteria':14,'nikki':12,'skimi':13,'zurich':15,'saco-de-pancadas':1};
   for(const id of ids){
     const {a}=await mesa(id);assert.equal(a.ficha.defesaCA?.versao,1,id+' migrou');
     if(esperado[id]!==undefined)assert.equal(caAtual(a),esperado[id],id);
@@ -92,9 +92,12 @@ test('migração de fichas antigas com dois pares de luvas nos acessórios: um e
   const v2=validar(JSON.parse(JSON.stringify(v)));assert.deepEqual(v2.inventario.itens.map(i=>[i.id,i.equipado,i.equipadoSlot??null]),v.inventario.itens.map(i=>[i.id,i.equipado,i.equipadoSlot??null]),'idempotente');
 });
 
-test('A15: Dragoberto mantém a CA 16 com ajuste herdado marcado para revisão',async()=>{
-  const {a}=await mesa('dragoberto');assert.equal(caAtual(a),16);
-  assert.equal(a.ficha.defesaCA.ajusteManual,3);assert.equal(a.ficha.defesaCA.ajusteLegado,true);
+test('A15: Dragoberto usa a base 13 cadastrada, sem +3 inventado pela migração',async()=>{
+  let {s,a}=await mesa('dragoberto');assert.equal(caAtual(a),13);
+  assert.equal(a.ficha.defesaCA.ajusteManual,0);
+  assert.deepEqual([resolverCA(a).base,resolverCA(a).bonusTotal],[13,0]);
+  s=await desequipar(s,a,armaduraDe(a));
+  assert.deepEqual([resolverCA(s.atores[0]).base,resolverCA(s.atores[0]).bonusTotal],[10,3]);
 });
 
 test('CA intrínseca: saco de pancadas continua CA 1 e ficha sem atributos fica indisponível',async()=>{

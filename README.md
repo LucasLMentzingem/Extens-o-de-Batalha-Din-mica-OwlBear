@@ -1,6 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.70**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.70.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.72**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.72.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+
+CA base + CA extra = total: armadura ou regra sem armadura/traço define a base; atributos, itens e efeitos entram nos extras. Slot próprio de Luvas, migração automática e salvamento compacto, sem reimportar fichas.
 
 Movimento dinâmico mostra a área disponível ao ativar. Clique/duplo clique só selecionam um destino dentro do limite; somente a instância executa. Sem prévia ao passar o cursor.
 

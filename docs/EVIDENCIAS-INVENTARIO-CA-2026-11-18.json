@@ -1,0 +1,4497 @@
+{
+  "metadados": {
+    "data": "2026-11-18",
+    "versaoSistema": "0.8.70",
+    "commitBase": "8f4be22a4abbaf2d6145a3387fdfbe86e5ad5766",
+    "escopo": "Checkout e cópias em memória; nenhuma sala real ou navegador foi consultado.",
+    "metodo": "Catálogo materializado; adicionar/caAtual do motor real; comandos inventario/desequipar e usar em cópias; ZIPs abertos somente para leitura.",
+    "semAlteracaoFuncional": true
+  },
+  "baseline": {
+    "comando": "node --test *.test.mjs",
+    "node": "v24.22.3",
+    "testes": 451,
+    "aprovados": 451,
+    "falhas": 0,
+    "cancelados": 0,
+    "ignorados": 0,
+    "duracaoMs": 9550.1829,
+    "sha256Log": "bc0a7259404dc5609fe214e2ed555c6b007b2094647d0bf86a0c58e2c77c36ae",
+    "nota": "Tempo da execução da suíte; não é benchmark de latência de sala, tráfego ou renderização."
+  },
+  "versao": "0.8.70",
+  "catalogo": {
+    "versao": 1,
+    "itens": 125,
+    "habilidades": 327,
+    "lojas": [
+      {
+        "id": "loja.ferraria-victor",
+        "nome": "Ferraria de Victor",
+        "itens": 24
+      },
+      {
+        "id": "loja.la-arte",
+        "nome": "La Arte",
+        "itens": 43
+      }
+    ]
+  },
+  "itens": [
+    {
+      "ref": "item.armadura-couro-batido",
+      "nome": "Armadura Couro Batido",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 13,
+        "classe": "leve"
+      },
+      "categoriaArmadura": "leve",
+      "modificadores": {},
+      "descricao": "CA 13",
+      "revisao": 1
+    },
+    {
+      "ref": "item.armadura-de-couro",
+      "nome": "Armadura de Couro",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 11,
+        "classe": "leve",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "leve",
+      "modificadores": {},
+      "descricao": "CA 11 + DES = 13.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.armadura-de-couro-batido",
+      "nome": "Armadura de Couro Batido",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 12,
+        "classe": "leve",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "leve",
+      "modificadores": {},
+      "descricao": "CA 12 + DES = 15. Sem penalidade em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.armadura-de-placas",
+      "nome": "Armadura de placas",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 18,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "descricao": "Armadura pesada. CA 18; FOR 15 para manter o deslocamento; desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.camisa-de-malha",
+      "nome": "Camisa de malha",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 13,
+        "classe": "media",
+        "atributo": "des",
+        "limiteAtributo": 2
+      },
+      "categoriaArmadura": "media",
+      "modificadores": {},
+      "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.camisao-de-malha",
+      "nome": "Camisão de malha",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 13,
+        "classe": "media",
+        "atributo": "des",
+        "limiteAtributo": 2
+      },
+      "categoriaArmadura": "media",
+      "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.cota-de-malha",
+      "nome": "Cota de malha",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 16,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "descricao": "Armadura pesada. CA 16; FOR 13 para manter o deslocamento; desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.cota-de-malha-09004bac",
+      "nome": "Cota de Malha",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 16,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "modificadores": {},
+      "descricao": "CA 16. Exige FOR 13. Desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.couro-batido",
+      "nome": "Couro batido",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 12,
+        "classe": "leve",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "leve",
+      "descricao": "Armadura leve. CA 12 + DES.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.escudo",
+      "nome": "Escudo",
+      "slot": "mao_fraca",
+      "ca": {
+        "tipo": "bonus",
+        "valor": 2,
+        "classe": "escudo"
+      },
+      "categoriaArmadura": "escudo",
+      "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.escudo-b66123ac",
+      "nome": "Escudo",
+      "slot": "mao_fraca",
+      "ca": {
+        "tipo": "bonus",
+        "valor": 2,
+        "classe": "escudo"
+      },
+      "categoriaArmadura": "escudo",
+      "modificadores": {},
+      "descricao": "Empunhado na mão fraca. +2 à CA.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.luvas-de-treino-par",
+      "nome": "Luvas de treino (par)",
+      "slot": "acessorio",
+      "descricao": "Protegem as mãos durante o treino.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.veste-simples",
+      "nome": "Veste simples",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 10,
+        "classe": "veste",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "veste",
+      "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.armadura-de-escamas",
+      "nome": "Armadura de escamas",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 14,
+        "atributo": "des",
+        "classe": "media",
+        "limiteAtributo": 2
+      },
+      "categoriaArmadura": "media",
+      "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.veste-bolsos-oficina",
+      "nome": "Veste dos Bolsos de Oficina",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 10,
+        "classe": "veste",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "veste",
+      "modificadores": {
+        "capacidadeCargaKg": 14
+      },
+      "descricao": "Guarda até 15 kg em um bolso extradimensional; o conteúdo pesa 1 kg para o portador.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.veste-ultimo-folego",
+      "nome": "Veste do Último Fôlego",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 10,
+        "classe": "veste",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "veste",
+      "descricao": "Reação ao sofrer dano, 1 uso por descanso longo: reduza o dano em 1d6.",
+      "opcoes": [
+        {
+          "id": "ultimo-folego",
+          "nome": "Último Fôlego",
+          "custo": [
+            {
+              "tipo": "reacao",
+              "quantidade": 1
+            },
+            {
+              "tipo": "recurso",
+              "id": "ultimo-folego",
+              "quantidade": 1
+            }
+          ],
+          "automacao": {
+            "tipo": "reduzir_dano",
+            "formula": "1d6"
+          }
+        }
+      ],
+      "recursos": [
+        {
+          "id": "ultimo-folego",
+          "nome": "Último Fôlego",
+          "maximo": 1,
+          "saldoInicial": 1,
+          "recuperacao": [
+            {
+              "evento": "descanso_longo",
+              "modo": "completar"
+            }
+          ]
+        }
+      ],
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.couro-passo-macio",
+      "nome": "Couro do Passo Macio",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 12,
+        "classe": "leve",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "leve",
+      "modificadores": {
+        "furtividade": 1
+      },
+      "descricao": "Armadura leve, CA 12 + DES e +1 em testes de Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.camisao-malha-mais-1",
+      "nome": "Camisão de malha +1",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 14,
+        "classe": "media",
+        "atributo": "des",
+        "limiteAtributo": 2
+      },
+      "categoriaArmadura": "media",
+      "descricao": "Armadura média, CA 14 + DES (máximo +2).",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.cota-malha-mais-1",
+      "nome": "Cota de malha +1",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 17,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "descricao": "Armadura pesada, CA 17; FOR 13; desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.placas-mais-1",
+      "nome": "Armadura de placas +1",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 19,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "descricao": "Armadura pesada, CA 19; FOR 15; desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.escudo-mais-1",
+      "nome": "Escudo +1",
+      "slot": "mao_fraca",
+      "ca": {
+        "tipo": "bonus",
+        "valor": 3,
+        "classe": "escudo"
+      },
+      "categoriaArmadura": "escudo",
+      "descricao": "Empunhado na mão fraca. Concede +3 à CA.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.luvas-guarda-mais-1",
+      "nome": "Luvas da Guarda +1",
+      "slot": "acessorio",
+      "condicionais": {
+        "semArmadura": {
+          "ca": 1
+        }
+      },
+      "descricao": "Sem armadura, concede +1 à CA.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.luva-boxeador-das-ruas-mais-1",
+      "nome": "Luva de Boxeador das Ruas +1",
+      "slot": "acessorio",
+      "condicionais": {
+        "semArmadura": {
+          "ataqueDesarmado": 1,
+          "danoDesarmado": 1
+        }
+      },
+      "descricao": "Enquanto equipada sem armadura nem escudo, concede +1 às jogadas de ataque desarmado e +1 ao dano de cada acerto desarmado.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.veste-passo-nebuloso",
+      "nome": "Veste do Passo Nebuloso",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 10,
+        "classe": "veste",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "veste",
+      "descricao": "Ação bônus, 1 uso por descanso longo: teleporte-se até 9 m para um espaço visível desocupado.",
+      "opcoes": [
+        {
+          "id": "passo-nebuloso",
+          "nome": "Passo Nebuloso da Veste",
+          "custo": [
+            {
+              "tipo": "bonus",
+              "quantidade": 1
+            },
+            {
+              "tipo": "recurso",
+              "id": "passo-nebuloso",
+              "quantidade": 1
+            }
+          ],
+          "automacao": {
+            "tipo": "teleporte",
+            "alcanceM": 9
+          }
+        }
+      ],
+      "recursos": [
+        {
+          "id": "passo-nebuloso",
+          "nome": "Passo Nebuloso da Veste",
+          "maximo": 1,
+          "saldoInicial": 1,
+          "recuperacao": [
+            {
+              "evento": "descanso_longo",
+              "modo": "completar"
+            }
+          ]
+        }
+      ],
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.veste-trama-serena",
+      "nome": "Veste da Trama Serena",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 10,
+        "classe": "veste",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "veste",
+      "descricao": "Ao falhar numa salvaguarda de CON para concentração, 1 uso por descanso longo: rerrole e use o novo resultado.",
+      "opcoes": [
+        {
+          "id": "trama-serena",
+          "nome": "Trama Serena",
+          "custo": [
+            {
+              "tipo": "recurso",
+              "id": "trama-serena",
+              "quantidade": 1
+            }
+          ]
+        }
+      ],
+      "recursos": [
+        {
+          "id": "trama-serena",
+          "nome": "Trama Serena",
+          "maximo": 1,
+          "saldoInicial": 1,
+          "recuperacao": [
+            {
+              "evento": "descanso_longo",
+              "modo": "completar"
+            }
+          ]
+        }
+      ],
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.couro-sombra-curta",
+      "nome": "Couro da Sombra Curta",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 12,
+        "classe": "leve",
+        "atributo": "des"
+      },
+      "categoriaArmadura": "leve",
+      "descricao": "Armadura leve, CA 12 + DES. Ação bônus, 1 uso por descanso longo: invisível até o início do próximo turno.",
+      "opcoes": [
+        {
+          "id": "sombra-curta",
+          "nome": "Sombra Curta",
+          "custo": [
+            {
+              "tipo": "bonus",
+              "quantidade": 1
+            },
+            {
+              "tipo": "recurso",
+              "id": "sombra-curta",
+              "quantidade": 1
+            }
+          ],
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 1.5,
+            "efeito": {
+              "nome": "Sombra Curta",
+              "tipo": "condicao",
+              "condicao": "invisivel",
+              "descricao": "Invisível até o início do próximo turno.",
+              "duracao": {
+                "turnos": 1,
+                "expira": "inicio_origem"
+              }
+            }
+          }
+        }
+      ],
+      "recursos": [
+        {
+          "id": "sombra-curta",
+          "nome": "Sombra Curta",
+          "maximo": 1,
+          "saldoInicial": 1,
+          "recuperacao": [
+            {
+              "evento": "descanso_longo",
+              "modo": "completar"
+            }
+          ]
+        }
+      ],
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.camisao-malha-mais-2",
+      "nome": "Camisão de malha +2",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 15,
+        "classe": "media",
+        "atributo": "des",
+        "limiteAtributo": 2
+      },
+      "categoriaArmadura": "media",
+      "descricao": "Armadura média, CA 15 + DES (máximo +2).",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.cota-malha-mais-2",
+      "nome": "Cota de malha +2",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 18,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "descricao": "Armadura pesada, CA 18; FOR 13; desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.placas-mais-2",
+      "nome": "Armadura de placas +2",
+      "slot": "vestes",
+      "ca": {
+        "tipo": "base",
+        "valor": 20,
+        "classe": "pesada"
+      },
+      "categoriaArmadura": "pesada",
+      "descricao": "Armadura pesada, CA 20; FOR 15; desvantagem em Furtividade.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.escudo-mais-2",
+      "nome": "Escudo +2",
+      "slot": "mao_fraca",
+      "ca": {
+        "tipo": "bonus",
+        "valor": 4,
+        "classe": "escudo"
+      },
+      "categoriaArmadura": "escudo",
+      "descricao": "Empunhado na mão fraca. Concede +4 à CA.",
+      "revisao": 1
+    },
+    {
+      "ref": "item.la-arte.luvas-dragao-ascendente-mais-2",
+      "nome": "Luvas do Dragão Ascendente +2",
+      "slot": "acessorio",
+      "condicionais": {
+        "semArmadura": {
+          "ca": 1,
+          "ataqueDesarmado": 1
+        }
+      },
+      "descricao": "Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura nem escudo, concede também +1 às jogadas de ataque desarmado e +1 à CA.",
+      "revisao": 1
+    }
+  ],
+  "variantesCA": [
+    {
+      "id": "camisao-malha-mais-1",
+      "baseRef": "item.camisao-de-malha",
+      "ajustes": {
+        "nome": "Camisão de malha +1",
+        "raridade": "incomum",
+        "preco": {
+          "valor": 530,
+          "moeda": "po"
+        },
+        "descricao": "Armadura média, CA 14 + DES (máximo +2).",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 14,
+          "classe": "media",
+          "atributo": "des",
+          "limiteAtributo": 2
+        }
+      }
+    },
+    {
+      "id": "cota-malha-mais-1",
+      "baseRef": "item.cota-de-malha",
+      "ajustes": {
+        "nome": "Cota de malha +1",
+        "raridade": "incomum",
+        "preco": {
+          "valor": 560,
+          "moeda": "po"
+        },
+        "descricao": "Armadura pesada, CA 17; FOR 13; desvantagem em Furtividade.",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 17,
+          "classe": "pesada"
+        }
+      }
+    },
+    {
+      "id": "placas-mais-1",
+      "baseRef": "item.armadura-de-placas",
+      "ajustes": {
+        "nome": "Armadura de placas +1",
+        "raridade": "incomum",
+        "preco": {
+          "valor": 2000,
+          "moeda": "po"
+        },
+        "descricao": "Armadura pesada, CA 19; FOR 15; desvantagem em Furtividade.",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 19,
+          "classe": "pesada"
+        }
+      }
+    },
+    {
+      "id": "escudo-mais-1",
+      "baseRef": "item.escudo",
+      "ajustes": {
+        "nome": "Escudo +1",
+        "raridade": "incomum",
+        "preco": {
+          "valor": 510,
+          "moeda": "po"
+        },
+        "descricao": "Empunhado na mão fraca. Concede +3 à CA.",
+        "classeArmadura": {
+          "tipo": "bonus",
+          "valor": 3,
+          "classe": "escudo"
+        }
+      }
+    },
+    {
+      "id": "luvas-guarda-mais-1",
+      "baseRef": "item.luvas-de-treino-par",
+      "ajustes": {
+        "nome": "Luvas da Guarda +1",
+        "raridade": "incomum",
+        "preco": {
+          "valor": 500,
+          "moeda": "po"
+        },
+        "descricao": "Sem armadura, concede +1 à CA.",
+        "modificadoresCondicionais": {
+          "semArmadura": {
+            "ca": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "luva-boxeador-das-ruas-mais-1",
+      "baseRef": "item.luvas-de-treino-par",
+      "ajustes": {
+        "nome": "Luva de Boxeador das Ruas +1",
+        "raridade": "incomum",
+        "preco": {
+          "valor": 600,
+          "moeda": "po"
+        },
+        "descricao": "Enquanto equipada sem armadura nem escudo, concede +1 às jogadas de ataque desarmado e +1 ao dano de cada acerto desarmado.",
+        "modificadoresCondicionais": {
+          "semArmadura": {
+            "ataqueDesarmado": 1,
+            "danoDesarmado": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "camisao-malha-mais-2",
+      "baseRef": "item.camisao-de-malha",
+      "ajustes": {
+        "nome": "Camisão de malha +2",
+        "raridade": "raro",
+        "preco": {
+          "valor": 1390,
+          "moeda": "po"
+        },
+        "descricao": "Armadura média, CA 15 + DES (máximo +2).",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 15,
+          "classe": "media",
+          "atributo": "des",
+          "limiteAtributo": 2
+        }
+      }
+    },
+    {
+      "id": "cota-malha-mais-2",
+      "baseRef": "item.cota-de-malha",
+      "ajustes": {
+        "nome": "Cota de malha +2",
+        "raridade": "raro",
+        "preco": {
+          "valor": 1460,
+          "moeda": "po"
+        },
+        "descricao": "Armadura pesada, CA 18; FOR 13; desvantagem em Furtividade.",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 18,
+          "classe": "pesada"
+        }
+      }
+    },
+    {
+      "id": "placas-mais-2",
+      "baseRef": "item.armadura-de-placas",
+      "ajustes": {
+        "nome": "Armadura de placas +2",
+        "raridade": "raro",
+        "preco": {
+          "valor": 5050,
+          "moeda": "po"
+        },
+        "descricao": "Armadura pesada, CA 20; FOR 15; desvantagem em Furtividade.",
+        "classeArmadura": {
+          "tipo": "base",
+          "valor": 20,
+          "classe": "pesada"
+        }
+      }
+    },
+    {
+      "id": "escudo-mais-2",
+      "baseRef": "item.escudo",
+      "ajustes": {
+        "nome": "Escudo +2",
+        "raridade": "raro",
+        "preco": {
+          "valor": 1325,
+          "moeda": "po"
+        },
+        "descricao": "Empunhado na mão fraca. Concede +4 à CA.",
+        "classeArmadura": {
+          "tipo": "bonus",
+          "valor": 4,
+          "classe": "escudo"
+        }
+      }
+    },
+    {
+      "id": "luvas-dragao-ascendente-mais-2",
+      "baseRef": "item.luvas-de-treino-par",
+      "ajustes": {
+        "nome": "Luvas do Dragão Ascendente +2",
+        "raridade": "raro",
+        "preco": {
+          "valor": 1400,
+          "moeda": "po"
+        },
+        "descricao": "Golpes desarmados causam +1d4 de fogo por acerto. Sem armadura nem escudo, concede também +1 às jogadas de ataque desarmado e +1 à CA.",
+        "danoExtraDesarmado": {
+          "formula": "1d4",
+          "elemento": "fogo",
+          "critico": false
+        },
+        "modificadoresCondicionais": {
+          "semArmadura": {
+            "ca": 1,
+            "ataqueDesarmado": 1
+          }
+        }
+      }
+    }
+  ],
+  "habilidades": [
+    {
+      "ref": "habilidade.reino.escudo-arcano",
+      "revisao": 1,
+      "nome": "Escudo Arcano (Shield) — 1º CÍRCULO / REAÇÃO",
+      "categoria": "magia",
+      "origemTipo": "classe",
+      "origem": "mago",
+      "circuloBase": 1,
+      "descricao": "Ao ser atingido por uma jogada de ataque ou ser alvo de Mísseis Mágicos, pode gastar a reação e um espaço. CA sobe de 12 para 17, inclusive contra o ataque que disparou a reação, até o início do próximo turno do mago. Não sofre dano de Mísseis Mágicos durante o efeito. V,S; precisa conseguir falar e gesticular. Não ajuda contra efeito que pede resistência, como Emaranhar. Não é permanente. Na regra 2024, não pode gastar outro espaço no MESMO TURNO; geralmente pode usá-lo no turno posterior de um inimigo mesmo tendo lançado magia no próprio turno. Efeito assistido pelo mestre.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "ref": "habilidade.1-armadura-arcana-defesa-classe",
+      "revisao": 1,
+      "nome": "1º | Armadura Arcana · defesa · classe",
+      "categoria": "magia",
+      "descricao": "Ação · Toque · 8 h. Criatura voluntária sem armadura recebe CA 13 + DES. Em Nikki, CA 15. Ao conjurar, marque o gasto e a hora de término.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "quantidade": 1,
+          "id": "espaco-1"
+        }
+      ],
+      "circuloBase": 1,
+      "origem": "feiticeiro",
+      "foraCombate": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 1.5,
+        "efeito": {
+          "nome": "Armadura Arcana",
+          "tipo": "buff",
+          "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+          "removeEm": "descanso_longo",
+          "caMinima": 13,
+          "requisitos": {
+            "semArmadura": true
+          },
+          "modificadores": {}
+        }
+      }
+    },
+    {
+      "ref": "habilidade.1-escudo-da-fe",
+      "revisao": 1,
+      "nome": "1º | Escudo da Fé",
+      "categoria": "magia",
+      "descricao": "Magia informada como Iniciado em Magia. ação bônus; 18 m; V,S,M (pergaminho de oração); concentração até 10 minutos. Alvo recebe +2 CA. Confirmar origem e recursos antes de usar.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 1,
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 18,
+        "efeito": {
+          "nome": "Escudo da Fé",
+          "tipo": "buff",
+          "descricao": "+2 na Classe de Armadura.",
+          "modificadores": {
+            "ca": 2
+          },
+          "duracao": {
+            "turnos": 100,
+            "expira": "inicio_origem"
+          }
+        }
+      }
+    },
+    {
+      "ref": "habilidade.defesa-paciente",
+      "revisao": 1,
+      "nome": "Defesa Paciente",
+      "categoria": "acao",
+      "descricao": "Ação Bônus: Desengajar de graça. Com 1 Foco: Desengajar e Esquivar.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "desengajar": true
+      }
+    },
+    {
+      "ref": "habilidade.defesa-paciente-foco",
+      "revisao": 1,
+      "nome": "Defesa Paciente · Foco",
+      "categoria": "bonus",
+      "descricao": "Desengaje e assuma Esquiva até o início do próximo turno.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "pontos-de-foco",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "economia",
+        "desengajar": true,
+        "esquivar": true
+      }
+    },
+    {
+      "ref": "habilidade.passiva-defesa-sem-armadura",
+      "revisao": 1,
+      "nome": "Passiva | Defesa sem Armadura",
+      "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB = 14."
+    },
+    {
+      "ref": "habilidade.passiva-movimento-sem-armadura",
+      "revisao": 1,
+      "nome": "Passiva | Movimento sem Armadura",
+      "descricao": "+3 m de deslocamento sem armadura e sem escudo (total 12 m)."
+    },
+    {
+      "ref": "habilidade.protecao-e-tatica",
+      "revisao": 1,
+      "nome": "Proteção e tática",
+      "descricao": "CA 16 = camisa de malha 13 + DES 1 + escudo 2. Sem escudo CA 14. Vigia portas, segura corredores e tenta alcançar o sino. Se escolher Esquivar, usa a ação em vez de atacar. Não possui ação bônus especial, maestrias ou Ataques Múltiplos."
+    },
+    {
+      "ref": "habilidade.truque-protecao-contra-laminas",
+      "revisao": 1,
+      "nome": "Truque | Proteção contra Lâminas",
+      "categoria": "magia",
+      "descricao": "Truque informado: ação; pessoal; V,S; concentração até 1 minuto. Atacantes subtraem [1d4] das jogadas de ataque contra você. Não acumula com outra concentração sua.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 0,
+        "efeito": {
+          "nome": "Proteção contra Lâminas",
+          "tipo": "buff",
+          "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
+          "restricoes": {
+            "penalidadeAtaquesContra": "1d4"
+          },
+          "duracao": {
+            "turnos": 10,
+            "expira": "inicio_origem"
+          }
+        }
+      }
+    },
+    {
+      "ref": "habilidade.truque-protecao-contra-laminas-concentracao-classe",
+      "revisao": 1,
+      "nome": "Truque | Proteção Contra Lâminas · concentração · classe",
+      "categoria": "magia",
+      "descricao": "Ação · Pessoal · Concentração até 1 min. Quem atacar você subtrai [1d4] da jogada de ataque.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        }
+      ],
+      "circuloBase": 0,
+      "origem": "feiticeiro",
+      "concentracao": true,
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 0,
+        "efeito": {
+          "nome": "Proteção contra Lâminas",
+          "tipo": "buff",
+          "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
+          "restricoes": {
+            "penalidadeAtaquesContra": "1d4"
+          },
+          "duracao": {
+            "turnos": 10,
+            "expira": "inicio_origem"
+          }
+        }
+      }
+    },
+    {
+      "ref": "habilidade.cemiterio.necromante-armadura-arcana",
+      "revisao": 2,
+      "nome": "Armadura Arcana",
+      "categoria": "magia",
+      "origem": "necromante-autoral",
+      "circuloBase": 1,
+      "descricao": "Protótipo · V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 1.5,
+        "efeito": {
+          "nome": "Armadura Arcana",
+          "tipo": "buff",
+          "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+          "caMinima": 13,
+          "requisitos": {
+            "semArmadura": true
+          },
+          "modificadores": {},
+          "duracao": {
+            "turnos": 4800,
+            "expira": "inicio_origem"
+          }
+        }
+      },
+      "prototipo": true
+    },
+    {
+      "ref": "habilidade.cemiterio.necromante-escudo-arcano",
+      "revisao": 2,
+      "nome": "Escudo Arcano",
+      "categoria": "magia",
+      "origem": "necromante-autoral",
+      "circuloBase": 1,
+      "descricao": "Protótipo · V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana. Protótipo: responde na janela automática de reação ao ataque ou aos Mísseis Mágicos. Se não houver espaço de 1º, o protótipo usa o menor círculo disponível.",
+      "custo": [
+        {
+          "tipo": "reacao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "gatilho": "ser_atingido",
+      "automacao": {
+        "tipo": "escudo_arcano"
+      },
+      "prototipo": true
+    },
+    {
+      "ref": "habilidade.cemiterio.quevedo-escudo-fe",
+      "revisao": 1,
+      "nome": "Escudo da Fé",
+      "categoria": "magia",
+      "origem": "clerigo",
+      "origemTipo": "classe",
+      "circuloBase": 1,
+      "descricao": "Protótipo · Bônus; concentração 10 min; +2 CA.",
+      "custo": [
+        {
+          "tipo": "bonus",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "automacao": {
+        "tipo": "efeito",
+        "alcanceM": 18,
+        "efeito": {
+          "nome": "Escudo da Fé",
+          "tipo": "buff",
+          "descricao": "+2 na Classe de Armadura.",
+          "modificadores": {
+            "ca": 2
+          },
+          "duracao": {
+            "turnos": 100,
+            "expira": "inicio_origem"
+          }
+        }
+      },
+      "concentracao": true,
+      "prototipo": true
+    },
+    {
+      "ref": "habilidade.cemiterio.quevedo-protecao",
+      "revisao": 4,
+      "nome": "Proteção contra o Bem e o Mal",
+      "categoria": "magia",
+      "origem": "clerigo",
+      "origemTipo": "classe",
+      "circuloBase": 1,
+      "descricao": "Protótipo · toque, concentração 10 minutos. Aberrações, celestiais, elementais, feéricos, infernais e mortos-vivos atacam com desvantagem; protege contra novos encantos, medo e possessão originados deles. Consome água benta comum ou item componenteMagico: protecao. Água benta de missão não é selecionada. Repetir salvaguardas contra efeitos preexistentes e possessões narrativas exige arbitragem.",
+      "custo": [
+        {
+          "tipo": "acao",
+          "quantidade": 1
+        },
+        {
+          "tipo": "recurso",
+          "id": "espaco-1",
+          "quantidade": 1
+        }
+      ],
+      "concentracao": true,
+      "automacao": {
+        "tipo": "prototipo",
+        "modo": "protecao",
+        "alcanceM": 1.5
+      },
+      "prototipo": true
+    }
+  ],
+  "fichas": [
+    {
+      "path": "site/fichas/dragoberto.json",
+      "id": "dragoberto",
+      "nome": "Dragoberto",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "guardiao",
+          "nivel": 3,
+          "subclasse": "Caçador"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 16,
+      "baseNormalizada": 16,
+      "atributos": {
+        "for": 10,
+        "des": 17,
+        "con": 13,
+        "int": 12,
+        "sab": 15,
+        "car": 8
+      },
+      "caAtual": 16,
+      "semArmadura": 16,
+      "semEscudo": 16,
+      "semLuvas": 16,
+      "semTodosEquipamentos": 16,
+      "equipados": [
+        {
+          "id": "36992e04-d209-4de3-a57e-1d44a1dafa0e",
+          "ref": "item.cimitarra-1a29ab83",
+          "nome": "Cimitarra",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Acuidade, Leve; maestria Ágil; ataque +5, dano 1d6+3 cortante."
+        },
+        {
+          "id": "769325a2-24ec-498b-9e17-4f841f982ba4",
+          "ref": "item.arco-longo-c8ca3a0f",
+          "nome": "Arco longo",
+          "slot": "arma_distancia",
+          "equipadoSlot": "arma_distancia",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Arquearia; ataque +7, dano 1d8+3 perfurante; maestria Lentidão."
+        },
+        {
+          "id": "371ced41-8dd8-4544-a15d-73cf6dcdf7a4",
+          "ref": "item.armadura-couro-batido",
+          "nome": "Armadura Couro Batido",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "leve"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 13"
+        }
+      ],
+      "defesas": [
+        {
+          "id": "1-escudo-da-fe-28",
+          "ref": "habilidade.1-escudo-da-fe",
+          "nome": "1º | Escudo da Fé",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 18,
+            "efeito": {
+              "nome": "Escudo da Fé",
+              "tipo": "buff",
+              "descricao": "+2 na Classe de Armadura.",
+              "modificadores": {
+                "ca": 2
+              },
+              "duracao": {
+                "turnos": 100,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Magia informada como Iniciado em Magia. ação bônus; 18 m; V,S,M (pergaminho de oração); concentração até 10 minutos. Alvo recebe +2 CA. Confirmar origem e recursos antes de usar."
+        },
+        {
+          "id": "truque-protecao-contra-laminas-30",
+          "ref": "habilidade.truque-protecao-contra-laminas",
+          "nome": "Truque | Proteção contra Lâminas",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 0,
+            "efeito": {
+              "nome": "Proteção contra Lâminas",
+              "tipo": "buff",
+              "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
+              "restricoes": {
+                "penalidadeAtaquesContra": "1d4"
+              },
+              "duracao": {
+                "turnos": 10,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Truque informado: ação; pessoal; V,S; concentração até 1 minuto. Atacantes subtraem [1d4] das jogadas de ataque contra você. Não acumula com outra concentração sua."
+        }
+      ],
+      "todosItensRelevantes": [
+        {
+          "id": "371ced41-8dd8-4544-a15d-73cf6dcdf7a4",
+          "ref": "item.armadura-couro-batido",
+          "nome": "Armadura Couro Batido",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "leve"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 13"
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/draven-thorne.json",
+      "id": "draven-thorne",
+      "nome": "Draven Thorne",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "guerreiro",
+          "nivel": 3,
+          "subclasse": "Mestre da Batalha"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 16,
+      "baseNormalizada": 16,
+      "atributos": {
+        "for": 17,
+        "des": 13,
+        "con": 15,
+        "int": 10,
+        "sab": 12,
+        "car": 8
+      },
+      "caAtual": 16,
+      "semArmadura": 16,
+      "semEscudo": 16,
+      "semLuvas": 16,
+      "semTodosEquipamentos": 16,
+      "equipados": [
+        {
+          "id": "147999d7-bd72-57f1-9771-9dff7bcac8e9",
+          "ref": "item.cota-de-malha-09004bac",
+          "nome": "Cota de Malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 16,
+            "classe": "pesada"
+          },
+          "categoriaArmadura": "pesada",
+          "modificadores": {},
+          "descricao": "CA 16. Exige FOR 13. Desvantagem em Furtividade."
+        },
+        {
+          "id": "8958d021-6528-5fca-aabc-9176a270bdd7",
+          "ref": "item.espada-grande-22d63c5a",
+          "nome": "Espada Grande",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +5; dano 2d6+3 cortante. Maestria Garantido."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "147999d7-bd72-57f1-9771-9dff7bcac8e9",
+          "ref": "item.cota-de-malha-09004bac",
+          "nome": "Cota de Malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 16,
+            "classe": "pesada"
+          },
+          "categoriaArmadura": "pesada",
+          "modificadores": {},
+          "descricao": "CA 16. Exige FOR 13. Desvantagem em Furtividade."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/hannah-montana.json",
+      "id": "hannah-montana",
+      "nome": "Hannah Montana",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "bardo",
+          "nivel": 3,
+          "subclasse": "Colégio do Glamour"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 13,
+      "baseNormalizada": 13,
+      "atributos": {
+        "for": 8,
+        "des": 14,
+        "con": 14,
+        "int": 10,
+        "sab": 12,
+        "car": 17
+      },
+      "caAtual": 13,
+      "semArmadura": 13,
+      "semEscudo": 13,
+      "semLuvas": 13,
+      "semTodosEquipamentos": 13,
+      "equipados": [
+        {
+          "id": "4a51a5fc-887c-524f-98a6-b47add7dd1f1",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8",
+          "ref": "item.adaga-469c7254",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m."
+        },
+        {
+          "id": "d7ccb7f2-8ed8-57ce-913a-400e40f3c6c8-2",
+          "ref": "item.adaga-62b1e6a3",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "4a51a5fc-887c-524f-98a6-b47add7dd1f1",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/loteria.json",
+      "id": "loteria",
+      "nome": "Loteria",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "monge",
+          "nivel": 3,
+          "subclasse": "Combatente da Misericórdia"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 14,
+      "baseNormalizada": 14,
+      "atributos": {
+        "for": 15,
+        "des": 17,
+        "con": 13,
+        "int": 10,
+        "sab": 12,
+        "car": 8
+      },
+      "caAtual": 14,
+      "semArmadura": 14,
+      "semEscudo": 14,
+      "semLuvas": 14,
+      "semTodosEquipamentos": 14,
+      "equipados": [
+        {
+          "id": "75d8709d-c305-52a3-9471-53a759415215",
+          "ref": "item.lanca-195daaea",
+          "nome": "Lança",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +5; 1d8+3 perfurante com duas mãos, 1d6+3 com uma; arremesso 6/18 m."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "passiva-2",
+          "ref": "habilidade.passiva-defesa-sem-armadura",
+          "nome": "Passiva | Defesa sem Armadura",
+          "ativa": true,
+          "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB = 14."
+        },
+        {
+          "id": "passiva-4",
+          "ref": "habilidade.passiva-movimento-sem-armadura",
+          "nome": "Passiva | Movimento sem Armadura",
+          "ativa": true,
+          "descricao": "+3 m de deslocamento sem armadura e sem escudo (total 12 m)."
+        },
+        {
+          "id": "defesa-paciente-18",
+          "ref": "habilidade.defesa-paciente",
+          "nome": "Defesa Paciente",
+          "automacao": {
+            "tipo": "economia",
+            "desengajar": true
+          },
+          "descricao": "Ação Bônus: Desengajar de graça. Com 1 Foco: Desengajar e Esquivar."
+        },
+        {
+          "id": "defesa-paciente-foco",
+          "ref": "habilidade.defesa-paciente-foco",
+          "nome": "Defesa Paciente · Foco",
+          "automacao": {
+            "tipo": "economia",
+            "desengajar": true,
+            "esquivar": true
+          },
+          "descricao": "Desengaje e assuma Esquiva até o início do próximo turno."
+        }
+      ],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "site/fichas/nikki.json",
+      "id": "nikki",
+      "nome": "Nikki Lauda",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "feiticeiro",
+          "nivel": 3,
+          "subclasse": "Feitiçaria Aberrante"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 12,
+      "baseNormalizada": 12,
+      "atributos": {
+        "for": 10,
+        "des": 14,
+        "con": 14,
+        "int": 8,
+        "sab": 12,
+        "car": 17
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 12,
+      "equipados": [
+        {
+          "id": "71b23b93-2133-553f-824a-d9667fa2929d",
+          "ref": "item.adaga-19029790",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m."
+        },
+        {
+          "id": "71b23b93-2133-553f-824a-d9667fa2929d-2",
+          "ref": "item.adaga-1523045d",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "2f90954a-d50d-59e5-9ce3-5db937277ef6",
+          "ref": "habilidade.1-armadura-arcana-defesa-classe",
+          "nome": "1º | Armadura Arcana · defesa · classe",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 1.5,
+            "efeito": {
+              "nome": "Armadura Arcana",
+              "tipo": "buff",
+              "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+              "removeEm": "descanso_longo",
+              "caMinima": 13,
+              "requisitos": {
+                "semArmadura": true
+              },
+              "modificadores": {}
+            }
+          },
+          "descricao": "Ação · Toque · 8 h. Criatura voluntária sem armadura recebe CA 13 + DES. Em Nikki, CA 15. Ao conjurar, marque o gasto e a hora de término."
+        },
+        {
+          "id": "d589d0af-7b57-57b7-92cd-00d582ea66a3",
+          "ref": "habilidade.truque-protecao-contra-laminas-concentracao-classe",
+          "nome": "Truque | Proteção Contra Lâminas · concentração · classe",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 0,
+            "efeito": {
+              "nome": "Proteção contra Lâminas",
+              "tipo": "buff",
+              "descricao": "Ataques contra o alvo subtraem 1d4 da jogada de ataque.",
+              "restricoes": {
+                "penalidadeAtaquesContra": "1d4"
+              },
+              "duracao": {
+                "turnos": 10,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Ação · Pessoal · Concentração até 1 min. Quem atacar você subtrai [1d4] da jogada de ataque."
+        }
+      ],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "site/fichas/reino-arqueiro-3.json",
+      "id": "reino-arqueiro-3",
+      "nome": "Arqueiro do Reino · nível 3",
+      "tipo": "npc",
+      "classes": [
+        {
+          "id": "arqueiro",
+          "nivel": 3
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 10,
+        "des": 16,
+        "con": 12,
+        "int": 10,
+        "sab": 12,
+        "car": 10
+      },
+      "caAtual": 14,
+      "semArmadura": 10,
+      "semEscudo": 14,
+      "semLuvas": 14,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "reino-arqueiro-3-item-0",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "reino-arqueiro-3-item-1",
+          "ref": "item.reino.arco-curto",
+          "nome": "Arco curto",
+          "slot": "arma_distancia",
+          "equipadoSlot": "arma_distancia",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Arco curto da guarda. Alcance limitado a 18 m pela regra da mesa. Controle de munição assistido."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "reino-arqueiro-3-item-0",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/reino-comandante-4.json",
+      "id": "reino-comandante-4",
+      "nome": "Comandante do Reino · nível 4",
+      "tipo": "npc",
+      "classes": [
+        {
+          "id": "comandante",
+          "nivel": 4
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 16,
+        "des": 14,
+        "con": 14,
+        "int": 11,
+        "sab": 12,
+        "car": 12
+      },
+      "caAtual": 17,
+      "semArmadura": 12,
+      "semEscudo": 15,
+      "semLuvas": 17,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "reino-comandante-4-item-0",
+          "ref": "item.camisa-de-malha",
+          "nome": "Camisa de malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "media",
+            "atributo": "des",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "modificadores": {},
+          "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        },
+        {
+          "id": "reino-comandante-4-item-1",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        },
+        {
+          "id": "reino-comandante-4-item-2",
+          "ref": "item.reino.espada-longa",
+          "nome": "Espada longa",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Espada longa da guarda."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "reino-comandante-4-item-0",
+          "ref": "item.camisa-de-malha",
+          "nome": "Camisa de malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "media",
+            "atributo": "des",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "modificadores": {},
+          "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        },
+        {
+          "id": "reino-comandante-4-item-1",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/reino-mago-3.json",
+      "id": "reino-mago-3",
+      "nome": "Mago do Reino · nível 3",
+      "tipo": "npc",
+      "classes": [
+        {
+          "id": "mago",
+          "nivel": 3
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 8,
+        "des": 14,
+        "con": 14,
+        "int": 16,
+        "sab": 12,
+        "car": 10
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "reino-mago-3-item-0",
+          "ref": "item.veste-simples",
+          "nome": "Veste simples",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 10,
+            "classe": "veste",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "veste",
+          "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana."
+        },
+        {
+          "id": "reino-mago-3-item-1",
+          "ref": "item.adaga",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d4 perfurante; corpo a corpo ou arremesso."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "reino-mago-3-habilidade-8",
+          "ref": "habilidade.reino.escudo-arcano",
+          "nome": "Escudo Arcano (Shield) — 1º CÍRCULO / REAÇÃO",
+          "descricao": "Ao ser atingido por uma jogada de ataque ou ser alvo de Mísseis Mágicos, pode gastar a reação e um espaço. CA sobe de 12 para 17, inclusive contra o ataque que disparou a reação, até o início do próximo turno do mago. Não sofre dano de Mísseis Mágicos durante o efeito. V,S; precisa conseguir falar e gesticular. Não ajuda contra efeito que pede resistência, como Emaranhar. Não é permanente. Na regra 2024, não pode gastar outro espaço no MESMO TURNO; geralmente pode usá-lo no turno posterior de um inimigo mesmo tendo lançado magia no próprio turno. Efeito assistido pelo mestre."
+        }
+      ],
+      "todosItensRelevantes": [
+        {
+          "id": "reino-mago-3-item-0",
+          "ref": "item.veste-simples",
+          "nome": "Veste simples",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 10,
+            "classe": "veste",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "veste",
+          "descricao": "Roupa de corpo inteiro. Não conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/reino-soldado-3.json",
+      "id": "reino-soldado-3",
+      "nome": "Soldado do Reino · nível 3",
+      "tipo": "npc",
+      "classes": [
+        {
+          "id": "soldado",
+          "nivel": 3
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 14,
+        "des": 12,
+        "con": 14,
+        "int": 10,
+        "sab": 11,
+        "car": 10
+      },
+      "caAtual": 16,
+      "semArmadura": 12,
+      "semEscudo": 14,
+      "semLuvas": 16,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "reino-soldado-3-item-0",
+          "ref": "item.camisa-de-malha",
+          "nome": "Camisa de malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "media",
+            "atributo": "des",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "modificadores": {},
+          "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        },
+        {
+          "id": "reino-soldado-3-item-1",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        },
+        {
+          "id": "reino-soldado-3-item-2",
+          "ref": "item.lanca",
+          "nome": "Lança",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma ou duas mãos; 1d6 perfurante, 1d8 quando usada com duas mãos; arremessável com uma mão."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "reino-soldado-3-item-0",
+          "ref": "item.camisa-de-malha",
+          "nome": "Camisa de malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "media",
+            "atributo": "des",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "modificadores": {},
+          "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        },
+        {
+          "id": "reino-soldado-3-item-1",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/saco-de-pancadas.json",
+      "id": "saco-de-pancadas",
+      "nome": "Saco de Pancadas",
+      "tipo": "npc",
+      "tipoCriatura": "objeto",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 1,
+      "baseNormalizada": 1,
+      "atributos": {
+        "for": 10,
+        "des": 10,
+        "con": 10,
+        "int": 10,
+        "sab": 10,
+        "car": 10
+      },
+      "caAtual": 1,
+      "semArmadura": 1,
+      "semEscudo": 1,
+      "semLuvas": 1,
+      "semTodosEquipamentos": 1,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "site/fichas/skimi.json",
+      "id": "skimi",
+      "nome": "Skimi",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "bruxo",
+          "nivel": 3,
+          "subclasse": "Patrono Grande Antigo"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 13,
+      "baseNormalizada": 13,
+      "atributos": {
+        "for": 8,
+        "des": 14,
+        "con": 14,
+        "int": 10,
+        "sab": 12,
+        "car": 17
+      },
+      "caAtual": 13,
+      "semArmadura": 13,
+      "semEscudo": 13,
+      "semLuvas": 13,
+      "semTodosEquipamentos": 13,
+      "equipados": [
+        {
+          "id": "7243759c-88ca-43f0-8d79-ea0da54a2e49",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "82ce2b66-29ce-4ca9-a248-7101d18d4b94",
+          "ref": "item.adaga-469c7254",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m."
+        },
+        {
+          "id": "82ce2b66-29ce-4ca9-a248-7101d18d4b94-2",
+          "ref": "item.adaga-62b1e6a3",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +4; dano 1d4+2 perfurante; arremesso 6/18 m."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "7243759c-88ca-43f0-8d79-ea0da54a2e49",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/soldado.json",
+      "id": "soldado",
+      "nome": "Soldado da guarda",
+      "tipo": "npc",
+      "classes": [
+        {
+          "id": "soldado",
+          "nivel": 3
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 14,
+        "des": 12,
+        "con": 14,
+        "int": 10,
+        "sab": 11,
+        "car": 10
+      },
+      "caAtual": 16,
+      "semArmadura": 12,
+      "semEscudo": 14,
+      "semLuvas": 16,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "e716a84c-5580-57f4-a940-878f77922409",
+          "ref": "item.camisa-de-malha",
+          "nome": "Camisa de malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "media",
+            "atributo": "des",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "modificadores": {},
+          "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        },
+        {
+          "id": "soldado-escudo",
+          "ref": "item.escudo-b66123ac",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "modificadores": {},
+          "descricao": "Empunhado na mão fraca. +2 à CA."
+        },
+        {
+          "id": "479757f0-6224-50c5-b207-c3105fa9fd81",
+          "ref": "item.lanca-eb5c1aa0",
+          "nome": "Lança",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Uma mão e escudo; 1d6+2."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "passiva-2",
+          "ref": "habilidade.protecao-e-tatica",
+          "nome": "Proteção e tática",
+          "ativa": true,
+          "descricao": "CA 16 = camisa de malha 13 + DES 1 + escudo 2. Sem escudo CA 14. Vigia portas, segura corredores e tenta alcançar o sino. Se escolher Esquivar, usa a ação em vez de atacar. Não possui ação bônus especial, maestrias ou Ataques Múltiplos."
+        }
+      ],
+      "todosItensRelevantes": [
+        {
+          "id": "e716a84c-5580-57f4-a940-878f77922409",
+          "ref": "item.camisa-de-malha",
+          "nome": "Camisa de malha",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 13,
+            "classe": "media",
+            "atributo": "des",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "modificadores": {},
+          "descricao": "Armadura média. CA 13 + DES, máximo +2 de DES."
+        },
+        {
+          "id": "soldado-escudo",
+          "ref": "item.escudo-b66123ac",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "modificadores": {},
+          "descricao": "Empunhado na mão fraca. +2 à CA."
+        }
+      ]
+    },
+    {
+      "path": "site/fichas/zurich.json",
+      "id": "zurich",
+      "nome": "Zurich",
+      "tipo": "pj",
+      "classes": [
+        {
+          "id": "guardiao",
+          "nivel": 3,
+          "subclasse": "Caçador"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoFonte": 6,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 15,
+      "baseNormalizada": 15,
+      "atributos": {
+        "for": 12,
+        "des": 17,
+        "con": 14,
+        "int": 8,
+        "sab": 14,
+        "car": 10
+      },
+      "caAtual": 15,
+      "semArmadura": 15,
+      "semEscudo": 15,
+      "semLuvas": 15,
+      "semTodosEquipamentos": 15,
+      "equipados": [
+        {
+          "id": "cec923eb-4c1d-5878-a3bc-733544cbb4d0",
+          "ref": "item.armadura-de-couro-batido",
+          "nome": "Armadura de Couro Batido",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 12,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 12 + DES = 15. Sem penalidade em Furtividade."
+        },
+        {
+          "id": "cc8e6520-186a-5ade-ab7d-4051d5022a3d",
+          "ref": "item.arco-longo-ac372e50",
+          "nome": "Arco Longo",
+          "slot": "arma_distancia",
+          "equipadoSlot": "arma_distancia",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +7; dano 1d8+3 perfurante; 45/180 m. Lentidão."
+        },
+        {
+          "id": "6e35b573-f770-57cd-8c00-632ec9b47442",
+          "ref": "item.cimitarra-73899783",
+          "nome": "Cimitarra",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque +5; dano 1d6+3 cortante. Ágil."
+        },
+        {
+          "id": "746a489e-3118-5b0d-8d97-885ca01c7ff2",
+          "ref": "item.espada-curta-60162bf7",
+          "nome": "Espada Curta",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "modificadores": {},
+          "descricao": "Ataque extra +5; dano 1d6 perfurante."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "cec923eb-4c1d-5878-a3bc-733544cbb4d0",
+          "ref": "item.armadura-de-couro-batido",
+          "nome": "Armadura de Couro Batido",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 12,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 12 + DES = 15. Sem penalidade em Furtividade."
+        }
+      ]
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/crocodilo.json",
+      "id": "crocodilo",
+      "nome": "Crocodilo",
+      "tipo": "npc",
+      "tipoCriatura": "fera",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 12,
+      "baseNormalizada": 12,
+      "atributos": {
+        "for": 15,
+        "des": 10,
+        "con": 13,
+        "int": 2,
+        "sab": 10,
+        "car": 5
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 12,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/drow-necromante-6.json",
+      "id": "drow-necromante-6",
+      "nome": "Drow necromante — Nv6",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "necromante-autoral",
+          "nivel": 6
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 12,
+      "baseNormalizada": 12,
+      "atributos": {
+        "for": 8,
+        "des": 14,
+        "con": 14,
+        "int": 18,
+        "sab": 12,
+        "car": 10
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 12,
+      "equipados": [
+        {
+          "id": "drow-adaga",
+          "ref": "item.adaga",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d4 perfurante; corpo a corpo ou arremesso."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "armadura-arcana",
+          "ref": "habilidade.cemiterio.necromante-armadura-arcana",
+          "nome": "Armadura Arcana",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 1.5,
+            "efeito": {
+              "nome": "Armadura Arcana",
+              "tipo": "buff",
+              "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+              "caMinima": 13,
+              "requisitos": {
+                "semArmadura": true
+              },
+              "modificadores": {},
+              "duracao": {
+                "turnos": 4800,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Protótipo · V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração."
+        },
+        {
+          "id": "escudo-arcano",
+          "ref": "habilidade.cemiterio.necromante-escudo-arcano",
+          "nome": "Escudo Arcano",
+          "automacao": {
+            "tipo": "escudo_arcano"
+          },
+          "descricao": "Protótipo · V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana. Protótipo: responde na janela automática de reação ao ataque ou aos Mísseis Mágicos. Se não houver espaço de 1º, o protótipo usa o menor círculo disponível."
+        }
+      ],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/goblin-1.json",
+      "id": "cemiterio-goblin-1",
+      "nome": "Goblin 1 — séquito do necromante",
+      "tipo": "npc",
+      "tipoCriatura": "feerico",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 8,
+        "des": 15,
+        "con": 10,
+        "int": 10,
+        "sab": 8,
+        "car": 8
+      },
+      "caAtual": 15,
+      "semArmadura": 12,
+      "semEscudo": 13,
+      "semLuvas": 15,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "goblin-1-couro",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "goblin-1-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        },
+        {
+          "id": "goblin-1-cimitarra",
+          "ref": "item.cimitarra",
+          "nome": "Cimitarra",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d6 cortante."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "goblin-1-couro",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "goblin-1-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/goblin-2.json",
+      "id": "cemiterio-goblin-2",
+      "nome": "Goblin 2 — séquito do necromante",
+      "tipo": "npc",
+      "tipoCriatura": "feerico",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 8,
+        "des": 15,
+        "con": 10,
+        "int": 10,
+        "sab": 8,
+        "car": 8
+      },
+      "caAtual": 15,
+      "semArmadura": 12,
+      "semEscudo": 13,
+      "semLuvas": 15,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "goblin-2-couro",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "goblin-2-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        },
+        {
+          "id": "goblin-2-cimitarra",
+          "ref": "item.cimitarra",
+          "nome": "Cimitarra",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d6 cortante."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "goblin-2-couro",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        },
+        {
+          "id": "goblin-2-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/goblin-zumbi.json",
+      "id": "cemiterio-zumbigoblin",
+      "nome": "Zumbigoblin",
+      "tipo": "npc",
+      "tipoCriatura": "morto-vivo",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 8,
+      "baseNormalizada": 8,
+      "atributos": {
+        "for": 13,
+        "des": 6,
+        "con": 16,
+        "int": 3,
+        "sab": 6,
+        "car": 5
+      },
+      "caAtual": 8,
+      "semArmadura": 8,
+      "semEscudo": 8,
+      "semLuvas": 8,
+      "semTodosEquipamentos": 8,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/irineu-ladino-3.json",
+      "id": "irineu-ladino-3",
+      "nome": "Irineu — Ladino Nv3",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "ladino",
+          "nivel": 3,
+          "subclasse": "Ladrão"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 10,
+        "des": 16,
+        "con": 14,
+        "int": 12,
+        "sab": 13,
+        "car": 12
+      },
+      "caAtual": 14,
+      "semArmadura": 10,
+      "semEscudo": 14,
+      "semLuvas": 14,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "irineu-adaga",
+          "ref": "item.adaga",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d4 perfurante; corpo a corpo ou arremesso."
+        },
+        {
+          "id": "irineu-couro",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": [
+        {
+          "id": "irineu-couro",
+          "ref": "item.armadura-de-couro",
+          "nome": "Armadura de Couro",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 11,
+            "classe": "leve",
+            "atributo": "des"
+          },
+          "categoriaArmadura": "leve",
+          "modificadores": {},
+          "descricao": "CA 11 + DES = 13."
+        }
+      ]
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/mimico.json",
+      "id": "mimico",
+      "nome": "Mímico",
+      "tipo": "npc",
+      "tipoCriatura": "monstruosidade",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 12,
+      "baseNormalizada": 12,
+      "atributos": {
+        "for": 17,
+        "des": 12,
+        "con": 15,
+        "int": 5,
+        "sab": 13,
+        "car": 8
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 12,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/padre-quevedo.json",
+      "id": "padre-quevedo",
+      "nome": "Padre Quevedo",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "clerigo",
+          "nivel": 5,
+          "subclasse": "Domínio da Vida"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 10,
+        "des": 14,
+        "con": 14,
+        "int": 12,
+        "sab": 18,
+        "car": 8
+      },
+      "caAtual": 18,
+      "semArmadura": 12,
+      "semEscudo": 16,
+      "semLuvas": 18,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "quevedo-escamas",
+          "ref": "item.armadura-de-escamas",
+          "nome": "Armadura de escamas",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 14,
+            "atributo": "des",
+            "classe": "media",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade."
+        },
+        {
+          "id": "quevedo-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "escudo-fe",
+          "ref": "habilidade.cemiterio.quevedo-escudo-fe",
+          "nome": "Escudo da Fé",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 18,
+            "efeito": {
+              "nome": "Escudo da Fé",
+              "tipo": "buff",
+              "descricao": "+2 na Classe de Armadura.",
+              "modificadores": {
+                "ca": 2
+              },
+              "duracao": {
+                "turnos": 100,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Protótipo · Bônus; concentração 10 min; +2 CA."
+        },
+        {
+          "id": "protecao",
+          "ref": "habilidade.cemiterio.quevedo-protecao",
+          "nome": "Proteção contra o Bem e o Mal",
+          "automacao": {
+            "tipo": "prototipo",
+            "modo": "protecao",
+            "alcanceM": 1.5
+          },
+          "descricao": "Protótipo · toque, concentração 10 minutos. Aberrações, celestiais, elementais, feéricos, infernais e mortos-vivos atacam com desvantagem; protege contra novos encantos, medo e possessão originados deles. Consome água benta comum ou item componenteMagico: protecao. Água benta de missão não é selecionada. Repetir salvaguardas contra efeitos preexistentes e possessões narrativas exige arbitragem."
+        }
+      ],
+      "todosItensRelevantes": [
+        {
+          "id": "quevedo-escamas",
+          "ref": "item.armadura-de-escamas",
+          "nome": "Armadura de escamas",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 14,
+            "atributo": "des",
+            "classe": "media",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade."
+        },
+        {
+          "id": "quevedo-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/seu-furtado-zumbi-4.json",
+      "id": "seu-furtado-zumbi-4",
+      "nome": "Seu Furtado — Zumbi Nv4",
+      "tipo": "npc",
+      "tipoCriatura": "morto-vivo",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 4
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 13,
+      "baseNormalizada": 13,
+      "atributos": {
+        "for": 16,
+        "des": 8,
+        "con": 18,
+        "int": 9,
+        "sab": 10,
+        "car": 8
+      },
+      "caAtual": 13,
+      "semArmadura": 13,
+      "semEscudo": 13,
+      "semLuvas": 13,
+      "semTodosEquipamentos": 13,
+      "equipados": [
+        {
+          "id": "furtado-adaga-unica",
+          "ref": "item.adaga-do-ultimo-rito",
+          "nome": "Adaga do Último Rito",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Adaga autoral. Causa o dano normal da adaga e +1 de dano necrótico em cada acerto, inclusive no arremesso. O bônus fixo não é dobrado no crítico. Acerto e dano da arma usam os atributos e a proficiência do portador."
+        },
+        {
+          "id": "furtado-colar-unico",
+          "ref": "item.colar-da-ultima-palavra",
+          "nome": "Colar da Última Palavra",
+          "slot": "colar",
+          "equipadoSlot": "colar",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Item autoral. Enquanto equipado, permite conjurar Falar com os Mortos uma vez por dia, sem gastar espaço de magia. Recupera o uso ao amanhecer, registrado pelo mestre. A conversa é interpretada pelo mestre.",
+          "opcoes": [
+            {
+              "id": "falar-com-os-mortos",
+              "nome": "Falar com os Mortos · Última Palavra",
+              "custo": [
+                {
+                  "tipo": "acao",
+                  "quantidade": 1
+                },
+                {
+                  "tipo": "recurso",
+                  "id": "ultima-palavra",
+                  "quantidade": 1
+                }
+              ]
+            }
+          ],
+          "recursos": [
+            {
+              "id": "ultima-palavra",
+              "nome": "Última Palavra",
+              "maximo": 1,
+              "saldoInicial": 1,
+              "recuperacao": [
+                {
+                  "evento": "amanhecer",
+                  "modo": "completar"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/zumbi-padrao-3.json",
+      "id": "zumbi-padrao-3",
+      "nome": "Zumbi padrão — Nv3",
+      "tipo": "npc",
+      "tipoCriatura": "morto-vivo",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 3
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 9,
+      "baseNormalizada": 9,
+      "atributos": {
+        "for": 14,
+        "des": 8,
+        "con": 16,
+        "int": 3,
+        "sab": 6,
+        "car": 5
+      },
+      "caAtual": 9,
+      "semArmadura": 9,
+      "semEscudo": 9,
+      "semLuvas": 9,
+      "semTodosEquipamentos": 9,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/zumbi-reanimado.json",
+      "id": "cemiterio-zumbi-reanimado",
+      "nome": "Zumbi reanimado",
+      "tipo": "npc",
+      "tipoCriatura": "morto-vivo",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 8,
+      "baseNormalizada": 8,
+      "atributos": {
+        "for": 13,
+        "des": 6,
+        "con": 16,
+        "int": 3,
+        "sab": 6,
+        "car": 5
+      },
+      "caAtual": 8,
+      "semArmadura": 8,
+      "semEscudo": 8,
+      "semLuvas": 8,
+      "semTodosEquipamentos": 8,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.56/drow-necromante-6.json",
+      "id": "drow-necromante-6",
+      "nome": "Drow necromante — Nv6",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "necromante-autoral",
+          "nivel": 6
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 12,
+      "baseNormalizada": 12,
+      "atributos": {
+        "for": 8,
+        "des": 14,
+        "con": 14,
+        "int": 18,
+        "sab": 12,
+        "car": 10
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 12,
+      "equipados": [
+        {
+          "id": "drow-adaga",
+          "ref": "item.adaga",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d4 perfurante; corpo a corpo ou arremesso."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "armadura-arcana",
+          "ref": "habilidade.cemiterio.necromante-armadura-arcana",
+          "nome": "Armadura Arcana",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 1.5,
+            "efeito": {
+              "nome": "Armadura Arcana",
+              "tipo": "buff",
+              "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+              "caMinima": 13,
+              "requisitos": {
+                "semArmadura": true
+              },
+              "modificadores": {},
+              "duracao": {
+                "turnos": 4800,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Protótipo · V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração."
+        },
+        {
+          "id": "escudo-arcano",
+          "ref": "habilidade.cemiterio.necromante-escudo-arcano",
+          "nome": "Escudo Arcano",
+          "automacao": {
+            "tipo": "escudo_arcano"
+          },
+          "descricao": "Protótipo · V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana. Protótipo: responde na janela automática de reação ao ataque ou aos Mísseis Mágicos. Se não houver espaço de 1º, o protótipo usa o menor círculo disponível."
+        }
+      ],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.56/padre-quevedo.json",
+      "id": "padre-quevedo",
+      "nome": "Padre Quevedo",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "clerigo",
+          "nivel": 5,
+          "subclasse": "Domínio da Vida"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 10,
+        "des": 14,
+        "con": 14,
+        "int": 12,
+        "sab": 18,
+        "car": 8
+      },
+      "caAtual": 18,
+      "semArmadura": 12,
+      "semEscudo": 16,
+      "semLuvas": 18,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "quevedo-escamas",
+          "ref": "item.armadura-de-escamas",
+          "nome": "Armadura de escamas",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 14,
+            "atributo": "des",
+            "classe": "media",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade."
+        },
+        {
+          "id": "quevedo-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "escudo-fe",
+          "ref": "habilidade.cemiterio.quevedo-escudo-fe",
+          "nome": "Escudo da Fé",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 18,
+            "efeito": {
+              "nome": "Escudo da Fé",
+              "tipo": "buff",
+              "descricao": "+2 na Classe de Armadura.",
+              "modificadores": {
+                "ca": 2
+              },
+              "duracao": {
+                "turnos": 100,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Protótipo · Bônus; concentração 10 min; +2 CA."
+        },
+        {
+          "id": "protecao",
+          "ref": "habilidade.cemiterio.quevedo-protecao",
+          "nome": "Proteção contra o Bem e o Mal",
+          "automacao": {
+            "tipo": "prototipo",
+            "modo": "protecao",
+            "alcanceM": 1.5
+          },
+          "descricao": "Protótipo · toque, concentração 10 minutos. Aberrações, celestiais, elementais, feéricos, infernais e mortos-vivos atacam com desvantagem; protege contra novos encantos, medo e possessão originados deles. Consome água benta comum ou item componenteMagico: protecao. Água benta de missão não é selecionada. Repetir salvaguardas contra efeitos preexistentes e possessões narrativas exige arbitragem."
+        }
+      ],
+      "todosItensRelevantes": [
+        {
+          "id": "quevedo-escamas",
+          "ref": "item.armadura-de-escamas",
+          "nome": "Armadura de escamas",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 14,
+            "atributo": "des",
+            "classe": "media",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade."
+        },
+        {
+          "id": "quevedo-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.58/drow-necromante-6.json",
+      "id": "drow-necromante-6",
+      "nome": "Drow necromante — Nv6",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "necromante-autoral",
+          "nivel": 6
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 12,
+      "baseNormalizada": 12,
+      "atributos": {
+        "for": 8,
+        "des": 14,
+        "con": 14,
+        "int": 18,
+        "sab": 12,
+        "car": 10
+      },
+      "caAtual": 12,
+      "semArmadura": 12,
+      "semEscudo": 12,
+      "semLuvas": 12,
+      "semTodosEquipamentos": 12,
+      "equipados": [
+        {
+          "id": "drow-adaga",
+          "ref": "item.adaga",
+          "nome": "Adaga",
+          "slot": "mao_forte",
+          "equipadoSlot": "mao_forte",
+          "equipado": true,
+          "quantidade": 1,
+          "descricao": "Uma mão; 1d4 perfurante; corpo a corpo ou arremesso."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "armadura-arcana",
+          "ref": "habilidade.cemiterio.necromante-armadura-arcana",
+          "nome": "Armadura Arcana",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 1.5,
+            "efeito": {
+              "nome": "Armadura Arcana",
+              "tipo": "buff",
+              "descricao": "A CA do alvo passa a ser no mínimo 13 + DES enquanto ele estiver sem armadura.",
+              "caMinima": 13,
+              "requisitos": {
+                "semArmadura": true
+              },
+              "modificadores": {},
+              "duracao": {
+                "turnos": 4800,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Protótipo · V,S,M (couro); toque em criatura voluntária sem armadura. Por 8 horas, CA base 13+DES; neste drow, CA 15. Termina se vestir armadura ou se o conjurador dispensar a magia com ação Mágica. Sem concentração."
+        },
+        {
+          "id": "escudo-arcano",
+          "ref": "habilidade.cemiterio.necromante-escudo-arcano",
+          "nome": "Escudo Arcano",
+          "automacao": {
+            "tipo": "escudo_arcano"
+          },
+          "descricao": "Protótipo · V,S. Ao ser atingido por ataque ou alvo de Mísseis Mágicos, gaste reação e espaço: +5 CA até o início do próximo turno, inclusive contra o ataque desencadeador; bloqueia Mísseis Mágicos. CA 17, ou 20 com Armadura Arcana. Protótipo: responde na janela automática de reação ao ataque ou aos Mísseis Mágicos. Se não houver espaço de 1º, o protótipo usa o menor círculo disponível."
+        }
+      ],
+      "todosItensRelevantes": []
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.58/padre-quevedo.json",
+      "id": "padre-quevedo",
+      "nome": "Padre Quevedo",
+      "tipo": "npc",
+      "tipoCriatura": "humanoide",
+      "classes": [
+        {
+          "id": "clerigo",
+          "nivel": 5,
+          "subclasse": "Domínio da Vida"
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 10,
+      "baseNormalizada": 10,
+      "atributos": {
+        "for": 10,
+        "des": 14,
+        "con": 14,
+        "int": 12,
+        "sab": 18,
+        "car": 8
+      },
+      "caAtual": 18,
+      "semArmadura": 12,
+      "semEscudo": 16,
+      "semLuvas": 18,
+      "semTodosEquipamentos": 10,
+      "equipados": [
+        {
+          "id": "quevedo-escamas",
+          "ref": "item.armadura-de-escamas",
+          "nome": "Armadura de escamas",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 14,
+            "atributo": "des",
+            "classe": "media",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade."
+        },
+        {
+          "id": "quevedo-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ],
+      "defesas": [
+        {
+          "id": "escudo-fe",
+          "ref": "habilidade.cemiterio.quevedo-escudo-fe",
+          "nome": "Escudo da Fé",
+          "automacao": {
+            "tipo": "efeito",
+            "alcanceM": 18,
+            "efeito": {
+              "nome": "Escudo da Fé",
+              "tipo": "buff",
+              "descricao": "+2 na Classe de Armadura.",
+              "modificadores": {
+                "ca": 2
+              },
+              "duracao": {
+                "turnos": 100,
+                "expira": "inicio_origem"
+              }
+            }
+          },
+          "descricao": "Protótipo · Bônus; concentração 10 min; +2 CA."
+        },
+        {
+          "id": "protecao",
+          "ref": "habilidade.cemiterio.quevedo-protecao",
+          "nome": "Proteção contra o Bem e o Mal",
+          "automacao": {
+            "tipo": "prototipo",
+            "modo": "protecao",
+            "alcanceM": 1.5
+          },
+          "descricao": "Protótipo · toque, concentração 10 minutos. Aberrações, celestiais, elementais, feéricos, infernais e mortos-vivos atacam com desvantagem; protege contra novos encantos, medo e possessão originados deles. Consome água benta comum ou item componenteMagico: protecao. Água benta de missão não é selecionada. Repetir salvaguardas contra efeitos preexistentes e possessões narrativas exige arbitragem."
+        }
+      ],
+      "todosItensRelevantes": [
+        {
+          "id": "quevedo-escamas",
+          "ref": "item.armadura-de-escamas",
+          "nome": "Armadura de escamas",
+          "slot": "vestes",
+          "equipadoSlot": "vestes",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "base",
+            "valor": 14,
+            "atributo": "des",
+            "classe": "media",
+            "limiteAtributo": 2
+          },
+          "categoriaArmadura": "media",
+          "descricao": "CA 14 + DES (máximo +2); desvantagem em Furtividade."
+        },
+        {
+          "id": "quevedo-escudo",
+          "ref": "item.escudo",
+          "nome": "Escudo",
+          "slot": "mao_fraca",
+          "equipadoSlot": "mao_fraca",
+          "equipado": true,
+          "quantidade": 1,
+          "ca": {
+            "tipo": "bonus",
+            "valor": 2,
+            "classe": "escudo"
+          },
+          "categoriaArmadura": "escudo",
+          "descricao": "Empunhado na mão fraca. +2 à CA; conta como armadura para Armadura Arcana."
+        }
+      ]
+    },
+    {
+      "path": "site/downloads/saco-de-pancadas.json",
+      "id": "saco-de-pancadas",
+      "nome": "Saco de Pancadas",
+      "tipo": "npc",
+      "tipoCriatura": "objeto",
+      "classes": [
+        {
+          "id": "npc-autoral",
+          "nivel": 1
+        }
+      ],
+      "formato": 2,
+      "ocupacaoNormalizada": 5,
+      "baseFonte": 1,
+      "baseNormalizada": 1,
+      "atributos": {
+        "for": 10,
+        "des": 10,
+        "con": 10,
+        "int": 10,
+        "sab": 10,
+        "car": 10
+      },
+      "caAtual": 1,
+      "semArmadura": 1,
+      "semEscudo": 1,
+      "semLuvas": 1,
+      "semTodosEquipamentos": 1,
+      "equipados": [],
+      "defesas": [],
+      "todosItensRelevantes": []
+    }
+  ],
+  "erros": [],
+  "reproducoes": [
+    {
+      "caso": "desequipar-armadura",
+      "id": "dragoberto",
+      "item": "Armadura Couro Batido",
+      "antes": 16,
+      "depois": 16,
+      "des": 17
+    },
+    {
+      "caso": "desequipar-armadura",
+      "id": "draven-thorne",
+      "item": "Cota de Malha",
+      "antes": 16,
+      "depois": 16,
+      "des": 13
+    },
+    {
+      "caso": "desequipar-armadura",
+      "id": "hannah-montana",
+      "item": "Armadura de Couro",
+      "antes": 13,
+      "depois": 13,
+      "des": 14
+    },
+    {
+      "caso": "desequipar-armadura",
+      "id": "skimi",
+      "item": "Armadura de Couro",
+      "antes": 13,
+      "depois": 13,
+      "des": 14
+    },
+    {
+      "caso": "desequipar-armadura",
+      "id": "zurich",
+      "item": "Armadura de Couro Batido",
+      "antes": 15,
+      "depois": 15,
+      "des": 17
+    },
+    {
+      "caso": "alterar-des-sem-armadura",
+      "id": "nikki",
+      "antes": 12,
+      "desDepois": 18,
+      "depois": 12
+    },
+    {
+      "caso": "desativar-traco",
+      "id": "loteria",
+      "antes": 14,
+      "ativa": false,
+      "depois": 14
+    },
+    {
+      "caso": "arcana-conjurada-sob-bonus-temporario",
+      "comAmbas": 15,
+      "bonusArcanaCongelado": 1,
+      "depoisDeRemoverFe": 13
+    }
+  ],
+  "pacotes": [
+    {
+      "pacote": "aventura-no-cemiterio.zip",
+      "fichas": [
+        {
+          "entrada": "aventura no cemiterio/crocodilo.json",
+          "id": "crocodilo",
+          "caBase": 12,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/drow-necromante-6.json",
+          "id": "drow-necromante-6",
+          "caBase": 12,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/goblin-1.json",
+          "id": "cemiterio-goblin-1",
+          "caBase": 10,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/goblin-2.json",
+          "id": "cemiterio-goblin-2",
+          "caBase": 10,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/goblin-zumbi.json",
+          "id": "cemiterio-zumbigoblin",
+          "caBase": 8,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/irineu-ladino-3.json",
+          "id": "irineu-ladino-3",
+          "caBase": 10,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/mimico.json",
+          "id": "mimico",
+          "caBase": 12,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/padre-quevedo.json",
+          "id": "padre-quevedo",
+          "caBase": 10,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/seu-furtado-zumbi-4.json",
+          "id": "seu-furtado-zumbi-4",
+          "caBase": 13,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/zumbi-padrao-3.json",
+          "id": "zumbi-padrao-3",
+          "caBase": 9,
+          "formato": 2
+        },
+        {
+          "entrada": "aventura no cemiterio/zumbi-reanimado.json",
+          "id": "cemiterio-zumbi-reanimado",
+          "caBase": 8,
+          "formato": 2
+        }
+      ]
+    },
+    {
+      "pacote": "fichas-drow-e-padre-0.8.56.zip",
+      "fichas": [
+        {
+          "entrada": "Drow e Padre - Prototipos/drow-necromante-6.json",
+          "id": "drow-necromante-6",
+          "caBase": 12,
+          "formato": 2
+        },
+        {
+          "entrada": "Drow e Padre - Prototipos/padre-quevedo.json",
+          "id": "padre-quevedo",
+          "caBase": 10,
+          "formato": 2
+        }
+      ]
+    },
+    {
+      "pacote": "fichas-drow-e-padre-0.8.58.zip",
+      "fichas": [
+        {
+          "entrada": "Drow e Padre - Prototipos/drow-necromante-6.json",
+          "id": "drow-necromante-6",
+          "caBase": 12,
+          "formato": 2
+        },
+        {
+          "entrada": "Drow e Padre - Prototipos/padre-quevedo.json",
+          "id": "padre-quevedo",
+          "caBase": 10,
+          "formato": 2
+        }
+      ]
+    },
+    {
+      "pacote": "saco-de-pancadas.zip",
+      "fichas": [
+        {
+          "entrada": "saco-de-pancadas.json",
+          "id": "saco-de-pancadas",
+          "caBase": 1,
+          "formato": 2
+        }
+      ]
+    }
+  ],
+  "manifestoFontes": [
+    {
+      "path": ".github/workflows/pages.yml",
+      "bytes": 1632,
+      "sha256": "fb8e66816b514fba305a8e38a2e05665b2c9bbfd9b2135b033b7dca3736ce3b0"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/crocodilo.json",
+      "bytes": 1287,
+      "sha256": "11a4181bb1058f5301e27515137a7dbb0af5ea39b44abb7291913635f9448614"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/drow-necromante-6.json",
+      "bytes": 6424,
+      "sha256": "1f98c698eeab2e904b2d96ebc94195f31c72386ad0e90884a065275dc9dbeab5"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/goblin-1.json",
+      "bytes": 2649,
+      "sha256": "2cde9bd209baab6cde392a7218f5345903aeb3baf38ae23b85db5cb2616a78e7"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/goblin-2.json",
+      "bytes": 2649,
+      "sha256": "a030b2ce13ad33834d10a571f8c5e49cbdac5f7a9414f39891384ecf92136e7f"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/goblin-zumbi.json",
+      "bytes": 1849,
+      "sha256": "1b03abe8e26fec9813649b8cafcfbb9fd919d9a67802e6239823d70cb540a341"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/irineu-ladino-3.json",
+      "bytes": 4628,
+      "sha256": "3fea293b4bf3c3bc9c3bdfb2c980bf7a3e5299aad3dcdc990c151d743bfdfb4d"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/mimico.json",
+      "bytes": 1869,
+      "sha256": "f84acb5a65e33e3a0b99b9935a9bbeaf9e4d50ec977a70b9994936b79ee77cc1"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/padre-quevedo.json",
+      "bytes": 6535,
+      "sha256": "e91e7d0fd7d566bb3ed9e9160b4e2af6614b15ed84ef1264257dcb84e9b52fee"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/seu-furtado-zumbi-4.json",
+      "bytes": 3168,
+      "sha256": "9d79d0edfafe97b86f546328456eea732e042c10c06e9619d91dac13327dc302"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/zumbi-padrao-3.json",
+      "bytes": 2012,
+      "sha256": "31319354926177a474afb0c8f957acebc6e1b1298e49712b0f7f800448ba4720"
+    },
+    {
+      "path": "conteudo/aventura-no-cemiterio/zumbi-reanimado.json",
+      "bytes": 1780,
+      "sha256": "19e61e93b4367dcd785930964fb6945ddeeec447dde1af03e2b9ac94678bbd7e"
+    },
+    {
+      "path": "converter-fichas-forge.mjs",
+      "bytes": 15269,
+      "sha256": "27bd27dde0d8a1f7f56d4d39fed6f5d565d5503d598c916728dcad597c9a99e2"
+    },
+    {
+      "path": "gerar-catalogo-configurado.mjs",
+      "bytes": 4896,
+      "sha256": "33d6d326f3124158bbed1e8a85c8d3fa3a77fbbeb8720c2854e706f7c6463b7d"
+    },
+    {
+      "path": "gerar-catalogo-runtime.mjs",
+      "bytes": 5000,
+      "sha256": "d4a8fab3d3c4977c9e75109c2545133b295cdf8749f5951c3c1ed715b87e61da"
+    },
+    {
+      "path": "migrar-fichas-v2.mjs",
+      "bytes": 5165,
+      "sha256": "2812c5dbe8b51af5512c181f0227104bac8d0d31b65707b2dffe22bec0f4a68d"
+    },
+    {
+      "path": "site/bridge.mjs",
+      "bytes": 63812,
+      "sha256": "57aee32886cc76ecc024e50eae04d7a94e438b62b112721485c7e56921292f14"
+    },
+    {
+      "path": "site/catalog.mjs",
+      "bytes": 6876,
+      "sha256": "db80e9465d6c6e698c34038b81cee468881f8af3df1c2f19d219e9b60f4dace0"
+    },
+    {
+      "path": "site/catalogo-la-arte.mjs",
+      "bytes": 12545,
+      "sha256": "22e7fc540f1b41ca8b928c2ebf1faaee68527a738a3eba6a61060a4ec8640d57"
+    },
+    {
+      "path": "site/catalogo-victor.schema.json",
+      "bytes": 938,
+      "sha256": "e86d9e775718f26dc3e85e92c0fa8a507386695e897a018042c8e3822f6118ef"
+    },
+    {
+      "path": "site/catalogos/catalogo-gerado.mjs",
+      "bytes": 396047,
+      "sha256": "cbc97cbb27c4bbcf741b4749117a88c5bd92d0816b0dcbf7fb799f8ccd0e67df"
+    },
+    {
+      "path": "site/catalogos/catalogo.schema.json",
+      "bytes": 1353,
+      "sha256": "4f1dd8310169ac136695f256f78ad23398820d33fc2e9e3a3120c5db87b67ee0"
+    },
+    {
+      "path": "site/catalogos/habilidades.json",
+      "bytes": 264146,
+      "sha256": "63592b3fb70fe991ae76f2c39ce72bf49a4595f171ceb585e8d76cad2b1de3a2"
+    },
+    {
+      "path": "site/catalogos/itens.json",
+      "bytes": 64507,
+      "sha256": "e6a612ccb1bfc662b69f52cefde815b8d2ba7af06ee6d9a0cbce91b7a9962dd0"
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.56/drow-necromante-6.json",
+      "bytes": 6433,
+      "sha256": "7a2c0fcb7e0c744742fafc69c033a67b97318cccc04497ff7c735942f52fb777"
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.56/padre-quevedo.json",
+      "bytes": 6535,
+      "sha256": "e91e7d0fd7d566bb3ed9e9160b4e2af6614b15ed84ef1264257dcb84e9b52fee"
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.58/drow-necromante-6.json",
+      "bytes": 6424,
+      "sha256": "1f98c698eeab2e904b2d96ebc94195f31c72386ad0e90884a065275dc9dbeab5"
+    },
+    {
+      "path": "site/downloads/fichas-prototipo-0.8.58/padre-quevedo.json",
+      "bytes": 6535,
+      "sha256": "e91e7d0fd7d566bb3ed9e9160b4e2af6614b15ed84ef1264257dcb84e9b52fee"
+    },
+    {
+      "path": "site/downloads/saco-de-pancadas.json",
+      "bytes": 1329,
+      "sha256": "dd3a4f1ff75a0aa81a86e3f20eca694ce436d996903ced854eb82c1a56a43a28"
+    },
+    {
+      "path": "site/engine.mjs",
+      "bytes": 298988,
+      "sha256": "58d18ef161727aafba3a65aae29f877bbbefc2cc94cce7f71d13dac6e473bd74"
+    },
+    {
+      "path": "site/estilo.css",
+      "bytes": 29802,
+      "sha256": "ee819377adf0117a8b6235bc1ad2437fabc530ed3f4127d718c1f299ed8efc39"
+    },
+    {
+      "path": "site/executions.mjs",
+      "bytes": 12975,
+      "sha256": "993a287ac1472de4ca9892f5ee96d49729223c682d2f13a59173b2eb0eedd33d"
+    },
+    {
+      "path": "site/ficha-view.mjs",
+      "bytes": 21150,
+      "sha256": "c0f7e7fd040e4a6450a97e6e75bcc863df0f03eb836d4e5fcca373d0f1468a31"
+    },
+    {
+      "path": "site/fichas/dragoberto.json",
+      "bytes": 8528,
+      "sha256": "a4b18bc04c6bf307c46245c981dcedf2d3799079ab0a13063afd21a96ac70f96"
+    },
+    {
+      "path": "site/fichas/draven-thorne.json",
+      "bytes": 9488,
+      "sha256": "9c888673edc066bc713eb97b82b8a200d816ec850b81b5b5986472ecd470fde0"
+    },
+    {
+      "path": "site/fichas/ficha.schema.json",
+      "bytes": 26263,
+      "sha256": "2f1104ba4cc987068b25bcaa3b4b85ebafa1f3076b8e3ce40e3d4eb54624debc"
+    },
+    {
+      "path": "site/fichas/hannah-montana.json",
+      "bytes": 10462,
+      "sha256": "0ac7d7ce5a57b53376644d93553a1d4bdb1a260fd53506a52444dfa440b85c81"
+    },
+    {
+      "path": "site/fichas/loteria.json",
+      "bytes": 10129,
+      "sha256": "50193983b8031145cf10635324639e1224b35c2e7edc90776a4d6769b744415e"
+    },
+    {
+      "path": "site/fichas/nikki.json",
+      "bytes": 19769,
+      "sha256": "1ba4bcde8931be9a1244d200823085a6f27b2c6453a377efd25733aa43976275"
+    },
+    {
+      "path": "site/fichas/reino-arqueiro-3.json",
+      "bytes": 3996,
+      "sha256": "cf0cc80c60108501a2b22601575e52fe09a6d4e3467d27286da61631143a8ae4"
+    },
+    {
+      "path": "site/fichas/reino-comandante-4.json",
+      "bytes": 4636,
+      "sha256": "2ffa3f0dd3d670e1dce709bb9c79be1b6f4196ac479033bb1dab4b090a33ff82"
+    },
+    {
+      "path": "site/fichas/reino-mago-3.json",
+      "bytes": 4505,
+      "sha256": "4c0967c6cdec0f5e4d8424efc8b3d46668111b80f7595306c83c6e5633c1f3cd"
+    },
+    {
+      "path": "site/fichas/reino-soldado-3.json",
+      "bytes": 3618,
+      "sha256": "74c31b43cdc654bf2c31fbdc7deffb331a290b5c2b7c1d24cdaea7613bd66d94"
+    },
+    {
+      "path": "site/fichas/saco-de-pancadas.json",
+      "bytes": 1329,
+      "sha256": "dd3a4f1ff75a0aa81a86e3f20eca694ce436d996903ced854eb82c1a56a43a28"
+    },
+    {
+      "path": "site/fichas/skimi.json",
+      "bytes": 11426,
+      "sha256": "a8c5e2b43a62a0079f264525ef299bf11b870a76c1708e0d41b936519d79726b"
+    },
+    {
+      "path": "site/fichas/soldado.json",
+      "bytes": 3315,
+      "sha256": "8981073c167af539c10c479b1b03beee172ccde9842370327d80c3e242facf47"
+    },
+    {
+      "path": "site/fichas/zurich.json",
+      "bytes": 10517,
+      "sha256": "b3c60261467f81c2a1c04a8b669a5322d4021d9dac7ff8d8998dcc4af38576f3"
+    },
+    {
+      "path": "site/hud-controller.mjs",
+      "bytes": 78169,
+      "sha256": "7e85b4173c710e8defbc08a2a155d9e5b893de4271b88cc11d8156f41dc7d8b7"
+    },
+    {
+      "path": "site/hud-ui.mjs",
+      "bytes": 62271,
+      "sha256": "a761e6b591708ea2523ac6471183197fc1b232b75c591f97ddf7da6de0e771f7"
+    },
+    {
+      "path": "site/importar-pasta-fichas.mjs",
+      "bytes": 1128,
+      "sha256": "f27f42a533b5bbe6accc727d1c64fc5d22ef000a0e9f80c1da8495ded34e54ec"
+    },
+    {
+      "path": "site/inventory-cell.mjs",
+      "bytes": 628,
+      "sha256": "86ff545ef3d3fe02249671b87fa46bc05acb048cc80153ab0880851ca3a5571c"
+    },
+    {
+      "path": "site/inventory-popovers.mjs",
+      "bytes": 2045,
+      "sha256": "d9a2f920aca979bc92073a0f345065bf434dc21f4b1cf5d957c9e719c7350a1b"
+    },
+    {
+      "path": "site/loja.mjs",
+      "bytes": 6926,
+      "sha256": "cdd6f17d23a88766baa01e87e935f0846f59d7203647ca63c0121100cd64187d"
+    },
+    {
+      "path": "site/modelos/reanimacao.mjs",
+      "bytes": 4107,
+      "sha256": "a9dbc69766614bb01277ade52fe3d89123f8c2c3c41d32e84bfa2fe62ee72b3e"
+    },
+    {
+      "path": "site/prototipos-cemiterio.mjs",
+      "bytes": 14073,
+      "sha256": "fe29e7662d7517d7d8fbfe4ad69b9866be8762dd20676d8213b769bb86ea025e"
+    },
+    {
+      "path": "site/room-sync.mjs",
+      "bytes": 4225,
+      "sha256": "a5cf62b061591e47a111ee31a52be339864839abe7426ee5ffc0a5c74695a356"
+    },
+    {
+      "path": "site/saque.mjs",
+      "bytes": 9504,
+      "sha256": "0b702d35d472337528cdaca809b2f4bfd2e17be10058a47dd8eef89ed2f3a301"
+    },
+    {
+      "path": "site/state-recovery.mjs",
+      "bytes": 2435,
+      "sha256": "74f2d80f45f4189daa895585def33b9eda0be25163fdc45b4d629fdcc772239e"
+    },
+    {
+      "path": "site/substituicao-ficha.mjs",
+      "bytes": 3547,
+      "sha256": "fe7ad0f85f68006cccedac7e58ac0eb99d6a83900dc528b7e471900ebdaeb39c"
+    },
+    {
+      "path": "site/troca.mjs",
+      "bytes": 8038,
+      "sha256": "55ce83bc3c6554eed2f0fe2f0bd3b8a09b33f9280eb51ffea591839604fe8a04"
+    },
+    {
+      "path": "site/ui.mjs",
+      "bytes": 76237,
+      "sha256": "bf141bd21c6e82accfc72a22bfdac3d5b5fd784adbffcca977fa3e02525d6ded"
+    }
+  ],
+  "entidadesAninhadas": [
+    {
+      "ref": "habilidade.1-encontrar-familiar",
+      "nome": "1º | Encontrar Familiar",
+      "caminho": "automacao.entidade.ficha",
+      "ficha": {
+        "versaoFormato": 1,
+        "id": "familiar-t",
+        "nome": "Familiar",
+        "tipo": "npc",
+        "classes": [
+          {
+            "id": "invocacao",
+            "nivel": 1
+          }
+        ],
+        "tamanho": "miudo",
+        "atributos": {
+          "for": 3,
+          "des": 13,
+          "con": 8,
+          "int": 2,
+          "sab": 12,
+          "car": 7
+        },
+        "pvMaximos": 1,
+        "caBase": 11,
+        "deslocamentosM": {
+          "andar": 1.5,
+          "voo": 18
+        },
+        "opcoes": [
+          {
+            "id": "familiar-entregar-toque",
+            "nome": "Entregar magia de toque | reação",
+            "categoria": "acao",
+            "descricao": "Quando o conjurador conjura uma magia de toque, o familiar a 30 m pode entregá-la usando a própria reação. Resolução assistida.",
+            "custo": [
+              {
+                "tipo": "reacao",
+                "quantidade": 1
+              }
+            ]
+          },
+          {
+            "id": "familiar-ajudar",
+            "nome": "Ajudar | ação",
+            "categoria": "acao",
+            "descricao": "Ajuda um aliado em um teste ou ataque. Resolução assistida.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              }
+            ]
+          }
+        ],
+        "recursos": [],
+        "notas": [
+          {
+            "nome": "Entidade invocada",
+            "descricao": "Forma única provisória (moeda com T). CA 11, PV 1, voo 18 m. Não ataca. Some a 0 PV; o conjurador pode dispensá-lo."
+          }
+        ],
+        "tipoCriatura": "fada"
+      }
+    },
+    {
+      "ref": "habilidade.truque-maos-magicas",
+      "nome": "Truque | Mãos Mágicas",
+      "caminho": "automacao.entidade.ficha",
+      "ficha": {
+        "versaoFormato": 1,
+        "id": "mao-magica",
+        "nome": "Mão Mágica",
+        "tipo": "npc",
+        "classes": [
+          {
+            "id": "invocacao",
+            "nivel": 1
+          }
+        ],
+        "tamanho": "miudo",
+        "atributos": {
+          "for": 1,
+          "des": 10,
+          "con": 10,
+          "int": 10,
+          "sab": 10,
+          "car": 10
+        },
+        "pvMaximos": 1,
+        "caBase": 10,
+        "deslocamentosM": {
+          "andar": 9,
+          "voo": 9
+        },
+        "opcoes": [
+          {
+            "id": "mao-magica-manipular",
+            "nome": "Manipular objeto | ação",
+            "categoria": "acao",
+            "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              }
+            ]
+          }
+        ],
+        "recursos": [],
+        "notas": [
+          {
+            "nome": "Entidade invocada",
+            "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
+          }
+        ],
+        "tipoCriatura": "objeto"
+      }
+    },
+    {
+      "ref": "habilidade.truque-maos-magicas-utilidade-classe",
+      "nome": "Truque | Mãos Mágicas · utilidade · classe",
+      "caminho": "automacao.entidade.ficha",
+      "ficha": {
+        "versaoFormato": 1,
+        "id": "mao-magica",
+        "nome": "Mão Mágica",
+        "tipo": "npc",
+        "classes": [
+          {
+            "id": "invocacao",
+            "nivel": 1
+          }
+        ],
+        "tamanho": "miudo",
+        "atributos": {
+          "for": 1,
+          "des": 10,
+          "con": 10,
+          "int": 10,
+          "sab": 10,
+          "car": 10
+        },
+        "pvMaximos": 1,
+        "caBase": 10,
+        "deslocamentosM": {
+          "andar": 9,
+          "voo": 9
+        },
+        "opcoes": [
+          {
+            "id": "mao-magica-manipular",
+            "nome": "Manipular objeto | ação",
+            "categoria": "acao",
+            "descricao": "Manipula um objeto, abre recipiente destrancado ou guarda/pega item de recipiente aberto. Até 5 kg. Não ataca nem ativa itens mágicos.",
+            "custo": [
+              {
+                "tipo": "acao",
+                "quantidade": 1
+              }
+            ]
+          }
+        ],
+        "recursos": [],
+        "notas": [
+          {
+            "nome": "Entidade invocada",
+            "descricao": "Mão espectral controlada por quem conjurou. Dura 1 minuto e some se for conjurada de novo."
+          }
+        ],
+        "tipoCriatura": "objeto"
+      }
+    }
+  ],
+  "modelosReanimacao": [
+    {
+      "id": "zumbi",
+      "fonte": "site/modelos/reanimacao.mjs",
+      "ficha": {
+        "versaoFormato": 2,
+        "id": "cemiterio-zumbi-reanimado",
+        "nome": "Zumbi reanimado",
+        "tipo": "npc",
+        "edicao": "2024",
+        "classes": [
+          {
+            "id": "npc-autoral",
+            "nivel": 1
+          }
+        ],
+        "especie": "Zumbi",
+        "tipoCriatura": "morto-vivo",
+        "atributos": {
+          "for": 13,
+          "des": 6,
+          "con": 16,
+          "int": 3,
+          "sab": 6,
+          "car": 5
+        },
+        "salvaguardas": {
+          "for": 1,
+          "des": -2,
+          "con": 3,
+          "int": -4,
+          "sab": 0,
+          "car": -3
+        },
+        "pvMaximos": 15,
+        "caBase": 8,
+        "deslocamentosM": {
+          "andar": 6
+        },
+        "proficiencia": 2,
+        "pericias": {},
+        "recursos": [],
+        "concessoes": [
+          {
+            "id": "pancada",
+            "ref": "habilidade.cemiterio.zumbigoblin-pancada",
+            "tipo": "habilidade"
+          },
+          {
+            "id": "fortitude",
+            "ref": "habilidade.cemiterio.fortitude-morto-vivo",
+            "tipo": "passiva"
+          },
+          {
+            "id": "defesas-cadavericas",
+            "ref": "habilidade.cemiterio.defesas-cadavericas",
+            "tipo": "passiva"
+          }
+        ],
+        "preparacao": {
+          "vagas": 0,
+          "preparadas": [],
+          "semprePreparadas": []
+        },
+        "inventario": {
+          "capacidadeCargaKg": 100,
+          "itens": []
+        },
+        "notas": [
+          {
+            "nome": "Modelo de reanimação",
+            "descricao": "Zumbi padrão de referência SRD 5.2.1: 15 PV, CA 8, Pancada +3 1d8+1. Não é o zumbi autoral nível 3 de 32 PV."
+          },
+          {
+            "nome": "Defesas autorais · 0.8.56",
+            "descricao": "Regra da aventura: fraqueza a radiante (dano ×2) e resistência alta a necrótico (recebe ¼, redução de 75%). As demais imunidades, atributos e ataques permanecem."
+          }
+        ],
+        "tamanho": "medio",
+        "imunidades": [
+          "veneno"
+        ],
+        "idiomas": "Entende Comum e Goblin; não fala.",
+        "sentidos": "Visão no escuro 18 m; Percepção passiva 8."
+      }
+    },
+    {
+      "id": "zumbigoblin",
+      "fonte": "site/modelos/reanimacao.mjs",
+      "ficha": {
+        "versaoFormato": 2,
+        "id": "cemiterio-zumbigoblin",
+        "nome": "Zumbigoblin",
+        "tipo": "npc",
+        "edicao": "2024",
+        "classes": [
+          {
+            "id": "npc-autoral",
+            "nivel": 1
+          }
+        ],
+        "especie": "Goblin reanimado",
+        "tipoCriatura": "morto-vivo",
+        "atributos": {
+          "for": 13,
+          "des": 6,
+          "con": 16,
+          "int": 3,
+          "sab": 6,
+          "car": 5
+        },
+        "salvaguardas": {
+          "for": 1,
+          "des": -2,
+          "con": 3,
+          "int": -4,
+          "sab": 0,
+          "car": -3
+        },
+        "pvMaximos": 15,
+        "caBase": 8,
+        "deslocamentosM": {
+          "andar": 6
+        },
+        "proficiencia": 2,
+        "pericias": {},
+        "recursos": [],
+        "concessoes": [
+          {
+            "id": "pancada",
+            "ref": "habilidade.cemiterio.zumbigoblin-pancada",
+            "tipo": "habilidade"
+          },
+          {
+            "id": "fortitude",
+            "ref": "habilidade.cemiterio.fortitude-morto-vivo",
+            "tipo": "passiva"
+          },
+          {
+            "id": "defesas-cadavericas",
+            "ref": "habilidade.cemiterio.defesas-cadavericas",
+            "tipo": "passiva"
+          }
+        ],
+        "preparacao": {
+          "vagas": 0,
+          "preparadas": [],
+          "semprePreparadas": []
+        },
+        "inventario": {
+          "capacidadeCargaKg": 100,
+          "itens": []
+        },
+        "notas": [
+          {
+            "nome": "Adaptação",
+            "descricao": "PV 15 e tamanho Pequeno autorais; ND de referência 1/4. Substitui Fuga Ágil, perícias e ataques vivos; nenhum equipamento fornece CA ao corpo reanimado. Controle e Fortitude assistidos."
+          },
+          {
+            "nome": "Defesas autorais · 0.8.56",
+            "descricao": "Regra da aventura: fraqueza a radiante (dano ×2) e resistência alta a necrótico (recebe ¼, redução de 75%). As demais imunidades, atributos e ataques permanecem."
+          }
+        ],
+        "tamanho": "pequeno",
+        "imunidades": [
+          "veneno"
+        ],
+        "idiomas": "Entende Comum e Goblin; não fala.",
+        "sentidos": "Visão no escuro 18 m; Percepção passiva 8."
+      }
+    }
+  ]
+}

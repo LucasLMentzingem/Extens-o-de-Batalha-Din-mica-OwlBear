@@ -2,7 +2,7 @@
 // Geometria pura em metros, euclidiana e contínua: o grid é só visual.
 // O motor (autoridade do mestre) e a prévia da HUD usam as mesmas funções.
 
-import {centroAlvo,raioAlvo,distanciaAoAlvo,discoNoPoligono} from './target-geometry.mjs?v=0.8.71';
+import {centroAlvo,raioAlvo,distanciaAoAlvo,discoNoPoligono} from './target-geometry.mjs?v=0.8.72';
 const EPS=1e-9;
 
 // Polígono convexo da zona, em coordenadas absolutas. Círculos retornam null.

@@ -1,5 +1,7 @@
 # Arquitetura e inventário de impacto — Luvas e Classe de Armadura
 
+**Atualização da execução:** este é o estudo histórico da 0.8.70. A PR #78 iniciou a implementação na 0.8.71; a [revisão 0.8.72](RELEASE-0.8.72.md) registra a regra final esclarecida pelo usuário, os reparos e as verificações. O total legado não deve gerar bônus artificial. Nenhuma ficha canônica tem dois pares equipados, e as fichas existentes são atualizadas sem reimportação. Consultar as notas da revisão para o estado atual das decisões da seção 15.
+
 Data: 18/11/2026. Estado analisado: **0.8.70**, commit `8f4be22a4abbaf2d6145a3387fdfbe86e5ad5766`.
 
 **Status: estudo e plano de adaptação. Nenhuma alteração funcional, migração de sala ou publicação da extensão foi realizada nesta etapa. A entrega deste estudo no Git e sua issue são documentação.** Os nomes dos novos campos e módulos abaixo são propostas; os campos identificados como atuais foram encontrados no código.

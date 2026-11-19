@@ -1,7 +1,7 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.71';
-import {resolverCA,bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.71';
-import {arteItem} from './item-art.mjs?v=0.8.71';
-import {arteHabilidade} from './ability-art.mjs?v=0.8.71';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.72';
+import {resolverCA,bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.72';
+import {arteItem} from './item-art.mjs?v=0.8.72';
+import {arteHabilidade} from './ability-art.mjs?v=0.8.72';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';
@@ -77,13 +77,31 @@ export function retratoFicha(a,imagem){
 // #77 CA: base da fórmula escolhida + bônus atuais = total. Só o ajuste manual é editável;
 // a CA calculada nunca é gravada de volta como entrada.
 function campoCA(a,bloqueado){
-  const r=resolverCA(a),manual=Number(a.ficha.defesaCA?.ajusteManual)||0,bonus=(r.bonusTotal??0)-manual;
-  const origem=r.origemBase?.nome?'Base: '+r.origemBase.nome:'',legado=a.ficha.defesaCA?.ajusteLegado?' (ajuste herdado da CA antiga; revise com o mestre)':'';
-  return '<div class="valor-com-bonus ca-total" title="'+esc(origem+legado)+'">'+campo('CA · base','ca-base',r.base??0,'number','','disabled')+campo('Bônus','ca-bonus',(bonus>=0?'+':'')+bonus,'text','','disabled')+campo('Ajuste manual'+(legado?' *':''),'ca-ajuste',manual,'number','min="-20" max="40"',bloqueado)+'</div>';
+  const r=resolverCA(a),manual=Number(a.ficha.defesaCA?.ajusteManual)||0;
+  const origem=r.origemBase?.nome?'Base: '+r.origemBase.nome:'Defesa indisponível';
+  const fontes=(r.fontes??[]).map(f=>f.nome+': '+(f.valor>=0?'+':'')+f.valor).join(' · ');
+  return '<div class="bloco-ca"><div class="valor-com-bonus ca-total" title="'+esc(origem+(fontes?' · '+fontes:''))+'">'+campo('CA base','ca-base',r.disponivel?r.base:'—','text','','disabled')+campo('CA extra','ca-bonus',r.disponivel?(r.bonusTotal>=0?'+':'')+r.bonusTotal:'—','text','','disabled')+campo('CA total','ca-total',r.disponivel?r.total:'—','text','','disabled')+'</div><small class="origem-ca" data-ca-origem>'+esc(origem)+'</small><details class="ajuste-ca"><summary>Ajuste manual</summary>'+campo('Extra manual (incluído na CA extra)','ca-ajuste',manual,'number','min="-20" max="40"',bloqueado)+'</details></div>';
+}
+// Atualiza a prévia durante a edição sem salvar a CA derivada na ficha.
+export function atualizarPreviaCA(form,a){
+  const previa=structuredClone(a);
+  for(const at of Object.keys(previa.ficha.atributos)){
+    const valor=form.elements.namedItem('atributo-'+at)?.value;
+    if(valor!==undefined&&valor!==''&&Number.isFinite(Number(valor)))previa.ficha.atributos[at]=Number(valor);
+  }
+  const manual=form.elements.namedItem('ca-ajuste')?.value;
+  if(manual!==undefined&&manual!==''&&Number.isFinite(Number(manual)))previa.ficha.defesaCA={...(previa.ficha.defesaCA??{}),ajusteManual:Number(manual)};
+  const r=resolverCA(previa);
+  for(const [nome,valor] of [['ca-base',r.base],['ca-bonus',(r.bonusTotal>=0?'+':'')+r.bonusTotal],['ca-total',r.total]]){
+    const campo=form.elements.namedItem(nome);if(campo)campo.value=r.disponivel?valor:'—';
+  }
+  const origem=form.querySelector('[data-ca-origem]');if(origem)origem.textContent=r.origemBase?.nome?'Base: '+r.origemBase.nome:'Defesa indisponível';
+  const resumo=form.querySelector('.combate-ficha h3 small');if(resumo&&r.disponivel)resumo.textContent=resumo.textContent.replace(/\bCA\s+-?\d+/,'CA '+r.total);
+  const bloco=form.querySelector('.ca-total');if(bloco)bloco.title=(origem?.textContent??'')+' · '+(r.fontes??[]).map(f=>f.nome+': '+(f.valor>=0?'+':'')+f.valor).join(' · ');
 }
 export function fichaEditavel(a,podeEditar,pagina='personagem',paginaLivro='classe',lojas=[],gm=false,trocasPermitidas=true,trocaAtiva=false,imagemToken=null){
   const f=a.ficha,bloqueado=podeEditar?'':'disabled',nivel=f.classes.reduce((n,c)=>n+c.nivel,0);
-  const bonusTotal=campo=>bonusEfeito(a,campo)+bonusEquipamento(a,campo)+bonusPassiva(a,campo),bonusCA=bonusTotal('ca'),bonusPV=bonusTotal('pvMaximos'),bonusMov=bonusTotal('deslocamentoM');
+  const bonusTotal=campo=>bonusEfeito(a,campo)+bonusEquipamento(a,campo)+bonusPassiva(a,campo),bonusPV=bonusTotal('pvMaximos'),bonusMov=bonusTotal('deslocamentoM');
   const classes=f.classes.map((c,i)=>'<div class="linha-classe">'+campo('Classe','classe-id-'+i,c.nome??c.id,'text','data-classe="'+i+'"',bloqueado)+campo('Nível','classe-nivel-'+i,c.nivel,'number','min="1" max="10" data-nivel="'+i+'"',bloqueado)+'</div>').join('');
   const atributos=Object.entries(f.atributos).map(([k,n])=>{const b=Math.floor((n-10)/2);return '<label class="atributo-editavel"><span>'+esc(k.toUpperCase())+'</span><b>'+(b>=0?'+':'')+b+'</b><input name="atributo-'+esc(k)+'" type="number" min="1" max="30" value="'+n+'" '+bloqueado+'></label>';}).join('');
   const salvas=Object.keys(f.atributos).map(k=>campo(k.toUpperCase(),'salva-'+k,f.salvaguardas?.[k]??Math.floor((f.atributos[k]-10)/2),'number','min="-30" max="50"',bloqueado)).join('');

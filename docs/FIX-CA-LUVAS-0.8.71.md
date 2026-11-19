@@ -1,5 +1,7 @@
 # CA dinâmica e slot de Luvas — 0.8.71 (#77)
 
+**Registro histórico.** A [revisão 0.8.72](RELEASE-0.8.72.md) substitui a decisão de conservar a CA total antiga por ajuste automático e corrige a decomposição, migração e salvamento entre sessões. Não reaplicar os passos antigos de preservação de total sobre fichas já reparadas.
+
 Implementa o núcleo da [arquitetura de 18/11/2026](ARQUITETURA-INVENTARIO-LUVAS-E-CA-2026-11-18.md): P1 (resolvedor), P3 (conteúdo) e partes de P4, P5 e P6.
 
 ## O que mudou

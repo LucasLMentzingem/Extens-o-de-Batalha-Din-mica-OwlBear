@@ -4477,10 +4477,26 @@ export default {
     },
     {
       "id": "habilidade.passiva-defesa-sem-armadura",
-      "revisao": 1,
+      "revisao": 2,
       "definicao": {
         "nome": "Passiva | Defesa sem Armadura",
-        "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB = 14."
+        "descricao": "Sem armadura e sem escudo: CA = 10 + DES + SAB. Atributos atuais; não acumula com outra fórmula-base.",
+        "formulaCA": {
+          "id": "defesa-sem-armadura-monge",
+          "base": 10,
+          "atributos": [
+            {
+              "atributo": "des"
+            },
+            {
+              "atributo": "sab"
+            }
+          ],
+          "requisitos": {
+            "semArmaduraCorporal": true,
+            "semEscudo": true
+          }
+        }
       }
     },
     {
