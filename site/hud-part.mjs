@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {chaveParte,chaveEntrada} from './hud-parts.mjs?v=0.8.81';
-import {preencherBalaoHabilidade} from './ability-tooltip.mjs?v=0.8.81';
-import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.81';
+import {chaveParte,chaveEntrada} from './hud-parts.mjs?v=0.8.82';
+import {preencherBalaoHabilidade} from './ability-tooltip.mjs?v=0.8.82';
+import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.82';
 const ns='aventura-dnd.combate.v1',q=new URL(location.href).searchParams,parte=q.get('parte'),sessaoHud=q.get('sessaoHud'),documentoHud=q.get('documentoHud'),root=document.getElementById('hud');
 await new Promise(r=>OBR.onReady(r));
 const conexao=await OBR.player.getConnectionId(),entrada=new BroadcastChannel(chaveEntrada(ns,OBR.room.id,conexao)),canal=new BroadcastChannel(chaveParte(ns,OBR.room.id,conexao,parte));
@@ -15,10 +15,11 @@ canal.onmessage=e=>{
   if(d.html===assinatura)return;assinatura=d.html;
   ocultarDica();
   const pos={};for(const seletor of ['.grade','.recursos-hud','.categorias-hud','#hud>nav']){const el=root.querySelector(seletor);if(el)pos[seletor]=el.scrollLeft;}
-  atualizarHtmlHud(root,d.html);document.body.classList.toggle('sem-nomes-parcial',!d.nomes);
+  atualizarHtmlHud(root,d.html);if(root.querySelector('.menu-favorito'))requestAnimationFrame(()=>root.querySelector('button:not(:disabled)')?.focus());document.body.classList.toggle('sem-nomes-parcial',!d.nomes);
   for(const [seletor,scroll] of Object.entries(pos)){const el=root.querySelector(seletor);if(el)el.scrollLeft=scroll;}
 };
 root.onclick=e=>{
+  if(vista?.menuFavoritoAberto&&parte!=='barra-dica')enviar({tipo:'fecharFavorito'});
   const b=e.target.closest('button');if(!b||b.disabled||!vista||vista.aguardando)return;
   const tipo=b.dataset.cmd,id=b.dataset.id;
   if(['filtro','recurso','alternarNomesSkills','pedirMesa','cancelarMesa','confirmarMesa','alternarMesa','avancarTempo'].includes(tipo)){enviar({tipo:'interacaoRodape',comando:tipo,id});return;}
@@ -31,7 +32,8 @@ root.onchange=e=>{
   if(e.target.id==='pvp-mesa')enviar({tipo:'interacaoRodape',comando:'pvpMesa',valor:e.target.checked});
 };
 root.ondblclick=e=>{if(vista?.aguardando)return;const b=e.target.closest('[data-cmd="ator"]');if(b){e.preventDefault();enviar({tipo:'focar',id:b.dataset.id});}else if(e.target.closest('.retrato')){e.preventDefault();enviar({tipo:'compactar',valor:!vista?.compacto});}};
-root.oncontextmenu=e=>{const b=e.target.closest('[data-cmd="usar"]');if(b&&!b.disabled){e.preventDefault();b.click();}};
+root.oncontextmenu=e=>{const b=e.target.closest('[data-favorito]');if(!b||vista?.aguardando)return;e.preventDefault();ocultarDica();enviar({tipo:'menuFavorito',favorito:JSON.parse(b.dataset.favorito),remover:b.dataset.favoritoRemover==='true',x:e.clientX,y:e.clientY});};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&vista?.menuFavoritoAberto){e.preventDefault();enviar({tipo:'fecharFavorito'});}});
 function ocultarDica(){if(dicaAtual){dicaAtual=null;enviar({tipo:'dicaRodape',html:null});}}
 function mostrarDica(e){
   const b=e.target.closest('[data-info]');if(!b){ocultarDica();return;}if(dicaAtual===b.dataset.info)return;dicaAtual=b.dataset.info;
@@ -39,6 +41,6 @@ function mostrarDica(e){
 }
 root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
 const marcar=valor=>{if(pressionado===valor)return;pressionado=valor;enviar({entradaHud:parte,pressionado:valor});};
-document.addEventListener('pointerdown',()=>marcar(true),true);document.addEventListener('pointerup',e=>marcar(e.buttons!==0),true);document.addEventListener('pointercancel',()=>marcar(false),true);document.addEventListener('pointermove',e=>{if(!e.buttons)marcar(false);},true);window.addEventListener('blur',()=>{marcar(false);ocultarDica();});
+document.addEventListener('pointerdown',()=>marcar(true),true);document.addEventListener('pointerup',e=>marcar(e.buttons!==0),true);document.addEventListener('pointercancel',()=>marcar(false),true);document.addEventListener('pointermove',e=>{if(!e.buttons)marcar(false);},true);window.addEventListener('blur',()=>{marcar(false);ocultarDica();if(root.querySelector('.menu-favorito'))enviar({tipo:'fecharFavorito'});});
 enviar({pedir:true});presenca();const timer=setInterval(presenca,2500);
 window.addEventListener('pagehide',()=>{marcar(false);ocultarDica();clearInterval(timer);canal.close();entrada.close();},{once:true});

@@ -1,12 +1,12 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.81**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.81.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.82**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.82.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 HUD flutuante sem placa externa ou log inferior. Grupos em janelas menores liberam o mapa entre seus controles. Grade e disposição acompanham o conteúdo, respeitando a linha completa de recursos e o máximo de 1120 px; botão Token aproxima a peça vinculada. Carrossel de turnos e ferramentas do mestre usam o mesmo tema flutuante.
 
 Medição da HUD confinada dentro de Atividades, sem popovers invisíveis sobre o mapa. Janelas antigas de medição são fechadas ao iniciar e recuperar a HUD.
 
-Buffs e debuffs em barra flutuante no canto inferior esquerdo, entre Extras e as ferramentas centrais. Dez efeitos por linha, com scroll horizontal acima disso; adaptação acima das ferramentas em telas estreitas. Artes da habilidade/item de origem reutilizadas, 25 ícones novos leves e cinco temas de fundo/moldura. Aa alterna o nome e conserva o contador. [Inventário completo e arquitetura do B](docs/INVENTARIO-EFEITOS-B.md).
+Buffs e debuffs em barra flutuante no canto inferior esquerdo, entre Extras e as ferramentas centrais. Ícones até 32 px e janela até 44 px, sem elevar o rodapé; em telas estreitas, os efeitos ficam acima dele. Dez efeitos por linha, com scroll horizontal acima disso. Artes da habilidade/item de origem reutilizadas, 25 ícones novos leves e cinco temas de fundo/moldura. Aa alterna o nome e conserva o contador. [Inventário completo e arquitetura do B](docs/INVENTARIO-EFEITOS-B.md).
 
 Trocas de personagem conservam o último quadro até receber a nova medição, com comandos antigos bloqueados. Geometria atualizada com o mesmo documento; saldos e textos atualizam os nós existentes, preservando as imagens. A primeira solicitação de conteúdo já é aceita durante a abertura da janela.
 
@@ -33,6 +33,8 @@ Recursos com ícones WebP de 100×100, fundo e moldura compartilhados. Nome curt
 Rodapé com renderização e ciclo de janelas corrigidos, recuperação **Reabrir HUD** também para jogadores, Aa nos recursos, atividades centralizadas com filtros de tipo e descansos somente para PJs vivos, inclusive fora da iniciativa.
 
 Na lista de grupos importados, o mestre pode **Excluir ficha** individualmente ou **Excluir grupo**, com confirmação. As unidades já adicionadas ao encontro e os arquivos JSON originais são preservados.
+
+Favoritos substitui Personalizado: botão direito abre Pôr no favorito ou Tirar do favorito. Preferências locais por sala, usuário e personagem, persistentes após F5. Habilidades, passivas, itens e testes usam referências atuais com os mesmos custos e restrições. [Detalhes](docs/FAVORITOS-E-STATUS-COMPACTOS-2026-11-21.md).
 
 ## Alvo de treino
 

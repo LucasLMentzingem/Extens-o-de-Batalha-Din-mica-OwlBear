@@ -8,7 +8,7 @@ test('B: dez efeitos cabem entre Extras e ferramentas centrais nas telas de refe
  for(const largura of [1366,1600,1920,2560]){
   const b=caixaEfeitos({largura,altura:945,quantidade:25});assert.equal(b.acima,false);assert.equal(b.capacidade,10);
   assert.ok(b.x>=64+8);assert.ok(b.x+b.width<=(largura-420)/2-16);assert.ok(b.icone*10+9*b.gap+4<=b.width);
-  assert.ok(b.y+b.height<=945-8);assert.ok(b.reservaInferior>=945-b.y+8);
+  assert.ok(b.y+b.height<=945-4);assert.equal(b.reservaInferior,48);assert.ok(b.height<=44);assert.ok(b.icone<=32);assert.ok(b.y>=945-48);
  }
 });
 test('B: telas estreitas mantêm uma linha acima das ferramentas, sem cobrir Extras',()=>{

@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.82 — Favoritos e status compactos — 21/11/2026
+
+Status com ícones até 32 px e caixa até 44 px, sem elevar o rodapé. Personalizado habilitado como Favoritos, inclusão/remoção por menu de botão direito, referências locais por sala/usuário/personagem e custos/restrições preservados. 517 testes Node e verificações locais de menu, F5, modos gratuitos e regressões da HUD. Publicação autorizada pelo responsável. [Implementação e limites](FAVORITOS-E-STATUS-COMPACTOS-2026-11-21.md).
+
 ## Entrega — 0.8.81 — expansão do rodapé e plano de descanso — 21/11/2026
 
 Guardadas a [arquitetura e decisões aprovadas do descanso curto por Dados de Vida](ARQUITETURA-DESCANSO-CURTO-DADOS-DE-VIDA.md), ainda sem implementar essa funcionalidade. Priorizada a demora ao expandir pelo retrato: cache válido de geometria/HTML dos modos, medição antecipada e remoção de close redundante. Preparada para publicação após autorização do responsável. No cenário com 120 ms por abertura simulada, média 587→277 ms; 512 testes e 66 verificações de interface aprovados, incluindo 160 cliques no canvas. [Diagnóstico, comparação e limites](FIX-LOCAL-EXPANSAO-RODAPE-2026-11-21.md).

@@ -1,16 +1,17 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.81';
-import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.81';
-import {extrairGrupos} from './hud-parts.mjs?v=0.8.81';
-import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.81';
-import {renderizarEfeitosHud} from './effect-art.mjs?v=0.8.81';
-import {listarEfeitosHud} from './effect-state.mjs?v=0.8.81';
-import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.81';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.81';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.81';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.81';
-import {pronto} from './bridge.mjs?v=0.8.81';
-import {canalHud} from './hud-controller.mjs?v=0.8.81';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.81';
+import {chaveFavorito} from './hud-favorites.mjs?v=0.8.82';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.82';
+import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.82';
+import {extrairGrupos} from './hud-parts.mjs?v=0.8.82';
+import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.82';
+import {renderizarEfeitosHud} from './effect-art.mjs?v=0.8.82';
+import {listarEfeitosHud} from './effect-state.mjs?v=0.8.82';
+import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.82';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.82';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.82';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.82';
+import {pronto} from './bridge.mjs?v=0.8.82';
+import {canalHud} from './hud-controller.mjs?v=0.8.82';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.82';
 const parametrosHud=new URL(location.href).searchParams,parte=parametrosHud.get('parte'),root=document.querySelector('#hud');
 const sessaoHud=parametrosHud.get('sessaoHud'),documentoHud=parametrosHud.get('documentoHud');
 const medicaoInterna=parametrosHud.get('medicaoInterna')==='1'&&['barra','ordem'].includes(parte);
@@ -137,6 +138,7 @@ function retrato(a){
 function efeitosHud(a){
   return renderizarEfeitosHud(a,v.estado.atores,{nomes:nomesSkillsVisiveis,revelarValores:v.eu.role==='GM'||a.ficha?.tipo==='pj'});
 }
+function atributosFavorito(f){return 'data-favorito="'+esc(JSON.stringify(f))+'" data-favorito-remover="'+(filtro==='Favoritos')+'" ';}
 function barraCustos(p,classe=''){
   const custos=p?.custos??[];if(!custos.length)return '<div class="custos-compositor '+classe+'"><span class="custo-mini sem-custo"><b>○</b><small>Sem custo</small></span></div>';
   return '<div class="custos-compositor '+classe+'">'+custos.map(c=>{
@@ -329,33 +331,42 @@ function render(){
       return btn('recurso',arteRecurso(r.id)+(nomesSkillsVisiveis?'<span class="nome-recurso">'+esc(nomeRecursoCurto(r))+'</span>':'')+'<small class="saldo-recurso">'+esc(saldo)+'</small>','data-id="'+esc(r.id)+'" class="recurso-hud '+(nomesSkillsVisiveis?'com-nome ':'')+(Number(r.atual)===0?'zerado ':'')+'" aria-label="'+esc(r.nome+': '+saldo)+'" aria-pressed="'+(recursoAtivo===r.id)+'" data-info="'+esc(r.nome+'\n'+r.descricao)+'"');
     }).join('');
     const consumiveis=(a.ficha.inventario?.itens??[]).filter(i=>i.tipo==='consumivel'&&i.quantidade>0);
-    const renderOpcao=o=>{
+    const renderOpcao=(o,gratis=gratuitos)=>{
         const livre=foraCombate;
         const circulo=Number(/^recurso:espaco-(\d+)$/.exec(recursoAtivo??'')?.[1]);
         const podeEscolher=circulosConjuracao(a,o);
         o=derivarOpcaoCirculo(a,o,podeEscolher.includes(circulo)?circulo:undefined);
-        const modoCusto=gratuitos?'gratuito':'automatico',plano=planoCustoOpcao(a,o,modoCusto),custoIndisponivel=!plano||plano.custos.some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
+        const modoCusto=gratis?'gratuito':'automatico',plano=planoCustoOpcao(a,o,modoCusto),custoIndisponivel=!plano||plano.custos.some(c=>c.tipo==='recurso'?a.rec[c.id]<c.quantidade:!livre&&a[c.tipo]<c.quantidade);
         const req=o.requisitosUso??{},ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[];
         const requisitoIndisponivel=!livre&&((req.aposAtaque&&!ataques.length)||(req.aposAcerto&&!acertos.length)||(req.umaVezPorTurno&&a.usosTurno?.[req.umaVezPorTurno]));
         const bloqueio=o.gatilho==='rolar_iniciativa'?'Somente na escolha ao rolar iniciativa':a.reacaoIniciativa?'Resolva a escolha de Iniciativa antes de agir':(grupo(o)!=='Reações'&&!turno&&!livre)?'Aguarde seu turno':a.pv<=0?'Personagem a 0 PV':
           custoIndisponivel?'Recurso insuficiente':
           requisitoIndisponivel?'Requisito de turno ainda não cumprido':'';
         const posAcerto=v.pedidoDado?.meta?.adicionais?.some(x=>x.id===o.id),selecionado=adicionaisAtivos.has(o.id);
-        const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?.enquantoEfeito?'Disponível enquanto Sopro de Dragão durar · custa 1 Ação; sem novo espaço':g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratuitos?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
-        return btn('usar',arteHabilidade(o,a.ficha),'data-id="'+esc(o.id)+'" '+(o.circuloUsado?'data-circulo="'+o.circuloUsado+'" ':'')+'data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
+        const g=o.usoGratuito,recursoGratis=g&&a.ficha.recursos.find(r=>r.id===g.recursoId),contadorGratis=g?.enquantoEfeito?'Disponível enquanto Sopro de Dragão durar · custa 1 Ação; sem novo espaço':g?'Uso gratuito: '+(a.rec[g.recursoId]??0)+'/'+(recursoGratis?.maximo??g.quantidade??1)+(gratis?' · uso exclusivo desta aba':usoGratuitoDisponivel(a,o)?' · será consumido primeiro':' · esgotado; será usado o custo normal'):'';
+        return btn('usar',arteHabilidade(o,a.ficha),atributosFavorito({tipo:'opcao',id:o.id,...(gratis?{gratuito:true}:{})})+'data-id="'+esc(o.id)+'" '+(o.circuloUsado?'data-circulo="'+o.circuloUsado+'" ':'')+'data-modo-custo="'+modoCusto+'" class="'+(posAcerto?'pos-acerto ':'')+(selecionado?'selecionado':'')+'" '+(bloqueio||ocupado?'disabled ':'')+'data-info="'+esc([bloqueio,contadorGratis,detalhes(o,a.ficha)].filter(Boolean).join('\n'))+'"');
       };
-    const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',arteHabilidade(opcaoConsumoItem(i),a.ficha),'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
+    const itensGrade=filtro==='Itens'&&!recursoAtivo?consumiveis.map(i=>btn('usarItem',arteHabilidade(opcaoConsumoItem(i),a.ficha),atributosFavorito({tipo:'item',id:i.id})+'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="Consumível&#10;'+esc(i.descricao??'')+'&#10;Em combate custa 1 ação."')).join(''):'';
     const passivasRaciais=(a.ficha.passivas??[]).filter(x=>habilidadeRacial(a.ficha,x)),passivasGerais=(a.ficha.passivas??[]).filter(x=>!habilidadeRacial(a.ficha,x));
-    const botaoPassiva=x=>btn('passiva',arteHabilidade({...x,nome:nomePassiva(x)},a.ficha),'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"');
-    const conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a,nome);return btn('teste',arteHabilidade(testeVisual('pericias',nome,bonus),a.ficha),'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus atual: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
-      salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',arteHabilidade(testeVisual('salvaguardas',chave,bonus),a.ficha),'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
-      raca?disp.map(renderOpcao).join('')+passivasRaciais.map(botaoPassiva).join(''):
-      passivas?passivasGerais.map(botaoPassiva).join(''):itensGrade+disp.map(renderOpcao).join('');
-    const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Raça',nomeRaca(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
+    const botaoPassiva=x=>btn('passiva',arteHabilidade({...x,nome:nomePassiva(x)},a.ficha),atributosFavorito({tipo:'passiva',id:x.id})+'disabled data-info="'+esc((x.nome??'Passiva')+'\n'+(x.descricao??''))+'"');
+    let conteudoGrade=pericias?Object.keys(periciasPadrao).map(nome=>{const bonus=bonusPericia(a,nome);return btn('teste',arteHabilidade(testeVisual('pericias',nome,bonus),a.ficha),atributosFavorito({tipo:'teste',grupo:'pericias',chave:nome})+'data-grupo="pericias" data-chave="'+esc(nome)+'" data-info="Perícia · '+esc(nome)+'&#10;Bônus atual: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
+      salvas?Object.keys(a.ficha.atributos).map(chave=>{const bonus=a.ficha.salvaguardas?.[chave]??mod(a.ficha.atributos[chave]);return btn('teste',arteHabilidade(testeVisual('salvaguardas',chave,bonus),a.ficha),atributosFavorito({tipo:'teste',grupo:'salvaguardas',chave})+'data-grupo="salvaguardas" data-chave="'+esc(chave)+'" data-info="Salvaguarda de '+esc(chave.toUpperCase())+'&#10;Bônus da ficha: '+(bonus>=0?'+':'')+bonus+'&#10;Pode ser rolada fora do turno."');}).join(''):
+      raca?disp.map(o=>renderOpcao(o)).join('')+passivasRaciais.map(botaoPassiva).join(''):
+      passivas?passivasGerais.map(botaoPassiva).join(''):itensGrade+disp.map(o=>renderOpcao(o)).join('');
+    if(filtro==='Favoritos'&&!recursoAtivo){
+      conteudoGrade=(v.favoritos??[]).map(f=>{
+        if(f.tipo==='opcao'){const o=ops.find(o=>o.id===f.id);if(!o||f.gratuito&&!o.usoGratuito)return '';return renderOpcao(o,f.gratuito===true);}
+        if(f.tipo==='passiva'){const x=(a.ficha.passivas??[]).find(x=>x.id===f.id);return x?botaoPassiva(x):'';}
+        if(f.tipo==='item'){const i=consumiveis.find(x=>x.id===f.id);return i?btn('usarItem',arteHabilidade(opcaoConsumoItem(i),a.ficha),atributosFavorito(f)+'data-id="'+esc(i.id)+'" '+(!foraCombate&&(!turno||a.acao<1)?'disabled ':'')+'data-info="'+esc(i.nome)+'"'):'';}
+        if(f.tipo==='teste'){const bonus=f.grupo==='pericias'?bonusPericia(a,f.chave):a.ficha.salvaguardas?.[f.chave]??mod(a.ficha.atributos[f.chave]);if(f.grupo==='pericias'?!Object.hasOwn(periciasPadrao,f.chave):!Object.hasOwn(a.ficha.atributos,f.chave))return '';return btn('teste',arteHabilidade(testeVisual(f.grupo,f.chave,bonus),a.ficha),atributosFavorito(f)+'data-grupo="'+esc(f.grupo)+'" data-chave="'+esc(f.chave)+'" data-info="'+esc(f.chave)+'"');}
+        return '';
+      }).join('');
+    }
+    const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Raça',nomeRaca(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Favoritos','data-id="Favoritos" aria-pressed="'+(!recursoAtivo&&filtro==='Favoritos')+'"');
     const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
     html='<section class="dock flutuante" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+'<nav class="atalhos-ficha" aria-label="Abrir páginas da ficha">'+btn('ficha','Ficha','data-pagina="personagem"')+btn('ficha','Inventário','data-pagina="inventario"')+btn('ficha','Livro de habilidades','data-pagina="habilidades"')+btn('focar','Token','data-id="'+esc(a.id)+'" '+(v.imagens?.[a.id]?'':'disabled')+' aria-label="Aproximar e centralizar o token de '+esc(a.nome)+'"')+'</nav></header>'+
       '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud">'+btn('alternarNomesSkills','Aa','class="alternar-nomes-skills" aria-label="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" title="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" aria-pressed="'+nomesSkillsVisiveis+'"')+'<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
-      '<div class="centro-hud"><div class="grade '+(nomesSkillsVisiveis?'':'sem-nomes-skills')+'" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+('<div class="movimento-botoes">'+btn('alternarMovimentoDinamico','Movimento dinâmico','class="alternar-movimento-dinamico" aria-pressed="'+Boolean(v.movimentoDinamico)+'" '+(s.fase==='turnos'?'':'disabled'))+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'</div>')+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
+      '<div class="centro-hud"><div class="grade '+(nomesSkillsVisiveis?'':'sem-nomes-skills')+'" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">'+(filtro==='Favoritos'?'Clique com o botão direito numa habilidade para adicioná-la aqui.':'Nenhuma habilidade neste filtro.')+'</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+('<div class="movimento-botoes">'+btn('alternarMovimentoDinamico','Movimento dinâmico','class="alternar-movimento-dinamico" aria-pressed="'+Boolean(v.movimentoDinamico)+'" '+(s.fase==='turnos'?'':'disabled'))+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'</div>')+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
       '<div class="filtros-hud"><div class="categorias-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+'</div>'+btn('passar','Finalizar turno','class="ouro finalizar-hud" '+(turno?'':'disabled'))+'</div></article></div></section>';
     }
   }
@@ -484,7 +495,7 @@ root.onchange=e=>{
   if(e.target.id==='linhas')bus.postMessage({tipo:'linhas',valor:e.target.value});
   if(e.target.id==='pvp-mesa'&&confirmacaoMesa)confirmacaoMesa.pvp=e.target.checked;
 };
-root.oncontextmenu=e=>{const b=e.target.closest('[data-cmd="usar"]');if(b&&!b.disabled){e.preventDefault();b.click();}};
+root.oncontextmenu=e=>{if(e.target.closest('[data-favorito]'))e.preventDefault();};
 root.ondblclick=e=>{
   const ordem=e.target.closest('[data-cmd="ator"]');if(ordem){e.preventDefault();bus.postMessage({tipo:'focar',id:ordem.dataset.id});return;}
   if(e.target.closest('.retrato')){e.preventDefault();bus.postMessage({tipo:'compactar',valor:!v.compacto});}
