@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.77 — entrada no mapa e tema dos carrosséis — 20/11/2026
+
+Aplicado o plano B: grupos do rodapé em popovers menores; o retângulo transparente antigo deixa de cobrir o mapa. Limite de 1120 px, linha de recursos, ordem dos controles e artes preservados. Carrossel de turnos e ferramentas GM com o mesmo tema flutuante. Janelas novas recebem somente HTML e metadados locais, sem importar catálogo/fichas. 494 testes e 19 verificações de navegador com GM/jogador e SDK simulado aprovados. A captura final de eventos pelo host autenticado continua sendo a validação na mesa real. [Notas e limites](RELEASE-0.8.77.md).
+
 ## Entrega — 0.8.76 — largura máxima da HUD — 20/11/2026
 
 Restaurado o teto antigo de 1120 px, também na estimativa inicial; viewport/carta podem impor um limite menor. Recursos completos continuam no cálculo, com rolagem quando não couberem. O responsável restringiu esta revisão à largura, adiando plano B e tema dos carrosséis. [Notas](RELEASE-0.8.76.md).

@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.76");
+@import url("./ability-art.css?v=0.8.77");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -277,5 +277,25 @@ body.atividades,body.atividades #hud{height:100vh}
 .dock.flutuante button:disabled{color:#aaa798}
 .dock.compacta .dock-corpo{background:transparent;border:0;border-radius:0;box-shadow:none}
 .dock.compacta aside>b{display:block;padding:4px 2px;border-radius:4px;background:#1c2029f2;color:#f3ead7;text-shadow:0 1px 2px #000}
+/* A medição não é uma janela de captura sobre o rodapé. Só a faixa técnica
+   de 1 px fica na borda inferior; os grupos úteis usam popovers separados. */
+body.medidor-hud{visibility:hidden;overflow:hidden}
+.medidor-hud #hud{width:100%;height:auto;min-height:0}
+.medidor-hud .dock.flutuante .dock-corpo{max-height:var(--altura-disponivel,800px)}
+.medidor-hud .dock.compacta{height:102px}
+.hud-parcial,.hud-parcial #hud{width:100vw;height:100vh;overflow:hidden}
+.hud-parcial [data-contexto-parcial]{display:contents!important}
+.hud-parcial [data-alvo-parcial]{position:relative!important;inset:auto!important;transform:none!important;margin:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;flex:none!important}
+.hud-parcial .dica-rodape-card{height:100%;padding:9px;overflow:auto;white-space:pre-line;background:#211d2a;color:#f4edf7;border:1px solid #ad90bf;border-radius:5px;font-size:12px}
+.turnos-flutuantes,.mesa-fora,.controles-mesa{background:transparent;border:0;border-radius:0;box-shadow:none}
+.turnos-flutuantes{padding:3px;gap:5px}
+.turnos-flutuantes>strong{color:#f0d5a0;text-shadow:0 1px 3px #111}
+.controles-mesa{width:max-content;max-width:100%;margin:4px auto 0}
+.mesa-fora{padding:3px}
+.turnos-flutuantes button,.mesa-fora button,.controles-mesa button,.expandir-mesa{background:#1c2028f5;border-color:#555557;border-radius:5px;box-shadow:0 2px 5px #0004}
+.turnos-flutuantes button:hover:enabled,.mesa-fora button:hover:enabled,.controles-mesa button:hover:enabled{border-color:#d5ba83;background:#303039}
+.turnos-flutuantes .ord.atual{border-color:#d5ba83;background:#594b32;color:#ffe9bb}
+.mesa-fora button.ouro{background:#e1c18b;border-color:#e1c18b;color:#211d19}
+.mesa-fora button.ouro:hover:enabled{background:#f0d5a2;color:#211d19}
 @media(max-width:620px){.dock.flutuante .topo-hud{flex-wrap:wrap;gap:6px}.dock.flutuante .ferramentas-hud{flex-shrink:1;flex-wrap:wrap;width:auto}.dock.flutuante .recursos-hud{flex-basis:100%}.dock.flutuante .recurso-hud{flex-basis:42px;width:42px;height:42px}.dock.flutuante .filtros-hud{flex-wrap:wrap}.dock.flutuante .categorias-hud{flex-basis:100%}.dock.flutuante .filtros-hud .finalizar-hud{margin-top:0}.dock.flutuante .centro-hud{margin-bottom:max(0px,94px - var(--altura-grade,50px))}}
 @media(max-width:400px){.dock.flutuante .dock-corpo{gap:8px;padding:4px}.dock.flutuante aside{width:54px}.dock.flutuante aside>.retrato{width:50px;height:50px}.dock.flutuante aside>b{font-size:10px}.dock.flutuante .movimento-hud{width:78px;grid-template-columns:66px 4px}.dock.flutuante .movimento-botoes{width:66px;max-width:66px}.dock.flutuante .movimento-hud .movimento-botoes button{width:66px;padding:4px 2px}.dock.flutuante .centro-hud>.grade{max-width:calc(100% - 88px)}}

@@ -1,11 +1,12 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.76';
-import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.76';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.76';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.76';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.76';
-import {pronto} from './bridge.mjs?v=0.8.76';
-import {canalHud} from './hud-controller.mjs?v=0.8.76';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.76';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.77';
+import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.77';
+import {extrairGrupos} from './hud-parts.mjs?v=0.8.77';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.77';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.77';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.77';
+import {pronto} from './bridge.mjs?v=0.8.77';
+import {canalHud} from './hud-controller.mjs?v=0.8.77';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.77';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
@@ -32,13 +33,20 @@ function controlesMesa(s,fora){
     btn('alternarMesa','⌃','class="recolher-mesa" aria-label="Recolher controles do mestre"')+'</section>';
 }
 document.body.className=parte;
-let medicaoBarraFrame,assinaturaMedidaBarra='';
+let medicaoBarraFrame,assinaturaMedidaBarra='',assinaturaGrupos='';
+function publicarGrupos(origem){
+  if(!v||!bus)return;
+  const d={tipo:'partesHud',origem,atorId:v.atorId,linhas:v.linhas,rev:v.estado.rev,compacto:v.compacto,nomes:nomesSkillsVisiveis,largura:root.getBoundingClientRect().width,altura:Math.ceil(root.scrollHeight),partes:extrairGrupos(root,origem,{compacto:v.compacto})};
+  const s=JSON.stringify(d);if(s===assinaturaGrupos)return;assinaturaGrupos=s;bus.postMessage(d);
+}
 function agendarMedidaBarra(){
-  if(parte!=='barra'||medicaoBarraFrame)return;
+  if(!['barra','ordem'].includes(parte)||medicaoBarraFrame)return;
   medicaoBarraFrame=requestAnimationFrame(()=>{
     medicaoBarraFrame=null;
-    const corpo=root.querySelector('.dock:not(.compacta) .dock-corpo'),grade=corpo?.querySelector('.grade');
-    if(!corpo||!grade||!v||!bus)return;
+    if(parte==='ordem'){publicarGrupos('ordem');return;}
+    const corpo=root.querySelector('.dock .dock-corpo'),grade=corpo?.querySelector('.grade');
+    if(!corpo||!v||!bus)return;
+    if(!grade){publicarGrupos('barra');return;}
     const geometria=gradeRodape(grade.querySelectorAll(':scope > button').length,v.linhas);
     grade.style.setProperty('--linhas',geometria.linhas);grade.style.setProperty('--colunas',geometria.colunas);
     corpo.style.setProperty('--altura-grade',geometria.altura+'px');
@@ -50,10 +58,11 @@ function agendarMedidaBarra(){
     const larguraIdeal=Math.ceil(104+Math.max(cabe,topo,filtros,geometria.largura+120));
     const altura=Math.ceil(corpo.scrollHeight+2);
     const d={tipo:'dimensoesBarra',parte:'barra',atorId:v.atorId,linhas:v.linhas,rev:v.estado.rev,larguraIdeal,larguraMedida:innerWidth,altura};
-    const assinatura=JSON.stringify(d);if(assinatura===assinaturaMedidaBarra)return;assinaturaMedidaBarra=assinatura;bus.postMessage(d);
+    const assinatura=JSON.stringify(d);if(assinatura!==assinaturaMedidaBarra){assinaturaMedidaBarra=assinatura;bus.postMessage(d);}
+    publicarGrupos('barra');
   });
 }
-const observerBarra=parte==='barra'?new ResizeObserver(agendarMedidaBarra):null;
+const observerBarra=['barra','ordem'].includes(parte)?new ResizeObserver(agendarMedidaBarra):null;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
 const nomesRecursosCurtos={acao:'Ação',bonus:'Bônus',truques:'Truq.',reacao:'Reação',feiticaria:'Feit.',inata:'Inata',repreensao:'Repre.',dv:'D.Vida','dados-de-vida':'D.Vida','passo-nebuloso-gratis':'P.Neb.','passos-largos-da-linhagem':'P.Larg.','marca-do-predador':'Marca','palavra-curativa-do-talento':'Cura','astucia-magica':'Astúc.','pontos-de-sorte':'Sorte','inspiracao-heroica':'I.Her.','pontos-de-foco':'Foco','metabolismo-incomum':'Metab.','pico-de-adrenalina':'Adren.','vigor-implacavel':'Vigor','inspiracao-de-bardo':'I.Bard.','magia-fascinante':'Fasc.','ataque-de-sopro':'Sopro','dados-de-superioridade':'Sup.','recuperar-folego':'Fôlego','surto-de-acao':'Surto','queimadura-de-fogo':'Fogo','canalizar-divindade':'Divin.','disparo-preparado':'Disparo','reposicionar':'Repos.','golpe-comando':'Comando','ultima-palavra':'Última'};
@@ -151,6 +160,10 @@ function gavetaComposicao(p){
 }
 function render(){
   if(!v)return;
+  if(['barra','ordem'].includes(parte)){
+    document.body.classList.add('medidor-hud');
+    root.style.setProperty('--altura-disponivel',(v.layoutRodape?.alturaMax??800)+'px');
+  }
   const {estado:s,eu,ocupado,pendente:p}=v;
   if(v.pedidoDado?.pedido!==ultimoPedido){ultimoPedido=v.pedidoDado?.pedido??null;rerrolagemAtiva=null;dadosEscolhidos=[];}
   adicionaisAtivos=new Set(v.pedidoDado?.recursosAtivos??[]);
@@ -188,7 +201,7 @@ function render(){
     const fora=s.fase==='preparo'||a?.emCombate===false;
     if(!fora){
     const ordem=s.fase==='iniciativa'?s.atores.filter(x=>x.emCombate!==false).map(x=>x.id):s.vez<0?s.ordem:[...s.ordem.slice(s.vez),...s.ordem.slice(0,s.vez)];
-    html='<nav><strong>'+(s.rodada?'Rodada '+s.rodada:'Iniciativa')+'</strong>'+ordem.map(id=>{
+    html='<nav class="turnos-flutuantes"><strong>'+(s.rodada?'Rodada '+s.rodada:'Iniciativa')+'</strong>'+ordem.map(id=>{
       const x=s.atores.find(a=>a.id===id);if(!x)return '';
       return btn('ator','<i>'+retrato(x)+'</i><span>'+esc(x.nome)+'<small>'+esc(x.init??'…')+'</small></span>',
         'data-id="'+esc(id)+'" class="ord '+(id===ativo?'atual ':'')+(meus.includes(x)?'':'observador')+'"');
@@ -343,7 +356,7 @@ function render(){
   if(html===ultimoHtml){agendarMedidaBarra();return;}
   const campo=document.activeElement,restaurar=campo&&root.contains(campo)&&campo.matches('input')?{id:campo.id,lote:campo.dataset.formulaLote,inicio:campo.selectionStart,fim:campo.selectionEnd}:null;
   ocultarDica();root.innerHTML=html;ultimoHtml=html;
-  if(observerBarra){observerBarra.disconnect();const corpo=root.querySelector('.dock:not(.compacta) .dock-corpo');if(corpo)observerBarra.observe(corpo);agendarMedidaBarra();}
+  if(observerBarra){observerBarra.disconnect();observerBarra.observe(root);agendarMedidaBarra();}
   if(restaurar){const novo=restaurar.id?document.getElementById(restaurar.id):root.querySelector('[data-formula-lote="'+restaurar.lote+'"]');if(novo){novo.focus();if(restaurar.inicio!==null)novo.setSelectionRange(restaurar.inicio,restaurar.fim);}}
   const trilho=root.querySelector('.trilho-atividades');if(trilho)trilho.scrollLeft=trilhoScroll;
   for(const el of root.querySelectorAll('[data-numero]')){
@@ -475,6 +488,11 @@ await pronto();bus=await canalHud();const publicar=bus.postMessage.bind(bus);bus
 let pressionado=false;const entrada=valor=>{if(pressionado===valor)return;pressionado=valor;bus.postMessage({entradaHud:parte,pressionado:valor});};
 const presenca=()=>bus.postMessage({presenca:parte,compacto:parte==='barra'?Boolean(root.querySelector('.compacta')):undefined});
 bus.onmessage=e=>{
+ if(e.data.interacaoRodapeConfirmada&&e.data.sessaoHud===sessaoHud){
+   const d=e.data.interacaoRodapeConfirmada;if(d.origem!==parte)return;
+   if(d.comando==='pvpMesa'){const p=root.querySelector('#pvp-mesa');if(p)p.checked=d.valor===true;if(confirmacaoMesa)confirmacaoMesa.pvp=d.valor===true;return;}
+   const b=[...root.querySelectorAll('[data-cmd]')].find(b=>b.dataset.cmd===d.comando&&(d.id===undefined||b.dataset.id===d.id));b?.click();return;
+ }
  if(e.data.verificarPresenca===parte&&(!sessaoHud||e.data.sessaoHud===sessaoHud)){presenca();return;}
  if(e.data.vista){const proxima=e.data.vista;if(sessaoHud&&proxima.sessaoHud!==sessaoHud)return;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}
 };

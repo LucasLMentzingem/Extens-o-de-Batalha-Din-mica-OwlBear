@@ -2,6 +2,9 @@ const comandos=new Set(['alternarMovimentoDinamico','restaurarJanelas','cancelar
 export function mensagemHudValida(d,sessao){
  if(!d||typeof d!=='object'||Array.isArray(d)||'vista'in d)return false;
  if(d.sessaoHud!=null&&d.sessaoHud!==sessao)return false;
+ if(d.tipo==='partesHud')return ['barra','ordem'].includes(d.origem)&&typeof d.documentoHud==='string'&&Number.isInteger(d.rev)&&Array.isArray(d.partes)&&d.partes.length<=14&&Number.isFinite(d.largura)&&d.largura>0&&d.largura<=1120&&Number.isFinite(d.altura)&&d.altura>0&&d.altura<=4096;
+ if(d.tipo==='interacaoRodape')return typeof d.parteHud==='string'&&typeof d.documentoHud==='string'&&['filtro','recurso','alternarNomesSkills','pedirMesa','cancelarMesa','confirmarMesa','alternarMesa','avancarTempo','pvpMesa'].includes(d.comando);
+ if(d.tipo==='dicaRodape')return typeof d.parteHud==='string'&&typeof d.documentoHud==='string'&&(d.html===null||typeof d.html==='string'&&d.html.length<=50000);
  if(d.tipo==='dimensoesBarra')return d.parte==='barra'&&typeof d.atorId==='string'&&typeof d.documentoHud==='string'&&Number.isInteger(d.rev)&&Number.isInteger(d.linhas)&&d.linhas>=1&&d.linhas<=5&&['larguraIdeal','larguraMedida','altura'].every(k=>Number.isFinite(d[k])&&d[k]>0&&d[k]<=8192)&&d.altura>=60;
  return comandos.has(d.tipo)||d.pedir===true||typeof d.presenca==='string'||typeof d.entradaHud==='string'&&typeof d.pressionado==='boolean';
 }

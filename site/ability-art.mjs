@@ -1,7 +1,7 @@
-import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.76';
-import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.76';
-import {definicaoHabilidade} from './catalog.mjs?v=0.8.76';
-import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.76';
+import {artesHabilidades,temasHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.77';
+import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.77';
+import {definicaoHabilidade} from './catalog.mjs?v=0.8.77';
+import {identidadeArteHabilidade,nomeConceitoArte} from './ability-art-id.mjs?v=0.8.77';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normal=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const slug=x=>normal(x).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -44,11 +44,7 @@ export function arteHabilidade(h={},f={},classe=''){
     '<span class="habilidade-nome">'+esc(v.textoCurto)+'</span>'+(h.bonusVisual!=null?'<span class="habilidade-bonus">'+esc((h.bonusVisual>=0?'+':'')+h.bonusVisual)+'</span>':'')+
     (v.variante?'<span class="habilidade-variante" aria-hidden="true" title="'+esc(v.variante)+'">'+(v.varianteImagem?img(v.varianteImagem,'habilidade-variante-imagem'):esc(v.variante))+'</span>':'')+'</span>';
 }
-export function preencherBalaoHabilidade(container,alvo,texto){
-  container.replaceChildren();const arte=alvo?.querySelector('.habilidade-arte');
-  if(arte){const mini=arte.cloneNode(true);mini.classList.add('habilidade-miniatura','sem-texto');for(const img of mini.querySelectorAll('[data-art-detalhe]'))img.src=img.dataset.artDetalhe;container.append(mini);}
-  const corpo=container.ownerDocument.createElement('span');corpo.className='habilidade-explicacao';corpo.textContent=texto??'';container.append(corpo);
-}
+export {preencherBalaoHabilidade} from './ability-tooltip.mjs?v=0.8.77';
 // Uma URL inválida ou indisponível nunca remove o nome nem bloqueia a habilidade.
 if(typeof document!=='undefined')document.addEventListener('error',e=>{
   if(e.target?.matches?.('.habilidade-arte img')){e.target.hidden=true;if(e.target.classList.contains('habilidade-recorte')){const pai=e.target.closest('.habilidade-arte');pai.classList.remove('com-arte');pai.classList.add('sem-arte');}}
