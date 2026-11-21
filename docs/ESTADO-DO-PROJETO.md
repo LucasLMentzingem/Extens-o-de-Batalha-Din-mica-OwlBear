@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.81 — expansão do rodapé e plano de descanso — 21/11/2026
+
+Guardadas a [arquitetura e decisões aprovadas do descanso curto por Dados de Vida](ARQUITETURA-DESCANSO-CURTO-DADOS-DE-VIDA.md), ainda sem implementar essa funcionalidade. Priorizada a demora ao expandir pelo retrato: cache válido de geometria/HTML dos modos, medição antecipada e remoção de close redundante. Preparada para publicação após autorização do responsável. No cenário com 120 ms por abertura simulada, média 587→277 ms; 512 testes e 66 verificações de interface aprovados, incluindo 160 cliques no canvas. [Diagnóstico, comparação e limites](FIX-LOCAL-EXPANSAO-RODAPE-2026-11-21.md).
+
 ## Entrega — 0.8.80 — B: barra flutuante de efeitos — 21/11/2026
 
 Barra inferior esquerda entre Extras e ferramentas centrais; dez slots, scroll horizontal, caixa limitada ao conteúdo, adaptação em telas estreitas e reserva no rodapé. Artes próprias de habilidades/itens reutilizadas; 25 PNGs inéditos produzidos pelo subagente GPT 6 Luna, convertidos em WebP 100×100 (146.668 bytes), com cinco fundos e cinco molduras SVG compartilhados. Condições, concentração e estados derivados exibidos sem alterar regras/fichas; privacidade dos saldos NPC preservada. 508 testes; 21 cenários específicos B, 24 gerais, 7 de estabilidade e 8 de A com 160 cliques no canvas local. [Inventário e arquitetura](INVENTARIO-EFEITOS-B.md) · [Notas e limites](RELEASE-0.8.80.md).

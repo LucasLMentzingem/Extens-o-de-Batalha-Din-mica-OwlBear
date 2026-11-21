@@ -1,27 +1,28 @@
-import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.80';
-import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.80';
-import {caixaEfeitos} from './effect-layout.mjs?v=0.8.80';
-import {listarEfeitosHud} from './effect-state.mjs?v=0.8.80';
-import {gruposRodape,gruposMesa,partesLeves,chaveParte,chaveEntrada,grupoHudValido,comandoDoAtorHudValido} from './hud-parts.mjs?v=0.8.80';
-import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.80';
-import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.80';
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.80';
+import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.81';
+import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.81';
+import {CacheLayoutRodape} from './hud-layout-cache.mjs?v=0.8.81';
+import {caixaEfeitos} from './effect-layout.mjs?v=0.8.81';
+import {listarEfeitosHud} from './effect-state.mjs?v=0.8.81';
+import {gruposRodape,gruposMesa,partesLeves,chaveParte,chaveEntrada,grupoHudValido,comandoDoAtorHudValido} from './hud-parts.mjs?v=0.8.81';
+import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.81';
+import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.81';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.81';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.80';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.80';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.80';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.80';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.80';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.80';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.80';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.80';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.80';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.80';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.80';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.80';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.81';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.81';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.81';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.81';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.81';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.81';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.81';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.81';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.81';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.81';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.81';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.81';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.80',import.meta.url);
+const url=new URL('./hud.html?v=0.8.81',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -74,7 +75,7 @@ export async function iniciarHud(){
   const encerrarHud=()=>{if(encerrado)return;encerrado=true;for(const limpar of limpezas.splice(0))try{limpar?.();}catch{}controles.delete(chaveControle);liberar();};
   globalThis.addEventListener('pagehide',encerrarHud,{once:true});limpezas.push(()=>globalThis.removeEventListener('pagehide',encerrarHud));
   try{
-  const bus=await canalHud(),abertos=new Map(),presencas=new Map(),documentos=new Map(),pings=new Map(),ponteiros=new Set();
+  const bus=await canalHud(),abertos=new Map(),presencas=new Map(),documentos=new Map(),pings=new Map(),ponteiros=new Set(),fechadas=new Set();
   let ponteiroMapa=false,layoutAguardandoPonteiro=false;
   limpezas.push(()=>{bus.onmessage=null;bus.close();});
   const chaveDiagnostico=Symbol.for(ns+'/hud-diagnostico');globalThis[chaveDiagnostico]=()=>({sessao:sessaoHud,entrada:{mapa:ponteiroMapa,janelas:[...ponteiros]},eventos:structuredClone(diagnostico)});limpezas.push(()=>{delete globalThis[chaveDiagnostico];});
@@ -101,6 +102,8 @@ export async function iniciarHud(){
   let saqueAbertoVisual=null,trocaAbertaVisual=null;
   let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false;
   const medidasRodape=new Map();
+  const layoutsRodape=new CacheLayoutRodape();
+  const contextoLayoutRodape=()=>JSON.stringify([movimentoDinamico,token(ator())?.image?.url]);
   let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'painel'});
   const marcasPorAtividade=new Map();
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
@@ -197,7 +200,7 @@ export async function iniciarHud(){
     const antes=abertos.has(parte)?JSON.parse(abertos.get(parte)):null;
     const key=box&&JSON.stringify(box);
     if(antes&&(!box||abertos.get(parte)!==key)&&(ponteiroMapa||ponteiros.size)){layoutAguardandoPonteiro=true;return;}
-    if(!box){if(antes){await OBR.popover.close(id).catch(()=>{});abertos.delete(parte);documentos.delete(parte);presencas.delete(parte);pings.delete(parte);registrar('fechar',{parte});}return;}
+    if(!box){if(antes){try{await OBR.popover.close(id);fechadas.add(parte);}catch{fechadas.delete(parte);}abertos.delete(parte);documentos.delete(parte);presencas.delete(parte);pings.delete(parte);registrar('fechar',{parte});}return;}
     if(antes&&Date.now()-(presencas.get(parte)??0)<6500){
       if(abertos.get(parte)===key)return;
       // Mesma posição: redimensiona sem navegar o iframe. Posição nova:
@@ -221,7 +224,8 @@ export async function iniciarHud(){
     // Uma atualização da extensão pode reiniciar o controlador enquanto o
     // Owlbear ainda conserva o pop-up antigo. Fechar pelo ID torna a abertura
     // idempotente e impede que um pop-up órfão bloqueie toda a HUD.
-    await OBR.popover.close(id).catch(()=>{});
+    if(!fechadas.has(parte))await OBR.popover.close(id).catch(()=>{});
+    fechadas.delete(parte);
     const [,,width,height]=box;
     const documento=crypto.randomUUID(),pagina=paginaHud(parte,documento);
     // O iframe pode pedir os dados antes de open() responder ao controlador.
@@ -230,7 +234,7 @@ export async function iniciarHud(){
     abertos.set(parte,key);
     presencas.set(parte,Date.now());pings.delete(parte);registrar('abrir',{parte,documento,width,height});
   }
-  function paginaHud(parte,documento){const pagina=partesLeves.includes(parte)?new URL('./hud-part.html?v=0.8.80',url):new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);return pagina;}
+  function paginaHud(parte,documento){const pagina=partesLeves.includes(parte)?new URL('./hud-part.html?v=0.8.81',url):new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);return pagina;}
   function abrirPopover(id,pagina,[left,top,width,height]){return OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});}
   async function layout(){
     if(encerrado)return;
@@ -331,8 +335,12 @@ export async function iniciarHud(){
     }
     if(ativo){
       for(const [origem,base] of [['barra',layoutRodape],['ordem',layoutMesa]]){
-        const g=geometriasPartes[origem];
+        let g=geometriasPartes[origem];
         if(!base)continue;
+        if(origem==='barra'&&!ocupado&&!acaoVisivel()&&!pedidoDado&&(!g||g.compacto!==compacto||g.atorId!==atorId||g.linhas!==linhas||Math.abs(g.largura-base.width)>2)){
+          const salva=layoutsRodape.obter({atorId,linhas,compacto,largura:base.width,alturaMax:base.alturaMax,rev:estado.rev,nomes:g?.nomes,estadoLocal:g?.estadoLocal,contexto:contextoLayoutRodape()});
+          if(salva){g=geometriasPartes.barra=salva;for(const p of Object.keys(gruposRodape))cargasPartes.delete(p);for(const p of salva.partes)cargasPartes.set(p.parte,p.html);registrar('restaurar-layout-barra',{compacto});}
+        }
         if(!g||g.atorId!==atorId||Math.abs(g.largura-base.width)>2||origem==='barra'&&(g.linhas!==linhas||g.compacto!==compacto)){
           // Mantém o último quadro visível até a nova medida chegar. Os
           // comandos do ator anterior ficam bloqueados no protocolo e na UI.
@@ -349,12 +357,14 @@ export async function iniciarHud(){
         if(altura>50)caixas['barra-dica']=[Math.max(8,Math.min(w-348,layoutRodape.x+90)),Math.max(8,layoutRodape.y-altura-8),Math.min(340,w-16),altura];
       }
     }
+    // A medição pode avançar enquanto o host reposiciona as outras janelas.
+    // Esperar todos os open() aqui acrescentava uma rodada inteira de latência.
+    const config=JSON.stringify([atorId,linhas,compacto,layoutRodape?.width,layoutRodape?.alturaMax,layoutMesa?.width,layoutEfeitos?.icone,documentos.get('barra'),documentos.get('ordem')]);
+    if(config!==assinaturaMedidores){assinaturaMedidores=config;transmitir();}
     const resultados=await Promise.allSettled(partesHud.map(k=>janela(k,caixas[k])));
     const falhas=resultados.flatMap((r,i)=>r.status==='rejected'?[partesHud[i]+': '+(r.reason?.message??r.reason)]:[]);
     if(falhas.length)throw Error('Falha ao abrir a HUD — '+falhas.join(' · '));
     for(const parte of partesLeves)if(caixas[parte])publicarParte(parte);
-    const config=JSON.stringify([layoutRodape?.width,layoutRodape?.alturaMax,layoutMesa?.width,layoutEfeitos?.icone,documentos.get('barra'),documentos.get('ordem')]);
-    if(config!==assinaturaMedidores){assinaturaMedidores=config;transmitir();}
   }
   async function limparMarcas(){
     const ids=marcas;marcas=[];
@@ -721,6 +731,7 @@ export async function iniciarHud(){
       const base=origem==='barra'?layoutRodape:layoutMesa;
       if(!base||Math.abs(d.largura-base.width)>2||d.partes.some(p=>!grupoHudValido(p,origem,d.largura,d.altura))||new Set(d.partes.map(p=>p.parte)).size!==d.partes.length)return;
       geometriasPartes[origem]=d;
+      if(origem==='barra'&&!ocupado&&!acaoVisivel()&&!pedidoDado)layoutsRodape.guardar(d,base.alturaMax,contextoLayoutRodape());
       for(const p of Object.keys(origem==='barra'?gruposRodape:gruposMesa))cargasPartes.delete(p);
       for(const p of d.partes)cargasPartes.set(p.parte,p.html);
       await layout();return;
@@ -998,7 +1009,7 @@ export async function iniciarHud(){
   });
   limpezas.push(OBR.scene.onReadyChange(r=>serial(async()=>{
     ponteiros.clear();ponteiroMapa=false;layoutAguardandoPonteiro=false;
-    pronta=r;atividades=new AtividadesMesa({modo:atividades.modo});marcasPorAtividade.clear();medidasRodape.clear();estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
+    pronta=r;atividades=new AtividadesMesa({modo:atividades.modo});marcasPorAtividade.clear();medidasRodape.clear();layoutsRodape.limpar();estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;

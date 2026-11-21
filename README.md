@@ -1,6 +1,6 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.80**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.80.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.81**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.81.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 HUD flutuante sem placa externa ou log inferior. Grupos em janelas menores liberam o mapa entre seus controles. Grade e disposição acompanham o conteúdo, respeitando a linha completa de recursos e o máximo de 1120 px; botão Token aproxima a peça vinculada. Carrossel de turnos e ferramentas do mestre usam o mesmo tema flutuante.
 
@@ -10,6 +10,8 @@ Buffs e debuffs em barra flutuante no canto inferior esquerdo, entre Extras e as
 
 Trocas de personagem conservam o último quadro até receber a nova medição, com comandos antigos bloqueados. Geometria atualizada com o mesmo documento; saldos e textos atualizam os nós existentes, preservando as imagens. A primeira solicitação de conteúdo já é aceita durante a abertura da janela.
 
+Expandir pelo retrato reutiliza o layout válido dos modos compacto/expandido, antecipa a medição e evita fechamentos redundantes. Cache limitado e invalidado por revisão/configuração; as janelas recolhidas continuam fechadas para liberar o mapa. [Arquitetura aprovada do futuro descanso curto por Dados de Vida](docs/ARQUITETURA-DESCANSO-CURTO-DADOS-DE-VIDA.md).
+
 CA base + CA extra = total: armadura ou regra sem armadura/traço define a base; atributos, itens e efeitos entram nos extras. Slot próprio de Luvas, migração automática e salvamento compacto, sem reimportar fichas.
 
 Movimento dinâmico mostra a área disponível ao ativar. Clique/duplo clique só selecionam um destino dentro do limite; somente a instância executa. Sem prévia ao passar o cursor.
@@ -18,7 +20,7 @@ Movimento dinâmico acima de Mover: selecione e confirme na instância ou aproxi
 
 Alcance e áreas consideram o contato com a hitbox circular do alvo, respeitando o tamanho do token. Regra compartilhada entre HUD e autoridade, incluindo composições, protótipos e áreas persistentes.
 
-Atalhos Ficha, Inventário e Livro de habilidades no rodapé abrem diretamente suas abas. Cabeçalho da ficha usa o token do personagem. Buffs compactos rolam somente na vertical quando necessário.
+Atalhos Ficha, Inventário e Livro de habilidades no rodapé abrem diretamente suas abas. Cabeçalho da ficha usa o token do personagem.
 
 Perícias e salvaguardas com arte nítida, sem véu no rodapé, balão e carta. Rolagem acima da instância, ambas com margem direita de 75 px.
 

@@ -1,4 +1,4 @@
-import {distanciaAoAlvo,centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.80';
+import {distanciaAoAlvo,centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.81';
 // Protótipos explícitos: usam a mesma autoridade, transação e relógio do motor.
 export const modosPrototipo=new Set(['animar','enfraquecer','vampirico','taumaturgia','luz','santuario','detectar','protecao','prece','acalmar','dissipar','remover','auxilio','restauracao','revivificar','preservar','centelha','expulsar']);
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
