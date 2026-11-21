@@ -1,0 +1,144 @@
+{
+  "formato": 1,
+  "icones": [
+    {
+      "id": "atordoado",
+      "elemento": "rosto de pedra de perfil com três estrelas orbitando a têmpora, desorientação"
+    },
+    {
+      "id": "cego",
+      "elemento": "olho esculpido coberto por venda de tecido cinza"
+    },
+    {
+      "id": "envenenado",
+      "elemento": "gota de veneno verde em pequena caveira de vidro esmeralda"
+    },
+    {
+      "id": "incapacitado",
+      "elemento": "mão de bronze caída, fios de energia interrompidos"
+    },
+    {
+      "id": "inconsciente",
+      "elemento": "cabeça adormecida de perfil apoiada sobre lua violeta, olhos fechados"
+    },
+    {
+      "id": "surdo",
+      "elemento": "orelha de prata com ondas sonoras quebradas ao lado"
+    },
+    {
+      "id": "enfraquecimento",
+      "elemento": "braço musculoso de pedra rachando e perdendo pó sob uma espiral púrpura"
+    },
+    {
+      "id": "toque-vampirico",
+      "elemento": "mão espectral violeta sugando uma pequena gota de vida rubra"
+    },
+    {
+      "id": "luz",
+      "elemento": "pequeno cristal branco dourado emitindo raios de luz"
+    },
+    {
+      "id": "santuario",
+      "elemento": "pequena cúpula dourada protetora envolvendo uma vela sagrada"
+    },
+    {
+      "id": "protecao-bem-mal",
+      "elemento": "escudo de prata sagrado repousando sobre uma runa circular azul, duas pequenas sombras repelidas"
+    },
+    {
+      "id": "prece-recebida",
+      "elemento": "mãos em oração envolvendo centelha verde restauradora"
+    },
+    {
+      "id": "auxilio",
+      "elemento": "coração rubro protegido por duas pequenas asas douradas, vigor fortalecido"
+    },
+    {
+      "id": "bencao",
+      "elemento": "pequeno símbolo sagrado dourado de quatro pontas com gotas de luz descendendo"
+    },
+    {
+      "id": "expulsar-mortos-vivos",
+      "elemento": "caveira sombria recuando de uma pequena explosão solar dourada"
+    },
+    {
+      "id": "gelo-lentidao",
+      "elemento": "bota de couro presa por cristais de gelo azul claro"
+    },
+    {
+      "id": "cura-bloqueada",
+      "elemento": "coração de pedra rachado envolvido por espinhos negros e um fio necrótico violeta"
+    },
+    {
+      "id": "generico-buff",
+      "elemento": "pequena gema esmeralda lapidada com dois ramos de louro dourados apontando para cima"
+    },
+    {
+      "id": "generico-debuff",
+      "elemento": "pequena gema rubra quebrada entre duas garras escuras voltadas para baixo"
+    },
+    {
+      "id": "generico-neutro",
+      "elemento": "pequeno nó de energia arcana prateada circular com centro âmbar"
+    },
+    {
+      "id": "morto",
+      "elemento": "pequena caveira de osso marfim com flor seca repousando sob a mandíbula"
+    },
+    {
+      "id": "maldicao",
+      "elemento": "pequeno selo de cera negra atravessado por três agulhas prateadas e fio roxo"
+    },
+    {
+      "id": "pv-temporarios",
+      "elemento": "pequeno escudo azul translúcido contendo uma chama de coração dourada"
+    },
+    {
+      "id": "escudo-arcano",
+      "elemento": "pequeno escudo de energia azul com runas douradas bloqueando três dardos mágicos"
+    },
+    {
+      "id": "lentidao",
+      "elemento": "bota de couro presa por corrente de bronze e pequena ampulheta de areia, sem gelo"
+    }
+  ],
+  "porNome": {
+    "agarrado": "assets/habilidades/habilidade-imobilizar.png",
+    "armadura-arcana": "assets/habilidades/habilidade-armadura-arcana.png",
+    "ataque-ameacador": "assets/habilidades/habilidade-ataque-ameacador.png",
+    "ataque-prostrador": "assets/habilidades/habilidade-ataque-prostrador.png",
+    "caido": "assets/habilidades/habilidade-derrubar.png",
+    "contido-golpe-constritor": "assets/habilidades/habilidade-golpe-constritor.png",
+    "contido-por-emaranhar": "assets/habilidades/habilidade-emaranhar.png",
+    "desarmado": "assets/habilidades/habilidade-ataque-de-desarme.png",
+    "disfarcado": "assets/habilidades/habilidade-disfarcar-se.png",
+    "emocoes-acalmadas": "assets/habilidades/habilidade-acalmar-emocoes.png",
+    "enfeiticado": "assets/habilidades/habilidade-enfeiticar-pessoa.png",
+    "escudo-da-fe": "assets/habilidades/habilidade-escudo-da-fe.png",
+    "forca-fantasmagorica": "assets/habilidades/habilidade-forca-fantasmagorica.png",
+    "fuga-dissonante": "assets/habilidades/habilidade-sussurros-dissonantes.png",
+    "iluminado-por-fogo-das-fadas": "assets/habilidades/habilidade-fogo-das-fadas.png",
+    "invisivel": "assets/habilidades/habilidade-invisibilidade.png",
+    "marca-do-predador": "assets/habilidades/habilidade-marca-do-predador.png",
+    "mente-desperta": "assets/habilidades/habilidade-mente-desperta.png",
+    "mente-talhada": "assets/habilidades/habilidade-talho-mental.png",
+    "paralisado": "assets/habilidades/habilidade-imobilizar-pessoa.png",
+    "passos-largos": "assets/habilidades/habilidade-passos-largos.png",
+    "protecao-contra-laminas": "assets/habilidades/habilidade-protecao-contra-laminas.png",
+    "rindo-no-chao": "assets/habilidades/habilidade-riso-histerico-de-tasha.png",
+    "sem-reacoes": "assets/habilidades/habilidade-bracos-de-hadar.png",
+    "sem-reacoes-toque-chocante": "assets/habilidades/habilidade-toque-chocante.png",
+    "sob-sugestao": "assets/habilidades/habilidade-sugestao.png",
+    "sopro-de-dragao": "assets/habilidades/habilidade-sopro-de-dragao.png",
+    "taumaturgia": "assets/habilidades/habilidade-taumaturgia.png",
+    "zombado": "assets/habilidades/habilidade-zombaria-perversa.png",
+    "esquiva": "assets/habilidades/habilidade-esquivar.png",
+    "desengajado": "assets/habilidades/habilidade-desengajar.png",
+    "estavel": "assets/habilidades/habilidade-acudir-os-moribundos.png",
+    "orientacao": "assets/habilidades/habilidade-orientacao.png",
+    "inspiracao-de-bardo": "assets/habilidades/habilidade-inspiracao-de-bardo.png",
+    "feiticaria-inata": "assets/habilidades/habilidade-feiticaria-inata.png",
+    "respiracao-aquatica": "assets/itens/item-la-arte-colar-folego-docas.webp",
+    "sombra-curta": "assets/itens/item-la-arte-couro-sombra-curta.webp"
+  }
+}

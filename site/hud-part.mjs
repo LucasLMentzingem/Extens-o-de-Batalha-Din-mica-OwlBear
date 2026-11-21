@@ -1,7 +1,7 @@
 import OBR from './vendor/sdk.mjs';
-import {chaveParte,chaveEntrada} from './hud-parts.mjs?v=0.8.79';
-import {preencherBalaoHabilidade} from './ability-tooltip.mjs?v=0.8.79';
-import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.79';
+import {chaveParte,chaveEntrada} from './hud-parts.mjs?v=0.8.80';
+import {preencherBalaoHabilidade} from './ability-tooltip.mjs?v=0.8.80';
+import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.80';
 const ns='aventura-dnd.combate.v1',q=new URL(location.href).searchParams,parte=q.get('parte'),sessaoHud=q.get('sessaoHud'),documentoHud=q.get('documentoHud'),root=document.getElementById('hud');
 await new Promise(r=>OBR.onReady(r));
 const conexao=await OBR.player.getConnectionId(),entrada=new BroadcastChannel(chaveEntrada(ns,OBR.room.id,conexao)),canal=new BroadcastChannel(chaveParte(ns,OBR.room.id,conexao,parte));

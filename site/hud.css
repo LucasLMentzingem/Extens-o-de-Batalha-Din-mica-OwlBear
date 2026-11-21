@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.79");
+@import url("./ability-art.css?v=0.8.80");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -72,13 +72,6 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .iniciativa-lote>footer{display:flex;gap:5px;align-items:center;padding-top:3px}
 .iniciativa-jogador{align-content:center;text-align:center}
 .iniciativa-jogador>.ouro{margin:4px 0 0}
-.efeitos-hud{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:108px;max-height:158px;display:grid;grid-template-columns:repeat(2,50px);grid-auto-rows:50px;gap:4px 6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#9d865d transparent;pointer-events:auto;padding-right:2px}
-.efeito-hud{pointer-events:auto;width:50px;height:50px;display:grid;place-items:center;align-content:center;border:1px solid #b79869;border-radius:6px;background:#2c2538;opacity:1;overflow:hidden;cursor:help;transition:filter .15s,transform .15s}
-.efeito-hud:hover,.efeito-hud:focus{filter:brightness(1.22);transform:translateY(-3px);outline:1px solid #f1ca88}
-.efeito-hud.condicao{border-color:#b95b5f;background:#47272d}
-.efeito-hud.concentracao{border-color:#70b7c7;background:#203d48;color:#bdebf2}
-.efeito-hud b{font-size:15px;line-height:1}
-.efeito-hud small{max-width:46px;font-size:8px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:520px){.dock-corpo{gap:4px;padding:5px}.dock aside{width:47px}.retrato{width:44px;height:44px}header{flex-wrap:wrap;gap:2px}header strong{font-size:13px}.abas{gap:2px}.abas button{padding:3px}.grade{grid-auto-columns:94px}}
 
 .grade{--lado:50px;grid-template-rows:repeat(var(--linhas),var(--lado));grid-auto-columns:var(--lado);gap:3px}
@@ -208,8 +201,16 @@ footer small,.prompt small{overflow:hidden;text-overflow:ellipsis;white-space:no
 .efeitos-hud{background:transparent!important;border:0!important;box-shadow:none!important}
 body.efeitos,body.efeitos #hud{width:100%;height:100vh;overflow:hidden;background:transparent!important}
 .efeitos-only{position:relative;width:100%;height:100vh;background:transparent!important;border:0!important;box-shadow:none!important;overflow:hidden}
-.efeitos-only .efeitos-hud{position:relative;left:auto;top:auto;transform:none;width:100%;height:100%;max-height:100%;padding:2px;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;align-content:start;overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;background:transparent!important}
-.efeitos-only .efeito-hud{width:100%;min-width:0}.efeitos-only .efeito-hud:hover,.efeitos-only .efeito-hud:focus{transform:none}
+.efeitos-only .efeitos-hud{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:var(--efeito-tamanho,50px);grid-template-rows:var(--efeito-tamanho,50px);gap:3px;align-content:start;justify-content:start;width:100%;height:100%;padding:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#ae946b #20242c77;touch-action:pan-x;background:transparent!important}
+.efeito-hud{position:relative;display:block;width:var(--efeito-tamanho,50px);height:var(--efeito-tamanho,50px);min-width:0;overflow:hidden;border:0;background:transparent;cursor:help;border-radius:5px;isolation:isolate;--efeito-cor:#bca5d4}
+.efeito-hud:hover,.efeito-hud:focus-visible{filter:brightness(1.18);outline:1px solid #f1ca88;outline-offset:1px}
+.efeito-hud.tema-buff{--efeito-cor:#a9e7a3}.efeito-hud.tema-debuff{--efeito-cor:#ffa49d}.efeito-hud.tema-condicao{--efeito-cor:#f9c879}.efeito-hud.tema-concentracao{--efeito-cor:#9bdfef}
+.efeito-fundo,.efeito-icone,.efeito-moldura{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;object-fit:contain}.efeito-icone{padding:5px}.efeito-moldura{z-index:2}
+.efeito-tipo{position:absolute;right:4px;top:3px;color:var(--efeito-cor);font-size:10px;font-style:normal;line-height:1;text-shadow:0 1px 2px #000,0 0 3px #000;z-index:3}
+.efeito-nome{position:absolute;left:3px;right:3px;bottom:4px;color:#fff4d9;font:700 8px/1.1 'Segoe UI',sans-serif;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;z-index:3}
+.efeito-tempo{position:absolute;left:4px;top:3px;color:#fff2d1;font:750 11px/1 'Segoe UI',sans-serif;text-shadow:0 1px 2px #000,0 0 3px #000;z-index:3}
+.efeitos-hud[data-nomes=false] .efeito-nome{display:none}
+.efeito-hud.sem-arte{background:#22202b;border:1px solid #8e7e60}.efeitos-hud .efeito-hud.sem-arte .efeito-nome{display:block}
 .atalhos-ficha{display:flex;gap:4px;margin:0 0 0 auto;padding:0;flex-wrap:wrap;justify-content:flex-end;overflow:visible;background:none;border:0;box-shadow:none}
 .dock-corpo>article>header .atalhos-ficha button{margin-left:0;font-size:11px}
 .dock-corpo>article>header{flex-wrap:wrap}

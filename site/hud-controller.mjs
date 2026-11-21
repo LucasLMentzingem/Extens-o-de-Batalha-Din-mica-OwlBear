@@ -1,25 +1,27 @@
-import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.79';
-import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.79';
-import {gruposRodape,gruposMesa,partesLeves,chaveParte,chaveEntrada,grupoHudValido,comandoDoAtorHudValido} from './hud-parts.mjs?v=0.8.79';
-import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.79';
-import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.79';
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.79';
+import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.80';
+import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.80';
+import {caixaEfeitos} from './effect-layout.mjs?v=0.8.80';
+import {listarEfeitosHud} from './effect-state.mjs?v=0.8.80';
+import {gruposRodape,gruposMesa,partesLeves,chaveParte,chaveEntrada,grupoHudValido,comandoDoAtorHudValido} from './hud-parts.mjs?v=0.8.80';
+import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.80';
+import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.80';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.80';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.79';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.79';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.79';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.79';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.79';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.79';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.79';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.79';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.79';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.79';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.79';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.79';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.80';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.80';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.80';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.80';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.80';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.80';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.80';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.80';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.80';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.80';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.80';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.80';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.79',import.meta.url);
+const url=new URL('./hud.html?v=0.8.80',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -81,7 +83,7 @@ export async function iniciarHud(){
   const canaisPartes=new Map(partesLeves.map(p=>[p,new BroadcastChannel(chaveParte(ns,OBR.room.id,conexao,p))]));
   const entradaPartes=new BroadcastChannel(chaveEntrada(ns,OBR.room.id,conexao));
   const cargasPartes=new Map(),enviadasPartes=new Map(),geometriasPartes={};
-  let layoutRodape,layoutMesa,dicaRodape,assinaturaMedidores='';
+  let layoutRodape,layoutMesa,layoutEfeitos,dicaRodape,assinaturaMedidores='';
   limpezas.push(()=>{entradaPartes.close();for(const c of canaisPartes.values())c.close();});
   function publicarParte(parte,forcar=false){
     const html=cargasPartes.get(parte),documentoHud=documentos.get(parte);if(!html||!documentoHud||!estado)return;
@@ -185,7 +187,7 @@ export async function iniciarHud(){
     const medidoresHud={};
     for(const [parte,base] of [['barra',layoutRodape],['ordem',layoutMesa]])if(base&&documentos.has(parte))medidoresHud[parte]={documentoHud:documentos.get(parte),largura:base.width,altura:base.alturaMax??180};
     const estadoMedidores=Object.fromEntries(Object.entries(geometriasPartes).map(([parte,g])=>[parte,g.estadoLocal]));
-    if(estado)bus.postMessage({vista:{sessaoHud,estado,layoutRodape,medidoresHud,estadoMedidores,movimentoDinamico,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
+    if(estado)bus.postMessage({vista:{sessaoHud,estado,layoutRodape,medidoresHud,estadoMedidores,iconeEfeito:layoutEfeitos?.icone,movimentoDinamico,eu:{id:eu.id,role:eu.role},atorId,linhas,compacto,ocupado,espacoEfeitos,dicaEfeito,reacaoIniciativa:escolhaIniciativa(),
       atividades:{modo:atividades.modo,selecionada:atividadeAtual()?.id,propria:atividades.propria,pendentes:atividades.pendencias(eu.id).length,lista:atividades.vista()},imagens:Object.fromEntries(atores().map(a=>[a.id,token(a)?.image?.url])),pedidoDado,anuncioDado,
       pendente:resumoPendente(p,p===acaoPublica)}});
   }
@@ -228,7 +230,7 @@ export async function iniciarHud(){
     abertos.set(parte,key);
     presencas.set(parte,Date.now());pings.delete(parte);registrar('abrir',{parte,documento,width,height});
   }
-  function paginaHud(parte,documento){const pagina=partesLeves.includes(parte)?new URL('./hud-part.html?v=0.8.79',url):new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);return pagina;}
+  function paginaHud(parte,documento){const pagina=partesLeves.includes(parte)?new URL('./hud-part.html?v=0.8.80',url):new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);return pagina;}
   function abrirPopover(id,pagina,[left,top,width,height]){return OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});}
   async function layout(){
     if(encerrado)return;
@@ -243,8 +245,9 @@ export async function iniciarHud(){
     const caixas={};
     if(ativo){
       const [w,h]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]);
-      const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
-      const faixaEfeitos=temEfeitos?134:0,margemEsquerda=72,gap=10,acaoAtual=acaoVisivel();
+      layoutEfeitos=caixaEfeitos({largura:w,altura:h,quantidade:listarEfeitosHud(ator(),atores()).length});
+      const temEfeitos=Boolean(layoutEfeitos),faixaEfeitos=0,margemEsquerda=72,gap=10,acaoAtual=acaoVisivel();
+      const reservaInferior=layoutEfeitos?Math.max(48,layoutEfeitos.reservaInferior):48;
       espacoEfeitos=0;
       // A janela começa com uma estimativa e converge pela medida do conteúdo.
       // O limite da carta continua preservado, sem reservar a antiga faixa de log.
@@ -259,7 +262,7 @@ export async function iniciarHud(){
       const leftBarra=Math.min(margemEsquerda+faixaEfeitos,Math.max(8,w-308));
       const limiteLargura=Math.max(1,Math.min(1120,limiteBarra-leftBarra));
       const medida=medidasRodape.get(atorId+'/'+linhas);
-      const dimensoes=caixaRodape({larguraMaxima:limiteLargura,alturaMaxima:Math.max(80,h-110),linhas,medida});
+      const dimensoes=caixaRodape({larguraMaxima:limiteLargura,alturaMaxima:Math.max(80,h-reservaInferior-62),linhas,medida});
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
       if(!foraDaOrdem||eu.role==='GM'){
         const mesaRecolhida=foraDaOrdem&&eu.role==='GM'&&localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -269,12 +272,12 @@ export async function iniciarHud(){
       }else{layoutMesa=null;}
       if(ator()&&!ator().saqueAberto){
         const larguraCorpo=compacto?92:dimensoes.largura,alturaBarra=compacto?102:dimensoes.altura;
-        const left=leftBarra,top=h-alturaBarra-48;
-        layoutRodape={x:left,y:top,width:larguraCorpo,height:alturaBarra,alturaMax:Math.max(80,h-110)};
-        if(temEfeitos){const alturaEfeitos=compacto?108:164;caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-alturaEfeitos)/2),128,alturaEfeitos];}
+        const left=leftBarra,top=h-alturaBarra-reservaInferior;
+        layoutRodape={x:left,y:top,width:larguraCorpo,height:alturaBarra,alturaMax:Math.max(80,h-reservaInferior-62)};
+        if(temEfeitos)caixas.efeitos=[layoutEfeitos.x,layoutEfeitos.y,layoutEfeitos.width,layoutEfeitos.height];
         if(temEfeitos&&dicaEfeito){
           const dw=Math.min(380,w-16),linhasDica=dicaEfeito.split('\n').length,dh=Math.min(190,h-16,Math.max(82,36+linhasDica*22));
-          caixas['dica-efeito']=[Math.max(8,Math.min(w-dw-8,left)),Math.max(8,top-dh-8),dw,dh];
+          caixas['dica-efeito']=[Math.max(8,Math.min(w-dw-8,layoutEfeitos.x)),Math.max(8,Math.min(top,layoutEfeitos.y)-dh-8),dw,dh];
         }
       }else{layoutRodape=null;}
       if(estado.fase==='iniciativa'&&atores().some(a=>controla(a)&&a.init===null)){
@@ -350,7 +353,7 @@ export async function iniciarHud(){
     const falhas=resultados.flatMap((r,i)=>r.status==='rejected'?[partesHud[i]+': '+(r.reason?.message??r.reason)]:[]);
     if(falhas.length)throw Error('Falha ao abrir a HUD — '+falhas.join(' · '));
     for(const parte of partesLeves)if(caixas[parte])publicarParte(parte);
-    const config=JSON.stringify([layoutRodape?.width,layoutRodape?.alturaMax,layoutMesa?.width,documentos.get('barra'),documentos.get('ordem')]);
+    const config=JSON.stringify([layoutRodape?.width,layoutRodape?.alturaMax,layoutMesa?.width,layoutEfeitos?.icone,documentos.get('barra'),documentos.get('ordem')]);
     if(config!==assinaturaMedidores){assinaturaMedidores=config;transmitir();}
   }
   async function limparMarcas(){

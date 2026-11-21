@@ -1,0 +1,179 @@
+{
+  "formato": 1,
+  "tamanho": 100,
+  "icones": [
+    {
+      "id": "atordoado",
+      "originalBytes": 1382961,
+      "webpBytes": 4818,
+      "originalAlpha": true
+    },
+    {
+      "id": "cego",
+      "originalBytes": 1214134,
+      "webpBytes": 4746,
+      "originalAlpha": true
+    },
+    {
+      "id": "envenenado",
+      "originalBytes": 1094075,
+      "webpBytes": 5730,
+      "originalAlpha": true
+    },
+    {
+      "id": "incapacitado",
+      "originalBytes": 1071674,
+      "webpBytes": 7062,
+      "originalAlpha": true
+    },
+    {
+      "id": "inconsciente",
+      "originalBytes": 2311499,
+      "webpBytes": 6412,
+      "originalAlpha": true
+    },
+    {
+      "id": "surdo",
+      "originalBytes": 1255935,
+      "webpBytes": 7056,
+      "originalAlpha": true
+    },
+    {
+      "id": "enfraquecimento",
+      "originalBytes": 1112307,
+      "webpBytes": 5350,
+      "originalAlpha": true
+    },
+    {
+      "id": "toque-vampirico",
+      "originalBytes": 1018203,
+      "webpBytes": 5864,
+      "originalAlpha": true
+    },
+    {
+      "id": "luz",
+      "originalBytes": 674273,
+      "webpBytes": 3916,
+      "originalAlpha": true
+    },
+    {
+      "id": "santuario",
+      "originalBytes": 1439143,
+      "webpBytes": 5280,
+      "originalAlpha": true
+    },
+    {
+      "id": "protecao-bem-mal",
+      "originalBytes": 1786092,
+      "webpBytes": 6608,
+      "originalAlpha": true
+    },
+    {
+      "id": "prece-recebida",
+      "originalBytes": 1063609,
+      "webpBytes": 5320,
+      "originalAlpha": true
+    },
+    {
+      "id": "auxilio",
+      "originalBytes": 1032537,
+      "webpBytes": 6374,
+      "originalAlpha": true
+    },
+    {
+      "id": "bencao",
+      "originalBytes": 868926,
+      "webpBytes": 5354,
+      "originalAlpha": true
+    },
+    {
+      "id": "expulsar-mortos-vivos",
+      "originalBytes": 1094354,
+      "webpBytes": 7240,
+      "originalAlpha": true
+    },
+    {
+      "id": "gelo-lentidao",
+      "originalBytes": 1161056,
+      "webpBytes": 5388,
+      "originalAlpha": true
+    },
+    {
+      "id": "cura-bloqueada",
+      "originalBytes": 1169382,
+      "webpBytes": 5216,
+      "originalAlpha": true
+    },
+    {
+      "id": "generico-buff",
+      "originalBytes": 1341372,
+      "webpBytes": 8454,
+      "originalAlpha": true
+    },
+    {
+      "id": "generico-debuff",
+      "originalBytes": 1091828,
+      "webpBytes": 5974,
+      "originalAlpha": true
+    },
+    {
+      "id": "generico-neutro",
+      "originalBytes": 1020868,
+      "webpBytes": 6568,
+      "originalAlpha": true
+    },
+    {
+      "id": "morto",
+      "originalBytes": 1131199,
+      "webpBytes": 6278,
+      "originalAlpha": true
+    },
+    {
+      "id": "maldicao",
+      "originalBytes": 1030408,
+      "webpBytes": 4608,
+      "originalAlpha": true
+    },
+    {
+      "id": "pv-temporarios",
+      "originalBytes": 1020222,
+      "webpBytes": 5310,
+      "originalAlpha": true
+    },
+    {
+      "id": "escudo-arcano",
+      "originalBytes": 1243162,
+      "webpBytes": 5020,
+      "originalAlpha": true
+    },
+    {
+      "id": "lentidao",
+      "originalBytes": 1246581,
+      "webpBytes": 6722,
+      "originalAlpha": true
+    }
+  ],
+  "pendentes": [],
+  "temas": {
+    "buff": {
+      "fundo": "assets/efeitos/fundo-buff-96406ad639bb.svg",
+      "moldura": "assets/efeitos/moldura-buff-118a216eda98.svg"
+    },
+    "debuff": {
+      "fundo": "assets/efeitos/fundo-debuff-79d43c0312fc.svg",
+      "moldura": "assets/efeitos/moldura-debuff-7eafd606c0f4.svg"
+    },
+    "condicao": {
+      "fundo": "assets/efeitos/fundo-condicao-d28185db2de0.svg",
+      "moldura": "assets/efeitos/moldura-condicao-d76a6443ba00.svg"
+    },
+    "concentracao": {
+      "fundo": "assets/efeitos/fundo-concentracao-4516197d5672.svg",
+      "moldura": "assets/efeitos/moldura-concentracao-8cdb0f72f7d7.svg"
+    },
+    "neutro": {
+      "fundo": "assets/efeitos/fundo-neutro-5fbc67543aaa.svg",
+      "moldura": "assets/efeitos/moldura-neutro-f84f7070798d.svg"
+    }
+  }
+}

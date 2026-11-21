@@ -1,9 +1,9 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.79';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.80';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.79';
-import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.79';
-import {resumoItem} from './ficha-view.mjs?v=0.8.79';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.79';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.80';
+import {itensSaque,pesoInventario,capacidadeCargaAtual,quantidadeMoedaValida} from './engine.mjs?v=0.8.80';
+import {resumoItem} from './ficha-view.mjs?v=0.8.80';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.80';
 const menu=document.createElement('dialog');menu.id='menu';document.body.append(menu);
 const root=document.querySelector('#saque'),aviso=document.querySelector('#aviso');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

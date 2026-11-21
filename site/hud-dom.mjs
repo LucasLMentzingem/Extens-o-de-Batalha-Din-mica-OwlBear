@@ -1,5 +1,5 @@
 // Atualiza os nós existentes: mudar um saldo não recria as imagens da barra.
-const chave=no=>no.nodeType===1?(no.hasAttribute('data-cmd')?['cmd',no.tagName,...['cmd','id','pagina','modoCusto','grupo','chave','indice','index','circulo'].map(k=>no.dataset[k]??'')].join('|'):no.id?'id|'+no.id:null):null;
+const chave=no=>no.nodeType===1?(no.hasAttribute('data-hud-key')?'hud|'+no.dataset.hudKey:no.hasAttribute('data-cmd')?['cmd',no.tagName,...['cmd','id','pagina','modoCusto','grupo','chave','indice','index','circulo'].map(k=>no.dataset[k]??'')].join('|'):no.id?'id|'+no.id:null):null;
 const compativel=(a,b)=>a.nodeType===b.nodeType&&(a.nodeType!==1||a.tagName===b.tagName&&chave(a)===chave(b));
 function atributos(alvo,novo){
   for(const a of [...alvo.attributes])if(!novo.hasAttribute(a.name))alvo.removeAttribute(a.name);

@@ -1,13 +1,16 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.79';
-import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.79';
-import {extrairGrupos} from './hud-parts.mjs?v=0.8.79';
-import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.79';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.79';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.79';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.79';
-import {pronto} from './bridge.mjs?v=0.8.79';
-import {canalHud} from './hud-controller.mjs?v=0.8.79';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.79';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.80';
+import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.80';
+import {extrairGrupos} from './hud-parts.mjs?v=0.8.80';
+import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.80';
+import {renderizarEfeitosHud} from './effect-art.mjs?v=0.8.80';
+import {listarEfeitosHud} from './effect-state.mjs?v=0.8.80';
+import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.80';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.80';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.80';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.80';
+import {pronto} from './bridge.mjs?v=0.8.80';
+import {canalHud} from './hud-controller.mjs?v=0.8.80';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.80';
 const parametrosHud=new URL(location.href).searchParams,parte=parametrosHud.get('parte'),root=document.querySelector('#hud');
 const sessaoHud=parametrosHud.get('sessaoHud'),documentoHud=parametrosHud.get('documentoHud');
 const medicaoInterna=parametrosHud.get('medicaoInterna')==='1'&&['barra','ordem'].includes(parte);
@@ -38,6 +41,7 @@ function controlesMesa(s,fora){
     btn('alternarMesa','⌃','class="recolher-mesa" aria-label="Recolher controles do mestre"')+'</section>';
 }
 document.body.className=parte;
+if(parte==='efeitos')document.addEventListener('error',e=>{if(e.target?.matches?.('.efeito-hud img')){e.target.hidden=true;if(e.target.classList.contains('efeito-icone'))e.target.closest('.efeito-hud')?.classList.add('sem-arte');}},true);
 let medicaoBarraFrame,assinaturaMedidaBarra='',assinaturaGrupos='';
 let estadoMedidorRestaurado=false;
 function publicarGrupos(origem){
@@ -131,9 +135,7 @@ function retrato(a){
   return src?'<img alt="" src="'+esc(src)+'">':'<b>'+esc(a.nome.slice(0,1))+'</b>';
 }
 function efeitosHud(a){
-  const resumo=e=>{const m=e.modificadores??{},mods=Object.entries(m).map(([k,n])=>({ca:'CA',pvMaximos:'PV máximo',deslocamentoM:'deslocamento'}[k]??k)+' '+(n>=0?'+':'')+n),restante=e.duracao?.restante??e.turnos;return [e.nome,e.descricao,...mods,restante!=null?restante+' turno(s)':e.removeEm==='descanso_longo'?'Até o descanso longo':e.removeEm==='descanso_curto'?'Até o descanso curto':e.tipo==='concentracao'?'Termina ao perder ou encerrar a concentração':'Duração especial'].filter(Boolean).join('\n');};
-  const lista=[...(a.efeitosAtivos??[])];if(a.concentracaoAtiva)lista.unshift({nome:a.concentracaoAtiva.nome,tipo:'concentracao',descricao:'Concentração ativa'});
-  return lista.length?'<div class="efeitos-hud" aria-label="Buffs, condições e concentração">'+lista.map(e=>'<span class="efeito-hud '+esc(e.tipo??'efeito')+'" tabindex="0" data-info="'+esc(resumo(e))+'"><b>'+(e.tipo==='condicao'?'⚠':e.tipo==='concentracao'?'◉':'✦')+'</b><small>'+esc(e.nome)+'</small></span>').join('')+'</div>':'';
+  return renderizarEfeitosHud(a,v.estado.atores,{nomes:nomesSkillsVisiveis,revelarValores:v.eu.role==='GM'||a.ficha?.tipo==='pj'});
 }
 function barraCustos(p,classe=''){
   const custos=p?.custos??[];if(!custos.length)return '<div class="custos-compositor '+classe+'"><span class="custo-mini sem-custo"><b>○</b><small>Sem custo</small></span></div>';
@@ -277,7 +279,7 @@ function render(){
   }else if(parte==='dica-efeito'&&v.dicaEfeito){
     html='<section class="dica-efeito-card" role="tooltip">'+esc(v.dicaEfeito)+'</section>';
   }else if(parte==='efeitos'&&a){
-    html='<section class="efeitos-only">'+efeitosHud(a)+'</section>';
+    html='<section class="efeitos-only" style="--efeito-tamanho:'+(v.iconeEfeito??50)+'px">'+efeitosHud(a)+'</section>';
   }else if(parte==='barra'&&a){
     const pvMax=pvMaximosAtuais(a);
     const reserva='style="--efeitos-reserva:0px"';
@@ -361,7 +363,8 @@ function render(){
   const trilhoScroll=root.querySelector('.trilho-atividades')?.scrollLeft??0;
   if(html===ultimoHtml){agendarMedidaBarra();return;}
   const campo=document.activeElement,restaurar=campo&&root.contains(campo)&&campo.matches('input')?{id:campo.id,lote:campo.dataset.formulaLote,inicio:campo.selectionStart,fim:campo.selectionEnd}:null;
-  ocultarDica();root.innerHTML=html;ultimoHtml=html;
+  if(parte==='efeitos'){const strip=root.querySelector('.efeitos-hud'),pos=strip?.scrollLeft??0;atualizarHtmlHud(root,html);const nova=root.querySelector('.efeitos-hud');if(nova)nova.scrollLeft=pos;if(dicaEfeitoAtual){const alvo=root.querySelector('.efeito-hud:hover')??(root.contains(document.activeElement)?document.activeElement.closest('.efeito-hud'):null);if(!alvo)ocultarDica();else if(alvo.dataset.info!==dicaEfeitoAtual){dicaEfeitoAtual=alvo.dataset.info;bus?.postMessage({tipo:'dicaEfeito',info:dicaEfeitoAtual});}}}
+  else{ocultarDica();root.innerHTML=html;}ultimoHtml=html;
   if(observerBarra){observerBarra.disconnect();observerBarra.observe(root);agendarMedidaBarra();}
   if(restaurar){const novo=restaurar.id?document.getElementById(restaurar.id):root.querySelector('[data-formula-lote="'+restaurar.lote+'"]');if(novo){novo.focus();if(restaurar.inicio!==null)novo.setSelectionRange(restaurar.inicio,restaurar.fim);}}
   const trilho=root.querySelector('.trilho-atividades');if(trilho)trilho.scrollLeft=trilhoScroll;
@@ -402,6 +405,7 @@ function mostrarDica(e){
   dica.style.left=(caixa.left>innerWidth/2?4:Math.max(4,innerWidth-dica.offsetWidth-4))+'px';
 }
 root.onpointerover=mostrarDica;root.onfocusin=mostrarDica;root.onpointerleave=ocultarDica;root.onfocusout=ocultarDica;
+if(parte==='efeitos')root.addEventListener('wheel',e=>{const strip=root.querySelector('.efeitos-hud');if(strip&&strip.scrollWidth>strip.clientWidth&&!e.ctrlKey){e.preventDefault();strip.scrollLeft+=e.deltaX||e.deltaY;}},{passive:false});
 root.onclick=e=>{
   const b=e.target.closest('button');if(!b||b.disabled||!v)return;
   const tipo=b.dataset.cmd,id=b.dataset.id,controleDado=['modoDado','modoDadoLote','alternarAdicional','escolherRerrolagem','alternarDadoRerrolagem','rerrolarDado','rolarDado','continuarDado','cancelarDado'].includes(tipo);
@@ -487,7 +491,7 @@ root.ondblclick=e=>{
 };
 const assinaturaEfeitos=vista=>{
   const ator=vista?.estado?.atores?.find(x=>x.id===vista.atorId);
-  return JSON.stringify([vista?.atorId,ator?.efeitosAtivos??[],ator?.concentracaoAtiva??null]);
+  return JSON.stringify([vista?.atorId,vista?.iconeEfeito,listarEfeitosHud(ator,vista?.estado?.atores),nomesSkillsVisiveis]);
 };
 if(medicaoInterna)bus=new BroadcastChannel(parametrosHud.get('canalHud'));
 else{await pronto();bus=await canalHud();}

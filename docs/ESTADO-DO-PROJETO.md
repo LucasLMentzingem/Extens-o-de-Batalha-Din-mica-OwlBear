@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.80 — B: barra flutuante de efeitos — 21/11/2026
+
+Barra inferior esquerda entre Extras e ferramentas centrais; dez slots, scroll horizontal, caixa limitada ao conteúdo, adaptação em telas estreitas e reserva no rodapé. Artes próprias de habilidades/itens reutilizadas; 25 PNGs inéditos produzidos pelo subagente GPT 6 Luna, convertidos em WebP 100×100 (146.668 bytes), com cinco fundos e cinco molduras SVG compartilhados. Condições, concentração e estados derivados exibidos sem alterar regras/fichas; privacidade dos saldos NPC preservada. 508 testes; 21 cenários específicos B, 24 gerais, 7 de estabilidade e 8 de A com 160 cliques no canvas local. [Inventário e arquitetura](INVENTARIO-EFEITOS-B.md) · [Notas e limites](RELEASE-0.8.80.md).
+
 ## Entrega — 0.8.79 — estabilidade e latência da HUD — 21/11/2026
 
 Corrigida a recriação explícita dos grupos em mudanças de geometria. ID/URL/documento estáveis; resize em posição fixa; quadro anterior preservado até a medição, bloqueando comandos do ator anterior. DOM incremental mantém imagens; handshake aceita o primeiro pedido mesmo antes da resposta de abertura. Cache limitado de medidas por ator/linhas, propagação de resize aos medidores e recuperação de falhas de abertura. No ensaio local de 12 trocas: média 551→176 ms, chamadas close 336→0 e nenhuma observação sem grade após a correção. 496 testes, 24 verificações gerais, 7 de estabilidade e 8 de regressão A com 160 cliques no canvas. Sem controle do navegador do responsável. [Notas e limites](RELEASE-0.8.79.md).
