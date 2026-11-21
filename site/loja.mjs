@@ -1,10 +1,10 @@
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.77';
-import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.77';
-import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.77';
-import {resumoItem} from './ficha-view.mjs?v=0.8.77';
-import {publicarCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.77';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.77';
+import {ns,emSala,sala,demo} from './bridge.mjs?v=0.8.78';
+import {lojasAtivas,recomprasDaLoja,precoCompraPc,saldoMoedasPo,pesoInventario,capacidadeCargaAtual} from './engine.mjs?v=0.8.78';
+import {resolverLoja,resolverInstanciaItem} from './catalog.mjs?v=0.8.78';
+import {resumoItem} from './ficha-view.mjs?v=0.8.78';
+import {publicarCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.78';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.78';
 
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let s,info,api,atorId,lojaId,aba='loja',selecionado=null,ocupado=false;

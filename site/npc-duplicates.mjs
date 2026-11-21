@@ -1,5 +1,5 @@
-import {adicionar} from './engine.mjs?v=0.8.77';
-import {compactarFicha} from './catalog.mjs?v=0.8.77';
+import {adicionar} from './engine.mjs?v=0.8.78';
+import {compactarFicha} from './catalog.mjs?v=0.8.78';
 
 export const chaveFichaNpc='aventura-dnd.combate.v1/ficha-npc';
 export const chaveBloqueioNpc='aventura-dnd.combate.v1/bloqueio-anterior';

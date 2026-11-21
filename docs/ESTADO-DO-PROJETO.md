@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.78 — hotfix A: medição fora da camada do mapa — 21/11/2026
+
+Removidos os popovers invisíveis `barra`/`ordem` de 1 px da 0.8.77. Agora os dois documentos de medição ficam dentro do iframe visível de Atividades, sem área própria sobre o mapa ou a interface do host. Limpeza dos IDs antigos na inicialização e recuperação; filtros e confirmações preservados quando Atividades se move. 494 testes, 24 verificações gerais e 8 cenários de regressão com 160 cliques entregues ao canvas local. SDK verdadeiro nos medidores internos; host/sala simulados. Sem controlar o navegador do responsável. A reforma B ficou somente [registrada](PENDENCIA-B-BARRA-DE-EFEITOS.md). [Notas e limites](RELEASE-0.8.78.md).
+
 ## Entrega — 0.8.77 — entrada no mapa e tema dos carrosséis — 20/11/2026
 
 Aplicado o plano B: grupos do rodapé em popovers menores; o retângulo transparente antigo deixa de cobrir o mapa. Limite de 1120 px, linha de recursos, ordem dos controles e artes preservados. Carrossel de turnos e ferramentas GM com o mesmo tema flutuante. Janelas novas recebem somente HTML e metadados locais, sem importar catálogo/fichas. 494 testes e 19 verificações de navegador com GM/jogador e SDK simulado aprovados. A captura final de eventos pelo host autenticado continua sendo a validação na mesa real. [Notas e limites](RELEASE-0.8.77.md).

@@ -1,15 +1,15 @@
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.77';
-import {primeiroContato} from './zonas.mjs?v=0.8.77';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.77';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.77';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.77';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.77';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.77';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.77';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.77';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.78';
+import {primeiroContato} from './zonas.mjs?v=0.8.78';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.78';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.78';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.78';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.78';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.78';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.78';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.78';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.77';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.77';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.78';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.78';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;

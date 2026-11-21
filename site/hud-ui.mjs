@@ -1,13 +1,18 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.77';
-import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.77';
-import {extrairGrupos} from './hud-parts.mjs?v=0.8.77';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.77';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.77';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.77';
-import {pronto} from './bridge.mjs?v=0.8.77';
-import {canalHud} from './hud-controller.mjs?v=0.8.77';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.77';
-const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.78';
+import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.78';
+import {extrairGrupos} from './hud-parts.mjs?v=0.8.78';
+import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.78';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.78';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.78';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.78';
+import {pronto} from './bridge.mjs?v=0.8.78';
+import {canalHud} from './hud-controller.mjs?v=0.8.78';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.78';
+const parametrosHud=new URL(location.href).searchParams,parte=parametrosHud.get('parte'),root=document.querySelector('#hud');
+const sessaoHud=parametrosHud.get('sessaoHud'),documentoHud=parametrosHud.get('documentoHud');
+const medicaoInterna=parametrosHud.get('medicaoInterna')==='1'&&['barra','ordem'].includes(parte);
+const agendarFrame=medicaoInterna?fn=>setTimeout(fn,16):requestAnimationFrame;
+const cancelarFrame=medicaoInterna?clearTimeout:cancelAnimationFrame;
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -34,14 +39,15 @@ function controlesMesa(s,fora){
 }
 document.body.className=parte;
 let medicaoBarraFrame,assinaturaMedidaBarra='',assinaturaGrupos='';
+let estadoMedidorRestaurado=false;
 function publicarGrupos(origem){
   if(!v||!bus)return;
-  const d={tipo:'partesHud',origem,atorId:v.atorId,linhas:v.linhas,rev:v.estado.rev,compacto:v.compacto,nomes:nomesSkillsVisiveis,largura:root.getBoundingClientRect().width,altura:Math.ceil(root.scrollHeight),partes:extrairGrupos(root,origem,{compacto:v.compacto})};
+  const d={tipo:'partesHud',origem,atorId:v.atorId,linhas:v.linhas,rev:v.estado.rev,compacto:v.compacto,nomes:nomesSkillsVisiveis,estadoLocal:{filtro,recursoAtivo,confirmacaoMesa},largura:root.getBoundingClientRect().width,altura:Math.ceil(root.scrollHeight),partes:extrairGrupos(root,origem,{compacto:v.compacto})};
   const s=JSON.stringify(d);if(s===assinaturaGrupos)return;assinaturaGrupos=s;bus.postMessage(d);
 }
 function agendarMedidaBarra(){
   if(!['barra','ordem'].includes(parte)||medicaoBarraFrame)return;
-  medicaoBarraFrame=requestAnimationFrame(()=>{
+  medicaoBarraFrame=agendarFrame(()=>{
     medicaoBarraFrame=null;
     if(parte==='ordem'){publicarGrupos('ordem');return;}
     const corpo=root.querySelector('.dock .dock-corpo'),grade=corpo?.querySelector('.grade');
@@ -483,8 +489,10 @@ const assinaturaEfeitos=vista=>{
   const ator=vista?.estado?.atores?.find(x=>x.id===vista.atorId);
   return JSON.stringify([vista?.atorId,ator?.efeitosAtivos??[],ator?.concentracaoAtiva??null]);
 };
-const parametrosHud=new URL(location.href).searchParams,sessaoHud=parametrosHud.get('sessaoHud'),documentoHud=parametrosHud.get('documentoHud');
-await pronto();bus=await canalHud();const publicar=bus.postMessage.bind(bus);bus.postMessage=d=>publicar({...d,sessaoHud,documentoHud});
+if(medicaoInterna)bus=new BroadcastChannel(parametrosHud.get('canalHud'));
+else{await pronto();bus=await canalHud();}
+const publicar=bus.postMessage.bind(bus);bus.postMessage=d=>publicar({...d,sessaoHud,documentoHud});
+const medidores=parte==='atividades'?criarMedidoresHud({document,canal:bus.name,sessaoHud,url:location.href}):null;
 let pressionado=false;const entrada=valor=>{if(pressionado===valor)return;pressionado=valor;bus.postMessage({entradaHud:parte,pressionado:valor});};
 const presenca=()=>bus.postMessage({presenca:parte,compacto:parte==='barra'?Boolean(root.querySelector('.compacta')):undefined});
 bus.onmessage=e=>{
@@ -494,12 +502,12 @@ bus.onmessage=e=>{
    const b=[...root.querySelectorAll('[data-cmd]')].find(b=>b.dataset.cmd===d.comando&&(d.id===undefined||b.dataset.id===d.id));b?.click();return;
  }
  if(e.data.verificarPresenca===parte&&(!sessaoHud||e.data.sessaoHud===sessaoHud)){presenca();return;}
- if(e.data.vista){const proxima=e.data.vista;if(sessaoHud&&proxima.sessaoHud!==sessaoHud)return;if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}
+ if(e.data.vista){const proxima=e.data.vista;if(sessaoHud&&proxima.sessaoHud!==sessaoHud)return;medidores?.atualizar(proxima.medidoresHud);if(medicaoInterna&&!estadoMedidorRestaurado){estadoMedidorRestaurado=true;const salvo=proxima.estadoMedidores?.[parte];if(salvo){filtro=salvo.filtro;recursoAtivo=salvo.recursoAtivo;confirmacaoMesa=salvo.confirmacaoMesa;}}if(parte==='efeitos'&&v&&assinaturaEfeitos(v)===assinaturaEfeitos(proxima)){v=proxima;return;}v=proxima;render();}
 };
 document.addEventListener('pointerdown',()=>entrada(true),true);document.addEventListener('pointerup',e=>entrada(e.buttons!==0),true);document.addEventListener('pointercancel',()=>entrada(false),true);document.addEventListener('pointermove',e=>{if(!e.buttons)entrada(false);},true);
 window.addEventListener('blur',()=>entrada(false));document.addEventListener('visibilitychange',()=>{if(document.hidden)entrada(false);else presenca();});
 bus.postMessage({pedir:true});presenca();const timerPresenca=setInterval(presenca,2500);
 const timerReacao=parte==='reacao'?setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250):null;
-window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);observerBarra?.disconnect();cancelAnimationFrame(medicaoBarraFrame);bus.close();},{once:true});
+window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);observerBarra?.disconnect();cancelarFrame(medicaoBarraFrame);medidores?.fechar();bus.close();},{once:true});
 
 window.addEventListener('storage',e=>{if(e.key==='la-arte/nomes-skills'){nomesSkillsVisiveis=e.newValue!=='0';if(v)render();}});

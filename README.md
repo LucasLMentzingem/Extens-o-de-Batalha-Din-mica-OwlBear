@@ -1,8 +1,10 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.77**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.77.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.78**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.78.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
 HUD flutuante sem placa externa ou log inferior. Grupos em janelas menores liberam o mapa entre seus controles. Grade e disposição acompanham o conteúdo, respeitando a linha completa de recursos e o máximo de 1120 px; botão Token aproxima a peça vinculada. Carrossel de turnos e ferramentas do mestre usam o mesmo tema flutuante.
+
+Medição da HUD confinada dentro de Atividades, sem popovers invisíveis sobre o mapa. Janelas antigas de medição são fechadas ao iniciar e recuperar a HUD. [Reforma da barra de efeitos registrada para depois do A](docs/PENDENCIA-B-BARRA-DE-EFEITOS.md).
 
 CA base + CA extra = total: armadura ou regra sem armadura/traço define a base; atributos, itens e efeitos entram nos extras. Slot próprio de Luvas, migração automática e salvamento compacto, sem reimportar fichas.
 

@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.77");
+@import url("./ability-art.css?v=0.8.78");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -277,8 +277,7 @@ body.atividades,body.atividades #hud{height:100vh}
 .dock.flutuante button:disabled{color:#aaa798}
 .dock.compacta .dock-corpo{background:transparent;border:0;border-radius:0;box-shadow:none}
 .dock.compacta aside>b{display:block;padding:4px 2px;border-radius:4px;background:#1c2029f2;color:#f3ead7;text-shadow:0 1px 2px #000}
-/* A medição não é uma janela de captura sobre o rodapé. Só a faixa técnica
-   de 1 px fica na borda inferior; os grupos úteis usam popovers separados. */
+/* Documentos de medição ficam dentro de Atividades, sem popover próprio. */
 body.medidor-hud{visibility:hidden;overflow:hidden}
 .medidor-hud #hud{width:100%;height:auto;min-height:0}
 .medidor-hud .dock.flutuante .dock-corpo{max-height:var(--altura-disponivel,800px)}
