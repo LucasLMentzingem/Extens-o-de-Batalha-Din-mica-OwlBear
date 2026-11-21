@@ -7,6 +7,7 @@ export const gruposRodape=Object.freeze({
 });
 export const gruposMesa=Object.freeze({'mesa-turnos':'#hud>nav','mesa-ferramentas':'.mesa-fora,.controles-mesa,.confirmacao-mesa,.expandir-mesa'});
 export const partesLeves=Object.freeze([...Object.keys(gruposRodape),...Object.keys(gruposMesa),'barra-dica']);
+export function comandoDoAtorHudValido(d,atorId){return !Object.hasOwn(gruposRodape,d.parteHud??'')||!d.tipo||d.tipo==='dicaRodape'||d.atorHud===atorId;}
 export function chaveParte(ns,sala,conexao,parte){return [ns,'hud-parte',sala,conexao,parte].join('/');}
 export function chaveEntrada(ns,sala,conexao){return [ns,'hud-entrada',sala,conexao].join('/');}
 export function grupoHudValido(g,origem,largura,altura){

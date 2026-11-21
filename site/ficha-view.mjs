@@ -1,7 +1,7 @@
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.78';
-import {resolverCA,bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.78';
-import {arteItem} from './item-art.mjs?v=0.8.78';
-import {arteHabilidade} from './ability-art.mjs?v=0.8.78';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.79';
+import {resolverCA,bonusEfeito,bonusEquipamento,bonusPassiva,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,inventarioNormalizado,pesoInventario,saldoMoedasPo,slotsEquipamento,slotsOcupadosItem,opcaoPreparada,opcaoDisponivel,opcoesCalculadas,proficienteComArma} from './engine.mjs?v=0.8.79';
+import {arteItem} from './item-art.mjs?v=0.8.79';
+import {arteHabilidade} from './ability-art.mjs?v=0.8.79';
 export const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normalizarOrigem=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 export const nomeRaca=f=>String(f?.especie??'Raça').trim()||'Raça';

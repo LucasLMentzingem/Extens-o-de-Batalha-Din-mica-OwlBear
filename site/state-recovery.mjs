@@ -1,4 +1,4 @@
-import {validar,atualizarMagias,normalizarComercio,normalizarZonas} from './engine.mjs?v=0.8.78';
+import {validar,atualizarMagias,normalizarComercio,normalizarZonas} from './engine.mjs?v=0.8.79';
 
 // A ficha original isolada nunca é normalizada nem compactada: permite recuperar/exportar o dado exato.
 export function recuperarEstado(salvo){

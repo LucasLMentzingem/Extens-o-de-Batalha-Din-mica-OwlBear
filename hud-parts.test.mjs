@@ -1,8 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {grupoHudValido,chaveParte,chaveEntrada,partesLeves} from './site/hud-parts.mjs';
+import {grupoHudValido,chaveParte,chaveEntrada,partesLeves,comandoDoAtorHudValido} from './site/hud-parts.mjs';
 import {mensagemHudValida} from './site/hud-protocol.mjs';
 const grupo={parte:'barra-grade',x:90,y:80,width:400,height:110,html:'<div>Grade</div>'};
+test('quadro antigo não executa habilidade nem controle no personagem recém-selecionado',()=>{
+  for(const tipo of ['usar','mover','ficha','passar','teste','interacaoRodape']){
+    assert.equal(comandoDoAtorHudValido({parteHud:'barra-grade',tipo,atorHud:'A'},'B'),false);
+    assert.equal(comandoDoAtorHudValido({parteHud:'barra-grade',tipo},'B'),false);
+    assert.equal(comandoDoAtorHudValido({parteHud:'barra-grade',tipo,atorHud:'B'},'B'),true);
+  }
+});
+test('proteção de troca conserva presença, dicas e seleção explícita no carrossel',()=>{
+  for(const d of [{parteHud:'barra-grade',presenca:'barra-grade'},{parteHud:'barra-grade',pedir:true},{parteHud:'barra-grade',tipo:'dicaRodape',html:null},{parteHud:'mesa-turnos',tipo:'ator',id:'C',atorHud:'A'}])assert.equal(comandoDoAtorHudValido(d,'B'),true);
+});
 test('grupos ficam dentro do layout medido, com tolerância apenas de arredondamento',()=>{
   assert.equal(grupoHudValido(grupo,'barra',600,200),true);
   assert.equal(grupoHudValido({...grupo,x:202},'barra',600,200),true);

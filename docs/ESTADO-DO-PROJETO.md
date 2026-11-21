@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.79 — estabilidade e latência da HUD — 21/11/2026
+
+Corrigida a recriação explícita dos grupos em mudanças de geometria. ID/URL/documento estáveis; resize em posição fixa; quadro anterior preservado até a medição, bloqueando comandos do ator anterior. DOM incremental mantém imagens; handshake aceita o primeiro pedido mesmo antes da resposta de abertura. Cache limitado de medidas por ator/linhas, propagação de resize aos medidores e recuperação de falhas de abertura. No ensaio local de 12 trocas: média 551→176 ms, chamadas close 336→0 e nenhuma observação sem grade após a correção. 496 testes, 24 verificações gerais, 7 de estabilidade e 8 de regressão A com 160 cliques no canvas. Sem controle do navegador do responsável. [Notas e limites](RELEASE-0.8.79.md).
+
 ## Entrega — 0.8.78 — hotfix A: medição fora da camada do mapa — 21/11/2026
 
 Removidos os popovers invisíveis `barra`/`ordem` de 1 px da 0.8.77. Agora os dois documentos de medição ficam dentro do iframe visível de Atividades, sem área própria sobre o mapa ou a interface do host. Limpeza dos IDs antigos na inicialização e recuperação; filtros e confirmações preservados quando Atividades se move. 494 testes, 24 verificações gerais e 8 cenários de regressão com 160 cliques entregues ao canvas local. SDK verdadeiro nos medidores internos; host/sala simulados. Sem controlar o navegador do responsável. A reforma B ficou somente [registrada](PENDENCIA-B-BARRA-DE-EFEITOS.md). [Notas e limites](RELEASE-0.8.78.md).

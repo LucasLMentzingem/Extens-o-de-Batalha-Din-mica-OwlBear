@@ -1,4 +1,4 @@
-import {artesRecursos} from './catalogos/artes-recursos.mjs?v=0.8.78';
+import {artesRecursos} from './catalogos/artes-recursos.mjs?v=0.8.79';
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function chaveArteRecurso(id){
  const chave=String(id).replace(/^recurso:/,'');

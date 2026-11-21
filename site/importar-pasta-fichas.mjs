@@ -1,4 +1,4 @@
-import {validar, LIMITE_FICHAS_GRUPO} from './engine.mjs?v=0.8.78';
+import {validar, LIMITE_FICHAS_GRUPO} from './engine.mjs?v=0.8.79';
 
 export async function lerPastaFichas(arquivos) {
   const selecionados = Array.from(arquivos);

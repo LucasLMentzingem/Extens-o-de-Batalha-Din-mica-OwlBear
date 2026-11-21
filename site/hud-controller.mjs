@@ -1,25 +1,25 @@
-import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.78';
-import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.78';
-import {gruposRodape,gruposMesa,partesLeves,chaveParte,chaveEntrada,grupoHudValido} from './hud-parts.mjs?v=0.8.78';
-import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.78';
-import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.78';
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.78';
+import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.79';
+import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.79';
+import {gruposRodape,gruposMesa,partesLeves,chaveParte,chaveEntrada,grupoHudValido,comandoDoAtorHudValido} from './hud-parts.mjs?v=0.8.79';
+import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.79';
+import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.79';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.79';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.78';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.78';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.78';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.78';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.78';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.78';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.78';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.78';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.78';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.78';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.78';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.78';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.79';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.79';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.79';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.79';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.79';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.79';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.79';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.79';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.79';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.79';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.79';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.79';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.78',import.meta.url);
+const url=new URL('./hud.html?v=0.8.79',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -81,11 +81,13 @@ export async function iniciarHud(){
   const canaisPartes=new Map(partesLeves.map(p=>[p,new BroadcastChannel(chaveParte(ns,OBR.room.id,conexao,p))]));
   const entradaPartes=new BroadcastChannel(chaveEntrada(ns,OBR.room.id,conexao));
   const cargasPartes=new Map(),enviadasPartes=new Map(),geometriasPartes={};
-  let layoutRodape,layoutMesa,dicaRodape;
+  let layoutRodape,layoutMesa,dicaRodape,assinaturaMedidores='';
   limpezas.push(()=>{entradaPartes.close();for(const c of canaisPartes.values())c.close();});
   function publicarParte(parte,forcar=false){
     const html=cargasPartes.get(parte),documentoHud=documentos.get(parte);if(!html||!documentoHud||!estado)return;
-    const d={html,documentoHud,sessaoHud,rev:estado.rev,compacto,nomes:geometriasPartes.barra?.nomes!==false};
+    const g=geometriasPartes[Object.hasOwn(gruposMesa,parte)?'ordem':'barra'];
+    const aguardando=Object.hasOwn(gruposRodape,parte)&&(!g||g.atorId!==atorId||g.linhas!==linhas||g.compacto!==compacto);
+    const d={html,documentoHud,sessaoHud,atorId:g?.atorId,aguardando,rev:estado.rev,compacto,nomes:geometriasPartes.barra?.nomes!==false};
     const assinatura=JSON.stringify(d);if(!forcar&&enviadasPartes.get(parte)===assinatura)return;
     enviadasPartes.set(parte,assinatura);canaisPartes.get(parte)?.postMessage(d);
   }
@@ -95,7 +97,8 @@ export async function iniciarHud(){
   let marcasAreaMovimento=[],assinaturaAreaMovimento='';
   limpezas.push(()=>{if(marcasAreaMovimento.length)OBR.scene.local.deleteItems(marcasAreaMovimento).catch(()=>{});});
   let saqueAbertoVisual=null,trocaAbertaVisual=null;
-  let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false,medidaBarra;
+  let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false;
+  const medidasRodape=new Map();
   let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'painel'});
   const marcasPorAtividade=new Map();
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
@@ -195,6 +198,18 @@ export async function iniciarHud(){
     if(!box){if(antes){await OBR.popover.close(id).catch(()=>{});abertos.delete(parte);documentos.delete(parte);presencas.delete(parte);pings.delete(parte);registrar('fechar',{parte});}return;}
     if(antes&&Date.now()-(presencas.get(parte)??0)<6500){
       if(abertos.get(parte)===key)return;
+      // Mesma posição: redimensiona sem navegar o iframe. Posição nova:
+      // atualiza o mesmo ID/URL, conservando o documento e o handshake.
+      try{
+        if(antes[0]===box[0]&&antes[1]===box[1]&&OBR.popover.setWidth&&OBR.popover.setHeight){
+          if(antes[2]!==box[2])await OBR.popover.setWidth(id,box[2]);
+          if(antes[3]!==box[3])await OBR.popover.setHeight(id,box[3]);
+        }else{
+          const pagina=paginaHud(parte,documentos.get(parte));
+          await abrirPopover(id,pagina,box);
+        }
+        abertos.set(parte,key);registrar('atualizar-geometria',{parte});return;
+      }catch{registrar('geometria-reabrir',{parte});}
     }
     if(antes&&abertos.get(parte)===key){
       if(document.visibilityState==='hidden'||ponteiroMapa||ponteiros.size)return;
@@ -205,13 +220,16 @@ export async function iniciarHud(){
     // Owlbear ainda conserva o pop-up antigo. Fechar pelo ID torna a abertura
     // idempotente e impede que um pop-up órfão bloqueie toda a HUD.
     await OBR.popover.close(id).catch(()=>{});
-    const [left,top,width,height]=box;
-    const documento=crypto.randomUUID(),pagina=partesLeves.includes(parte)?new URL('./hud-part.html?v=0.8.78',url):new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);
-    await OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,
-      anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+    const [,,width,height]=box;
+    const documento=crypto.randomUUID(),pagina=paginaHud(parte,documento);
+    // O iframe pode pedir os dados antes de open() responder ao controlador.
+    documentos.set(parte,documento);
+    try{await abrirPopover(id,pagina,box);}catch(e){documentos.delete(parte);abertos.delete(parte);presencas.delete(parte);pings.delete(parte);throw e;}
     abertos.set(parte,key);
-    documentos.set(parte,documento);presencas.set(parte,Date.now());pings.delete(parte);registrar('abrir',{parte,documento,width,height});
+    presencas.set(parte,Date.now());pings.delete(parte);registrar('abrir',{parte,documento,width,height});
   }
+  function paginaHud(parte,documento){const pagina=partesLeves.includes(parte)?new URL('./hud-part.html?v=0.8.79',url):new URL(url.href);pagina.searchParams.set('parte',parte);pagina.searchParams.set('sessaoHud',sessaoHud);pagina.searchParams.set('documentoHud',documento);return pagina;}
+  function abrirPopover(id,pagina,[left,top,width,height]){return OBR.popover.open({id,url:pagina.href,width,height,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left,top},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});}
   async function layout(){
     if(encerrado)return;
     if(layoutEmCurso){layoutPendente=true;return layoutEmCurso;}
@@ -240,7 +258,7 @@ export async function iniciarHud(){
       const limiteBarra=acaoLadoALado?leftAcao-gap:limiteAtividades;
       const leftBarra=Math.min(margemEsquerda+faixaEfeitos,Math.max(8,w-308));
       const limiteLargura=Math.max(1,Math.min(1120,limiteBarra-leftBarra));
-      const medida=medidaBarra?.atorId===atorId&&medidaBarra.linhas===linhas?medidaBarra:null;
+      const medida=medidasRodape.get(atorId+'/'+linhas);
       const dimensoes=caixaRodape({larguraMaxima:limiteLargura,alturaMaxima:Math.max(80,h-110),linhas,medida});
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
       if(!foraDaOrdem||eu.role==='GM'){
@@ -311,7 +329,16 @@ export async function iniciarHud(){
     if(ativo){
       for(const [origem,base] of [['barra',layoutRodape],['ordem',layoutMesa]]){
         const g=geometriasPartes[origem];
-        if(!base||!g||g.atorId!==atorId||Math.abs(g.largura-base.width)>2||origem==='barra'&&(g.linhas!==linhas||g.compacto!==compacto))continue;
+        if(!base)continue;
+        if(!g||g.atorId!==atorId||Math.abs(g.largura-base.width)>2||origem==='barra'&&(g.linhas!==linhas||g.compacto!==compacto)){
+          // Mantém o último quadro visível até a nova medida chegar. Os
+          // comandos do ator anterior ficam bloqueados no protocolo e na UI.
+          for(const parte of Object.keys(origem==='barra'?gruposRodape:gruposMesa)){
+            if(origem==='barra'&&compacto&&parte!=='barra-identidade')continue;
+            if(abertos.has(parte))caixas[parte]=JSON.parse(abertos.get(parte));
+          }
+          continue;
+        }
         for(const p of g.partes)caixas[p.parte]=[base.x+p.x,base.y+p.y,p.width,p.height];
       }
       if(dicaRodape&&layoutRodape){
@@ -323,6 +350,8 @@ export async function iniciarHud(){
     const falhas=resultados.flatMap((r,i)=>r.status==='rejected'?[partesHud[i]+': '+(r.reason?.message??r.reason)]:[]);
     if(falhas.length)throw Error('Falha ao abrir a HUD — '+falhas.join(' · '));
     for(const parte of partesLeves)if(caixas[parte])publicarParte(parte);
+    const config=JSON.stringify([layoutRodape?.width,layoutRodape?.alturaMax,layoutMesa?.width,documentos.get('barra'),documentos.get('ordem')]);
+    if(config!==assinaturaMedidores){assinaturaMedidores=config;transmitir();}
   }
   async function limparMarcas(){
     const ids=marcas;marcas=[];
@@ -712,9 +741,10 @@ export async function iniciarHud(){
     }
     if(d.tipo==='dimensoesBarra'){
       if(compacto||d.documentoHud!==documentos.get('barra')||!medidaRodapeValida(d,{atorId,linhas,rev:estado?.rev}))return;
-      const antes=medidaBarra;
-      medidaBarra=d;
-      if(!antes||antes.atorId!==d.atorId||antes.linhas!==d.linhas||Math.abs(antes.larguraIdeal-d.larguraIdeal)>2||Math.abs(antes.altura-d.altura)>2)await layout();
+      const chave=d.atorId+'/'+d.linhas,antes=medidasRodape.get(chave);
+      medidasRodape.set(chave,{atorId:d.atorId,linhas:d.linhas,larguraIdeal:d.larguraIdeal,altura:d.altura});
+      if(medidasRodape.size>128)medidasRodape.delete(medidasRodape.keys().next().value);
+      if(!antes||antes.atorId!==d.atorId||antes.linhas!==d.linhas||Math.abs(antes.larguraIdeal-d.larguraIdeal)>2||Math.abs(antes.altura-d.altura)>2){await layout();transmitir();}
       return;
     }
     if(d.tipo==='dicaEfeito'){
@@ -872,6 +902,7 @@ export async function iniciarHud(){
   bus.onmessage=e=>{
     const d=e.data;if(encerrado||!mensagemHudValida(d,sessaoHud))return;
     if(d.parteHud&&(!partesLeves.includes(d.parteHud)||d.documentoHud!==documentos.get(d.parteHud)))return;
+    if(!comandoDoAtorHudValido(d,atorId))return;
     const imediato=d.presenca||d.entradaHud||['partesHud','dimensoesBarra','interacaoRodape','dicaRodape','resolverReacao','restaurarJanelas','cancelarExecucao','assumirPedido','resultadoManual','rascunhoDado','alternarAtividades','selecionarAtividade','fecharAtividade','recolherAtividades'].includes(d.tipo)||d.pedir===true||['dicaEfeito','alternarAdicional','rolarDado','rerrolarDado','continuarDado','cancelarDado'].includes(d.tipo);
     const executar=async()=>{try{await mensagem(e.data);}catch(err){transmitir();OBR.notification.show(err.message||String(err),'ERROR');}};
     if(imediato)executar();else serial(executar);
@@ -964,7 +995,7 @@ export async function iniciarHud(){
   });
   limpezas.push(OBR.scene.onReadyChange(r=>serial(async()=>{
     ponteiros.clear();ponteiroMapa=false;layoutAguardandoPonteiro=false;
-    pronta=r;atividades=new AtividadesMesa({modo:atividades.modo});marcasPorAtividade.clear();estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
+    pronta=r;atividades=new AtividadesMesa({modo:atividades.modo});marcasPorAtividade.clear();medidasRodape.clear();estado=null;tokens=[];pendente=null;acaoPublica=null;pedidoDado=null;anuncioDado=null;clearTimeout(timerAnuncio);anterior=null;marcas=[];marcasPublicas=[];
     await layout();
     if(ferramentaDoTurno&&await OBR.tool.getActiveTool()===tool)await OBR.tool.activateTool(ferramentaDoTurno);
     ferramentaDoTurno=null;
@@ -989,6 +1020,8 @@ export async function iniciarHud(){
   let verificando=false;
   // O layout tem sua própria fila; não deve esperar a execução que aguarda dados.
   const timerSaude=setInterval(async()=>{if(verificando||encerrado||document.visibilityState==='hidden')return;verificando=true;try{if(pronta&&!estado)await api.notify();else if(abertos.size)await layout();}catch(e){console.warn('Aguardando conexão com o mestre:',e.message);}finally{verificando=false;}},1200);
+  const aoRedimensionar=()=>{if(estado&&!encerrado)layout().catch(e=>console.warn('Redimensionar HUD:',e.message));};
+  window.addEventListener('resize',aoRedimensionar);limpezas.push(()=>window.removeEventListener('resize',aoRedimensionar));
   limpezas.push(()=>{clearInterval(timerSaude);clearTimeout(timerAnuncio);});
   // A recuperação deve continuar instalada mesmo quando o mestre chega depois.
   api.notify().then(()=>OBR.broadcast.sendMessage(canalPrevia,{tipo:'solicitar'},{destination:'REMOTE'})).catch(e=>console.warn('Aguardando conexão com o mestre:',e.message));
