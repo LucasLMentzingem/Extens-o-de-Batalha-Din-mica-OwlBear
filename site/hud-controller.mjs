@@ -1,23 +1,24 @@
-import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.74';
-import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.74';
-import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.74';
-import {AtividadesMesa} from './activity-feed.mjs?v=0.8.74';
+import {planejarMovimentoDinamico} from './dynamic-movement.mjs?v=0.8.75';
+import {caixaRodape,medidaRodapeValida} from './hud-dock-layout.mjs?v=0.8.75';
+import {deslocamentoMaximo,temCondicao} from './engine.mjs?v=0.8.75';
+import {hitboxToken,centroAlvo,distanciaAoAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.75';
+import {AtividadesMesa} from './activity-feed.mjs?v=0.8.75';
 import OBR,{buildCurve,buildLine,buildImage} from './vendor/sdk.mjs';
-import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.74';
-import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.74';
-import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.74';
-import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.74';
-import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.74';
-import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.74';
-import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.74';
-import {bonusPericia,mod} from './engine.mjs?v=0.8.74';
-import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.74';
-import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.74';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.74';
-import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.74';
+import {METROS_POR_CELULA,pixelsPorMetro} from './scene-scale.mjs?v=0.8.75';
+import {ns,pronto,sala,interfaceRolagens} from './bridge.mjs?v=0.8.75';
+import {atual,multi,incluirAlvo,destinoDeslocamento,dentroDaArea,oportunidades,opcoesDisponiveis,circulosConjuracao,derivarOpcaoCirculo,planoCustoOpcao,alvosElegiveisDestruidor,ofertaDestruidorDeHordas,metamagiaDuplicada,atoresElegiveisDescanso} from './engine.mjs?v=0.8.75';
+import {visibilidadeRolagem} from './roll-visibility.mjs?v=0.8.75';
+import {compactarMarcas,marcasPublicasValidas,remetentePodePublicarPrevia} from './action-preview.mjs?v=0.8.75';
+import {primeiroContato,terrenoDificilDasZonas,poligonoZona} from './zonas.mjs?v=0.8.75';
+import {visualHabilidade,testeVisual,opcaoConsumoItem} from './ability-art.mjs?v=0.8.75';
+import {bonusPericia,mod} from './engine.mjs?v=0.8.75';
+import {pontoNoRecipiente,idSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.75';
+import {abrirJanelaInventario,trocaParaUsuario} from './inventory-popovers.mjs?v=0.8.75';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.75';
+import {mensagemHudValida} from './hud-protocol.mjs?v=0.8.75';
 
 const tool=ns+'/mirar', mode=tool+'/ponto';
-const url=new URL('./hud.html?v=0.8.74',import.meta.url);
+const url=new URL('./hud.html?v=0.8.75',import.meta.url);
 const icons=[{icon:new URL('./icone.svg',url).href,label:'Mira e movimento'}];
 const canalPrevia=ns+'/action-preview';
 export const canalHud=async()=>new BroadcastChannel([ns,'hud',OBR.room.id,await OBR.player.getConnectionId()].join('/'));
@@ -81,7 +82,7 @@ export async function iniciarHud(){
   let marcasAreaMovimento=[],assinaturaAreaMovimento='';
   limpezas.push(()=>{if(marcasAreaMovimento.length)OBR.scene.local.deleteItems(marcasAreaMovimento).catch(()=>{});});
   let saqueAbertoVisual=null,trocaAbertaVisual=null;
-  let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false;
+  let alturaConteudoAcao=590,layoutEmCurso,layoutPendente=false,medidaBarra;
   let atividades=new AtividadesMesa({modo:localStorage.getItem(ns+'/atividades-modo')??'painel'});
   const marcasPorAtividade=new Map();
   let pronta=await OBR.scene.isReady(),pixelsMetro=pronta?pixelsPorMetro(await OBR.scene.grid.getDpi()):1;
@@ -215,17 +216,20 @@ export async function iniciarHud(){
       const temEfeitos=(ator()?.efeitosAtivos?.length??0)>0||Boolean(ator()?.concentracaoAtiva);
       const faixaEfeitos=temEfeitos?134:0,margemEsquerda=72,gap=10,acaoAtual=acaoVisivel();
       espacoEfeitos=0;
-      // Uma única linha ainda precisa acomodar cabeçalho, recursos, filtros,
-      // histórico e a barra de rolagem sem comprimir os ícones da grade.
+      // A janela começa com uma estimativa e converge pela medida do conteúdo.
+      // O limite da carta continua preservado, sem reservar a antiga faixa de log.
       const temCompositor=Boolean(acaoAtual?.composicao||acaoAtual?.compositor),gaveta=acaoAtual?.composicao??acaoAtual?.compositor;
-      const altura=Math.min(176+linhas*54,Math.floor(h*.65)),alturaAcao=Math.min(590,alturaConteudoAcao,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
+      const alturaAcao=Math.min(590,alturaConteudoAcao,h-96),larguraCartao=Math.min(410,Math.max(300,w*.36));
       const margemDireita=75,larguraDisponivel=Math.max(1,w-margemDireita-8);
       const larguraGaveta=temCompositor?(gaveta?.gavetaAberta===false?30:138):0,larguraAcao=Math.min(larguraDisponivel,larguraCartao+larguraGaveta);
       const acaoLadoALado=Boolean(acaoAtual)&&w>=820+larguraGaveta;
       const leftAcao=Math.round(w-margemDireita-larguraAcao);
       const limiteAtividades=w-10;
       const limiteBarra=acaoLadoALado?leftAcao-gap:limiteAtividades;
-      const leftBarra=margemEsquerda+faixaEfeitos,largura=Math.max(300,Math.min(1120,limiteBarra-leftBarra));
+      const leftBarra=Math.min(margemEsquerda+faixaEfeitos,Math.max(8,w-308));
+      const limiteLargura=Math.max(1,limiteBarra-leftBarra);
+      const medida=medidaBarra?.atorId===atorId&&medidaBarra.linhas===linhas?medidaBarra:null;
+      const dimensoes=caixaRodape({larguraMaxima:limiteLargura,alturaMaxima:Math.max(80,h-110),linhas,medida});
       const foraDaOrdem=estado.fase==='preparo'||ator()?.emCombate===false;
       if(!foraDaOrdem||eu.role==='GM'){
         const mesaRecolhida=foraDaOrdem&&eu.role==='GM'&&localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -234,7 +238,7 @@ export async function iniciarHud(){
         caixas.ordem=[Math.round(esquerda),4,larguraOrdem,mesaRecolhida?34:eu.role==='GM'?140:55];
       }
       if(ator()&&!ator().saqueAberto){
-        const larguraCorpo=compacto?92:largura,total=larguraCorpo+faixaEfeitos,alturaBarra=compacto?102:altura;
+        const larguraCorpo=compacto?92:dimensoes.largura,alturaBarra=compacto?102:dimensoes.altura;
         const left=leftBarra,top=h-alturaBarra-48;
         caixas.barra=[left,top,larguraCorpo,alturaBarra];
         if(temEfeitos){const alturaEfeitos=compacto?108:164;caixas.efeitos=[left-faixaEfeitos,Math.round(top+(alturaBarra-alturaEfeitos)/2),128,alturaEfeitos];}
@@ -660,6 +664,13 @@ export async function iniciarHud(){
       }
       return;
     }
+    if(d.tipo==='dimensoesBarra'){
+      if(compacto||d.documentoHud!==documentos.get('barra')||!medidaRodapeValida(d,{atorId,linhas,rev:estado?.rev}))return;
+      const antes=medidaBarra;
+      medidaBarra=d;
+      if(!antes||antes.atorId!==d.atorId||antes.linhas!==d.linhas||Math.abs(antes.larguraIdeal-d.larguraIdeal)>2||Math.abs(antes.altura-d.altura)>2)await layout();
+      return;
+    }
     if(d.tipo==='dicaEfeito'){
       dicaEfeito=typeof d.info==='string'&&d.info.trim()?d.info:null;await layout();transmitir();return;
     }
@@ -696,7 +707,8 @@ export async function iniciarHud(){
     else if(d.tipo==='linhas'){linhas=Math.max(1,Math.min(5,Number(d.valor)||3));localStorage.setItem(ns+'/linhas',linhas);}
     else if(d.tipo==='compactar'){compacto=typeof d.valor==='boolean'?d.valor:!compacto;localStorage.setItem(ns+'/compacto',compacto?'1':'0');registrar('modo-barra',{compacto});}
     else if(d.tipo==='focar'){
-      const a=atores().find(x=>x.id===d.id),p=pos(a);if(!a||!token(a))return;
+      const a=atores().find(x=>x.id===d.id),peca=token(a);if(!a||!peca||peca.visible===false)return;
+      const p=pos(a);
       const [w,h,escala]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight(),OBR.viewport.getScale()]);
       const zoom=Math.max(escala,1.35);await OBR.viewport.animateTo({scale:zoom,position:{x:w/2-p.x*zoom,y:h/2-p.y*zoom}});return;
     }

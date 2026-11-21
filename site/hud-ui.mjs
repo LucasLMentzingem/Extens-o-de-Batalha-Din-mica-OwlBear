@@ -1,10 +1,11 @@
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.74';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.74';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.74';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.74';
-import {pronto} from './bridge.mjs?v=0.8.74';
-import {canalHud} from './hud-controller.mjs?v=0.8.74';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.74';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.75';
+import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.75';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.75';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.75';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.75';
+import {pronto} from './bridge.mjs?v=0.8.75';
+import {canalHud} from './hud-controller.mjs?v=0.8.75';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.75';
 const parte=new URL(location.href).searchParams.get('parte'),root=document.querySelector('#hud');
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
@@ -31,6 +32,28 @@ function controlesMesa(s,fora){
     btn('alternarMesa','⌃','class="recolher-mesa" aria-label="Recolher controles do mestre"')+'</section>';
 }
 document.body.className=parte;
+let medicaoBarraFrame,assinaturaMedidaBarra='';
+function agendarMedidaBarra(){
+  if(parte!=='barra'||medicaoBarraFrame)return;
+  medicaoBarraFrame=requestAnimationFrame(()=>{
+    medicaoBarraFrame=null;
+    const corpo=root.querySelector('.dock:not(.compacta) .dock-corpo'),grade=corpo?.querySelector('.grade');
+    if(!corpo||!grade||!v||!bus)return;
+    const geometria=gradeRodape(grade.querySelectorAll(':scope > button').length,v.linhas);
+    grade.style.setProperty('--linhas',geometria.linhas);grade.style.setProperty('--colunas',geometria.colunas);
+    corpo.style.setProperty('--altura-grade',geometria.altura+'px');
+    const largura=el=>el?.getBoundingClientRect().width??0;
+    const grupo=el=>el?[...el.children].reduce((n,e)=>n+largura(e),0)+Math.max(0,el.children.length-1)*4:0;
+    const cabe=largura(corpo.querySelector('header>strong'))+grupo(corpo.querySelector('.atalhos-ficha'))+12;
+    const topo=larguraLinhaRecursos(corpo.querySelectorAll('.recurso-hud').length)+grupo(corpo.querySelector('.ferramentas-hud'))+8;
+    const filtros=grupo(corpo.querySelector('.categorias-hud'))+largura(corpo.querySelector('.finalizar-hud'))+10;
+    const larguraIdeal=Math.ceil(104+Math.max(cabe,topo,filtros,geometria.largura+120));
+    const altura=Math.ceil(corpo.scrollHeight+2);
+    const d={tipo:'dimensoesBarra',parte:'barra',atorId:v.atorId,linhas:v.linhas,rev:v.estado.rev,larguraIdeal,larguraMedida:innerWidth,altura};
+    const assinatura=JSON.stringify(d);if(assinatura===assinaturaMedidaBarra)return;assinaturaMedidaBarra=assinatura;bus.postMessage(d);
+  });
+}
+const observerBarra=parte==='barra'?new ResizeObserver(agendarMedidaBarra):null;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const btn=(cmd,label,attrs='')=>'<button type="button" data-cmd="'+cmd+'" '+attrs+'>'+label+'</button>';
 const nomesRecursosCurtos={acao:'Ação',bonus:'Bônus',truques:'Truq.',reacao:'Reação',feiticaria:'Feit.',inata:'Inata',repreensao:'Repre.',dv:'D.Vida','dados-de-vida':'D.Vida','passo-nebuloso-gratis':'P.Neb.','passos-largos-da-linhagem':'P.Larg.','marca-do-predador':'Marca','palavra-curativa-do-talento':'Cura','astucia-magica':'Astúc.','pontos-de-sorte':'Sorte','inspiracao-heroica':'I.Her.','pontos-de-foco':'Foco','metabolismo-incomum':'Metab.','pico-de-adrenalina':'Adren.','vigor-implacavel':'Vigor','inspiracao-de-bardo':'I.Bard.','magia-fascinante':'Fasc.','ataque-de-sopro':'Sopro','dados-de-superioridade':'Sup.','recuperar-folego':'Fôlego','surto-de-acao':'Surto','queimadura-de-fogo':'Fogo','canalizar-divindade':'Divin.','disparo-preparado':'Disparo','reposicionar':'Repos.','golpe-comando':'Comando','ultima-palavra':'Última'};
@@ -309,17 +332,18 @@ function render(){
       passivas?passivasGerais.map(botaoPassiva).join(''):itensGrade+disp.map(renderOpcao).join('');
     const filtros=[['Comum','Comum'],['Classe',nomeClasse(a.ficha)],['Raça',nomeRaca(a.ficha)],['Itens','Itens'],['Passivas','Passivas'],...(opcoesGratuitas.length?[['Usos gratuitos','Usos gratuitos']]:[])].map(([id,label])=>btn('filtro',esc(label),'data-id="'+id+'" aria-pressed="'+(!recursoAtivo&&filtro===id)+'"')).join('')+btn('filtro','Personalizado','data-id="Personalizado" disabled title="Disponível em uma etapa futura"');
     const maxMov=Math.max(.01,deslocamentoMaximo(a)),movPct=Math.max(0,Math.min(100,100*a.metros/maxMov));
-    html='<section class="dock" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+'<nav class="atalhos-ficha" aria-label="Abrir páginas da ficha">'+btn('ficha','Ficha','data-pagina="personagem"')+btn('ficha','Inventário','data-pagina="inventario"')+btn('ficha','Livro de habilidades','data-pagina="habilidades"')+'</nav></header>'+
+    html='<section class="dock flutuante" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+'<nav class="atalhos-ficha" aria-label="Abrir páginas da ficha">'+btn('ficha','Ficha','data-pagina="personagem"')+btn('ficha','Inventário','data-pagina="inventario"')+btn('ficha','Livro de habilidades','data-pagina="habilidades"')+btn('focar','Token','data-id="'+esc(a.id)+'" '+(v.imagens?.[a.id]?'':'disabled')+' aria-label="Aproximar e centralizar o token de '+esc(a.nome)+'"')+'</nav></header>'+
       '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud">'+btn('alternarNomesSkills','Aa','class="alternar-nomes-skills" aria-label="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" title="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" aria-pressed="'+nomesSkillsVisiveis+'"')+'<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
       '<div class="centro-hud"><div class="grade '+(nomesSkillsVisiveis?'':'sem-nomes-skills')+'" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">Nenhuma habilidade neste filtro.</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+('<div class="movimento-botoes">'+btn('alternarMovimentoDinamico','Movimento dinâmico','class="alternar-movimento-dinamico" aria-pressed="'+Boolean(v.movimentoDinamico)+'" '+(s.fase==='turnos'?'':'disabled'))+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'</div>')+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
-      '<div class="filtros-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+btn('passar','Finalizar turno','class="ouro" '+(turno?'':'disabled'))+'</div>'+(!p&&s.historico.length?'<small class="resultado" title="'+esc(s.historico[0])+'">'+esc(s.historico[0])+'</small>':'')+'</article></div></section>';
+      '<div class="filtros-hud"><div class="categorias-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+'</div>'+btn('passar','Finalizar turno','class="ouro finalizar-hud" '+(turno?'':'disabled'))+'</div></article></div></section>';
     }
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
   const trilhoScroll=root.querySelector('.trilho-atividades')?.scrollLeft??0;
-  if(html===ultimoHtml)return;
+  if(html===ultimoHtml){agendarMedidaBarra();return;}
   const campo=document.activeElement,restaurar=campo&&root.contains(campo)&&campo.matches('input')?{id:campo.id,lote:campo.dataset.formulaLote,inicio:campo.selectionStart,fim:campo.selectionEnd}:null;
   ocultarDica();root.innerHTML=html;ultimoHtml=html;
+  if(observerBarra){observerBarra.disconnect();const corpo=root.querySelector('.dock:not(.compacta) .dock-corpo');if(corpo)observerBarra.observe(corpo);agendarMedidaBarra();}
   if(restaurar){const novo=restaurar.id?document.getElementById(restaurar.id):root.querySelector('[data-formula-lote="'+restaurar.lote+'"]');if(novo){novo.focus();if(restaurar.inicio!==null)novo.setSelectionRange(restaurar.inicio,restaurar.fim);}}
   const trilho=root.querySelector('.trilho-atividades');if(trilho)trilho.scrollLeft=trilhoScroll;
   for(const el of root.querySelectorAll('[data-numero]')){
@@ -458,6 +482,6 @@ document.addEventListener('pointerdown',()=>entrada(true),true);document.addEven
 window.addEventListener('blur',()=>entrada(false));document.addEventListener('visibilitychange',()=>{if(document.hidden)entrada(false);else presenca();});
 bus.postMessage({pedir:true});presenca();const timerPresenca=setInterval(presenca,2500);
 const timerReacao=parte==='reacao'?setInterval(()=>{const p=v?.estado.reacaoPendente,t=document.querySelector('.timer');if(p&&t)t.textContent=Math.max(0,Math.ceil((p.terminaEm-Date.now())/1000))+' s';},250):null;
-window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);bus.close();},{once:true});
+window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);observerBarra?.disconnect();cancelAnimationFrame(medicaoBarraFrame);bus.close();},{once:true});
 
 window.addEventListener('storage',e=>{if(e.key==='la-arte/nomes-skills'){nomesSkillsVisiveis=e.newValue!=='0';if(v)render();}});

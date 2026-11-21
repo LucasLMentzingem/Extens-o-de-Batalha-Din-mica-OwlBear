@@ -1,5 +1,13 @@
 # Estado do projeto
 
+## Entrega — 0.8.75 — HUD flutuante — 20/11/2026
+
+Sem placa verde, moldura externa, divisor ou log inferior. Largura por conteúdo da grade, recursos completos e controles; altura medida sem faixa vazia. Token focaliza a peça. 488 testes e 19 verificações de navegador com SDK simulado. O responsável validará a captura dos espaços transparentes no Owlbear; se necessário, plano B de grupos em janelas menores. [Notas](RELEASE-0.8.75.md).
+
+## Entregas recebidas — 0.8.73 e 0.8.74
+
+Reações preventivas de Escudo Arcano/Veste na Gaveta, com retomada sem cobrança dupla, e anulação de Mísseis Mágicos protegidos sem rolar seus dados. [0.8.73](FIX-REACOES-ESCUDO-VESTE-0.8.73.md) · [0.8.74](FIX-ESCUDO-MISSEIS-0.8.74.md). Baseline da retomada: 482 testes.
+
 ## Entrega — 0.8.72 — CA base + extra, migração e salvamento — 18/11/2026
 
 Revisão da PR #78: base da armadura ou regra sem armadura/traço; todos os bônus em CA extra, inclusive manual. Removido ajuste automático criado para conservar total antigo, reparadas fichas v1 e dados da 0.8.71, variantes mágicas antigas e salvamento compacto pelo jogador. Sem reimportação de fichas. 472 testes e 18 cenários de interface em duas sessões com SDK simulado. [Notas e limites da verificação](RELEASE-0.8.72.md).

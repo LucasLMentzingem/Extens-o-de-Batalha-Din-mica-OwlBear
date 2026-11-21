@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.74");
+@import url("./ability-art.css?v=0.8.75");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 *{box-sizing:border-box}
 html,body,#hud{margin:0;background:transparent!important}
@@ -241,3 +241,41 @@ body.atividades,body.atividades #hud{height:100vh}
 .gaveta-atividades{overflow-y:auto}.gaveta-atividades>header,.gaveta-atividades>nav,.gaveta-atividades>footer{flex-shrink:0}
 
 .movimento-hud{grid-template-columns:98px 6px;flex-basis:110px}.movimento-botoes{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:98px;max-width:98px}.movimento-hud .movimento-botoes button{width:100%;height:auto;min-height:32px;white-space:normal;font-size:10px;padding:5px}.alternar-movimento-dinamico[aria-pressed="true"]{background:#b9944e;color:#17151b;border-color:#f3d78b}.custo-mini.movimento .saldo-recurso{font-size:8.5px;letter-spacing:-.2px}
+
+/* HUD flutuante: a janela agrupa os controles; somente os controles têm superfície. */
+.dock.flutuante{height:auto;min-height:0}
+.dock.flutuante .dock-corpo{position:relative;inset:auto;width:100%;height:auto;max-height:100vh;gap:12px;padding:6px;align-items:center;background:transparent;border:0;border-radius:0;box-shadow:none;overflow-x:hidden;overflow-y:auto}
+.dock.flutuante .dock-corpo>article{flex:1;gap:6px;align-self:start;min-width:0}
+.dock.flutuante aside{width:76px;text-shadow:0 1px 3px #000;align-self:center}
+.dock.flutuante aside>.retrato{width:66px;height:66px;background:#252b30;border-color:#b89c6b;box-shadow:0 2px 5px #0007}
+.dock.flutuante aside>.pv{height:4px;margin:6px 2px 0;border-radius:2px;background:#494241}
+.dock.flutuante aside>b{display:block;font:600 11px "Segoe UI",sans-serif;background:#1c2029f2;border-radius:0 0 5px 5px;padding:5px 2px}
+.dock.flutuante aside>small{display:block;margin-top:3px;background:#1c2029f2;border-radius:4px;padding:3px;color:#f1dbb8}
+.dock.flutuante .dock-corpo>article>header{min-height:24px;border:0;padding:0;gap:6px;justify-content:space-between}
+.dock.flutuante header>strong{color:#f0d5a0;text-shadow:0 2px 3px #111,0 0 6px #111}
+.dock.flutuante .atalhos-ficha{gap:4px}
+.dock.flutuante button:not(.recurso-hud):not(:has(.habilidade-arte)),.dock.flutuante select{background:#1c2028f5;border-color:#555557;border-radius:5px;box-shadow:0 2px 5px #0004}
+.dock.flutuante button:hover:enabled,.dock.flutuante button:focus-visible{border-color:#d5ba83}
+.dock.flutuante button[aria-pressed=true]:not(.recurso-hud):not(:has(.habilidade-arte)){background:#594b32;border-color:#d5ba83;color:#ffe9bb}
+.dock.flutuante .topo-hud{flex:none;min-height:42px;height:auto;overflow:visible;gap:8px}
+.dock.flutuante .recursos-hud{min-width:0;flex:1;overflow-x:auto;overflow-y:hidden}
+.dock.flutuante .ferramentas-hud{flex-shrink:0;gap:4px}
+.dock.flutuante .ferramentas-hud label{color:#f1e9d8;text-shadow:0 1px 3px #000}
+.dock.flutuante .centro-hud{position:relative;flex:none;overflow:visible;min-height:0;gap:10px}
+.dock.flutuante .centro-hud>.grade{flex:0 1 auto;width:calc(var(--colunas,1)*53px - 3px);max-width:calc(100% - 120px);align-content:start;grid-template-rows:repeat(var(--linhas),50px);grid-auto-columns:50px;gap:3px;padding-bottom:4px;overflow-x:auto;overflow-y:hidden;scrollbar-color:#ae946b #20242c77}
+.dock.flutuante .grade:has(.vazio-grade){display:block;width:180px;min-height:50px}
+.dock.flutuante .vazio-grade{min-width:0;min-height:50px;white-space:normal;text-shadow:0 1px 2px #000}
+.dock.flutuante .movimento-hud{position:absolute;top:0;right:0;width:110px;height:max(94px,var(--altura-grade,50px));min-height:0;grid-template-columns:98px 4px;grid-template-rows:1fr auto;gap:4px 8px}
+.dock.flutuante .movimento-hud .barra-movimento{width:4px;border:0;border-radius:3px;min-height:0;background:#504d46}
+.dock.flutuante .movimento-hud .barra-movimento i{background:#d8c28d}
+.dock.flutuante .movimento-hud>b{color:#f3ead7;text-shadow:0 1px 3px #000}
+.dock.flutuante .movimento-botoes{gap:5px}
+.dock.flutuante .filtros-hud{flex:none;gap:8px;align-items:flex-start;overflow:visible;min-height:28px}
+.dock.flutuante .categorias-hud{display:flex;gap:3px;min-width:0;flex:1;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.dock.flutuante .filtros-hud button.finalizar-hud{flex-shrink:0;min-height:28px;margin-left:auto;margin-top:max(0px,90px - var(--altura-grade,50px));background:#e1c18b;color:#211d19;border-color:#e1c18b;font-weight:650}
+.dock.flutuante .filtros-hud button.finalizar-hud:hover:enabled{background:#f0d5a2;color:#211d19}
+.dock.flutuante button:disabled{color:#aaa798}
+.dock.compacta .dock-corpo{background:transparent;border:0;border-radius:0;box-shadow:none}
+.dock.compacta aside>b{display:block;padding:4px 2px;border-radius:4px;background:#1c2029f2;color:#f3ead7;text-shadow:0 1px 2px #000}
+@media(max-width:620px){.dock.flutuante .topo-hud{flex-wrap:wrap;gap:6px}.dock.flutuante .ferramentas-hud{flex-shrink:1;flex-wrap:wrap;width:auto}.dock.flutuante .recursos-hud{flex-basis:100%}.dock.flutuante .recurso-hud{flex-basis:42px;width:42px;height:42px}.dock.flutuante .filtros-hud{flex-wrap:wrap}.dock.flutuante .categorias-hud{flex-basis:100%}.dock.flutuante .filtros-hud .finalizar-hud{margin-top:0}.dock.flutuante .centro-hud{margin-bottom:max(0px,94px - var(--altura-grade,50px))}}
+@media(max-width:400px){.dock.flutuante .dock-corpo{gap:8px;padding:4px}.dock.flutuante aside{width:54px}.dock.flutuante aside>.retrato{width:50px;height:50px}.dock.flutuante aside>b{font-size:10px}.dock.flutuante .movimento-hud{width:78px;grid-template-columns:66px 4px}.dock.flutuante .movimento-botoes{width:66px;max-width:66px}.dock.flutuante .movimento-hud .movimento-botoes button{width:66px;padding:4px 2px}.dock.flutuante .centro-hud>.grade{max-width:calc(100% - 88px)}}
