@@ -1,5 +1,9 @@
 # Estado do projeto
 
+## Entrega — 0.8.76 — largura máxima da HUD — 20/11/2026
+
+Restaurado o teto antigo de 1120 px, também na estimativa inicial; viewport/carta podem impor um limite menor. Recursos completos continuam no cálculo, com rolagem quando não couberem. O responsável restringiu esta revisão à largura, adiando plano B e tema dos carrosséis. [Notas](RELEASE-0.8.76.md).
+
 ## Entrega — 0.8.75 — HUD flutuante — 20/11/2026
 
 Sem placa verde, moldura externa, divisor ou log inferior. Largura por conteúdo da grade, recursos completos e controles; altura medida sem faixa vazia. Token focaliza a peça. 488 testes e 19 verificações de navegador com SDK simulado. O responsável validará a captura dos espaços transparentes no Owlbear; se necessário, plano B de grupos em janelas menores. [Notas](RELEASE-0.8.75.md).

@@ -16,13 +16,19 @@ test('piso horizontal inclui a linha inteira de recursos, sem limitar aos quatro
   assert.equal(larguraLinhaRecursos(0),0);assert.equal(larguraLinhaRecursos(1),42);
   assert.equal(larguraLinhaRecursos(4),177);assert.equal(larguraLinhaRecursos(12),537);
   assert.equal(larguraLinhaRecursos(20),897);
-  assert.equal(caixaRodape({larguraMaxima:1358,alturaMaxima:700,linhas:5,medida:{larguraIdeal:1284,altura:400}}).largura,1284);
+  assert.equal(caixaRodape({larguraMaxima:1358,alturaMaxima:700,linhas:5,medida:{larguraIdeal:1284,altura:400}}).largura,1120,'recursos não ampliam a janela além do teto antigo');
 });
 test('janela converge ao conteúdo e respeita os limites de viewport/carta',()=>{
   const medida={larguraIdeal:710,altura:210};
   assert.deepEqual(caixaRodape({larguraMaxima:1120,alturaMaxima:700,linhas:2,medida}),{largura:710,altura:210});
   assert.deepEqual(caixaRodape({larguraMaxima:480,alturaMaxima:180,linhas:2,medida}),{largura:480,altura:180});
   assert.deepEqual(caixaRodape({larguraMaxima:240,alturaMaxima:350,linhas:2,medida}),{largura:240,altura:210});
+});
+test('em telas largas a HUD nunca passa do máximo antigo de 1120 px',()=>{
+  for(const larguraMaxima of [1358,1920,3840])for(const linhas of [1,2,5]){
+    assert.equal(caixaRodape({larguraMaxima,alturaMaxima:900,linhas,medida:{larguraIdeal:7000,altura:400}}).largura,1120);
+    assert.equal(caixaRodape({larguraMaxima,alturaMaxima:900,linhas}).largura,1120,'estimativa inicial também é limitada');
+  }
 });
 const contexto={atorId:'a',linhas:2,rev:3},medida={tipo:'dimensoesBarra',parte:'barra',atorId:'a',linhas:2,rev:3,larguraIdeal:700,larguraMedida:900,altura:230,documentoHud:'barra-atual',sessaoHud:'sessao'};
 test('medida atrasada não redimensiona outra ficha, outra preferência ou revisão',()=>{

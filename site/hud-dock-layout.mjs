@@ -12,7 +12,7 @@ export function medidaRodapeValida(d,{atorId,linhas,rev}){
     ['larguraIdeal','larguraMedida','altura'].every(k=>Number.isFinite(d[k])&&d[k]>0&&d[k]<=8192)&&d.altura>=60;
 }
 export function caixaRodape({larguraMaxima,alturaMaxima,linhas,medida}){
-  const largura=Math.max(1,Math.floor(larguraMaxima)),altura=Math.max(1,Math.floor(alturaMaxima));
+  const largura=Math.max(1,Math.min(1120,Math.floor(larguraMaxima))),altura=Math.max(1,Math.floor(alturaMaxima));
   return {largura:Math.min(largura,Math.max(Math.min(300,largura),Math.ceil(medida?.larguraIdeal??largura))),
     altura:Math.min(altura,Math.max(1,Math.ceil(medida?.altura??(132+gradeRodape(999,linhas).altura))))};
 }

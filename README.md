@@ -1,8 +1,8 @@
 # La Arte · Mesa de combate
 
-Versão atual: **0.8.75**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.75.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
+Versão atual: **0.8.76**. [Estado e ponto de retomada](docs/ESTADO-DO-PROJETO.md) · [Notas da versão](docs/RELEASE-0.8.76.md) · [Módulos pendentes](docs/MODULOS-PENDENTES.md).
 
-HUD flutuante sem placa externa ou log inferior. Grade e janela acompanham o conteúdo, respeitando a linha completa de recursos; botão Token aproxima a peça vinculada. Primeira entrega em popover único para validar a entrada nos espaços transparentes.
+HUD flutuante sem placa externa ou log inferior. Grade e janela acompanham o conteúdo, respeitando a linha completa de recursos e o máximo de 1120 px; botão Token aproxima a peça vinculada. Primeira entrega em popover único para validar a entrada nos espaços transparentes.
 
 CA base + CA extra = total: armadura ou regra sem armadura/traço define a base; atributos, itens e efeitos entram nos extras. Slot próprio de Luvas, migração automática e salvamento compacto, sem reimportar fichas.
 
