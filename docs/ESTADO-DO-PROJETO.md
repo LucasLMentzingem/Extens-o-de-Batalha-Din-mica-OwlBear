@@ -1,5 +1,13 @@
 # Estado do projeto
 
+## Entrega — 0.8.84 — Dados de Vida sem aviso de zero pendentes — 22/11/2026
+
+Publicação autorizada. Botão Fechar no painel; janela e indicador recolhido desaparecem com zero pendentes, inclusive após F5 e atualizações. Histórico e reabertura pelo mestre preservados em Atividades. [Notas da versão](RELEASE-0.8.84.md).
+
+## Local — fechar Dados de Vida e ocultar zero pendentes — 22/11/2026
+
+Botão Fechar no painel; com zero pendentes, nem painel nem indicador recolhido são abertos. F5, atualizações de estado e Restaurar janelas respeitam a ausência de pendências. Fechar não gasta nem dispensa dados. Histórico preservado em Atividades, com Reabrir escolha para o mestre quando elegível. Oito cenários headless e 25 testes de protocolo/recuperação aprovados. Ajuste local sobre 0.8.83, ainda sem publicar. Evidência: work/descanso-vida/TESTES-FECHAMENTO.json.
+
 ## Entrega — 0.8.83 — Dados de Vida paralelos e segunda verificação — 22/11/2026
 
 Publicação autorizada pelo responsável. Descanso curto com escolha por PJ, execução paralela, lista do mestre, persistência, multiclasse e Prece de Cura; inclui a segunda confirmação de habilidades já implementada localmente. Sem reimportação de fichas. 558 testes Node e 13 cenários de interface/retomada aprovados. [Notas da versão](RELEASE-0.8.83.md).

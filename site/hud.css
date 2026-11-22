@@ -1,4 +1,4 @@
-@import url("./ability-art.css?v=0.8.83");
+@import url("./ability-art.css?v=0.8.84");
 :root{font:13px "Segoe UI",system-ui,sans-serif;color:#f8edcf;background:transparent!important}
 .verificacao-uso{height:100vh;display:flex;flex-direction:column;gap:12px;padding:14px;background:#211d2afc;border:1px solid #b69a69;border-radius:9px;box-sizing:border-box;overflow:hidden}
 .verificacao-uso header{display:block}.verificacao-uso h2{font-size:18px;margin:0 0 6px;color:#f0d5a0}.verificacao-uso header small{color:#dfc799}

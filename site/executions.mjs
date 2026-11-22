@@ -1,6 +1,6 @@
-import {adaptarComandoVida} from './rest-recovery.mjs?v=0.8.83';
-import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.83';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.83';
+import {adaptarComandoVida} from './rest-recovery.mjs?v=0.8.84';
+import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.84';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.84';
 
 export const encerrada=e=>['Concluída','Cancelada','Falhou'].includes(e.estado);
 const clone=x=>structuredClone(x),igual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);

@@ -1,20 +1,20 @@
-import {hitboxToken} from './target-geometry.mjs?v=0.8.83';
-import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.83';
-import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.83';
-import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.83';
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.83';
+import {hitboxToken} from './target-geometry.mjs?v=0.8.84';
+import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.84';
+import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.84';
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.84';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.84';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {cancelarMovimentoDinamico,novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem,avaliarUsoHabilidade} from './engine.mjs?v=0.8.83';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.83';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.83';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.83';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.83';
-import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.83';
-import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.83';
-import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.83';
-import {checkpointDinamico,novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.83';
-import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.83';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.83';
+import {cancelarMovimentoDinamico,novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem,avaliarUsoHabilidade} from './engine.mjs?v=0.8.84';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.84';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.84';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.84';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.84';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.84';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.84';
+import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.84';
+import {checkpointDinamico,novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.84';
+import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.84';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.84';
 export const ns='aventura-dnd.combate.v1';
 let seloControle;
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
@@ -745,10 +745,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.83',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.84',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.83',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.84',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }

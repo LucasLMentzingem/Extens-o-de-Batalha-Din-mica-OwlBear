@@ -1,4 +1,4 @@
-import {coberturasUso} from './catalogos/cobertura-uso.mjs?v=0.8.83';
+import {coberturasUso} from './catalogos/cobertura-uso.mjs?v=0.8.84';
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ordenar=x=>Array.isArray(x)?x.map(ordenar):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().filter(k=>x[k]!==undefined).map(k=>[k,ordenar(x[k])])):x;
 function hash(x){let h=0xcbf29ce484222325n;for(const c of JSON.stringify(ordenar(x))){h^=BigInt(c.charCodeAt(0));h=BigInt.asUintN(64,h*0x100000001b3n);}return h.toString(16);}

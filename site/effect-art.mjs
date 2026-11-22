@@ -1,8 +1,8 @@
-import {artesEfeitos,artesEfeitosPorNome,temasEfeitos} from './catalogos/artes-efeitos.mjs?v=0.8.83';
-import {artesHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.83';
-import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.83';
-import {visualHabilidade} from './ability-art.mjs?v=0.8.83';
-import {listarEfeitosHud,normalizarEfeito,temaEfeito,resumoEfeito} from './effect-state.mjs?v=0.8.83';
+import {artesEfeitos,artesEfeitosPorNome,temasEfeitos} from './catalogos/artes-efeitos.mjs?v=0.8.84';
+import {artesHabilidades} from './catalogos/artes-habilidades.mjs?v=0.8.84';
+import {miniaturasHabilidades} from './catalogos/miniaturas-habilidades.mjs?v=0.8.84';
+import {visualHabilidade} from './ability-art.mjs?v=0.8.84';
+import {listarEfeitosHud,normalizarEfeito,temaEfeito,resumoEfeito} from './effect-state.mjs?v=0.8.84';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mini=src=>miniaturasHabilidades[src]?.mini??src;
 const condicoes={agarrado:'imobilizar',amedrontado:'ataque-ameacador',caido:'derrubar',enfeiticado:'enfeiticar-pessoa',imobilizado:'emaranhar',contido:'emaranhar',invisivel:'invisibilidade',paralisado:'imobilizar-pessoa'};

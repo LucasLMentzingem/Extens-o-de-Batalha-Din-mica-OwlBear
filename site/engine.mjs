@@ -1,17 +1,17 @@
-import {adaptarComandoVida,abrirRecuperacao,conferirParticipacao,selecionarDados,concluirRecuperacao,configurarDadosVida} from './rest-recovery.mjs?v=0.8.83';
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.83';
-import {avaliarRevisaoUso,validarAceiteUso} from './skill-use-review.mjs?v=0.8.83';
-import {primeiroContato} from './zonas.mjs?v=0.8.83';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.83';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.83';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.83';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.83';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.83';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.83';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.83';
+import {adaptarComandoVida,abrirRecuperacao,conferirParticipacao,selecionarDados,concluirRecuperacao,configurarDadosVida} from './rest-recovery.mjs?v=0.8.84';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.84';
+import {avaliarRevisaoUso,validarAceiteUso} from './skill-use-review.mjs?v=0.8.84';
+import {primeiroContato} from './zonas.mjs?v=0.8.84';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.84';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.84';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.84';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.84';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.84';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.84';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.84';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao,componentesPrototipo} from './prototipos-cemiterio.mjs?v=0.8.83';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.83';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao,componentesPrototipo} from './prototipos-cemiterio.mjs?v=0.8.84';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.84';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
