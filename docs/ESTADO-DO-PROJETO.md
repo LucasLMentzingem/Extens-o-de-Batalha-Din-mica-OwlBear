@@ -1,5 +1,21 @@
 # Estado do projeto
 
+## Entrega — 0.8.83 — Dados de Vida paralelos e segunda verificação — 22/11/2026
+
+Publicação autorizada pelo responsável. Descanso curto com escolha por PJ, execução paralela, lista do mestre, persistência, multiclasse e Prece de Cura; inclui a segunda confirmação de habilidades já implementada localmente. Sem reimportação de fichas. 558 testes Node e 13 cenários de interface/retomada aprovados. [Notas da versão](RELEASE-0.8.83.md).
+
+## Local — descanso curto e Dados de Vida paralelos — 22/11/2026
+
+Escolha por PJ, quantidade/tipo de dados, cura imediata, lista do mestre, rolagens públicas em paralelo e participação em Atividades. Constituição por dado, mínimo 1 PV, limites/saldos, multiclasse, reabertura sem recarga, Prece de Cura e retomada sem rerrolar. 558 testes Node, 13 cenários novos de interface/retomada e regressões da segunda verificação e problema A aprovados. Sem alteração de fichas, manifesto ou publicação. [Implementação e evidências](IMPLEMENTACAO-DESCANSO-CURTO-DADOS-DE-VIDA-2026-11-22.md).
+
+## Local — segunda verificação de habilidades implementada — 21/11/2026
+
+Após autorização para desenvolver a arquitetura: revisão de contexto/custo na autoridade e no motor; popup delimitado na HUD; mesma verificação na ficha e Reanimar Corpo; encaminhamento de adicionais/rerrolagens; declaração manual explícita; recibo de aceite, retomada de preparação após F5 e pendência em Atividades. Dados de Vida vinculados ao descanso concedido; Astúcia Mágica com minuto persistente e cancelamento. 537 testes Node, 12 cenários novos de interface e 77 regressões locais aprovados. Ainda local sobre 0.8.82, sem publicar. [Implementação, evidências e limites](IMPLEMENTACAO-SEGUNDA-VERIFICACAO-2026-11-21.md).
+
+## Estudo — segunda verificação de habilidades — 21/11/2026
+
+Mapeadas 327 definições do catálogo e 24 fichas normalizadas: 399 opções e 58 passivas. Vinte provas locais documentam consumo avulso de adicionais/rerrolagens, declarações manuais de reação, requisitos que não alcançam o ramo assistido, Queda Suave em exploração e descanso/tempo não comprovados. [Arquitetura proposta, classificação e decisões para revisão](ARQUITETURA-CONFIRMACAO-USO-HABILIDADES-2026-11-21.md) · [Inventário por personagem](mapeamento-uso-habilidades/INVENTARIO-POR-PERSONAGEM.md). Sem alteração do runtime, fichas ou versão 0.8.82; popup ainda não implementado/publicado.
+
 ## Entrega — 0.8.82 — Favoritos e status compactos — 21/11/2026
 
 Status com ícones até 32 px e caixa até 44 px, sem elevar o rodapé. Personalizado habilitado como Favoritos, inclusão/remoção por menu de botão direito, referências locais por sala/usuário/personagem e custos/restrições preservados. 517 testes Node e verificações locais de menu, F5, modos gratuitos e regressões da HUD. Publicação autorizada pelo responsável. [Implementação e limites](FAVORITOS-E-STATUS-COMPACTOS-2026-11-21.md).

@@ -1,8 +1,9 @@
 import {normalizarZonas as normalizarZonasCrit} from './site/engine.mjs';
+import {aplicar} from './test-helpers/acao-confirmada.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {tipoCriatura,facesDanoBase,fonteFacesMinimas,controladorAtor,metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,aplicar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
+import {tipoCriatura,facesDanoBase,fonteFacesMinimas,controladorAtor,metamagiaDuplicada,ofertaDestruidorDeHordas,usadoNesteTurno,novo,adicionar,atual,publico,validar,atualizarMagias,caAtual,pvMaximosAtuais,deslocamentoMaximo,capacidadeCargaAtual,bonusIniciativa,bonusPericia,bonusTesteFerramenta,modoPericiaEquipamento,restricoesAtivas,temCondicao,dentroDaArea,pesoInventario,opcoesDisponiveis,ordenarOpcoesRodape,slotsOcupadosItem,ataquesEquipados,proficienteComArma,dadoLocal,planoCustoOpcao,usoGratuitoDisponivel,saldoMoedasPc,precoCompraPc,precoVendaPc,lojasAtivas,recomprasDaLoja,trocaDoAtor,circulosConjuracao,derivarOpcaoCirculo,LIMITE_ALCANCE_M} from './site/engine.mjs';
 import {TIPOS_DANO,aplicarRelatorioDano,defesasDanoDoAtor,infoTipoDano,normalizarTipoDano,resolverDano} from './site/damage.mjs';
 import {oportunidades} from './site/engine.mjs';
 import {itensSaque} from './site/engine.mjs';
@@ -1059,6 +1060,8 @@ test('economia genérica automatiza Surto de Ação, Recuperar Fôlego e recurso
 test('Astúcia Mágica recupera somente um espaço e apenas fora de combate',async()=>{
  let s=novo(),b=adicionar(s,fichasJogadores.find(f=>f.id==='skimi'));b.rec['espaco-2']=0;
  s=await aplicar(s,{tipo:'usar',rev:s.rev,ator:b.id,opcao:'astucia-magica-acao',confirmado:true},gm,async()=>1);
+ assert.equal(s.atores[0].rec['espaco-2'],0);assert.equal(s.atores[0].rec['astucia-magica'],1);
+ s=await aplicar(s,{tipo:'avancarTempo',passo:'1min',rev:s.rev},gm,async()=>1);
  assert.equal(s.atores[0].rec['espaco-2'],1);assert.equal(s.atores[0].rec['astucia-magica'],0);
  s=novo();b=adicionar(s,fichasJogadores.find(f=>f.id==='skimi'));s.fase='turnos';s.ordem=[b.id];s.vez=0;
  await assert.rejects(aplicar(s,{tipo:'usar',rev:s.rev,ator:b.id,opcao:'astucia-magica-acao',confirmado:true},gm,async()=>1),/fora de combate/);
@@ -1618,8 +1621,9 @@ test('#25 descanso longo recupera o que é de descanso curto; Dados de Vida e Re
 });
 test('#25 gastar Dado de Vida fora de combate cura dado + CON',async()=>{
   let s=novo();const a=adicionar(s,await fichaRev('draven-thorne'));a.dono='p';a.pv=10;
+  s=await aplicar(s,{tipo:'descanso',periodo:'curto',atores:[a.id],rev:s.rev},gm,async()=>1);
   const o=opRev(a,'gastar dado de vida');assert.equal(o.automacao.cura,'1d10+2');
-  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id},player,async()=>7);
+  s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:o.id},player,async()=>({resultados:[{total:5}]}));
   assert.equal(s.atores[0].pv,17);assert.equal(s.atores[0].rec['dados-de-vida'],2);
 });
 
@@ -1787,7 +1791,7 @@ test('#10 jogador declara opção sem automação; #11 monstro a 0 PV é pulado 
   for(const id of idsJogadores){({s,a,b}=await duelo(id));assistida=a.ficha.opcoes.find(o=>!o.automacao&&!o.informativa&&!o.requisitosUso&&o.custo?.length===1&&o.custo[0].tipo==='bonus');if(assistida)break;}
   assert.ok(assistida,'alguma ficha tem opção de ação bônus sem automação');
   s=await aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:assistida.id,assistido:true},player,roladorSala().rolar);
-  assert.equal(s.atores[0].bonus,0);assert.match(s.historico.at(-1)??s.historico[0],/declarado/);
+  assert.equal(s.atores[0].bonus,0);assert.match(s.historico.at(-1)??s.historico[0],/declarad/);
   ({s,a,b}=await duelo('draven-thorne'));
   const c=adicionar(s,await fichaRev('soldado'),'Soldado II');c.x=6;c.init=5;s.ordem=[a.id,b.id,c.id];b.pv=0;
   s=await aplicar(s,{rev:s.rev,tipo:'passar',ator:a.id},player,()=>0);
@@ -2160,7 +2164,7 @@ test('#65 Destruidor de Hordas pela Gaveta compartilha o limite com o botão avu
  let {s,a,b,c,longe}=await dragobertoCercado();const cimitarra=opRev(a,'cimitarra'),modos=cimitarra.composicao.modos,hbModo=modos.find(m=>m.destruidorDeHordas);
  assert.ok(hbModo);assert.equal(hbModo.umaVezPorTurno,opRev(a,'destruidor').requisitosUso.umaVezPorTurno);
  for(const [composicao,erro] of [
-  [[{modoId:hbModo.id,alvoId:c.id}],/ataque com a arma|anterior/],
+  [[{modoId:hbModo.id,alvoId:c.id}],/ataque com a arma|anterior|imediatamente antes/],
   [[{modoId:modos[0].id,alvoId:b.id},{modoId:hbModo.id,alvoId:b.id}],/diferente do alvo anterior/],
   [[{modoId:modos[0].id,alvoId:b.id},{modoId:hbModo.id,alvoId:longe.id}],/até 1.5 m/]
  ]){await assert.rejects(aplicar(s,{rev:s.rev,tipo:'usar',ator:a.id,opcao:cimitarra.id,composicao},player,roladorSala().rolar),erro);assert.equal(s.atores[0].acao,1,'plano inválido não gasta a ação');}
@@ -2529,7 +2533,7 @@ test('critério das sete fichas: opções de interpretação registram o uso e c
   const cobertas={};
   for(const id of idsJogadores){
     const base=await duelo(id);
-    const interpretativas=opcoesDisponiveis(base.a).filter(o=>!o.automacao&&!o.gatilho&&!o.informativa&&!o.requisitosUso&&o.categoria!=='passiva');
+    const interpretativas=opcoesDisponiveis(base.a).filter(o=>!o.automacao&&!o.gatilho&&!o.informativa&&!o.requisitosUso&&!o.metamagiaAoConjurar&&!['habilidade.manobras','habilidade.presa-do-cacador'].includes(o.catalogoRef)&&o.categoria!=='passiva');
     for(const o of interpretativas){
       let {s,a}=await duelo(id);if(o.foraCombate||o.requisitosUso?.somenteForaCombate){s.fase='preparo';}
       const reacao=o.custo?.some(c=>c.tipo==='reacao'),antes=structuredClone(s.atores[0]);if(reacao)s.vez=1;

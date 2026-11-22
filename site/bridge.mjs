@@ -1,20 +1,20 @@
-import {hitboxToken} from './target-geometry.mjs?v=0.8.82';
-import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.82';
-import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.82';
-import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.82';
-import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.82';
+import {hitboxToken} from './target-geometry.mjs?v=0.8.83';
+import {visualTokenFicha} from './tokens-fichas.mjs?v=0.8.83';
+import {criarSincronizadorTokensReanimados} from './reanimacao-token-sync.mjs?v=0.8.83';
+import {criarSincronizadorRecipientes} from './loot-sync.mjs?v=0.8.83';
+import {idSelecaoRecipiente,pontosInteracaoRecipiente,chaveSelecaoRecipiente} from './loot-geometry.mjs?v=0.8.83';
 import OBR, {buildImage,buildCurve} from './vendor/sdk.mjs';
-import {cancelarMovimentoDinamico,novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem} from './engine.mjs?v=0.8.82';
-import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.82';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.82';
-import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.82';
-import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.82';
-import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.82';
-import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.82';
-import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.82';
-import {checkpointDinamico,novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.82';
-import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.82';
-import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.82';
+import {cancelarMovimentoDinamico,novo, atualizarMagias, aplicar, publico, dadoLocal, validar, normalizarComercio, normalizarZonas, aplicarRerrolagemParcial, dadosRerrolaveis,ajustarFacesMinimasRolagem,avaliarUsoHabilidade} from './engine.mjs?v=0.8.83';
+import {infoTipoDano,relatoriosDaRolagem} from './damage.mjs?v=0.8.83';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.83';
+import {sincronizarCopiasNpc,chaveFichaNpc,chaveBloqueioNpc} from './npc-duplicates.mjs?v=0.8.83';
+import {pixelsPorMetro,configurarEscalaCena,migrarEscalaCena} from './scene-scale.mjs?v=0.8.83';
+import {consultarComReenvio,receptorDeEstado,fatiarParaBroadcast,deltaDeEstado,aplicarDeltaEstado} from './room-sync.mjs?v=0.8.83';
+import {recuperarEstado,excluirFichaIsolada} from './state-recovery.mjs?v=0.8.83';
+import {identificarParcelas,destinoDicePublico} from './roll-sources.mjs?v=0.8.83';
+import {checkpointDinamico,novoRegistroExecucoes,admitirExecucao,iniciarExecucao,podeIniciarExecucao,avancarExecucao,aplicarResultadoExecucao,validarDependenciasExecucao,encerrarExecucao,cancelarExecucao,resumoExecucao,encerrada} from './executions.mjs?v=0.8.83';
+import {rolagemParaUsuario} from './roll-visibility.mjs?v=0.8.83';
+import {adquirirControleLocal} from './controller-lock.mjs?v=0.8.83';
 export const ns='aventura-dnd.combate.v1';
 let seloControle;
 const canais={cmd:ns+'/cmd',view:ns+'/view',roll:ns+'/roll-ui',rollReply:ns+'/roll-ui-reply'};
@@ -74,6 +74,7 @@ export async function demo(onView){
   sync.onmessage=()=>{s=hidratar(JSON.parse(localStorage.getItem(key)||'null')??novo());notify();};
   return {notify,async enviar(c){
     const role=c.comoJogador?'PLAYER':'GM';
+    if(c.tipo==='revisarUso')return avaliarUsoHabilidade(s,c.intencao,{role,id:role==='GM'?'mestre':'teste'});
     const next=await aplicar(s,c,{role,id:role==='GM'?'mestre':'teste'},dadoLocal);
     persistir(key,next);s=next;notify();sync.postMessage({rev:s.rev});
   }};
@@ -109,6 +110,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={},runtime
       ch.postMessage({rolagemPublica:evento});
       await enviarEventoRolagem(rolagemParaUsuario(evento,{role:'PLAYER'}));
     };
+    let lancamentoIniciado=false;
     let fase=runtime.snapshot?.tipo==='resultado'?'resultado':runtime.snapshot?.tipo==='rolando'||runtime.snapshot?.tipo==='indeterminada'?'indeterminada':'ajuste',resultado=runtime.snapshot?.resultado,recursosAtivos=runtime.snapshot?.recursosAtivos??(meta.adicionais??[]).filter(x=>x.automatico||x.preSelecionado).map(x=>x.id),rerrolagensUsadas=runtime.snapshot?.rerrolagensUsadas??[],metaResolucaoAtual={...meta,adicionais:(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id))};
     if(fase==='indeterminada')destino=mestreId;
     const timer=setTimeout(()=>{if(runtime.salvar){OBR.notification.show('Há uma resposta pendente há mais de 3 minutos. Abra as Atividades da mesa para assumir ou cancelar.','WARNING').catch(()=>{});}else finalizar(Error('A rolagem não foi confirmada a tempo.'));},180000);
@@ -128,11 +130,12 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={},runtime
       if(fase==='indeterminada'&&resposta.manual){
         const xs=resposta.manual.totais,extras=(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id)),bases=Array.isArray(formula)?formula:[formula],n=meta.combinarAdicionais?bases.length:bases.length+extras.length;
         if(!Array.isArray(xs)||xs.length!==n||xs.some(x=>!Number.isFinite(x)||Math.abs(x)>100000))throw Error('Informe todos os resultados manuais.');
+        if(meta.tipo==='descanso_curto'&&xs.some((v,i)=>!Number.isInteger(v)||v<1||v>Number(/d(\d+)/.exec(String(bases[i]))?.[1])))throw Error('Informe a face de cada Dado de Vida dentro dos limites do dado.');
         const natural=resposta.manual.natural;if((bases.length===1&&/d20/i.test(String(bases[0]))&&natural===undefined)||natural!==undefined&&(!Number.isInteger(natural)||natural<1||natural>20))throw Error('Informe a face natural do d20 entre 1 e 20.');
         resultado={total:xs.reduce((a,b)=>a+b,0),natural,formula,resumo:'Resultado manual do mestre',manual:true,resultados:xs.map(total=>({total,manual:true}))};
         if(['dano','dano-lote'].includes(meta.tipo))resultado=identificarParcelas(resultado,formula,extras);
         const relatorios=relatoriosDaRolagem(resultado,{...meta,adicionais:extras});if(relatorios.length)resultado.relatoriosDano=relatorios;
-        fase='resultado';await enviar({tipo:'resultado',pedido,resultado,recursosAtivos,rerrolagensUsadas,status:'Resultado manual do mestre',meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});return;
+        fase='resultado';await enviar({tipo:'resultado',pedido,resultado,recursosAtivos,rerrolagensUsadas,status:'Resultado manual do mestre',meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});if(meta.concluirAutomaticamente)finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});return;
       }
       if(resposta.cancelar)return finalizar(Error('Rolagem cancelada.'));
       if(fase==='resultado'&&resposta.continuar)return finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});
@@ -166,6 +169,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={},runtime
         await enviar({tipo:'ajuste',pedido,destino,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica});return;
       }
       const bases=Array.isArray(resposta.formulas)?resposta.formulas:typeof resposta.formula==='string'?[resposta.formula]:[];
+      if(meta.tipo==='descanso_curto'&&JSON.stringify(bases)!==JSON.stringify(Array.isArray(formula)?formula:[formula]))throw Error('A fórmula dos Dados de Vida é definida pela quantidade escolhida.');
       recursosAtivos=Array.isArray(resposta.recursosAtivos)?resposta.recursosAtivos:[];
       const extras=(meta.adicionais??[]).filter(x=>recursosAtivos.includes(x.id));
       if(new Set(recursosAtivos).size!==recursosAtivos.length||recursosAtivos.some(id=>!extras.some(x=>x.id===id)))return;
@@ -187,6 +191,7 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={},runtime
         const indicesRolados=expressoesDice.map((f,i)=>i).filter(i=>!/^[-+]?\d+$/.test(expressoesDice[i]));
         const expressoesRoladas=indicesRolados.map(i=>expressoesDice[i]);
         const notacao=expressoesRoladas.length>1?indicesRolados.map(i=>expressoesDice[i]+'#'+tituloInstancia(i)).join(', '):expressoesRoladas[0];
+        lancamentoIniciado=!!notacao;
         resultado=notacao?await executarDice({id:destino,name:roladorNome??usuario.name,role:destino===mestreId?'GM':'PLAYER',secreta:meta.secreta===true},notacao):{total:0,grupos:[],resumo:'0'};
         if(indicesRolados.length!==expressoesDice.length){
           const rolados=resultado.resultados??[resultado];let indice=0;
@@ -216,11 +221,12 @@ function dadoSala(usuario,ch,pedidos,mestreId,presentes=null,contexto={},runtime
           meta.atributo==='morte'&&resultado.natural===1?'Duas falhas':
           ['salvaguarda','teste'].includes(meta.tipo)&&Number.isFinite(meta.cd)?(resultado.total>=meta.cd?'Sucesso':'Falha'):meta.tipo==='dano'?'Dano total':meta.tipo==='dano-lote'?'Danos resolvidos':meta.tipo==='iniciativa_lote'?'Iniciativas roladas':meta.tipo==='iniciativa'?'Iniciativa':'';
         fase='resultado';await enviar({tipo:'resultado',pedido,resultado,status,recursosAtivos,rerrolagensUsadas,meta:{...metaPublica,adicionaisAtivos:extras.map(x=>x.id)}});
-      }catch(e){fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:e.message});}
+        if(meta.concluirAutomaticamente)finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});
+      }catch(e){if(meta.concluirAutomaticamente&&lancamentoIniciado){fase='indeterminada';destino=mestreId;await enviar({tipo:'indeterminada',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:'Resultado não confirmado: '+e.message});return;}fase='ajuste';await enviar({tipo:'erro',pedido,...(Array.isArray(formula)?{formulas:bases}:{formula:bases[0]}),recursosAtivos,rerrolagensUsadas,meta:metaPublica,mensagem:e.message});}
     };
     pedidos.set(pedido,{destino,responder,fechar:()=>finalizar(Error('Rolagem cancelada.')),suspender:()=>{encerrado=true;clearTimeout(timer);clearTimeout(passar);pedidos.delete(pedido);resolve();},reexibir:(remoto=true)=>ultimoEvento&&(remoto?enviar(ultimoEvento):ch.postMessage({rolagemPublica:ultimoEvento}))});
     const inicial=runtime.snapshot?{...runtime.snapshot,tipo:fase==='indeterminada'?'indeterminada':fase,pedido}:{tipo:'ajuste',pedido,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos,rerrolagensUsadas,meta:metaPublica};
-    Promise.resolve(enviar(inicial)).catch(finalizar);
+    Promise.resolve(enviar(inicial)).then(()=>{if(fase==='resultado'&&meta.concluirAutomaticamente)return finalizar(null,{...resultado,recursosAtivos,rerrolagensUsadas});if(fase==='ajuste'&&!runtime.snapshot&&meta.lancarImediato)return responder({etapaVersao,...(Array.isArray(formula)?{formulas:formula}:{formula}),recursosAtivos},{id:destino,role:destino===mestreId?'GM':'PLAYER'});}).catch(finalizar);
   });
 }
 function validarNotacao(notation){
@@ -470,6 +476,7 @@ export async function host(){
         for(const a of atual.s.atores){const t=tokens.find(x=>x.id===a.token);if(t){a.x=t.x/pixelsMetro;a.y=t.y/pixelsMetro;if(t.hitbox)a.hitbox=t.hitbox;else delete a.hitbox;}}
         validarDependenciasExecucao(execucao,passo.base,atual.s);next=aplicarResultadoExecucao(passo.base,passo.next,atual.s);
         const etapa=structuredClone(registro),concluida=etapa.lista.find(e=>e.id===execucao.id),din=next.acaoDinamica;
+        if(concluida.comando.tipo==='recuperarDescanso'){const a=next.atores.find(a=>a.id===concluida.atorId);if(a?.descansoVida?.participacaoId===concluida.comando.participacaoId)concluida.resultadoDescanso=structuredClone(a.descansoVida.resultado);}
         if(din?.id===execucao.id&&['andando','habilidade'].includes(din.fase))checkpointDinamico(etapa,concluida,next);
         else encerrarExecucao(etapa,concluida,din?.id===execucao.id&&din.fase==='cancelada'?'Cancelada':'Concluída',din?.id===execucao.id&&din.fase==='cancelada'?din.motivo:undefined);
         const documento=compactarEstado(next);documento.__execucoes=etapa;
@@ -539,6 +546,10 @@ export async function host(){
         if(chaveExecucao!==chaveAtiva){await reply({erro:'Jogada pausada na cena anterior. Retorne àquela cena para retomá-la.'});return;}
         const registro=registrosExecucao.get(chaveExecucao??chaveAtiva);
         if(execucao.estado==='Concluída'){console.warn('Execução salva; apresentação pendente:',e);await reply({});return;}
+        if(execucao.comando.tipo==='recuperarDescanso'&&execucao.rolagens.some(r=>r.resultado||r.snapshot?.resultado)){
+          execucao.estado='Revisão necessária';execucao.motivo=e.message+' Resultado preservado; retome a mesma recuperação.';execucao.versao++;registro.versao++;salvarRegistro(chaveExecucao??chaveAtiva);
+          await anunciarExecucao(execucao,(await carregar()).s);await reply({erro:execucao.motivo});return;
+        }
         encerrarExecucao(registro,execucao,'Falhou',e.message);salvarRegistro(chaveExecucao??chaveAtiva);
         await descartarDinamica(chaveExecucao??chaveAtiva,execucao,'Jogada interrompida: '+e.message);serial(()=>bombear());
         try{if(chaveExecucao===chaveAtiva)await anunciarExecucao(execucao,(await carregar()).s);}catch{}
@@ -609,17 +620,34 @@ export async function host(){
   }
   async function encaminhar(c,u,req,reply){
     const {key,s}=await carregar(),registro=registrosExecucao.get(key);
+    if(c.tipo==='revisarUso'){
+      const i=c.intencao,a=s.atores.find(x=>x.id===i?.ator);
+      if(!i||!['usar','reagir','reanimarCorpo'].includes(i.tipo)||!a||u.role!=='GM'&&(i.tipo==='reanimarCorpo'||a.dono!==u.id||a.ficha.tipo!=='pj'&&!a.invocacao?.controlavel))throw Error('Você não controla esse personagem.');
+      const tokens=await getTokens(),pixelsMetro=pixelsPorMetro(await OBR.scene.grid.getDpi());
+      for(const p of s.atores){const t=tokens.find(x=>x.id===p.token);if(t){p.x=t.x/pixelsMetro;p.y=t.y/pixelsMetro;if(t.hitbox)p.hitbox=t.hitbox;}}
+      if(u.role!=='GM')for(const id of [i.alvo,...(i.alvos??[]),...(i.composicao??[]).map(x=>x.alvoId)].filter(Boolean)){const p=s.atores.find(x=>x.id===id);if(!p||!tokens.some(t=>t.id===p.token&&t.visible))throw Error('Um dos alvos está indisponível.');}
+      const revisao=avaliarUsoHabilidade(s,i,u);if(!revisao)throw Error('Habilidade indisponível.');
+      await reply({revisaoUso:revisao});return;
+    }
     if(c.tipo==='estadoExecucao'){
       const e=registro.lista.find(x=>x.id===c.execucaoId)??registro.encerramentos?.[c.execucaoId];
       if(!e||u.role!=='GM'&&e.usuario.id!==u.id){await reply({consultaExecucao:c.execucaoId,erro:'Execução não encontrada para este usuário.'});return;}
       await reply({consultaExecucao:e.id,...(encerrada(e)?{erro:e.estado==='Concluída'?undefined:e.erro??e.estado}:{recebida:true})});return;
     }
+    if(c.tipo==='retomarRecuperacaoDescanso'){
+      const e=registro.lista.find(e=>e.id===c.execucaoId),a=s.atores.find(a=>a.id===e?.atorId);
+      if(!e||e.comando.tipo!=='recuperarDescanso'||e.estado!=='Revisão necessária'||u.role!=='GM'&&a?.dono!==u.id)throw Error('Recuperação indisponível para este usuário.');
+      if(a?.descansoVida?.participacaoId!==e.comando.participacaoId||a.descansoVida.estado!=='pendente')throw Error('A participação mudou. Confira ou cancele a execução anterior.');
+      const base=compactarEstado(s);delete base.__execucoes;e.baseRef=e.id+':recuperacao:'+e.versao;registro.bases[e.baseRef]=base;e.comando.rev=s.rev;e.estado='Em andamento';delete e.motivo;e.versao++;registro.versao++;avaliadas.delete(e.id);salvarRegistro(key);await reply({});await bombear();return;
+    }
     if(c.tipo==='cancelarExecucao'){
       const {execucao:e,terminal}=cancelarExecucao(registro,c.execucaoId,u,{confirmado:c.confirmado===true});salvarRegistro(key);
+      if(terminal&&e.comando.tipo==='recuperarDescanso'){const a=s.atores.find(a=>a.id===e.atorId);if(a?.descansoVida?.participacaoId===e.comando.participacaoId&&a.descansoVida.estado==='pendente'){a.descansoVida.estado='dispensado';a.descansoVida.motivo='Recuperação cancelada';s.rev++;persistir(key,s);await mostrar(s);}}
       if(terminal){await descartarDinamica(key,e,'Jogada cancelada; habilidade não executada.');for(const r of e.rolagens)pedidos.get(r.id)?.fechar();respostasExecucao.get(e.id)?.({erro:e.erro});respostasExecucao.delete(e.id);}
       await anunciarExecucao(e,s);await reply({});await bombear();return;
     }
     if(['excluirFichaIsolada','criarPeca','criarRecipiente','vincular'].includes(c.tipo)){await executar(c,u,reply);await bombear();return;}
+    if(c.tipo==='recuperarDescanso'&&registro.lista.some(e=>e.id!==req&&!encerrada(e)&&e.atorId===c.ator&&e.comando.tipo==='recuperarDescanso'&&e.comando.participacaoId===c.participacaoId))throw Error('Esta recuperação já está em andamento. Acompanhe ou assuma a mesma execução em Atividades da mesa.');
     const intencao={...c,ensaio:false,atividadeId:c.atividadeId??req};
     const existia=registro.lista.some(e=>e.id===req)||registro.encerramentos?.[req];
     const e=admitirExecucao(registro,intencao,u,req,s);
@@ -717,10 +745,10 @@ export async function host(){
   const filtro={roles:['GM'],min:1,max:1,every:[{key:'layer',value:'CHARACTER'}]};
   await OBR.contextMenu.remove(ns+'/vinculo').catch(()=>{});
   await OBR.contextMenu.create({id:ns+'/vinculo',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · vincular ou abrir ficha',filter:filtro}],
-    embed:{url:new URL('./contexto.html?v=0.8.82',location.href).href,height:420},
+    embed:{url:new URL('./contexto.html?v=0.8.83',location.href).href,height:420},
     onClick:async ctx=>{await OBR.player.select([ctx.items[0].id],true);await OBR.action.open();}});
   for(const id of [ns+'/caixa-gm',ns+'/saquear-recipiente'])await OBR.contextMenu.remove(id).catch(()=>{});
-  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.82',location.href).href,height:300},onClick:()=>{}});
+  await OBR.contextMenu.create({id:ns+'/caixa-gm',icons:[{icon:new URL('./icone.svg',location.href).href,label:'La Arte · recipiente',filter:{roles:['GM'],min:1,max:1,every:[{key:'layer',value:'PROP'}]}}],embed:{url:new URL('./recipiente.html?v=0.8.83',location.href).href,height:300},onClick:()=>{}});
 
   sync();
 }
@@ -759,7 +787,7 @@ export async function sala(onView){
       const limpar=()=>{clearTimeout(timer);clearInterval(reenvio);};
       if(c.tipo==='sync')timer=setTimeout(()=>{espera.delete(req);reject(Error('Sem resposta do controlador da sala. Confira se há um mestre conectado e uma cena aberta.'));},15000);
       else reenvio=setInterval(()=>{if(aceito)Promise.resolve(send({tipo:'estadoExecucao',execucaoId:req},'consulta:'+req)).catch(()=>{});else Promise.resolve(send(c,req)).catch(()=>{});},10000);
-      espera.set(req,d=>{if(d.recebida){aceito=true;return;}limpar();if(d.erro){const e=Error(d.erro);e.controladorRespondeu=true;reject(e);}else resolve();});
+      espera.set(req,d=>{if(d.recebida){aceito=true;return;}limpar();if(d.erro){const e=Error(d.erro);e.controladorRespondeu=true;reject(e);}else resolve(d.revisaoUso);});
       Promise.resolve(send(c,req)).catch(e=>{if(c.tipo==='sync'){limpar();espera.delete(req);reject(e);}else OBR.notification.show('Reconectando: verificando o recebimento da jogada.','WARNING').catch(()=>{});});
     });
   };

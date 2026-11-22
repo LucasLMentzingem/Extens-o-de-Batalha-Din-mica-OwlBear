@@ -1,18 +1,19 @@
-import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.82';
-import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.82';
-import {celulaInventario} from './inventory-cell.mjs?v=0.8.82';
+import {modeloReanimacao} from './substituicao-ficha.mjs?v=0.8.83';
+import {aceitarRevisaoUso,textoRevisaoUso} from './skill-use-review.mjs?v=0.8.83';
+import {agruparAtoresMestre} from './grupos-mestre.mjs?v=0.8.83';
+import {celulaInventario} from './inventory-cell.mjs?v=0.8.83';
 import OBR from './vendor/sdk.mjs';
-import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.82';
-import {fichaEditavel,biblioteca,retratoFicha,atualizarPreviaCA} from './ficha-view.mjs?v=0.8.82';
-import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.82';
-import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.82';
-import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.82';
-import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.82';
-import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.82';
-import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.82';
-import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.82';
-import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.82';
-import {canalHud} from './hud-controller.mjs?v=0.8.82';
+import {ns,emSala,sala,demo,conteudoConfigurado} from './bridge.mjs?v=0.8.83';
+import {fichaEditavel,biblioteca,retratoFicha,atualizarPreviaCA} from './ficha-view.mjs?v=0.8.83';
+import {atual,validar,publico,multi,incluirAlvo,periciasPadrao,bonusPericia,mod,caAtual,pvMaximosAtuais,opcoesDisponiveis,opcaoPorId,lojasAtivas,precoVendaPc,saldoMoedasPo,trocaDoAtor,avancosMesa,atoresElegiveisDescanso} from './engine.mjs?v=0.8.83';
+import {itensCatalogo,lojasCatalogo,compactarInstanciaItem} from './catalog.mjs?v=0.8.83';
+import {catalogoAberto,chaveCatalogo,limparCatalogo} from './loja-presenca.mjs?v=0.8.83';
+import {lerPastaFichas} from './importar-pasta-fichas.mjs?v=0.8.83';
+import {METROS_POR_CELULA} from './scene-scale.mjs?v=0.8.83';
+import {arteItem,criarExameItem} from './item-art.mjs?v=0.8.83';
+import {preencherBalaoHabilidade} from './ability-art.mjs?v=0.8.83';
+import {abrirJanelaInventario} from './inventory-popovers.mjs?v=0.8.83';
+import {canalHud} from './hud-controller.mjs?v=0.8.83';
 const $=id=>document.getElementById(id);
 const exameItem=criarExameItem();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -20,8 +21,9 @@ const opt=(id,n,sel)=>'<option value="'+esc(id)+'" '+(sel?'selected':'')+'>'+esc
 const btn=(id,n,cls='')=>'<button data-do="'+id+'" class="'+cls+'">'+n+'</button>';
 let s,info,api,escolhido,acao,alvo,ocupado=false,testar=false,catalogo;
 const aviso=t=>{$('aviso').textContent=t;};
-function confirma(t,d,comPvp=false){
+function confirma(t,d,comPvp=false,confirmavel=true){
   const dlg=$('confirmar');$('pergunta').textContent=t;$('detalhe').textContent=d;dlg.returnValue='nao';
+  dlg.querySelector('button[value="sim"]').hidden=!confirmavel;
   $('opcao-pvp').hidden=!comPvp;$('pvp-inicio').checked=false;
   return new Promise(resolve=>{dlg.addEventListener('close',()=>resolve(dlg.returnValue==='sim'),{once:true});dlg.showModal();});
 }
@@ -88,7 +90,7 @@ async function sincronizarSaqueVisual(){
     document.querySelector('#saque-local')?.remove();saqueVisualId=null;return;
   }
   if(saqueVisualId===saque.id)return;
-  const url=new URL('./saque.html?v=0.8.82',location.href);url.searchParams.set('ator',a.id);
+  const url=new URL('./saque.html?v=0.8.83',location.href);url.searchParams.set('ator',a.id);
   if(emSala){
     if(!await abrirJanelaInventario('saque',a.id,saque.id))return;
   }else{
@@ -414,7 +416,7 @@ async function abrirLojas(atorId){
   localStorage.setItem(ns+'/loja-ator/'+OBR.room.id,atorId);
   const [largura,altura]=await Promise.all([OBR.viewport.getWidth(),OBR.viewport.getHeight()]),w=Math.min(640,Math.max(440,largura*.42)),h=Math.min(760,Math.max(520,altura-32)),id=ns+'/loja';
   await OBR.popover.close(id).catch(()=>{});
-  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.82',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
+  await OBR.popover.open({id,url:new URL('./loja.html?v=0.8.83',location.href).href,width:w,height:h,hidePaper:true,disableClickAway:true,marginThreshold:0,anchorReference:'POSITION',anchorPosition:{left:Math.max(8,largura-w-16),top:16},transformOrigin:{horizontal:'LEFT',vertical:'TOP'}});
 }
 function controlaTroca(a){const role=testar?'PLAYER':info.role,id=testar?'teste':info.id;return role==='GM'||a?.ficha.tipo==='pj'&&a.dono===id;}
 async function abrirTroca(trocaId,atorId){
@@ -503,7 +505,9 @@ async function executar(k){
   if(['curto','longo'].includes(k)){const atores=atoresElegiveisDescanso(s).map(x=>x.id);if(await confirma('Executar descanso '+k+'?','Aplica a recuperação somente às fichas de jogadores da mesa ('+atores.length+'), inclusive fora da iniciativa.'))await enviar('descanso',{periodo:k,atores});return;}
   if(k==='reanimar-corpo'){
     const ator=$('reanimar-corpo').value,conjuradorId=$('reanimar-conjurador').value;
-    if(await confirma('Reanimar este corpo?','O corpo será transformado imediatamente. O conjurador deve estar a até 3 m e possuir os componentes. Consome uma ação em combate e um espaço de 3º círculo.'))await enviar('reanimarCorpo',{ator,conjuradorId,confirmado:true});return;
+    if(!await confirma('Reanimar este corpo?','O corpo será transformado imediatamente. O conjurador deve estar a até 3 m e possuir os componentes. Consome uma ação em combate e um espaço de 3º círculo.'))return;
+    const intencao={tipo:'reanimarCorpo',ator,conjuradorId,confirmado:true,atividadeId:crypto.randomUUID()},revisao=await api.enviar({tipo:'revisarUso',intencao});
+    if(revisao?.resultado==='confirmar'&&await confirma('Confirmar uso e gasto?',textoRevisaoUso(revisao)))await enviar('reanimarCorpo',{...intencao,confirmacaoUso:aceitarRevisaoUso(revisao)});else if(revisao?.resultado!=='confirmar')aviso(textoRevisaoUso(revisao));return;
   }
   if(k==='rito-adaga'){
     const [ator,itemId]=$('rito-adaga').value.split('|'),resultado=$('rito-resultado').value,[aguaAtorId,aguaItemId]=$('rito-agua').value.split('|');
@@ -534,6 +538,7 @@ async function executar(k){
       await enviar(k,extra);
     }return;
   }
+  if(emSala&&k==='usar'&&acao==='gastar-dado-de-vida'){const canal=await canalHud();canal.postMessage({tipo:'abrirDescanso'});setTimeout(()=>canal.close(),100);aviso('Escolha os Dados de Vida na janela de descanso da mesa.');return;}
   const o=opcaoPorId(a,acao);
   let detalhe=k==='usar'?(o.descricao??o.nome):a.nome;
   if(k==='mover')detalhe='Percorrer '+Math.hypot(num('x')-a.x,num('y')-a.y).toFixed(2)+' m.';
@@ -548,6 +553,16 @@ async function executar(k){
   const args={confirmado:substitui};
   if(k==='usar')Object.assign(args,{parametros:Object.fromEntries([...document.querySelectorAll('[data-prototipo-parametro]')].map(e=>[e.dataset.prototipoParametro,e.value])),opcao:acao,alvo:multi(o)?undefined:alvo,alvos:multi(o)?[...alvos]:undefined,ponto:{x:num('cx'),y:num('cy')},ajuste:num('ajuste'),modo:$('rolagem').value,assistido:!o.automacao});
   if(k==='mover')Object.assign(args,{x:num('x'),y:num('y')});
+  if(k==='usar'){
+    const intencao={tipo:k,ator:escolhido,rev:s.rev,atividadeId:crypto.randomUUID(),...args};args.atividadeId=intencao.atividadeId;
+    const revisao=await api.enviar({tipo:'revisarUso',comoJogador:testar,intencao});
+    if(revisao&&revisao.resultado!=='permitir'){
+      const titulo=revisao.resultado==='confirmar'?'Confirmar uso e gasto?':'Confira o contexto desta habilidade';
+      if(!await confirma(titulo,textoRevisaoUso(revisao),false,revisao.resultado==='confirmar'))return;
+      if(revisao.resultado!=='confirmar'){aviso('Use a rolagem, reação ou escolha indicada. Nenhum recurso gasto.');return;}
+      args.confirmacaoUso=aceitarRevisaoUso(revisao);
+    }
+  }
   await enviar(k,args);
 }
 async function tarefa(fn){if(ocupado)return;ocupado=true;aviso('');try{await fn();}catch(e){aviso(e.message);}finally{ocupado=false;}}
@@ -671,7 +686,7 @@ $('app').addEventListener('toggle',e=>{
  if(id)e.target.open?gruposAbertos.add(id):gruposAbertos.delete(id);
 },true);
 try{
- const grupos=await fetch('./grupos-fichas.json?v=0.8.82');
+ const grupos=await fetch('./grupos-fichas.json?v=0.8.83');
  if(!grupos.ok)throw Error('Falha ao carregar os grupos de fichas.');
  gruposFichas=(await grupos.json()).grupos;
  catalogo=await conteudoConfigurado();api=await (emSala?sala:demo)(view);api.notify().catch(falhaConexao);

@@ -5,7 +5,7 @@ export class AtividadesMesa{
  acao(p,{propria=false,remetenteId}={}){
   if(!p?.id||this.descartadas.has(p.id))return;
   const a=this.obter(p.id);if(!a.ativa||a.execucao&&['Concluída','Cancelada','Falhou'].includes(a.execucao.estado))return a;
-  Object.assign(a,{acao:structuredClone(p),atorId:p.atorId,titulo:p.titulo,remetenteId:remetenteId??a.remetenteId,atualizadaEm:this.agora()});if(p.rolagem)a.executada=true;
+  Object.assign(a,{acao:structuredClone(p),atorId:p.atorId,titulo:p.titulo,remetenteId:remetenteId??a.remetenteId,atualizadaEm:this.agora()});if(p.rolagem)a.executada=true;else if(!a.execucao)a.estado=p.verificandoUso?'Aguardando confirmação de uso':'Preparando';
   if(propria&&this.propria!==a.id){this.anterior=this.selecionada;this.propria=a.id;this.pausada=false;this.manualHistorico=false;this.atenderFila=false;this.selecionada=a.id;}
   this.aparar();return a;
  }
@@ -22,8 +22,16 @@ export class AtividadesMesa{
   if(!a.acao&&a.rolagens.every(r=>r.fechada)){a.ativa=false;a.estado='Concluída';}
   this.aparar();return a;
  }
+ descansos(s){
+  for(const ator of s.atores){const p=ator.ficha.tipo==='pj'&&ator.descansoVida;if(!p)continue;
+   const a=this.obter(p.participacaoId);a.descansoVida=true;a.atorId=ator.id;a.titulo='Descanso curto · '+ator.nome;a.executada=true;
+   if(!a.execucao||['Concluída','Cancelada','Falhou'].includes(a.execucao.estado)){a.ativa=p.estado==='pendente';a.estado=({pendente:'Aguardando escolha',concluido:'Concluído',dispensado:'Dispensado'})[p.estado];}
+   if(p.resultado)a.aplicacao={cura:p.resultado.curaAplicada,total:0,alvos:[]};
+  }
+ }
  execucao(e){
-  const a=this.obter(e.atividadeId??e.id);if(a.execucao?.versao>e.versao)return a;
+  const a=this.obter(e.atividadeId??e.id);if(a.execucao?.id===e.id&&a.execucao.versao>e.versao)return a;
+  if(e.descansoVida){a.descansoVida=true;if(e.descansoVida.resultado)a.aplicacao={cura:e.descansoVida.resultado.curaAplicada,total:0,alvos:[]};}
   if(e.acao&&!a.acao)a.acao=structuredClone(e.acao);
   Object.assign(a,{...(e.atividadeOrigemId?{atividadeOrigemId:e.atividadeOrigemId}:{}),execucao:structuredClone(e),execucaoId:e.id,atorId:e.atorId,titulo:e.titulo,estado:e.estado,executada:true,ativa:!['Concluída','Cancelada','Falhou'].includes(e.estado),atualizadaEm:this.agora()});
   for(const p of e.pedidos??[])if(p.concluido&&p.tipo!=='salvaguarda'&&!a.rolagens.some(r=>r.pedido===p.pedido)&&p.resultado)a.rolagens.push({pedido:p.pedido,tipo:'resultado',meta:{tipo:p.tipo,titulo:p.titulo},resultado:structuredClone(p.resultado),fechada:true});
@@ -61,5 +69,5 @@ export class AtividadesMesa{
   const rascunhos=[...this.lista.values()].filter(a=>!a.executada&&a.id!==this.propria);while(rascunhos.length>128)this.lista.delete(rascunhos.shift().id);
   while(this.descartadas.size>128)this.descartadas.delete(this.descartadas.values().next().value);
  }
- vista(){this.aparar();return [...this.lista.values()].filter(a=>a.executada).sort((a,b)=>b.ordem-a.ordem).map(a=>structuredClone(a));}
+ vista(){this.aparar();return [...this.lista.values()].filter(a=>a.executada||a.acao?.verificandoUso).sort((a,b)=>b.ordem-a.ordem).map(a=>structuredClone(a));}
 }

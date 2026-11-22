@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';
-import {novo,adicionar,aplicar,opcoesDisponiveis,planoCustoOpcao,validar,atualizarMagias} from './site/engine.mjs';
+import {novo,adicionar,opcoesDisponiveis,planoCustoOpcao,validar,atualizarMagias} from './site/engine.mjs';
+import {aplicar} from './test-helpers/acao-confirmada.mjs';
 import {compactarFicha} from './site/catalog.mjs';
 const player={id:'p',role:'PLAYER'};
 async function mesa(){let s=novo();const a=adicionar(s,JSON.parse(await fs.readFile('site/fichas/loteria.json','utf8'))),b=adicionar(s,JSON.parse(await fs.readFile('site/fichas/soldado.json','utf8'))),c=adicionar(s,JSON.parse(await fs.readFile('site/fichas/soldado.json','utf8')));a.dono='p';s.fase='turnos';s.rodada=1;s.vez=0;s.ordem=[a.id,b.id,c.id];for(const p of [a,b,c]){p.acao=1;p.bonus=1;p.x=p===a?0:1;p.y=0;p.pv=200;p.ficha.pvMaximos=200;}return {s,a,b,c};}

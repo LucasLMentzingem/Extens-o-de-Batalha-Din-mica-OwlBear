@@ -1,15 +1,17 @@
-import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.82';
-import {primeiroContato} from './zonas.mjs?v=0.8.82';
-import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.82';
-export {dentroDaArea} from './target-geometry.mjs?v=0.8.82';
-import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.82';
-import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.82';
-import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.82';
-import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.82';
-import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.82';
+import {adaptarComandoVida,abrirRecuperacao,conferirParticipacao,selecionarDados,concluirRecuperacao,configurarDadosVida} from './rest-recovery.mjs?v=0.8.83';
+import {planejarMovimentoDinamico,custoTrajeto} from './dynamic-movement.mjs?v=0.8.83';
+import {avaliarRevisaoUso,validarAceiteUso} from './skill-use-review.mjs?v=0.8.83';
+import {primeiroContato} from './zonas.mjs?v=0.8.83';
+import {distanciaAoAlvo,raioAlvo,centroAlvo,dentroDaArea} from './target-geometry.mjs?v=0.8.83';
+export {dentroDaArea} from './target-geometry.mjs?v=0.8.83';
+import {aplicarRelatorioDano,defesasDanoDoAtor,resolverDano,resumoAlvoDano} from './damage.mjs?v=0.8.83';
+import {parcelasPorFonte} from './roll-sources.mjs?v=0.8.83';
+import {idDoEstado,agoraDoEstado} from './execution-identity.mjs?v=0.8.83';
+import {pontoNaZona,terrenoDificilDasZonas,entradasNaTrajetoria} from './zonas.mjs?v=0.8.83';
+import {resolverFicha,resolverLoja,lojasCatalogo,resolverInstanciaItem,compactarInstanciaItem,compactarFicha,definicaoHabilidade,definicaoItem} from './catalog.mjs?v=0.8.83';
 
-import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao} from './prototipos-cemiterio.mjs?v=0.8.82';
-import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.82';
+import {validarPrototipo,executarPrototipo,avancarConjuracao,modosPrototipo,protegidoContra,imunePorProtecao,componentesPrototipo} from './prototipos-cemiterio.mjs?v=0.8.83';
+import {modeloReanimacao,sobreporMortoVivo,removerSobreposicao} from './substituicao-ficha.mjs?v=0.8.83';
 
 export const atributos = ['for','des','con','int','sab','car'];
 export const LIMITE_ALCANCE_M = 18;
@@ -605,6 +607,7 @@ export function validar(f) {
   for(const r of f.recursos) exigir(nomeOK(r.nome)&&inteiro(r.maximo,0,9999)&&inteiro(r.saldoInicial,0,r.maximo),'Saldo inválido em '+r.id);
   for(const o of f.opcoes) {
     exigir(nomeOK(o.nome),'Opção sem nome.');
+    if(o.revisaoUso)exigir(['assistida','hibrida','automatica','informativa','contextual'].includes(o.revisaoUso.tipo)&&typeof o.revisaoUso.parteManual==='string'&&o.revisaoUso.parteManual.length<=2000&&(o.revisaoUso.tipo!=='contextual'||['acerto','rolagem','conjuracao','iniciativa','reacao'].includes(o.revisaoUso.contexto)),'Cobertura de uso inválida em '+o.id);
     for(const c of o.custo??[]) exigir(['acao','bonus','reacao','recurso'].includes(c.tipo) && inteiro(c.quantidade,1,999) && (c.tipo!=='recurso'||f.recursos.some(r=>r.id===c.id)), 'Custo inválido em '+o.id);
     if(o.gatilho==='apos_acerto'){
       const p=o.aprimoramento;
@@ -1399,7 +1402,7 @@ export function escolhasDeDescanso(a,periodo){
     return {id:grupo+'-'+periodo,nome,grupoExclusivo:grupo,periodo,opcoes:opcoes.map(x=>({id:x.id,nome:x.nome.replace(/^\(Habilitado\)\s*/,'').replace(/\s*\|.*$/,'')})),atualId:opcoes.find(x=>x.ativa!==false)?.id??null};
   }).filter(e=>e.opcoes.length>1);
 }
-function validarRequisitosUso(s,a,o,alvo){
+function validarRequisitosUso(s,a,o,alvo,consumir=true){
   const r=o.requisitosUso;if(!r)return;
   if(s.fase==='preparo'&&o.geradaPorItem&&o.automacao?.tipo==='ataque')return;
   const ataques=a.eventosTurno?.ataques??[],acertos=a.eventosTurno?.acertos??[],anterior=[...(r.aposAcerto?acertos:ataques)].at(-1);
@@ -1418,7 +1421,37 @@ function validarRequisitosUso(s,a,o,alvo){
   if(r.distanciaDoAlvoAnteriorM!==undefined){const antigo=s.atores.find(x=>x.id===anterior?.alvo);exigir(antigo&&alvo&&distanciaAoAlvo(antigo,alvo)<=r.distanciaDoAlvoAnteriorM+1e-8,'O novo alvo está longe demais do alvo anterior.');}
   if(r.somenteNoProprioTurno)exigir(s.fase!=='turnos'||atual(s)?.id===a.id,'Esta habilidade só pode ser usada no seu próprio turno.');
   if(r.alvoNaoAtacadoNoTurno)exigir(alvo&&!ataques.some(e=>e.alvo===alvo.id),'Escolha uma criatura que você ainda não atacou neste turno.');
-  if(r.umaVezPorTurno)a.usosTurno[r.umaVezPorTurno]=true;
+  if(r.umaVezPorTurno&&consumir)a.usosTurno[r.umaVezPorTurno]=true;
+}
+function intencaoReanimacao(s,c){
+  const origem=s.atores.find(x=>x.id===c.conjuradorId),magia=origem?.ficha.opcoes.find(o=>o.reanimacao===true);
+  return magia?{tipo:'usar',rev:s.rev,ator:origem.id,opcao:magia.id,alvo:c.ator,circuloUsado:Number(c.circulo??3),atividadeId:c.atividadeId,confirmado:true,confirmacaoUso:c.confirmacaoUso}:null;
+}
+export function avaliarUsoHabilidade(s,c,u){
+  s=structuredClone(s);
+  if(c.tipo==='reanimarCorpo'){c=intencaoReanimacao(s,c);if(!c)return null;}
+  if(!['usar','reagir'].includes(c.tipo))return null;
+  const a=s.atores.find(x=>x.id===c.ator),base=a&&opcoesDisponiveis(a).find(x=>x.id===c.opcao);
+  if(!a||!base)return null;
+  const o=derivarOpcaoCirculo(a,base,c.circuloUsado,{magiaDuplicada:c.magiaDuplicada===true});
+  if(o.custo?.some(x=>x.tipo==='reacao'))c={...c,tipo:'reagir'};
+  let requisitosErro;try{validarRequisitosUso(s,a,o,s.atores.find(x=>x.id===(c.alvo??c.alvos?.[0]??c.composicao?.[0]?.alvoId)),false);}catch(e){requisitosErro=e.message;}
+  if(!requisitosErro&&!c.movimentoDinamico)try{validarPlanoAntesDoCusto(s,a,o,o.automacao,c);}catch(e){requisitosErro=e.message;}
+  if(o.id==='astucia-magica-acao'&&a.recuperacaoMagica)requisitosErro='Há uma recuperação em andamento. Aguarde o minuto ou cancele-a.';
+  return avaliarRevisaoUso({s,a,o,c,u,plano:planoCustoOpcao(a,o,c.modoCusto??'automatico',c.composicao),componentes:componentesPrototipo(a,o),requisitosErro,disponivel:opcaoDisponivel(a,o),restricoes:restricoesAtivas(a),pvMaximo:pvMaximosAtuais(a)});
+}
+function limparRecuperacaoMagica(a){delete a.recuperacaoMagica;a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>!e.recuperacaoMagica);}
+function avancarRecuperacaoMagica(a,segundos){
+  const p=a.recuperacaoMagica;if(!p)return '';
+  if(a.pv<=0){limparRecuperacaoMagica(a);return a.nome+' interrompeu a recuperação; recursos preservados.';}
+  p.restanteSegundos-=segundos;
+  for(const e of a.efeitosAtivos??[])if(e.recuperacaoMagica)e.descricao='Restam '+Math.max(0,p.restanteSegundos)+' s. Avance o tempo ou cancele a recuperação.';
+  if(p.restanteSegundos>0)return '';
+  const o=opcoesDisponiveis(a).find(x=>x.id===p.opcaoId),plano=o&&planoCustoOpcao(a,o);
+  if(!o||!opcaoDisponivel(a,o)||!plano||plano.custos.some(c=>c.tipo!=='recurso'||(a.rec[c.id]??0)<c.quantidade)){limparRecuperacaoMagica(a);return a.nome+' não concluiu a recuperação: recurso ou habilidade indisponível.';}
+  for(const c of plano.custos)a.rec[c.id]-=c.quantidade;
+  for(const [id,q] of Object.entries(o.automacao?.recuperarQuantidades??{})){const r=a.ficha.recursos.find(x=>x.id===id);if(r)a.rec[id]=Math.min(r.maximo,(a.rec[id]??0)+q);}
+  limparRecuperacaoMagica(a);return a.nome+' concluiu um minuto de Astúcia Mágica; uso gasto e espaço recuperado.';
 }
 const usaArmadura=a=>{
   const itens=a?.ficha?.inventario?.itens;
@@ -1727,6 +1760,20 @@ export function cancelarMovimentoDinamico(s,id,motivo='Movimento dinâmico cance
  const next=terminarDinamica(s,motivo);if(next.movimentoPendente?.ator===next.acaoDinamica.ator){delete next.movimentoPendente;delete next.reacaoPendente;}return next;
 }
 export async function aplicar(s,c,u,rolar,contextoExecucao=null){
+ const aceite=c.confirmacaoUso?.id,a=s.atores.find(x=>x.id===c.ator),declaracao=['usar','reagir'].includes(c.tipo);
+ if(aceite&&declaracao)exigir(!(a?.confirmacoesUso??[]).includes(aceite),'Esta confirmação de uso já foi aplicada.');
+ const next=await aplicarInterno(s,c,u,rolar,contextoExecucao);
+ if(aceite&&declaracao){const ator=next.atores.find(x=>x.id===c.ator);if(ator)ator.confirmacoesUso=[aceite,...(ator.confirmacoesUso??[])].slice(0,32);}
+ return next;
+}
+async function aplicarInterno(s,c,u,rolar,contextoExecucao=null){
+ c=adaptarComandoVida(s,c);
+ if(['usar','reagir'].includes(c.tipo)){
+  const a=s.atores.find(x=>x.id===c.ator);exigir(a&&(u.role==='GM'||a.dono===u.id&&(a.ficha.tipo==='pj'||a.invocacao?.controlavel)),'Você não controla esse personagem.');
+  const o=opcoesDisponiveis(a).find(x=>x.id===c.opcao);
+  if(o?.custo?.some(x=>x.tipo==='reacao'))c={...c,tipo:'reagir'};
+  const revisao=avaliarUsoHabilidade(s,c,u);if(revisao)validarAceiteUso(revisao,c.confirmacaoUso);
+ }
  if(c.tipo!=='continuarDinamico'&&!(c.movimentoDinamico===true&&['usar','mover'].includes(c.tipo)))return retomarComposicao(await aplicarBase(s,c,u,rolar,contextoExecucao),rolar,contextoExecucao);
  exigir(c.rev===s.rev,'O encontro mudou. Confira a jogada.');
  const a=s.atores.find(x=>x.id===c.ator);exigir(a&&(u.role==='GM'||a.dono===u.id&&(a.ficha.tipo==='pj'||a.invocacao?.controlavel)),'Você não controla esse personagem.');
@@ -1844,7 +1891,8 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
   const verificarSantuario=async(origem,alvo)=>{const e=alvo.efeitosAtivos?.find(e=>e.santuarioCD);return !e||(await rolarD20(origem.ficha.salvaguardas?.sab??mod(origem.ficha.atributos.sab),origem,{tipo:'salvaguarda',atributo:'sab',cd:e.santuarioCD,titulo:'Santuário · '+alvo.nome})).total>=e.santuarioCD;};
   const apiPrototipo={resultado,rolarD20,dano:(...args)=>aplicarDanoNoAtor(...args),curar:curarAtor,caAtual,pvMaximos:pvMaximosAtuais,encerrarConcentracao,modeloReanimacao,santuario:verificarSantuario,abrirReacao:(...args)=>abrirReacaoPreventiva(s,...args),registrarEspaco:(ator,custos)=>registrarEspacoNoTurno(s,ator,custos),
     sobrepor:(alvo,origem)=>sobreporMortoVivo(s,alvo,origem,{validar,compactarFicha,encerrarConcentracao}),
-    descansoCurto:p=>{for(const recurso of p.ficha.recursos)for(const regra of recurso.recuperacao??[])if(regra.evento==='descanso_curto')p.rec[recurso.id]=regra.modo==='completar'?recurso.maximo:Math.min(recurso.maximo,(p.rec[recurso.id]??0)+(regra.quantidade??1));p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.removeEm!=='descanso_curto');}
+    abrirRecuperacaoDescanso:alvos=>{const sessaoId=idDoEstado(s);for(const p of alvos){abrirRecuperacao(p,{sessaoId,participacaoId:idDoEstado(s),origem:'prece',agora:agoraDoEstado(s),maximo:pvMaximosAtuais(p)});if(p.ficha.tipo==='pj'&&p.pv>0)p.descansoCurtoAtivo={id:sessaoId,x:p.x,y:p.y};}},
+    descansoCurto:p=>{if(p.ficha.tipo==='pj'&&p.pv>0)p.descansoCurtoAtivo={id:idDoEstado(s),x:p.x,y:p.y};for(const recurso of p.ficha.recursos)for(const regra of recurso.recuperacao??[])if(regra.evento==='descanso_curto')p.rec[recurso.id]=regra.modo==='completar'?recurso.maximo:Math.min(recurso.maximo,(p.rec[recurso.id]??0)+(regra.quantidade??1));p.efeitosAtivos=(p.efeitosAtivos??[]).filter(e=>e.removeEm!=='descanso_curto');}
   };
   const resolverMorte=async p=>{
     const comando=c;
@@ -1978,7 +2026,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
   exigir(c.rev===s.rev,'O encontro mudou. Confira o turno e tente novamente.');
   const a=s.atores.find(x=>x.id===c.ator);
   const gm=u.role==='GM';
-  if(['removerSobreposicaoFicha','reanimarCorpo','transformarAdagaMissao','exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','excluirFichaGrupo','excluirGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
+  if(['configurarDadosVida','reabrirDescanso','removerSobreposicaoFicha','reanimarCorpo','transformarAdagaMissao','exemplo','grupoTeste','adicionar','adicionarGrupo','salvarGrupoFichas','excluirFichaGrupo','excluirGrupoFichas','vincular','iniciar','iniciativas','encerrar','descanso','avancarTempo','remover','alternarCombate','definirRecurso','ordenarIniciativa','configurarLoja','gmAdicionarItem','gmAdicionarPo','gmExcluirItem','amanhecer','configurarRecipiente','criarRecipiente','recipienteAdicionarItem','recipienteAdicionarPo','recipienteExcluirItem'].includes(c.tipo)) exigir(gm,'Somente o mestre.');
   else {
     exigir(a && (gm || ((a.ficha.tipo==='pj'||a.invocacao?.controlavel) && a.dono===u.id)),'Você não controla esse personagem.');
     if(gm && a.ficha.tipo==='pj') exigir(c.confirmado,'Confirme a ação em nome do jogador.');
@@ -2002,7 +2050,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
       exigir(distanciaAoAlvo(a,origem)<=3+1e-8,'O corpo está a mais de 3 m.');
       const magia=origem.ficha.opcoes.find(o=>o.reanimacao===true);
       exigir(magia&&opcaoPreparada(origem.ficha,magia),'O conjurador não tem Animar Mortos preparado.');
-      return aplicar(s,{tipo:'usar',rev:s.rev,ator:origem.id,opcao:magia.id,alvo:a.id,circuloUsado:Number(c.circulo??3),confirmado:true},u,rolar,contextoExecucao);
+      return aplicar(s,intencaoReanimacao(s,c),u,rolar,contextoExecucao);
     }
     case 'transformarAdagaMissao': {
       const i=a?.ficha.inventario.itens.find(i=>i.id===c.itemId);
@@ -2282,7 +2330,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
     case 'iniciar':
       exigir(s.fase==='preparo' && ativos(s).length>=2 && ativos(s).filter(x=>x.pv>0).length>=1 && ativos(s).every(x=>x.pv>0||x.ficha.tipo==='pj'),'Inclua pelo menos dois participantes no combate (só PJs podem começar a 0 PV).'); // #12 PJ caído pode entrar
       {const canceladas=s.comercio.trocas.length;s.comercio.trocas=[];s.fase='iniciativa';s.pvp=c.pvp===true;s.atores.forEach(x=>{
-        x.init=null;delete x.reacaoIniciativa;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.usosPorTurno;delete x.escolhasDescanso; // escolha não feita até o combate mantém a opção atual
+        x.init=null;delete x.reacaoIniciativa;delete x.jaAgiuNoCombate;delete x.reforcoAdiantado;delete x.usosPorTurno;delete x.escolhasDescanso;delete x.descansoCurtoAtivo;if(x.descansoVida?.estado==='pendente')Object.assign(x.descansoVida,{estado:'dispensado',motivo:'Combate iniciado'});limparRecuperacaoMagica(x); // escolha não feita até o combate mantém a opção atual
         if(x.emCombate!==false)for(const r of x.ficha.recursos)if(r.recuperacao?.some(v=>v.evento==='inicio_combate'&&v.modo==='completar'))x.rec[r.id]=r.maximo;
       });msg='Rolem iniciativa.'+(canceladas?' '+canceladas+' troca(s) em andamento foram canceladas.':'');}break;
     case 'iniciativa':
@@ -2647,17 +2695,41 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
     }
     case 'reagir': {
       const o=opcoesDisponiveis(a).find(o=>o.id===c.opcao && o.custo?.some(v=>v.tipo==='reacao'));
-      exigir(s.fase==='turnos'&&a.pv>0&&o,'Reação indisponível.');
+      const exploracao=s.fase==='preparo'&&!o?.gatilho&&!o?.automacao;
+      exigir((s.fase==='turnos'||exploracao)&&a.pv>0&&o,'Reação indisponível.');
       exigir(o.gatilho!=='ser_atingido','Use esta habilidade na janela automática de reação ao acerto.');
       exigir(!o.reanimacao,'Use Reanimar corpo em Controle de fichas após um minuto de conjuração; esse comando cobra o espaço.');
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico');
       exigir(plano&&custosDisponiveis(a,o,c.modoCusto??'automatico'),'Saldo insuficiente para reagir.');registrarEspacoNoTurno(s,a,plano.custos);
       for(const v of plano.custos){
+        if(exploracao&&v.tipo!=='recurso')continue;
         const bag=v.tipo==='recurso'?a.rec:a,key=v.tipo==='recurso'?v.id:v.tipo;
         exigir(bag[key]>=v.quantidade,'Saldo insuficiente para reagir.');bag[key]-=v.quantidade;
       }
       msg=a.nome+' • '+o.nome+' (gatilho e efeito conferidos pela mesa)';break;
     }
+    case 'configurarDadosVida':
+      exigir(a?.ficha.tipo==='pj','Escolha um personagem jogador.');configurarDadosVida(a,c.dados);msg='Distribuição dos Dados de Vida de '+a.nome+' conferida pelo mestre.';break;
+    case 'reabrirDescanso': {
+      exigir(s.fase==='preparo'&&a?.descansoVida&&a.descansoVida.estado!=='pendente','Resolva a participação atual antes de reabrir.');
+      exigir(a.descansoCurtoAtivo?.id===a.descansoVida.sessaoId,'Este descanso já terminou. Conceda um novo descanso curto.');
+      abrirRecuperacao(a,{sessaoId:a.descansoVida.sessaoId,participacaoId:idDoEstado(s),origem:a.descansoVida.origem,agora:agoraDoEstado(s),maximo:pvMaximosAtuais(a)});msg='Escolha reaberta para '+a.nome+'; recursos não foram restaurados.';break;
+    }
+    case 'dispensarDescanso': {
+      const p=conferirParticipacao(s,a,c);p.estado='dispensado';p.motivo=gm?'Dispensado pelo mestre':'Não gastar';p.concluidaEm=agoraDoEstado(s);msg=a.nome+' não gastou Dados de Vida.';break;
+    }
+    case 'recuperarDescanso': {
+      conferirParticipacao(s,a,c);
+      exigir(a.pv>0&&a.estadoVida!=='morto'&&a.pv<pvMaximosAtuais(a),'O personagem precisa estar vivo, com ao menos 1 PV e ferido.');
+      exigir(a.descansoCurtoAtivo?.id===a.descansoVida.sessaoId,'Este descanso já terminou.');
+      exigir(Math.hypot(a.x-a.descansoCurtoAtivo.x,a.y-a.descansoCurtoAtivo.y)<1e-6,'O descanso terminou por deslocamento posterior.');
+      const plano=selecionarDados(a,c.dados),con=mod(a.ficha.atributos.con);
+      const resultados=await resultadoLote(plano.formulas,{tipo:'descanso_curto',titulo:'Descanso curto · '+a.nome,atorRespondenteId:a.id,roladorNome:a.nome,destinoId:u.id,lancarImediato:true,concluirAutomaticamente:true,unidadeResultado:'no dado',instancias:plano.formulas.map((f,i)=>({titulo:'Dado de Vida '+(i+1)+' · '+f})),constituicao:con,sessaoDescansoId:c.sessaoId,participacaoDescansoId:c.participacaoId});
+      const r=concluirRecuperacao(a,plano,resultados,{con,curar:curarAtor,agora:agoraDoEstado(s)});
+      msg=a.nome+' gastou '+r.dadosGastos+' Dado(s) de Vida: '+r.curaRolada+' PV rolados, '+r.curaAplicada+' PV recuperados ('+a.pv+'/'+pvMaximosAtuais(a)+').';break;
+    }
+    case 'cancelarRecuperacaoMagica':
+      exigir(a.recuperacaoMagica,'Não há recuperação em andamento.');limparRecuperacaoMagica(a);msg=a.nome+' cancelou a recuperação; nenhum recurso gasto.';break;
     case 'encerrar':
       delete s.reacaoPendente;delete s.movimentoPendente;delete s.resolucaoPendente;s.filaReacoes=[];
       s.pvp=false;
@@ -2682,6 +2754,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
         processarDuracoes(s,ator,'inicio_turno');
         processarDuracoes(s,ator,'fim_turno');
         const texto=await avancarConjuracao(s,ator,6,apiPrototipo);if(texto)msg+=' • '+texto;
+        const recuperacao=avancarRecuperacaoMagica(ator,6);if(recuperacao)msg+=' • '+recuperacao;
       }
       for(const ator of s.atores){
         if(ator.bencao){
@@ -2716,7 +2789,14 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
     case 'descanso':
       exigir(s.fase==='preparo' && ['curto','longo'].includes(c.periodo),'Escolha um descanso fora do combate.');
       exigir(c.atores===undefined||Array.isArray(c.atores)&&c.atores.every(id=>s.atores.some(x=>x.id===id)),'Personagens do descanso inválidos.');
-      for(const p of atoresElegiveisDescanso(s,c.atores)){ // #12 descanso só de quem foi escolhido
+      if(c.sessaoId&&s.ultimoDescanso?.id===c.sessaoId){msg='Descanso já concedido.';break;}
+      const participantesDescanso=atoresElegiveisDescanso(s,c.atores);
+      exigir(c.periodo==='longo'||!s.atores.some(p=>p.descansoVida?.estado==='pendente'),'Resolva ou dispense as recuperações pendentes antes de conceder outro descanso curto.');
+      const sessaoDescansoId=c.sessaoId??idDoEstado(s);s.ultimoDescanso={id:sessaoDescansoId,periodo:c.periodo};
+      for(const p of participantesDescanso){ // #12 descanso só de quem foi escolhido
+        limparRecuperacaoMagica(p);
+        if(c.periodo==='curto'&&p.pv>0)p.descansoCurtoAtivo={id:sessaoDescansoId,x:p.x,y:p.y};else delete p.descansoCurtoAtivo;
+        if(c.periodo==='longo'){delete p.saldosDadosVida;if(p.descansoVida?.estado==='pendente')Object.assign(p.descansoVida,{estado:'dispensado',motivo:'Descanso longo'});}
         // #25 O descanso longo também aplica tudo que um descanso curto recuperaria.
         const eventosDescanso=c.periodo==='longo'?['descanso_curto','descanso_longo']:['descanso_curto'];
         for(const r of p.ficha.recursos){
@@ -2728,6 +2808,7 @@ async function aplicarBase(s,c,u,rolar,contextoExecucao=null) {
         sincronizarAuxilio(p);
         if(c.periodo==='longo'||!p.efeitosAtivos.some(e=>e.concentracaoId===p.concentracaoAtiva?.id))encerrarConcentracao(s,p,'descanso '+c.periodo);
         if(c.periodo==='longo'){p.pv=pvMaximosAtuais(p);p.pvTemporarios=0;p.estadoVida='consciente';p.salvaguardasMorte={sucessos:0,falhas:0};}else p.pv=Math.min(p.pv,pvMaximosAtuais(p));
+        if(c.periodo==='curto')abrirRecuperacao(p,{sessaoId:sessaoDescansoId,participacaoId:idDoEstado(s),agora:agoraDoEstado(s),maximo:pvMaximosAtuais(p)});
         const escolhas=escolhasDeDescanso(p,c.periodo);
         if(escolhas.length)p.escolhasDescanso=[...(p.escolhasDescanso??[]).filter(e=>!escolhas.some(x=>x.grupoExclusivo===e.grupoExclusivo)),...escolhas];
       }
@@ -2789,6 +2870,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       exigir(a.pv>0,'Personagem a 0 PV.');
       if(c.tipo==='mover')exigir(!restricoesAtivas(a).imovel,'O personagem está impedido de se mover.');
       if(c.tipo==='mover'){
+        delete a.descansoCurtoAtivo;if(a.descansoVida?.estado==='pendente')Object.assign(a.descansoVida,{estado:'dispensado',motivo:'Deslocamento após o descanso'});limparRecuperacaoMagica(a);
         exigir(Number.isFinite(c.x)&&Number.isFinite(c.y),'Destino inválido.');
         // #23 Levantar-se do Caído custa metade do deslocamento (livro 2024).
         let levantou='';
@@ -2811,6 +2893,8 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       exigir(!a.conjuracaoLonga,'Conjuração longa em curso. Mantenha a ação a cada turno ou encerre a concentração.');
       const retomada=c.retomadaId?s.continuacaoComposicao:null;exigir(!c.retomadaId||retomada?.id===c.retomadaId,'Sequência pausada inválida.');if(retomada)delete s.continuacaoComposicao;
       const oBase=opcaoDeclarada;exigir(oBase,'Opção desconhecida.');exigir(opcaoDisponivel(a,oBase),'Esta habilidade exige preparo, ativação ou equipamento adequado.');
+      if(oBase.id!=='gastar-dado-de-vida'){delete a.descansoCurtoAtivo;if(a.descansoVida?.estado==='pendente')Object.assign(a.descansoVida,{estado:'dispensado',motivo:'Outra ação após o descanso'});}
+      if(a.recuperacaoMagica)throw Error('Cancele ou conclua a recuperação em andamento antes de agir.');
       let o=derivarOpcaoCirculo(a,oBase,c.circuloUsado,{magiaDuplicada:c.magiaDuplicada===true});
       if(o.composicao?.tipo==='efeito'){
         const entradas=c.composicao;
@@ -2838,6 +2922,13 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
       // #10 O jogador pode declarar uma opção assistida: gasta o custo, registra no histórico e o mestre arbitra o efeito.
       exigir(rule || c.assistido,'Opção assistida. Confirme para declarar e deixar o efeito com o mestre.');
       validarPlanoAntesDoCusto(s,a,o,rule,c);
+      if(!rule)validarRequisitosUso(s,a,o,s.atores.find(x=>x.id===c.alvo));
+      if(o.id==='astucia-magica-acao'){
+        exigir(!a.recuperacaoMagica,'Já há uma recuperação em andamento.');
+        a.recuperacaoMagica={id:idDoEstado(s),opcaoId:o.id,restanteSegundos:60};
+        (a.efeitosAtivos??=[]).push({id:a.recuperacaoMagica.id,nome:'Astúcia Mágica · recuperando',tipo:'neutro',recuperacaoMagica:true,descricao:'Restam 60 s. Avance o tempo ou cancele a recuperação.'});
+        msg=a.nome+' iniciou um minuto de Astúcia Mágica. Nenhum uso ou espaço alterado ainda.';break;
+      }
       const plano=planoCustoOpcao(a,o,c.modoCusto??'automatico',c.composicao??(o.composicao?.custosPorModo?[{modoId:o.composicao.modoPadrao}]:undefined));
       exigir(plano,c.modoCusto==='gratuito'?'Esta habilidade não possui uso gratuito.':'Custo da habilidade inválido.');
       if(!retomada&&!o.naoConjura&&!rule?.tempoSegundos)registrarEspacoNoTurno(s,a,plano.custos); // converter espaço em pontos (Fonte de Magia) não é conjurar
@@ -2857,7 +2948,7 @@ msg+=a.nome+' encerrou o turno.'+(pulados.length?' Pulado (0 PV): '+pulados.join
         a.saqueAberto=r?{id:idDoEstado(s),nome:r.nome,origem:{tipo:r.tipo,id:r.id},itens:structuredClone(r.itens)}:{id:idDoEstado(s),alvoId:c.alvo,origem:{tipo:'personagem',id:c.alvo}};
         msg+=' • escolha os pertences para levar.';break;
       }
-      if(!rule){msg+=gm?' (resolução pelo mestre)':' (declarado; o mestre resolve o efeito)';break;}
+      if(!rule){msg+=' (declarada e custo registrado; efeito com o mestre)';break;}
       if(rule.tipo==='efeito_conjuracao'){
         a.efeitosAtivos=(a.efeitosAtivos??[]).filter(e=>e.id!==o.id);
         a.efeitosAtivos.push({id:o.id,nome:o.nome,turnos:rule.turnos,duracao:{restante:rule.turnos,expira:'inicio_alvo'},origem:rule.origem,origemAtorId:a.id,concentracaoId:concentracaoId??undefined,bonusCD:rule.bonusCD,vantagemAtaque:rule.vantagemAtaque===true});

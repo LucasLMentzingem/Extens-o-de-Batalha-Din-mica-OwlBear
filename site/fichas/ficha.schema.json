@@ -607,6 +607,7 @@
           },
           "required": ["recursoId"]
         },
+        "revisaoUso": {"type":"object","properties":{"tipo":{"enum":["assistida","hibrida","automatica","informativa","contextual"]},"parteManual":{"type":"string","maxLength":2000},"contexto":{"enum":["acerto","rolagem","conjuracao","iniciativa","reacao"]}},"required":["tipo","parteManual"]},
         "requisitosUso": {
           "type": "object",
           "properties": {

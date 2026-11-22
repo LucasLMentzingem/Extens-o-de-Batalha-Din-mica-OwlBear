@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {novo,adicionar,aplicar,opcoesDisponiveis,validar} from './site/engine.mjs';
+import {novo,adicionar,opcoesDisponiveis,validar} from './site/engine.mjs';
+import {aplicar} from './test-helpers/acao-confirmada.mjs';
 import {compactarEstado,compactarFicha} from './site/catalog.mjs';
 import {livroHabilidades} from './site/ficha-view.mjs';
 

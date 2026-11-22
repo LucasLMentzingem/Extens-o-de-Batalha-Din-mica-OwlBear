@@ -1,6 +1,6 @@
 # Descanso curto — recuperação paralela por Dados de Vida
 
-Arquitetura e decisões aprovadas em 21/11/2026. Registro para implementação futura; não altera o comportamento atual. O responsável pediu guardar este plano e priorizar o atraso ao expandir o rodapé pelo retrato.
+Arquitetura e decisões aprovadas em 21/11/2026. Implementada localmente em 22/11/2026 após autorização; ainda sem publicação. [Implementação, migração, testes e limites de retomada](IMPLEMENTACAO-DESCANSO-CURTO-DADOS-DE-VIDA-2026-11-22.md). O texto abaixo preserva o plano aprovado.
 
 ## Fluxo aprovado
 

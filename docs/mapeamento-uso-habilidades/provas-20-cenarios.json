@@ -1,0 +1,697 @@
+[
+  {
+    "id": "P01-mao-dolo-avulsa",
+    "arquivo": "site/fichas/loteria.json",
+    "habilidade": "Mão de Dolo",
+    "opcao": "mao-de-dolo-21",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "mao-de-dolo-21",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "id": "pontos-de-foco",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "pontos-de-foco": 3,
+      "metabolismo-incomum": 1,
+      "pico-de-adrenalina": 2,
+      "vigor-implacavel": 1,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "pontos-de-foco": 2,
+      "metabolismo-incomum": 1,
+      "pico-de-adrenalina": 2,
+      "vigor-implacavel": 1,
+      "dados-de-vida": 3
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 21,
+    "pvDepois": 21,
+    "rolagens": [],
+    "historico": [
+      "Loteria • Mão de Dolo (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P02-manobra-avulsa",
+    "arquivo": "site/fichas/draven-thorne.json",
+    "habilidade": "Ataque Prostrador",
+    "opcao": "manobra-prostrar",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "manobra-prostrar",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "id": "dados-de-superioridade",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "dados-de-superioridade": 4,
+      "recuperar-folego": 2,
+      "surto-de-acao": 1,
+      "queimadura-de-fogo": 2,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "dados-de-superioridade": 3,
+      "recuperar-folego": 2,
+      "surto-de-acao": 1,
+      "queimadura-de-fogo": 2,
+      "dados-de-vida": 3
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 28,
+    "pvDepois": 28,
+    "rolagens": [],
+    "historico": [
+      "Draven Thorne • Ataque Prostrador (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P03-saraivada-avulsa",
+    "arquivo": "site/fichas/zurich.json",
+    "habilidade": "1º | Saraivada de Espinhos",
+    "opcao": "1-saraivada-de-espinhos-26",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "1-saraivada-de-espinhos-26",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "bonus",
+        "quantidade": 1
+      },
+      {
+        "tipo": "recurso",
+        "id": "espaco-1",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "passos-largos-da-linhagem": 1,
+      "espaco-1": 3,
+      "marca-do-predador": 2,
+      "palavra-curativa-do-talento": 1,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "passos-largos-da-linhagem": 1,
+      "espaco-1": 2,
+      "marca-do-predador": 2,
+      "palavra-curativa-do-talento": 1,
+      "dados-de-vida": 3
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 28,
+    "pvDepois": 28,
+    "rolagens": [],
+    "historico": [
+      "Zurich • 1º | Saraivada de Espinhos (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P04-rerrolagem-avulsa",
+    "arquivo": "site/fichas/nikki.json",
+    "habilidade": "Magia Potencializada | ao rolar dano",
+    "opcao": "ec6fb8a2-8918-5243-815c-641dcc25c382",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "ec6fb8a2-8918-5243-815c-641dcc25c382",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "quantidade": 1,
+        "id": "feiticaria"
+      }
+    ],
+    "recAntes": {
+      "feiticaria": 3,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "inata": 2,
+      "repreensao": 1,
+      "dv": 3,
+      "passo-nebuloso-gratis": 1
+    },
+    "recDepois": {
+      "feiticaria": 2,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "inata": 2,
+      "repreensao": 1,
+      "dv": 3,
+      "passo-nebuloso-gratis": 1
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 20,
+    "pvDepois": 20,
+    "rolagens": [],
+    "historico": [
+      "Nikki Lauda • Magia Potencializada | ao rolar dano (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P05-sorte-avulsa",
+    "arquivo": "site/fichas/skimi.json",
+    "habilidade": "Ponto de Sorte",
+    "opcao": "ponto-sorte-rerrolagem",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "ponto-sorte-rerrolagem",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "id": "pontos-de-sorte",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "espaco-2": 2,
+      "astucia-magica": 1,
+      "pontos-de-sorte": 2,
+      "dados-de-vida": 3,
+      "inspiracao-heroica": 1
+    },
+    "recDepois": {
+      "espaco-2": 2,
+      "astucia-magica": 1,
+      "pontos-de-sorte": 1,
+      "dados-de-vida": 3,
+      "inspiracao-heroica": 1
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 24,
+    "pvDepois": 24,
+    "rolagens": [],
+    "historico": [
+      "Skimi • Ponto de Sorte (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P06-constritor-sem-acerto",
+    "arquivo": "site/fichas/dragoberto.json",
+    "habilidade": "1º | Golpe Constritor",
+    "opcao": "1-golpe-constritor-26",
+    "aceito": false,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "1-golpe-constritor-26",
+      "assistido": false
+    },
+    "erro": "Use esta habilidade somente depois de acertar um ataque neste turno.",
+    "rolagens": []
+  },
+  {
+    "id": "P07-golpe-comando-sem-acerto",
+    "arquivo": "site/fichas/reino-comandante-4.json",
+    "habilidade": "Golpe de comando — 1 vez por combate",
+    "opcao": "reino-comandante-4-habilidade-4",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "reino-comandante-4-habilidade-4",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "id": "golpe-comando",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "reposicionar": 3,
+      "golpe-comando": 1
+    },
+    "recDepois": {
+      "reposicionar": 3,
+      "golpe-comando": 0
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 42,
+    "pvDepois": 42,
+    "rolagens": [],
+    "historico": [
+      "Comandante do Reino · nível 4 • Golpe de comando — 1 vez por combate (resolução pelo mestre)"
+    ]
+  },
+  {
+    "id": "P08-repreensao-manual",
+    "arquivo": "site/fichas/nikki.json",
+    "habilidade": "1º | Repreensão Diabólica · reação · salva de DES · infernal",
+    "opcao": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
+    "aceito": true,
+    "comando": {
+      "tipo": "reagir",
+      "opcao": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
+      "assistido": false
+    },
+    "custo": [
+      {
+        "tipo": "reacao",
+        "quantidade": 1
+      },
+      {
+        "tipo": "recurso",
+        "quantidade": 1,
+        "id": "espaco-1"
+      }
+    ],
+    "recAntes": {
+      "feiticaria": 3,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "inata": 2,
+      "repreensao": 1,
+      "dv": 3,
+      "passo-nebuloso-gratis": 1
+    },
+    "recDepois": {
+      "feiticaria": 3,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "inata": 2,
+      "repreensao": 0,
+      "dv": 3,
+      "passo-nebuloso-gratis": 1
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 0,
+    "pvAntes": 20,
+    "pvDepois": 20,
+    "rolagens": [],
+    "historico": [
+      "Nikki Lauda • 1º | Repreensão Diabólica · reação · salva de DES · infernal (gatilho e efeito conferidos pela mesa)"
+    ]
+  },
+  {
+    "id": "P09-oportunidade-manual",
+    "arquivo": "site/fichas/zurich.json",
+    "habilidade": "Ataque de oportunidade | reação",
+    "opcao": "ataque-de-oportunidade-reacao-17",
+    "aceito": true,
+    "comando": {
+      "tipo": "reagir",
+      "opcao": "ataque-de-oportunidade-reacao-17",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "reacao",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "passos-largos-da-linhagem": 1,
+      "espaco-1": 3,
+      "marca-do-predador": 2,
+      "palavra-curativa-do-talento": 1,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "passos-largos-da-linhagem": 1,
+      "espaco-1": 3,
+      "marca-do-predador": 2,
+      "palavra-curativa-do-talento": 1,
+      "dados-de-vida": 3
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 0,
+    "pvAntes": 28,
+    "pvDepois": 28,
+    "rolagens": [],
+    "historico": [
+      "Zurich • Ataque de oportunidade | reação (gatilho e efeito conferidos pela mesa)"
+    ]
+  },
+  {
+    "id": "P10-escudo-manual",
+    "arquivo": "site/downloads/fichas-prototipo-0.8.58/drow-necromante-6.json",
+    "habilidade": "Escudo Arcano",
+    "opcao": "escudo-arcano",
+    "aceito": false,
+    "comando": {
+      "tipo": "reagir",
+      "opcao": "escudo-arcano",
+      "assistido": false
+    },
+    "erro": "Use esta habilidade na janela automática de reação ao acerto.",
+    "rolagens": []
+  },
+  {
+    "id": "P11-queda-suave-fora-combate",
+    "arquivo": "site/fichas/nikki.json",
+    "habilidade": "1º | Queda Suave · reação · classe",
+    "opcao": "1cb80c0f-ca47-5d69-a977-ca7f4b116555",
+    "aceito": false,
+    "comando": {
+      "tipo": "reagir",
+      "opcao": "1cb80c0f-ca47-5d69-a977-ca7f4b116555",
+      "assistido": true
+    },
+    "erro": "Reação indisponível.",
+    "rolagens": []
+  },
+  {
+    "id": "P12-dv-sem-descanso",
+    "arquivo": "site/fichas/loteria.json",
+    "habilidade": "Gastar Dado de Vida",
+    "opcao": "gastar-dado-de-vida",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "gastar-dado-de-vida",
+      "assistido": false
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "id": "dados-de-vida",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "pontos-de-foco": 3,
+      "metabolismo-incomum": 1,
+      "pico-de-adrenalina": 2,
+      "vigor-implacavel": 1,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "pontos-de-foco": 3,
+      "metabolismo-incomum": 1,
+      "pico-de-adrenalina": 2,
+      "vigor-implacavel": 1,
+      "dados-de-vida": 2
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 1,
+    "pvDepois": 6,
+    "rolagens": [
+      {
+        "formula": "1d8+1",
+        "tipo": "cura"
+      }
+    ],
+    "historico": [
+      "Loteria • Gastar Dado de Vida"
+    ]
+  },
+  {
+    "id": "P13-astucia-sem-espera",
+    "arquivo": "site/fichas/skimi.json",
+    "habilidade": "Astúcia Mágica",
+    "opcao": "astucia-magica-acao",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "astucia-magica-acao",
+      "assistido": false
+    },
+    "custo": [
+      {
+        "tipo": "recurso",
+        "id": "astucia-magica",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "espaco-2": 0,
+      "astucia-magica": 1,
+      "pontos-de-sorte": 2,
+      "dados-de-vida": 3,
+      "inspiracao-heroica": 1
+    },
+    "recDepois": {
+      "espaco-2": 1,
+      "astucia-magica": 0,
+      "pontos-de-sorte": 2,
+      "dados-de-vida": 3,
+      "inspiracao-heroica": 1
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 24,
+    "pvDepois": 24,
+    "rolagens": [],
+    "historico": [
+      "Skimi • Astúcia Mágica"
+    ]
+  },
+  {
+    "id": "P14-reflexos",
+    "arquivo": "site/fichas/hannah-montana.json",
+    "habilidade": "2º | Reflexos · Glamour, sempre",
+    "opcao": "2-reflexos-glamour-sempre-24",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "2-reflexos-glamour-sempre-24",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "acao",
+        "quantidade": 1
+      },
+      {
+        "tipo": "recurso",
+        "id": "espaco-2",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "inspiracao-de-bardo": 3,
+      "magia-fascinante": 1,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "passos-largos-da-linhagem": 1,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "inspiracao-de-bardo": 3,
+      "magia-fascinante": 1,
+      "espaco-1": 4,
+      "espaco-2": 1,
+      "passos-largos-da-linhagem": 1,
+      "dados-de-vida": 3
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 0,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 24,
+    "pvDepois": 24,
+    "rolagens": [],
+    "historico": [
+      "Hannah Montana • 2º | Reflexos · Glamour, sempre (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P15-ajudar",
+    "arquivo": "site/fichas/zurich.json",
+    "habilidade": "Ajudar | ação",
+    "opcao": "ajudar-acao-9",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "ajudar-acao-9",
+      "assistido": true
+    },
+    "custo": [
+      {
+        "tipo": "acao",
+        "quantidade": 1
+      }
+    ],
+    "recAntes": {
+      "passos-largos-da-linhagem": 1,
+      "espaco-1": 3,
+      "marca-do-predador": 2,
+      "palavra-curativa-do-talento": 1,
+      "dados-de-vida": 3
+    },
+    "recDepois": {
+      "passos-largos-da-linhagem": 1,
+      "espaco-1": 3,
+      "marca-do-predador": 2,
+      "palavra-curativa-do-talento": 1,
+      "dados-de-vida": 3
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 0,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 28,
+    "pvDepois": 28,
+    "rolagens": [],
+    "historico": [
+      "Zurich • Ajudar | ação (declarado; o mestre resolve o efeito)"
+    ]
+  },
+  {
+    "id": "P16-metabolismo-avulso",
+    "arquivo": "site/fichas/loteria.json",
+    "habilidade": "Metabolismo Incomum",
+    "opcao": "metabolismo-incomum-acao",
+    "aceito": false,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "metabolismo-incomum-acao",
+      "assistido": false
+    },
+    "erro": "Use esta habilidade somente na janela de Iniciativa.",
+    "rolagens": []
+  },
+  {
+    "id": "P17-segunda-arma-sem-ataque",
+    "arquivo": "site/fichas/skimi.json",
+    "habilidade": "Adaga +4 | ação bônus",
+    "opcao": "item-82ce2b66-29ce-4ca9-a248-7101d18d4b94-2-corpo_a_corpo",
+    "aceito": false,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "item-82ce2b66-29ce-4ca9-a248-7101d18d4b94-2-corpo_a_corpo",
+      "assistido": false
+    },
+    "erro": "Use esta habilidade somente depois de realizar um ataque neste turno.",
+    "rolagens": []
+  },
+  {
+    "id": "P18-conter-avanco-sem-acerto",
+    "arquivo": "site/fichas/reino-soldado-3.json",
+    "habilidade": "Conter avanço — 1 vez por turno",
+    "opcao": "reino-soldado-3-habilidade-4",
+    "aceito": true,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "reino-soldado-3-habilidade-4",
+      "assistido": true
+    },
+    "custo": [],
+    "recAntes": {},
+    "recDepois": {},
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 1,
+    "pvAntes": 24,
+    "pvDepois": 24,
+    "rolagens": [],
+    "historico": [
+      "Soldado do Reino · nível 3 • Conter avanço — 1 vez por turno (resolução pelo mestre)"
+    ]
+  },
+  {
+    "id": "P19-reacao-fora-do-proprio-turno",
+    "arquivo": "site/fichas/nikki.json",
+    "habilidade": "1º | Repreensão Diabólica · reação · salva de DES · infernal",
+    "opcao": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
+    "aceito": true,
+    "comando": {
+      "tipo": "reagir",
+      "opcao": "af0ac3c8-7d39-5ef0-97e9-25839f116262",
+      "assistido": false
+    },
+    "custo": [
+      {
+        "tipo": "reacao",
+        "quantidade": 1
+      },
+      {
+        "tipo": "recurso",
+        "quantidade": 1,
+        "id": "espaco-1"
+      }
+    ],
+    "recAntes": {
+      "feiticaria": 3,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "inata": 2,
+      "repreensao": 1,
+      "dv": 3,
+      "passo-nebuloso-gratis": 1
+    },
+    "recDepois": {
+      "feiticaria": 3,
+      "espaco-1": 4,
+      "espaco-2": 2,
+      "inata": 2,
+      "repreensao": 0,
+      "dv": 3,
+      "passo-nebuloso-gratis": 1
+    },
+    "acaoAntes": 1,
+    "acaoDepois": 1,
+    "reacaoAntes": 1,
+    "reacaoDepois": 0,
+    "pvAntes": 20,
+    "pvDepois": 20,
+    "rolagens": [],
+    "historico": [
+      "Nikki Lauda • 1º | Repreensão Diabólica · reação · salva de DES · infernal (gatilho e efeito conferidos pela mesa)"
+    ]
+  },
+  {
+    "id": "P20-astucia-em-combate",
+    "arquivo": "site/fichas/skimi.json",
+    "habilidade": "Astúcia Mágica",
+    "opcao": "astucia-magica-acao",
+    "aceito": false,
+    "comando": {
+      "tipo": "usar",
+      "opcao": "astucia-magica-acao",
+      "assistido": false
+    },
+    "erro": "Esta habilidade só pode ser usada fora de combate.",
+    "rolagens": []
+  }
+]

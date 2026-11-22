@@ -1,22 +1,25 @@
-import {chaveFavorito} from './hud-favorites.mjs?v=0.8.82';
-import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.82';
-import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.82';
-import {extrairGrupos} from './hud-parts.mjs?v=0.8.82';
-import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.82';
-import {renderizarEfeitosHud} from './effect-art.mjs?v=0.8.82';
-import {listarEfeitosHud} from './effect-state.mjs?v=0.8.82';
-import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.82';
-import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.82';
-import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.82';
-import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.82';
-import {pronto} from './bridge.mjs?v=0.8.82';
-import {canalHud} from './hud-controller.mjs?v=0.8.82';
-import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.82';
+import {renderizarDescanso} from './rest-ui.mjs?v=0.8.83';
+import {textoRevisaoUso} from './skill-use-review.mjs?v=0.8.83';
+import {chaveFavorito} from './hud-favorites.mjs?v=0.8.83';
+import {arteRecurso,chaveArteRecurso} from './resource-art.mjs?v=0.8.83';
+import {gradeRodape,larguraLinhaRecursos} from './hud-dock-layout.mjs?v=0.8.83';
+import {extrairGrupos} from './hud-parts.mjs?v=0.8.83';
+import {criarMedidoresHud} from './hud-measure.mjs?v=0.8.83';
+import {renderizarEfeitosHud} from './effect-art.mjs?v=0.8.83';
+import {listarEfeitosHud} from './effect-state.mjs?v=0.8.83';
+import {atualizarHtmlHud} from './hud-dom.mjs?v=0.8.83';
+import {detalhes,habilidadeRacial,nomePassiva,nomeRaca} from './ficha-view.mjs?v=0.8.83';
+import {opcoesDisponiveis,periciasPadrao,bonusPericia,mod,pvMaximosAtuais,deslocamentoMaximo,ordenarOpcoesRodape,opcaoPorId,planoCustoOpcao,usoGratuitoDisponivel,avancosMesa,circulosConjuracao,derivarOpcaoCirculo} from './engine.mjs?v=0.8.83';
+import {defesaAplica,infoTipoDano,normalizarDefesaDano} from './damage.mjs?v=0.8.83';
+import {pronto} from './bridge.mjs?v=0.8.83';
+import {canalHud} from './hud-controller.mjs?v=0.8.83';
+import {arteHabilidade,testeVisual,preencherBalaoHabilidade,opcaoConsumoItem} from './ability-art.mjs?v=0.8.83';
 const parametrosHud=new URL(location.href).searchParams,parte=parametrosHud.get('parte'),root=document.querySelector('#hud');
 const sessaoHud=parametrosHud.get('sessaoHud'),documentoHud=parametrosHud.get('documentoHud');
 const medicaoInterna=parametrosHud.get('medicaoInterna')==='1'&&['barra','ordem'].includes(parte);
 const agendarFrame=medicaoInterna?fn=>setTimeout(fn,16):requestAnimationFrame;
 const cancelarFrame=medicaoInterna?clearTimeout:cancelAnimationFrame;
+const selecoesDescanso={};
 let confirmacaoMesa=null;
 let filtroAtividades='todas',tipoAtividades='todas',confirmacaoExecucao=null,ultimoHtml='';
 let mesaRecolhida=localStorage.getItem('la-arte/mesa-recolhida')==='1';
@@ -185,15 +188,19 @@ function render(){
   const idsPendentes=new Set(iniciativasPendentes.map(x=>x.id));
   iniciativasSelecionadas=new Set([...iniciativasSelecionadas].filter(id=>idsPendentes.has(id)));
   let html='';
-  if(parte==='atividades'){
+  if(parte==='descanso'&&v.descanso){html=renderizarDescanso({atores:s.atores.filter(a=>v.descanso.atores.includes(a.id)),gm,imagens:v.imagens??{},recolhido:v.descanso.recolhido,enviando:v.descanso.enviando,execucoes:v.descanso.execucoes,selecoes:selecoesDescanso,pvMaximo:pvMaximosAtuais,con:a=>mod(a.ficha.atributos.con)});
+  }else if(parte==='revisao-uso'&&v.verificacaoUso){
+    const {id,revisao:r}=v.verificacaoUso;
+    html='<section class="verificacao-uso" role="dialog" aria-modal="true" aria-labelledby="titulo-verificacao"><header><h2 id="titulo-verificacao">'+esc(r.titulo)+'</h2><small>Segunda verificação · '+esc(r.resultado==='confirmar'?'confirme uso e gasto':r.resultado==='encaminhar'?'use a janela correta':r.resultado==='informar'?'informação da habilidade':'uso bloqueado')+'</small></header><div class="texto-verificacao">'+esc(textoRevisaoUso(r))+'</div><footer>'+btn('cancelarVerificacaoUso','Cancelar e voltar','autofocus')+(r.encaminhamento?btn('encaminharVerificacaoUso','Ir para Atividades'):'')+(r.resultado==='confirmar'?btn('aceitarVerificacaoUso','Confirmar uso e gasto','data-id="'+esc(id)+'" class="ouro"'):'')+'</footer></section>';
+  }else if(parte==='atividades'){
     const feed=v.atividades??{lista:[]},lista=feed.lista??[];
-    const pendenteUsuario=at=>at.ativa&&(at.rolagens.some(r=>!r.fechada&&r.destino===eu.id&&r.tipo!=='rolando')||gm&&at.execucao?.cancelamentoSolicitado);
+    const pendenteUsuario=at=>at.ativa&&(at.descansoVida&&(gm||s.atores.find(a=>a.id===at.atorId)?.dono===eu.id)||at.rolagens.some(r=>!r.fechada&&r.destino===eu.id&&r.tipo!=='rolando')||gm&&at.execucao?.cancelamentoSolicitado);
     const quantidade=lista.filter(pendenteUsuario).length;
     const alternar=btn('alternarAtividades','☷<small> '+quantidade+'</small>','class="alternar-atividades '+(quantidade?'pulsando':'')+'" aria-label="'+(feed.modo==='painel'?'Abrir atividades da mesa':'Fechar atividades da mesa')+'"');
     if(feed.modo==='painel')html=alternar;
     else{
       const ehSalvaguarda=at=>Boolean(at.atividadeOrigemId)||at.rolagens.some(r=>r.meta?.tipo==='salvaguarda');
-      const filtradas=lista.filter(at=>(filtroAtividades==='pendentes'?pendenteUsuario(at):filtroAtividades==='minhas'?at.execucao?.donoId===eu.id||at.id===feed.propria:filtroAtividades==='encerradas'?!at.ativa:true)&&(tipoAtividades==='todas'||ehSalvaguarda(at)===(tipoAtividades==='salvaguardas')));
+      const filtradas=lista.filter(at=>(filtroAtividades==='pendentes'?pendenteUsuario(at):filtroAtividades==='minhas'?at.execucao?.donoId===eu.id||at.id===feed.propria||at.descansoVida&&s.atores.find(a=>a.id===at.atorId)?.dono===eu.id:filtroAtividades==='encerradas'?!at.ativa:true)&&(tipoAtividades==='todas'||tipoAtividades==='descanso'?tipoAtividades==='todas'||!!at.descansoVida:!at.descansoVida&&ehSalvaguarda(at)===(tipoAtividades==='salvaguardas')));
       const cards=filtradas.map(at=>{
         const ator=s.atores.find(x=>x.id===at.atorId),f=ator?.ficha??{},salva=!!at.atividadeOrigemId,o=at.acao?.opcaoPublica??(salva?testeVisual('salvaguardas',at.rolagens[0]?.meta?.atributo??'des',0):{id:at.id,nome:at.titulo,categoria:'acao'});
         const pai=salva?lista.find(x=>x.id===at.atividadeOrigemId):null,resultados=at.rolagens.filter(r=>r.resultado);
@@ -203,9 +210,9 @@ function render(){
         const controla=gm||e?.donoId===eu.id,pedido=at.rolagens.find(r=>!r.fechada);
         const controles=at.ativa&&e?'<div class="controles-execucao">'+btn('selecionarAtividade','Retomar','data-id="'+esc(at.id)+'"')+(gm&&pedido?btn('assumirPedido','Assumir','data-id="'+esc(pedido.pedido)+'"'):'')+(controla?btn('pedirCancelarExecucao',e.cancelamentoSolicitado?'Cancelamento solicitado':'Cancelar ação','data-id="'+esc(e.id)+'" '+(e.cancelamentoSolicitado&&!gm?'disabled':'')):'')+'</div>':'';
         const confirmar=confirmacaoExecucao===e?.id?'<div class="confirmacao-execucao"><small>Encerrar esta jogada? Efeitos já aplicados permanecem.</small>'+btn('confirmarCancelarExecucao','Confirmar cancelamento','data-id="'+esc(e.id)+'"')+btn('desistirCancelarExecucao','Voltar')+'</div>':'';
-        return '<article class="cartao-atividade '+(pendenteUsuario(at)?'pendente-usuario ':'')+(feed.selecionada===at.id?'selecionada':'')+'"><button class="abrir-atividade" data-cmd="selecionarAtividade" data-id="'+esc(at.id)+'" data-info="'+esc(resumo)+'"><i class="token-atividade">'+(ator?retrato(ator):'<b>?</b>')+'</i><span class="icone-atividade">'+arteHabilidade(o,f)+'</span><span><strong>'+esc(at.titulo)+'</strong><small>'+esc(ator?.nome??'Participante')+' · '+esc(at.estado)+'</small>'+(salva?'<small>Resposta a '+esc(pai?.titulo??'uma ação da mesa')+'</small>':'')+(at.aplicacao?'<small>Dano aplicado: '+at.aplicacao.total+'</small>':'')+progresso+(e?.motivo?'<small>'+esc(e.motivo)+'</small>':'')+(e?.erro?'<small>'+esc(e.erro)+'</small>':'')+'</span></button>'+controles+confirmar+'</article>';
+        return '<article class="cartao-atividade '+(pendenteUsuario(at)?'pendente-usuario ':'')+(feed.selecionada===at.id?'selecionada':'')+'"><button class="abrir-atividade" data-cmd="selecionarAtividade" data-id="'+esc(at.id)+'" data-info="'+esc(resumo)+'"><i class="token-atividade">'+(ator?retrato(ator):'<b>?</b>')+'</i><span class="icone-atividade">'+arteHabilidade(o,f)+'</span><span><strong>'+esc(at.titulo)+'</strong><small>'+esc(ator?.nome??'Participante')+' · '+esc(at.estado)+'</small>'+(salva?'<small>Resposta a '+esc(pai?.titulo??'uma ação da mesa')+'</small>':'')+(at.aplicacao?'<small>'+(at.descansoVida?'Cura aplicada: '+at.aplicacao.cura:'Dano aplicado: '+at.aplicacao.total)+'</small>':'')+progresso+(e?.motivo?'<small>'+esc(e.motivo)+'</small>':'')+(e?.erro?'<small>'+esc(e.erro)+'</small>':'')+'</span></button>'+controles+confirmar+'</article>';
       }).join('');
-      html='<section class="gaveta-atividades"><header><strong>Atividades da mesa · '+quantidade+' pendentes</strong>'+btn('recolherAtividades','×','aria-label="Fechar gaveta e acompanhar ao vivo"')+'</header><nav aria-label="Estado das atividades">'+[['todas','Todas'],['pendentes','Para responder'],['minhas','Minhas'],['encerradas','Encerradas']].map(([id,label])=>btn('filtrarAtividades',label,'data-id="'+id+'" aria-pressed="'+(filtroAtividades===id)+'"')).join('')+'</nav><nav aria-label="Tipo de atividade">'+[['todas','Todos os tipos'],['salvaguardas','Salvaguardas'],['ataque','Ataque']].map(([id,label])=>btn('filtrarTipoAtividade',label,'data-id="'+id+'" aria-pressed="'+(tipoAtividades===id)+'"')).join('')+'</nav><div class="lista-atividades">'+(cards||'<p>Nenhuma atividade neste filtro.</p>')+'</div><footer>'+btn('fecharAtividade','Voltar ao vivo')+btn('restaurarJanelas','Restaurar janelas')+'</footer></section>';
+      html='<section class="gaveta-atividades"><header><strong>Atividades da mesa · '+quantidade+' pendentes</strong>'+btn('recolherAtividades','×','aria-label="Fechar gaveta e acompanhar ao vivo"')+'</header><nav aria-label="Estado das atividades">'+[['todas','Todas'],['pendentes','Para responder'],['minhas','Minhas'],['encerradas','Encerradas']].map(([id,label])=>btn('filtrarAtividades',label,'data-id="'+id+'" aria-pressed="'+(filtroAtividades===id)+'"')).join('')+'</nav><nav aria-label="Tipo de atividade">'+[['todas','Todos os tipos'],['salvaguardas','Salvaguardas'],['ataque','Ataque'],['descanso','Descanso curto']].map(([id,label])=>btn('filtrarTipoAtividade',label,'data-id="'+id+'" aria-pressed="'+(tipoAtividades===id)+'"')).join('')+'</nav><div class="lista-atividades">'+(cards||'<p>Nenhuma atividade neste filtro.</p>')+'</div><footer>'+btn('fecharAtividade','Voltar ao vivo')+btn('restaurarJanelas','Restaurar janelas')+'</footer></section>';
     }
   }else if(parte==='ordem'){
     const fora=s.fase==='preparo'||a?.emCombate===false;
@@ -367,17 +374,19 @@ function render(){
     html='<section class="dock flutuante" '+reserva+'><div class="dock-corpo"><aside><div class="retrato">'+retrato(a)+'</div><div class="pv"><i style="width:'+Math.max(0,Math.min(100,100*a.pv/pvMax))+'%"></i></div><b>'+a.pv+' / '+pvMax+' PV'+(a.pvTemporarios?' · +'+a.pvTemporarios+' temp.':'')+'</b>'+(a.pv<=0?'<small>'+esc(a.estadoVida??'inconsciente')+' · '+(a.salvaguardasMorte?.sucessos??0)+'✓ '+(a.salvaguardasMorte?.falhas??0)+'✕</small>':'')+'</aside><article><header><strong>'+esc(a.nome)+'</strong>'+'<nav class="atalhos-ficha" aria-label="Abrir páginas da ficha">'+btn('ficha','Ficha','data-pagina="personagem"')+btn('ficha','Inventário','data-pagina="inventario"')+btn('ficha','Livro de habilidades','data-pagina="habilidades"')+btn('focar','Token','data-id="'+esc(a.id)+'" '+(v.imagens?.[a.id]?'':'disabled')+' aria-label="Aproximar e centralizar o token de '+esc(a.nome)+'"')+'</nav></header>'+
       '<div class="topo-hud"><div class="recursos-hud">'+botoesRecursos+'</div><div class="ferramentas-hud">'+btn('alternarNomesSkills','Aa','class="alternar-nomes-skills" aria-label="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" title="'+(nomesSkillsVisiveis?'Ocultar':'Mostrar')+' nomes das habilidades e dos recursos" aria-pressed="'+nomesSkillsVisiveis+'"')+'<label>Linhas <select id="linhas">'+[1,2,3,4,5].map(n=>'<option '+(n===v.linhas?'selected':'')+'>'+n+'</option>').join('')+'</select></label>'+btn('filtro','Perícias','data-id="Perícias" aria-pressed="'+(filtro==='Perícias')+'"')+btn('filtro','Salva guarda','data-id="Salva guarda" aria-pressed="'+(filtro==='Salva guarda')+'"')+'</div></div>'+
       '<div class="centro-hud"><div class="grade '+(nomesSkillsVisiveis?'':'sem-nomes-skills')+'" style="--linhas:'+v.linhas+'">'+(conteudoGrade||'<span class="vazio-grade">'+(filtro==='Favoritos'?'Clique com o botão direito numa habilidade para adicioná-la aqui.':'Nenhuma habilidade neste filtro.')+'</span>')+'</div><div class="movimento-hud"><div class="barra-movimento"><i style="height:'+movPct+'%"></i></div>'+('<div class="movimento-botoes">'+btn('alternarMovimentoDinamico','Movimento dinâmico','class="alternar-movimento-dinamico" aria-pressed="'+Boolean(v.movimentoDinamico)+'" '+(s.fase==='turnos'?'':'disabled'))+(p?'<small>Ação aberta</small>':btn('mover','Mover',turno&&a.pv>0?'':'disabled'))+'</div>')+'<b>'+Number(a.metros.toFixed(2))+' m</b></div></div>'+
-      '<div class="filtros-hud"><div class="categorias-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+'</div>'+btn('passar','Finalizar turno','class="ouro finalizar-hud" '+(turno?'':'disabled'))+'</div></article></div></section>';
+      '<div class="filtros-hud"><div class="categorias-hud">'+filtros+(a.concentracaoAtiva?btn('encerrarConcentracao','Encerrar concentração','data-info="Encerra '+esc(a.concentracaoAtiva.nome)+' e todos os efeitos vinculados."'):'')+(a.recuperacaoMagica?btn('cancelarRecuperacaoMagica','Cancelar recuperação','data-info="'+esc('Restam '+a.recuperacaoMagica.restanteSegundos+' s. Nenhum recurso será gasto ao cancelar.')+'"'):'')+'</div>'+btn('passar','Finalizar turno','class="ouro finalizar-hud" '+(turno?'':'disabled'))+'</div></article></div></section>';
     }
   }
   const scroll=root.querySelector('.grade')?.scrollLeft??0;
+  const descansoScroll=root.querySelector('.participantes-descanso')?.scrollTop??0;
   const trilhoScroll=root.querySelector('.trilho-atividades')?.scrollLeft??0;
   if(html===ultimoHtml){agendarMedidaBarra();return;}
   const campo=document.activeElement,restaurar=campo&&root.contains(campo)&&campo.matches('input')?{id:campo.id,lote:campo.dataset.formulaLote,inicio:campo.selectionStart,fim:campo.selectionEnd}:null;
   if(parte==='efeitos'){const strip=root.querySelector('.efeitos-hud'),pos=strip?.scrollLeft??0;atualizarHtmlHud(root,html);const nova=root.querySelector('.efeitos-hud');if(nova)nova.scrollLeft=pos;if(dicaEfeitoAtual){const alvo=root.querySelector('.efeito-hud:hover')??(root.contains(document.activeElement)?document.activeElement.closest('.efeito-hud'):null);if(!alvo)ocultarDica();else if(alvo.dataset.info!==dicaEfeitoAtual){dicaEfeitoAtual=alvo.dataset.info;bus?.postMessage({tipo:'dicaEfeito',info:dicaEfeitoAtual});}}}
-  else{ocultarDica();root.innerHTML=html;}ultimoHtml=html;
+  else{ocultarDica();root.innerHTML=html;}ultimoHtml=html;if(parte==='revisao-uso')root.querySelector('[data-cmd="cancelarVerificacaoUso"]')?.focus();
   if(observerBarra){observerBarra.disconnect();observerBarra.observe(root);agendarMedidaBarra();}
   if(restaurar){const novo=restaurar.id?document.getElementById(restaurar.id):root.querySelector('[data-formula-lote="'+restaurar.lote+'"]');if(novo){novo.focus();if(restaurar.inicio!==null)novo.setSelectionRange(restaurar.inicio,restaurar.fim);}}
+  const descansoLista=root.querySelector('.participantes-descanso');if(descansoLista)descansoLista.scrollTop=descansoScroll;
   const trilho=root.querySelector('.trilho-atividades');if(trilho)trilho.scrollLeft=trilhoScroll;
   for(const el of root.querySelectorAll('[data-numero]')){
     const chave=el.dataset.numero,valor=el.dataset.valor,anterior=numerosAtividade.get(chave);numerosAtividade.set(chave,valor);
@@ -482,6 +491,11 @@ root.onclick=e=>{
   if(tipo==='selecionarIniciativa'){iniciativasSelecionadas.has(id)?iniciativasSelecionadas.delete(id):iniciativasSelecionadas.add(id);render();return;}
   if(tipo==='selecionarTodasIniciativas'){iniciativasSelecionadas=new Set(v.estado.atores.filter(x=>x.emCombate!==false&&x.init===null).map(x=>x.id));render();return;}
   if(tipo==='limparIniciativas'){iniciativasSelecionadas.clear();render();return;}
+  if(['recuperarDescanso','dispensarDescanso','reabrirDescanso','configurarDadosVida'].includes(tipo)){
+    const a=v.estado.atores.find(a=>a.id===b.dataset.ator),p=a?.descansoVida;if(!p)return;
+    const dados=Object.fromEntries([...b.closest('article').querySelectorAll('[data-dado-vida]')].map(el=>[el.dataset.dadoVida,Number(el.value)]));
+    bus.postMessage({tipo,ator:a.id,sessaoId:b.dataset.sessao,participacaoId:b.dataset.participacao,dados});return;
+  }
   const reacao=tipo==='resolverReacao';
   bus.postMessage({tipo,id,pagina:b.dataset.pagina,pendenciaId:tipo==='responderIniciativa'?v.reacaoIniciativa?.id:undefined,pedido:controleDado?v.pedidoDado?.pedido:undefined,etapaVersao:controleDado?v.pedidoDado?.etapaVersao:undefined,valor:b.dataset.valor,circuloUsado:b.dataset.circulo?Number(b.dataset.circulo):undefined,formula:document.querySelector('#formulaDado')?.value,formulas:[...document.querySelectorAll('[data-formula-lote]')].map(x=>x.value),recursosAtivos:[...adicionaisAtivos],atores:tipo==='iniciativas'?[...iniciativasSelecionadas]:undefined,ator:tipo==='iniciativa'?id:undefined,opcao:tipo==='usar'?id:reacao?id:undefined,itemId:tipo==='usarItem'?id:undefined,grupo:b.dataset.grupo,chave:b.dataset.chave,modoCusto:b.dataset.modoCusto,
     parametros:Object.fromEntries([...document.querySelectorAll('[data-prototipo-parametro]')].map(e=>[e.dataset.prototipoParametro,e.value])),rev:v.estado.rev,modo:document.querySelector(reacao?'#modoReacao':'#modo')?.value||'normal',
@@ -508,6 +522,7 @@ if(medicaoInterna)bus=new BroadcastChannel(parametrosHud.get('canalHud'));
 else{await pronto();bus=await canalHud();}
 const publicar=bus.postMessage.bind(bus);bus.postMessage=d=>publicar({...d,sessaoHud,documentoHud});
 const medidores=parte==='atividades'?criarMedidoresHud({document,canal:bus.name,sessaoHud,url:location.href}):null;
+document.addEventListener('keydown',e=>{if(parte==='revisao-uso'&&e.key==='Escape'){e.preventDefault();bus.postMessage({tipo:'cancelarVerificacaoUso'});}});
 let pressionado=false;const entrada=valor=>{if(pressionado===valor)return;pressionado=valor;bus.postMessage({entradaHud:parte,pressionado:valor});};
 const presenca=()=>bus.postMessage({presenca:parte,compacto:parte==='barra'?Boolean(root.querySelector('.compacta')):undefined});
 bus.onmessage=e=>{
@@ -526,3 +541,5 @@ const timerReacao=parte==='reacao'?setInterval(()=>{const p=v?.estado.reacaoPend
 window.addEventListener('pagehide',()=>{entrada(false);clearInterval(timerPresenca);clearInterval(timerReacao);observerBarra?.disconnect();cancelarFrame(medicaoBarraFrame);medidores?.fechar();bus.close();},{once:true});
 
 window.addEventListener('storage',e=>{if(e.key==='la-arte/nomes-skills'){nomesSkillsVisiveis=e.newValue!=='0';if(v)render();}});
+
+root.addEventListener('change',e=>{const el=e.target;if(!el.matches('[data-dado-vida]'))return;const p=el.dataset.participacao;(selecoesDescanso[p]??={})[el.dataset.dadoVida]=Number(el.value);render();});

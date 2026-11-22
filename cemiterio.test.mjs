@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {novo,adicionar,validar,aplicar,dadoLocal,caAtual,ataquesEquipados,opcoesDisponiveis,derivarOpcaoCirculo,publico,bonusIniciativa} from './site/engine.mjs';
+import {novo,adicionar,validar,dadoLocal,caAtual,ataquesEquipados,opcoesDisponiveis,derivarOpcaoCirculo,publico,bonusIniciativa} from './site/engine.mjs';
+import {aplicar} from './test-helpers/acao-confirmada.mjs';
 import {compactarEstado,compactarFicha,definicaoItem} from './site/catalog.mjs';
 const pasta=new URL('./conteudo/aventura-no-cemiterio/',import.meta.url);
 const fonte=n=>JSON.parse(fs.readFileSync(new URL(n+'.json',pasta)));

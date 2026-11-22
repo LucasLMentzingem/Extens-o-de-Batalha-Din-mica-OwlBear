@@ -1,4 +1,4 @@
-import {distanciaAoAlvo,centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.82';
+import {distanciaAoAlvo,centroAlvo,raioAlvo} from './target-geometry.mjs?v=0.8.83';
 // Protótipos explícitos: usam a mesma autoridade, transação e relógio do motor.
 export const modosPrototipo=new Set(['animar','enfraquecer','vampirico','taumaturgia','luz','santuario','detectar','protecao','prece','acalmar','dissipar','remover','auxilio','restauracao','revivificar','preservar','centelha','expulsar']);
 const normal=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -15,6 +15,7 @@ export function validarPrototipo(s,a,o,c,modeloReanimacao){
   assert(alvos?.length&&alvos.every(p=>p&&distanciaAoAlvo(a,p)<=r.alcanceM+1e-8),'Escolha alvos válidos ao alcance.');
   assert(new Set(ids).size===ids.length,'Escolha criaturas diferentes.');
   if(r.modo==='animar')assert(alvos.every(p=>p!==a&&modeloReanimacao(p)&&['pequeno','medio'].includes(p.ficha.tamanho??'medio')),'Escolha um humanoide morto Pequeno/Médio a 0 PV ou menos, ou goblin marcado da aventura. PJs devem estar mortos.');
+  if(r.modo==='prece')assert(!alvos.some(p=>p.descansoVida?.estado==='pendente'),'Resolva as recuperações pendentes antes de conceder outro descanso por Prece de Cura.');
   if(r.modo==='prece')assert(alvos.every(p=>p.estadoVida!=='morto'&&!p.efeitosAtivos?.some(e=>e.preceRecebida)),'Prece exige criaturas vivas que ainda não receberam esta magia desde o último descanso longo.');
   if(r.modo==='revivificar'){
     assert(alvos[0].estadoVida==='morto','Revivificar exige uma criatura morta.');
@@ -38,6 +39,10 @@ function componente(a,tipo){return a.ficha.inventario.itens.find(i=>i.quantidade
   ?(i.componenteMagico==='diamante'||normal(i.nome).includes('diamante'))&&Number(i.valorPo??i.precoPo??(i.preco?.moeda==='po'?i.preco.valor:0))>=300
   :i.componenteMagico==='protecao'||normal(i.nome)==='agua benta'||/po de prata e ferro/.test(normal(i.nome))));}
 function consumir(a,i){i.quantidade--;if(!i.quantidade)a.ficha.inventario.itens=a.ficha.inventario.itens.filter(x=>x!==i);}
+export function componentesPrototipo(a,o){
+  const modo=o.automacao?.modo,tipo=modo==='protecao'?'protecao':modo==='revivificar'?'diamante':null,i=tipo&&componente(a,tipo);
+  return i?[{id:i.id,nome:i.nome,quantidade:1,saldo:i.quantidade}]:[];
+}
 export async function executarPrototipo(s,a,o,c,api,{concentracaoId=null,concluindo=false}={}){
   const r=o.automacao,k=r.modo,circulo=o.circuloUsado??o.circuloBase??0,ids=o.selecao?c.alvos:r.pessoal?[a.id]:[c.alvo],alvos=ids.map(id=>s.atores.find(p=>p.id===id));
   const parametro=id=>c.parametros?.[id]??r.escolhas?.find(e=>e.id===id)?.valores[0].id;
@@ -87,6 +92,7 @@ export async function executarPrototipo(s,a,o,c,api,{concentracaoId=null,conclui
   if(k==='prece'){
     const valor=(await api.resultado((2+Math.max(0,circulo-2))+'d8+'+(4+Math.max(0,circulo-2)),{tipo:'cura',titulo:o.nome})).total;
     for(const p of alvos){api.descansoCurto(p);api.curar(p,valor);efeito(p,{preceRecebida:true,removeEm:'descanso_longo',duracao:undefined,descricao:'Já recebeu Prece de Cura; novo uso após descanso longo.'});}
+    api.abrirRecuperacaoDescanso(alvos);
     return 'descanso curto e cura '+valor+' para '+alvos.map(p=>p.nome).join(', ');
   }
   if(k==='acalmar'){

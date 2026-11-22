@@ -1,5 +1,6 @@
-import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.82';
-import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.82';
+import {adaptarComandoVida} from './rest-recovery.mjs?v=0.8.83';
+import {aplicar,validar,opcoesDisponiveis} from './engine.mjs?v=0.8.83';
+import {compactarEstado,compactarFicha} from './catalog.mjs?v=0.8.83';
 
 export const encerrada=e=>['Concluída','Cancelada','Falhou'].includes(e.estado);
 const clone=x=>structuredClone(x),igual=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -7,7 +8,7 @@ export const novoRegistroExecucoes=()=>({formato:1,versao:0,lista:[],bases:{},en
 export class PedidoDeRolagem extends Error{constructor(formula,meta,indice){super('Aguardando rolagem');Object.assign(this,{formula:clone(formula),meta:clone(meta),indice});}}
 export function recursosDaExecucao(s,c){
  if(c.movimentoDinamico===true)return ['mesa'];
- if(c.tipo==='teste')return ['ator:'+c.ator];
+ if(['recuperarDescanso','dispensarDescanso','reabrirDescanso','configurarDadosVida'].includes(c.tipo)||c.tipo==='teste'||c.tipo==='reagir'&&!s.reacaoPendente||c.tipo==='cancelarRecuperacaoMagica')return ['ator:'+c.ator];
  if(c.tipo!=='usar')return ['mesa'];
  const a=s.atores.find(x=>x.id===c.ator),o=a&&opcoesDisponiveis(a).find(x=>x.id===c.opcao);
  const alvos=[c.ator,c.alvo,...(c.alvos??[]),...(c.composicao??[]).map(x=>x.alvoId)].filter(Boolean);
@@ -25,7 +26,8 @@ export function admitirExecucao(registro,c,u,id,s,{agora=Date.now()}={}){
  if(registro.lista.filter(x=>!encerrada(x)).length>=256)throw Error('Há muitas jogadas pendentes. Encerre algumas antes de enviar outra.');
  const a=s.atores.find(x=>x.id===c.ator);
  if(u.role!=='GM'&&(!a||a.dono!==u.id||(a.ficha.tipo!=='pj'&&!a.invocacao?.controlavel)))throw Error('Você não controla esse personagem.');
- const e={id,atividadeId:c.atividadeId??id,usuario:{id:u.id,name:u.name,role:u.role},atorId:c.ator,intencao:{...clone(c),rev:undefined},comando:clone(c),recursos:recursosDaExecucao(s,c),estado:'Recebida',criadaEm:agora,versao:1,rolagens:[],ids:[],tempos:[]};
+ const comando=adaptarComandoVida(s,clone(c));
+ const e={id,atividadeId:c.atividadeId??id,usuario:{id:u.id,name:u.name,role:u.role},atorId:c.ator,intencao:{...clone(c),rev:undefined},comando,recursos:recursosDaExecucao(s,comando),estado:'Recebida',criadaEm:agora,versao:1,rolagens:[],ids:[],tempos:[]};
  if(c.movimentoDinamico===true)e.comando.movimentoDinamicoId=id;
  if(c.tipo==='resolverReacao'&&s.acaoDinamica&&s.reacaoPendente){e.paiDinamico=s.acaoDinamica.id;e.atividadeOrigemId=s.acaoDinamica.atividadeId;}
  registro.lista.push(e);registro.versao++;return e;
@@ -104,7 +106,7 @@ export function checkpointDinamico(registro,e,s){
 export function validarDependenciasExecucao(e,base,atual){
  for(const k of ['fase','rodada','vez','ordem'])if(!igual(base[k],atual[k]))throw Error('O turno mudou durante a execução. Confira a jogada antes de aplicar.');
  const ids=e.recursos.includes('mesa')?base.atores.map(a=>a.id):e.recursos.filter(x=>x.startsWith('ator:')).map(x=>x.slice(5));
- const campos=['dono','token','emCombate','pv','pvTemporarios','estadoVida','rec','acao','bonus','reacao','efeitosAtivos','concentracaoAtiva','bencao'];if(e.comando.tipo!=='teste')campos.push('x','y','hitbox');
+ const campos=['dono','token','emCombate','pv','pvTemporarios','estadoVida','rec','acao','bonus','reacao','efeitosAtivos','concentracaoAtiva','bencao','descansoVida','descansoCurtoAtivo','saldosDadosVida'];if(e.comando.tipo!=='teste')campos.push('x','y');if(!['teste','recuperarDescanso'].includes(e.comando.tipo))campos.push('hitbox');
  for(const id of ids){const a=base.atores.find(x=>x.id===id),b=atual.atores.find(x=>x.id===id);if(!a||!b)throw Error('Um participante da jogada foi removido.');
   for(const k of campos)if(!igual(a[k],b[k]))throw Error('Uma condição de '+a.nome+' mudou durante a jogada: '+k+'.');
   if(!igual(compactarFicha(a.ficha),compactarFicha(b.ficha)))throw Error('A ficha de '+a.nome+' mudou durante a jogada.');
@@ -137,5 +139,5 @@ export function resumoExecucao(e,s){
  const a=s.atores.find(x=>x.id===e.atorId),o=a&&(opcoesDisponiveis(a).find(x=>x.id===(e.intencao??e.comando).opcao)??(e.intencao?.movimentoDinamico?{id:'movimento-dinamico',nome:'Movimento dinâmico',categoria:'movimento',descricao:'Mover em linha reta até o destino selecionado.'}:null));
  const din=s.acaoDinamica?.id===e.id?s.acaoDinamica:null;
  const acao=e.intencao?.movimentoDinamico&&o?{id:e.atividadeId,atorId:e.atorId,titulo:o.nome,opcao:e.intencao.opcao,opcaoPublica:o,fichaPublica:{recursos:a.ficha.recursos},rolagem:true,somenteLeitura:true,detalhe:din?.motivo??e.motivo??'Movimento e habilidade em andamento.',custos:[{tipo:'movimento',nome:'Movimento (m)',quantidade:Number((din?.custoPrevisto??0).toFixed(2)),saldo:din?.saldoInicial??a.metros,maximo:a.metros}]}:null;
- return {acao,atividadeOrigemId:e.atividadeOrigemId,id:e.id,atividadeId:e.atividadeId,atorId:e.atorId,donoId:e.usuario.id,titulo:o?.nome??(e.comando.tipo==='teste'?'Teste · '+e.comando.chave:e.comando.tipo),estado:e.estado,versao:e.versao,criadaEm:e.criadaEm,encerradaEm:e.encerradaEm,erro:e.erro,motivo:e.motivo,cancelamentoSolicitado:e.cancelamentoSolicitado===true,pedidos:[...(e.diarioDinamico??[]),...e.rolagens].map(r=>({pedido:r.id,tipo:r.meta.tipo,titulo:r.meta.titulo,atorRespondenteId:r.meta.atorRespondenteId,destino:r.snapshot?.destino,concluido:!!r.resultado,resultado:r.resultado?{total:r.resultado.total,natural:r.resultado.natural,resumo:r.resultado.resumo,resultados:r.resultado.resultados?.map(x=>({total:x.total,natural:x.natural,resumo:x.resumo,fonteId:x.fonteId,fonteNome:x.fonteNome,tipoFonte:x.tipoFonte,formulaFonte:x.formulaFonte}))}:undefined}))};
+ return {acao,atividadeOrigemId:e.atividadeOrigemId,id:e.id,atividadeId:e.atividadeId,atorId:e.atorId,donoId:e.usuario.id,descansoVida:e.comando.tipo==='recuperarDescanso'?{sessaoId:e.comando.sessaoId,participacaoId:e.comando.participacaoId,resultado:e.resultadoDescanso}:undefined,titulo:e.comando.tipo==='recuperarDescanso'?'Descanso curto · '+a?.nome:o?.nome??(e.comando.tipo==='teste'?'Teste · '+e.comando.chave:e.comando.tipo),estado:e.estado,versao:e.versao,criadaEm:e.criadaEm,encerradaEm:e.encerradaEm,erro:e.erro,motivo:e.motivo,cancelamentoSolicitado:e.cancelamentoSolicitado===true,pedidos:[...(e.diarioDinamico??[]),...e.rolagens].map(r=>({pedido:r.id,tipo:r.meta.tipo,titulo:r.meta.titulo,atorRespondenteId:r.meta.atorRespondenteId,destino:r.snapshot?.destino,concluido:!!r.resultado,resultado:r.resultado?{total:r.resultado.total,natural:r.resultado.natural,resumo:r.resultado.resumo,resultados:r.resultado.resultados?.map(x=>({total:x.total,natural:x.natural,resumo:x.resumo,fonteId:x.fonteId,fonteNome:x.fonteNome,tipoFonte:x.tipoFonte,formulaFonte:x.formulaFonte}))}:undefined}))};
 }
